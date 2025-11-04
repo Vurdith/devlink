@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/server/auth-options";
 import { prisma } from "@/server/db";
 import { smartDiscoveryEngine } from "@/lib/smart-discovery-engine";
+import { responseCache } from "@/lib/cache";
 import { processScheduledPosts } from "@/app/api/posts/process-scheduled/route";
 
 export async function GET(request: NextRequest) {
@@ -24,53 +25,58 @@ export async function GET(request: NextRequest) {
     const limit = Math.min(parseInt(searchParams.get('limit') || '20'), 50); // Cap at 50
     const offset = parseInt(searchParams.get('offset') || '0');
 
-    // Fetch posts with pagination - OPTIMIZED: Only fetch what we need
-    const posts = await prisma.post.findMany({
-      where: { 
-        replyToId: null, // Only main posts, no replies
-        // Exclude scheduled future posts from general feeds
-        OR: [
-          { isScheduled: false },
-          { isScheduled: true, scheduledFor: { lte: new Date() } }
-        ]
-      },
-      take: limit,
-      skip: offset,
-      orderBy: { createdAt: 'desc' },
-      include: {
-        user: {
-          include: {
-            profile: true
-          }
+    // Generate cache key for this pagination
+    const cacheKey = `feed:posts:${limit}:${offset}`;
+
+    // Fetch posts with pagination - OPTIMIZED: Use cache to avoid repeated DB hits
+    const posts = await responseCache.getOrSet(cacheKey, async () => {
+      return await prisma.post.findMany({
+        where: { 
+          replyToId: null, // Only main posts, no replies
+          // Exclude scheduled future posts from general feeds
+          OR: [
+            { isScheduled: false },
+            { isScheduled: true, scheduledFor: { lte: new Date() } }
+          ]
         },
-        media: {
-          select: {
-            id: true,
-            mediaUrl: true,
-            mediaType: true,
-            order: true
-          }
-        },
-        poll: {
-          include: {
-            options: {
-              include: {
-                votes: {
-                  select: { id: true }
+        take: limit,
+        skip: offset,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          user: {
+            include: {
+              profile: true
+            }
+          },
+          media: {
+            select: {
+              id: true,
+              mediaUrl: true,
+              mediaType: true,
+              order: true
+            }
+          },
+          poll: {
+            include: {
+              options: {
+                include: {
+                  votes: {
+                    select: { id: true }
+                  }
                 }
               }
             }
-          }
-        },
-        _count: {
-          select: {
-            likes: true,
-            reposts: true,
-            replies: true,
-            views: true
+          },
+          _count: {
+            select: {
+              likes: true,
+              reposts: true,
+              replies: true,
+              views: true
+            }
           }
         }
-      }
+      });
     });
 
     // Get user engagement data for algorithm - OPTIMIZED: Single query instead of N+1
