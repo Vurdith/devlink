@@ -1,0 +1,156 @@
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/server/auth-options";
+import { prisma } from "@/server/db";
+import { NextResponse } from "next/server";
+
+// Create a new report
+export async function POST(req: Request) {
+  const session = await getServerSession(authOptions);
+  const currentUserId = (session?.user as any)?.id as string | undefined;
+  
+  if (!currentUserId) {
+    return new NextResponse("Unauthorized", { status: 401 });
+  }
+
+  try {
+    const body = await req.json();
+    const { reportType, description, evidence, targetUserId, postId } = body;
+
+    if (!reportType || !description) {
+      return new NextResponse("Missing required fields", { status: 400 });
+    }
+
+    // Validate report type
+    const validReportTypes = ["SCAM", "SPAM", "HARASSMENT", "FAKE_PROFILE", "INAPPROPRIATE_CONTENT", "OTHER"];
+    if (!validReportTypes.includes(reportType)) {
+      return new NextResponse("Invalid report type", { status: 400 });
+    }
+
+    // Check if user is reporting themselves
+    if (targetUserId && targetUserId === currentUserId) {
+      return new NextResponse("Cannot report yourself", { status: 400 });
+    }
+
+    // Check if user has already reported this target recently (within 24 hours)
+    const recentReport = await prisma.report.findFirst({
+      where: {
+        reporterId: currentUserId,
+        targetUserId: targetUserId || null,
+        postId: postId || null,
+        createdAt: {
+          gte: new Date(Date.now() - 24 * 60 * 60 * 1000) // 24 hours ago
+        }
+      }
+    });
+
+    if (recentReport) {
+      return new NextResponse("You have already reported this recently. Please wait before submitting another report.", { status: 429 });
+    }
+
+    // Create the report
+    const report = await prisma.report.create({
+      data: {
+        reporterId: currentUserId,
+        reportType,
+        description,
+        evidence: evidence || null,
+        targetUserId: targetUserId || null,
+        postId: postId || null,
+        status: "PENDING"
+      },
+      include: {
+        reporter: {
+          select: {
+            id: true,
+            username: true,
+            name: true
+          }
+        },
+        targetUser: {
+          select: {
+            id: true,
+            username: true,
+            name: true
+          }
+        }
+      }
+    });
+
+    return NextResponse.json(report);
+  } catch (error) {
+    console.error("Error creating report:", error);
+    return new NextResponse("Internal server error", { status: 500 });
+  }
+}
+
+// Get reports (admin only)
+export async function GET(req: Request) {
+  const session = await getServerSession(authOptions);
+  const currentUserId = (session?.user as any)?.id as string | undefined;
+  
+  if (!currentUserId) {
+    return new NextResponse("Unauthorized", { status: 401 });
+  }
+
+  // Check if user is admin (you can implement your own admin logic here)
+  const user = await prisma.user.findUnique({
+    where: { id: currentUserId },
+    select: { role: true }
+  });
+
+  if (user?.role !== "ADMIN") {
+    return new NextResponse("Forbidden", { status: 403 });
+  }
+
+  try {
+    const { searchParams } = new URL(req.url);
+    const status = searchParams.get("status");
+    const reportType = searchParams.get("reportType");
+    const page = parseInt(searchParams.get("page") || "1");
+    const limit = parseInt(searchParams.get("limit") || "20");
+    const offset = (page - 1) * limit;
+
+    const where: any = {};
+    if (status) where.status = status;
+    if (reportType) where.reportType = reportType;
+
+    const [reports, total] = await Promise.all([
+      prisma.report.findMany({
+        where,
+        include: {
+          reporter: {
+            select: {
+              id: true,
+              username: true,
+              name: true
+            }
+          },
+          targetUser: {
+            select: {
+              id: true,
+              username: true,
+              name: true
+            }
+          }
+        },
+        orderBy: { createdAt: "desc" },
+        skip: offset,
+        take: limit
+      }),
+      prisma.report.count({ where })
+    ]);
+
+    return NextResponse.json({
+      reports,
+      pagination: {
+        page,
+        limit,
+        total,
+        pages: Math.ceil(total / limit)
+      }
+    });
+  } catch (error) {
+    console.error("Error fetching reports:", error);
+    return new NextResponse("Internal server error", { status: 500 });
+  }
+}

@@ -1,0 +1,323 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String          @id @default(cuid())
+  email           String          @unique
+  username        String          @unique
+  name            String?
+  role            String          @default("DEVELOPER")
+  password        String?
+  emailVerified   DateTime?
+  image           String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  accounts        Account[]
+  sessions        Session[]
+  following       Follower[]      @relation("UserFollowers")
+  followers       Follower[]      @relation("UserFollowing")
+  pollVotes       PollVote[]
+  portfolioItems  PortfolioItem[]
+  posts           Post[]
+  likes           PostLike[]
+  reposts         PostRepost[]
+  views           PostView[]
+  profile         Profile?
+  reportsReceived Report[]        @relation("Reported")
+  reportsGiven    Report[]        @relation("Reporter")
+  reviewsReceived Review[]        @relation("Reviewed")
+  reviewsGiven    Review[]        @relation("Reviewer")
+  savedPosts      SavedPost[]
+  mentions        PostMention[]
+  passwordResetTokens PasswordResetToken[]
+  emailChangeTokens   EmailChangeToken[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Profile {
+  id           String   @id @default(cuid())
+  userId       String   @unique
+  bio          String?
+  rates        String?
+  bannerUrl    String?
+  avatarUrl    String?
+  location     String?
+  website      String?
+  profileType  String   @default("DEVELOPER")
+  themeColor   String?
+  availability String?
+  verified     Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Post {
+  id           String       @id @default(cuid())
+  userId       String
+  content      String
+  isPinned     Boolean      @default(false)
+  isSlideshow  Boolean      @default(false)
+  // Scheduling and enrichments
+  isScheduled  Boolean      @default(false)
+  scheduledFor DateTime?
+  location     String?
+  embedUrls    String?      // JSON string array of URLs
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  replyToId    String?
+  poll         Poll?
+  replyTo      Post?        @relation("PostReplies", fields: [replyToId], references: [id])
+  replies      Post[]       @relation("PostReplies")
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  likes        PostLike[]
+  reposts      PostRepost[]
+  views        PostView[]
+  reports      Report[]
+  savedBy      SavedPost[]
+  media        PostMedia[]
+  hashtags     PostHashtag[]
+  mentions     PostMention[]
+
+  @@index([userId])
+  @@index([createdAt])
+  @@index([replyToId])
+}
+
+model PostMedia {
+  id        String   @id @default(cuid())
+  postId    String
+  mediaUrl  String
+  mediaType String   // "image", "video", "gif"
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+}
+
+model PostLike {
+  id        String   @id @default(cuid())
+  postId    String
+  userId    String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId])
+}
+
+model PostRepost {
+  id        String   @id @default(cuid())
+  postId    String
+  userId    String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId])
+}
+
+model PostView {
+  id        String   @id @default(cuid())
+  postId    String
+  userId    String?
+  ipAddress String?
+  userAgent String?
+  viewedAt  DateTime @default(now())
+  user      User?    @relation(fields: [userId], references: [id])
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId])
+  @@index([postId])
+  @@index([userId])
+  @@index([viewedAt])
+}
+
+model SavedPost {
+  id        String   @id @default(cuid())
+  userId    String
+  postId    String
+  createdAt DateTime @default(now())
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId])
+}
+
+model PortfolioItem {
+  id          String   @id @default(cuid())
+  userId      String
+  title       String
+  description String?
+  mediaUrls   String?
+  links       String?
+  category    String?
+  tags        String?
+  isPublic    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Follower {
+  id          String   @id @default(cuid())
+  followerId  String
+  followingId String
+  createdAt   DateTime @default(now())
+  following   User     @relation("UserFollowing", fields: [followingId], references: [id], onDelete: Cascade)
+  follower    User     @relation("UserFollowers", fields: [followerId], references: [id], onDelete: Cascade)
+
+  @@unique([followerId, followingId])
+}
+
+model Review {
+  id         String   @id @default(cuid())
+  reviewerId String
+  reviewedId String
+  rating     Int
+  text       String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  reviewed   User     @relation("Reviewed", fields: [reviewedId], references: [id], onDelete: Cascade)
+  reviewer   User     @relation("Reviewer", fields: [reviewerId], references: [id], onDelete: Cascade)
+}
+
+model Report {
+  id           String    @id @default(cuid())
+  reporterId   String
+  targetUserId String?
+  postId       String?
+  reportType   String
+  description  String
+  evidence     String?
+  status       String    @default("PENDING")
+  adminNotes   String?
+  resolvedAt   DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  post         Post?     @relation(fields: [postId], references: [id])
+  targetUser   User?     @relation("Reported", fields: [targetUserId], references: [id])
+  reporter     User      @relation("Reporter", fields: [reporterId], references: [id], onDelete: Cascade)
+}
+
+model Poll {
+  id         String       @id @default(cuid())
+  postId     String       @unique
+  question   String
+  expiresAt  DateTime?
+  isMultiple Boolean      @default(false)
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+  post       Post         @relation(fields: [postId], references: [id], onDelete: Cascade)
+  options    PollOption[]
+  votes      PollVote[]
+}
+
+model PollOption {
+  id        String     @id @default(cuid())
+  pollId    String
+  text      String
+  createdAt DateTime   @default(now())
+  poll      Poll       @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  votes     PollVote[]
+}
+
+model PollVote {
+  id        String     @id @default(cuid())
+  pollId    String
+  optionId  String
+  userId    String
+  createdAt DateTime   @default(now())
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  option    PollOption @relation(fields: [optionId], references: [id], onDelete: Cascade)
+  poll      Poll       @relation(fields: [pollId], references: [id], onDelete: Cascade)
+
+  @@unique([pollId, userId, optionId])
+}
+
+model Hashtag {
+  id        String        @id @default(cuid())
+  name      String        @unique
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  posts     PostHashtag[]
+}
+
+model PostHashtag {
+  id        String   @id @default(cuid())
+  postId    String
+  hashtagId String
+  createdAt DateTime @default(now())
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  hashtag   Hashtag  @relation(fields: [hashtagId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, hashtagId])
+}
+
+model PostMention {
+  id        String   @id @default(cuid())
+  postId    String
+  userId    String
+  createdAt DateTime @default(now())
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId])
+}
+
+model PasswordResetToken {
+  id         String   @id @default(cuid())
+  userId     String
+  token      String   @unique
+  expires    DateTime
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model EmailChangeToken {
+  id         String   @id @default(cuid())
+  userId     String
+  newEmail   String
+  token      String   @unique
+  expires    DateTime
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
