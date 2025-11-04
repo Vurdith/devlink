@@ -56,6 +56,24 @@ export async function GET(request: NextRequest) {
               order: true
             }
           },
+          likes: {
+            select: {
+              id: true,
+              userId: true
+            }
+          },
+          reposts: {
+            select: {
+              id: true,
+              userId: true
+            }
+          },
+          savedBy: {
+            select: {
+              id: true,
+              userId: true
+            }
+          },
           poll: {
             include: {
               options: {
