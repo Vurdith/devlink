@@ -35,8 +35,8 @@ export function PortfolioItemDisplay({
   const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
   const [showMediaModal, setShowMediaModal] = useState(false);
   const [showMagnifier, setShowMagnifier] = useState(false);
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  const rafRef = React.useRef<number>();
+  const [mousePos, setMousePos] = useState({ imageX: 0, imageY: 0 });
+  const rafRef = React.useRef<number | null>(null);
   const imageRef = React.useRef<HTMLImageElement>(null);
   const router = useRouter();
 

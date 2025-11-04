@@ -59,18 +59,15 @@ export async function GET(request: NextRequest) {
           likes: {
             select: {
               id: true,
-              userId: true
+              userId: true,
+              createdAt: true
             }
           },
           reposts: {
             select: {
               id: true,
-              userId: true
-            }
-          },
-          replies: {
-            select: {
-              id: true
+              userId: true,
+              createdAt: true
             }
           },
           views: {
@@ -83,7 +80,8 @@ export async function GET(request: NextRequest) {
           savedBy: {
             select: {
               id: true,
-              userId: true
+              userId: true,
+              createdAt: true
             }
           },
           poll: {
@@ -227,7 +225,7 @@ export async function GET(request: NextRequest) {
       },
       likes: post.likes || [],
       reposts: post.reposts || [],
-      replies: post.replies || [],
+      replies: [], // Removed replies from here
       views: post.views ? post.views.map(view => ({
         id: view.id,
         userId: view.userId || '',
