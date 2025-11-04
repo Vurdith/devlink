@@ -99,7 +99,7 @@ export async function GET(
     });
 
     // Add view counts and transform poll data to posts
-    const postsWithViews = await Promise.all(
+    const transformedPostsWithViews = await Promise.all(
       likedPosts.map(async (post) => {
         const viewCount = await prisma.postView.count({
           where: { postId: post.id }
@@ -164,8 +164,8 @@ export async function GET(
     );
     
     // Cache the response
-    responseCache.set(cacheKey, postsWithViews);
-    return NextResponse.json(postsWithViews);
+    responseCache.set(cacheKey, transformedPostsWithViews);
+    return NextResponse.json(transformedPostsWithViews);
   } catch (error) {
     console.error("Error fetching liked posts:", error);
     return NextResponse.json(
