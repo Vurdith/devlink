@@ -21,10 +21,10 @@ export async function GET(request: NextRequest) {
 
     // Get query parameters
     const { searchParams } = new URL(request.url);
-    const limit = parseInt(searchParams.get('limit') || '20');
+    const limit = Math.min(parseInt(searchParams.get('limit') || '20'), 50); // Cap at 50
     const offset = parseInt(searchParams.get('offset') || '0');
 
-    // Fetch ALL posts (like Twitter) - no batching for ranking
+    // Fetch posts with pagination - OPTIMIZED: Only fetch what we need
     const posts = await prisma.post.findMany({
       where: { 
         replyToId: null, // Only main posts, no replies
@@ -34,27 +34,34 @@ export async function GET(request: NextRequest) {
           { isScheduled: true, scheduledFor: { lte: new Date() } }
         ]
       },
-      // No take/skip - get ALL posts for global ranking
+      take: limit,
+      skip: offset,
+      orderBy: { createdAt: 'desc' },
       include: {
         user: {
           include: {
             profile: true
           }
         },
-        media: true,
+        media: {
+          select: {
+            id: true,
+            mediaUrl: true,
+            mediaType: true,
+            order: true
+          }
+        },
         poll: {
           include: {
             options: {
               include: {
-                votes: true
+                votes: {
+                  select: { id: true }
+                }
               }
             }
           }
         },
-        likes: true,
-        reposts: true,
-        replies: true,
-        views: true,
         _count: {
           select: {
             likes: true,

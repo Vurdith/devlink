@@ -142,6 +142,8 @@ model PostLike {
   post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
 
   @@unique([postId, userId])
+  @@index([userId])
+  @@index([postId])
 }
 
 model PostRepost {
@@ -153,6 +155,8 @@ model PostRepost {
   post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
 
   @@unique([postId, userId])
+  @@index([userId])
+  @@index([postId])
 }
 
 model PostView {
@@ -180,6 +184,8 @@ model SavedPost {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, postId])
+  @@index([userId])
+  @@index([postId])
 }
 
 model PortfolioItem {
@@ -195,6 +201,9 @@ model PortfolioItem {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([isPublic])
 }
 
 model Follower {
@@ -206,6 +215,8 @@ model Follower {
   follower    User     @relation("UserFollowers", fields: [followerId], references: [id], onDelete: Cascade)
 
   @@unique([followerId, followingId])
+  @@index([followerId])
+  @@index([followingId])
 }
 
 model Review {
@@ -218,6 +229,9 @@ model Review {
   updatedAt  DateTime @updatedAt
   reviewed   User     @relation("Reviewed", fields: [reviewedId], references: [id], onDelete: Cascade)
   reviewer   User     @relation("Reviewer", fields: [reviewerId], references: [id], onDelete: Cascade)
+
+  @@index([reviewerId])
+  @@index([reviewedId])
 }
 
 model Report {
@@ -236,6 +250,10 @@ model Report {
   post         Post?     @relation(fields: [postId], references: [id])
   targetUser   User?     @relation("Reported", fields: [targetUserId], references: [id])
   reporter     User      @relation("Reporter", fields: [reporterId], references: [id], onDelete: Cascade)
+
+  @@index([reporterId])
+  @@index([postId])
+  @@index([status])
 }
 
 model Poll {
