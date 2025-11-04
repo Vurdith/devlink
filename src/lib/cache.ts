@@ -46,6 +46,25 @@ class ResponseCache {
     return this.get(key) !== null;
   }
 
+  // Invalidate all cache entries matching a pattern
+  invalidatePattern(pattern: string | RegExp) {
+    const regex = typeof pattern === 'string' ? new RegExp(pattern) : pattern;
+    const keysToDelete = [];
+    
+    for (const key of this.cache.keys()) {
+      if (regex.test(key)) {
+        keysToDelete.push(key);
+      }
+    }
+    
+    keysToDelete.forEach(key => {
+      this.cache.delete(key);
+      const timer = this.timers.get(key);
+      if (timer) clearTimeout(timer);
+      this.timers.delete(key);
+    });
+  }
+
   clear() {
     this.timers.forEach(timer => clearTimeout(timer));
     this.cache.clear();

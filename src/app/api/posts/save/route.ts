@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/server/auth-options";
 import { prisma } from "@/server/db";
+import { responseCache } from "@/lib/cache";
 
 export async function POST(request: NextRequest) {
   try {
@@ -40,12 +41,13 @@ export async function POST(request: NextRequest) {
       where: { userId_postId: { userId: user.id, postId } }
     });
 
+    let saved: boolean;
     if (existingSave) {
       // Unsave the post
       await prisma.savedPost.delete({
         where: { userId_postId: { userId: user.id, postId } }
       });
-      return NextResponse.json({ saved: false });
+      saved = false;
     } else {
       // Save the post
       await prisma.savedPost.create({
@@ -54,8 +56,13 @@ export async function POST(request: NextRequest) {
           postId
         }
       });
-      return NextResponse.json({ saved: true });
+      saved = true;
     }
+
+    // Invalidate feed cache to reflect the new save state
+    responseCache.invalidatePattern(/^feed:/);
+
+    return NextResponse.json({ saved });
   } catch (error) {
     console.error("Save/unsave post error:", error);
     return NextResponse.json({ error: "Failed to save/unsave post" }, { status: 500 });

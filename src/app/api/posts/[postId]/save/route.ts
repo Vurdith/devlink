@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/server/auth-options";
 import { prisma } from "@/server/db";
+import { responseCache } from "@/lib/cache";
 
 export async function POST(
   request: NextRequest,
@@ -58,6 +59,9 @@ export async function POST(
       });
       saved = true;
     }
+
+    // Invalidate feed cache to reflect the new save state
+    responseCache.invalidatePattern(/^feed:/);
 
     return NextResponse.json({ saved });
   } catch (error) {
