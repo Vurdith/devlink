@@ -56,36 +56,6 @@ export async function GET(request: NextRequest) {
               order: true
             }
           },
-          likes: {
-            select: {
-              id: true,
-              userId: true
-            }
-          },
-          reposts: {
-            select: {
-              id: true,
-              userId: true
-            }
-          },
-          replies: {
-            select: {
-              id: true
-            }
-          },
-          views: {
-            select: {
-              id: true,
-              userId: true,
-              viewedAt: true
-            }
-          },
-          savedBy: {
-            select: {
-              id: true,
-              userId: true
-            }
-          },
           poll: {
             include: {
               options: {
@@ -225,15 +195,14 @@ export async function GET(request: NextRequest) {
           following: userEngagements.get(post.userId)?.followingCount || 0
         }
       },
-      likes: post.likes || [],
-      reposts: post.reposts || [],
-      replies: post.replies || [],
-      views: post.views ? post.views.map(view => ({
+      likes: post.likes,
+      reposts: post.reposts,
+      replies: post.replies,
+      views: post.views.map(view => ({
         id: view.id,
         userId: view.userId || '',
         createdAt: view.viewedAt
-      })) : [],
-      savedBy: post.savedBy || [],
+      })), // Transform views to match algorithm interface
       isPinned: post.isPinned,
       isSlideshow: post.isSlideshow,
       media: post.media,

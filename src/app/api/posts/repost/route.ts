@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/server/db";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/server/auth-options";
-import { responseCache } from "@/lib/cache";
 
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
@@ -28,13 +27,13 @@ export async function POST(req: Request) {
       },
     });
 
-    let reposted: boolean;
     if (existingRepost) {
       // Remove repost
       await prisma.postRepost.delete({
         where: { id: existingRepost.id },
       });
-      reposted = false;
+
+      return NextResponse.json({ reposted: false });
     } else {
       // Create repost
       await prisma.postRepost.create({
@@ -43,13 +42,9 @@ export async function POST(req: Request) {
           userId,
         },
       });
-      reposted = true;
+
+      return NextResponse.json({ reposted: true });
     }
-
-    // Invalidate feed cache to reflect the new repost state
-    responseCache.invalidatePattern(/^feed:/);
-
-    return NextResponse.json({ reposted });
   } catch (error) {
     console.error("Error toggling repost:", error);
     return NextResponse.json({ error: "Failed to toggle repost" }, { status: 500 });

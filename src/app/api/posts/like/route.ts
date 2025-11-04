@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/server/db";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/server/auth-options";
-import { responseCache } from "@/lib/cache";
 
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
@@ -28,13 +27,13 @@ export async function POST(req: Request) {
       },
     });
 
-    let liked: boolean;
     if (existingLike) {
       // Unlike the post
       await prisma.postLike.delete({
         where: { id: existingLike.id },
       });
-      liked = false;
+
+      return NextResponse.json({ liked: false });
     } else {
       // Like the post
       await prisma.postLike.create({
@@ -43,13 +42,9 @@ export async function POST(req: Request) {
           userId,
         },
       });
-      liked = true;
+
+      return NextResponse.json({ liked: true });
     }
-
-    // Invalidate feed cache to reflect the new like state
-    responseCache.invalidatePattern(/^feed:/);
-
-    return NextResponse.json({ liked });
   } catch (error) {
     console.error("Error toggling like:", error);
     return NextResponse.json({ error: "Failed to toggle like" }, { status: 500 });
