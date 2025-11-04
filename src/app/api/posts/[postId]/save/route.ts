@@ -62,6 +62,9 @@ export async function POST(
 
     // Invalidate feed cache to reflect the new save state
     responseCache.invalidatePattern(/^feed:/);
+    // Also invalidate user engagement caches (liked posts, reposted posts, saved posts)
+    responseCache.invalidatePattern(/^users:/);
+    responseCache.invalidatePattern(/^saved-posts:/);
 
     return NextResponse.json({ saved });
   } catch (error) {

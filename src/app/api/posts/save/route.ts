@@ -61,6 +61,9 @@ export async function POST(request: NextRequest) {
 
     // Invalidate feed cache to reflect the new save state
     responseCache.invalidatePattern(/^feed:/);
+    // Also invalidate user engagement caches (liked posts, reposted posts, saved posts)
+    responseCache.invalidatePattern(/^users:/);
+    responseCache.invalidatePattern(/^saved-posts:/);
 
     return NextResponse.json({ saved });
   } catch (error) {
@@ -88,6 +91,15 @@ export async function GET(request: NextRequest) {
 
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    // Use cache key that can be invalidated when saves change
+    const cacheKey = `saved-posts:${user.id}:page-${page}:limit-${limit}`;
+    
+    // Try to get from cache first
+    let cachedResponse = responseCache.get(cacheKey);
+    if (cachedResponse) {
+      return NextResponse.json(cachedResponse);
     }
 
     const savedPosts = await prisma.savedPost.findMany({
@@ -203,6 +215,9 @@ export async function GET(request: NextRequest) {
         return { ...savedPost, post: transformedPost };
       })
     );
+
+    // Cache the response
+    responseCache.set(cacheKey, postsWithViewCounts);
 
     return NextResponse.json({ savedPosts: postsWithViewCounts });
   } catch (error) {

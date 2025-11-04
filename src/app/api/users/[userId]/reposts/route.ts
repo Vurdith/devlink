@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/server/db";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/server/auth-options";
+import { responseCache } from "@/lib/cache";
 
 export async function GET(
   request: NextRequest,
@@ -10,6 +11,15 @@ export async function GET(
   try {
     const { userId } = await params;
     const session = await getServerSession(authOptions);
+    
+    // Use cache key that can be invalidated when reposts change
+    const cacheKey = `users:${userId}:reposted-posts`;
+    
+    // Try to get from cache first
+    let postsWithViews = responseCache.get(cacheKey);
+    if (postsWithViews) {
+      return NextResponse.json(postsWithViews);
+    }
     
     // Get posts that this user has reposted
     const repostedPosts = await prisma.post.findMany({
@@ -153,6 +163,8 @@ export async function GET(
       })
     );
     
+    // Cache the response
+    responseCache.set(cacheKey, postsWithViews);
     return NextResponse.json(postsWithViews);
   } catch (error) {
     console.error("Error fetching reposted posts:", error);

@@ -48,6 +48,9 @@ export async function POST(req: Request) {
 
     // Invalidate feed cache to reflect the new repost state
     responseCache.invalidatePattern(/^feed:/);
+    // Also invalidate user engagement caches (liked posts, reposted posts, saved posts)
+    responseCache.invalidatePattern(/^users:/);
+    responseCache.invalidatePattern(/^saved-posts:/);
 
     return NextResponse.json({ reposted });
   } catch (error) {
