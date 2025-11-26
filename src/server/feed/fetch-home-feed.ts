@@ -1,10 +1,11 @@
 import { prisma } from "@/server/db";
 
-// SUPER MINIMAL select for maximum speed
+// Optimized select - includes all display data but skips user interaction checks
 const feedPostSelect = {
   id: true,
   content: true,
   createdAt: true,
+  updatedAt: true,
   isPinned: true,
   isSlideshow: true,
   location: true,
@@ -17,8 +18,16 @@ const feedPostSelect = {
       profile: {
         select: {
           avatarUrl: true,
+          bannerUrl: true,
           profileType: true,
           verified: true,
+          bio: true,
+        },
+      },
+      _count: {
+        select: {
+          followers: true,
+          following: true,
         },
       },
     },
@@ -28,6 +37,7 @@ const feedPostSelect = {
       likes: true,
       reposts: true,
       replies: true,
+      views: true,
     },
   },
   media: {
@@ -38,7 +48,6 @@ const feedPostSelect = {
       order: true,
     },
     orderBy: { order: "asc" as const },
-    take: 4, // Limit media items
   },
   poll: {
     select: {
@@ -68,7 +77,7 @@ export async function fetchHomeFeedPosts(limit = 20) {
     take: limit,
   });
 
-  // Minimal transform
+  // Transform to expected format
   return posts.map(post => ({
     ...post,
     likes: [],
@@ -76,7 +85,7 @@ export async function fetchHomeFeedPosts(limit = 20) {
     savedBy: [],
     hashtags: [],
     replies: Array(post._count?.replies || 0).fill(null),
-    views: 0,
+    views: post._count?.views || 0,
     poll: post.poll ? {
       ...post.poll,
       options: post.poll.options.map(opt => ({
