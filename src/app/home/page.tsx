@@ -4,6 +4,8 @@ import { authOptions } from "@/server/auth-options";
 import { prisma } from "@/server/db";
 import { AnimatedHomeContent } from "@/components/feed/AnimatedHomeContent";
 import { fetchHomeFeedPosts } from "@/server/feed/fetch-home-feed";
+import { rankPosts, type RankablePost } from "@/lib/ranking/devlink-ranking";
+import { buildRankablePost } from "@/lib/ranking/ranking-transforms";
 
 // Cache for 30 seconds
 export const revalidate = 30;
@@ -12,7 +14,7 @@ export default async function HomePage() {
   // Fetch session and posts in parallel
   const [session, posts] = await Promise.all([
     getServerSession(authOptions),
-    fetchHomeFeedPosts(25)
+    fetchHomeFeedPosts(30)
   ]);
 
   // Redirect new OAuth users to set password
@@ -22,9 +24,15 @@ export default async function HomePage() {
 
   const currentUserId = (session?.user as any)?.id;
   const postIds = posts.map(p => p.id);
+  
+  // Get poll IDs for vote fetching
+  const pollIds = posts
+    .filter(p => p.poll)
+    .map(p => p.poll?.id)
+    .filter((id): id is string => !!id);
 
-  // Only fetch user interactions if logged in - in parallel
-  const [userLikes, userReposts, userSaves] = currentUserId ? await Promise.all([
+  // Fetch ALL user interaction data in parallel (only if logged in)
+  const [userLikes, userReposts, userSaves, userVotes] = currentUserId ? await Promise.all([
     prisma.postLike.findMany({
       where: { postId: { in: postIds }, userId: currentUserId },
       select: { postId: true }
@@ -36,34 +44,68 @@ export default async function HomePage() {
     prisma.savedPost.findMany({
       where: { postId: { in: postIds }, userId: currentUserId },
       select: { postId: true }
-    })
-  ]) : [[], [], []];
+    }),
+    pollIds.length > 0 ? prisma.pollVote.findMany({
+      where: { pollId: { in: pollIds }, userId: currentUserId },
+      select: { pollId: true, optionId: true }
+    }) : Promise.resolve([])
+  ]) : [[], [], [], []];
 
+  // Build lookup sets/maps
   const likedPostIds = new Set(userLikes.map(l => l.postId));
   const repostedPostIds = new Set(userReposts.map(r => r.postId));
   const savedPostIds = new Set(userSaves.map(s => s.postId));
+  
+  const userVotesMap = new Map<string, string[]>();
+  userVotes.forEach(vote => {
+    if (!userVotesMap.has(vote.pollId)) {
+      userVotesMap.set(vote.pollId, []);
+    }
+    userVotesMap.get(vote.pollId)!.push(vote.optionId);
+  });
 
-  // Transform posts with engagement data
-  const postsWithViewCounts = posts.map(post => ({
-    ...post,
-    views: post.views || 0,
-    isLiked: likedPostIds.has(post.id),
-    isReposted: repostedPostIds.has(post.id),
-    isSaved: savedPostIds.has(post.id),
-    poll: post.poll ? {
-      id: post.poll.id,
-      question: post.poll.question,
-      options: post.poll.options?.map(opt => ({
-        id: opt.id,
-        text: opt.text,
-        votes: opt.votes?.length || 0,
-        isSelected: false
-      })) || [],
-      totalVotes: post.poll.options?.reduce((sum, opt) => sum + (opt.votes?.length || 0), 0) || 0,
-      isMultiple: post.poll.isMultiple,
-      expiresAt: post.poll.expiresAt
-    } : undefined
-  }));
+  // RANK POSTS like X.com
+  const rankablePosts: RankablePost[] = posts.map(buildRankablePost);
+  const rankingResult = rankPosts(rankablePosts);
+  
+  // Create post lookup map
+  const postMap = new Map(posts.map(post => [post.id, post]));
+  
+  // Get ranked posts in order
+  const rankedPosts = rankingResult.orderedPostIds
+    .map(id => postMap.get(id))
+    .filter(Boolean) as typeof posts;
+
+  // Transform posts with engagement data and poll votes
+  const postsWithViewCounts = rankedPosts.map(post => {
+    // Transform poll with user's vote selections
+    let transformedPoll = undefined;
+    if (post.poll) {
+      const userVotedOptionIds = userVotesMap.get(post.poll.id) || [];
+      transformedPoll = {
+        id: post.poll.id,
+        question: post.poll.question,
+        options: post.poll.options?.map(opt => ({
+          id: opt.id,
+          text: opt.text,
+          votes: opt.votes?.length || 0,
+          isSelected: userVotedOptionIds.includes(opt.id)
+        })) || [],
+        totalVotes: post.poll.options?.reduce((sum, opt) => sum + (opt.votes?.length || 0), 0) || 0,
+        isMultiple: post.poll.isMultiple,
+        expiresAt: post.poll.expiresAt
+      };
+    }
+
+    return {
+      ...post,
+      views: post.views || 0,
+      isLiked: likedPostIds.has(post.id),
+      isReposted: repostedPostIds.has(post.id),
+      isSaved: savedPostIds.has(post.id),
+      poll: transformedPoll
+    };
+  });
 
   // Get user profile if logged in
   const currentUserProfile = session?.user?.username 

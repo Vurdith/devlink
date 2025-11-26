@@ -1,6 +1,6 @@
 import { prisma } from "@/server/db";
 
-// Optimized select - includes all display data but skips user interaction checks
+// Full select for feed display AND ranking
 const feedPostSelect = {
   id: true,
   content: true,
@@ -15,6 +15,7 @@ const feedPostSelect = {
       id: true,
       username: true,
       name: true,
+      createdAt: true,
       profile: {
         select: {
           avatarUrl: true,
@@ -22,6 +23,8 @@ const feedPostSelect = {
           profileType: true,
           verified: true,
           bio: true,
+          website: true,
+          location: true,
         },
       },
       _count: {
@@ -38,6 +41,7 @@ const feedPostSelect = {
       reposts: true,
       replies: true,
       views: true,
+      savedBy: true,
     },
   },
   media: {
@@ -66,7 +70,7 @@ const feedPostSelect = {
   },
 };
 
-export async function fetchHomeFeedPosts(limit = 20) {
+export async function fetchHomeFeedPosts(limit = 30) {
   const posts = await prisma.post.findMany({
     where: { 
       replyToId: null,
