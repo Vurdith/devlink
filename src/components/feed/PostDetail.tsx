@@ -706,7 +706,6 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
             }}
             isActive={false}
             activeColor="purple"
-            label="Share"
           >
             <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
@@ -718,7 +717,6 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
             onClick={handleSave}
             isActive={isSaved}
             activeColor="yellow"
-            label={isSaved ? "Saved" : "Save"}
             showExplosion
             disabled={isUpdating}
           >
@@ -732,12 +730,11 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
         {!isOnPostPage && (
           <button 
             onClick={() => window.open(`/p/${post.id}`, '_blank')} 
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-[var(--muted-foreground)] hover:text-white hover:bg-white/10 transition-colors active:scale-95"
+            className="flex items-center justify-center p-2 rounded-full text-[var(--muted-foreground)] hover:text-white hover:bg-white/10 transition-colors active:scale-95"
           >
             <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
             </svg>
-            <span className="text-xs hidden sm:inline">Open</span>
           </button>
         )}
       </div>
@@ -866,7 +863,7 @@ function EngagementButton({
       onClick={handleClick}
       disabled={disabled}
       className={cn(
-        "relative flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl transition-colors flex-1 justify-center min-w-0",
+        "relative flex items-center justify-center gap-1 sm:gap-1.5 p-2 sm:px-3 sm:py-2 rounded-full sm:rounded-xl transition-colors min-w-0",
         disabled ? "opacity-60 cursor-not-allowed" : cn(colors.hover, "active:scale-95"),
         isActive ? colors.active : "text-[var(--muted-foreground)]"
       )}
