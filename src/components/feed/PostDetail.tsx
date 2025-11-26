@@ -564,8 +564,8 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
               </svg>
             )}
             <span className="text-gray-400 text-xs sm:text-sm">@{post.user.username}</span>
-            <span className="text-[var(--muted-foreground)] text-xs sm:text-sm hidden min-[400px]:inline">•</span>
-            <TimeAgo date={post.createdAt} className="text-[var(--muted-foreground)] text-xs sm:text-sm hidden min-[400px]:inline" />
+            <span className="text-gray-400 text-xs sm:text-sm hidden min-[400px]:inline">•</span>
+            <TimeAgo date={post.createdAt} className="text-gray-400 text-xs sm:text-sm hidden min-[400px]:inline" />
             {post.updatedAt > post.createdAt && <span className="text-[var(--muted-foreground)] text-xs sm:text-sm hidden sm:inline">• Edited</span>}
             {post.isPinned && showPinnedTag && <span className="text-[var(--muted-foreground)] text-xs sm:text-sm hidden sm:inline">• Pinned</span>}
           </div>
