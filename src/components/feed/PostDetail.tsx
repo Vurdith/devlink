@@ -569,13 +569,6 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
             {post.updatedAt > post.createdAt && <span className="text-[var(--muted-foreground)] text-xs sm:text-sm hidden sm:inline">• Edited</span>}
             {post.isPinned && showPinnedTag && <span className="text-[var(--muted-foreground)] text-xs sm:text-sm hidden sm:inline">• Pinned</span>}
           </div>
-          
-          {post.user.profile && (
-            <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-[10px] tracking-wide ${profileTypeClasses}`}>
-              <ProfileTypeIcon profileType={post.user.profile.profileType} size={12} />
-              {getProfileTypeConfig(post.user.profile.profileType).label}
-            </span>
-          )}
         </div>
 
         {/* Actions Menu */}

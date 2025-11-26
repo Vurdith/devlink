@@ -368,37 +368,33 @@ export function ProfileTabs({ username, currentUserId, userId }: ProfileTabsProp
   return (
     <div className="mt-4 sm:mt-8">
       {/* Tab Navigation - Horizontal scroll container */}
-      <div className="relative -mx-2 sm:mx-0 px-2 sm:px-0">
-        <div 
-          className="flex gap-1 sm:gap-2 mb-4 sm:mb-6 overflow-x-auto bg-black/40 rounded-xl sm:rounded-2xl p-1.5 sm:p-3 border border-purple-500/20"
-          style={{ 
-            WebkitOverflowScrolling: 'touch',
-            scrollbarWidth: 'none',
-            msOverflowStyle: 'none'
-          }}
-        >
-          {tabs.map((tab) => {
-            // Hide private tabs if not the owner
-            if (tab.private && !canSeePrivateTabs) return null;
-            
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-1 sm:gap-2 px-2.5 sm:px-4 py-1.5 sm:py-2.5 text-[11px] sm:text-sm font-medium transition-all duration-200 flex-shrink-0 rounded-lg sm:rounded-xl whitespace-nowrap ${
-                  activeTab === tab.id
-                    ? "text-white bg-purple-500/20 border border-purple-500/40"
-                    : "text-[var(--muted-foreground)] hover:text-purple-300 hover:bg-purple-500/10 border border-transparent"
-                }`}
-              >
-                <span className={`flex items-center justify-center [&>svg]:w-3.5 [&>svg]:h-3.5 sm:[&>svg]:w-4 sm:[&>svg]:h-4 ${activeTab === tab.id ? 'text-purple-400' : ''}`}>{tab.icon}</span>
-                <span>{tab.label}</span>
-              </button>
-            );
-          })}
-        </div>
-        {/* Scroll hint gradient on right edge */}
-        <div className="absolute right-0 top-0 bottom-4 sm:bottom-6 w-8 bg-gradient-to-l from-[#0a0a0f] to-transparent pointer-events-none sm:hidden" />
+      <div 
+        className="flex gap-1 sm:gap-2 mb-4 sm:mb-6 overflow-x-auto bg-black/40 rounded-xl sm:rounded-2xl p-1.5 sm:p-3 border border-purple-500/20"
+        style={{ 
+          WebkitOverflowScrolling: 'touch',
+          scrollbarWidth: 'none',
+          msOverflowStyle: 'none'
+        }}
+      >
+        {tabs.map((tab) => {
+          // Hide private tabs if not the owner
+          if (tab.private && !canSeePrivateTabs) return null;
+          
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex items-center gap-1 sm:gap-2 px-2.5 sm:px-4 py-1.5 sm:py-2.5 text-[11px] sm:text-sm font-medium transition-all duration-200 flex-shrink-0 rounded-lg sm:rounded-xl whitespace-nowrap ${
+                activeTab === tab.id
+                  ? "text-white bg-purple-500/20 border border-purple-500/40"
+                  : "text-[var(--muted-foreground)] hover:text-purple-300 hover:bg-purple-500/10 border border-transparent"
+              }`}
+            >
+              <span className={`flex items-center justify-center [&>svg]:w-3.5 [&>svg]:h-3.5 sm:[&>svg]:w-4 sm:[&>svg]:h-4 ${activeTab === tab.id ? 'text-purple-400' : ''}`}>{tab.icon}</span>
+              <span>{tab.label}</span>
+            </button>
+          );
+        })}
       </div>
 
       {/* Tab Content */}
