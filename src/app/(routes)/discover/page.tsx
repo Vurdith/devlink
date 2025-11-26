@@ -117,7 +117,6 @@ export default function DiscoverPage() {
     }
   }, [selectedFilter]);
 
-  // Initial fetch and filter change
   useEffect(() => {
     setUsers([]);
     setNextCursor(null);
@@ -125,11 +124,8 @@ export default function DiscoverPage() {
     fetchUsers();
   }, [selectedFilter, fetchUsers]);
 
-  // Infinite scroll observer
   useEffect(() => {
-    if (observerRef.current) {
-      observerRef.current.disconnect();
-    }
+    if (observerRef.current) observerRef.current.disconnect();
 
     observerRef.current = new IntersectionObserver(
       (entries) => {
@@ -140,15 +136,9 @@ export default function DiscoverPage() {
       { threshold: 0.1 }
     );
 
-    if (loadMoreRef.current) {
-      observerRef.current.observe(loadMoreRef.current);
-    }
+    if (loadMoreRef.current) observerRef.current.observe(loadMoreRef.current);
 
-    return () => {
-      if (observerRef.current) {
-        observerRef.current.disconnect();
-      }
-    };
+    return () => { if (observerRef.current) observerRef.current.disconnect(); };
   }, [hasMore, loadingMore, nextCursor, fetchUsers]);
 
   const getProfileConfig = (type: string) => {
@@ -158,14 +148,7 @@ export default function DiscoverPage() {
   const handleFollowToggle = (userId: string, isFollowing: boolean) => {
     setUsers(prev => prev.map(u => 
       u.id === userId 
-        ? { 
-            ...u, 
-            isFollowing, 
-            _count: { 
-              ...u._count, 
-              followers: u._count.followers + (isFollowing ? 1 : -1) 
-            } 
-          } 
+        ? { ...u, isFollowing, _count: { ...u._count, followers: u._count.followers + (isFollowing ? 1 : -1) } } 
         : u
     ));
   };
@@ -192,11 +175,7 @@ export default function DiscoverPage() {
                   : "bg-white/5 text-[var(--muted-foreground)] hover:bg-white/10 hover:text-white border border-transparent"
               }`}
             >
-              <div className={`p-1.5 rounded-lg ${
-                selectedFilter === filter.value
-                  ? "bg-current/20"
-                  : "bg-white/10"
-              }`}>
+              <div className={`p-1.5 rounded-lg ${selectedFilter === filter.value ? "bg-current/20" : "bg-white/10"}`}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                   <path d={filter.icon} />
                 </svg>
@@ -213,16 +192,14 @@ export default function DiscoverPage() {
           {[...Array(6)].map((_, i) => (
             <div key={i} className="glass rounded-2xl overflow-hidden animate-pulse">
               <div className="h-20 bg-white/5" />
-              <div className="p-5">
+              <div className="p-6">
                 <div className="flex items-center gap-4 mb-4">
-                  <div className="w-14 h-14 rounded-full bg-white/10 -mt-10 border-4 border-[var(--background)]" />
-                  <div className="flex-1">
-                    <div className="h-5 w-32 bg-white/10 rounded mb-2" />
-                    <div className="h-4 w-24 bg-white/10 rounded" />
-                  </div>
+                  <div className="w-16 h-16 rounded-full bg-white/10 -mt-12 border-4 border-[var(--background)]" />
                 </div>
-                <div className="h-4 w-full bg-white/10 rounded mb-2" />
-                <div className="h-4 w-3/4 bg-white/10 rounded" />
+                <div className="h-5 w-32 bg-white/10 rounded mb-2" />
+                <div className="h-4 w-24 bg-white/10 rounded mb-3" />
+                <div className="h-6 w-24 bg-white/10 rounded mb-3" />
+                <div className="h-4 w-full bg-white/10 rounded" />
               </div>
             </div>
           ))}
@@ -239,70 +216,54 @@ export default function DiscoverPage() {
                   key={user.id} 
                   className="glass rounded-2xl overflow-hidden hover:bg-white/5 transition-all duration-200 border border-white/10 hover:border-white/20"
                 >
-                  {/* Banner - Always show, dark placeholder if no banner */}
+                  {/* Banner - always show with placeholder */}
                   <Link href={`/u/${user.username}`}>
-                    <div className="h-20 relative">
-                      {user.profile?.bannerUrl ? (
+                    <div className="h-20 bg-gradient-to-br from-white/[0.08] to-white/[0.02]">
+                      {user.profile?.bannerUrl && (
                         <Image
                           src={user.profile.bannerUrl}
                           alt=""
-                          fill
-                          className="object-cover"
+                          width={400}
+                          height={80}
+                          className="w-full h-full object-cover"
                         />
-                      ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-white/5 to-white/[0.02]" />
                       )}
                     </div>
                   </Link>
                   
-                  <div className="p-5 pt-0">
-                    {/* Avatar - overlapping banner */}
-                    <div className="flex items-start justify-between -mt-8 mb-3">
-                      <Link href={`/u/${user.username}`} className="relative">
+                  <div className="p-6">
+                    {/* Avatar - overlapping the banner */}
+                    <Link href={`/u/${user.username}`} className="block -mt-14 mb-4 w-fit">
+                      <div className="relative">
                         {user.profile?.avatarUrl ? (
                           <Image
                             src={user.profile.avatarUrl}
                             alt={user.username}
-                            width={56}
-                            height={56}
-                            className="w-14 h-14 rounded-full object-cover border-4 border-[var(--background)]"
+                            width={64}
+                            height={64}
+                            className="w-16 h-16 rounded-full object-cover border-4 border-[var(--background)]"
                           />
                         ) : (
-                          <div className="w-14 h-14 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white text-lg font-bold border-4 border-[var(--background)]">
+                          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white text-xl font-bold border-4 border-[var(--background)]">
                             {user.username.charAt(0).toUpperCase()}
                           </div>
                         )}
-                        {/* Verified Badge */}
                         {user.profile?.verified && (
-                          <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center border-2 border-[var(--background)]">
-                            <svg width="10" height="10" viewBox="0 0 24 24" fill="white">
+                          <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center border-2 border-[var(--background)]">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="white">
                               <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
                             </svg>
                           </div>
                         )}
-                      </Link>
-                      
-                      {/* Follow Button */}
-                      {!isCurrentUser && session && (
-                        <div className="mt-9">
-                          <FollowButton 
-                            targetUserId={user.id}
-                            initialFollowing={user.isFollowing || false}
-                            compact
-                            onToggle={(following) => handleFollowToggle(user.id, following)}
-                          />
-                        </div>
-                      )}
-                    </div>
-                    
-                    {/* User Info */}
-                    <Link href={`/u/${user.username}`}>
-                      <div className="mb-3">
-                        <h3 className="font-semibold text-white truncate hover:underline">
-                          {user.name || user.username}
-                        </h3>
-                        <p className="text-sm text-[var(--muted-foreground)]">@{user.username}</p>
                       </div>
+                    </Link>
+                    
+                    {/* Name & Username */}
+                    <Link href={`/u/${user.username}`}>
+                      <h3 className="font-semibold text-white truncate hover:underline">
+                        {user.name || user.username}
+                      </h3>
+                      <p className="text-sm text-[var(--muted-foreground)] mb-2">@{user.username}</p>
                     </Link>
                     
                     {/* Profile Type Badge */}
@@ -324,14 +285,25 @@ export default function DiscoverPage() {
                       </p>
                     )}
                     
-                    {/* Stats */}
-                    <div className="flex items-center gap-4 pt-3 border-t border-white/10 text-sm">
-                      <span className="text-[var(--muted-foreground)]">
-                        <span className="font-semibold text-white">{user._count.followers}</span> followers
-                      </span>
-                      <span className="text-[var(--muted-foreground)]">
-                        <span className="font-semibold text-white">{user._count.following}</span> following
-                      </span>
+                    {/* Stats + Follow Button Row */}
+                    <div className="flex items-center justify-between pt-4 border-t border-white/10">
+                      <div className="flex items-center gap-4 text-sm">
+                        <span className="text-[var(--muted-foreground)]">
+                          <span className="font-semibold text-white">{user._count.followers}</span> followers
+                        </span>
+                        <span className="text-[var(--muted-foreground)]">
+                          <span className="font-semibold text-white">{user._count.following}</span> following
+                        </span>
+                      </div>
+                      
+                      {!isCurrentUser && session && (
+                        <FollowButton 
+                          targetUserId={user.id}
+                          initialFollowing={user.isFollowing || false}
+                          compact
+                          onToggle={(following) => handleFollowToggle(user.id, following)}
+                        />
+                      )}
                     </div>
                   </div>
                 </div>
@@ -339,7 +311,6 @@ export default function DiscoverPage() {
             })}
           </div>
           
-          {/* Load More / Infinite Scroll Trigger */}
           <div ref={loadMoreRef} className="py-8 flex justify-center">
             {loadingMore && (
               <div className="flex items-center gap-3 text-[var(--muted-foreground)]">
@@ -348,9 +319,7 @@ export default function DiscoverPage() {
               </div>
             )}
             {!hasMore && users.length > 0 && (
-              <p className="text-[var(--muted-foreground)] text-sm">
-                You've reached the end! 🎉
-              </p>
+              <p className="text-[var(--muted-foreground)] text-sm">You've reached the end! 🎉</p>
             )}
           </div>
         </>
