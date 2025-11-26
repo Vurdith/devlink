@@ -140,10 +140,10 @@ export function MobileNav() {
 
   return (
     <>
-      {/* Hamburger Button - Fixed in top left */}
+      {/* Hamburger Button - Fixed in top left, vertically centered with navbar */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="md:hidden fixed top-4 left-4 z-50 p-2.5 rounded-xl glass border border-white/10 hover:border-purple-500/30 transition-all duration-150 hover:scale-105 active:scale-95"
+        className="md:hidden fixed top-3 left-4 z-50 p-2.5 rounded-xl glass border border-white/10 hover:border-purple-500/30 transition-all duration-150 hover:scale-105 active:scale-95"
         aria-label="Toggle menu"
       >
         <svg

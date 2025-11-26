@@ -63,7 +63,7 @@ export const Navbar = memo(function Navbar() {
       
       <div className="relative w-full px-4 md:px-6 h-16 flex items-center">
         {/* Spacer for mobile hamburger button */}
-        <div className="w-12 md:hidden" />
+        <div className="w-14 md:hidden flex-shrink-0" />
         
         {/* Search bar */}
         <div className="flex items-center flex-1">
