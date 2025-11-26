@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql" // Changed from sqlite to postgresql for production
   url      = env("DATABASE_URL")
 }
 
@@ -289,6 +289,9 @@ model PollVote {
   poll      Poll       @relation(fields: [pollId], references: [id], onDelete: Cascade)
 
   @@unique([pollId, userId, optionId])
+  @@index([pollId])
+  @@index([optionId])
+  @@index([userId])
 }
 
 model Hashtag {

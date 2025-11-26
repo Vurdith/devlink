@@ -172,6 +172,158 @@ export function validateHashtag(hashtag: string): ValidationResult {
 }
 
 /**
+ * Validate ID (used for post IDs, user IDs, etc.)
+ */
+export function validateId(id: string): ValidationResult {
+  const errors: string[] = [];
+  
+  if (!id) {
+    errors.push('ID is required');
+  } else if (id.length > 100) {
+    errors.push('ID is too long');
+  } else if (!/^[a-zA-Z0-9\-_]+$/.test(id)) {
+    errors.push('Invalid ID format');
+  }
+  
+  return {
+    isValid: errors.length === 0,
+    errors
+  };
+}
+
+/**
+ * Validate review rating
+ */
+export function validateRating(rating: number): ValidationResult {
+  const errors: string[] = [];
+  
+  if (typeof rating !== 'number') {
+    errors.push('Rating must be a number');
+  } else if (rating < 1 || rating > 5) {
+    errors.push('Rating must be between 1 and 5');
+  }
+  
+  return {
+    isValid: errors.length === 0,
+    errors
+  };
+}
+
+/**
+ * Validate portfolio title
+ */
+export function validatePortfolioTitle(title: string): ValidationResult {
+  const errors: string[] = [];
+  
+  if (!title || title.trim().length === 0) {
+    errors.push('Title is required');
+  } else if (title.length > 200) {
+    errors.push('Title must be less than 200 characters');
+  } else if (title.length < 3) {
+    errors.push('Title must be at least 3 characters');
+  }
+  
+  return {
+    isValid: errors.length === 0,
+    errors
+  };
+}
+
+/**
+ * Validate portfolio description
+ */
+export function validatePortfolioDescription(description: string): ValidationResult {
+  const errors: string[] = [];
+  
+  if (description && description.length > 5000) {
+    errors.push('Description must be less than 5000 characters');
+  }
+  
+  return {
+    isValid: errors.length === 0,
+    errors
+  };
+}
+
+/**
+ * Validate array of URLs
+ */
+export function validateUrlArray(urls: unknown): ValidationResult {
+  const errors: string[] = [];
+  
+  if (!Array.isArray(urls)) {
+    errors.push('URLs must be an array');
+  } else if (urls.length > 10) {
+    errors.push('Maximum 10 URLs allowed');
+  } else {
+    for (let i = 0; i < urls.length; i++) {
+      const url = urls[i];
+      if (typeof url !== 'string') {
+        errors.push(`URL at index ${i} must be a string`);
+      } else if (url.length > 2048) {
+        errors.push(`URL at index ${i} is too long`);
+      } else {
+        const validation = validateUrl(url);
+        if (!validation.isValid) {
+          errors.push(`URL at index ${i}: ${validation.errors.join(', ')}`);
+        }
+      }
+    }
+  }
+  
+  return {
+    isValid: errors.length === 0,
+    errors
+  };
+}
+
+/**
+ * Validate poll data
+ */
+export function validatePollData(pollData: unknown): ValidationResult {
+  const errors: string[] = [];
+  
+  if (pollData === null || pollData === undefined) {
+    return { isValid: true, errors: [] };
+  }
+  
+  if (typeof pollData !== 'object' || !('question' in pollData) || !('options' in pollData)) {
+    errors.push('Invalid poll structure');
+    return { isValid: false, errors };
+  }
+  
+  const poll = pollData as Record<string, unknown>;
+  
+  if (!poll.question || typeof poll.question !== 'string') {
+    errors.push('Poll question is required and must be a string');
+  } else if ((poll.question as string).length > 500) {
+    errors.push('Poll question must be less than 500 characters');
+  } else if ((poll.question as string).length < 3) {
+    errors.push('Poll question must be at least 3 characters');
+  }
+  
+  if (!Array.isArray(poll.options) || (poll.options as unknown[]).length === 0) {
+    errors.push('Poll must have at least one option');
+  } else if ((poll.options as unknown[]).length > 10) {
+    errors.push('Poll must have at most 10 options');
+  } else {
+    for (let i = 0; i < (poll.options as unknown[]).length; i++) {
+      const option = (poll.options as Record<string, unknown>[])[i];
+      if (!option.text || typeof option.text !== 'string') {
+        errors.push(`Poll option ${i + 1} text is required and must be a string`);
+      } else if ((option.text as string).length > 200) {
+        errors.push(`Poll option ${i + 1} text must be less than 200 characters`);
+      }
+    }
+  }
+  
+  return {
+    isValid: errors.length === 0,
+    errors
+  };
+}
+
+/**
  * Sanitize and validate input
  */
 export function sanitizeAndValidate(input: string, type: 'text' | 'html' | 'email' | 'username' | 'password' | 'post' | 'url' | 'hashtag'): {
@@ -272,6 +424,11 @@ export class RateLimiter {
     return Math.max(0, resetTime - Date.now());
   }
 }
+
+
+
+
+
 
 
 

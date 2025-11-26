@@ -1,9 +1,9 @@
 "use client";
-import { useState, useEffect } from "react";
+
+import { useState, useEffect, memo, useMemo } from "react";
 import { Review } from "./Review";
 import { CreateReview } from "./CreateReview";
-import { Button } from "./Button";
-import { motion, AnimatePresence } from "framer-motion";
+import { cn } from "@/lib/cn";
 
 interface ReviewsSectionProps {
   targetUserId: string;
@@ -37,7 +37,7 @@ interface ReviewData {
   };
 }
 
-export function ReviewsSection({ targetUserId, targetUsername, currentUserId, canReview = true }: ReviewsSectionProps) {
+export const ReviewsSection = memo(function ReviewsSection({ targetUserId, targetUsername, currentUserId, canReview = true }: ReviewsSectionProps) {
   const [reviews, setReviews] = useState<ReviewData[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateForm, setShowCreateForm] = useState(false);
@@ -106,35 +106,58 @@ export function ReviewsSection({ targetUserId, targetUsername, currentUserId, ca
     }
   };
 
-  const calculateAverageRating = () => {
+  const averageRating = useMemo(() => {
     if (reviews.length === 0) return 0;
     const total = reviews.reduce((sum, review) => sum + review.rating, 0);
     return Math.round((total / reviews.length) * 10) / 10;
-  };
+  }, [reviews]);
 
   const renderStars = (rating: number) => {
-    return Array.from({ length: 5 }, (_, i) => (
-      <svg
-        key={i}
-        width="16"
-        height="16"
-        viewBox="0 0 24 24"
-        fill={i < Math.round(rating) ? "currentColor" : "none"}
-        className={`w-4 h-4 ${i < Math.round(rating) ? "text-yellow-400" : "text-gray-400"}`}
-      >
-        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-      </svg>
-    ));
+    return (
+      <div className="flex items-center gap-1.5">
+        {Array.from({ length: 5 }, (_, i) => (
+          <svg
+            key={i}
+            viewBox="0 0 24 24"
+            fill={i < Math.round(rating) ? "currentColor" : "none"}
+            className={cn(
+              "w-5 h-5",
+              i < Math.round(rating) 
+                ? "text-amber-400" 
+                : "text-white/20"
+            )}
+          >
+            <path 
+              d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" 
+              stroke="currentColor" 
+              strokeWidth="1.5" 
+              strokeLinecap="round" 
+              strokeLinejoin="round"
+            />
+          </svg>
+        ))}
+      </div>
+    );
   };
 
   if (loading) {
     return (
-      <div className="glass rounded-lg p-6">
-        <div className="animate-pulse space-y-4">
-          <div className="h-6 bg-white/10 rounded w-1/3"></div>
-          <div className="space-y-3">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="h-20 bg-white/10 rounded"></div>
+      <div className="py-6">
+        <div className="animate-pulse space-y-6">
+          <div className="h-10 bg-white/5 rounded-lg w-1/3" />
+          <div className="h-6 bg-white/5 rounded-lg w-1/4" />
+          <div className="space-y-6 mt-8">
+            {[1, 2].map((i) => (
+              <div key={i} className="rounded-2xl p-8 bg-white/[0.02] border border-white/5">
+                <div className="flex gap-5">
+                  <div className="w-14 h-14 bg-white/5 rounded-full flex-shrink-0" />
+                  <div className="flex-1 space-y-4">
+                    <div className="h-5 bg-white/5 rounded w-1/3" />
+                    <div className="h-4 bg-white/5 rounded w-1/4" />
+                    <div className="h-20 bg-white/5 rounded mt-4" />
+                  </div>
+                </div>
+              </div>
             ))}
           </div>
         </div>
@@ -142,88 +165,83 @@ export function ReviewsSection({ targetUserId, targetUsername, currentUserId, ca
     );
   }
 
-  const averageRating = calculateAverageRating();
   const canUserReview = canReview && currentUserId && currentUserId !== targetUserId;
 
   return (
-    <div className="space-y-6">
-      {/* Reviews Header */}
-      <div className="flex items-center justify-between">
+    <div className="py-6">
+      {/* Header */}
+      <div className="flex items-start justify-between gap-6 mb-10">
         <div>
-          <h3 className="text-xl font-semibold mb-2">Reviews</h3>
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1">
-              {renderStars(averageRating)}
-              <span className="ml-2 text-lg font-medium">{averageRating}</span>
-            </div>
-            <span className="text-[var(--muted-foreground)]">
-              ({reviews.length} review{reviews.length !== 1 ? 's' : ''})
+          <h2 className="text-2xl font-bold text-white mb-3">Reviews</h2>
+          <div className="flex items-center gap-4">
+            {renderStars(averageRating)}
+            <span className="text-2xl font-bold text-white">{averageRating || "—"}</span>
+            <span className="text-white/40 text-lg">
+              ({reviews.length} {reviews.length === 1 ? 'review' : 'reviews'})
             </span>
           </div>
         </div>
         
         {canUserReview && !showCreateForm && (
-          <Button
+          <button
             onClick={() => setShowCreateForm(true)}
-            className="flex items-center gap-2"
+            className="flex-shrink-0 flex items-center gap-2.5 px-6 py-3 rounded-xl font-semibold text-sm bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-500 hover:to-blue-500 transition-all duration-200 hover:scale-105 active:scale-95"
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="text-white">
-              <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 5v14M5 12h14" />
             </svg>
             Write Review
-          </Button>
+          </button>
         )}
       </div>
 
       {/* Create Review Form */}
-      <AnimatePresence>
-        {showCreateForm && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <CreateReview
-              targetUserId={targetUserId}
-              targetUsername={targetUsername}
-              currentUserId={currentUserId}
-              onReviewCreated={handleReviewCreated}
-              onCancel={() => setShowCreateForm(false)}
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {showCreateForm && (
+        <div className="mb-10">
+          <CreateReview
+            targetUserId={targetUserId}
+            targetUsername={targetUsername}
+            currentUserId={currentUserId}
+            onReviewCreated={handleReviewCreated}
+            onCancel={() => setShowCreateForm(false)}
+          />
+        </div>
+      )}
 
       {/* Reviews List */}
-      <div className="space-y-4">
+      <div className="space-y-6">
         {reviews.length === 0 ? (
-          <div className="text-center py-8 text-[var(--muted-foreground)]">
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" className="mx-auto mb-4 text-white/20">
-              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            <p className="text-lg font-medium">No reviews yet</p>
-            <p className="text-sm">Be the first to review @{targetUsername}</p>
+          <div className="text-center py-20 px-6">
+            <div className="w-20 h-20 mx-auto mb-8 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center">
+              <svg className="w-10 h-10 text-amber-400/30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+              </svg>
+            </div>
+            <h3 className="text-xl font-semibold text-white mb-3">No reviews yet</h3>
+            <p className="text-white/50 text-lg mb-8">
+              Be the first to review <span className="text-purple-400">@{targetUsername}</span>
+            </p>
+            {canUserReview && !showCreateForm && (
+              <button
+                onClick={() => setShowCreateForm(true)}
+                className="px-6 py-3 rounded-xl font-semibold text-sm bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-500 hover:to-blue-500 transition-all"
+              >
+                Write the first review
+              </button>
+            )}
           </div>
         ) : (
           reviews.map((review) => (
-            <motion.div
+            <Review
               key={review.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3 }}
-            >
-              <Review
-                review={review}
-                currentUserId={currentUserId}
-                onEdit={handleEditReview}
-                onDelete={handleDeleteReview}
-              />
-            </motion.div>
+              review={review}
+              currentUserId={currentUserId}
+              onEdit={handleEditReview}
+              onDelete={handleDeleteReview}
+            />
           ))
         )}
       </div>
     </div>
   );
-}
+});

@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/server/db";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/server/auth-options";
-import { responseCache } from "@/lib/cache";
 
 export async function GET(
   request: NextRequest,
@@ -12,14 +11,15 @@ export async function GET(
     const { userId } = await params;
     const session = await getServerSession(authOptions);
     
-    // Use cache key that can be invalidated when likes change
-    const cacheKey = `users:${userId}:liked-posts`;
+    // Get pagination parameters
+    const { searchParams } = new URL(request.url);
+    const page = parseInt(searchParams.get('page') || '1');
+    const limit = Math.min(parseInt(searchParams.get('limit') || '20'), 50);
+    const skip = (page - 1) * limit;
     
-    // Try to get from cache first
-    let postsWithViews = responseCache.get(cacheKey);
-    if (postsWithViews) {
-      return NextResponse.json(postsWithViews);
-    }
+    // IMPORTANT: Do NOT cache liked posts endpoint
+    // Caching causes stale data to be served after unlike/save/repost actions
+    // The profile page needs fresh data immediately for proper UX
     
     // Get posts that this user has liked
     const likedPosts = await prisma.post.findMany({
@@ -30,6 +30,9 @@ export async function GET(
           }
         }
       },
+      skip,
+      take: limit,
+      orderBy: { createdAt: 'desc' },
       include: {
         user: {
           include: {
@@ -93,17 +96,31 @@ export async function GET(
             }
           }
         }
-      },
-      orderBy: { createdAt: 'desc' },
-      take: 20
+      }
     });
 
-    // Add view counts and transform poll data to posts
+    // OPTIMIZATION: Batch fetch all views instead of N+1 queries
+    const postIds = likedPosts.map(p => p.id);
+    const allViews = await prisma.postView.findMany({
+      where: { postId: { in: postIds } },
+      select: { postId: true, userId: true }
+    });
+    
+    // Group views by postId and calculate unique counts
+    const viewsMap = new Map<string, Set<string>>();
+    allViews.forEach(view => {
+      if (!viewsMap.has(view.postId)) {
+        viewsMap.set(view.postId, new Set<string>());
+      }
+      if (view.userId) {
+        viewsMap.get(view.postId)!.add(view.userId);
+      }
+    });
+
+    // Add unique account view counts and transform poll data to posts
     const transformedPostsWithViews = await Promise.all(
       likedPosts.map(async (post) => {
-        const viewCount = await prisma.postView.count({
-          where: { postId: post.id }
-        });
+        const viewCount = viewsMap.get(post.id)?.size || 0;
         
         // Transform poll data if it exists
         let transformedPost = { ...post, views: viewCount };
@@ -163,9 +180,14 @@ export async function GET(
       })
     );
     
-    // Cache the response
-    responseCache.set(cacheKey, transformedPostsWithViews);
-    return NextResponse.json(transformedPostsWithViews);
+    // Return fresh data without caching - profile tab updates need to be instant
+    return NextResponse.json(transformedPostsWithViews, {
+      headers: {
+        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
+    });
   } catch (error) {
     console.error("Error fetching liked posts:", error);
     return NextResponse.json(

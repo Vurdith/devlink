@@ -18,6 +18,16 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Post ID is required" }, { status: 400 });
     }
 
+    // Verify post exists
+    const postExists = await prisma.post.findUnique({
+      where: { id: postId },
+      select: { id: true }
+    });
+
+    if (!postExists) {
+      return NextResponse.json({ error: "Post not found" }, { status: 404 });
+    }
+
     // Check if user already liked the post
     const existingLike = await prisma.postLike.findUnique({
       where: {
@@ -35,6 +45,7 @@ export async function POST(req: Request) {
         where: { id: existingLike.id },
       });
       liked = false;
+      console.log(`User ${userId} unliked post ${postId}`);
     } else {
       // Like the post
       await prisma.postLike.create({
@@ -44,12 +55,41 @@ export async function POST(req: Request) {
         },
       });
       liked = true;
+      console.log(`User ${userId} liked post ${postId}`);
+    }
+
+    // Verify the operation completed
+    const verifyLike = await prisma.postLike.findUnique({
+      where: {
+        postId_userId: {
+          postId,
+          userId,
+        },
+      },
+    });
+
+    if (liked !== !!verifyLike) {
+      console.error(`Like state mismatch: expected ${liked}, found ${!!verifyLike}`);
+      return NextResponse.json({ error: "Failed to update like state" }, { status: 500 });
     }
 
     // Invalidate feed cache to reflect the new like state
     responseCache.invalidatePattern(/^feed:/);
     // Also invalidate current user's engagement caches
-    responseCache.invalidatePattern(new RegExp(`^users:${userId}:|^saved-posts:${userId}:`));
+    responseCache.invalidatePattern(new RegExp(`^users:${userId}:`));
+    responseCache.invalidatePattern(new RegExp(`^saved-posts:${userId}:`));
+    
+    // Explicitly delete engagement-related cache keys to ensure fresh data
+    const likedPostsCacheKey = `users:${userId}:liked-posts`;
+    responseCache.delete(likedPostsCacheKey);
+    
+    // Also delete all saved posts cache keys (they're paginated)
+    for (let page = 1; page <= 10; page++) {
+      for (let limit of [20, 50, 100]) {
+        const savedPostsCacheKey = `saved-posts:${userId}:page-${page}:limit-${limit}`;
+        responseCache.delete(savedPostsCacheKey);
+      }
+    }
 
     return NextResponse.json({ liked });
   } catch (error) {

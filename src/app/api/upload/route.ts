@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server";
-import { writeFile, mkdir } from "fs/promises";
-import path from "path";
-import { randomUUID } from "crypto";
+import { uploadFile } from "@/lib/storage";
 
 export async function POST(req: Request) {
   try {
@@ -21,23 +19,12 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "File size must be less than 5MB" }, { status: 400 });
     }
 
-    const arrayBuffer = await file.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-    const uploadDir = path.join(process.cwd(), "public", "uploads");
-    await mkdir(uploadDir, { recursive: true });
+    // Use the abstracted upload function (S3 or Local)
+    const { url } = await uploadFile(file);
 
-    const originalName = file.name || "file";
-    const ext = (originalName.split(".").pop() || "bin").toLowerCase();
-    const filename = `${randomUUID()}.${ext}`;
-    const filepath = path.join(uploadDir, filename);
-    await writeFile(filepath, buffer);
-
-    const url = `/uploads/${filename}`;
     return NextResponse.json({ url });
   } catch (err) {
     console.error("Upload error:", err);
     return NextResponse.json({ error: "Upload failed" }, { status: 500 });
   }
 }
-
-

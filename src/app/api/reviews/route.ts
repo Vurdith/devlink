@@ -2,6 +2,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/server/auth-options";
 import { prisma } from "@/server/db";
 import { NextResponse } from "next/server";
+import { validateId, validateRating } from "@/lib/validation";
 
 // Create a new review
 export async function POST(req: Request) {
@@ -9,19 +10,45 @@ export async function POST(req: Request) {
   const currentUserId = (session?.user as any)?.id as string | undefined;
   
   if (!currentUserId) {
-    return new NextResponse("Unauthorized", { status: 401 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   try {
     const body = await req.json();
     const { targetUserId, rating, text } = body;
 
-    if (!targetUserId || !rating || rating < 1 || rating > 5) {
-      return new NextResponse("Invalid request data", { status: 400 });
+    // Validate required fields
+    if (!targetUserId || rating === null || rating === undefined) {
+      return NextResponse.json({ error: "Missing required fields: targetUserId and rating" }, { status: 400 });
+    }
+
+    // Validate targetUserId format
+    const idValidation = validateId(targetUserId);
+    if (!idValidation.isValid) {
+      return NextResponse.json({ error: `Invalid targetUserId: ${idValidation.errors[0]}` }, { status: 400 });
+    }
+
+    // Validate rating
+    const ratingValidation = validateRating(rating);
+    if (!ratingValidation.isValid) {
+      return NextResponse.json({ error: ratingValidation.errors[0] }, { status: 400 });
+    }
+
+    // Validate text if provided
+    if (text) {
+      if (typeof text !== 'string') {
+        return NextResponse.json({ error: "Review text must be a string" }, { status: 400 });
+      }
+      if (text.length > 1000) {
+        return NextResponse.json({ error: "Review text must be less than 1000 characters" }, { status: 400 });
+      }
+      if (text.length < 1) {
+        return NextResponse.json({ error: "Review text cannot be empty" }, { status: 400 });
+      }
     }
 
     if (targetUserId === currentUserId) {
-      return new NextResponse("Cannot review yourself", { status: 400 });
+      return NextResponse.json({ error: "Cannot review yourself" }, { status: 400 });
     }
 
     // Allow multiple reviews - no need to check for existing reviews

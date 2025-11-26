@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Avatar } from "@/components/ui/Avatar";
 import { FollowButton } from "@/components/ui/FollowButton";
 import { useSearchParams } from "next/navigation";
+import { getProfileTypeConfig, ProfileTypeIcon } from "@/lib/profile-types";
 
 type SearchType = "all" | "profiles" | "hashtags" | "projects";
 
@@ -13,6 +14,7 @@ interface UserSearchResult {
   name: string | null;
   avatarUrl: string | null;
   verified: boolean;
+  profileType: string | null;
   bio: string | null;
   isFollowing: boolean;
 }
@@ -213,6 +215,12 @@ function SearchContent() {
                           <svg width="14" height="14" viewBox="0 0 24 24" className="text-[var(--accent)]">
                             <path d="M12 3l2.39 2.39L17 6l-.61 2.61L19 12l-2.61.61L15 17l-2.61-.61L12 21l-2.39-2.39L7 17l.61-2.39L5 12l2.61-.61L7 6l2.39-.61L12 3z" fill="currentColor"/>
                           </svg>
+                        )}
+                        {user.profileType && (
+                          <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium ${getProfileTypeConfig(user.profileType).bgColor} ${getProfileTypeConfig(user.profileType).color}`}>
+                            <ProfileTypeIcon profileType={user.profileType} size={10} />
+                            {getProfileTypeConfig(user.profileType).label}
+                          </span>
                         )}
                       </div>
                       <div className="text-xs text-[var(--muted-foreground)] truncate">@{user.username}</div>

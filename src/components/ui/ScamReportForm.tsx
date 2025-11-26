@@ -1,7 +1,8 @@
 "use client";
-import { useState } from "react";
+
+import { useState, memo } from "react";
 import { Button } from "./Button";
-import { motion, AnimatePresence } from "framer-motion";
+import { cn } from "@/lib/cn";
 
 interface ScamReportFormProps {
   targetUserId?: string;
@@ -22,7 +23,7 @@ const REPORT_TYPES: { value: ReportType; label: string; description: string }[] 
   { value: "OTHER", label: "Other", description: "Other violations not listed above" }
 ];
 
-export function ScamReportForm({ targetUserId, targetUsername, postId, onReportSubmitted, onCancel }: ScamReportFormProps) {
+export const ScamReportForm = memo(function ScamReportForm({ targetUserId, targetUsername, postId, onReportSubmitted, onCancel }: ScamReportFormProps) {
   const [reportType, setReportType] = useState<ReportType | "">("");
   const [description, setDescription] = useState("");
   const [evidence, setEvidence] = useState("");
@@ -74,12 +75,7 @@ export function ScamReportForm({ targetUserId, targetUsername, postId, onReportS
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      className="glass rounded-lg p-6 border border-white/10 max-w-2xl mx-auto"
-    >
+    <div className="glass rounded-lg p-6 border border-white/10 max-w-2xl mx-auto animate-slide-up">
       <div className="mb-6">
         <h3 className="text-xl font-semibold mb-2">Report Issue</h3>
         <p className="text-sm text-[var(--muted-foreground)]">
@@ -93,137 +89,123 @@ export function ScamReportForm({ targetUserId, targetUsername, postId, onReportS
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Step 1: Report Type Selection */}
-        <AnimatePresence mode="wait">
-          {step === 1 ? (
-            <motion.div
-              key="step1"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              className="space-y-4"
-            >
-              <div>
-                <label className="block text-sm font-medium mb-3">What type of issue are you reporting?</label>
-                <div className="grid gap-3">
-                  {REPORT_TYPES.map((type) => (
-                    <motion.button
-                      key={type.value}
-                      type="button"
-                      onClick={() => setReportType(type.value)}
-                      className={`p-4 text-left rounded-lg border transition-all ${
-                        reportType === type.value
-                          ? "border-[var(--accent)] bg-[var(--accent)]/10"
-                          : "border-white/10 hover:border-white/20 hover:bg-white/5"
-                      }`}
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      <div className="font-medium">{type.label}</div>
-                      <div className="text-sm text-[var(--muted-foreground)]">{type.description}</div>
-                    </motion.button>
-                  ))}
-                </div>
+        {step === 1 ? (
+          <div className="space-y-4 animate-fade-in">
+            <div>
+              <label className="block text-sm font-medium mb-3">What type of issue are you reporting?</label>
+              <div className="grid gap-3">
+                {REPORT_TYPES.map((type, index) => (
+                  <button
+                    key={type.value}
+                    type="button"
+                    onClick={() => setReportType(type.value)}
+                    className={cn(
+                      "p-4 text-left rounded-lg border transition-all active:scale-98 animate-slide-up",
+                      reportType === type.value
+                        ? "border-[var(--accent)] bg-[var(--accent)]/10"
+                        : "border-white/10 hover:border-white/20 hover:bg-white/5"
+                    )}
+                    style={{ animationDelay: `${index * 0.03}s` }}
+                  >
+                    <div className="font-medium">{type.label}</div>
+                    <div className="text-sm text-[var(--muted-foreground)]">{type.description}</div>
+                  </button>
+                ))}
               </div>
+            </div>
 
-              <div className="flex justify-end">
-                <Button
-                  type="button"
-                  onClick={nextStep}
-                  disabled={!reportType}
-                  className="flex items-center gap-2"
-                >
-                  Next
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                    <path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                </Button>
+            <div className="flex justify-end">
+              <Button
+                type="button"
+                onClick={nextStep}
+                disabled={!reportType}
+                className="flex items-center gap-2"
+              >
+                Next
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                  <path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </Button>
+            </div>
+          </div>
+        ) : (
+          /* Step 2: Details and Evidence */
+          <div className="space-y-4 animate-fade-in">
+            <div>
+              <label htmlFor="description" className="block text-sm font-medium mb-2">
+                Please describe what happened
+              </label>
+              <textarea
+                id="description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Provide a detailed description of the issue..."
+                className="w-full px-3 py-2 bg-black/30 border border-white/10 rounded-lg focus:border-[var(--accent)] outline-none resize-none transition-colors"
+                rows={4}
+                maxLength={1000}
+                required
+              />
+              <div className="flex justify-between items-center mt-1">
+                <span className="text-xs text-[var(--muted-foreground)]">
+                  {description.length}/1000 characters
+                </span>
               </div>
-            </motion.div>
-          ) : (
-            /* Step 2: Details and Evidence */
-            <motion.div
-              key="step2"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              className="space-y-4"
-            >
-              <div>
-                <label htmlFor="description" className="block text-sm font-medium mb-2">
-                  Please describe what happened
-                </label>
-                <textarea
-                  id="description"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Provide a detailed description of the issue..."
-                  className="w-full px-3 py-2 bg-black/30 border border-white/10 rounded-lg focus:border-[var(--accent)] outline-none resize-none"
-                  rows={4}
-                  maxLength={1000}
-                  required
-                />
-                <div className="flex justify-between items-center mt-1">
-                  <span className="text-xs text-[var(--muted-foreground)]">
-                    {description.length}/1000 characters
-                  </span>
-                </div>
-              </div>
+            </div>
 
-              <div>
-                <label htmlFor="evidence" className="block text-sm font-medium mb-2">
-                  Additional evidence (optional)
-                </label>
-                <textarea
-                  id="evidence"
-                  value={evidence}
-                  onChange={(e) => setEvidence(e.target.value)}
-                  placeholder="Links to screenshots, URLs, or other evidence..."
-                  className="w-full px-3 py-2 bg-black/30 border border-white/10 rounded-lg focus:border-[var(--accent)] outline-none resize-none"
-                  rows={3}
-                  maxLength={500}
-                />
-                <div className="flex justify-between items-center mt-1">
-                  <span className="text-xs text-[var(--muted-foreground)]">
-                    {evidence.length}/500 characters
-                  </span>
-                </div>
+            <div>
+              <label htmlFor="evidence" className="block text-sm font-medium mb-2">
+                Additional evidence (optional)
+              </label>
+              <textarea
+                id="evidence"
+                value={evidence}
+                onChange={(e) => setEvidence(e.target.value)}
+                placeholder="Links to screenshots, URLs, or other evidence..."
+                className="w-full px-3 py-2 bg-black/30 border border-white/10 rounded-lg focus:border-[var(--accent)] outline-none resize-none transition-colors"
+                rows={3}
+                maxLength={500}
+              />
+              <div className="flex justify-between items-center mt-1">
+                <span className="text-xs text-[var(--muted-foreground)]">
+                  {evidence.length}/500 characters
+                </span>
               </div>
+            </div>
 
-              <div className="flex items-center gap-3">
-                <Button
-                  type="button"
-                  variant="secondary"
-                  onClick={prevStep}
-                  className="flex items-center gap-2"
-                >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                    <path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                  Back
-                </Button>
-                <Button
-                  type="submit"
-                  disabled={!description.trim() || isSubmitting}
-                  className="flex-1 flex items-center gap-2"
-                >
-                  {isSubmitting ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                      Submitting...
-                    </>
-                  ) : (
-                    <>
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                      Submit Report
-                    </>
-                  )}
-                </Button>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+            <div className="flex items-center gap-3">
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={prevStep}
+                className="flex items-center gap-2"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                  <path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                Back
+              </Button>
+              <Button
+                type="submit"
+                disabled={!description.trim() || isSubmitting}
+                className="flex-1 flex items-center gap-2"
+              >
+                {isSubmitting ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    Submitting...
+                  </>
+                ) : (
+                  <>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    Submit Report
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        )}
 
         {/* Cancel Button */}
         {onCancel && (
@@ -240,6 +222,6 @@ export function ScamReportForm({ targetUserId, targetUsername, postId, onReportS
           </div>
         )}
       </form>
-    </motion.div>
+    </div>
   );
-}
+});

@@ -1,20 +1,30 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Outfit, Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/layout/Navbar";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { SessionProvider } from "@/components/providers/SessionProvider";
 import { ToastProvider } from "@/components/providers/ToastProvider";
+import { PerformanceProvider } from "@/components/providers/PerformanceProvider";
 import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
+import { AnimatedBackground } from "@/components/ui/AnimatedBackground";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const outfit = Outfit({
+  variable: "--font-outfit",
   subsets: ["latin"],
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const spaceGrotesk = Space_Grotesk({
+  variable: "--font-space-grotesk",
   subsets: ["latin"],
+  display: "swap",
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-jetbrains-mono",
+  subsets: ["latin"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -35,24 +45,40 @@ export const metadata: Metadata = {
   },
 };
 
+// Viewport config for better mobile performance
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: "#0a0a0f",
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen` }>
+    <html lang="en" className="dark">
+      <body className={`${outfit.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable} antialiased min-h-screen`}>
         <SessionProvider>
           <ToastProvider>
+            <PerformanceProvider>
             <ErrorBoundary>
+              {/* Animated background */}
+              <AnimatedBackground />
+              
               <Sidebar />
-              <div className="ml-72 min-h-screen bg-gradient-to-br from-slate-900/95 via-purple-900/10 to-slate-900/95">
+              <div className="ml-72 min-h-screen relative">
                 <Navbar />
-                <main className="min-h-screen relative">
-                  {/* Background gradient overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-purple-600/5 via-transparent to-blue-600/5 pointer-events-none"></div>
-                  <div className="relative z-10">
+                <main className="min-h-screen relative isolate">
+                  {/* Gradient overlay */}
+                  <div className="fixed inset-0 -z-10 gradient-bg pointer-events-none" />
+                  
+                  {/* Grid pattern */}
+                  <div className="fixed inset-0 -z-10 grid-pattern pointer-events-none opacity-50" />
+                  
+                  <div className="relative z-10 p-6">
                     <ErrorBoundary>
                       {children}
                     </ErrorBoundary>
@@ -60,6 +86,7 @@ export default function RootLayout({
                 </main>
               </div>
             </ErrorBoundary>
+            </PerformanceProvider>
           </ToastProvider>
         </SessionProvider>
       </body>

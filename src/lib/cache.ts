@@ -1,84 +1,294 @@
-// Simple in-memory cache with TTL support for API responses
-interface CacheEntry<T> {
+/**
+ * Unified cache with Redis support and in-memory fallback
+ * 
+ * Priority:
+ * 1. Upstash Redis (HTTP) - best for serverless
+ * 2. Standard Redis (TCP) - for traditional servers
+ * 3. In-Memory fallback - for local dev or when Redis unavailable
+ */
+
+import { Redis } from "@upstash/redis";
+import RedisIO from "ioredis";
+
+// Initialize Redis clients
+let upstashClient: Redis | null = null;
+let ioRedisClient: RedisIO | null = null;
+
+// Upstash Redis (HTTP-based, ideal for serverless)
+if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
+  try {
+    upstashClient = new Redis({
+      url: process.env.UPSTASH_REDIS_REST_URL,
+      token: process.env.UPSTASH_REDIS_REST_TOKEN,
+    });
+    console.log("[Cache] Using Upstash Redis");
+  } catch (e) {
+    console.error("[Cache] Failed to initialize Upstash Redis:", e);
+  }
+} 
+// Standard Redis (TCP-based)
+else if (process.env.REDIS_URL) {
+  try {
+    ioRedisClient = new RedisIO(process.env.REDIS_URL, {
+      maxRetriesPerRequest: 3,
+      lazyConnect: true,
+    });
+    console.log("[Cache] Using standard Redis");
+  } catch (e) {
+    console.error("[Cache] Failed to initialize Redis:", e);
+  }
+}
+
+if (!upstashClient && !ioRedisClient) {
+  console.log("[Cache] Using in-memory cache (not recommended for production)");
+}
+
+// In-memory cache for fallback
+interface MemoryCacheEntry<T> {
   data: T;
   expiresAt: number;
 }
 
-class ResponseCache {
-  private cache = new Map<string, CacheEntry<any>>();
-  private timers = new Map<string, NodeJS.Timeout>();
+const memoryCache = new Map<string, MemoryCacheEntry<unknown>>();
+const memoryTimers = new Map<string, NodeJS.Timeout>();
 
-  set<T>(key: string, data: T, ttlSeconds: number = 300) {
-    // Clear existing timer
-    const existingTimer = this.timers.get(key);
+class ResponseCache {
+  /**
+   * Set a value in cache with TTL
+   */
+  async set<T>(key: string, data: T, ttlSeconds: number = 300): Promise<void> {
+    // Upstash Redis
+    if (upstashClient) {
+      try {
+        await upstashClient.set(key, JSON.stringify(data), { ex: ttlSeconds });
+        return;
+      } catch (e) {
+        console.error("[Cache] Upstash set error:", e);
+        // Fall through to memory cache
+      }
+    }
+
+    // Standard Redis
+    if (ioRedisClient) {
+      try {
+        await ioRedisClient.set(key, JSON.stringify(data), "EX", ttlSeconds);
+        return;
+      } catch (e) {
+        console.error("[Cache] Redis set error:", e);
+        // Fall through to memory cache
+      }
+    }
+
+    // In-memory fallback
+    const existingTimer = memoryTimers.get(key);
     if (existingTimer) clearTimeout(existingTimer);
 
     const expiresAt = Date.now() + ttlSeconds * 1000;
-    this.cache.set(key, { data, expiresAt });
+    memoryCache.set(key, { data, expiresAt });
 
-    // Auto-delete after TTL
     const timer = setTimeout(() => {
-      this.cache.delete(key);
-      this.timers.delete(key);
+      memoryCache.delete(key);
+      memoryTimers.delete(key);
     }, ttlSeconds * 1000);
 
-    this.timers.set(key, timer);
+    memoryTimers.set(key, timer);
   }
 
-  get<T>(key: string): T | null {
-    const entry = this.cache.get(key) as CacheEntry<T> | undefined;
-    
+  /**
+   * Get a value from cache
+   */
+  async get<T>(key: string): Promise<T | null> {
+    // Upstash Redis
+    if (upstashClient) {
+      try {
+        const data = await upstashClient.get(key);
+        if (data === null) return null;
+        return typeof data === 'string' ? JSON.parse(data) : data as T;
+      } catch (e) {
+        console.error("[Cache] Upstash get error:", e);
+        // Fall through to memory cache
+      }
+    }
+
+    // Standard Redis
+    if (ioRedisClient) {
+      try {
+        const data = await ioRedisClient.get(key);
+        if (data === null) return null;
+        return JSON.parse(data) as T;
+      } catch (e) {
+        console.error("[Cache] Redis get error:", e);
+        // Fall through to memory cache
+      }
+    }
+
+    // In-memory fallback
+    const entry = memoryCache.get(key) as MemoryCacheEntry<T> | undefined;
     if (!entry) return null;
 
-    // Check if expired
     if (Date.now() > entry.expiresAt) {
-      this.cache.delete(key);
-      const timer = this.timers.get(key);
+      memoryCache.delete(key);
+      const timer = memoryTimers.get(key);
       if (timer) clearTimeout(timer);
-      this.timers.delete(key);
+      memoryTimers.delete(key);
       return null;
     }
 
     return entry.data;
   }
 
-  has(key: string): boolean {
-    return this.get(key) !== null;
+  /**
+   * Check if key exists in cache
+   */
+  async has(key: string): Promise<boolean> {
+    return (await this.get(key)) !== null;
   }
 
-  // Invalidate all cache entries matching a pattern
-  invalidatePattern(pattern: string | RegExp) {
+  /**
+   * Delete a specific key
+   */
+  async delete(key: string): Promise<void> {
+    // Upstash Redis
+    if (upstashClient) {
+      try {
+        await upstashClient.del(key);
+      } catch (e) {
+        console.error("[Cache] Upstash delete error:", e);
+      }
+    }
+
+    // Standard Redis
+    if (ioRedisClient) {
+      try {
+        await ioRedisClient.del(key);
+      } catch (e) {
+        console.error("[Cache] Redis delete error:", e);
+      }
+    }
+
+    // Always clear from memory too
+    memoryCache.delete(key);
+    const timer = memoryTimers.get(key);
+    if (timer) clearTimeout(timer);
+    memoryTimers.delete(key);
+  }
+
+  /**
+   * Invalidate all keys matching a pattern
+   * Note: Pattern matching is less efficient in Redis, use sparingly
+   */
+  async invalidatePattern(pattern: string | RegExp): Promise<void> {
     const regex = typeof pattern === 'string' ? new RegExp(pattern) : pattern;
-    const keysToDelete = [];
-    
-    for (const key of this.cache.keys()) {
+
+    // Upstash Redis - use SCAN for pattern matching
+    if (upstashClient) {
+      try {
+        let cursor = 0;
+        do {
+          const [nextCursor, keys] = await upstashClient.scan(cursor, { count: 100 });
+          cursor = Number(nextCursor);
+          
+          const keysToDelete = (keys as string[]).filter(key => regex.test(key));
+          if (keysToDelete.length > 0) {
+            await Promise.all(keysToDelete.map(key => upstashClient!.del(key)));
+          }
+        } while (cursor !== 0);
+      } catch (e) {
+        console.error("[Cache] Upstash invalidatePattern error:", e);
+      }
+    }
+
+    // Standard Redis
+    if (ioRedisClient) {
+      try {
+        const stream = ioRedisClient.scanStream({ count: 100 });
+        const pipeline = ioRedisClient.pipeline();
+        let count = 0;
+
+        stream.on('data', (keys: string[]) => {
+          const keysToDelete = keys.filter(key => regex.test(key));
+          keysToDelete.forEach(key => {
+            pipeline.del(key);
+            count++;
+          });
+        });
+
+        await new Promise<void>((resolve, reject) => {
+          stream.on('end', async () => {
+            if (count > 0) await pipeline.exec();
+            resolve();
+          });
+          stream.on('error', reject);
+        });
+      } catch (e) {
+        console.error("[Cache] Redis invalidatePattern error:", e);
+      }
+    }
+
+    // In-memory fallback
+    const keysToDelete: string[] = [];
+    for (const key of memoryCache.keys()) {
       if (regex.test(key)) {
         keysToDelete.push(key);
       }
     }
-    
     keysToDelete.forEach(key => {
-      this.cache.delete(key);
-      const timer = this.timers.get(key);
+      memoryCache.delete(key);
+      const timer = memoryTimers.get(key);
       if (timer) clearTimeout(timer);
-      this.timers.delete(key);
+      memoryTimers.delete(key);
     });
   }
 
-  clear() {
-    this.timers.forEach(timer => clearTimeout(timer));
-    this.cache.clear();
-    this.timers.clear();
+  /**
+   * Clear all cache entries
+   */
+  async clear(): Promise<void> {
+    // Upstash Redis
+    if (upstashClient) {
+      try {
+        await upstashClient.flushdb();
+      } catch (e) {
+        console.error("[Cache] Upstash clear error:", e);
+      }
+    }
+
+    // Standard Redis
+    if (ioRedisClient) {
+      try {
+        await ioRedisClient.flushdb();
+      } catch (e) {
+        console.error("[Cache] Redis clear error:", e);
+      }
+    }
+
+    // In-memory fallback
+    memoryTimers.forEach(timer => clearTimeout(timer));
+    memoryCache.clear();
+    memoryTimers.clear();
   }
 
-  // Shorthand for getOrSet pattern
-  async getOrSet<T>(key: string, fetcher: () => Promise<T>, ttlSeconds: number = 300): Promise<T> {
-    const cached = this.get<T>(key);
+  /**
+   * Get or set pattern - fetch from cache or compute and store
+   */
+  async getOrSet<T>(
+    key: string, 
+    fetcher: () => Promise<T>, 
+    ttlSeconds: number = 300
+  ): Promise<T> {
+    const cached = await this.get<T>(key);
     if (cached !== null) return cached;
 
     const data = await fetcher();
-    this.set(key, data, ttlSeconds);
+    await this.set(key, data, ttlSeconds);
     return data;
+  }
+
+  /**
+   * Check if Redis is available (for diagnostics)
+   */
+  isRedisAvailable(): boolean {
+    return upstashClient !== null || ioRedisClient !== null;
   }
 }
 

@@ -62,7 +62,20 @@ export async function POST(request: NextRequest) {
     // Invalidate feed cache to reflect the new save state
     responseCache.invalidatePattern(/^feed:/);
     // Also invalidate current user's engagement caches
-    responseCache.invalidatePattern(new RegExp(`^users:${user.id}:|^saved-posts:${user.id}:`));
+    responseCache.invalidatePattern(new RegExp(`^users:${user.id}:`));
+    responseCache.invalidatePattern(new RegExp(`^saved-posts:${user.id}:`));
+    
+    // Explicitly delete all saved posts cache keys (they're paginated)
+    // Delete common pagination patterns
+    for (let page = 1; page <= 10; page++) {
+      for (let limit of [20, 50, 100]) {
+        const savedPostsCacheKey = `saved-posts:${user.id}:page-${page}:limit-${limit}`;
+        responseCache.delete(savedPostsCacheKey);
+      }
+    }
+    // Also delete the generic key pattern
+    const genericSavedCacheKey = `saved-posts:${user.id}:posts`;
+    responseCache.delete(genericSavedCacheKey);
 
     return NextResponse.json({ saved });
   } catch (error) {
@@ -92,14 +105,9 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Use cache key that can be invalidated when saves change
-    const cacheKey = `saved-posts:${user.id}:page-${page}:limit-${limit}`;
-    
-    // Try to get from cache first
-    let cachedResponse = responseCache.get(cacheKey);
-    if (cachedResponse) {
-      return NextResponse.json(cachedResponse);
-    }
+    // IMPORTANT: Do NOT cache saves endpoint
+    // Caching causes stale data to be served after unsave actions
+    // The profile page needs fresh data immediately for instant updates
 
     const savedPosts = await prisma.savedPost.findMany({
       where: { userId: user.id },
@@ -129,6 +137,7 @@ export async function GET(request: NextRequest) {
             },
             likes: true,
             reposts: true,
+            savedBy: true,
             replies: true,
             media: {
               orderBy: { order: 'asc' }
@@ -150,12 +159,28 @@ export async function GET(request: NextRequest) {
       take: limit
     });
 
-    // Add view counts and transform poll data to posts
+    // OPTIMIZATION: Batch fetch all views instead of N+1 queries
+    const postIds = savedPosts.map(sp => sp.post.id);
+    const allViews = await prisma.postView.findMany({
+      where: { postId: { in: postIds } },
+      select: { postId: true, userId: true }
+    });
+    
+    // Group views by postId and calculate unique counts
+    const viewsMap = new Map<string, Set<string>>();
+    allViews.forEach(view => {
+      if (!viewsMap.has(view.postId)) {
+        viewsMap.set(view.postId, new Set<string>());
+      }
+      if (view.userId) {
+        viewsMap.get(view.postId)!.add(view.userId);
+      }
+    });
+
+    // Add unique account view counts and transform poll data to posts
     const postsWithViewCounts = await Promise.all(
       savedPosts.map(async (savedPost) => {
-        const viewCount = await prisma.postView.count({
-          where: { postId: savedPost.post.id }
-        });
+        const viewCount = viewsMap.get(savedPost.post.id)?.size || 0;
         
         // Transform poll data if it exists
         let transformedPost = { ...savedPost.post, views: viewCount };
@@ -215,10 +240,14 @@ export async function GET(request: NextRequest) {
       })
     );
 
-    // Cache the response
-    responseCache.set(cacheKey, postsWithViewCounts);
-
-    return NextResponse.json({ savedPosts: postsWithViewCounts });
+    // Return fresh data without caching - profile tab updates need to be instant
+    return NextResponse.json({ savedPosts: postsWithViewCounts }, {
+      headers: {
+        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
+    });
   } catch (error) {
     console.error("Saved posts fetch error:", error);
     return NextResponse.json({ error: "Failed to fetch saved posts" }, { status: 500 });

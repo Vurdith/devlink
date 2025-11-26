@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { memo, useMemo } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 
 interface TimeAgoProps {
@@ -8,21 +8,15 @@ interface TimeAgoProps {
   className?: string;
 }
 
-export function TimeAgo({ date, className }: TimeAgoProps) {
-  const [mounted, setMounted] = useState(false);
+// Memoized TimeAgo - calculates once, no intervals (saves CPU)
+export const TimeAgo = memo(function TimeAgo({ date, className }: TimeAgoProps) {
+  const timeAgo = useMemo(() => {
+    try {
+      return formatDistanceToNow(new Date(date), { addSuffix: true });
+    } catch {
+      return '';
+    }
+  }, [date]);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) {
-    // Return a placeholder during SSR to prevent hydration mismatch
-    return <span className={className}>Loading...</span>;
-  }
-
-  return (
-    <span className={className}>
-      {formatDistanceToNow(new Date(date), { addSuffix: true })}
-    </span>
-  );
-}
+  return <span className={className}>{timeAgo}</span>;
+});

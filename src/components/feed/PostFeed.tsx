@@ -1,8 +1,6 @@
 "use client";
-import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { memo, useCallback } from "react";
 import PostDetail from "./PostDetail";
-import { memo } from "react";
 import { FeedSkeleton } from "@/components/ui/LoadingSpinner";
 
 interface Post {
@@ -17,8 +15,16 @@ interface Post {
     name: string | null;
     profile: {
       avatarUrl: string | null;
+      bannerUrl: string | null;
       profileType: string;
       verified: boolean;
+      bio: string | null;
+      website: string | null;
+      location: string | null;
+    } | null;
+    _count?: {
+      followers: number;
+      following: number;
     };
   };
   media: Array<{
@@ -41,9 +47,9 @@ interface Post {
     expiresAt: Date;
     totalVotes: number;
   };
-  likes: Array<{ id: string; userId: string }>;
-  reposts: Array<{ id: string; userId: string }>;
-  replies: Array<any>;
+  likes?: Array<{ id: string; userId: string }>;
+  reposts?: Array<{ id: string; userId: string }>;
+  replies?: Array<any>;
   views: number;
   isLiked?: boolean;
   isReposted?: boolean;
@@ -59,9 +65,54 @@ interface PostFeedProps {
   hidePinnedIndicator?: boolean;
   showNavigationArrow?: boolean;
   isLoading?: boolean;
+  onUpdate?: (updatedPost: Post) => void;
 }
 
-export const PostFeed = memo(function PostFeed({ posts, currentUserId, hidePinnedIndicator = false, showNavigationArrow = true, isLoading = false }: PostFeedProps) {
+// Memoized post item with stable callback
+const PostItem = memo(function PostItem({ 
+  post, 
+  showPinnedTag, 
+  onUpdate,
+  index
+}: { 
+  post: Post; 
+  showPinnedTag: boolean; 
+  onUpdate?: (updatedPost: Post) => void;
+  index: number;
+}) {
+  return (
+    <article 
+      className="animate-post-in"
+      style={{ 
+        animationDelay: `${Math.min(index * 30, 150)}ms`,
+        contain: 'layout style paint'
+      }}
+    >
+      <PostDetail
+        post={post}
+        showPinnedTag={showPinnedTag}
+        onUpdate={onUpdate}
+      />
+    </article>
+  );
+}, (prev, next) => {
+  // Custom comparison - only re-render if post data actually changed
+  return prev.post.id === next.post.id && 
+         prev.post.updatedAt === next.post.updatedAt &&
+         prev.showPinnedTag === next.showPinnedTag;
+});
+
+export const PostFeed = memo(function PostFeed({ 
+  posts, 
+  hidePinnedIndicator = false, 
+  isLoading = false, 
+  onUpdate 
+}: PostFeedProps) {
+  // Stable callback reference
+  const handleUpdate = useCallback((updatedPost: Post) => {
+    onUpdate?.(updatedPost);
+  }, [onUpdate]);
+
   if (isLoading) {
     return <FeedSkeleton />;
   }
@@ -69,7 +120,11 @@ export const PostFeed = memo(function PostFeed({ posts, currentUserId, hidePinne
   if (posts.length === 0) {
     return (
       <div className="text-center py-12">
-        <div className="text-6xl mb-4">📭</div>
+        <div className="w-20 h-20 mx-auto mb-4 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center">
+          <svg className="w-10 h-10 text-[var(--muted-foreground)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+          </svg>
+        </div>
         <h3 className="text-xl font-semibold text-white mb-2">No posts found</h3>
         <p className="text-gray-400">
           Be the first to share something with the community!
@@ -80,27 +135,15 @@ export const PostFeed = memo(function PostFeed({ posts, currentUserId, hidePinne
 
   return (
     <div className="space-y-6">
-      <AnimatePresence mode="popLayout">
-        {posts.map((post, index) => (
-          <motion.div
-            key={post.id}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ 
-              duration: 0.2, 
-              delay: Math.min(index * 0.05, 0.3), // Reduced delay and capped
-              ease: "easeOut"
-            }}
-            layout={false} // Disable layout animations for better performance
-          >
-            <PostDetail
-              post={post}
-              showPinnedTag={!hidePinnedIndicator}
-            />
-          </motion.div>
-        ))}
-      </AnimatePresence>
+      {posts.map((post, index) => (
+        <PostItem
+          key={post.id}
+          post={post}
+          showPinnedTag={!hidePinnedIndicator}
+          onUpdate={handleUpdate}
+          index={index}
+        />
+      ))}
     </div>
   );
 });

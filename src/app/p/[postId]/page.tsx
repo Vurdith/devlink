@@ -52,6 +52,12 @@ export default async function PostPage({ params }: { params: Promise<{ postId: s
               website: true,
               location: true
             }
+          },
+          _count: {
+            select: {
+              followers: true,
+              following: true
+            }
           }
         }
       },
@@ -87,6 +93,12 @@ export default async function PostPage({ params }: { params: Promise<{ postId: s
                   website: true,
                   location: true
                 }
+              },
+              _count: {
+                select: {
+                  followers: true,
+                  following: true
+                }
               }
             }
           },
@@ -108,6 +120,12 @@ export default async function PostPage({ params }: { params: Promise<{ postId: s
                       bio: true,
                       website: true,
                       location: true
+                    }
+                  },
+                  _count: {
+                    select: {
+                      followers: true,
+                      following: true
                     }
                   }
                 }
@@ -134,6 +152,12 @@ export default async function PostPage({ params }: { params: Promise<{ postId: s
                           bio: true,
                           website: true,
                           location: true
+                        }
+                      },
+                      _count: {
+                        select: {
+                          followers: true,
+                          following: true
                         }
                       }
                     }
@@ -169,6 +193,12 @@ export default async function PostPage({ params }: { params: Promise<{ postId: s
                   website: true,
                   location: true
                 }
+              },
+              _count: {
+                select: {
+                  followers: true,
+                  following: true
+                }
               }
             }
           },
@@ -188,13 +218,18 @@ export default async function PostPage({ params }: { params: Promise<{ postId: s
     notFound();
   }
 
-  // Get view count for the post
-  const viewCount = await prisma.postView.count({
-    where: { postId: post.id }
+  // Get unique account view count for the post
+  const allViews = await prisma.postView.findMany({
+    where: { postId: post.id },
+    select: { userId: true }
   });
+  
+  const uniqueAccountViewCount = new Set(
+    allViews.filter(v => v.userId).map(v => v.userId)
+  ).size;
 
   // Transform poll data to include user's vote status and vote counts
-  let transformedPost = { ...post, views: viewCount };
+  let transformedPost = { ...post, views: uniqueAccountViewCount };
   if (post.poll && session?.user?.id) {
     const totalVotes = post.poll.options.reduce((sum: number, option: any) => sum + option.votes.length, 0);
     
@@ -223,13 +258,17 @@ export default async function PostPage({ params }: { params: Promise<{ postId: s
     } as any;
   }
 
-  // Add view counts to replies
+  // Add unique account view counts to replies
   const repliesWithViewCounts = await Promise.all(
     transformedPost.replies.map(async (reply: any) => {
-      const replyViewCount = await prisma.postView.count({
-        where: { postId: reply.id }
+      const replyViews = await prisma.postView.findMany({
+        where: { postId: reply.id },
+        select: { userId: true }
       });
-      return { ...reply, views: replyViewCount };
+      const replyUniqueViewCount = new Set(
+        replyViews.filter(v => v.userId).map(v => v.userId)
+      ).size;
+      return { ...reply, views: replyUniqueViewCount };
     })
   );
 

@@ -1,72 +1,119 @@
 "use client";
+
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { useSession } from "next-auth/react";
-import { Avatar } from "@/components/ui/Avatar";
 import { ProfileMenu } from "@/components/layout/ProfileMenu";
 import { NavbarSearch } from "./NavbarSearch";
-import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useEffect, useState, memo } from "react";
+import { cn } from "@/lib/cn";
 
-export function Navbar() {
+export const Navbar = memo(function Navbar() {
   const { data: session } = useSession();
   const username = (session?.user as any)?.username as string | undefined;
   const googleImage = (session?.user as any)?.image as string | undefined;
+  const sessionName = (session?.user as any)?.name as string | undefined;
   const [avatarUrl, setAvatarUrl] = useState<string | undefined>(googleImage);
+  const [displayName, setDisplayName] = useState<string | undefined>(sessionName);
+  const [profileType, setProfileType] = useState<string | undefined>();
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 10);
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   useEffect(() => {
     if (username) {
-      // For Google users, use Google image directly
       if (googleImage) {
         setAvatarUrl(googleImage);
-        return;
       }
       
-      // For email/password users, fetch DevLink profile avatar
       fetch(`/api/user/${username}`)
         .then(res => res.json())
         .then(data => {
           if (data.user?.profile?.avatarUrl) {
             setAvatarUrl(data.user.profile.avatarUrl);
-          } else {
-            setAvatarUrl(undefined);
+          }
+          if (data.user?.name) {
+            setDisplayName(data.user.name);
+          }
+          if (data.user?.profile?.profileType) {
+            setProfileType(data.user.profile.profileType);
           }
         })
         .catch(console.error);
     }
   }, [username, googleImage]);
+
   return (
     <header
-      className="sticky top-0 z-40 w-full bg-gradient-to-r from-slate-900/95 via-purple-900/20 to-slate-900/95 backdrop-blur-2xl border-b border-purple-500/20 shadow-2xl"
+      className={cn(
+        "sticky top-0 z-40 w-full transition-all duration-200",
+        scrolled 
+          ? "glass border-b border-white/10 shadow-lg shadow-black/20" 
+          : "bg-transparent border-b border-transparent"
+      )}
     >
-      {/* Static background gradient */}
-      <div className="absolute inset-0 bg-gradient-to-r from-purple-600/10 via-transparent to-blue-600/10"></div>
+      {/* Gradient line on top */}
+      <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-purple-500/50 to-transparent" />
       
-      <div className="relative w-full px-6 h-20 flex items-center">
-        {/* Search bar - moved to far left */}
-        <div className="flex items-center">
+      <div className="relative w-full px-6 h-16 flex items-center">
+        {/* Search bar */}
+        <div className="flex items-center flex-1">
           <NavbarSearch />
         </div>
 
-        {/* Spacer to push profile to far right */}
-        <div className="flex-1"></div>
+        {/* Right side actions */}
+        <div className="flex items-center gap-3">
+          {/* Quick action buttons for logged-in users */}
+          {username && (
+            <div className="hidden md:flex items-center gap-2">
+              {/* Notifications placeholder */}
+              <button
+                className="relative p-2.5 rounded-xl text-[var(--muted-foreground)] hover:text-white hover:bg-white/5 transition-all duration-150 hover:scale-105 active:scale-95"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                </svg>
+                {/* Notification dot */}
+                <span className="absolute top-2 right-2 w-2 h-2 bg-purple-500 rounded-full" />
+              </button>
+              
+              {/* Messages placeholder */}
+              <button
+                className="relative p-2.5 rounded-xl text-[var(--muted-foreground)] hover:text-white hover:bg-white/5 transition-all duration-150 hover:scale-105 active:scale-95"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                </svg>
+              </button>
+            </div>
+          )}
 
-        {/* Right side - Existing profile menu (moved to far right) */}
-        <div className="flex items-center gap-4">
+          {/* Profile or auth buttons */}
           {username ? (
-            <ProfileMenu username={username} avatarUrl={avatarUrl} />
+            <ProfileMenu 
+              username={username} 
+              avatarUrl={avatarUrl} 
+              name={displayName}
+              profileType={profileType}
+            />
           ) : (
             <div className="flex items-center gap-3">
               <Link href="/login" className="hidden sm:inline-flex">
                 <Button
                   variant="ghost"
-                  className="bg-gradient-to-r from-purple-500/10 to-blue-500/10 border border-purple-500/20 hover:from-purple-500/20 hover:to-blue-500/20 text-purple-200 hover:text-white transition-all duration-300"
+                  className="text-[var(--muted-foreground)] hover:text-white border-0"
                 >
                   Log in
                 </Button>
               </Link>
               <Link href="/register">
-                <Button className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white border-0 shadow-lg shadow-purple-500/25 transition-all duration-300">
+                <Button className="bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white border-0 shadow-lg shadow-purple-500/20">
                   Sign up
                 </Button>
               </Link>
@@ -76,8 +123,4 @@ export function Navbar() {
       </div>
     </header>
   );
-}
-
-// client dropdown moved to ProfileMenu.tsx
-
-
+});

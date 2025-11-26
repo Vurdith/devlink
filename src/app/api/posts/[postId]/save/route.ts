@@ -63,7 +63,24 @@ export async function POST(
     // Invalidate feed cache to reflect the new save state
     responseCache.invalidatePattern(/^feed:/);
     // Also invalidate current user's engagement caches
-    responseCache.invalidatePattern(new RegExp(`^users:${userId}:|^saved-posts:${userId}:`));
+    responseCache.invalidatePattern(new RegExp(`^users:${userId}:`));
+    responseCache.invalidatePattern(new RegExp(`^saved-posts:${userId}:`));
+    
+    // Explicitly delete all saved posts cache keys (they're paginated)
+    // Delete common pagination patterns
+    for (let page = 1; page <= 10; page++) {
+      for (let limit of [20, 50, 100]) {
+        const savedPostsCacheKey = `saved-posts:${userId}:page-${page}:limit-${limit}`;
+        responseCache.delete(savedPostsCacheKey);
+      }
+    }
+    // Also delete the generic key pattern
+    const genericSavedCacheKey = `saved-posts:${userId}:posts`;
+    responseCache.delete(genericSavedCacheKey);
+    
+    // Also invalidate liked posts cache
+    const likedPostsCacheKey = `users:${userId}:liked-posts`;
+    responseCache.delete(likedPostsCacheKey);
 
     return NextResponse.json({ saved });
   } catch (error) {

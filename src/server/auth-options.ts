@@ -8,6 +8,9 @@ import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { prisma } from "@/server/db";
 import { compare } from "bcryptjs";
 
+// Track new OAuth signups for redirect
+const newOAuthSignups = new Set<string>();
+
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   secret: process.env.NEXTAUTH_SECRET,
@@ -59,23 +62,105 @@ export const authOptions: NextAuthOptions = {
       
       if (account?.provider && profile && user.email) {
         try {
-          // Check if user exists by email
-          const existingUser = await prisma.user.findUnique({
-            where: { email: user.email },
-            include: { accounts: true }
-          });
+          // Use a transaction for atomicity
+          await prisma.$transaction(async (tx) => {
+            // Check if user exists by email
+            const existingUser = await tx.user.findUnique({
+              where: { email: user.email! },
+              include: { accounts: true }
+            });
 
-          if (existingUser) {
-            // Check if this social account is already linked
-            const existingAccount = existingUser.accounts.find(
-              acc => acc.provider === account.provider && acc.providerAccountId === account.providerAccountId
-            );
-            
-            if (!existingAccount) {
-              // Link new social account to existing user
-              await prisma.account.create({
+            if (existingUser) {
+              // Check if this social account is already linked
+              const existingAccount = existingUser.accounts.find(
+                acc => acc.provider === account.provider && acc.providerAccountId === account.providerAccountId
+              );
+              
+              if (!existingAccount) {
+                // Link new social account to existing user
+                await tx.account.create({
+                  data: {
+                    userId: existingUser.id,
+                    type: account.type,
+                    provider: account.provider,
+                    providerAccountId: account.providerAccountId,
+                    refresh_token: account.refresh_token,
+                    access_token: account.access_token,
+                    expires_at: account.expires_at,
+                    token_type: account.token_type,
+                    scope: account.scope,
+                    id_token: account.id_token,
+                    session_state: account.session_state as string | undefined,
+                  }
+                });
+              }
+            } else {
+              // Create new user from social login
+              const sanitizeUsername = (name: string | null | undefined, email: string): string => {
+                // Start with name or email prefix
+                const baseName = name || email.split('@')[0];
+                // Only allow alphanumeric and underscores, minimum 3 chars
+                let sanitized = baseName
+                  .toLowerCase()
+                  .replace(/[^a-z0-9_]/g, '')
+                  .replace(/^_+|_+$/g, '') // Remove leading/trailing underscores
+                  .substring(0, 20);
+                
+                // Ensure minimum length
+                if (sanitized.length < 3) {
+                  sanitized = 'user' + Math.random().toString(36).substring(2, 8);
+                }
+                
+                return sanitized;
+              };
+
+              const baseUsername = sanitizeUsername(user.name, user.email!);
+              let username = baseUsername;
+              let counter = 1;
+              const maxAttempts = 100; // Prevent infinite loop
+
+              // Ensure username is unique
+              while (counter < maxAttempts) {
+                const existingUsername = await tx.user.findUnique({ 
+                  where: { username },
+                  select: { id: true }
+                });
+                
+                if (!existingUsername) break;
+                
+                username = `${baseUsername}${counter}`;
+                counter++;
+              }
+
+              // If we couldn't find a unique username, generate a random one
+              if (counter >= maxAttempts) {
+                username = `user${Date.now().toString(36)}${Math.random().toString(36).substring(2, 6)}`;
+              }
+
+              const newUser = await tx.user.create({
                 data: {
-                  userId: existingUser.id,
+                  email: user.email!,
+                  username,
+                  name: user.name,
+                  image: user.image,
+                  emailVerified: new Date(),
+                }
+              });
+
+              // Create profile for new user
+              await tx.profile.create({
+                data: {
+                  userId: newUser.id,
+                  bio: null,
+                  profileType: "DEVELOPER",
+                  avatarUrl: user.image ?? null,
+                }
+              });
+
+              // Create the OAuth account link
+              await tx.account.create({
+                data: {
+                  userId: newUser.id,
                   type: account.type,
                   provider: account.provider,
                   providerAccountId: account.providerAccountId,
@@ -85,89 +170,85 @@ export const authOptions: NextAuthOptions = {
                   token_type: account.token_type,
                   scope: account.scope,
                   id_token: account.id_token,
-                  session_state: account.session_state,
+                  session_state: account.session_state as string | undefined,
                 }
               });
+
+              // Mark this as a new OAuth signup so we can redirect to set password
+              newOAuthSignups.add(user.email!);
+              
+              // Auto-cleanup after 5 minutes to prevent memory leaks
+              setTimeout(() => {
+                newOAuthSignups.delete(user.email!);
+              }, 5 * 60 * 1000);
             }
-            return true;
-          } else {
-            // Create new user from social login
-            const sanitizeUsername = (name: string | null | undefined, email: string): string => {
-              if (name) {
-                return name
-                  .toLowerCase()
-                  .replace(/[^a-z0-9_]/g, '') // Only allow alphanumeric and underscores
-                  .substring(0, 20) // Limit length
-                  || email.split('@')[0].replace(/[^a-z0-9_]/g, '').substring(0, 20);
-              }
-              return email.split('@')[0].replace(/[^a-z0-9_]/g, '').substring(0, 20);
-            };
-
-            const baseUsername = sanitizeUsername(user.name, user.email);
-            let username = baseUsername;
-            let counter = 1;
-
-            // Ensure username is unique
-            while (await prisma.user.findUnique({ where: { username } })) {
-              username = `${baseUsername}${counter}`;
-              counter++;
-            }
-
-            const newUser = await prisma.user.create({
-              data: {
-                email: user.email,
-                username,
-                name: user.name,
-                image: user.image,
-                emailVerified: new Date(),
-              }
-            });
-
-            // Create profile for new user
-            await prisma.profile.create({
-              data: {
-                userId: newUser.id,
-                bio: null,
-                profileType: "DEVELOPER",
-                // Seed avatar with provider image so UI shows a proper avatar immediately
-                avatarUrl: user.image ?? null,
-              }
-            });
-
-            return true;
-          }
+          });
+          
+          return true;
         } catch (error) {
-          console.error("Error in signIn callback:", error);
+          console.error("[OAuth SignIn Error]", error);
           return false;
         }
       }
       
       return true;
     },
-    async jwt({ token, user }) {
-      // Persist user.id on first sign-in
+    async jwt({ token, user, trigger }) {
+      // OPTIMIZATION: Only query DB on first sign-in or explicit update
+      // This prevents a DB query on every single API request
+      
+      // First sign-in: populate token from user object and DB
       if (user) {
         token.id = (user as { id: string }).id;
-      }
-      // Always resolve canonical DevLink username from DB so OAuth shows username (not provider display name)
-      if (token.id) {
+        
+        // Check if this is a new OAuth signup
+        if (user.email && newOAuthSignups.has(user.email)) {
+          token.needsPassword = true;
+          newOAuthSignups.delete(user.email);
+        }
+        
+        // Fetch username from DB on first sign-in only
         try {
-          const dbUser = await prisma.user.findUnique({ where: { id: token.id as string }, select: { username: true } });
+          const dbUser = await prisma.user.findUnique({ 
+            where: { id: token.id as string }, 
+            select: { username: true, password: true } 
+          });
           if (dbUser?.username) token.username = dbUser.username;
+          if (dbUser?.password) token.needsPassword = false;
         } catch (e) {
-          // noop
+          // Use fallback from user object
+          token.username = (user as { name?: string }).name || "";
         }
       }
+      
+      // Explicit update trigger: refresh from DB (e.g., after username change)
+      if (trigger === "update" && token.id) {
+        try {
+          const dbUser = await prisma.user.findUnique({ 
+            where: { id: token.id as string }, 
+            select: { username: true, password: true } 
+          });
+          if (dbUser?.username) token.username = dbUser.username;
+          if (dbUser?.password) token.needsPassword = false;
+          else token.needsPassword = true;
+        } catch (e) {
+          // Keep existing token values on error
+        }
+      }
+      
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
         (session.user as { id: string }).id = token.id as string;
         (session.user as { username: string }).username = (token as { username?: string }).username || (session.user as { name?: string }).name || "";
+        (session.user as { needsPassword?: boolean }).needsPassword = (token as { needsPassword?: boolean }).needsPassword || false;
       }
       return session;
     },
     async redirect({ url, baseUrl }) {
+      // Check if this is a new OAuth signup that needs to set password
+      // The URL will contain the callbackUrl which we can check
       if (url.startsWith("/")) return `${baseUrl}${url}`;
       return baseUrl;
     },

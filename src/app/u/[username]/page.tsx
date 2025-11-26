@@ -11,6 +11,7 @@ import { authOptions } from "@/server/auth-options";
 import { AvatarEditOverlay, BannerEditOverlay } from "./MediaEditor";
 import { AboutEditor } from "./AboutEditor";
 import { ProfileTabs } from "./ProfileTabs";
+import { getProfileTypeConfig, ProfileTypeIcon } from "@/lib/profile-types";
 
 export default async function UserProfilePage(props: { params: Promise<{ username: string }> }) {
   const session = await getServerSession(authOptions);
@@ -64,49 +65,55 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
   const rating = user.reviewsReceived.length
     ? (user.reviewsReceived.reduce((a, r) => a + r.rating, 0) / user.reviewsReceived.length).toFixed(1)
     : "—";
-  const typeLabel = user.profile?.profileType
-    ? ({ DEVELOPER: "Developer", CLIENT: "Client", STUDIO: "Studio", INFLUENCER: "Influencer", INVESTOR: "Investor", GUEST: "Guest" } as const)[user.profile.profileType]
-    : undefined;
 
-  // Get profile type colors
+  // Get profile type colors - distinct colors for each type
   const getProfileTypeColors = (type: string) => {
     switch (type) {
       case "DEVELOPER":
-        return "border-blue-500/40 bg-blue-500/10 text-blue-400";
+        return "border-blue-400/50 bg-blue-500/15 text-blue-300 shadow-sm shadow-blue-500/20";
       case "CLIENT":
-        return "border-green-500/40 bg-green-500/10 text-green-400";
+        return "border-emerald-400/50 bg-emerald-500/15 text-emerald-300 shadow-sm shadow-emerald-500/20";
       case "STUDIO":
-        return "border-purple-500/40 bg-purple-500/10 text-purple-400";
+        return "border-violet-400/50 bg-violet-500/15 text-violet-300 shadow-sm shadow-violet-500/20";
       case "INFLUENCER":
-        return "border-red-500/40 bg-red-500/10 text-red-400";
+        return "border-pink-400/50 bg-pink-500/15 text-pink-300 shadow-sm shadow-pink-500/20";
       case "INVESTOR":
-        return "border-yellow-500/40 bg-yellow-500/10 text-yellow-400";
+        return "border-amber-400/50 bg-amber-500/15 text-amber-300 shadow-sm shadow-amber-500/20";
       case "GUEST":
-        return "border-gray-500/40 bg-gray-500/10 text-gray-400";
+        return "border-gray-400/50 bg-gray-500/15 text-gray-300 shadow-sm shadow-gray-500/20";
       default:
-        return "border-[var(--accent)]/40 bg-[var(--accent)]/10 text-[var(--accent)]";
+        return "border-purple-400/50 bg-purple-500/15 text-purple-300 shadow-sm shadow-purple-500/20";
     }
   };
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-10">
-      <section className="relative overflow-hidden rounded-[var(--radius)]">
-        <div className="relative h-48 w-full group">
+      <section className="relative overflow-hidden rounded-2xl">
+        {/* Banner */}
+        <div className="relative h-52 w-full group">
           {user.profile?.bannerUrl ? (
-            <Image src={user.profile.bannerUrl} alt="Banner" fill className="object-cover" />
+            <Image src={user.profile.bannerUrl} alt="Banner" fill className="object-cover" priority />
           ) : (
-            <div className="h-full w-full bg-[var(--muted)]" />
+            <div className="h-full w-full bg-gradient-to-br from-purple-900/50 via-purple-800/30 to-indigo-900/50" />
           )}
+          {/* Banner overlay gradient */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
           <BannerEditOverlay editable={session?.user?.email === user.email} />
         </div>
-        <div className="absolute -top-24 -right-20 w-[420px] h-[420px] rounded-full blur-3xl opacity-30" style={{ background: "radial-gradient(50% 50% at 50% 50%, var(--accent) 0%, transparent 70%)" }} />
-        <div className="absolute -bottom-24 -left-20 w-[420px] h-[420px] rounded-full blur-3xl opacity-30" style={{ background: "radial-gradient(50% 50% at 50% 50%, var(--accent-2) 0%, transparent 70%)" }} />
-        <div className="glass px-6 md:px-8 pt-12 pb-8 glow relative">
+        
+        {/* Purple glow effects */}
+        <div className="absolute -top-24 -right-20 w-[420px] h-[420px] rounded-full blur-3xl opacity-40 bg-purple-500/30 pointer-events-none" />
+        <div className="absolute -bottom-24 -left-20 w-[420px] h-[420px] rounded-full blur-3xl opacity-40 bg-purple-600/20 pointer-events-none" />
+        
+        {/* Main profile card */}
+        <div className="relative backdrop-blur-xl bg-black/40 border border-purple-500/20 px-6 md:px-8 pt-12 pb-8 shadow-2xl shadow-purple-500/10">
+          {/* Follow button */}
           {session?.user?.email !== user.email && (
             <div className="absolute right-4 top-4">
               <FollowButton targetUserId={user.id} initialFollowing={initialFollowing} />
             </div>
           )}
+          
           <AboutEditor
             initialBio={user.profile?.bio}
             initialLocation={user.profile?.location}
@@ -115,81 +122,93 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
             username={user.username}
             editable={session?.user?.email === user.email}
           />
+          
           <div className="flex items-center gap-6">
-            <div className="relative w-[112px] h-[112px] group self-center">
-              <Avatar size={112} className="ring-2 ring-white/20" src={user.profile?.avatarUrl || undefined} />
+            {/* Avatar with purple ring */}
+            <div className="relative w-[120px] h-[120px] group self-center">
+              <div className="absolute -inset-1 bg-gradient-to-br from-purple-500 to-purple-700 rounded-full opacity-75 blur-sm" />
+              <Avatar size={120} className="relative ring-4 ring-purple-500/30" src={user.profile?.avatarUrl || undefined} />
               <AvatarEditOverlay editable={session?.user?.email === user.email} />
             </div>
-            <div>
-              <h1 className="text-3xl font-semibold flex items-center gap-2">
+            
+            <div className="flex-1">
+              <h1 className="text-3xl font-bold flex items-center gap-3 text-white">
                 {user.name ?? user.username}
+                {user.profile?.verified && (
+                  <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-gradient-to-br from-purple-500 to-purple-600 shadow-lg shadow-purple-500/30">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="text-white">
+                      <path d="M20 6L9 17l-5-5" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </span>
+                )}
               </h1>
-              <p className="text-sm text-[var(--muted-foreground)]">@{user.username}</p>
-              {typeLabel && (
-                <div className="mt-1">
-                  <Badge className={`gap-1 ${getProfileTypeColors(user.profile?.profileType || '')}`}>
-                    <svg width="12" height="12" viewBox="0 0 24 24" className="currentColor"><path d="M12 3l6 3v6c0 4-6 9-6 9s-6-5-6-9V6l6-3Z" fill="currentColor"/></svg>
-                    {typeLabel}
+              <p className="text-sm text-purple-300/80">@{user.username}</p>
+              
+              {/* Profile type badge */}
+              {user.profile?.profileType && (
+                <div className="mt-2">
+                  <Badge className={`gap-1.5 px-3 py-1 ${getProfileTypeColors(user.profile.profileType)}`}>
+                    <ProfileTypeIcon profileType={user.profile.profileType} size={14} />
+                    {getProfileTypeConfig(user.profile.profileType).label}
                   </Badge>
                 </div>
               )}
-              <div className="mt-2 flex flex-wrap items-center gap-2">
-                {rating !== "—" && <Badge className="gap-1">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/>
-                  </svg>
-                  Rating {rating}
-                </Badge>}
-                <Link href={`/u/${user.username}/followers`} className="hover:opacity-90">
-                  <Badge variant="muted" className="gap-1">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              
+              {/* Stats badges */}
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                {rating !== "—" && (
+                  <Badge className="gap-1.5 bg-purple-500/15 border border-purple-500/30 text-purple-300 px-3 py-1">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" className="text-yellow-400">
+                      <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/>
+                    </svg>
+                    {rating}
+                  </Badge>
+                )}
+                <Link href={`/u/${user.username}/followers`} className="hover:scale-105 transition-transform">
+                  <Badge variant="muted" className="gap-1.5 bg-purple-500/10 border border-purple-500/20 text-purple-300 hover:bg-purple-500/20 px-3 py-1 transition-colors">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
                       <circle cx="9" cy="7" r="4"/>
                       <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
                       <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
                     </svg>
-                    Followers {user?._count?.followers ?? 0}
+                    <span className="font-semibold">{user?._count?.followers ?? 0}</span> Followers
                   </Badge>
                 </Link>
-                <Link href={`/u/${user.username}/following`} className="hover:opacity-90">
-                  <Badge variant="muted" className="gap-1">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <Link href={`/u/${user.username}/following`} className="hover:scale-105 transition-transform">
+                  <Badge variant="muted" className="gap-1.5 bg-purple-500/10 border border-purple-500/20 text-purple-300 hover:bg-purple-500/20 px-3 py-1 transition-colors">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
                       <circle cx="9" cy="7" r="4"/>
                       <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
                       <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
                     </svg>
-                    Following {user?._count?.following ?? 0}
+                    <span className="font-semibold">{user?._count?.following ?? 0}</span> Following
                   </Badge>
                 </Link>
-                {user.profile?.verified ? (
-                  <Badge variant="muted" className="gap-1">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M9 12l2 2 4-4"/>
-                      <path d="M21 12c.552 0 1-.448 1-1V5c0-.552-.448-1-1-1H3c-.552 0-1 .448-1 1v6c0 .552.448 1 1 1h18z"/>
-                      <path d="M3 12v6c0 .552.448 1 1 1h16c.552 0 1-.448 1-1v-6"/>
-                    </svg>
-                    Verified
-                  </Badge>
-                ) : (
-                  session?.user?.email === user.email ? (
-                    <Link href="/verify" className="hover:opacity-90">
-                      <Badge className="gap-1">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M9 12l2 2 4-4"/>
-                          <path d="M21 12c.552 0 1-.448 1-1V5c0-.552-.448-1-1-1H3c-.552 0-1 .448-1 1v6c0 .552.448 1 1 1h18z"/>
-                          <path d="M3 12v6c0 .552.448 1 1 1h16c.552 0 1-.448 1-1v-6"/>
-                        </svg>
-                        Get verified
-                      </Badge>
-                    </Link>
-                  ) : null
+                {!user.profile?.verified && session?.user?.email === user.email && (
+                  <Link href="/verify" className="hover:scale-105 transition-transform">
+                    <Badge className="gap-1.5 bg-gradient-to-r from-purple-500/20 to-indigo-500/20 border border-purple-500/30 text-purple-300 px-3 py-1">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M9 12l2 2 4-4"/>
+                        <circle cx="12" cy="12" r="10"/>
+                      </svg>
+                      Get Verified
+                    </Badge>
+                  </Link>
                 )}
               </div>
             </div>
           </div>
-          {user.profile?.bio && <p className="mt-6 text-[var(--muted-foreground)] whitespace-pre-wrap">{user.profile.bio}</p>}
-          {/* client-side live updates for local edits */}
+          
+          {/* Bio */}
+          {user.profile?.bio && (
+            <p className="mt-6 text-[var(--muted-foreground)] whitespace-pre-wrap leading-relaxed border-l-2 border-purple-500/30 pl-4">
+              {user.profile.bio}
+            </p>
+          )}
+          
+          {/* Client-side live updates */}
           <script dangerouslySetInnerHTML={{ __html: `
             (function(){
               if (window.__devlink_profile_live_hook) return;
@@ -198,10 +217,12 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
               window.addEventListener('devlink:follow-toggled', function(){ location.reload(); });
             })();
           `}} />
-          <div className="mt-3 text-sm text-[var(--muted-foreground)] space-y-1">
+          
+          {/* Location & Website */}
+          <div className="mt-4 flex flex-wrap gap-4 text-sm text-[var(--muted-foreground)]">
             {user.profile?.location && (
-              <div className="flex items-center gap-2">
-                <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-purple-500/10 border border-purple-500/20">
+                <svg className="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
@@ -209,16 +230,23 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
               </div>
             )}
             {user.profile?.website && (
-              <div className="flex items-center gap-2">
-                <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <a 
+                href={user.profile.website} 
+                target="_blank" 
+                rel="noreferrer" 
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-purple-500/10 border border-purple-500/20 hover:bg-purple-500/20 hover:border-purple-500/40 transition-colors"
+              >
+                <svg className="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                 </svg>
-                <a href={user.profile.website} target="_blank" rel="noreferrer" className="text-[var(--accent)] hover:underline">{user.profile.website}</a>
-              </div>
+                <span className="text-purple-300 hover:text-purple-200">{user.profile.website.replace(/^https?:\/\//, '')}</span>
+              </a>
             )}
           </div>
         </div>
       </section>
+      
+      {/* Tabs section */}
       <div className="mt-6">
         <ProfileTabs username={username} currentUserId={currentUserId} userId={user.id} />
       </div>

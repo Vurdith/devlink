@@ -3,26 +3,143 @@ import { notFound } from "next/navigation";
 import { PostFeed } from "@/components/feed/PostFeed";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/server/auth-options";
+import { getUniqueViewCounts } from "@/lib/view-utils";
 
 export default async function HashtagPage(props: { params: Promise<{ hashtag: string }> }) {
   const session = await getServerSession(authOptions);
   const { hashtag } = await props.params;
 
-  // Fetch posts with this hashtag
-  const response = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3457'}/api/hashtags/${hashtag}`, {
-    cache: 'no-store'
+  // Find the hashtag directly from database
+  const hashtagRecord = await prisma.hashtag.findUnique({
+    where: { name: hashtag.toLowerCase() }
   });
 
-  if (!response.ok) {
+  if (!hashtagRecord) {
     notFound();
   }
 
-  const data = await response.json();
-  const { posts, hashtag: hashtagData } = data;
+  // Count posts matching this hashtag
+  const totalPosts = await prisma.post.count({
+    where: {
+      replyToId: null,
+      hashtags: {
+        some: { hashtagId: hashtagRecord.id },
+      },
+    },
+  });
 
-  if (!hashtagData) {
-    notFound();
-  }
+  // Fetch posts for this hashtag
+  const posts = await prisma.post.findMany({
+    where: {
+      replyToId: null,
+      hashtags: {
+        some: {
+          hashtagId: hashtagRecord.id
+        }
+      }
+    },
+    orderBy: { createdAt: "desc" },
+    take: 20,
+    include: {
+      user: {
+        include: {
+          profile: {
+            select: {
+              avatarUrl: true,
+              bannerUrl: true,
+              profileType: true,
+              verified: true,
+              bio: true,
+              website: true,
+              location: true,
+              createdAt: true
+            }
+          },
+          _count: {
+            select: {
+              followers: true,
+              following: true
+            }
+          }
+        }
+      },
+      likes: true,
+      reposts: true,
+      savedBy: true,
+      hashtags: {
+        include: { hashtag: { select: { name: true } } }
+      },
+      media: {
+        orderBy: { order: 'asc' }
+      },
+      poll: {
+        include: {
+          options: {
+            include: {
+              votes: true
+            }
+          }
+        }
+      },
+      replies: {
+        include: {
+          user: {
+            include: {
+              profile: {
+                select: {
+                  avatarUrl: true,
+                  bannerUrl: true,
+                  profileType: true,
+                  verified: true,
+                  bio: true,
+                  website: true,
+                  location: true
+                }
+              },
+              _count: {
+                select: {
+                  followers: true,
+                  following: true
+                }
+              }
+            }
+          }
+        }
+      },
+      views: {
+        select: { postId: true, userId: true, viewedAt: true }
+      }
+    }
+  });
+
+  // Get view counts
+  const postIds = posts.map((post) => post.id);
+  const viewCountMap = await getUniqueViewCounts(postIds);
+
+  // Transform posts with view counts and poll data
+  const finalPosts = posts.map((post) => {
+    const poll = post.poll
+      ? {
+          ...post.poll,
+          options: post.poll.options.map((option) => ({
+            ...option,
+            voteCount: option.votes.length,
+          })),
+          totalVotes: post.poll.options.reduce((sum, option) => sum + option.votes.length, 0),
+        }
+      : null;
+
+    return {
+      ...post,
+      views: viewCountMap.get(post.id) || 0,
+      poll,
+    };
+  });
+
+  const hashtagData = {
+    name: hashtagRecord.name,
+    postCount: totalPosts
+  };
 
   const currentUserProfile = session?.user?.username ? await prisma.user.findUnique({
     where: { username: session.user.username },
@@ -67,15 +184,19 @@ export default async function HashtagPage(props: { params: Promise<{ hashtag: st
         </div>
 
         {/* Posts Feed */}
-        {posts.length > 0 ? (
+        {finalPosts.length > 0 ? (
           <PostFeed 
-            posts={posts} 
+            posts={finalPosts} 
             currentUserId={currentUserProfile?.id}
             hidePinnedIndicator={true}
           />
         ) : (
           <div className="text-center py-12">
-            <div className="text-6xl mb-4">📭</div>
+            <div className="w-20 h-20 mx-auto mb-4 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center">
+            <svg className="w-10 h-10 text-[var(--muted-foreground)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
+            </svg>
+          </div>
             <h3 className="text-xl font-semibold text-white mb-2">No posts found</h3>
             <p className="text-gray-400">
               No posts have been tagged with #{hashtagData.name} yet.
@@ -86,6 +207,3 @@ export default async function HashtagPage(props: { params: Promise<{ hashtag: st
     </div>
   );
 }
-
-
-

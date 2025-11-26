@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/server/auth-options";
 import { prisma } from "@/server/db";
+import { validatePortfolioTitle, validatePortfolioDescription } from "@/lib/validation";
 
 export async function POST(request: NextRequest) {
   try {
@@ -13,8 +14,57 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { title, description, mediaUrls, links, category, tags, isPublic } = body;
 
-    if (!title) {
-      return NextResponse.json({ error: "Title is required" }, { status: 400 });
+    // Validate title
+    const titleValidation = validatePortfolioTitle(title);
+    if (!titleValidation.isValid) {
+      return NextResponse.json({ error: titleValidation.errors[0] }, { status: 400 });
+    }
+
+    // Validate description if provided
+    if (description) {
+      const descValidation = validatePortfolioDescription(description);
+      if (!descValidation.isValid) {
+        return NextResponse.json({ error: descValidation.errors[0] }, { status: 400 });
+      }
+    }
+
+    // Validate category if provided (max 50 characters)
+    if (category && (typeof category !== 'string' || category.length > 50)) {
+      return NextResponse.json({ error: "Category must be a string with max 50 characters" }, { status: 400 });
+    }
+
+    // Validate mediaUrls if provided (accepts comma-separated string)
+    if (mediaUrls && typeof mediaUrls === 'string' && mediaUrls.trim().length > 0) {
+      const urlArray = mediaUrls.split(',').map((url: string) => url.trim()).filter(Boolean);
+      if (urlArray.length > 10) {
+        return NextResponse.json({ error: "Maximum 10 media URLs allowed" }, { status: 400 });
+      }
+    }
+
+    // Validate links if provided (accepts comma-separated string)
+    if (links && typeof links === 'string' && links.trim().length > 0) {
+      const linkArray = links.split(',').map((url: string) => url.trim()).filter(Boolean);
+      if (linkArray.length > 10) {
+        return NextResponse.json({ error: "Maximum 10 links allowed" }, { status: 400 });
+      }
+    }
+
+    // Validate tags if provided (accepts comma-separated string)
+    if (tags && typeof tags === 'string' && tags.trim().length > 0) {
+      const tagArray = tags.split(',').map((tag: string) => tag.trim()).filter(Boolean);
+      if (tagArray.length > 10) {
+        return NextResponse.json({ error: "Maximum 10 tags allowed" }, { status: 400 });
+      }
+      for (const tag of tagArray) {
+        if (tag.length > 50) {
+          return NextResponse.json({ error: `Tag "${tag}" is too long (max 50 characters)` }, { status: 400 });
+        }
+      }
+    }
+
+    // Validate isPublic if provided
+    if (typeof isPublic !== 'undefined' && typeof isPublic !== 'boolean') {
+      return NextResponse.json({ error: "isPublic must be a boolean" }, { status: 400 });
     }
 
     // Get user ID

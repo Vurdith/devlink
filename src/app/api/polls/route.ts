@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/server/db";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/server/auth-options";
+import { validateId, validatePollData } from "@/lib/validation";
 
 export async function POST(req: Request) {
   try {
@@ -14,8 +15,35 @@ export async function POST(req: Request) {
 
     const { postId, question, options, expiresAt, isMultiple } = await req.json();
 
-    if (!postId || !question || !options || options.length < 2) {
-      return NextResponse.json({ error: "Invalid poll data" }, { status: 400 });
+    // Validate postId
+    if (!postId) {
+      return NextResponse.json({ error: "postId is required" }, { status: 400 });
+    }
+    const idValidation = validateId(postId);
+    if (!idValidation.isValid) {
+      return NextResponse.json({ error: `Invalid postId: ${idValidation.errors[0]}` }, { status: 400 });
+    }
+
+    // Validate poll data
+    const pollValidation = validatePollData({ question, options });
+    if (!pollValidation.isValid) {
+      return NextResponse.json({ error: pollValidation.errors[0] }, { status: 400 });
+    }
+
+    // Validate expiresAt if provided
+    if (expiresAt) {
+      const expireDate = new Date(expiresAt);
+      if (isNaN(expireDate.getTime())) {
+        return NextResponse.json({ error: "Invalid expiresAt date format" }, { status: 400 });
+      }
+      if (expireDate < new Date()) {
+        return NextResponse.json({ error: "expiresAt must be in the future" }, { status: 400 });
+      }
+    }
+
+    // Validate isMultiple if provided
+    if (typeof isMultiple !== 'undefined' && typeof isMultiple !== 'boolean') {
+      return NextResponse.json({ error: "isMultiple must be a boolean" }, { status: 400 });
     }
 
     // Verify the post exists and belongs to the current user
@@ -29,7 +57,7 @@ export async function POST(req: Request) {
     }
 
     if (post.userId !== currentUserId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized - post does not belong to you" }, { status: 403 });
     }
 
     // Create the poll with options

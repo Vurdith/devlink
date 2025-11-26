@@ -4,6 +4,7 @@ import { Avatar } from "@/components/ui/Avatar";
 import { FollowButton } from "@/components/ui/FollowButton";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/server/auth-options";
+import { getProfileTypeConfig, ProfileTypeIcon } from "@/lib/profile-types";
 
 export default async function FollowingPage({ params }: { params: Promise<{ username: string }> }) {
   const session = await getServerSession(authOptions);
@@ -51,7 +52,16 @@ export default async function FollowingPage({ params }: { params: Promise<{ user
               <Avatar src={f.following.profile?.avatarUrl ?? undefined} size={36} />
             </div>
             <div className="relative z-10 pointer-events-none min-w-0">
-              <div className="text-sm flex items-center gap-2">@{f.following.username} {currentUserId === f.following.id && (<span className="text-[10px] px-1.5 py-0.5 rounded bg-white/10 border border-white/10">You</span>)}</div>
+              <div className="text-sm flex items-center gap-2">
+                @{f.following.username}
+                {currentUserId === f.following.id && (<span className="text-[10px] px-1.5 py-0.5 rounded bg-white/10 border border-white/10">You</span>)}
+                {f.following.profile?.profileType && (
+                  <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium ${getProfileTypeConfig(f.following.profile.profileType).bgColor} ${getProfileTypeConfig(f.following.profile.profileType).color}`}>
+                    <ProfileTypeIcon profileType={f.following.profile.profileType} size={10} />
+                    {getProfileTypeConfig(f.following.profile.profileType).label}
+                  </span>
+                )}
+              </div>
               {f.following.profile?.bio && (
                 <div className="text-xs text-[var(--muted-foreground)] truncate max-w-[60ch]">{f.following.profile.bio.slice(0,150)}</div>
               )}

@@ -2,6 +2,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/server/auth-options";
 import { prisma } from "@/server/db";
 import { NextResponse } from "next/server";
+import { validateId } from "@/lib/validation";
 
 // Create a new report
 export async function POST(req: Request) {
@@ -9,26 +10,57 @@ export async function POST(req: Request) {
   const currentUserId = (session?.user as any)?.id as string | undefined;
   
   if (!currentUserId) {
-    return new NextResponse("Unauthorized", { status: 401 });
+    return new NextResponse(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { 'Content-Type': 'application/json' } });
   }
 
   try {
     const body = await req.json();
     const { reportType, description, evidence, targetUserId, postId } = body;
 
+    // Validate required fields
     if (!reportType || !description) {
-      return new NextResponse("Missing required fields", { status: 400 });
+      return NextResponse.json({ error: "Missing required fields: reportType and description" }, { status: 400 });
+    }
+
+    if (typeof reportType !== 'string' || typeof description !== 'string') {
+      return NextResponse.json({ error: "reportType and description must be strings" }, { status: 400 });
+    }
+
+    // Validate description length
+    if (description.length < 10) {
+      return NextResponse.json({ error: "Description must be at least 10 characters" }, { status: 400 });
+    }
+    if (description.length > 5000) {
+      return NextResponse.json({ error: "Description must be less than 5000 characters" }, { status: 400 });
     }
 
     // Validate report type
     const validReportTypes = ["SCAM", "SPAM", "HARASSMENT", "FAKE_PROFILE", "INAPPROPRIATE_CONTENT", "OTHER"];
     if (!validReportTypes.includes(reportType)) {
-      return new NextResponse("Invalid report type", { status: 400 });
+      return NextResponse.json({ error: `Invalid report type. Must be one of: ${validReportTypes.join(', ')}` }, { status: 400 });
     }
 
-    // Check if user is reporting themselves
-    if (targetUserId && targetUserId === currentUserId) {
-      return new NextResponse("Cannot report yourself", { status: 400 });
+    // Validate IDs if provided
+    if (targetUserId) {
+      const idValidation = validateId(targetUserId);
+      if (!idValidation.isValid) {
+        return NextResponse.json({ error: `Invalid targetUserId: ${idValidation.errors[0]}` }, { status: 400 });
+      }
+      // Check if user is reporting themselves
+      if (targetUserId === currentUserId) {
+        return NextResponse.json({ error: "Cannot report yourself" }, { status: 400 });
+      }
+    }
+    
+    if (postId) {
+      const idValidation = validateId(postId);
+      if (!idValidation.isValid) {
+        return NextResponse.json({ error: `Invalid postId: ${idValidation.errors[0]}` }, { status: 400 });
+      }
+    }
+
+    if (!targetUserId && !postId) {
+      return NextResponse.json({ error: "Either targetUserId or postId must be provided" }, { status: 400 });
     }
 
     // Check if user has already reported this target recently (within 24 hours)

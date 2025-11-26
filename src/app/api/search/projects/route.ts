@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/server/db";
 
 export async function GET(request: NextRequest) {
   try {
@@ -10,13 +9,9 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ projects: [] });
     }
 
-    console.log("Searching for projects with query:", q);
-
     // For now, return empty array since projects aren't implemented yet
     // This provides the framework for future project search functionality
     const projects: any[] = [];
-
-    console.log("Found projects:", projects.length);
 
     return NextResponse.json({ projects });
   } catch (error) {
@@ -24,6 +19,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Failed to search projects" }, { status: 500 });
   }
 }
+
 
 
 

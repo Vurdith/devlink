@@ -291,20 +291,13 @@ export function PortfolioEditor({
           {/* Category */}
           <div>
             <label className="block text-sm font-semibold mb-3 text-[var(--foreground)]">Category</label>
-            <select
+            <input
+              type="text"
               value={category}
               onChange={(e) => setCategory(e.target.value)}
-              className="w-full h-10 px-4 py-2 bg-[var(--input)] border-2 border-[var(--accent)]/40 rounded-md text-[var(--foreground)] font-semibold focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/50 focus:border-[var(--accent)] hover:border-[var(--accent)]/60 transition-all cursor-pointer"
-            >
-              <option value="" className="bg-[var(--card)]">Select a category</option>
-              <option value="project" className="bg-[var(--card)]">Project</option>
-              <option value="achievement" className="bg-[var(--card)]">Achievement</option>
-              <option value="publication" className="bg-[var(--card)]">Publication</option>
-              <option value="design" className="bg-[var(--card)]">Design</option>
-              <option value="development" className="bg-[var(--card)]">Development</option>
-              <option value="writing" className="bg-[var(--card)]">Writing</option>
-              <option value="other" className="bg-[var(--card)]">Other</option>
-            </select>
+              placeholder="e.g. Project, Design, Development, Achievement"
+              className="w-full px-4 py-3 bg-[var(--input)] border border-[var(--border)] rounded-md text-[var(--foreground)] placeholder-[var(--muted-foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/50"
+            />
           </div>
 
           {/* Description */}
@@ -561,7 +554,7 @@ export function PortfolioEditor({
             <button
               type="button"
               onClick={onClose}
-              className="h-10 px-4 text-sm rounded-md border border-red-500/30 bg-red-500/10 text-red-400 hover:bg-red-500/20 hover:border-red-500/50 transition-colors font-medium"
+              className="h-11 px-6 text-sm rounded-xl border border-red-500/30 bg-red-500/10 text-red-400 hover:bg-red-500/20 hover:border-red-500/50 transition-colors font-semibold"
             >
               Cancel
             </button>

@@ -2,6 +2,7 @@
 
 import { useState, useRef, memo, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { fetchWithTimeout } from "@/lib/async-utils";
 import { ProfileTooltip } from "./ProfileTooltip";
 
 interface ContentRendererProps {
@@ -18,21 +19,16 @@ export const ContentRenderer = memo(function ContentRenderer({ content, classNam
     // Don't fetch if we already have the data
     if (mentionUsers.has(username)) return;
     
-    try {
-      const response = await fetch(`/api/user/${username}`);
-      if (response.ok) {
-        const data = await response.json();
-        setMentionUsers(prev => new Map(prev).set(username, data.user));
-      }
-    } catch (error) {
-      console.error("Error fetching user data:", error);
+    const result = await fetchWithTimeout(`/api/user/${username}`, { timeout: 5000 });
+    if (result.success && result.data?.user) {
+      setMentionUsers(prev => new Map(prev).set(username, result.data.user));
     }
   }, [mentionUsers]);
 
   const renderContentWithLinks = useCallback(() => {
     const parts: React.ReactElement[] = [];
     let lastIndex = 0;
-    let key = 0;
+    let partId = 0;
 
     // Combined regex for hashtags and mentions
     const combinedRegex = /(#([a-zA-Z0-9_]+)|@([a-zA-Z0-9_]+))/g;
@@ -41,9 +37,10 @@ export const ContentRenderer = memo(function ContentRenderer({ content, classNam
     while ((match = combinedRegex.exec(content)) !== null) {
       // Add text before the match
       if (match.index > lastIndex) {
+        const textBefore = content.slice(lastIndex, match.index);
         parts.push(
-          <span key={key++}>
-            {content.slice(lastIndex, match.index)}
+          <span key={`text-${partId++}`}>
+            {textBefore}
           </span>
         );
       }
@@ -56,7 +53,7 @@ export const ContentRenderer = memo(function ContentRenderer({ content, classNam
       if (isHashtag) {
         parts.push(
           <span
-            key={key++}
+            key={`hashtag-${match.index}`}
             className="text-blue-400 hover:text-blue-300 cursor-pointer hover:underline transition-colors"
             onClick={() => router.push(`/hashtag/${value}`)}
           >
@@ -70,7 +67,7 @@ export const ContentRenderer = memo(function ContentRenderer({ content, classNam
         if (userData) {
           parts.push(
             <ProfileTooltip
-              key={key++}
+              key={`mention-${match.index}`}
               user={userData}
               currentUserId={currentUserId}
               position="bottom"
@@ -87,7 +84,7 @@ export const ContentRenderer = memo(function ContentRenderer({ content, classNam
         } else {
           parts.push(
             <span
-              key={key++}
+              key={`mention-${match.index}`}
               className="text-white hover:text-purple-400 cursor-pointer hover:underline transition-colors"
               onClick={() => router.push(`/u/${value}`)}
               onMouseEnter={() => fetchUserData(value)}
@@ -103,9 +100,10 @@ export const ContentRenderer = memo(function ContentRenderer({ content, classNam
 
     // Add remaining text
     if (lastIndex < content.length) {
+      const remainingText = content.slice(lastIndex);
       parts.push(
-        <span key={key++}>
-          {content.slice(lastIndex)}
+        <span key={`text-${partId}`}>
+          {remainingText}
         </span>
       );
     }

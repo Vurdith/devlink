@@ -1,9 +1,8 @@
 
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/Button";
 
 interface PortfolioItem {
   id: string;
@@ -34,11 +33,65 @@ export function PortfolioItemDisplay({
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
   const [showMediaModal, setShowMediaModal] = useState(false);
-  const [showMagnifier, setShowMagnifier] = useState(false);
-  const [mousePos, setMousePos] = useState({ imageX: 0, imageY: 0 });
-  const rafRef = React.useRef<number | null>(null);
+  const [zoomLevel, setZoomLevel] = useState(1);
+  const [panPosition, setPanPosition] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const imageRef = React.useRef<HTMLImageElement>(null);
   const router = useRouter();
+
+  // Reset zoom when modal opens/closes or image changes
+  useEffect(() => {
+    setZoomLevel(1);
+    setPanPosition({ x: 0, y: 0 });
+  }, [showMediaModal, currentMediaIndex]);
+
+  // Handle keyboard shortcuts for zoom modal
+  useEffect(() => {
+    if (!showMediaModal) return;
+    
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setShowMediaModal(false);
+      } else if (e.key === "+" || e.key === "=") {
+        setZoomLevel(prev => Math.min(prev + 0.5, 5));
+      } else if (e.key === "-") {
+        setZoomLevel(prev => Math.max(prev - 0.5, 0.5));
+      } else if (e.key === "0") {
+        setZoomLevel(1);
+        setPanPosition({ x: 0, y: 0 });
+      }
+    };
+    
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [showMediaModal]);
+
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    if (zoomLevel > 1) {
+      setIsDragging(true);
+      setDragStart({ x: e.clientX - panPosition.x, y: e.clientY - panPosition.y });
+    }
+  }, [zoomLevel, panPosition]);
+
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    if (isDragging && zoomLevel > 1) {
+      setPanPosition({
+        x: e.clientX - dragStart.x,
+        y: e.clientY - dragStart.y
+      });
+    }
+  }, [isDragging, zoomLevel, dragStart]);
+
+  const handleMouseUp = useCallback(() => {
+    setIsDragging(false);
+  }, []);
+
+  const handleWheel = useCallback((e: React.WheelEvent) => {
+    e.preventDefault();
+    const delta = e.deltaY > 0 ? -0.25 : 0.25;
+    setZoomLevel(prev => Math.min(Math.max(prev + delta, 0.5), 5));
+  }, []);
 
   const handleDelete = async () => {
     setIsDeleting(true);
@@ -182,7 +235,16 @@ export function PortfolioItemDisplay({
               {item.title}
             </h3>
             {item.category && (
-              <span className="inline-block px-2 py-1 text-xs font-medium bg-[var(--accent)]/20 text-[var(--accent)] rounded-full mb-2">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium bg-[var(--accent)]/20 text-[var(--accent)] rounded-full mb-2">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" className="flex-shrink-0">
+                  <path
+                    d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
                 {capitalizeCategory(item.category)}
               </span>
             )}
@@ -193,7 +255,7 @@ export function PortfolioItemDisplay({
             <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
               <button
                 onClick={() => onEdit(item)}
-                className="p-2 hover:bg-[var(--accent)]/25 hover:text-[var(--accent)] text-[var(--muted-foreground)] rounded-md transition-colors"
+                className="p-2.5 text-[var(--muted-foreground)] rounded-lg border border-transparent transition-all duration-200 hover:bg-[var(--accent)]/30 hover:text-[var(--accent)] hover:scale-110 hover:border-[var(--accent)] hover:shadow-[0_0_12px_rgba(168,85,247,0.4)] active:scale-95"
                 title="Edit"
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
@@ -213,7 +275,7 @@ export function PortfolioItemDisplay({
               </button>
               <button
                 onClick={() => setShowDeleteConfirm(true)}
-                className="p-2 hover:bg-red-500/20 text-red-400 rounded-md transition-colors"
+                className="p-2.5 text-[var(--muted-foreground)] rounded-lg transition-all duration-200 hover:bg-red-500/20 hover:text-red-400 hover:scale-110 hover:shadow-lg hover:shadow-red-500/20 active:scale-95"
                 title="Delete"
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
@@ -243,7 +305,7 @@ export function PortfolioItemDisplay({
               <button
                 key={tag}
                 onClick={() => router.push(`/hashtag/${tag}`)}
-                className="px-2 py-1 text-xs bg-[var(--muted)]/30 text-[var(--muted-foreground)] hover:bg-[var(--accent)]/20 hover:text-[var(--accent)] rounded-full border border-[var(--border)] hover:border-[var(--accent)] transition-all cursor-pointer"
+                className="px-3 py-1.5 text-xs font-medium bg-[var(--muted)]/30 text-[var(--muted-foreground)] rounded-full border border-[var(--border)] cursor-pointer transition-all duration-200 hover:bg-[var(--accent)]/25 hover:text-[var(--accent)] hover:border-[var(--accent)]/60 hover:scale-105 hover:shadow-md hover:shadow-[var(--accent)]/15 active:scale-95"
               >
                 #{tag}
               </button>
@@ -299,80 +361,72 @@ export function PortfolioItemDisplay({
         )}
       </div>
 
-      {/* Media Modal */}
+      {/* Media Modal with Zoom */}
       {showMediaModal && mediaUrls.length > 0 && (
         <div 
-          className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+          className="fixed inset-0 bg-black/95 backdrop-blur-md flex items-center justify-center z-50"
           onClick={() => setShowMediaModal(false)}
         >
+          {/* Close button - top right corner */}
+          <button
+            onClick={() => setShowMediaModal(false)}
+            className="absolute top-4 right-4 p-3 bg-white/10 hover:bg-white/20 text-white rounded-full transition-all duration-200 hover:scale-110 z-[60] backdrop-blur-sm"
+            title="Close (Esc)"
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M18 6L6 18M6 6l12 12"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
+
           <div 
-            className="relative w-full max-w-full max-h-[95vh] flex flex-col items-center gap-4"
+            className="relative w-full h-full flex flex-col items-center justify-center"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Media and Navigation Row */}
+            {/* Media Container with Zoom */}
             <div
-              className="flex items-center justify-center w-full flex-1"
-              onMouseMove={(e) => {
-                if (rafRef.current) cancelAnimationFrame(rafRef.current);
-                const imageRect = imageRef.current?.getBoundingClientRect();
-                rafRef.current = requestAnimationFrame(() => {
-                  if (imageRect) {
-                    setMousePos({ 
-                      imageX: e.clientX - imageRect.left, 
-                      imageY: e.clientY - imageRect.top,
-                      viewportX: e.clientX,
-                      viewportY: e.clientY
-                    } as any);
-                  }
-                  setShowMagnifier(true);
-                });
-              }}
-              onMouseLeave={() => {
-                if (rafRef.current) cancelAnimationFrame(rafRef.current);
-                setShowMagnifier(false);
-              }}
+              className="flex-1 w-full flex items-center justify-center overflow-hidden"
+              onMouseDown={handleMouseDown}
+              onMouseMove={handleMouseMove}
+              onMouseUp={handleMouseUp}
+              onMouseLeave={handleMouseUp}
+              onWheel={handleWheel}
+              style={{ cursor: zoomLevel > 1 ? (isDragging ? 'grabbing' : 'grab') : 'zoom-in' }}
             >
-              {/* Media Container */}
-              <div className="relative flex items-center justify-center w-full h-full">
-                <img
-                  src={currentMediaUrl}
-                  alt={`${item.title} - media ${currentMediaIndex + 1}`}
-                  className="max-w-full max-h-full object-contain"
-                  style={{ maxWidth: '1920px', maxHeight: '1080px' }}
-                  ref={imageRef}
-                  onError={(e) => {
-                    const img = e.target as HTMLImageElement;
-                    img.style.display = "none";
-                  }}
-                />
-
-                {/* Magnifying Glass */}
-                {showMagnifier && imageRef.current && (
-                  <div
-                    className="fixed w-24 h-24 rounded-full border-2 border-yellow-400/70 pointer-events-none overflow-hidden shadow-lg z-[60] bg-black/20"
-                    style={{
-                      left: `${(mousePos as any).viewportX - 48}px`,
-                      top: `${(mousePos as any).viewportY - 48}px`,
-                      willChange: 'left, top',
-                      contain: 'layout style paint',
-                      backgroundImage: `url(${currentMediaUrl})`,
-                      backgroundSize: `${imageRef.current.naturalWidth * 1.5}px ${imageRef.current.naturalHeight * 1.5}px`,
-                      backgroundPosition: `${-(mousePos.imageX * (imageRef.current.naturalWidth / imageRef.current.width)) * 1.5 + 48}px ${-(mousePos.imageY * (imageRef.current.naturalHeight / imageRef.current.height)) * 1.5 + 48}px`,
-                      backgroundRepeat: 'no-repeat',
-                      backfaceVisibility: 'hidden',
-                    }}
-                  />
-                )}
-              </div>
+              <img
+                src={currentMediaUrl}
+                alt={`${item.title} - media ${currentMediaIndex + 1}`}
+                className="max-w-full max-h-[85vh] object-contain select-none transition-transform duration-150"
+                style={{ 
+                  transform: `scale(${zoomLevel}) translate(${panPosition.x / zoomLevel}px, ${panPosition.y / zoomLevel}px)`,
+                  maxWidth: '1920px'
+                }}
+                ref={imageRef}
+                draggable={false}
+                onClick={() => {
+                  if (zoomLevel === 1) {
+                    setZoomLevel(2);
+                  }
+                }}
+                onError={(e) => {
+                  const img = e.target as HTMLImageElement;
+                  img.style.display = "none";
+                }}
+              />
             </div>
 
             {/* Bottom Control Bar */}
-            <div className="flex items-center justify-center gap-4 px-4 py-2 bg-black/50 text-white text-sm rounded-full">
+            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center justify-center gap-3 px-5 py-3 bg-black/60 backdrop-blur-md text-white text-sm rounded-2xl border border-white/10 shadow-xl">
               {/* Previous Button */}
               {mediaUrls.length > 1 && (
                 <button
                   onClick={goToPrevious}
-                  className="p-2 bg-black/30 hover:bg-black/50 text-white rounded-full transition-colors"
+                  className="p-2.5 bg-white/10 hover:bg-white/20 text-white rounded-xl transition-all duration-200 hover:scale-105"
                   title="Previous"
                 >
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -389,7 +443,7 @@ export function PortfolioItemDisplay({
 
               {/* Media Counter */}
               {mediaUrls.length > 1 && (
-                <div className="px-2">
+                <div className="px-3 py-1 bg-white/10 rounded-lg font-medium min-w-[60px] text-center">
                   {currentMediaIndex + 1} / {mediaUrls.length}
                 </div>
               )}
@@ -398,7 +452,7 @@ export function PortfolioItemDisplay({
               {mediaUrls.length > 1 && (
                 <button
                   onClick={goToNext}
-                  className="p-2 bg-black/30 hover:bg-black/50 text-white rounded-full transition-colors"
+                  className="p-2.5 bg-white/10 hover:bg-white/20 text-white rounded-xl transition-all duration-200 hover:scale-105"
                   title="Next"
                 >
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -413,23 +467,61 @@ export function PortfolioItemDisplay({
                 </button>
               )}
 
-              {/* Close Button */}
-              <div className="w-px h-6 bg-white/20" />
+              {/* Divider */}
+              {mediaUrls.length > 1 && <div className="w-px h-8 bg-white/20" />}
+
+              {/* Zoom Out */}
               <button
-                onClick={() => setShowMediaModal(false)}
-                className="p-2 bg-black/30 hover:bg-black/50 text-white rounded-full transition-colors"
-                title="Close"
+                onClick={() => setZoomLevel(prev => Math.max(prev - 0.5, 0.5))}
+                className="p-2.5 bg-white/10 hover:bg-white/20 text-white rounded-xl transition-all duration-200 hover:scale-105 disabled:opacity-40 disabled:hover:scale-100"
+                disabled={zoomLevel <= 0.5}
+                title="Zoom out (-)"
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                  <path
-                    d="M18 6L6 18M6 6l12 12"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
+                  <circle cx="11" cy="11" r="8" stroke="currentColor" strokeWidth="2"/>
+                  <path d="M21 21l-4.35-4.35" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                  <path d="M8 11h6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
                 </svg>
               </button>
+
+              {/* Zoom Level Indicator */}
+              <div className="px-3 py-1 bg-white/10 rounded-lg font-medium min-w-[60px] text-center">
+                {Math.round(zoomLevel * 100)}%
+              </div>
+
+              {/* Zoom In */}
+              <button
+                onClick={() => setZoomLevel(prev => Math.min(prev + 0.5, 5))}
+                className="p-2.5 bg-white/10 hover:bg-white/20 text-white rounded-xl transition-all duration-200 hover:scale-105 disabled:opacity-40 disabled:hover:scale-100"
+                disabled={zoomLevel >= 5}
+                title="Zoom in (+)"
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <circle cx="11" cy="11" r="8" stroke="currentColor" strokeWidth="2"/>
+                  <path d="M21 21l-4.35-4.35" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                  <path d="M11 8v6M8 11h6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                </svg>
+              </button>
+
+              {/* Reset Zoom */}
+              <button
+                onClick={() => {
+                  setZoomLevel(1);
+                  setPanPosition({ x: 0, y: 0 });
+                }}
+                className="p-2.5 bg-white/10 hover:bg-white/20 text-white rounded-xl transition-all duration-200 hover:scale-105"
+                title="Reset zoom (0)"
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M3 3v5h5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </button>
+            </div>
+
+            {/* Keyboard shortcuts hint */}
+            <div className="absolute bottom-20 left-1/2 -translate-x-1/2 text-white/40 text-xs">
+              Scroll to zoom • Drag to pan • Press 0 to reset
             </div>
           </div>
         </div>
@@ -437,26 +529,81 @@ export function PortfolioItemDisplay({
 
       {/* Delete Confirmation Modal */}
       {showDeleteConfirm && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-[var(--card)] border border-purple-500/20 rounded-[var(--radius)] p-6 max-w-sm w-full mx-4 shadow-2xl">
-            <h3 className="text-lg font-semibold mb-2">Delete Portfolio Item?</h3>
-            <p className="text-[var(--muted-foreground)] mb-6 text-sm">
-              This action cannot be undone. The portfolio item "{item.title}"
+        <div 
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 animate-in fade-in duration-200"
+          onClick={() => setShowDeleteConfirm(false)}
+        >
+          <div 
+            className="bg-[var(--card)] border border-red-500/30 rounded-2xl p-6 max-w-sm w-full mx-4 shadow-2xl shadow-red-500/10 animate-in zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Warning Icon */}
+            <div className="flex justify-center mb-4">
+              <div className="w-16 h-16 rounded-full bg-red-500/15 flex items-center justify-center">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" className="text-red-400">
+                  <path
+                    d="M12 9v4M12 17h.01"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                  />
+                  <path
+                    d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </div>
+            </div>
+
+            {/* Title */}
+            <h3 className="text-xl font-semibold text-center mb-2 text-[var(--foreground)]">
+              Delete Portfolio Item?
+            </h3>
+
+            {/* Description */}
+            <p className="text-[var(--muted-foreground)] mb-6 text-sm text-center leading-relaxed">
+              This action cannot be undone. The portfolio item{" "}
+              <span className="font-medium text-[var(--foreground)]">"{item.title}"</span>{" "}
               will be permanently deleted.
             </p>
-            <div className="flex gap-3 justify-end">
+
+            {/* Actions */}
+            <div className="flex gap-3">
               <button
                 onClick={() => setShowDeleteConfirm(false)}
-                className="px-4 py-2 rounded-md border border-[var(--border)] hover:bg-[var(--muted)]/20 transition-colors"
+                className="flex-1 px-4 py-2.5 rounded-xl border border-[var(--border)] bg-[var(--muted)]/10 text-[var(--foreground)] font-medium hover:bg-[var(--muted)]/25 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
               >
                 Cancel
               </button>
               <button
                 onClick={handleDelete}
                 disabled={isDeleting}
-                className="px-4 py-2 bg-red-500/20 text-red-400 hover:bg-red-500/30 disabled:opacity-50 rounded-md transition-colors"
+                className="flex-1 px-4 py-2.5 rounded-xl bg-red-500/20 text-red-400 font-medium border border-red-500/30 hover:bg-red-500/30 hover:border-red-500/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2"
               >
-                {isDeleting ? "Deleting..." : "Delete"}
+                {isDeleting ? (
+                  <>
+                    <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
+                      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeOpacity="0.3"/>
+                      <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/>
+                    </svg>
+                    Deleting...
+                  </>
+                ) : (
+                  <>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                      <path
+                        d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6h14z"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                    Delete
+                  </>
+                )}
               </button>
             </div>
           </div>
@@ -465,3 +612,4 @@ export function PortfolioItemDisplay({
     </div>
   );
 }
+

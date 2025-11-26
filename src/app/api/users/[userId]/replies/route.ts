@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/server/db";
+import { getUniqueViewCounts } from "@/lib/view-utils";
 
 export async function GET(
   request: NextRequest,
@@ -72,15 +73,15 @@ export async function GET(
       take: 20
     });
 
+    // OPTIMIZATION: Batch fetch all view counts in a single query instead of N+1
+    const postIds = repliedPosts.map(p => p.id);
+    const viewCountMap = await getUniqueViewCounts(postIds);
+
     // Add view counts to posts
-    const postsWithViews = await Promise.all(
-      repliedPosts.map(async (post) => {
-        const viewCount = await prisma.postView.count({
-          where: { postId: post.id }
-        });
-        return { ...post, views: viewCount };
-      })
-    );
+    const postsWithViews = repliedPosts.map(post => ({
+      ...post,
+      views: viewCountMap.get(post.id) || 0
+    }));
     
     return NextResponse.json(postsWithViews);
   } catch (error) {

@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { HTMLAttributes } from "react";
+import { HTMLAttributes, memo } from "react";
 import { cn } from "@/lib/cn";
 
 interface AvatarProps extends HTMLAttributes<HTMLDivElement> {
@@ -8,7 +8,7 @@ interface AvatarProps extends HTMLAttributes<HTMLDivElement> {
   size?: number;
 }
 
-export function Avatar({ src, alt = "", size = 36, className, ...props }: AvatarProps) {
+export const Avatar = memo(function Avatar({ src, alt = "", size = 36, className, ...props }: AvatarProps) {
   return (
     <div
       className={cn(
@@ -19,7 +19,14 @@ export function Avatar({ src, alt = "", size = 36, className, ...props }: Avatar
       {...props}
     >
       {src ? (
-        <Image src={src} alt={alt} fill sizes={`${size}px`} className="object-cover" />
+        <Image 
+          src={src} 
+          alt={alt} 
+          fill 
+          sizes={`${size}px`} 
+          className="object-cover"
+          loading="lazy"
+        />
       ) : (
         <div className="w-full h-full grid place-items-center text-xs text-[var(--muted-foreground)]">
           DL
@@ -27,6 +34,4 @@ export function Avatar({ src, alt = "", size = 36, className, ...props }: Avatar
       )}
     </div>
   );
-}
-
-
+});

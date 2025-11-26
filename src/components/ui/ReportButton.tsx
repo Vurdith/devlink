@@ -1,8 +1,9 @@
 "use client";
-import { useState } from "react";
+
+import { useState, memo } from "react";
 import { Button } from "./Button";
 import { ScamReportForm } from "./ScamReportForm";
-import { motion, AnimatePresence } from "framer-motion";
+import { cn } from "@/lib/cn";
 
 interface ReportButtonProps {
   targetUserId?: string;
@@ -12,12 +13,11 @@ interface ReportButtonProps {
   className?: string;
 }
 
-export function ReportButton({ targetUserId, targetUsername, postId, variant = "icon", className = "" }: ReportButtonProps) {
+export const ReportButton = memo(function ReportButton({ targetUserId, targetUsername, postId, variant = "icon", className = "" }: ReportButtonProps) {
   const [showReportForm, setShowReportForm] = useState(false);
 
   const handleReportSubmitted = () => {
     setShowReportForm(false);
-    // You could show a success toast here
   };
 
   const renderButton = () => {
@@ -28,7 +28,7 @@ export function ReportButton({ targetUserId, targetUsername, postId, variant = "
             variant="ghost"
             size="sm"
             onClick={() => setShowReportForm(true)}
-            className={`text-red-400 hover:text-red-300 hover:bg-red-500/10 ${className}`}
+            className={cn("text-red-400 hover:text-red-300 hover:bg-red-500/10", className)}
           >
             Report
           </Button>
@@ -38,7 +38,7 @@ export function ReportButton({ targetUserId, targetUsername, postId, variant = "
           <Button
             variant="secondary"
             onClick={() => setShowReportForm(true)}
-            className={`border-red-500/30 text-red-400 hover:bg-red-500/10 hover:border-red-500/50 ${className}`}
+            className={cn("border-red-500/30 text-red-400 hover:bg-red-500/10 hover:border-red-500/50", className)}
           >
             Report Issue
           </Button>
@@ -49,7 +49,7 @@ export function ReportButton({ targetUserId, targetUsername, postId, variant = "
             variant="ghost"
             size="sm"
             onClick={() => setShowReportForm(true)}
-            className={`p-2 text-red-400 hover:text-red-300 hover:bg-red-500/10 ${className}`}
+            className={cn("p-2 text-red-400 hover:text-red-300 hover:bg-red-500/10", className)}
             title="Report this content"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
@@ -66,36 +66,26 @@ export function ReportButton({ targetUserId, targetUsername, postId, variant = "
     <>
       {renderButton()}
       
-      <AnimatePresence>
-        {showReportForm && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-            onClick={(e) => {
-              if (e.target === e.currentTarget) {
-                setShowReportForm(false);
-              }
-            }}
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            >
-              <ScamReportForm
-                targetUserId={targetUserId}
-                targetUsername={targetUsername}
-                postId={postId}
-                onReportSubmitted={handleReportSubmitted}
-                onCancel={() => setShowReportForm(false)}
-              />
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {showReportForm && (
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setShowReportForm(false);
+            }
+          }}
+        >
+          <div className="animate-pop-in">
+            <ScamReportForm
+              targetUserId={targetUserId}
+              targetUsername={targetUsername}
+              postId={postId}
+              onReportSubmitted={handleReportSubmitted}
+              onCancel={() => setShowReportForm(false)}
+            />
+          </div>
+        </div>
+      )}
     </>
   );
-}
+});

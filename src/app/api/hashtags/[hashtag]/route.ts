@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/server/db";
-import { SmartDiscoveryEngine } from "@/lib/smart-discovery-engine";
+import { getUniqueViewCounts } from "@/lib/view-utils";
 
 export async function GET(
   request: NextRequest,
@@ -22,8 +22,18 @@ export async function GET(
       return NextResponse.json({ posts: [], hashtag: null });
     }
 
-    // Get posts with this hashtag - fetch all for algorithm processing
-    const allPosts = await prisma.post.findMany({
+    // Count posts matching this hashtag for pagination metadata
+    const totalPosts = await prisma.post.count({
+      where: {
+        replyToId: null,
+        hashtags: {
+          some: { hashtagId: hashtagRecord.id },
+        },
+      },
+    });
+
+    // Fetch posts for this hashtag with pagination applied
+    const posts = await prisma.post.findMany({
       where: {
         replyToId: null, // Only main posts, no replies
         hashtags: {
@@ -32,6 +42,9 @@ export async function GET(
           }
         }
       },
+      orderBy: { createdAt: "desc" },
+      skip,
+      take: limit,
       include: {
         user: {
           include: {
@@ -43,7 +56,8 @@ export async function GET(
                 verified: true,
                 bio: true,
                 website: true,
-                location: true
+                location: true,
+                createdAt: true
               }
             },
             _count: {
@@ -57,6 +71,9 @@ export async function GET(
         likes: true,
         reposts: true,
         savedBy: true,
+        hashtags: {
+          include: { hashtag: { select: { name: true } } }
+        },
         media: {
           orderBy: { order: 'asc' }
         },
@@ -91,84 +108,49 @@ export async function GET(
                   }
                 }
               }
-            },
-            media: {
-              orderBy: { order: 'asc' }
-            },
-            poll: {
-              include: {
-                options: {
-                  include: {
-                    votes: true
-                  }
-                }
-              }
             }
           }
+        },
+        views: {
+          select: { postId: true, userId: true, viewedAt: true }
         }
       }
     });
 
-    // Add view counts to all posts BEFORE applying algorithm
-    const postsWithViewCounts = await Promise.all(
-      allPosts.map(async (post: any) => {
-        // Get actual view data for the algorithm
-        const viewData = await prisma.postView.findMany({
-          where: { postId: post.id },
-          select: { userId: true }
-        });
-        
-        // For algorithm, provide actual view objects
-        return {
-          ...post,
-          views: viewData // Algorithm needs actual view objects with userId
-        };
-      })
-    );
+    const postIds = posts.map((post) => post.id);
+    const viewCountMap = await getUniqueViewCounts(postIds);
 
-    // Apply DevLink's Smart Discovery Algorithm
-    let rankedPosts;
-    try {
-      const smartDiscoveryEngine = new SmartDiscoveryEngine();
-      rankedPosts = smartDiscoveryEngine.rankPosts(
-        postsWithViewCounts,
-        "anonymous", // currentUserId - anonymous user for hashtag discovery
-        undefined,   // userEngagements
-        [],          // followingIds
-        []           // mutualFollows
-      );
-    } catch (error) {
-      console.error("Algorithm error, falling back to chronological order:", error);
-      // Fallback to chronological order if algorithm fails
-      rankedPosts = postsWithViewCounts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-    }
+    const finalPosts = posts.map((post) => {
+      const poll = post.poll
+        ? {
+            ...post.poll,
+            options: post.poll.options.map((option) => ({
+              ...option,
+              voteCount: option.votes.length,
+            })),
+            totalVotes: post.poll.options.reduce((sum, option) => sum + option.votes.length, 0),
+          }
+        : null;
 
-    // Apply pagination to ranked results
-    const posts = rankedPosts.slice(skip, skip + limit);
-
-    // Transform final posts for frontend (convert views back to number)
-    const finalPosts = posts.map((post: any) => ({
-      ...post,
-      views: post.views.length // Convert back to number for frontend
-    }));
-
-    // Get hashtag stats
-    const postCount = await prisma.postHashtag.count({
-      where: { hashtagId: hashtagRecord.id }
+      return {
+        ...post,
+        views: viewCountMap.get(post.id) || 0,
+        poll,
+      };
     });
 
     return NextResponse.json({
       posts: finalPosts,
       hashtag: {
         name: hashtagRecord.name,
-        postCount,
+        postCount: totalPosts,
         createdAt: hashtagRecord.createdAt
       },
       pagination: {
         page,
         limit,
-        total: postCount,
-        hasMore: skip + posts.length < postCount
+        total: totalPosts,
+        hasMore: skip + finalPosts.length < totalPosts
       }
     });
 

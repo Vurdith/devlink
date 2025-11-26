@@ -62,7 +62,7 @@ function renderEmailTemplate(options: {
               <tr>
                 <td style="padding:12px 24px 32px 24px;text-align:center">
                   <div style="color:#6b7280;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;font-size:12px">
-                    © ${new Date().getFullYear()} DevLink • <a href="${process.env.APP_URL || 'http://localhost:3457'}" style="color:#9aa4b2;text-decoration:none">Visit site</a>
+                    © ${new Date().getFullYear()} DevLink • <a href="${process.env.APP_URL || 'http://localhost:3000'}" style="color:#9aa4b2;text-decoration:none">Visit site</a>
                   </div>
                 </td>
               </tr>
@@ -81,7 +81,7 @@ export function generateSecureToken(length: number = 32): string {
 
 // Send password reset email
 export async function sendPasswordResetEmail(email: string, token: string): Promise<void> {
-  const resetUrl = `${process.env.APP_URL || 'http://localhost:3457'}/reset-password?token=${token}`;
+  const resetUrl = `${process.env.APP_URL || 'http://localhost:3000'}/reset-password?token=${token}`;
   
   const mailOptions = {
     from: process.env.SMTP_FROM || 'DevLink <noreply@devlink.com>',
@@ -113,7 +113,7 @@ export async function sendPasswordResetEmail(email: string, token: string): Prom
 
 // Send email change verification email
 export async function sendEmailChangeVerification(newEmail: string, token: string): Promise<void> {
-  const verifyUrl = `${process.env.APP_URL || 'http://localhost:3457'}/verify-email-change?token=${token}`;
+  const verifyUrl = `${process.env.APP_URL || 'http://localhost:3000'}/verify-email-change?token=${token}`;
   
   const mailOptions = {
     from: process.env.SMTP_FROM || 'DevLink <noreply@devlink.com>',

@@ -232,14 +232,6 @@ export interface PostsResponse {
     total: number;
     hasMore: boolean;
   };
-  metadata?: {
-    algorithm: string;
-    totalPosts: number;
-    rankedPosts: number;
-    weights: any;
-    userEngagements: number;
-    followingCount: number;
-  };
 }
 
 export interface UserResponse {

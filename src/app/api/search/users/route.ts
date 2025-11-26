@@ -25,7 +25,9 @@ export async function GET(req: Request) {
       profile: {
         select: {
           avatarUrl: true,
-          verified: true
+          verified: true,
+          profileType: true,
+          bio: true
         }
       }
     },
@@ -47,6 +49,8 @@ export async function GET(req: Request) {
       name: u.name,
       avatarUrl: u.profile?.avatarUrl || null,
       verified: !!u.profile?.verified,
+      profileType: u.profile?.profileType || null,
+      bio: u.profile?.bio || null,
       isFollowing: followingIds.has(u.id),
       isYou: currentUserId === u.id,
     })),
