@@ -641,102 +641,101 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
         </div>
       )}
 
-      {/* Action Buttons */}
-      <div className="flex items-center mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-white/10">
-        <div className="flex items-center justify-evenly w-full">
-          {/* Reply */}
-          {!isOnPostPage && (
-            <EngagementButton
-              onClick={() => window.open(`/p/${post.id}`, '_blank')}
-              isActive={(post.replies?.length || 0) > 0}
-              activeColor="blue"
-              count={post.replies?.length || 0}
-            >
-              <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-              </svg>
-            </EngagementButton>
-          )}
-
-          {/* Repost */}
+      {/* Action Buttons - Single row with equal spacing */}
+      <div className="grid grid-cols-7 gap-0 mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-white/10">
+        {/* Reply */}
+        {!isOnPostPage ? (
           <EngagementButton
-            onClick={handleRepost}
-            isActive={isReposted}
-            activeColor="green"
-            count={repostCount}
-            showExplosion
-            disabled={isUpdating}
-          >
-            <svg className={cn("w-[18px] h-[18px] transition-transform", isReposted && "rotate-180")} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
-          </EngagementButton>
-
-          {/* Like */}
-          <EngagementButton
-            onClick={handleLike}
-            isActive={isLiked}
-            activeColor="red"
-            count={likeCount}
-            showExplosion
-            disabled={isUpdating}
-          >
-            <svg className="w-[18px] h-[18px]" fill={isLiked ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-            </svg>
-          </EngagementButton>
-
-          {/* Views */}
-          <EngagementButton isActive={false} activeColor="gray" count={post.views}>
-            <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-            </svg>
-          </EngagementButton>
-
-          {/* Share */}
-          <EngagementButton
-            onClick={() => {
-              const postUrl = `${window.location.origin}/p/${post.id}`;
-              if (navigator.share) {
-                navigator.share({ title: `${post.user.name || post.user.username}'s post`, text: post.content, url: postUrl });
-              } else {
-                navigator.clipboard.writeText(postUrl);
-              }
-            }}
-            isActive={false}
-            activeColor="purple"
+            onClick={() => window.open(`/p/${post.id}`, '_blank')}
+            isActive={(post.replies?.length || 0) > 0}
+            activeColor="blue"
+            count={post.replies?.length || 0}
           >
             <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
             </svg>
           </EngagementButton>
+        ) : <div />}
 
-          {/* Save */}
-          <EngagementButton
-            onClick={handleSave}
-            isActive={isSaved}
-            activeColor="yellow"
-            showExplosion
-            disabled={isUpdating}
-          >
-            <svg className="w-[18px] h-[18px]" fill={isSaved ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-            </svg>
-          </EngagementButton>
-        </div>
+        {/* Repost */}
+        <EngagementButton
+          onClick={handleRepost}
+          isActive={isReposted}
+          activeColor="green"
+          count={repostCount}
+          showExplosion
+          disabled={isUpdating}
+        >
+          <svg className={cn("w-[18px] h-[18px] transition-transform", isReposted && "rotate-180")} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+        </EngagementButton>
+
+        {/* Like */}
+        <EngagementButton
+          onClick={handleLike}
+          isActive={isLiked}
+          activeColor="red"
+          count={likeCount}
+          showExplosion
+          disabled={isUpdating}
+        >
+          <svg className="w-[18px] h-[18px]" fill={isLiked ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+          </svg>
+        </EngagementButton>
+
+        {/* Views */}
+        <EngagementButton isActive={false} activeColor="gray" count={post.views}>
+          <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+          </svg>
+        </EngagementButton>
+
+        {/* Share */}
+        <EngagementButton
+          onClick={() => {
+            const postUrl = `${window.location.origin}/p/${post.id}`;
+            if (navigator.share) {
+              navigator.share({ title: `${post.user.name || post.user.username}'s post`, text: post.content, url: postUrl });
+            } else {
+              navigator.clipboard.writeText(postUrl);
+            }
+          }}
+          isActive={false}
+          activeColor="purple"
+        >
+          <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
+          </svg>
+        </EngagementButton>
+
+        {/* Save */}
+        <EngagementButton
+          onClick={handleSave}
+          isActive={isSaved}
+          activeColor="yellow"
+          showExplosion
+          disabled={isUpdating}
+        >
+          <svg className="w-[18px] h-[18px]" fill={isSaved ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+          </svg>
+        </EngagementButton>
 
         {/* Go to Post */}
-        {!isOnPostPage && (
-          <button 
-            onClick={() => window.open(`/p/${post.id}`, '_blank')} 
-            className="flex items-center justify-center p-2 rounded-full text-[var(--muted-foreground)] hover:text-white hover:bg-white/10 transition-colors active:scale-95"
+        {!isOnPostPage ? (
+          <EngagementButton
+            onClick={() => window.open(`/p/${post.id}`, '_blank')}
+            isActive={false}
+            activeColor="gray"
           >
             <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
             </svg>
-          </button>
-        )}
+          </EngagementButton>
+        ) : <div />}
       </div>
 
       {/* Media Modal */}
