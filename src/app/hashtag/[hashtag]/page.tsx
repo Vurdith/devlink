@@ -120,14 +120,18 @@ export default async function HashtagPage(props: { params: Promise<{ hashtag: st
   const finalPosts = posts.map((post) => {
     const poll = post.poll
       ? {
-          ...post.poll,
-          options: post.poll.options.map((option) => ({
-            ...option,
-            voteCount: option.votes.length,
-          })),
+          id: post.poll.id,
+          question: post.poll.question,
+          isMultiple: post.poll.isMultiple,
+          expiresAt: post.poll.expiresAt,
           totalVotes: post.poll.options.reduce((sum, option) => sum + option.votes.length, 0),
+          options: post.poll.options.map((option) => ({
+            id: option.id,
+            text: option.text,
+            votes: option.votes.length,
+          })),
         }
-      : null;
+      : undefined;
 
     return {
       ...post,
@@ -186,7 +190,7 @@ export default async function HashtagPage(props: { params: Promise<{ hashtag: st
         {/* Posts Feed */}
         {finalPosts.length > 0 ? (
           <PostFeed 
-            posts={finalPosts} 
+            posts={finalPosts as any} 
             currentUserId={currentUserProfile?.id}
             hidePinnedIndicator={true}
           />

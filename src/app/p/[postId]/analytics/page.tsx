@@ -31,8 +31,8 @@ export default async function AnalyticsPage({ params }: AnalyticsPageParams) {
     if (!fetched) {
       notFound();
     }
-    feedPosts = [...feedPosts, fetched];
-    targetPost = fetched;
+    feedPosts = [...feedPosts, fetched as any];
+    targetPost = fetched as any;
   }
 
   const rankablePosts = feedPosts.map(buildRankablePost);

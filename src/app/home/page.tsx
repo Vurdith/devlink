@@ -36,10 +36,20 @@ export default async function HomePage() {
           profile: { 
             select: { 
               avatarUrl: true,
+              bannerUrl: true,
               profileType: true,
               verified: true,
+              bio: true,
+              website: true,
+              location: true,
             } 
           },
+          _count: {
+            select: {
+              followers: true,
+              following: true,
+            }
+          }
         }
       }) 
     : null;
