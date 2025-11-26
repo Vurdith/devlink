@@ -705,6 +705,7 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
           }}
           isActive={false}
           activeColor="purple"
+          label="Share"
         >
           <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
@@ -716,6 +717,7 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
           onClick={handleSave}
           isActive={isSaved}
           activeColor="yellow"
+          label="Save"
           showExplosion
           disabled={isUpdating}
         >
@@ -730,6 +732,7 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
             onClick={() => window.open(`/p/${post.id}`, '_blank')}
             isActive={false}
             activeColor="gray"
+            label="Open"
           >
             <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
@@ -817,6 +820,7 @@ function EngagementButton({
   isActive, 
   activeColor, 
   count, 
+  label,
   children,
   showExplosion,
   disabled,
@@ -825,6 +829,7 @@ function EngagementButton({
   isActive: boolean; 
   activeColor: 'red' | 'green' | 'blue' | 'yellow' | 'purple' | 'gray';
   count?: number;
+  label?: string;
   children: React.ReactNode;
   showExplosion?: boolean;
   disabled?: boolean;
@@ -881,6 +886,9 @@ function EngagementButton({
         <span className={cn("text-[11px] font-medium tabular-nums", isActive && colors.active)}>
           {count}
         </span>
+      )}
+      {label && (
+        <span className="text-xs hidden sm:inline">{label}</span>
       )}
     </button>
   );
