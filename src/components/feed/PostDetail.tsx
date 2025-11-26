@@ -552,7 +552,7 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
         </ProfileTooltip>
         
         <div className="flex-1 min-w-0">
-          <div className="flex items-center space-x-1 sm:space-x-2 mb-0.5 sm:mb-1 flex-wrap">
+          <div className="flex items-center space-x-1 sm:space-x-2 flex-wrap">
             <ProfileTooltip user={post.user as any} currentUserId={session?.user?.id}>
               <a href={`/u/${post.user.username}`} className="font-semibold text-sm sm:text-base text-white hover:underline truncate">
                 {post.user.name || post.user.username}
@@ -569,6 +569,10 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
             {post.updatedAt > post.createdAt && <span className="text-[var(--muted-foreground)] text-xs sm:text-sm hidden sm:inline">• Edited</span>}
             {post.isPinned && showPinnedTag && <span className="text-[var(--muted-foreground)] text-xs sm:text-sm hidden sm:inline">• Pinned</span>}
           </div>
+          {/* Content preview under username */}
+          <p className="text-xs sm:text-sm text-[var(--muted-foreground)] truncate mt-0.5">
+            {post.content.length > 80 ? post.content.substring(0, 80) + '...' : post.content}
+          </p>
         </div>
 
         {/* Actions Menu */}
