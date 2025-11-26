@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useSession } from "next-auth/react";
-import { PROFILE_TYPE_CONFIG } from "@/lib/profile-types.tsx";
+import { PROFILE_TYPE_CONFIG } from "@/lib/profile-types";
 import Link from "next/link";
 import Image from "next/image";
 import { FollowButton } from "@/components/ui/FollowButton";
