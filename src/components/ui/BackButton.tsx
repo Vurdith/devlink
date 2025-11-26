@@ -5,15 +5,19 @@ import { Button } from "./Button";
 interface BackButtonProps {
   fallbackPath?: string;
   className?: string;
+  onClick?: () => void;
 }
 
-export function BackButton({ fallbackPath = "/home", className = "" }: BackButtonProps) {
+export function BackButton({ fallbackPath = "/home", className = "", onClick }: BackButtonProps) {
   const router = useRouter();
   const pathname = usePathname();
 
   // Always show back button - users can navigate back from any page
 
   const handleBack = () => {
+    // Call optional onClick handler (e.g., to close mobile menu)
+    onClick?.();
+    
     // Check if there's a previous page in browser history
     if (window.history.length > 1) {
       router.back();
