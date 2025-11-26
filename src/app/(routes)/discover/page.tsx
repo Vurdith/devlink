@@ -1,8 +1,10 @@
 "use client";
 import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
 import { PROFILE_TYPE_CONFIG } from "@/lib/profile-types.tsx";
 import Link from "next/link";
 import Image from "next/image";
+import { FollowButton } from "@/components/ui/FollowButton";
 
 type ProfileType = "all" | "DEVELOPER" | "CLIENT" | "INFLUENCER" | "STUDIO" | "INVESTOR";
 
@@ -21,9 +23,11 @@ interface User {
     followers: number;
     following: number;
   };
+  isFollowing?: boolean;
 }
 
 export default function DiscoverPage() {
+  const { data: session } = useSession();
   const [selectedFilter, setSelectedFilter] = useState<ProfileType>("all");
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
@@ -98,6 +102,21 @@ export default function DiscoverPage() {
     return PROFILE_TYPE_CONFIG[type as keyof typeof PROFILE_TYPE_CONFIG] || PROFILE_TYPE_CONFIG.GUEST;
   };
 
+  const handleFollowToggle = (userId: string, isFollowing: boolean) => {
+    setUsers(prev => prev.map(u => 
+      u.id === userId 
+        ? { 
+            ...u, 
+            isFollowing, 
+            _count: { 
+              ...u._count, 
+              followers: u._count.followers + (isFollowing ? 1 : -1) 
+            } 
+          } 
+        : u
+    ));
+  };
+
   return (
     <div className="max-w-6xl mx-auto px-6 py-6">
       <div className="mb-8">
@@ -139,16 +158,19 @@ export default function DiscoverPage() {
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {[...Array(6)].map((_, i) => (
-            <div key={i} className="glass rounded-2xl p-6 animate-pulse">
-              <div className="flex items-center gap-4 mb-4">
-                <div className="w-16 h-16 rounded-full bg-white/10" />
-                <div className="flex-1">
-                  <div className="h-5 w-32 bg-white/10 rounded mb-2" />
-                  <div className="h-4 w-24 bg-white/10 rounded" />
+            <div key={i} className="glass rounded-2xl overflow-hidden animate-pulse">
+              <div className="h-20 bg-white/5" />
+              <div className="p-5">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="w-14 h-14 rounded-full bg-white/10 -mt-10 border-4 border-[var(--background)]" />
+                  <div className="flex-1">
+                    <div className="h-5 w-32 bg-white/10 rounded mb-2" />
+                    <div className="h-4 w-24 bg-white/10 rounded" />
+                  </div>
                 </div>
+                <div className="h-4 w-full bg-white/10 rounded mb-2" />
+                <div className="h-4 w-3/4 bg-white/10 rounded" />
               </div>
-              <div className="h-4 w-full bg-white/10 rounded mb-2" />
-              <div className="h-4 w-3/4 bg-white/10 rounded" />
             </div>
           ))}
         </div>
@@ -156,88 +178,109 @@ export default function DiscoverPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {users.map((user) => {
             const config = getProfileConfig(user.profile?.profileType || "GUEST");
+            const isCurrentUser = session?.user?.id === user.id;
+            
             return (
-              <Link 
+              <div 
                 key={user.id} 
-                href={`/u/${user.username}`}
-                className="glass rounded-2xl p-6 hover:bg-white/10 transition-all duration-200 hover:scale-[1.02] border border-white/10 hover:border-white/20"
+                className="glass rounded-2xl overflow-hidden hover:bg-white/5 transition-all duration-200 border border-white/10 hover:border-white/20"
               >
-                {/* Banner */}
-                {user.profile?.bannerUrl && (
-                  <div className="h-20 -mx-6 -mt-6 mb-4 rounded-t-2xl overflow-hidden">
-                    <Image
-                      src={user.profile.bannerUrl}
-                      alt=""
-                      width={400}
-                      height={80}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                )}
-                
-                {/* User Info */}
-                <div className="flex items-start gap-4">
-                  {/* Avatar */}
-                  <div className="relative">
-                    {user.profile?.avatarUrl ? (
+                {/* Banner - Always show, dark placeholder if no banner */}
+                <Link href={`/u/${user.username}`}>
+                  <div className="h-20 relative">
+                    {user.profile?.bannerUrl ? (
                       <Image
-                        src={user.profile.avatarUrl}
-                        alt={user.username}
-                        width={64}
-                        height={64}
-                        className="w-16 h-16 rounded-full object-cover border-2 border-white/20"
+                        src={user.profile.bannerUrl}
+                        alt=""
+                        fill
+                        className="object-cover"
                       />
                     ) : (
-                      <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white text-xl font-bold border-2 border-white/20">
-                        {user.username.charAt(0).toUpperCase()}
-                      </div>
+                      <div className="w-full h-full bg-gradient-to-br from-white/5 to-white/[0.02]" />
                     )}
-                    {/* Verified Badge */}
-                    {user.profile?.verified && (
-                      <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center border-2 border-[var(--background)]">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="white">
-                          <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
-                        </svg>
+                  </div>
+                </Link>
+                
+                <div className="p-5 pt-0">
+                  {/* Avatar - overlapping banner */}
+                  <div className="flex items-start justify-between -mt-8 mb-3">
+                    <Link href={`/u/${user.username}`} className="relative">
+                      {user.profile?.avatarUrl ? (
+                        <Image
+                          src={user.profile.avatarUrl}
+                          alt={user.username}
+                          width={56}
+                          height={56}
+                          className="w-14 h-14 rounded-full object-cover border-4 border-[var(--background)]"
+                        />
+                      ) : (
+                        <div className="w-14 h-14 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white text-lg font-bold border-4 border-[var(--background)]">
+                          {user.username.charAt(0).toUpperCase()}
+                        </div>
+                      )}
+                      {/* Verified Badge */}
+                      {user.profile?.verified && (
+                        <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center border-2 border-[var(--background)]">
+                          <svg width="10" height="10" viewBox="0 0 24 24" fill="white">
+                            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                          </svg>
+                        </div>
+                      )}
+                    </Link>
+                    
+                    {/* Follow Button */}
+                    {!isCurrentUser && session && (
+                      <div className="mt-9">
+                        <FollowButton 
+                          targetUserId={user.id}
+                          initialFollowing={user.isFollowing || false}
+                          compact
+                          onToggle={(following) => handleFollowToggle(user.id, following)}
+                        />
                       </div>
                     )}
                   </div>
                   
-                  {/* Details */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-semibold text-white truncate">
+                  {/* User Info */}
+                  <Link href={`/u/${user.username}`}>
+                    <div className="mb-3">
+                      <h3 className="font-semibold text-white truncate hover:underline">
                         {user.name || user.username}
                       </h3>
+                      <p className="text-sm text-[var(--muted-foreground)]">@{user.username}</p>
                     </div>
-                    <p className="text-sm text-[var(--muted-foreground)] mb-2">@{user.username}</p>
-                    
-                    {/* Profile Type Badge */}
-                    <div className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-lg text-xs font-medium ${config.bgColor} ${config.color}`}>
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-                        <path d={config.icon} />
-                      </svg>
-                      {config.label}
-                    </div>
+                  </Link>
+                  
+                  {/* Profile Type Badge */}
+                  <div className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-lg text-xs font-medium ${config.bgColor} ${config.color} mb-3`}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                      <path d={config.icon} />
+                    </svg>
+                    {config.label}
+                  </div>
+                  
+                  {/* Bio */}
+                  {user.profile?.bio ? (
+                    <p className="text-sm text-[var(--muted-foreground)] line-clamp-2 mb-4">
+                      {user.profile.bio}
+                    </p>
+                  ) : (
+                    <p className="text-sm text-[var(--muted-foreground)]/50 italic mb-4">
+                      No bio yet
+                    </p>
+                  )}
+                  
+                  {/* Stats */}
+                  <div className="flex items-center gap-4 pt-3 border-t border-white/10 text-sm">
+                    <span className="text-[var(--muted-foreground)]">
+                      <span className="font-semibold text-white">{user._count.followers}</span> followers
+                    </span>
+                    <span className="text-[var(--muted-foreground)]">
+                      <span className="font-semibold text-white">{user._count.following}</span> following
+                    </span>
                   </div>
                 </div>
-                
-                {/* Bio */}
-                {user.profile?.bio && (
-                  <p className="text-sm text-[var(--muted-foreground)] mt-4 line-clamp-2">
-                    {user.profile.bio}
-                  </p>
-                )}
-                
-                {/* Stats */}
-                <div className="flex items-center gap-4 mt-4 pt-4 border-t border-white/10 text-sm">
-                  <span className="text-[var(--muted-foreground)]">
-                    <span className="font-semibold text-white">{user._count.followers}</span> followers
-                  </span>
-                  <span className="text-[var(--muted-foreground)]">
-                    <span className="font-semibold text-white">{user._count.following}</span> following
-                  </span>
-                </div>
-              </Link>
+              </div>
             );
           })}
         </div>

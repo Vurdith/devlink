@@ -1,8 +1,11 @@
 import { prisma } from "@/server/db";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/server/auth-options";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
     const { searchParams } = new URL(req.url);
     const profileType = searchParams.get("type");
     
@@ -36,7 +39,16 @@ export async function GET(req: NextRequest) {
             followers: true,
             following: true,
           }
-        }
+        },
+        // Include followers to check if current user follows them
+        followers: session?.user?.id ? {
+          where: {
+            followerId: session.user.id
+          },
+          select: {
+            id: true
+          }
+        } : false
       },
       orderBy: [
         // Verified users first
@@ -49,7 +61,17 @@ export async function GET(req: NextRequest) {
       take: 50,
     });
     
-    return NextResponse.json({ users });
+    // Transform to include isFollowing flag
+    const transformedUsers = users.map(user => ({
+      id: user.id,
+      username: user.username,
+      name: user.name,
+      profile: user.profile,
+      _count: user._count,
+      isFollowing: Array.isArray(user.followers) && user.followers.length > 0
+    }));
+    
+    return NextResponse.json({ users: transformedUsers });
   } catch (error) {
     console.error("Failed to fetch discover users:", error);
     return NextResponse.json(
@@ -58,4 +80,3 @@ export async function GET(req: NextRequest) {
     );
   }
 }
-
