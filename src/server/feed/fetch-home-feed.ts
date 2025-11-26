@@ -191,8 +191,9 @@ export async function fetchHomeFeedPosts(limit = 30) {
     reposts: [],
     savedBy: [],
     hashtags: [],
-    replies: [],
-    views: [],
+    // Keep reply count from _count, create fake array for length check
+    replies: Array(post._count?.replies || 0).fill(null),
+    views: post._count?.views || 0,
     poll: post.poll ? {
       ...post.poll,
       options: post.poll.options.map(opt => ({

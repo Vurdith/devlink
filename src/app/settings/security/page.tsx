@@ -31,6 +31,12 @@ export default function SecuritySettings() {
     confirmPassword: ""
   });
   
+  const [newPasswordData, setNewPasswordData] = useState({
+    password: "",
+    confirmPassword: ""
+  });
+  const [isSettingPassword, setIsSettingPassword] = useState(false);
+  
   const [emailData, setEmailData] = useState<EmailData>({
     newEmail: "",
     password: ""
@@ -50,6 +56,55 @@ export default function SecuritySettings() {
     };
     checkPassword();
   }, []);
+
+  const handleSetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (newPasswordData.password !== newPasswordData.confirmPassword) {
+      toast({
+        title: "Error",
+        description: "Passwords do not match.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setIsSettingPassword(true);
+
+    try {
+      const response = await fetch("/api/auth/set-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password: newPasswordData.password }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast({
+          title: "Password Set!",
+          description: "You can now log in with your email and password.",
+          variant: "success",
+        });
+        setNewPasswordData({ password: "", confirmPassword: "" });
+        setHasPassword(true); // Update state to show change password form
+      } else {
+        toast({
+          title: "Error",
+          description: data.error || "Failed to set password.",
+          variant: "destructive",
+        });
+      }
+    } catch {
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSettingPassword(false);
+    }
+  };
 
   const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -188,6 +243,112 @@ export default function SecuritySettings() {
           Manage your password and account security
         </p>
       </div>
+
+      {/* Set Password Section - for OAuth users without a password */}
+      {hasPassword === false && (
+        <div className="glass rounded-2xl p-6 border border-white/10 animate-slide-up" style={{ animationDelay: '0.05s' }}>
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center shadow-lg shadow-emerald-500/20">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-white">
+                <path d="M12 2L2 7l10 5 10-5-10-5z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M2 17l10 5 10-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M2 12l10 5 10-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </div>
+            <div>
+              <h2 className="text-lg font-semibold text-white">Set a Password</h2>
+              <p className="text-sm text-[var(--muted-foreground)]">Add a password to log in with email</p>
+            </div>
+          </div>
+          
+          <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4 mb-6">
+            <div className="flex items-start gap-3">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-blue-400 mt-0.5 flex-shrink-0">
+                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
+                <path d="M12 16v-4m0-4h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+              </svg>
+              <p className="text-sm text-blue-300">
+                You signed up with Google/GitHub. Set a password to also log in with your email address.
+              </p>
+            </div>
+          </div>
+
+          <form onSubmit={handleSetPassword} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-white mb-2">New Password</label>
+              <input
+                type="password"
+                className="w-full h-11 px-4 rounded-xl bg-white/5 border border-white/10 text-white placeholder-[var(--muted-foreground)] focus:border-[var(--accent)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)] transition-all"
+                placeholder="Enter a secure password"
+                value={newPasswordData.password}
+                onChange={(e) => setNewPasswordData(prev => ({ ...prev, password: e.target.value }))}
+                autoComplete="new-password"
+                required
+              />
+              {newPasswordData.password && (
+                <div className="mt-3">
+                  <div className="flex gap-1 mb-2">
+                    {[1, 2, 3, 4, 5].map((level) => (
+                      <div
+                        key={level}
+                        className={cn(
+                          "h-1.5 flex-1 rounded-full transition-colors",
+                          getPasswordStrength(newPasswordData.password) >= level 
+                            ? strengthColors[getPasswordStrength(newPasswordData.password) - 1] 
+                            : "bg-white/10"
+                        )}
+                      />
+                    ))}
+                  </div>
+                  <p className="text-xs text-[var(--muted-foreground)]">
+                    {strengthLabels[getPasswordStrength(newPasswordData.password) - 1] || "Enter a password"} password
+                  </p>
+                </div>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-white mb-2">Confirm Password</label>
+              <input
+                type="password"
+                className={cn(
+                  "w-full h-11 px-4 rounded-xl bg-white/5 border text-white placeholder-[var(--muted-foreground)] focus:outline-none focus:ring-1 transition-all",
+                  newPasswordData.confirmPassword && newPasswordData.password !== newPasswordData.confirmPassword
+                    ? "border-red-500/50 focus:border-red-500 focus:ring-red-500"
+                    : "border-white/10 focus:border-[var(--accent)] focus:ring-[var(--accent)]"
+                )}
+                placeholder="Confirm your password"
+                value={newPasswordData.confirmPassword}
+                onChange={(e) => setNewPasswordData(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                autoComplete="new-password"
+                required
+              />
+              {newPasswordData.confirmPassword && newPasswordData.password !== newPasswordData.confirmPassword && (
+                <p className="text-xs text-red-400 mt-2 flex items-center gap-1">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
+                    <path d="M12 8v4m0 4h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                  </svg>
+                  Passwords do not match
+                </p>
+              )}
+            </div>
+
+            <Button
+              type="submit"
+              variant="gradient"
+              isLoading={isSettingPassword}
+              disabled={
+                newPasswordData.password !== newPasswordData.confirmPassword || 
+                getPasswordStrength(newPasswordData.password) < 3
+              }
+              className="w-full"
+            >
+              Set Password
+            </Button>
+          </form>
+        </div>
+      )}
 
       {/* Change Password Section */}
       {hasPassword && (

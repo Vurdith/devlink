@@ -102,6 +102,7 @@ function estimateUniqueEngagers(
   const processSample = (arr: Array<any> | undefined, getUserId: (item: any) => string | null | undefined) => {
     if (!arr) return;
     arr.forEach(item => {
+      if (!item) return; // Skip null/undefined items (placeholder arrays)
       const uid = getUserId(item);
       if (uid) {
         uniqueUsersInSample.add(uid);
