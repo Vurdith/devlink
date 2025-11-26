@@ -90,33 +90,22 @@ body {
     var(--color-background);
 }
 
-/* Glassmorphism - Enhanced */
+/* Glassmorphism - PERFORMANCE OPTIMIZED (removed backdrop-filter) */
 .glass {
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.05) 0%,
-    rgba(255, 255, 255, 0.02) 100%
-  );
+  background: rgba(12, 14, 20, 0.95);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(20px) saturate(180%);
-  box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
 }
 
 .glass-hover {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: background 0.15s ease, border-color 0.15s ease;
 }
 
 .glass-hover:hover {
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.08) 0%,
-    rgba(255, 255, 255, 0.04) 100%
-  );
+  background: rgba(20, 22, 30, 0.95);
   border-color: rgba(168, 85, 247, 0.3);
   box-shadow: 
-    0 12px 40px rgba(0, 0, 0, 0.5),
+    0 8px 30px rgba(0, 0, 0, 0.5),
     0 0 40px var(--color-accent-glow),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
@@ -686,12 +675,17 @@ input:focus, textarea:focus, select:focus {
     transform: translateY(0);
   }
   50% {
-    transform: translateY(-6px);
+    transform: translateY(-4px);
   }
 }
 
+/* DISABLED by default for performance - add .enable-float to parent to enable */
 .animate-float {
-  animation: float 3s ease-in-out infinite;
+  animation: none;
+}
+
+.enable-float .animate-float {
+  animation: float 4s ease-in-out infinite;
 }
 
 /* Rotate icon on hover */
