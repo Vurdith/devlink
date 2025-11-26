@@ -158,39 +158,35 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
             </div>
           )}
           
-          {/* Stats row */}
-          <div className="mt-3 flex flex-wrap items-center gap-2">
+          {/* Stats row - inline flex for consistent alignment */}
+          <div className="mt-3 inline-flex items-stretch gap-1.5 flex-wrap">
             {rating !== "—" && (
-              <Badge className="gap-1 text-xs bg-purple-500/15 border border-purple-500/30 text-purple-300 px-2 py-0.5">
+              <div className="inline-flex items-center gap-1 text-xs bg-purple-500/15 border border-purple-500/30 text-purple-300 px-2.5 py-1 rounded-full">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" className="text-yellow-400">
                   <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/>
                 </svg>
-                {rating}
-              </Badge>
+                <span className="font-medium">{rating}</span>
+              </div>
             )}
-            <Link href={`/u/${user.username}/followers`}>
-              <Badge variant="muted" className="gap-1 text-xs bg-purple-500/10 border border-purple-500/20 text-purple-300 hover:bg-purple-500/20 px-2 py-0.5">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
-                  <circle cx="9" cy="7" r="4"/>
-                  <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
-                  <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-                </svg>
-                <span className="font-semibold">{user?._count?.followers ?? 0}</span>
-                <span className="hidden sm:inline">Followers</span>
-              </Badge>
+            <Link href={`/u/${user.username}/followers`} className="inline-flex items-center gap-1 text-xs bg-purple-500/10 border border-purple-500/20 text-purple-300 hover:bg-purple-500/20 px-2.5 py-1 rounded-full transition-colors">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+              </svg>
+              <span className="font-semibold">{user?._count?.followers ?? 0}</span>
+              <span className="hidden sm:inline">Followers</span>
             </Link>
-            <Link href={`/u/${user.username}/following`}>
-              <Badge variant="muted" className="gap-1 text-xs bg-purple-500/10 border border-purple-500/20 text-purple-300 hover:bg-purple-500/20 px-2 py-0.5">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
-                  <circle cx="9" cy="7" r="4"/>
-                  <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
-                  <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-                </svg>
-                <span className="font-semibold">{user?._count?.following ?? 0}</span>
-                <span className="hidden sm:inline">Following</span>
-              </Badge>
+            <Link href={`/u/${user.username}/following`} className="inline-flex items-center gap-1 text-xs bg-purple-500/10 border border-purple-500/20 text-purple-300 hover:bg-purple-500/20 px-2.5 py-1 rounded-full transition-colors">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+              </svg>
+              <span className="font-semibold">{user?._count?.following ?? 0}</span>
+              <span className="hidden sm:inline">Following</span>
             </Link>
           </div>
           
