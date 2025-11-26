@@ -216,16 +216,16 @@ export default function DiscoverPage() {
                   key={user.id} 
                   className="glass rounded-2xl overflow-hidden hover:bg-white/5 transition-all duration-200 border border-white/10 hover:border-white/20"
                 >
-                  {/* Banner - always show with placeholder */}
-                  <Link href={`/u/${user.username}`}>
-                    <div className="h-20 bg-gradient-to-br from-white/[0.08] to-white/[0.02]">
+                  {/* Banner - fixed height, always visible */}
+                  <Link href={`/u/${user.username}`} className="block">
+                    <div className="h-20 w-full bg-gradient-to-br from-purple-900/30 to-slate-900/50 relative">
                       {user.profile?.bannerUrl && (
                         <Image
                           src={user.profile.bannerUrl}
                           alt=""
                           width={400}
                           height={80}
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-cover absolute inset-0"
                         />
                       )}
                     </div>
