@@ -61,9 +61,9 @@ export const Navbar = memo(function Navbar() {
       {/* Gradient line on top */}
       <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-purple-500/50 to-transparent" />
       
-      <div className="relative w-full px-4 md:px-6 h-16 flex items-center">
-        {/* Spacer for mobile hamburger button */}
-        <div className="w-14 md:hidden flex-shrink-0" />
+      <div className="relative w-full px-4 md:px-6 h-16 flex items-center gap-3">
+        {/* Spacer for mobile hamburger - matches button size (p-2.5 + icon 20px = ~44px) */}
+        <div className="w-[44px] h-[44px] md:hidden flex-shrink-0" />
         
         {/* Search bar */}
         <div className="flex items-center flex-1">
