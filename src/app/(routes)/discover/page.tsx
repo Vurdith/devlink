@@ -154,33 +154,33 @@ export default function DiscoverPage() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-6">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-4">Discover</h1>
-        <p className="text-[var(--muted-foreground)]">
+    <div className="max-w-6xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
+      <div className="mb-4 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold mb-2 sm:mb-4">Discover</h1>
+        <p className="text-sm sm:text-base text-[var(--muted-foreground)]">
           Find developers, clients, studios, influencers, and investors in the Roblox community.
         </p>
       </div>
       
-      {/* Filter Tabs */}
-      <div className="mb-8">
-        <div className="flex flex-wrap gap-2">
+      {/* Filter Tabs - Horizontal scroll on mobile */}
+      <div className="mb-4 sm:mb-8 -mx-3 sm:mx-0 px-3 sm:px-0">
+        <div className="flex gap-1.5 sm:gap-2 overflow-x-auto pb-2 sm:pb-0 sm:flex-wrap">
           {filters.map((filter) => (
             <button
               key={filter.value}
               onClick={() => setSelectedFilter(filter.value)}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all duration-200 ${
+              className={`flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-2 sm:py-2.5 rounded-lg sm:rounded-xl transition-all duration-200 flex-shrink-0 ${
                 selectedFilter === filter.value
                   ? `${filter.bgColor} ${filter.color} border border-current/30 shadow-lg`
                   : "bg-white/5 text-[var(--muted-foreground)] hover:bg-white/10 hover:text-white border border-transparent"
               }`}
             >
-              <div className={`p-1.5 rounded-lg ${selectedFilter === filter.value ? "bg-current/20" : "bg-white/10"}`}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <div className={`p-1 sm:p-1.5 rounded-md sm:rounded-lg ${selectedFilter === filter.value ? "bg-current/20" : "bg-white/10"}`}>
+                <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4" viewBox="0 0 24 24" fill="currentColor">
                   <path d={filter.icon} />
                 </svg>
               </div>
-              <span className="font-medium">{filter.label}</span>
+              <span className="font-medium text-xs sm:text-sm">{filter.label}</span>
             </button>
           ))}
         </div>
@@ -188,25 +188,25 @@ export default function DiscoverPage() {
       
       {/* Users Grid */}
       {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           {[...Array(6)].map((_, i) => (
-            <div key={i} className="glass rounded-2xl overflow-hidden animate-pulse">
-              <div className="h-20 bg-white/5" />
-              <div className="p-6">
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="w-16 h-16 rounded-full bg-white/10 -mt-12 border-4 border-[var(--background)]" />
+            <div key={i} className="glass rounded-xl sm:rounded-2xl overflow-hidden animate-pulse">
+              <div className="h-16 sm:h-20 bg-white/5" />
+              <div className="p-3 sm:p-6">
+                <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
+                  <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-white/10 -mt-10 sm:-mt-12 border-3 sm:border-4 border-[var(--background)]" />
                 </div>
-                <div className="h-5 w-32 bg-white/10 rounded mb-2" />
-                <div className="h-4 w-24 bg-white/10 rounded mb-3" />
-                <div className="h-6 w-24 bg-white/10 rounded mb-3" />
-                <div className="h-4 w-full bg-white/10 rounded" />
+                <div className="h-4 sm:h-5 w-28 sm:w-32 bg-white/10 rounded mb-2" />
+                <div className="h-3 sm:h-4 w-20 sm:w-24 bg-white/10 rounded mb-3" />
+                <div className="h-5 sm:h-6 w-20 sm:w-24 bg-white/10 rounded mb-3" />
+                <div className="h-3 sm:h-4 w-full bg-white/10 rounded" />
               </div>
             </div>
           ))}
         </div>
       ) : users.length > 0 ? (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             {users.map((user) => {
               const config = getProfileConfig(user.profile?.profileType || "GUEST");
               const isCurrentUser = session?.user?.id === user.id;
@@ -214,11 +214,11 @@ export default function DiscoverPage() {
               return (
                 <div 
                   key={user.id} 
-                  className="glass rounded-2xl overflow-hidden hover:bg-white/5 transition-all duration-200 border border-white/10 hover:border-white/20"
+                  className="glass rounded-xl sm:rounded-2xl overflow-hidden hover:bg-white/5 transition-all duration-200 border border-white/10 hover:border-white/20"
                 >
                   {/* Banner - fixed height, always visible */}
                   <Link href={`/u/${user.username}`} className="block">
-                    <div className="h-20 w-full bg-gradient-to-br from-purple-900/30 to-slate-900/50 relative">
+                    <div className="h-16 sm:h-20 w-full bg-gradient-to-br from-purple-900/30 to-slate-900/50 relative">
                       {user.profile?.bannerUrl && (
                         <Image
                           src={user.profile.bannerUrl}
@@ -231,9 +231,9 @@ export default function DiscoverPage() {
                     </div>
                   </Link>
                   
-                  <div className="p-6">
+                  <div className="p-3 sm:p-6">
                     {/* Avatar - overlapping the banner */}
-                    <Link href={`/u/${user.username}`} className="block -mt-14 mb-4 w-fit">
+                    <Link href={`/u/${user.username}`} className="block -mt-10 sm:-mt-14 mb-3 sm:mb-4 w-fit">
                       <div className="relative">
                         {user.profile?.avatarUrl ? (
                           <Image
@@ -241,16 +241,16 @@ export default function DiscoverPage() {
                             alt={user.username}
                             width={64}
                             height={64}
-                            className="w-16 h-16 rounded-full object-cover border-4 border-[var(--background)]"
+                            className="w-12 h-12 sm:w-16 sm:h-16 rounded-full object-cover border-3 sm:border-4 border-[var(--background)]"
                           />
                         ) : (
-                          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white text-xl font-bold border-4 border-[var(--background)]">
+                          <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white text-lg sm:text-xl font-bold border-3 sm:border-4 border-[var(--background)]">
                             {user.username.charAt(0).toUpperCase()}
                           </div>
                         )}
                         {user.profile?.verified && (
-                          <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center border-2 border-[var(--background)]">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="white">
+                          <div className="absolute -bottom-0.5 -right-0.5 sm:-bottom-1 sm:-right-1 w-5 h-5 sm:w-6 sm:h-6 bg-blue-500 rounded-full flex items-center justify-center border-2 border-[var(--background)]">
+                            <svg className="w-2.5 h-2.5 sm:w-3 sm:h-3" viewBox="0 0 24 24" fill="white">
                               <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
                             </svg>
                           </div>
@@ -260,15 +260,15 @@ export default function DiscoverPage() {
                     
                     {/* Name & Username */}
                     <Link href={`/u/${user.username}`}>
-                      <h3 className="font-semibold text-white truncate hover:underline">
+                      <h3 className="font-semibold text-sm sm:text-base text-white truncate hover:underline">
                         {user.name || user.username}
                       </h3>
-                      <p className="text-sm text-[var(--muted-foreground)] mb-2">@{user.username}</p>
+                      <p className="text-xs sm:text-sm text-[var(--muted-foreground)] mb-1.5 sm:mb-2">@{user.username}</p>
                     </Link>
                     
                     {/* Profile Type Badge */}
-                    <div className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-lg text-xs font-medium ${config.bgColor} ${config.color} mb-3`}>
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                    <div className={`inline-flex items-center gap-1 sm:gap-1.5 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md sm:rounded-lg text-[10px] sm:text-xs font-medium ${config.bgColor} ${config.color} mb-2 sm:mb-3`}>
+                      <svg className="w-2.5 h-2.5 sm:w-3 sm:h-3" viewBox="0 0 24 24" fill="currentColor">
                         <path d={config.icon} />
                       </svg>
                       {config.label}
@@ -276,11 +276,11 @@ export default function DiscoverPage() {
                     
                     {/* Bio */}
                     {user.profile?.bio ? (
-                      <p className="text-sm text-[var(--muted-foreground)] line-clamp-2 mb-4">
+                      <p className="text-xs sm:text-sm text-[var(--muted-foreground)] line-clamp-2 mb-3 sm:mb-4">
                         {user.profile.bio}
                       </p>
                     ) : (
-                      <p className="text-sm text-[var(--muted-foreground)]/50 italic mb-4">
+                      <p className="text-xs sm:text-sm text-[var(--muted-foreground)]/50 italic mb-3 sm:mb-4">
                         No bio yet
                       </p>
                     )}

@@ -524,26 +524,26 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
   })();
 
   return (
-    <div className="glass rounded-2xl p-6 mb-6 shadow-lg">
+    <div className="glass rounded-xl sm:rounded-2xl p-3 sm:p-6 mb-3 sm:mb-6 shadow-lg">
       {/* Header */}
-      <div className="flex items-start space-x-3 mb-4">
+      <div className="flex items-start space-x-2 sm:space-x-3 mb-3 sm:mb-4">
         <ProfileTooltip user={post.user as any} currentUserId={session?.user?.id}>
           <button
             onClick={() => window.location.href = `/u/${post.user.username}`}
-            className="relative group cursor-pointer flex-shrink-0 w-12 h-12"
+            className="relative group cursor-pointer flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12"
           >
             {!avatarError && post.user.profile?.avatarUrl ? (
               <img
                 src={post.user.profile.avatarUrl}
                 alt={post.user.name || post.user.username}
-                className="w-12 h-12 rounded-full object-cover border-2 border-white/20 group-hover:opacity-80 transition-opacity"
+                className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover border-2 border-white/20 group-hover:opacity-80 transition-opacity"
                 loading="lazy"
                 referrerPolicy="no-referrer"
                 onError={() => setAvatarError(true)}
               />
             ) : (
-              <div className="w-12 h-12 rounded-full border-2 border-white/20 bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center group-hover:opacity-80 transition-opacity">
-                <span className="text-white font-semibold text-sm">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-white/20 bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center group-hover:opacity-80 transition-opacity">
+                <span className="text-white font-semibold text-xs sm:text-sm">
                   {getInitials(post.user.name, post.user.username)}
                 </span>
               </div>
@@ -552,22 +552,22 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
         </ProfileTooltip>
         
         <div className="flex-1 min-w-0">
-          <div className="flex items-center space-x-2 mb-1 flex-wrap">
+          <div className="flex items-center space-x-1 sm:space-x-2 mb-0.5 sm:mb-1 flex-wrap">
             <ProfileTooltip user={post.user as any} currentUserId={session?.user?.id}>
-              <a href={`/u/${post.user.username}`} className="font-semibold text-white hover:underline truncate">
+              <a href={`/u/${post.user.username}`} className="font-semibold text-sm sm:text-base text-white hover:underline truncate">
                 {post.user.name || post.user.username}
               </a>
             </ProfileTooltip>
             {post.user.profile?.verified && (
-              <svg className="w-4 h-4 text-blue-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
               </svg>
             )}
-            <span className="text-gray-400 text-sm">@{post.user.username}</span>
-            <span className="text-[var(--muted-foreground)] text-sm">•</span>
-            <TimeAgo date={post.createdAt} className="text-[var(--muted-foreground)] text-sm" />
-            {post.updatedAt > post.createdAt && <span className="text-[var(--muted-foreground)] text-sm">• Edited</span>}
-            {post.isPinned && showPinnedTag && <span className="text-[var(--muted-foreground)] text-sm">• Pinned</span>}
+            <span className="text-gray-400 text-xs sm:text-sm">@{post.user.username}</span>
+            <span className="text-[var(--muted-foreground)] text-xs sm:text-sm hidden min-[400px]:inline">•</span>
+            <TimeAgo date={post.createdAt} className="text-[var(--muted-foreground)] text-xs sm:text-sm hidden min-[400px]:inline" />
+            {post.updatedAt > post.createdAt && <span className="text-[var(--muted-foreground)] text-xs sm:text-sm hidden sm:inline">• Edited</span>}
+            {post.isPinned && showPinnedTag && <span className="text-[var(--muted-foreground)] text-xs sm:text-sm hidden sm:inline">• Pinned</span>}
           </div>
           
           {post.user.profile && (
@@ -624,8 +624,8 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
       </div>
 
       {/* Content */}
-      <div className="mb-4">
-        <ContentRenderer content={post.content} className="text-[var(--foreground)] whitespace-pre-wrap break-words" currentUserId={session?.user?.id} />
+      <div className="mb-3 sm:mb-4">
+        <ContentRenderer content={post.content} className="text-sm sm:text-base text-[var(--foreground)] whitespace-pre-wrap break-words" currentUserId={session?.user?.id} />
       </div>
 
       {/* Location */}
@@ -650,8 +650,8 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
       )}
 
       {/* Action Buttons */}
-      <div className="flex items-center justify-between mt-6 pt-4 border-t border-white/10">
-        <div className="flex items-center justify-between w-full max-w-md">
+      <div className="flex items-center justify-between mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-white/10">
+        <div className="flex items-center justify-between w-full max-w-md gap-1 sm:gap-2">
           {/* Reply */}
           {!isOnPostPage && (
             <EngagementButton
@@ -874,7 +874,7 @@ function EngagementButton({
       onClick={handleClick}
       disabled={disabled}
       className={cn(
-        "relative flex items-center gap-1.5 px-3 py-2 rounded-xl transition-colors flex-1 justify-center",
+        "relative flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl transition-colors flex-1 justify-center min-w-0",
         disabled ? "opacity-60 cursor-not-allowed" : cn(colors.hover, "active:scale-95"),
         isActive ? colors.active : "text-[var(--muted-foreground)]"
       )}
@@ -883,21 +883,21 @@ function EngagementButton({
       {particles.map((id, i) => (
         <span
           key={id}
-          className={cn("absolute w-1.5 h-1.5 rounded-full pointer-events-none", colors.particle)}
+          className={cn("absolute w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full pointer-events-none", colors.particle)}
           style={{ animation: `particle-${i % 6} 0.5s ease-out forwards` }}
         />
       ))}
       
-      <span className={cn("relative transition-transform", !disabled && "active:scale-125")}>
+      <span className={cn("relative transition-transform [&>svg]:w-4 [&>svg]:h-4 sm:[&>svg]:w-5 sm:[&>svg]:h-5", !disabled && "active:scale-125")}>
         {children}
       </span>
       {count !== undefined && (
-        <span className={cn("text-xs font-medium tabular-nums", isActive && colors.active)}>
+        <span className={cn("text-[10px] sm:text-xs font-medium tabular-nums", isActive && colors.active)}>
           {count}
         </span>
       )}
       {label && (
-        <span className="text-xs hidden sm:inline">{label}</span>
+        <span className="text-[10px] sm:text-xs hidden sm:inline">{label}</span>
       )}
     </button>
   );

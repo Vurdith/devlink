@@ -367,8 +367,8 @@ export function ProfileTabs({ username, currentUserId, userId }: ProfileTabsProp
 
   return (
     <div className="mt-8">
-      {/* Tab Navigation */}
-      <div className="flex gap-2 mb-6 overflow-x-auto backdrop-blur-xl bg-black/30 rounded-2xl p-3 border border-purple-500/20 shadow-lg shadow-purple-500/5">
+      {/* Tab Navigation - Scrollable on mobile */}
+      <div className="flex gap-1.5 sm:gap-2 mb-6 overflow-x-auto pb-2 -mb-2 backdrop-blur-xl bg-black/30 rounded-2xl p-2 sm:p-3 border border-purple-500/20 shadow-lg shadow-purple-500/5">
         {tabs.map((tab) => {
           // Hide private tabs if not the owner
           if (tab.private && !canSeePrivateTabs) return null;
@@ -377,14 +377,14 @@ export function ProfileTabs({ username, currentUserId, userId }: ProfileTabsProp
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2.5 px-5 py-3 text-sm font-medium transition-all duration-200 relative flex-shrink-0 rounded-xl whitespace-nowrap ${
+              className={`flex items-center gap-1.5 sm:gap-2.5 px-3 sm:px-5 py-2 sm:py-3 text-xs sm:text-sm font-medium transition-all duration-200 relative flex-shrink-0 rounded-xl whitespace-nowrap ${
                 activeTab === tab.id
                   ? "text-white bg-purple-500/20 border border-purple-500/40 shadow-lg shadow-purple-500/10"
                   : "text-[var(--muted-foreground)] hover:text-purple-300 hover:bg-purple-500/10 border border-transparent"
               }`}
             >
               <span className={`flex items-center justify-center transition-colors ${activeTab === tab.id ? 'text-purple-400' : ''}`}>{tab.icon}</span>
-              {tab.label}
+              <span className="hidden min-[480px]:inline">{tab.label}</span>
             </button>
           );
         })}

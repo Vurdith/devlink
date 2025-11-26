@@ -87,10 +87,10 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
   };
 
   return (
-    <main className="mx-auto max-w-5xl px-4 py-10">
-      <section className="relative overflow-hidden rounded-2xl">
+    <main className="mx-auto max-w-5xl px-2 sm:px-4 py-4 sm:py-10">
+      <section className="relative overflow-hidden rounded-xl sm:rounded-2xl">
         {/* Banner */}
-        <div className="relative h-52 w-full group">
+        <div className="relative h-32 sm:h-52 w-full group">
           {user.profile?.bannerUrl ? (
             <Image src={user.profile.bannerUrl} alt="Banner" fill className="object-cover" priority />
           ) : (
@@ -106,10 +106,10 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
         <div className="absolute -bottom-24 -left-20 w-[420px] h-[420px] rounded-full blur-3xl opacity-40 bg-purple-600/20 pointer-events-none" />
         
         {/* Main profile card */}
-        <div className="relative backdrop-blur-xl bg-black/40 border border-purple-500/20 px-6 md:px-8 pt-12 pb-8 shadow-2xl shadow-purple-500/10">
+        <div className="relative backdrop-blur-xl bg-black/40 border border-purple-500/20 px-3 sm:px-6 md:px-8 pt-6 sm:pt-12 pb-4 sm:pb-8 shadow-2xl shadow-purple-500/10">
           {/* Follow button */}
           {session?.user?.email !== user.email && (
-            <div className="absolute right-4 top-4">
+            <div className="absolute right-2 sm:right-4 top-2 sm:top-4">
               <FollowButton targetUserId={user.id} initialFollowing={initialFollowing} />
             </div>
           )}
@@ -123,26 +123,27 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
             editable={session?.user?.email === user.email}
           />
           
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-3 sm:gap-6">
             {/* Avatar with purple ring */}
-            <div className="relative w-[120px] h-[120px] group self-center">
+            <div className="relative w-[80px] h-[80px] sm:w-[120px] sm:h-[120px] group self-center flex-shrink-0">
               <div className="absolute -inset-1 bg-gradient-to-br from-purple-500 to-purple-700 rounded-full opacity-75 blur-sm" />
-              <Avatar size={120} className="relative ring-4 ring-purple-500/30" src={user.profile?.avatarUrl || undefined} />
+              <Avatar size={80} className="relative ring-2 sm:ring-4 ring-purple-500/30 sm:hidden" src={user.profile?.avatarUrl || undefined} />
+              <Avatar size={120} className="relative ring-4 ring-purple-500/30 hidden sm:block" src={user.profile?.avatarUrl || undefined} />
               <AvatarEditOverlay editable={session?.user?.email === user.email} />
             </div>
             
-            <div className="flex-1">
-              <h1 className="text-3xl font-bold flex items-center gap-3 text-white">
-                {user.name ?? user.username}
+            <div className="flex-1 min-w-0">
+              <h1 className="text-xl sm:text-3xl font-bold flex items-center gap-2 sm:gap-3 text-white">
+                <span className="truncate">{user.name ?? user.username}</span>
                 {user.profile?.verified && (
-                  <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-gradient-to-br from-purple-500 to-purple-600 shadow-lg shadow-purple-500/30">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="text-white">
+                  <span className="inline-flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-gradient-to-br from-purple-500 to-purple-600 shadow-lg shadow-purple-500/30 flex-shrink-0">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" className="text-white sm:w-[14px] sm:h-[14px]">
                       <path d="M20 6L9 17l-5-5" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
                   </span>
                 )}
               </h1>
-              <p className="text-sm text-purple-300/80">@{user.username}</p>
+              <p className="text-xs sm:text-sm text-purple-300/80">@{user.username}</p>
               
               {/* Profile type badge */}
               {user.profile?.profileType && (
