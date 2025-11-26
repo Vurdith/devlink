@@ -286,13 +286,13 @@ export default function DiscoverPage() {
                     )}
                     
                     {/* Stats + Follow Button Row */}
-                    <div className="flex items-center justify-between pt-4 border-t border-white/10">
-                      <div className="flex items-center gap-4 text-sm">
+                    <div className="flex items-center justify-between pt-3 sm:pt-4 border-t border-white/10">
+                      <div className="flex items-center gap-3 sm:gap-4 text-xs sm:text-sm">
                         <span className="text-[var(--muted-foreground)]">
-                          <span className="font-semibold text-white">{user._count.followers}</span> followers
+                          <span className="font-semibold text-white tabular-nums">{user._count.followers}</span> followers
                         </span>
                         <span className="text-[var(--muted-foreground)]">
-                          <span className="font-semibold text-white">{user._count.following}</span> following
+                          <span className="font-semibold text-white tabular-nums">{user._count.following}</span> following
                         </span>
                       </div>
                       
