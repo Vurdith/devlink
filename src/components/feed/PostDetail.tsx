@@ -642,8 +642,8 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
       )}
 
       {/* Action Buttons */}
-      <div className="flex items-center justify-between mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-white/10">
-        <div className="flex items-center justify-between w-full max-w-md gap-1 sm:gap-2">
+      <div className="flex items-center mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-white/10">
+        <div className="flex items-center justify-evenly w-full">
           {/* Reply */}
           {!isOnPostPage && (
             <EngagementButton
@@ -818,7 +818,6 @@ function EngagementButton({
   isActive, 
   activeColor, 
   count, 
-  label,
   children,
   showExplosion,
   disabled,
@@ -827,7 +826,6 @@ function EngagementButton({
   isActive: boolean; 
   activeColor: 'red' | 'green' | 'blue' | 'yellow' | 'purple' | 'gray';
   count?: number;
-  label?: string;
   children: React.ReactNode;
   showExplosion?: boolean;
   disabled?: boolean;
@@ -863,7 +861,7 @@ function EngagementButton({
       onClick={handleClick}
       disabled={disabled}
       className={cn(
-        "relative flex items-center justify-center gap-1 sm:gap-1.5 p-2 sm:px-3 sm:py-2 rounded-full sm:rounded-xl transition-colors min-w-0",
+        "relative flex items-center justify-center gap-1 p-2 rounded-full transition-colors",
         disabled ? "opacity-60 cursor-not-allowed" : cn(colors.hover, "active:scale-95"),
         isActive ? colors.active : "text-[var(--muted-foreground)]"
       )}
@@ -877,16 +875,13 @@ function EngagementButton({
         />
       ))}
       
-      <span className={cn("relative transition-transform [&>svg]:w-4 [&>svg]:h-4 sm:[&>svg]:w-5 sm:[&>svg]:h-5", !disabled && "active:scale-125")}>
+      <span className={cn("relative transition-transform", !disabled && "active:scale-125")}>
         {children}
       </span>
       {count !== undefined && (
-        <span className={cn("text-[10px] sm:text-xs font-medium tabular-nums", isActive && colors.active)}>
+        <span className={cn("text-[11px] font-medium tabular-nums", isActive && colors.active)}>
           {count}
         </span>
-      )}
-      {label && (
-        <span className="text-[10px] sm:text-xs hidden sm:inline">{label}</span>
       )}
     </button>
   );
