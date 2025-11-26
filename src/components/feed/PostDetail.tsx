@@ -569,6 +569,10 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
             {post.updatedAt > post.createdAt && <span className="text-[var(--muted-foreground)] text-xs sm:text-sm hidden sm:inline">• Edited</span>}
             {post.isPinned && showPinnedTag && <span className="text-[var(--muted-foreground)] text-xs sm:text-sm hidden sm:inline">• Pinned</span>}
           </div>
+          {/* Content directly under username */}
+          <div className="mt-1">
+            <ContentRenderer content={post.content} className="text-sm sm:text-base text-[var(--foreground)] whitespace-pre-wrap break-words" currentUserId={session?.user?.id} />
+          </div>
         </div>
 
         {/* Actions Menu */}
@@ -614,11 +618,6 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
             </div>
           )}
         </div>
-      </div>
-
-      {/* Content */}
-      <div className="mb-3 sm:mb-4">
-        <ContentRenderer content={post.content} className="text-sm sm:text-base text-[var(--foreground)] whitespace-pre-wrap break-words" currentUserId={session?.user?.id} />
       </div>
 
       {/* Location */}
