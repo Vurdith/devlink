@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { PROFILE_TYPE_CONFIG } from "@/lib/profile-types.tsx";
 import Link from "next/link";
@@ -31,6 +31,11 @@ export default function DiscoverPage() {
   const [selectedFilter, setSelectedFilter] = useState<ProfileType>("all");
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
+  const [hasMore, setHasMore] = useState(false);
+  const observerRef = useRef<IntersectionObserver | null>(null);
+  const loadMoreRef = useRef<HTMLDivElement>(null);
 
   const filters: { value: ProfileType; label: string; icon: string; color: string; bgColor: string }[] = [
     {
@@ -77,26 +82,74 @@ export default function DiscoverPage() {
     }
   ];
 
-  useEffect(() => {
-    async function fetchUsers() {
+  const fetchUsers = useCallback(async (cursor?: string | null) => {
+    if (cursor) {
+      setLoadingMore(true);
+    } else {
       setLoading(true);
-      try {
-        const url = selectedFilter === "all" 
-          ? "/api/discover" 
-          : `/api/discover?type=${selectedFilter}`;
-        const res = await fetch(url);
-        if (res.ok) {
-          const data = await res.json();
+    }
+    
+    try {
+      let url = selectedFilter === "all" 
+        ? "/api/discover" 
+        : `/api/discover?type=${selectedFilter}`;
+      
+      if (cursor) {
+        url += `${url.includes('?') ? '&' : '?'}cursor=${cursor}`;
+      }
+      
+      const res = await fetch(url);
+      if (res.ok) {
+        const data = await res.json();
+        if (cursor) {
+          setUsers(prev => [...prev, ...(data.users || [])]);
+        } else {
           setUsers(data.users || []);
         }
-      } catch (error) {
-        console.error("Failed to fetch users:", error);
-      } finally {
-        setLoading(false);
+        setNextCursor(data.nextCursor);
+        setHasMore(data.hasMore);
       }
+    } catch (error) {
+      console.error("Failed to fetch users:", error);
+    } finally {
+      setLoading(false);
+      setLoadingMore(false);
     }
-    fetchUsers();
   }, [selectedFilter]);
+
+  // Initial fetch and filter change
+  useEffect(() => {
+    setUsers([]);
+    setNextCursor(null);
+    setHasMore(false);
+    fetchUsers();
+  }, [selectedFilter, fetchUsers]);
+
+  // Infinite scroll observer
+  useEffect(() => {
+    if (observerRef.current) {
+      observerRef.current.disconnect();
+    }
+
+    observerRef.current = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !loadingMore && nextCursor) {
+          fetchUsers(nextCursor);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (loadMoreRef.current) {
+      observerRef.current.observe(loadMoreRef.current);
+    }
+
+    return () => {
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+      }
+    };
+  }, [hasMore, loadingMore, nextCursor, fetchUsers]);
 
   const getProfileConfig = (type: string) => {
     return PROFILE_TYPE_CONFIG[type as keyof typeof PROFILE_TYPE_CONFIG] || PROFILE_TYPE_CONFIG.GUEST;
@@ -175,115 +228,132 @@ export default function DiscoverPage() {
           ))}
         </div>
       ) : users.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {users.map((user) => {
-            const config = getProfileConfig(user.profile?.profileType || "GUEST");
-            const isCurrentUser = session?.user?.id === user.id;
-            
-            return (
-              <div 
-                key={user.id} 
-                className="glass rounded-2xl overflow-hidden hover:bg-white/5 transition-all duration-200 border border-white/10 hover:border-white/20"
-              >
-                {/* Banner - Always show, dark placeholder if no banner */}
-                <Link href={`/u/${user.username}`}>
-                  <div className="h-20 relative">
-                    {user.profile?.bannerUrl ? (
-                      <Image
-                        src={user.profile.bannerUrl}
-                        alt=""
-                        fill
-                        className="object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-white/5 to-white/[0.02]" />
-                    )}
-                  </div>
-                </Link>
-                
-                <div className="p-5 pt-0">
-                  {/* Avatar - overlapping banner */}
-                  <div className="flex items-start justify-between -mt-8 mb-3">
-                    <Link href={`/u/${user.username}`} className="relative">
-                      {user.profile?.avatarUrl ? (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {users.map((user) => {
+              const config = getProfileConfig(user.profile?.profileType || "GUEST");
+              const isCurrentUser = session?.user?.id === user.id;
+              
+              return (
+                <div 
+                  key={user.id} 
+                  className="glass rounded-2xl overflow-hidden hover:bg-white/5 transition-all duration-200 border border-white/10 hover:border-white/20"
+                >
+                  {/* Banner - Always show, dark placeholder if no banner */}
+                  <Link href={`/u/${user.username}`}>
+                    <div className="h-20 relative">
+                      {user.profile?.bannerUrl ? (
                         <Image
-                          src={user.profile.avatarUrl}
-                          alt={user.username}
-                          width={56}
-                          height={56}
-                          className="w-14 h-14 rounded-full object-cover border-4 border-[var(--background)]"
+                          src={user.profile.bannerUrl}
+                          alt=""
+                          fill
+                          className="object-cover"
                         />
                       ) : (
-                        <div className="w-14 h-14 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white text-lg font-bold border-4 border-[var(--background)]">
-                          {user.username.charAt(0).toUpperCase()}
-                        </div>
+                        <div className="w-full h-full bg-gradient-to-br from-white/5 to-white/[0.02]" />
                       )}
-                      {/* Verified Badge */}
-                      {user.profile?.verified && (
-                        <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center border-2 border-[var(--background)]">
-                          <svg width="10" height="10" viewBox="0 0 24 24" fill="white">
-                            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
-                          </svg>
-                        </div>
-                      )}
-                    </Link>
-                    
-                    {/* Follow Button */}
-                    {!isCurrentUser && session && (
-                      <div className="mt-9">
-                        <FollowButton 
-                          targetUserId={user.id}
-                          initialFollowing={user.isFollowing || false}
-                          compact
-                          onToggle={(following) => handleFollowToggle(user.id, following)}
-                        />
-                      </div>
-                    )}
-                  </div>
-                  
-                  {/* User Info */}
-                  <Link href={`/u/${user.username}`}>
-                    <div className="mb-3">
-                      <h3 className="font-semibold text-white truncate hover:underline">
-                        {user.name || user.username}
-                      </h3>
-                      <p className="text-sm text-[var(--muted-foreground)]">@{user.username}</p>
                     </div>
                   </Link>
                   
-                  {/* Profile Type Badge */}
-                  <div className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-lg text-xs font-medium ${config.bgColor} ${config.color} mb-3`}>
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-                      <path d={config.icon} />
-                    </svg>
-                    {config.label}
-                  </div>
-                  
-                  {/* Bio */}
-                  {user.profile?.bio ? (
-                    <p className="text-sm text-[var(--muted-foreground)] line-clamp-2 mb-4">
-                      {user.profile.bio}
-                    </p>
-                  ) : (
-                    <p className="text-sm text-[var(--muted-foreground)]/50 italic mb-4">
-                      No bio yet
-                    </p>
-                  )}
-                  
-                  {/* Stats */}
-                  <div className="flex items-center gap-4 pt-3 border-t border-white/10 text-sm">
-                    <span className="text-[var(--muted-foreground)]">
-                      <span className="font-semibold text-white">{user._count.followers}</span> followers
-                    </span>
-                    <span className="text-[var(--muted-foreground)]">
-                      <span className="font-semibold text-white">{user._count.following}</span> following
-                    </span>
+                  <div className="p-5 pt-0">
+                    {/* Avatar - overlapping banner */}
+                    <div className="flex items-start justify-between -mt-8 mb-3">
+                      <Link href={`/u/${user.username}`} className="relative">
+                        {user.profile?.avatarUrl ? (
+                          <Image
+                            src={user.profile.avatarUrl}
+                            alt={user.username}
+                            width={56}
+                            height={56}
+                            className="w-14 h-14 rounded-full object-cover border-4 border-[var(--background)]"
+                          />
+                        ) : (
+                          <div className="w-14 h-14 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white text-lg font-bold border-4 border-[var(--background)]">
+                            {user.username.charAt(0).toUpperCase()}
+                          </div>
+                        )}
+                        {/* Verified Badge */}
+                        {user.profile?.verified && (
+                          <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center border-2 border-[var(--background)]">
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="white">
+                              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                            </svg>
+                          </div>
+                        )}
+                      </Link>
+                      
+                      {/* Follow Button */}
+                      {!isCurrentUser && session && (
+                        <div className="mt-9">
+                          <FollowButton 
+                            targetUserId={user.id}
+                            initialFollowing={user.isFollowing || false}
+                            compact
+                            onToggle={(following) => handleFollowToggle(user.id, following)}
+                          />
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* User Info */}
+                    <Link href={`/u/${user.username}`}>
+                      <div className="mb-3">
+                        <h3 className="font-semibold text-white truncate hover:underline">
+                          {user.name || user.username}
+                        </h3>
+                        <p className="text-sm text-[var(--muted-foreground)]">@{user.username}</p>
+                      </div>
+                    </Link>
+                    
+                    {/* Profile Type Badge */}
+                    <div className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-lg text-xs font-medium ${config.bgColor} ${config.color} mb-3`}>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                        <path d={config.icon} />
+                      </svg>
+                      {config.label}
+                    </div>
+                    
+                    {/* Bio */}
+                    {user.profile?.bio ? (
+                      <p className="text-sm text-[var(--muted-foreground)] line-clamp-2 mb-4">
+                        {user.profile.bio}
+                      </p>
+                    ) : (
+                      <p className="text-sm text-[var(--muted-foreground)]/50 italic mb-4">
+                        No bio yet
+                      </p>
+                    )}
+                    
+                    {/* Stats */}
+                    <div className="flex items-center gap-4 pt-3 border-t border-white/10 text-sm">
+                      <span className="text-[var(--muted-foreground)]">
+                        <span className="font-semibold text-white">{user._count.followers}</span> followers
+                      </span>
+                      <span className="text-[var(--muted-foreground)]">
+                        <span className="font-semibold text-white">{user._count.following}</span> following
+                      </span>
+                    </div>
                   </div>
                 </div>
+              );
+            })}
+          </div>
+          
+          {/* Load More / Infinite Scroll Trigger */}
+          <div ref={loadMoreRef} className="py-8 flex justify-center">
+            {loadingMore && (
+              <div className="flex items-center gap-3 text-[var(--muted-foreground)]">
+                <div className="w-5 h-5 border-2 border-current border-r-transparent rounded-full animate-spin" />
+                <span>Loading more...</span>
               </div>
-            );
-          })}
-        </div>
+            )}
+            {!hasMore && users.length > 0 && (
+              <p className="text-[var(--muted-foreground)] text-sm">
+                You've reached the end! 🎉
+              </p>
+            )}
+          </div>
+        </>
       ) : (
         <div className="text-center py-16">
           <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center">

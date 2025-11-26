@@ -3,11 +3,14 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/server/auth-options";
 import { NextRequest, NextResponse } from "next/server";
 
+const PAGE_SIZE = 24; // 24 = nice grid (divisible by 2, 3, 4)
+
 export async function GET(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     const { searchParams } = new URL(req.url);
     const profileType = searchParams.get("type");
+    const cursor = searchParams.get("cursor"); // For pagination
     
     // Build the where clause
     const where: any = {};
@@ -25,6 +28,7 @@ export async function GET(req: NextRequest) {
         id: true,
         username: true,
         name: true,
+        createdAt: true,
         profile: {
           select: {
             avatarUrl: true,
@@ -58,11 +62,20 @@ export async function GET(req: NextRequest) {
         // Then by creation date
         { createdAt: "desc" }
       ],
-      take: 50,
+      take: PAGE_SIZE + 1, // Fetch one extra to check if there's more
+      ...(cursor && {
+        skip: 1, // Skip the cursor
+        cursor: { id: cursor }
+      })
     });
     
+    // Check if there are more results
+    const hasMore = users.length > PAGE_SIZE;
+    const usersToReturn = hasMore ? users.slice(0, PAGE_SIZE) : users;
+    const nextCursor = hasMore ? usersToReturn[usersToReturn.length - 1].id : null;
+    
     // Transform to include isFollowing flag
-    const transformedUsers = users.map(user => ({
+    const transformedUsers = usersToReturn.map(user => ({
       id: user.id,
       username: user.username,
       name: user.name,
@@ -71,7 +84,11 @@ export async function GET(req: NextRequest) {
       isFollowing: Array.isArray(user.followers) && user.followers.length > 0
     }));
     
-    return NextResponse.json({ users: transformedUsers });
+    return NextResponse.json({ 
+      users: transformedUsers,
+      nextCursor,
+      hasMore
+    });
   } catch (error) {
     console.error("Failed to fetch discover users:", error);
     return NextResponse.json(
