@@ -1191,3 +1191,39 @@ img, video {
 .badge-glow-purple { box-shadow: 0 0 12px rgba(168, 85, 247, 0.3); }
 .badge-glow-rose { box-shadow: 0 0 12px rgba(244, 63, 94, 0.3); }
 .badge-glow-amber { box-shadow: 0 0 12px rgba(245, 158, 11, 0.3); }
+
+/* Mobile safe area support for notches and home bars */
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.safe-area-top {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+/* Mobile-specific optimizations */
+@media (max-width: 768px) {
+  /* Improve touch targets */
+  button, a {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Reduce animation complexity on mobile */
+  .animate-float,
+  .particle {
+    animation-duration: 8s !important;
+  }
+  
+  /* Better text rendering on mobile */
+  body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  /* Prevent text selection on touch */
+  .no-select {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+}

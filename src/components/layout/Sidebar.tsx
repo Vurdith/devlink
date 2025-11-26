@@ -121,7 +121,7 @@ export const Sidebar = memo(function Sidebar() {
   const isAuthenticated = status === "authenticated";
 
   return (
-    <aside className="fixed left-0 top-0 h-full w-72 z-40 flex flex-col">
+    <aside className="hidden md:flex fixed left-0 top-0 h-full w-72 z-40 flex-col">
       {/* Background */}
       <div className="absolute inset-0 glass border-r border-white/5" />
       

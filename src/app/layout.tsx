@@ -3,6 +3,7 @@ import { Outfit, Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/layout/Navbar";
 import { Sidebar } from "@/components/layout/Sidebar";
+import { MobileNav } from "@/components/layout/MobileNav";
 import { SessionProvider } from "@/components/providers/SessionProvider";
 import { ToastProvider } from "@/components/providers/ToastProvider";
 import { PerformanceProvider } from "@/components/providers/PerformanceProvider";
@@ -69,16 +70,17 @@ export default function RootLayout({
               <AnimatedBackground />
               
               <Sidebar />
-              <div className="ml-72 min-h-screen relative">
+              <MobileNav />
+              <div className="md:ml-72 min-h-screen relative">
                 <Navbar />
-                <main className="min-h-screen relative isolate">
+                <main className="min-h-screen relative isolate pb-20 md:pb-0">
                   {/* Gradient overlay */}
                   <div className="fixed inset-0 -z-10 gradient-bg pointer-events-none" />
                   
                   {/* Grid pattern */}
                   <div className="fixed inset-0 -z-10 grid-pattern pointer-events-none opacity-50" />
                   
-                  <div className="relative z-10 p-6">
+                  <div className="relative z-10 p-4 md:p-6 pt-16 md:pt-6">
                     <ErrorBoundary>
                       {children}
                     </ErrorBoundary>

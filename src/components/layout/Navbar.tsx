@@ -61,14 +61,17 @@ export const Navbar = memo(function Navbar() {
       {/* Gradient line on top */}
       <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-purple-500/50 to-transparent" />
       
-      <div className="relative w-full px-6 h-16 flex items-center">
+      <div className="relative w-full px-4 md:px-6 h-16 flex items-center">
+        {/* Spacer for mobile hamburger button */}
+        <div className="w-12 md:hidden" />
+        
         {/* Search bar */}
         <div className="flex items-center flex-1">
           <NavbarSearch />
         </div>
 
         {/* Right side actions */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 md:gap-3">
           {/* Quick action buttons for logged-in users */}
           {username && (
             <div className="hidden md:flex items-center gap-2">
@@ -103,8 +106,8 @@ export const Navbar = memo(function Navbar() {
               profileType={profileType}
             />
           ) : (
-            <div className="flex items-center gap-3">
-              <Link href="/login" className="hidden sm:inline-flex">
+            <div className="hidden md:flex items-center gap-3">
+              <Link href="/login">
                 <Button
                   variant="ghost"
                   className="text-[var(--muted-foreground)] hover:text-white border-0"
