@@ -450,6 +450,7 @@ export async function GET(request: NextRequest) {
         likes: [], // Clear to reduce payload
         reposts: [],
         savedBy: [],
+        replies: Array(post._count?.replies || 0).fill(null), // For reply count display
       };
       
       if (post.poll) {
