@@ -569,10 +569,6 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
             {post.updatedAt > post.createdAt && <span className="text-[var(--muted-foreground)] text-xs sm:text-sm hidden sm:inline">• Edited</span>}
             {post.isPinned && showPinnedTag && <span className="text-[var(--muted-foreground)] text-xs sm:text-sm hidden sm:inline">• Pinned</span>}
           </div>
-          {/* Content preview under username */}
-          <p className="text-xs sm:text-sm text-[var(--muted-foreground)] truncate mt-0.5">
-            {post.content.length > 80 ? post.content.substring(0, 80) + '...' : post.content}
-          </p>
         </div>
 
         {/* Actions Menu */}
