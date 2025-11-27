@@ -1,4 +1,5 @@
 import { prisma } from "@/server/db";
+import { getUniqueViewCounts } from "@/lib/view-utils";
 
 // Full select for feed display AND ranking
 const feedPostSelect = {
@@ -40,7 +41,6 @@ const feedPostSelect = {
       likes: true,
       reposts: true,
       replies: true,
-      views: true,
       savedBy: true,
     },
   },
@@ -81,7 +81,11 @@ export async function fetchHomeFeedPosts(limit = 30) {
     take: limit,
   });
 
-  // Transform to expected format
+  // Get unique view counts for all posts (consistent with other endpoints)
+  const postIds = posts.map(p => p.id);
+  const uniqueViewCounts = await getUniqueViewCounts(postIds);
+
+  // Transform to expected format with consistent view counting
   return posts.map(post => ({
     ...post,
     likes: [],
@@ -89,7 +93,7 @@ export async function fetchHomeFeedPosts(limit = 30) {
     savedBy: [],
     hashtags: [],
     replies: Array(post._count?.replies || 0).fill(null),
-    views: post._count?.views || 0,
+    views: uniqueViewCounts.get(post.id) || 0,
     poll: post.poll ? {
       ...post.poll,
       options: post.poll.options.map(opt => ({

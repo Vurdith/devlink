@@ -1,6 +1,6 @@
 "use client";
 import { memo, useCallback } from "react";
-import PostDetail from "./PostDetail";
+import { VirtualizedPostFeed } from "./VirtualizedPostFeed";
 import { FeedSkeleton } from "@/components/ui/LoadingSpinner";
 
 interface Post {
@@ -66,54 +66,34 @@ interface PostFeedProps {
   showNavigationArrow?: boolean;
   isLoading?: boolean;
   onUpdate?: (updatedPost: Post) => void;
+  // Infinite scroll props
+  hasMore?: boolean;
+  onLoadMore?: () => void;
 }
 
-// Memoized post item with stable callback
-const PostItem = memo(function PostItem({ 
-  post, 
-  showPinnedTag, 
-  onUpdate,
-  index
-}: { 
-  post: Post; 
-  showPinnedTag: boolean; 
-  onUpdate?: (updatedPost: Post) => void;
-  index: number;
-}) {
-  return (
-    <article 
-      className="animate-post-in"
-      style={{ 
-        animationDelay: `${Math.min(index * 30, 150)}ms`,
-        contain: 'layout style paint'
-      }}
-    >
-      <PostDetail
-        post={post}
-        showPinnedTag={showPinnedTag}
-        onUpdate={onUpdate}
-      />
-    </article>
-  );
-}, (prev, next) => {
-  // Custom comparison - only re-render if post data actually changed
-  return prev.post.id === next.post.id && 
-         prev.post.updatedAt === next.post.updatedAt &&
-         prev.showPinnedTag === next.showPinnedTag;
-});
-
+/**
+ * PostFeed - Now powered by VirtualizedPostFeed
+ * 
+ * Uses the same virtualization technique as X, Facebook, Instagram:
+ * - Only renders posts that are in/near the viewport
+ * - Shows skeleton placeholders for off-screen posts
+ * - Dramatically improves scroll performance on large feeds
+ * - Supports infinite scroll with hasMore/onLoadMore
+ */
 export const PostFeed = memo(function PostFeed({ 
   posts, 
   hidePinnedIndicator = false, 
   isLoading = false, 
-  onUpdate 
+  onUpdate,
+  hasMore = false,
+  onLoadMore
 }: PostFeedProps) {
   // Stable callback reference
   const handleUpdate = useCallback((updatedPost: Post) => {
     onUpdate?.(updatedPost);
   }, [onUpdate]);
 
-  if (isLoading) {
+  if (isLoading && posts.length === 0) {
     return <FeedSkeleton />;
   }
 
@@ -133,17 +113,15 @@ export const PostFeed = memo(function PostFeed({
     );
   }
 
+  // Use VirtualizedPostFeed for all feeds - same as X, Facebook, Instagram
   return (
-    <div className="space-y-6">
-      {posts.map((post, index) => (
-        <PostItem
-          key={post.id}
-          post={post}
-          showPinnedTag={!hidePinnedIndicator}
-          onUpdate={handleUpdate}
-          index={index}
-        />
-      ))}
-    </div>
+    <VirtualizedPostFeed
+      posts={posts}
+      hidePinnedIndicator={hidePinnedIndicator}
+      isLoading={isLoading}
+      onUpdate={handleUpdate}
+      hasMore={hasMore}
+      onLoadMore={onLoadMore}
+    />
   );
 });

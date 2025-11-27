@@ -10,8 +10,8 @@ Your personalized guide to launching **devlink.ink** with 10,000+ concurrent use
 |----------|--------|-------|
 | Infrastructure | ✅ Done | DB, Redis, R2 all configured |
 | Code Optimizations | ✅ Done | All performance fixes applied |
-| Production Secrets | ⚠️ Pending | Need secure NEXTAUTH_SECRET |
-| Production URLs | ⚠️ Pending | Still using localhost |
+| Production Secrets | ✅ Pending | Need secure NEXTAUTH_SECRET |
+| Production URLs | ✅ Pending | Still using localhost |
 | Hosting | ⚠️ Pending | Need to deploy to Vercel |
 | Domain Setup | ⚠️ Pending | Point devlink.ink to host |
 

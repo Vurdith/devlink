@@ -122,10 +122,6 @@ export const DEFAULT_RANKING_WEIGHTS: RankingWeights = {
   baseScoreFloor: 0,
 };
 
-export const EXPERIMENTAL_RANKING_WEIGHTS: RankingWeights = {
-  ...DEFAULT_RANKING_WEIGHTS,
-};
-
 export interface RankingBreakdown {
   // NEW: Clear component scores (0-100)
   engagementScore: number;      // How much engagement (0-100)
@@ -175,7 +171,6 @@ export interface RankingBreakdown {
 export interface RankPostsOptions {
   weights?: Partial<RankingWeights>;
   now?: Date;
-  mode?: "default" | "experimental";
 }
 
 export interface RankedPost<T extends RankablePost> {

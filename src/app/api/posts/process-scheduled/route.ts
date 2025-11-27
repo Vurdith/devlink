@@ -66,9 +66,6 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// Export the function so it can be used by other APIs
-export { processScheduledPosts };
-
 // GET endpoint to check scheduled posts without processing them
 export async function GET(request: NextRequest) {
   try {

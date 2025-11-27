@@ -1,11 +1,39 @@
 "use client";
-import { useState, useRef, useEffect, memo, useCallback } from "react";
+import { useState, useRef, useEffect, memo, useCallback, useMemo } from "react";
 import { createPortal } from "react-dom";
 import { Avatar } from "./Avatar";
 import Image from "next/image";
 import { FollowButton } from "./FollowButton";
 import { getProfileTypeConfig, ProfileTypeIcon } from "@/lib/profile-types";
 import { cn } from "@/lib/cn";
+
+// Pre-computed profile type styles for performance
+const PROFILE_GRADIENTS: Record<string, string> = {
+  DEVELOPER: "from-blue-500/20 via-blue-400/10 to-cyan-500/20",
+  CLIENT: "from-emerald-500/20 via-green-400/10 to-teal-500/20",
+  STUDIO: "from-purple-500/20 via-violet-400/10 to-fuchsia-500/20",
+  INFLUENCER: "from-rose-500/20 via-pink-400/10 to-red-500/20",
+  INVESTOR: "from-amber-500/20 via-yellow-400/10 to-orange-500/20",
+  DEFAULT: "from-slate-500/20 via-gray-400/10 to-zinc-500/20",
+};
+
+const PROFILE_BORDERS: Record<string, string> = {
+  DEVELOPER: "border-blue-500/40 shadow-blue-500/20",
+  CLIENT: "border-emerald-500/40 shadow-emerald-500/20",
+  STUDIO: "border-purple-500/40 shadow-purple-500/20",
+  INFLUENCER: "border-rose-500/40 shadow-rose-500/20",
+  INVESTOR: "border-amber-500/40 shadow-amber-500/20",
+  DEFAULT: "border-white/20 shadow-white/10",
+};
+
+const BADGE_CLASSES: Record<string, string> = {
+  DEVELOPER: "bg-blue-500/15 text-blue-300 border-blue-500/30 shadow-blue-500/20",
+  CLIENT: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30 shadow-emerald-500/20",
+  STUDIO: "bg-purple-500/15 text-purple-300 border-purple-500/30 shadow-purple-500/20",
+  INFLUENCER: "bg-rose-500/15 text-rose-300 border-rose-500/30 shadow-rose-500/20",
+  INVESTOR: "bg-amber-500/15 text-amber-300 border-amber-500/30 shadow-amber-500/20",
+  DEFAULT: "bg-slate-500/15 text-slate-300 border-slate-500/30 shadow-slate-500/20",
+};
 
 interface ProfileTooltipProps {
   user: {
@@ -220,39 +248,19 @@ export const ProfileTooltip = memo(function ProfileTooltip({
 
   const profileType = user.profile?.profileType;
   const profileConfig = profileType ? getProfileTypeConfig(profileType) : null;
-
-  const getProfileGradient = () => {
-    switch (profileType) {
-      case "DEVELOPER": return "from-blue-500/20 via-blue-400/10 to-cyan-500/20";
-      case "CLIENT": return "from-emerald-500/20 via-green-400/10 to-teal-500/20";
-      case "STUDIO": return "from-purple-500/20 via-violet-400/10 to-fuchsia-500/20";
-      case "INFLUENCER": return "from-rose-500/20 via-pink-400/10 to-red-500/20";
-      case "INVESTOR": return "from-amber-500/20 via-yellow-400/10 to-orange-500/20";
-      default: return "from-slate-500/20 via-gray-400/10 to-zinc-500/20";
-    }
-  };
-
-  const getProfileBorderColor = () => {
-    switch (profileType) {
-      case "DEVELOPER": return "border-blue-500/40 shadow-blue-500/20";
-      case "CLIENT": return "border-emerald-500/40 shadow-emerald-500/20";
-      case "STUDIO": return "border-purple-500/40 shadow-purple-500/20";
-      case "INFLUENCER": return "border-rose-500/40 shadow-rose-500/20";
-      case "INVESTOR": return "border-amber-500/40 shadow-amber-500/20";
-      default: return "border-white/20 shadow-white/10";
-    }
-  };
-
-  const getBadgeClasses = () => {
-    switch (profileType) {
-      case "DEVELOPER": return "bg-blue-500/15 text-blue-300 border-blue-500/30 shadow-blue-500/20";
-      case "CLIENT": return "bg-emerald-500/15 text-emerald-300 border-emerald-500/30 shadow-emerald-500/20";
-      case "STUDIO": return "bg-purple-500/15 text-purple-300 border-purple-500/30 shadow-purple-500/20";
-      case "INFLUENCER": return "bg-rose-500/15 text-rose-300 border-rose-500/30 shadow-rose-500/20";
-      case "INVESTOR": return "bg-amber-500/15 text-amber-300 border-amber-500/30 shadow-amber-500/20";
-      default: return "bg-slate-500/15 text-slate-300 border-slate-500/30 shadow-slate-500/20";
-    }
-  };
+  
+  // Use pre-computed lookups instead of recreating functions on every render
+  const profileGradient = useMemo(() => 
+    PROFILE_GRADIENTS[profileType || "DEFAULT"] || PROFILE_GRADIENTS.DEFAULT
+  , [profileType]);
+  
+  const profileBorderColor = useMemo(() => 
+    PROFILE_BORDERS[profileType || "DEFAULT"] || PROFILE_BORDERS.DEFAULT
+  , [profileType]);
+  
+  const badgeClasses = useMemo(() => 
+    BADGE_CLASSES[profileType || "DEFAULT"] || BADGE_CLASSES.DEFAULT
+  , [profileType]);
 
   const formatCount = (count: number | undefined | null) => {
     if (count == null) return "0";
@@ -283,13 +291,13 @@ export const ProfileTooltip = memo(function ProfileTooltip({
         "relative w-80 rounded-2xl overflow-hidden",
         "bg-[#0d1117]",
         "border",
-        getProfileBorderColor(),
+        profileBorderColor,
         "shadow-2xl shadow-black/60"
       )}>
           {/* Gradient overlay at top */}
           <div className={cn(
             "absolute inset-x-0 top-0 h-32 opacity-40",
-            `bg-gradient-to-b ${getProfileGradient()} to-transparent`
+            `bg-gradient-to-b ${profileGradient} to-transparent`
           )} />
           
           {/* Banner or gradient */}
@@ -307,7 +315,7 @@ export const ProfileTooltip = memo(function ProfileTooltip({
             ) : (
               <div className={cn(
                 "absolute inset-0",
-                `bg-gradient-to-br ${getProfileGradient()}`,
+                `bg-gradient-to-br ${profileGradient}`,
                 "opacity-60"
               )}>
                 {/* Animated pattern overlay */}
@@ -333,7 +341,7 @@ export const ProfileTooltip = memo(function ProfileTooltip({
                 <div className={cn(
                   "absolute -inset-1 rounded-full opacity-0 group-hover:opacity-100",
                   "transition-opacity duration-300",
-                  `bg-gradient-to-br ${getProfileGradient().replace('/20', '/40')}`
+                  `bg-gradient-to-br ${profileGradient.replace('/20', '/40')}`
                 )} />
                 <div className={cn(
                   "relative rounded-full p-0.5",
@@ -372,7 +380,7 @@ export const ProfileTooltip = memo(function ProfileTooltip({
                 <span className={cn(
                   "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full",
                   "text-xs font-medium border shadow-sm",
-                  getBadgeClasses()
+                  badgeClasses
                 )}>
                   <ProfileTypeIcon profileType={profileType} size={12} />
                   {profileConfig.label}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, memo } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
@@ -67,8 +67,8 @@ const userNavigation: NavItem[] = [
   },
 ];
 
-// Nav link component matching desktop Sidebar exactly
-function NavLink({ item, isActive, onClick }: { item: NavItem; isActive: boolean; onClick?: () => void }) {
+// Memoized nav link component matching desktop Sidebar exactly
+const NavLink = memo(function NavLink({ item, isActive, onClick }: { item: NavItem; isActive: boolean; onClick?: () => void }) {
   return (
     <Link
       href={item.href}
@@ -113,9 +113,9 @@ function NavLink({ item, isActive, onClick }: { item: NavItem; isActive: boolean
       </svg>
     </Link>
   );
-}
+});
 
-export function MobileNav() {
+export const MobileNav = memo(function MobileNav() {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
   const { status } = useSession();
@@ -385,4 +385,4 @@ export function MobileNav() {
       </nav>
     </>
   );
-}
+});

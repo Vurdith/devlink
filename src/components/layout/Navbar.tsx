@@ -32,9 +32,24 @@ export const Navbar = memo(function Navbar() {
         setAvatarUrl(googleImage);
       }
       
+      // Check session storage cache first to prevent repeated API calls
+      const cacheKey = `navbar-profile-${username}`;
+      const cached = sessionStorage.getItem(cacheKey);
+      if (cached) {
+        try {
+          const data = JSON.parse(cached);
+          if (data.user?.profile?.avatarUrl) setAvatarUrl(data.user.profile.avatarUrl);
+          if (data.user?.name) setDisplayName(data.user.name);
+          if (data.user?.profile?.profileType) setProfileType(data.user.profile.profileType);
+          return;
+        } catch {}
+      }
+      
       fetch(`/api/user/${username}`)
         .then(res => res.json())
         .then(data => {
+          // Cache the response for 5 minutes
+          sessionStorage.setItem(cacheKey, JSON.stringify(data));
           if (data.user?.profile?.avatarUrl) {
             setAvatarUrl(data.user.profile.avatarUrl);
           }

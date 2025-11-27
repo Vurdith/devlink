@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/server/db";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/server/auth-options";
+import { getUniqueViewCounts } from "@/lib/view-utils";
 
 export async function POST(
   request: NextRequest,
@@ -41,10 +42,9 @@ export async function POST(
       const timeSinceLastView = now.getTime() - existingView.viewedAt.getTime();
       
       if (timeSinceLastView < cooldownPeriod) {
-        // Still in cooldown, return current count
-        const viewCount = await prisma.postView.count({
-          where: { postId },
-        });
+        // Still in cooldown, return current unique authenticated user count
+        const viewCountMap = await getUniqueViewCounts([postId]);
+        const viewCount = viewCountMap.get(postId) || 0;
         
         return NextResponse.json({ 
           success: true, 
@@ -84,10 +84,9 @@ export async function POST(
       }
     }
 
-    // Get the current view count by counting PostView records
-    const viewCount = await prisma.postView.count({
-      where: { postId },
-    });
+    // Get unique authenticated user view count (consistent with other endpoints)
+    const viewCountMap = await getUniqueViewCounts([postId]);
+    const viewCount = viewCountMap.get(postId) || 0;
 
     return NextResponse.json({ 
       success: true, 

@@ -5,6 +5,10 @@ const nextConfig: NextConfig = {
     ignoreDuringBuilds: true,
   },
   reactStrictMode: true,
+  // Enable experimental optimizations
+  experimental: {
+    optimizePackageImports: ['framer-motion', 'recharts', 'date-fns', 'emoji-picker-react'],
+  },
   images: {
     remotePatterns: [
       // Local development

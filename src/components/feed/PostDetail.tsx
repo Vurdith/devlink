@@ -2,6 +2,8 @@
 
 import { useState, useRef, useEffect, memo, useCallback, useMemo } from "react";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { TimeAgo } from "@/components/ui/TimeAgo";
 import { createPortal } from "react-dom";
 import { PollDisplay } from "@/components/ui/PollDisplay";
@@ -9,6 +11,16 @@ import { ProfileTooltip } from "@/components/ui/ProfileTooltip";
 import { ContentRenderer } from "@/components/ui/ContentRenderer";
 import { getProfileTypeConfig, ProfileTypeIcon } from "@/lib/profile-types";
 import { cn } from "@/lib/cn";
+
+// Pre-computed profile type styles for better performance
+const PROFILE_TYPE_CLASSES: Record<string, string> = {
+  DEVELOPER: "border-blue-500/40 bg-blue-500/10 text-blue-400",
+  CLIENT: "border-green-500/40 bg-green-500/10 text-green-400",
+  STUDIO: "border-purple-500/40 bg-purple-500/10 text-purple-400",
+  INFLUENCER: "border-red-500/40 bg-red-500/10 text-red-400",
+  INVESTOR: "border-yellow-500/40 bg-yellow-500/10 text-yellow-400",
+  DEFAULT: "border-gray-500/40 bg-gray-500/10 text-gray-400",
+};
 
 interface PollOption {
   id: string;
@@ -102,6 +114,7 @@ function getInitials(name: string | null, username: string): string {
 
 const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = false, showPinnedTag = false }: PostDetailProps) {
   const { data: session } = useSession();
+  const router = useRouter();
   const [avatarError, setAvatarError] = useState(false);
   const [modalState, setModalState] = useState<{
     isOpen: boolean;
@@ -395,31 +408,33 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
     }
   };
 
-  const handlePollVote = async (optionIds: string[]) => {
-    if (!session?.user?.id) return;
+  const handlePollVote = useCallback(async (optionIds: string[]) => {
+    if (!session?.user?.id || !post.poll?.id) return;
     try {
       const response = await fetch('/api/polls/vote', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pollId: post.poll?.id, optionIds, userId: session.user.id }),
+        body: JSON.stringify({ pollId: post.poll.id, optionIds, userId: session.user.id }),
       });
       if (response.ok) {
-        window.location.reload();
+        // Use client-side refresh instead of full page reload
+        router.refresh();
       }
     } catch (error) {
       console.error('Error voting on poll:', error);
     }
-  };
+  }, [session?.user?.id, post.poll?.id, router]);
 
-  const confirmDelete = async () => {
+  const confirmDelete = useCallback(async () => {
     try {
       const response = await fetch(`/api/posts/${post.id}/delete`, { method: 'DELETE' });
       if (response.ok) {
         setShowDeleteConfirm(false);
-        if (window.location.pathname.startsWith('/p/')) {
-          window.location.href = '/home';
+        // Use client-side navigation
+        if (typeof window !== 'undefined' && window.location.pathname.startsWith('/p/')) {
+          router.push('/home');
         } else {
-          window.location.reload();
+          router.refresh();
         }
       } else {
         const errorData = await response.json();
@@ -429,7 +444,7 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
       console.error('Error deleting post:', error);
       alert('Failed to delete post. Please try again.');
     }
-  };
+  }, [post.id, router]);
 
   const openModal = (type: 'slideshow' | 'grid', index: number = 0) => {
     if (!post.media || post.media.length === 0 || index < 0 || index >= post.media.length) return;
@@ -511,17 +526,31 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
     );
   };
 
-  const profileTypeClasses = (() => {
-    const type = post.user.profile?.profileType;
-    switch (type) {
-      case "DEVELOPER": return "border-blue-500/40 bg-blue-500/10 text-blue-400";
-      case "CLIENT": return "border-green-500/40 bg-green-500/10 text-green-400";
-      case "STUDIO": return "border-purple-500/40 bg-purple-500/10 text-purple-400";
-      case "INFLUENCER": return "border-red-500/40 bg-red-500/10 text-red-400";
-      case "INVESTOR": return "border-yellow-500/40 bg-yellow-500/10 text-yellow-400";
-      default: return "border-gray-500/40 bg-gray-500/10 text-gray-400";
+  // Use pre-computed lookup instead of recalculating on every render
+  const profileTypeClasses = PROFILE_TYPE_CLASSES[post.user.profile?.profileType || "DEFAULT"] || PROFILE_TYPE_CLASSES.DEFAULT;
+  
+  // Memoized navigation handlers to prevent unnecessary re-renders
+  const navigateToProfile = useCallback(() => {
+    router.push(`/u/${post.user.username}`);
+  }, [router, post.user.username]);
+  
+  const navigateToPost = useCallback(() => {
+    window.open(`/p/${post.id}`, '_blank');
+  }, [post.id]);
+  
+  // Memoized share handler
+  const handleShare = useCallback(() => {
+    const postUrl = typeof window !== 'undefined' ? `${window.location.origin}/p/${post.id}` : '';
+    if (typeof navigator !== 'undefined' && navigator.share) {
+      navigator.share({ 
+        title: `${post.user.name || post.user.username}'s post`, 
+        text: post.content, 
+        url: postUrl 
+      }).catch(() => {});
+    } else if (typeof navigator !== 'undefined') {
+      navigator.clipboard.writeText(postUrl);
     }
-  })();
+  }, [post.id, post.user.name, post.user.username, post.content]);
 
   return (
     <div className="glass rounded-xl sm:rounded-2xl p-3 sm:p-6 mb-3 sm:mb-6 shadow-lg">
@@ -529,13 +558,15 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
       <div className="flex items-start space-x-2 sm:space-x-3 mb-3 sm:mb-4">
         <ProfileTooltip user={post.user as any} currentUserId={session?.user?.id}>
           <button
-            onClick={() => window.location.href = `/u/${post.user.username}`}
+            onClick={navigateToProfile}
             className="relative group cursor-pointer flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12"
           >
             {!avatarError && post.user.profile?.avatarUrl ? (
-              <img
+              <Image
                 src={post.user.profile.avatarUrl}
                 alt={post.user.name || post.user.username}
+                width={48}
+                height={48}
                 className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover border-2 border-white/20 group-hover:opacity-80 transition-opacity"
                 loading="lazy"
                 referrerPolicy="no-referrer"
@@ -646,7 +677,7 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
         {/* Reply */}
         {!isOnPostPage ? (
           <EngagementButton
-            onClick={() => window.open(`/p/${post.id}`, '_blank')}
+            onClick={navigateToPost}
             isActive={(post.replies?.length || 0) > 0}
             activeColor="blue"
             count={post.replies?.length || 0}
@@ -695,14 +726,7 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
 
         {/* Share */}
         <EngagementButton
-          onClick={() => {
-            const postUrl = `${window.location.origin}/p/${post.id}`;
-            if (navigator.share) {
-              navigator.share({ title: `${post.user.name || post.user.username}'s post`, text: post.content, url: postUrl });
-            } else {
-              navigator.clipboard.writeText(postUrl);
-            }
-          }}
+          onClick={handleShare}
           isActive={false}
           activeColor="purple"
           label="Share"
@@ -729,7 +753,7 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
         {/* Go to Post */}
         {!isOnPostPage ? (
           <EngagementButton
-            onClick={() => window.open(`/p/${post.id}`, '_blank')}
+            onClick={navigateToPost}
             isActive={false}
             activeColor="gray"
             label="Open"
