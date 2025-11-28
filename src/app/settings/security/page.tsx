@@ -706,7 +706,7 @@ export default function SecuritySettings() {
                     setIsDeleting(false);
                   }
                 }}
-                disabled={deleteConfirmText !== "DELETE" || (hasPassword && !deletePassword)}
+                disabled={deleteConfirmText !== "DELETE" || (hasPassword === true && !deletePassword)}
                 isLoading={isDeleting}
                 className="flex-1 bg-red-500 hover:bg-red-600 border-red-500"
               >
