@@ -40,6 +40,11 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: '*.r2.dev',
       },
+      // Custom R2 CDN domain (production)
+      {
+        protocol: 'https',
+        hostname: 'cdn.devlink.ink',
+      },
       // AWS S3 buckets
       {
         protocol: 'https',

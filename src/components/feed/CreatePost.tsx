@@ -214,9 +214,14 @@ export const CreatePost = memo(function CreatePost({
   if (!isOpen) {
     return (
       <div 
-        className="create-post-collapsed glass rounded-2xl p-4 mb-6 border border-white/20 cursor-pointer group relative overflow-hidden shimmer-hover"
+        className="create-post-collapsed glass rounded-2xl p-4 mb-6 border border-white/20 cursor-pointer group relative overflow-hidden"
         onClick={() => setIsOpen(true)}
       >
+        {/* Shimmer effect - covers entire cell on hover */}
+        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none overflow-hidden rounded-2xl">
+          <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out bg-gradient-to-r from-transparent via-white/10 to-transparent skew-x-12" />
+        </div>
+        
         {/* Animated gradient border on hover */}
         <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
           <div className="absolute inset-0 rounded-2xl gradient-border-animated p-[1px]">
@@ -227,7 +232,7 @@ export const CreatePost = memo(function CreatePost({
         {/* Glow effect on hover */}
         <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-purple-500/0 via-purple-500/5 to-purple-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
         
-        <div className="relative flex items-center gap-4">
+        <div className="relative z-10 flex items-center gap-4">
           <div className="scale-hover">
             <Avatar src={currentUserProfile.avatarUrl} size={44} />
           </div>

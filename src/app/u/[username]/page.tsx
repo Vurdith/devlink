@@ -90,8 +90,8 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
   return (
     <main className="mx-auto max-w-5xl px-2 sm:px-4 py-4 sm:py-10">
       <section className="relative overflow-hidden rounded-xl sm:rounded-2xl">
-        {/* Banner */}
-        <div className="relative h-28 sm:h-52 w-full group">
+        {/* Banner - Taller aspect ratio for better visual impact */}
+        <div className="relative h-36 sm:h-64 w-full group">
           {user.profile?.bannerUrl ? (
             <Image src={user.profile.bannerUrl} alt="Banner" fill className="object-cover" priority />
           ) : (
@@ -104,13 +104,13 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
         {/* Main profile card */}
         <div className="relative bg-[#0a0a0f]/95 border-t border-purple-500/20 px-4 sm:px-8 pb-4 sm:pb-8">
           
-          {/* Avatar - positioned to overlap banner */}
+          {/* Avatar - positioned to overlap banner with higher z-index than banner overlay */}
           <div className="flex justify-between items-start">
-            <div className="relative -mt-12 sm:-mt-16">
-              <div className="relative w-20 h-20 sm:w-28 sm:h-28">
+            <div className="relative -mt-12 sm:-mt-16 z-20">
+              <div className="relative w-20 h-20 sm:w-28 sm:h-28 group">
                 <div className="absolute -inset-1 bg-gradient-to-br from-purple-500 to-purple-700 rounded-full opacity-75 blur-sm" />
-                <div className="relative w-full h-full rounded-full border-4 border-[#0a0a0f] overflow-hidden">
-                  <Avatar size={112} className="w-full h-full" src={user.profile?.avatarUrl || undefined} />
+                <div className="relative w-full h-full rounded-full border-4 border-[#0a0a0f] overflow-hidden flex items-center justify-center">
+                  <Avatar className="w-full h-full object-cover" src={user.profile?.avatarUrl || undefined} />
                 </div>
                 <AvatarEditOverlay editable={isOwnProfile} />
               </div>

@@ -11,6 +11,7 @@ import { ProfileTooltip } from "@/components/ui/ProfileTooltip";
 import { ContentRenderer } from "@/components/ui/ContentRenderer";
 import { getProfileTypeConfig, ProfileTypeIcon } from "@/lib/profile-types";
 import { cn } from "@/lib/cn";
+import { ReplyModal } from "./ReplyModal";
 
 // Pre-computed profile type styles for better performance
 const PROFILE_TYPE_CLASSES: Record<string, string> = {
@@ -139,6 +140,7 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
     isSaved?: boolean;
   } | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showReplyModal, setShowReplyModal] = useState(false);
   
   const actionsMenuRef = useRef<HTMLDivElement>(null);
 
@@ -535,8 +537,26 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
   }, [router, post.user.username]);
   
   const navigateToPost = useCallback(() => {
-    window.open(`/p/${post.id}`, '_blank');
-  }, [post.id]);
+    router.push(`/p/${post.id}`);
+  }, [router, post.id]);
+  
+  // Open reply modal (like X.com)
+  const openReplyModal = useCallback(() => {
+    if (!session?.user) {
+      router.push('/login');
+      return;
+    }
+    setShowReplyModal(true);
+  }, [session?.user, router]);
+  
+  const closeReplyModal = useCallback(() => {
+    setShowReplyModal(false);
+  }, []);
+  
+  const handleReplyPosted = useCallback(() => {
+    // Refresh to show the new reply
+    router.refresh();
+  }, [router]);
   
   // Memoized share handler
   const handleShare = useCallback(() => {
@@ -674,10 +694,10 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
 
       {/* Action Buttons - Single row with equal spacing */}
       <div className="grid grid-cols-7 gap-0 mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-white/10">
-        {/* Reply */}
+        {/* Reply - Opens modal like X.com */}
         {!isOnPostPage ? (
           <EngagementButton
-            onClick={navigateToPost}
+            onClick={openReplyModal}
             isActive={(post.replies?.length || 0) > 0}
             activeColor="blue"
             count={post.replies?.length || 0}
@@ -834,6 +854,19 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
           </div>
         </div>
       )}
+      
+      {/* Reply Modal - X.com style */}
+      <ReplyModal
+        isOpen={showReplyModal}
+        onClose={closeReplyModal}
+        post={post}
+        currentUserProfile={session?.user ? {
+          avatarUrl: (session.user as any).image || null,
+          name: session.user.name || null,
+          username: (session.user as any).username || session.user.email?.split('@')[0] || 'user'
+        } : null}
+        onReplyPosted={handleReplyPosted}
+      />
     </div>
   );
 });

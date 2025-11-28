@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/Button";
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import { useToastContext } from "@/components/providers/ToastProvider";
 import { cn } from "@/lib/cn";
 
@@ -24,6 +24,12 @@ export default function SecuritySettings() {
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [isRequestingReset, setIsRequestingReset] = useState(false);
   const [isChangingEmail, setIsChangingEmail] = useState(false);
+  
+  // Account deletion state
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deletePassword, setDeletePassword] = useState("");
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
   
   const [passwordData, setPasswordData] = useState<PasswordData>({
     currentPassword: "",
@@ -547,6 +553,168 @@ export default function SecuritySettings() {
             A verification email will be sent to your new address
           </p>
         </div>
+      </div>
+
+      {/* Danger Zone - Account Deletion */}
+      <div className="glass rounded-2xl p-6 border border-red-500/30 bg-red-500/5 animate-slide-up" style={{ animationDelay: '0.2s' }}>
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center shadow-lg shadow-red-500/20">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-white">
+              <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </div>
+          <div>
+            <h2 className="text-lg font-semibold text-red-400">Danger Zone</h2>
+            <p className="text-sm text-red-300/70">Permanently delete your account</p>
+          </div>
+        </div>
+
+        {!showDeleteConfirm ? (
+          <div className="space-y-4">
+            <p className="text-sm text-[var(--muted-foreground)]">
+              Once you delete your account, there is no going back. All your data, posts, followers, and everything associated with your account will be permanently removed.
+            </p>
+            
+            <Button
+              onClick={() => setShowDeleteConfirm(true)}
+              variant="secondary"
+              className="w-full border-red-500/30 hover:bg-red-500/20 hover:border-red-500/50 text-red-400"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="mr-2">
+                <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              Delete Account
+            </Button>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4">
+              <div className="flex items-start gap-3">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-red-400 mt-0.5 flex-shrink-0">
+                  <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                <div>
+                  <p className="text-sm text-red-300 font-medium">This action cannot be undone!</p>
+                  <p className="text-xs text-red-300/70 mt-1">
+                    All your posts, likes, followers, and profile data will be permanently deleted.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {hasPassword && (
+              <div>
+                <label className="block text-sm font-medium text-white mb-2">Your Password</label>
+                <input
+                  type="password"
+                  className="w-full h-11 px-4 rounded-xl bg-white/5 border border-red-500/30 text-white placeholder-[var(--muted-foreground)] focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500 transition-all"
+                  placeholder="Enter your password"
+                  value={deletePassword}
+                  onChange={(e) => setDeletePassword(e.target.value)}
+                  autoComplete="current-password"
+                />
+              </div>
+            )}
+
+            <div>
+              <label className="block text-sm font-medium text-white mb-2">
+                Type <span className="text-red-400 font-mono">DELETE</span> to confirm
+              </label>
+              <input
+                type="text"
+                className={cn(
+                  "w-full h-11 px-4 rounded-xl bg-white/5 border text-white placeholder-[var(--muted-foreground)] focus:outline-none focus:ring-1 transition-all",
+                  deleteConfirmText === "DELETE"
+                    ? "border-red-500 focus:border-red-500 focus:ring-red-500"
+                    : "border-white/10 focus:border-red-500/50 focus:ring-red-500/50"
+                )}
+                placeholder="Type DELETE"
+                value={deleteConfirmText}
+                onChange={(e) => setDeleteConfirmText(e.target.value.toUpperCase())}
+                autoComplete="off"
+              />
+            </div>
+
+            <div className="flex gap-3">
+              <Button
+                onClick={() => {
+                  setShowDeleteConfirm(false);
+                  setDeletePassword("");
+                  setDeleteConfirmText("");
+                }}
+                variant="secondary"
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={async () => {
+                  if (deleteConfirmText !== "DELETE") {
+                    toast({
+                      title: "Error",
+                      description: "Please type DELETE to confirm.",
+                      variant: "destructive",
+                    });
+                    return;
+                  }
+                  
+                  if (hasPassword && !deletePassword) {
+                    toast({
+                      title: "Error",
+                      description: "Please enter your password.",
+                      variant: "destructive",
+                    });
+                    return;
+                  }
+                  
+                  setIsDeleting(true);
+                  
+                  try {
+                    const response = await fetch("/api/user/delete", {
+                      method: "DELETE",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({
+                        password: deletePassword || undefined,
+                        confirmationText: deleteConfirmText,
+                      }),
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                      toast({
+                        title: "Account Deleted",
+                        description: "Your account has been permanently deleted.",
+                        variant: "success",
+                      });
+                      // Sign out and redirect to home
+                      await signOut({ callbackUrl: "/" });
+                    } else {
+                      toast({
+                        title: "Error",
+                        description: data.error || "Failed to delete account.",
+                        variant: "destructive",
+                      });
+                    }
+                  } catch {
+                    toast({
+                      title: "Error",
+                      description: "An unexpected error occurred.",
+                      variant: "destructive",
+                    });
+                  } finally {
+                    setIsDeleting(false);
+                  }
+                }}
+                disabled={deleteConfirmText !== "DELETE" || (hasPassword && !deletePassword)}
+                isLoading={isDeleting}
+                className="flex-1 bg-red-500 hover:bg-red-600 border-red-500"
+              >
+                Delete Forever
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
