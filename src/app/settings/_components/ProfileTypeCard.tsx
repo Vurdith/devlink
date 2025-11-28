@@ -202,8 +202,8 @@ export function ProfileTypeCard() {
                 <div className="font-medium text-white mb-1">{profileType.label}</div>
                 <div className="text-xs text-[var(--muted-foreground)]">{profileType.description}</div>
               </button>
-              );
-            }))}
+            );
+          })}
         </div>
         
         {/* Submit Button */}
