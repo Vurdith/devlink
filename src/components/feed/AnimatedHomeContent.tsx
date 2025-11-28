@@ -97,11 +97,6 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
       {!session && (
         <div className="pt-20 pb-16 text-center">
           <div className="glass rounded-3xl p-12 max-w-6xl mx-auto border border-white/10 hover:border-purple-500/30 transition-all duration-300 relative overflow-hidden group">
-            {/* Animated background elements */}
-            <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl animate-float pointer-events-none" />
-            <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-cyan-500/10 rounded-full blur-3xl animate-float pointer-events-none" style={{ animationDelay: '-2s' }} />
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-pink-500/5 rounded-full blur-3xl animate-float pointer-events-none" style={{ animationDelay: '-1s' }} />
-            
             <div className="relative">
               <div className="flex items-center justify-center gap-4 mb-8 animate-slide-down">
                 <img

@@ -285,25 +285,37 @@ export default function DiscoverPage() {
                       </p>
                     )}
                     
-                    {/* Stats + Follow Button Row */}
-                    <div className="flex items-center justify-between pt-3 sm:pt-4 border-t border-white/10">
+                    {/* Stats + Follow Button Row - consistent height */}
+                    <div className="flex items-center justify-between pt-3 sm:pt-4 border-t border-white/10 min-h-[40px]">
                       <div className="flex items-center gap-3 sm:gap-4 text-xs sm:text-sm">
-                        <span className="text-[var(--muted-foreground)]">
+                        <Link 
+                          href={`/u/${user.username}/followers`}
+                          className="text-[var(--muted-foreground)] hover:text-white transition-colors"
+                        >
                           <span className="font-semibold text-white tabular-nums">{user._count.followers}</span> followers
-                        </span>
-                        <span className="text-[var(--muted-foreground)]">
+                        </Link>
+                        <Link 
+                          href={`/u/${user.username}/following`}
+                          className="text-[var(--muted-foreground)] hover:text-white transition-colors"
+                        >
                           <span className="font-semibold text-white tabular-nums">{user._count.following}</span> following
-                        </span>
+                        </Link>
                       </div>
                       
-                      {!isCurrentUser && session && (
-                        <FollowButton 
-                          targetUserId={user.id}
-                          initialFollowing={user.isFollowing || false}
-                          compact
-                          onToggle={(following) => handleFollowToggle(user.id, following)}
-                        />
-                      )}
+                      {/* Always reserve space for the button for consistent alignment */}
+                      <div className="flex-shrink-0">
+                        {!isCurrentUser && session ? (
+                          <FollowButton 
+                            targetUserId={user.id}
+                            initialFollowing={user.isFollowing || false}
+                            compact
+                            onToggle={(following) => handleFollowToggle(user.id, following)}
+                          />
+                        ) : (
+                          /* Invisible placeholder to maintain alignment */
+                          <div className="w-[72px] sm:w-[80px]" />
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>

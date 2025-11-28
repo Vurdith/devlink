@@ -74,7 +74,7 @@ export function EditPostModal({ post, isOpen, onClose, onSave }: EditPostModalPr
 
   return (
     <>
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
         <div className="bg-black/90 border border-white/20 rounded-lg w-full max-w-md p-6">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold">Edit Post</h3>

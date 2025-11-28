@@ -258,10 +258,6 @@ export const CreatePost = memo(function CreatePost({
   return (
     <>
       <div className="create-post-expanded glass rounded-2xl p-5 mb-6 border border-purple-500/30 relative overflow-hidden">
-        {/* Subtle animated glow */}
-        <div className="absolute -top-20 -right-20 w-40 h-40 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
-        
         <form onSubmit={handleSubmit} className="relative space-y-4">
           {/* Icon Buttons Row - with stagger animation */}
           <div className="flex items-center gap-2 p-2 bg-black/30 rounded-xl border border-white/10 stagger-in">

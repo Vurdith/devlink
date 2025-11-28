@@ -28,10 +28,14 @@ export const PollDisplay = memo(function PollDisplay({ poll, currentUserId, onVo
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
   const [isVoting, setIsVoting] = useState(false);
   const [hasVoted, setHasVoted] = useState(false);
+  const [showResults, setShowResults] = useState(false);
   const [localOptions, setLocalOptions] = useState<PollOption[]>(poll.options || []);
   const [localTotalVotes, setLocalTotalVotes] = useState(poll.totalVotes);
 
   const isExpired = poll.expiresAt && new Date() > new Date(poll.expiresAt);
+  
+  // Show results if user has voted, poll is expired, or user chose to view results
+  const shouldShowResults = hasVoted || isExpired || showResults;
 
   useEffect(() => {
     setLocalOptions(poll.options || []);
@@ -107,7 +111,7 @@ export const PollDisplay = memo(function PollDisplay({ poll, currentUserId, onVo
   };
 
   return (
-    <div className="bg-gradient-to-br from-purple-500/10 via-black/30 to-indigo-500/10 border border-purple-500/20 rounded-xl p-5 backdrop-blur-md shadow-lg shadow-purple-500/5">
+    <div className="bg-gradient-to-br from-purple-500/10 via-[#0d0f14] to-indigo-500/10 border border-purple-500/20 rounded-xl p-5 shadow-lg shadow-purple-500/5">
       <div className="flex items-center gap-3 mb-4">
         <div className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-purple-400">
@@ -163,14 +167,14 @@ export const PollDisplay = memo(function PollDisplay({ poll, currentUserId, onVo
               
               <div className="flex items-center justify-between mb-2 ml-8">
                 <span className="font-medium text-white">{option.text}</span>
-                {hasVoted && (
+                {shouldShowResults && (
                   <span className="text-sm text-purple-300 font-medium">
                     {percentage}% <span className="text-[var(--muted-foreground)]">({option.votes})</span>
                   </span>
                 )}
               </div>
               
-              {hasVoted && (
+              {shouldShowResults && (
                 <div className="relative h-2 bg-white/10 rounded-full overflow-hidden ml-8">
                   <div
                     className="h-full bg-gradient-to-r from-purple-500 to-purple-600 rounded-full transition-all duration-500 ease-out"
@@ -223,8 +227,16 @@ export const PollDisplay = memo(function PollDisplay({ poll, currentUserId, onVo
         </div>
       )}
 
-      <div className="text-sm text-[var(--muted-foreground)] text-center mt-4 pt-3 border-t border-white/10">
-        {localTotalVotes} vote{localTotalVotes !== 1 ? 's' : ''} total
+      <div className="flex items-center justify-center gap-3 text-sm text-[var(--muted-foreground)] mt-4 pt-3 border-t border-white/10">
+        <span>{localTotalVotes} vote{localTotalVotes !== 1 ? 's' : ''} total</span>
+        {!hasVoted && !isExpired && (
+          <button
+            onClick={() => setShowResults(!showResults)}
+            className="text-purple-400 hover:text-purple-300 transition-colors"
+          >
+            {showResults ? "Hide results" : "View results"}
+          </button>
+        )}
       </div>
     </div>
   );

@@ -250,6 +250,24 @@ export default function SecuritySettings() {
         </p>
       </div>
 
+      {/* Password Section Loading Skeleton */}
+      {hasPassword === null && (
+        <div className="glass rounded-2xl p-6 border border-white/10 animate-pulse">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-10 h-10 rounded-xl bg-white/10" />
+            <div>
+              <div className="h-5 w-32 bg-white/10 rounded mb-2" />
+              <div className="h-4 w-48 bg-white/10 rounded" />
+            </div>
+          </div>
+          <div className="space-y-4">
+            <div className="h-11 bg-white/5 rounded-xl" />
+            <div className="h-11 bg-white/5 rounded-xl" />
+            <div className="h-11 bg-white/10 rounded-xl w-32" />
+          </div>
+        </div>
+      )}
+
       {/* Set Password Section - for OAuth users without a password */}
       {hasPassword === false && (
         <div className="glass rounded-2xl p-6 border border-white/10 animate-slide-up" style={{ animationDelay: '0.05s' }}>

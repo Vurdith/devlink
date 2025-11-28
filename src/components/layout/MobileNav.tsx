@@ -176,7 +176,7 @@ export const MobileNav = memo(function MobileNav() {
       {/* Overlay */}
       {isOpen && (
         <div
-          className="md:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
+          className="md:hidden fixed inset-0 bg-black/80 z-40"
           onClick={() => setIsOpen(false)}
         />
       )}

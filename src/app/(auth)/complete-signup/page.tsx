@@ -1,12 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useSession } from "next-auth/react";
+import { useSession, signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function CompleteSignupPage() {
-  const { data: session, status } = useSession();
+  const { data: session, status, update } = useSession();
   const router = useRouter();
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
@@ -79,6 +79,9 @@ export default function CompleteSignupPage() {
         return;
       }
 
+      // Refresh session to update needsPassword flag
+      await update();
+      
       setSuccess(true);
       setTimeout(() => {
         router.push("/home");
@@ -252,6 +255,7 @@ export default function CompleteSignupPage() {
     </div>
   );
 }
+
 
 
 

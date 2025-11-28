@@ -96,13 +96,18 @@ export function ProfileTypeCard() {
   const [type, setType] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     (async () => {
-      const res = await fetch("/api/profile", { cache: "no-store" });
-      if (!res.ok) return;
-      const data = await res.json();
-      if (data?.profile?.profileType) setType(data.profile.profileType);
+      try {
+        const res = await fetch("/api/profile", { cache: "no-store" });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data?.profile?.profileType) setType(data.profile.profileType);
+      } finally {
+        setIsLoading(false);
+      }
     })();
   }, []);
 
@@ -143,7 +148,17 @@ export function ProfileTypeCard() {
       <form onSubmit={onSubmit}>
         {/* Type Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-6">
-          {profileTypes.map((profileType, index) => {
+          {isLoading ? (
+            // Loading skeleton
+            [...Array(6)].map((_, i) => (
+              <div key={i} className="p-4 rounded-xl bg-white/5 border border-white/10 animate-pulse">
+                <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-white/10" />
+                <div className="w-10 h-10 rounded-lg bg-white/10 mb-3" />
+                <div className="h-5 w-20 bg-white/10 rounded mb-2" />
+                <div className="h-4 w-32 bg-white/10 rounded" />
+              </div>
+            ))
+          ) : profileTypes.map((profileType, index) => {
             const isActive = type === profileType.value;
             
             return (
@@ -187,8 +202,8 @@ export function ProfileTypeCard() {
                 <div className="font-medium text-white mb-1">{profileType.label}</div>
                 <div className="text-xs text-[var(--muted-foreground)]">{profileType.description}</div>
               </button>
-            );
-          })}
+              );
+            }))}
         </div>
         
         {/* Submit Button */}

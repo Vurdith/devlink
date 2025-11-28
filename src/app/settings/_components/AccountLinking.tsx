@@ -51,6 +51,7 @@ export default function AccountLinking() {
   const { update } = useSession();
   const [linkedAccounts, setLinkedAccounts] = useState<LinkedAccount[]>([]);
   const [loading, setLoading] = useState<string | null>(null);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -66,6 +67,8 @@ export default function AccountLinking() {
       }
     } catch (error) {
       console.error("Error fetching linked accounts:", error);
+    } finally {
+      setIsInitialLoading(false);
     }
   };
 
@@ -152,7 +155,21 @@ export default function AccountLinking() {
 
       {/* Provider List */}
       <div className="space-y-3">
-        {providers.map((provider, index) => {
+        {isInitialLoading ? (
+          // Loading skeleton
+          [...Array(3)].map((_, i) => (
+            <div key={i} className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/10 animate-pulse">
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 rounded-lg bg-white/10" />
+                <div>
+                  <div className="h-5 w-20 bg-white/10 rounded mb-2" />
+                  <div className="h-4 w-24 bg-white/10 rounded" />
+                </div>
+              </div>
+              <div className="h-8 w-20 bg-white/10 rounded-lg" />
+            </div>
+          ))
+        ) : providers.map((provider, index) => {
           const linked = isAccountLinked(provider.id);
           const isLoading = loading === provider.id;
           

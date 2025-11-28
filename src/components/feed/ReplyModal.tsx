@@ -7,7 +7,7 @@ import { TimeAgo } from "@/components/ui/TimeAgo";
 import Image from "next/image";
 import { cn } from "@/lib/cn";
 
-// Lazy load components
+// Lazy load heavy components
 const EmojiPicker = lazy(() => import('emoji-picker-react'));
 const CreatePoll = lazy(() => import('@/components/ui/CreatePoll').then(m => ({ default: m.CreatePoll })));
 
@@ -49,15 +49,14 @@ function LoadingPlaceholder({ height = "h-64" }: { height?: string }) {
   );
 }
 
-// Action button with portal tooltip (escapes overflow constraints)
+// Simplified action button - no portal tooltips for better performance
 function ActionButton({ 
   onClick, 
   title, 
   children, 
   active,
   disabled,
-  badge,
-  shortcut
+  badge
 }: { 
   onClick: () => void; 
   title: string; 
@@ -65,82 +64,28 @@ function ActionButton({
   active?: boolean;
   disabled?: boolean;
   badge?: number;
-  shortcut?: string;
 }) {
-  const [showTooltip, setShowTooltip] = useState(false);
-  const [tooltipStyle, setTooltipStyle] = useState<React.CSSProperties>({});
-  const [mounted, setMounted] = useState(false);
-  const buttonRef = useRef<HTMLButtonElement>(null);
-  const tooltipRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  // Update tooltip position when showing
-  useEffect(() => {
-    if (showTooltip && buttonRef.current) {
-      const buttonRect = buttonRef.current.getBoundingClientRect();
-      // Position tooltip centered above the button with proper offset
-      setTooltipStyle({
-        position: 'fixed',
-        left: `${buttonRect.left + buttonRect.width / 2}px`,
-        top: `${buttonRect.top - 12}px`,
-        transform: 'translate(-50%, -100%)',
-        zIndex: 99999,
-      });
-    }
-  }, [showTooltip]);
-
-  // Portal tooltip to escape overflow constraints
-  const tooltipContent = showTooltip && mounted && createPortal(
-    <div 
-      ref={tooltipRef}
-      className="pointer-events-none"
-      style={tooltipStyle}
-    >
-      <div className="relative px-3 py-1.5 bg-[#0d0d15] rounded-lg border border-purple-500/40 shadow-xl shadow-purple-500/20 animate-fade-in">
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-medium text-white whitespace-nowrap">{title}</span>
-          {shortcut && (
-            <kbd className="px-1 py-0.5 text-[10px] font-mono bg-white/10 border border-white/20 rounded text-purple-300">
-              {shortcut}
-            </kbd>
-          )}
-        </div>
-        {/* Arrow pointing down */}
-        <div className="absolute left-1/2 -translate-x-1/2 -bottom-1 w-2 h-2 bg-[#0d0d15] border-r border-b border-purple-500/40 rotate-45" />
-      </div>
-    </div>,
-    document.body
-  );
-
   return (
-    <>
-      <button
-        ref={buttonRef}
-        type="button"
-        onClick={onClick}
-        disabled={disabled}
-        onMouseEnter={() => setShowTooltip(true)}
-        onMouseLeave={() => setShowTooltip(false)}
-        className={cn(
-          "relative p-2.5 rounded-xl transition-all duration-200 btn-press",
-          active 
-            ? "bg-purple-500/20 text-purple-400" 
-            : "hover:bg-white/10 text-[var(--muted-foreground)] hover:text-white",
-          disabled && "opacity-50 cursor-not-allowed"
-        )}
-      >
-        {children}
-        {badge !== undefined && badge > 0 && (
-          <span className="absolute -top-1 -right-1 w-4 h-4 bg-purple-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
-            {badge}
-          </span>
-        )}
-      </button>
-      {tooltipContent}
-    </>
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      title={title}
+      className={cn(
+        "relative p-2.5 rounded-xl transition-colors",
+        active 
+          ? "bg-purple-500/20 text-purple-400" 
+          : "hover:bg-white/10 text-[var(--muted-foreground)] hover:text-white",
+        disabled && "opacity-50 cursor-not-allowed"
+      )}
+    >
+      {children}
+      {badge !== undefined && badge > 0 && (
+        <span className="absolute -top-1 -right-1 w-4 h-4 bg-purple-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+          {badge}
+        </span>
+      )}
+    </button>
   );
 }
 
@@ -299,17 +244,14 @@ export const ReplyModal = memo(function ReplyModal({
 
   const modalContent = (
     <div className="fixed inset-0 z-[9999] flex items-start justify-center pt-[5vh] sm:pt-[10vh] px-2 sm:px-4">
-      {/* Backdrop */}
+      {/* Backdrop - no blur for performance */}
       <div 
-        className="absolute inset-0 bg-black/80 backdrop-blur-sm" 
+        className="absolute inset-0 bg-black/85" 
         onClick={onClose} 
       />
       
-      {/* Modal */}
-      <div className="relative w-full max-w-xl max-h-[85vh] flex flex-col rounded-2xl glass border border-purple-500/30 shadow-2xl shadow-purple-500/20 animate-pop-in">
-        {/* Ambient glow effects */}
-        <div className="absolute -top-20 -right-20 w-40 h-40 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
+      {/* Modal - simplified styling for performance */}
+      <div className="relative w-full max-w-xl max-h-[85vh] flex flex-col rounded-2xl bg-[#12141a] border border-purple-500/30 shadow-2xl animate-pop-in">
         
         {/* Header */}
         <div className="relative flex-shrink-0 flex items-center justify-between px-4 py-3 border-b border-white/10">
@@ -596,7 +538,6 @@ export const ReplyModal = memo(function ReplyModal({
               <ActionButton 
                 onClick={() => fileInputRef.current?.click()} 
                 title="Add Media"
-                shortcut="⌘I"
                 badge={mediaUrls.length || undefined}
                 disabled={mediaUrls.length >= 4}
               >
@@ -611,7 +552,6 @@ export const ReplyModal = memo(function ReplyModal({
               <ActionButton 
                 onClick={() => setShowPoll(!showPoll)} 
                 title="Create Poll"
-                shortcut="⌘P"
                 active={showPoll || !!pollData}
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -624,7 +564,6 @@ export const ReplyModal = memo(function ReplyModal({
               <ActionButton 
                 onClick={() => setShowEmbedInput(!showEmbedInput)} 
                 title="Embed Link"
-                shortcut="⌘L"
                 active={showEmbedInput}
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -637,7 +576,6 @@ export const ReplyModal = memo(function ReplyModal({
               <ActionButton 
                 onClick={() => setShowEmojiPicker(!showEmojiPicker)} 
                 title="Emoji"
-                shortcut="⌘E"
                 active={showEmojiPicker}
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">

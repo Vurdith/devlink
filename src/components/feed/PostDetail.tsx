@@ -830,7 +830,7 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
 
       {/* Delete Confirmation Modal */}
       {showDeleteConfirm && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center" onClick={() => setShowDeleteConfirm(false)}>
+        <div className="fixed inset-0 bg-black/85 z-50 flex items-center justify-center" onClick={() => setShowDeleteConfirm(false)}>
           <div className="relative glass glow rounded-xl p-6 w-[min(92vw,480px)] mx-4" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 bg-red-500/20 rounded-full flex items-center justify-center">

@@ -17,9 +17,20 @@ export default async function HomePage() {
     fetchHomeFeedPosts(30)
   ]);
 
-  // Redirect new OAuth users to set password
+  // Redirect new OAuth users to set password - but verify against DB first
+  // (JWT token might be stale if user already set password)
   if ((session?.user as any)?.needsPassword) {
-    redirect("/complete-signup");
+    const userId = (session?.user as any)?.id;
+    if (userId) {
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { password: true }
+      });
+      // Only redirect if they actually don't have a password
+      if (!user?.password) {
+        redirect("/complete-signup");
+      }
+    }
   }
 
   const currentUserId = (session?.user as any)?.id;
