@@ -1231,3 +1231,102 @@ img, video {
     user-select: none;
   }
 }
+
+/* ============================================
+   PERFORMANCE OPTIMIZATIONS
+   ============================================ */
+
+/* GPU acceleration for animated elements */
+.gpu-accelerated {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* Content visibility for off-screen optimization */
+.content-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 400px;
+}
+
+/* Layout containment for feed items */
+.feed-item {
+  contain: layout style paint;
+}
+
+/* Pause animations when not visible (save CPU/battery) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Optimize paint for scrolling containers */
+.scroll-container {
+  will-change: scroll-position;
+  overflow-anchor: auto;
+}
+
+/* Reduce orb animation impact */
+.orb, .orb-delayed {
+  contain: strict;
+  will-change: transform;
+}
+
+/* Smoother transitions - use GPU compositing */
+.smooth-transition {
+  transition-property: transform, opacity;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform, opacity;
+}
+
+/* Optimize image rendering */
+img, video {
+  content-visibility: auto;
+}
+
+/* Fast hover states - avoid layout shifts */
+.fast-hover {
+  transition: transform 0.15s ease, opacity 0.15s ease;
+  will-change: transform;
+}
+
+.fast-hover:hover {
+  transform: scale(1.02);
+}
+
+/* Instant feedback for buttons */
+.instant-feedback:active {
+  transform: scale(0.97);
+  transition-duration: 0.05s;
+}
+
+/* Optimized skeleton loading */
+.skeleton-optimized {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.04) 0%,
+    rgba(255, 255, 255, 0.08) 50%,
+    rgba(255, 255, 255, 0.04) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.2s ease-in-out infinite;
+  will-change: background-position;
+}
+
+/* Disable hover effects on touch devices for better performance */
+@media (hover: none) and (pointer: coarse) {
+  .hover-effect:hover {
+    transform: none !important;
+    box-shadow: none !important;
+  }
+  
+  /* Reduce animations on touch */
+  .orb, .orb-delayed {
+    animation: none !important;
+  }
+}

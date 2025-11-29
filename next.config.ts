@@ -8,7 +8,19 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   // Enable experimental optimizations
   experimental: {
-    optimizePackageImports: ['framer-motion', 'recharts', 'date-fns', 'emoji-picker-react'],
+    optimizePackageImports: [
+      'framer-motion', 
+      'recharts', 
+      'date-fns', 
+      'emoji-picker-react',
+      '@sentry/nextjs',
+      'lucide-react',
+    ],
+  },
+  // Compiler optimizations
+  compiler: {
+    // Remove console.log in production
+    removeConsole: process.env.NODE_ENV === 'production' ? { exclude: ['error', 'warn'] } : false,
   },
   images: {
     remotePatterns: [
