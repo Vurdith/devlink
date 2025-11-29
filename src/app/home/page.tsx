@@ -96,13 +96,13 @@ export default async function HomePage() {
       transformedPoll = {
         id: post.poll.id,
         question: post.poll.question,
-        options: post.poll.options?.map(opt => ({
+        options: post.poll.options?.map((opt: { id: string; text: string; votes?: unknown[] }) => ({
           id: opt.id,
           text: opt.text,
           votes: opt.votes?.length || 0,
           isSelected: userVotedOptionIds.includes(opt.id)
         })) || [],
-        totalVotes: post.poll.options?.reduce((sum, opt) => sum + (opt.votes?.length || 0), 0) || 0,
+        totalVotes: post.poll.options?.reduce((sum: number, opt: { votes?: unknown[] }) => sum + (opt.votes?.length || 0), 0) || 0,
         isMultiple: post.poll.isMultiple,
         expiresAt: post.poll.expiresAt
       };

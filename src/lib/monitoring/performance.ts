@@ -240,7 +240,7 @@ export const metrics = {
    * Record a gauge metric (current value)
    */
   gauge(name: string, value: number, unit: string = "none") {
-    Sentry.setMeasurement(name, value, unit as Sentry.MeasurementUnit);
+    Sentry.setMeasurement(name, value, unit as "none" | "millisecond" | "second" | "byte" | "kilobyte" | "megabyte" | "percent");
   },
 
   // Pre-defined business metrics
