@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/server/db";
+import { responseCache } from "@/lib/cache";
+
+const SEARCH_CACHE_TTL = 60; // Cache for 1 minute
 
 export async function GET(request: NextRequest) {
   try {
@@ -10,7 +13,13 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ posts: [] });
     }
 
-    console.log("Searching for posts with query:", q);
+    const cacheKey = `search:posts:${q.toLowerCase()}`;
+    
+    // Try cache first
+    const cached = await responseCache.get<any[]>(cacheKey);
+    if (cached) {
+      return NextResponse.json({ posts: cached });
+    }
 
     // Search for posts that contain the search term in content
     const posts = await prisma.post.findMany({
@@ -35,8 +44,6 @@ export async function GET(request: NextRequest) {
       }
     });
 
-    console.log("Found posts:", posts.length);
-
     // Transform posts to include basic data
     const transformedPosts = posts.map(post => ({
       id: post.id,
@@ -47,6 +54,9 @@ export async function GET(request: NextRequest) {
       isReposted: false,
       isSaved: false
     }));
+    
+    // Cache the results
+    await responseCache.set(cacheKey, transformedPosts, SEARCH_CACHE_TTL);
 
     return NextResponse.json({ posts: transformedPosts });
   } catch (error) {

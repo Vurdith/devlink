@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/server/db";
+import { responseCache } from "@/lib/cache";
+
+const HASHTAG_CACHE_TTL = 300; // Cache for 5 minutes (hashtags don't change often)
 
 export async function GET(request: NextRequest) {
   try {
@@ -12,6 +15,13 @@ export async function GET(request: NextRequest) {
 
     // Remove # if present
     const searchTerm = q.startsWith("#") ? q.slice(1) : q;
+    const cacheKey = `search:hashtags:${searchTerm.toLowerCase()}`;
+    
+    // Try cache first
+    const cached = await responseCache.get<any[]>(cacheKey);
+    if (cached) {
+      return NextResponse.json({ hashtags: cached });
+    }
     
     // Search for hashtags that contain the search term
     const hashtags = await prisma.hashtag.findMany({
@@ -33,19 +43,15 @@ export async function GET(request: NextRequest) {
       }
     });
 
-    // Get project counts for each hashtag
-    const hashtagResults = await Promise.all(
-      hashtags.map(async (hashtag) => {
-        // For now, set project count to 0 since portfolio items might not be implemented yet
-        const projectCount = 0;
-
-        return {
-          tag: `#${hashtag.name}`,
-          postCount: hashtag._count.posts,
-          projectCount
-        };
-      })
-    );
+    // Transform results
+    const hashtagResults = hashtags.map((hashtag) => ({
+      tag: `#${hashtag.name}`,
+      postCount: hashtag._count.posts,
+      projectCount: 0
+    }));
+    
+    // Cache the results
+    await responseCache.set(cacheKey, hashtagResults, HASHTAG_CACHE_TTL);
 
     return NextResponse.json({ hashtags: hashtagResults });
   } catch (error) {

@@ -4,9 +4,12 @@
  * Final Score = (Engagement + Freshness + Discovery) - Penalties
  * 
  * Each component is 0-100 scale for easy understanding.
+ * 
+ * Performance monitoring integrated with Sentry for optimization insights.
  */
 
 import { differenceInHours, differenceInDays } from "date-fns";
+import * as Sentry from "@sentry/nextjs";
 
 // ============================================================================
 // Types
@@ -193,22 +196,78 @@ export function rankPosts<T extends RankablePost>(
   posts: T[],
   options: RankPostsOptions = {}
 ): RankPostsResult<T> {
-  const now = options.now ?? new Date();
-  const weights = { ...DEFAULT_RANKING_WEIGHTS, ...options.weights };
-  const duplicateMap = buildDuplicateMap(posts);
+  const startTime = performance.now();
+  
+  return Sentry.startSpan(
+    {
+      name: "rankPosts",
+      op: "function.ranking",
+      attributes: {
+        post_count: posts.length,
+      },
+    },
+    () => {
+      const now = options.now ?? new Date();
+      const weights = { ...DEFAULT_RANKING_WEIGHTS, ...options.weights };
+      
+      // Track duplicate detection time
+      const dupStart = performance.now();
+      const duplicateMap = buildDuplicateMap(posts);
+      const dupTime = performance.now() - dupStart;
+      
+      // Track scoring time
+      const scoreStart = performance.now();
+      const ranked = posts.map((post) => {
+        const breakdown = scorePost(post, now, weights, duplicateMap);
+        return { post, score: breakdown.finalScore, breakdown };
+      });
+      const scoreTime = performance.now() - scoreStart;
+      
+      // Track sort time
+      const sortStart = performance.now();
+      ranked.sort((a, b) => b.score - a.score);
+      const sortTime = performance.now() - sortStart;
+      
+      const totalTime = performance.now() - startTime;
+      
+      // Send metrics to Sentry
+      Sentry.setMeasurement("ranking.total_ms", totalTime, "millisecond");
+      Sentry.setMeasurement("ranking.duplicate_detection_ms", dupTime, "millisecond");
+      Sentry.setMeasurement("ranking.scoring_ms", scoreTime, "millisecond");
+      Sentry.setMeasurement("ranking.sort_ms", sortTime, "millisecond");
+      Sentry.setMeasurement("ranking.posts_processed", posts.length, "none");
+      Sentry.setMeasurement("ranking.ms_per_post", posts.length > 0 ? totalTime / posts.length : 0, "millisecond");
+      
+      // Log performance breadcrumb
+      Sentry.addBreadcrumb({
+        category: "ranking",
+        message: `Ranked ${posts.length} posts in ${totalTime.toFixed(1)}ms`,
+        level: "info",
+        data: {
+          post_count: posts.length,
+          total_ms: totalTime,
+          duplicate_ms: dupTime,
+          scoring_ms: scoreTime,
+          sort_ms: sortTime,
+        },
+      });
+      
+      // Warn if ranking is slow
+      if (totalTime > 100 && posts.length > 0) {
+        Sentry.addBreadcrumb({
+          category: "performance",
+          message: `Slow ranking: ${totalTime.toFixed(1)}ms for ${posts.length} posts`,
+          level: "warning",
+        });
+      }
 
-  const ranked = posts.map((post) => {
-    const breakdown = scorePost(post, now, weights, duplicateMap);
-    return { post, score: breakdown.finalScore, breakdown };
-  });
-
-  ranked.sort((a, b) => b.score - a.score);
-
-  return {
-    orderedPostIds: ranked.map((r) => r.post.id),
-    ranked,
-    breakdownById: Object.fromEntries(ranked.map((r) => [r.post.id, r.breakdown])),
-  };
+      return {
+        orderedPostIds: ranked.map((r) => r.post.id),
+        ranked,
+        breakdownById: Object.fromEntries(ranked.map((r) => [r.post.id, r.breakdown])),
+      };
+    }
+  );
 }
 
 // ============================================================================

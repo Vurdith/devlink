@@ -1,5 +1,8 @@
 import { prisma } from "@/server/db";
 import { getUniqueViewCounts } from "@/lib/view-utils";
+import { responseCache } from "@/lib/cache";
+
+const FEED_CACHE_TTL = 30; // Cache feed for 30 seconds
 
 // Full select for feed display AND ranking
 const feedPostSelect = {
@@ -71,6 +74,14 @@ const feedPostSelect = {
 };
 
 export async function fetchHomeFeedPosts(limit = 30) {
+  const cacheKey = `feed:home:${limit}`;
+  
+  // Try cache first
+  const cached = await responseCache.get<any[]>(cacheKey);
+  if (cached) {
+    return cached;
+  }
+  
   const posts = await prisma.post.findMany({
     where: { 
       replyToId: null,
@@ -86,7 +97,7 @@ export async function fetchHomeFeedPosts(limit = 30) {
   const uniqueViewCounts = await getUniqueViewCounts(postIds);
 
   // Transform to expected format with consistent view counting
-  return posts.map(post => ({
+  const result = posts.map(post => ({
     ...post,
     likes: [],
     reposts: [],
@@ -103,6 +114,11 @@ export async function fetchHomeFeedPosts(limit = 30) {
       }))
     } : null
   }));
+  
+  // Cache the result
+  await responseCache.set(cacheKey, result, FEED_CACHE_TTL);
+  
+  return result;
 }
 
 export async function fetchPostForRanking(postId: string) {
