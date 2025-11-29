@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/server/db";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/server/auth-options";
+import { responseCache } from "@/lib/cache";
 import { getUniqueViewCounts } from "@/lib/view-utils";
+
+const CACHE_TTL = 30;
 
 export async function GET(
   request: NextRequest,
@@ -8,87 +13,116 @@ export async function GET(
 ) {
   try {
     const { userId } = await params;
+    const session = await getServerSession(authOptions);
+    const currentUserId = (session?.user as any)?.id;
     
-    // Get posts that this user has replied to
+    const { searchParams } = new URL(request.url);
+    const page = parseInt(searchParams.get('page') || '1');
+    const limit = Math.min(parseInt(searchParams.get('limit') || '20'), 50);
+    const skip = (page - 1) * limit;
+    
+    const cacheKey = `user:${userId}:replies:${page}:${currentUserId || 'anon'}`;
+    
+    const cached = await responseCache.get<any>(cacheKey);
+    if (cached) {
+      return NextResponse.json({ posts: cached }, {
+        headers: { "X-Cache": "HIT" }
+      });
+    }
+    
+    // OPTIMIZED query
     const repliedPosts = await prisma.post.findMany({
       where: {
-        replyTo: {
-          isNot: null
-        },
+        replyToId: { not: null },
         userId: userId
       },
-      include: {
+      skip,
+      take: limit,
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        content: true,
+        createdAt: true,
+        updatedAt: true,
+        isPinned: true,
+        isSlideshow: true,
+        location: true,
+        embedUrls: true,
         user: {
-          include: {
+          select: {
+            id: true,
+            username: true,
+            name: true,
             profile: {
               select: {
                 avatarUrl: true,
-                bannerUrl: true,
                 profileType: true,
                 verified: true,
-                bio: true,
-                website: true,
-                location: true
               }
             },
-            _count: {
+            _count: { select: { followers: true, following: true } }
+          }
+        },
+        _count: { select: { likes: true, reposts: true, replies: true } },
+        media: { select: { id: true, mediaUrl: true, mediaType: true, order: true }, orderBy: { order: 'asc' } },
+        replyTo: {
+          select: {
+            id: true,
+            content: true,
+            user: {
               select: {
-                followers: true,
-                following: true
+                id: true,
+                username: true,
+                name: true,
+                profile: { select: { avatarUrl: true, verified: true } }
               }
             }
           }
         },
-        likes: true,
-        reposts: true,
-        savedBy: true,
-        replies: true,
-        replyTo: {
-          include: {
-            user: {
-              include: {
-                profile: {
-                  select: {
-                    avatarUrl: true,
-                    bannerUrl: true,
-                    profileType: true,
-                    verified: true,
-                    bio: true,
-                    website: true,
-                    location: true
-                  }
-                },
-                _count: {
-                  select: {
-                    followers: true,
-                    following: true
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      orderBy: { createdAt: 'desc' },
-      take: 20
+      }
     });
 
-    // OPTIMIZATION: Batch fetch all view counts in a single query instead of N+1
     const postIds = repliedPosts.map(p => p.id);
-    const viewCountMap = await getUniqueViewCounts(postIds);
+    
+    const [viewCountMap, userLikes, userReposts, userSaves] = await Promise.all([
+      getUniqueViewCounts(postIds),
+      currentUserId ? prisma.postLike.findMany({
+        where: { postId: { in: postIds }, userId: currentUserId },
+        select: { postId: true }
+      }) : [],
+      currentUserId ? prisma.postRepost.findMany({
+        where: { postId: { in: postIds }, userId: currentUserId },
+        select: { postId: true }
+      }) : [],
+      currentUserId ? prisma.savedPost.findMany({
+        where: { postId: { in: postIds }, userId: currentUserId },
+        select: { postId: true }
+      }) : []
+    ]);
+    
+    const likedSet = new Set(userLikes.map(l => l.postId));
+    const repostedSet = new Set(userReposts.map(r => r.postId));
+    const savedSet = new Set(userSaves.map(s => s.postId));
 
-    // Add view counts to posts
-    const postsWithViews = repliedPosts.map(post => ({
+    const transformedPosts = repliedPosts.map((post: any) => ({
       ...post,
-      views: viewCountMap.get(post.id) || 0
+      views: viewCountMap.get(post.id) || 0,
+      isLiked: likedSet.has(post.id),
+      isReposted: repostedSet.has(post.id),
+      isSaved: savedSet.has(post.id),
+      likes: [],
+      reposts: [],
+      savedBy: [],
+      replies: Array(post._count?.replies || 0).fill(null),
     }));
     
-    return NextResponse.json(postsWithViews);
+    await responseCache.set(cacheKey, transformedPosts, CACHE_TTL);
+    
+    return NextResponse.json({ posts: transformedPosts }, {
+      headers: { "X-Cache": "MISS" }
+    });
   } catch (error) {
     console.error("Error fetching replied posts:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch replied posts" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to fetch replied posts" }, { status: 500 });
   }
 }
