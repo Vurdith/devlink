@@ -129,6 +129,8 @@ model Post {
   @@index([userId])
   @@index([createdAt])
   @@index([replyToId])
+  @@index([replyToId, createdAt]) // Compound index for feed queries
+  @@index([userId, isPinned, createdAt]) // User profile posts
 }
 
 model PostMedia {
@@ -139,6 +141,8 @@ model PostMedia {
   order     Int      @default(0)
   createdAt DateTime @default(now())
   post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([postId]) // Fast media lookup for posts
 }
 
 model PostLike {
@@ -319,6 +323,8 @@ model PostHashtag {
   hashtag   Hashtag  @relation(fields: [hashtagId], references: [id], onDelete: Cascade)
 
   @@unique([postId, hashtagId])
+  @@index([hashtagId]) // Fast hashtag page queries
+  @@index([postId])
 }
 
 model PostMention {

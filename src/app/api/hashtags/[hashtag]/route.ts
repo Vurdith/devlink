@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/server/db";
 import { getUniqueViewCounts } from "@/lib/view-utils";
+import { responseCache } from "@/lib/cache";
+
+const HASHTAG_CACHE_TTL = 60; // Cache for 60 seconds
 
 export async function GET(
   request: NextRequest,
@@ -10,8 +13,19 @@ export async function GET(
     const { hashtag } = await params;
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get("page") || "1");
-    const limit = parseInt(searchParams.get("limit") || "20");
+    const limit = Math.min(parseInt(searchParams.get("limit") || "20"), 50);
     const skip = (page - 1) * limit;
+
+    const cacheKey = `hashtag:${hashtag.toLowerCase()}:${page}:${limit}`;
+    
+    // Try cache first
+    const cached = await responseCache.get<any>(cacheKey);
+    if (cached) {
+      const response = NextResponse.json(cached);
+      response.headers.set("X-Cache", "HIT");
+      response.headers.set("Cache-Control", "public, max-age=30, stale-while-revalidate=60");
+      return response;
+    }
 
     // Find the hashtag
     const hashtagRecord = await prisma.hashtag.findUnique({
@@ -22,113 +36,74 @@ export async function GET(
       return NextResponse.json({ posts: [], hashtag: null });
     }
 
-    // Count posts matching this hashtag for pagination metadata
-    const totalPosts = await prisma.post.count({
-      where: {
-        replyToId: null,
-        hashtags: {
-          some: { hashtagId: hashtagRecord.id },
+    // Count and fetch posts in parallel
+    const [totalPosts, posts] = await Promise.all([
+      prisma.post.count({
+        where: {
+          replyToId: null,
+          hashtags: { some: { hashtagId: hashtagRecord.id } },
         },
-      },
-    });
-
-    // Fetch posts for this hashtag with pagination applied
-    const posts = await prisma.post.findMany({
-      where: {
-        replyToId: null, // Only main posts, no replies
-        hashtags: {
-          some: {
-            hashtagId: hashtagRecord.id
-          }
-        }
-      },
-      orderBy: { createdAt: "desc" },
-      skip,
-      take: limit,
-      include: {
-        user: {
-          include: {
-            profile: {
-              select: {
-                avatarUrl: true,
-                bannerUrl: true,
-                profileType: true,
-                verified: true,
-                bio: true,
-                website: true,
-                location: true,
-                createdAt: true
-              }
-            },
-            _count: {
-              select: {
-                followers: true,
-                following: true
-              }
-            }
-          }
+      }),
+      prisma.post.findMany({
+        where: {
+          replyToId: null,
+          hashtags: { some: { hashtagId: hashtagRecord.id } }
         },
-        likes: true,
-        reposts: true,
-        savedBy: true,
-        hashtags: {
-          include: { hashtag: { select: { name: true } } }
-        },
-        media: {
-          orderBy: { order: 'asc' }
-        },
-        poll: {
-          include: {
-            options: {
-              include: {
-                votes: true
-              }
-            }
-          }
-        },
-        replies: {
-          include: {
-            user: {
-              include: {
-                profile: {
-                  select: {
-                    avatarUrl: true,
-                    bannerUrl: true,
-                    profileType: true,
-                    verified: true,
-                    bio: true,
-                    website: true,
-                    location: true
-                  }
-                },
-                _count: {
-                  select: {
-                    followers: true,
-                    following: true
-                  }
+        orderBy: { createdAt: "desc" },
+        skip,
+        take: limit,
+        select: {
+          id: true,
+          content: true,
+          createdAt: true,
+          updatedAt: true,
+          isPinned: true,
+          isSlideshow: true,
+          location: true,
+          embedUrls: true,
+          user: {
+            select: {
+              id: true,
+              username: true,
+              name: true,
+              profile: {
+                select: {
+                  avatarUrl: true,
+                  profileType: true,
+                  verified: true,
                 }
-              }
+              },
+              _count: { select: { followers: true, following: true } }
             }
-          }
-        },
-        views: {
-          select: { postId: true, userId: true, viewedAt: true }
+          },
+          _count: { select: { likes: true, reposts: true, replies: true } },
+          media: { select: { id: true, mediaUrl: true, mediaType: true, order: true }, orderBy: { order: 'asc' } },
+          poll: {
+            select: {
+              id: true,
+              question: true,
+              expiresAt: true,
+              isMultiple: true,
+              options: { select: { id: true, text: true, _count: { select: { votes: true } } } }
+            }
+          },
         }
-      }
-    });
+      })
+    ]);
 
     const postIds = posts.map((post) => post.id);
     const viewCountMap = await getUniqueViewCounts(postIds);
 
-    const finalPosts = posts.map((post) => {
+    const finalPosts = posts.map((post: any) => {
       const poll = post.poll
         ? {
             ...post.poll,
-            options: post.poll.options.map((option) => ({
-              ...option,
-              voteCount: option.votes.length,
+            options: post.poll.options.map((option: any) => ({
+              id: option.id,
+              text: option.text,
+              votes: option._count.votes,
             })),
-            totalVotes: post.poll.options.reduce((sum, option) => sum + option.votes.length, 0),
+            totalVotes: post.poll.options.reduce((sum: number, option: any) => sum + option._count.votes, 0),
           }
         : null;
 
@@ -136,10 +111,14 @@ export async function GET(
         ...post,
         views: viewCountMap.get(post.id) || 0,
         poll,
+        // Add counts for UI
+        likes: [],
+        reposts: [],
+        replies: Array(post._count?.replies || 0).fill(null),
       };
     });
 
-    return NextResponse.json({
+    const result = {
       posts: finalPosts,
       hashtag: {
         name: hashtagRecord.name,
@@ -152,7 +131,15 @@ export async function GET(
         total: totalPosts,
         hasMore: skip + finalPosts.length < totalPosts
       }
-    });
+    };
+
+    // Cache the result
+    await responseCache.set(cacheKey, result, HASHTAG_CACHE_TTL);
+
+    const response = NextResponse.json(result);
+    response.headers.set("X-Cache", "MISS");
+    response.headers.set("Cache-Control", "public, max-age=30, stale-while-revalidate=60");
+    return response;
 
   } catch (error) {
     console.error("Hashtag posts fetch error:", error);

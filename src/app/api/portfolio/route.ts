@@ -110,16 +110,31 @@ export async function POST(request: NextRequest) {
   }
 }
 
+import { responseCache } from "@/lib/cache";
+
+const PORTFOLIO_CACHE_TTL = 120; // 2 minutes
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get("userId");
     const page = parseInt(searchParams.get("page") || "1");
-    const limit = parseInt(searchParams.get("limit") || "50");
+    const limit = Math.min(parseInt(searchParams.get("limit") || "50"), 100);
     const skip = (page - 1) * limit;
 
     if (!userId) {
       return NextResponse.json({ error: "User ID is required" }, { status: 400 });
+    }
+
+    const cacheKey = `portfolio:${userId}:${page}:${limit}`;
+    
+    // Try cache first
+    const cached = await responseCache.get<any>(cacheKey);
+    if (cached) {
+      const response = NextResponse.json(cached);
+      response.headers.set("X-Cache", "HIT");
+      response.headers.set("Cache-Control", "public, max-age=60, stale-while-revalidate=120");
+      return response;
     }
 
     const portfolioItems = await prisma.portfolioItem.findMany({
@@ -127,9 +142,19 @@ export async function GET(request: NextRequest) {
         userId,
         isPublic: true
       },
-      include: {
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        mediaUrls: true,
+        links: true,
+        category: true,
+        tags: true,
+        createdAt: true,
         user: {
-          include: {
+          select: {
+            id: true,
+            username: true,
             profile: {
               select: {
                 avatarUrl: true,
@@ -145,7 +170,15 @@ export async function GET(request: NextRequest) {
       take: limit
     });
 
-    return NextResponse.json({ portfolioItems });
+    const result = { portfolioItems };
+    
+    // Cache the result
+    await responseCache.set(cacheKey, result, PORTFOLIO_CACHE_TTL);
+
+    const response = NextResponse.json(result);
+    response.headers.set("X-Cache", "MISS");
+    response.headers.set("Cache-Control", "public, max-age=60, stale-while-revalidate=120");
+    return response;
   } catch (error) {
     console.error("Portfolio items fetch error:", error);
     return NextResponse.json({ error: "Failed to fetch portfolio items" }, { status: 500 });

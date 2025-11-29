@@ -12,10 +12,18 @@ import { AvatarEditOverlay, BannerEditOverlay } from "./MediaEditor";
 import { AboutEditor } from "./AboutEditor";
 import { ProfileTabs } from "./ProfileTabs";
 import { getProfileTypeConfig, ProfileTypeIcon } from "@/lib/profile-types";
+import { responseCache } from "@/lib/cache";
 
-export default async function UserProfilePage(props: { params: Promise<{ username: string }> }) {
-  const session = await getServerSession(authOptions);
-  const { username } = await props.params;
+// Revalidate every 60 seconds
+export const revalidate = 60;
+
+// Cache profile data for faster repeat loads
+async function getProfileData(username: string) {
+  const cacheKey = `profile:page:${username.toLowerCase()}`;
+  
+  const cached = await responseCache.get<any>(cacheKey);
+  if (cached) return cached;
+  
   const user = await prisma.user.findUnique({
     where: { username },
     select: {
@@ -38,32 +46,43 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
         select: {
           id: true,
           rating: true,
-          text: true,
-          createdAt: true,
-          reviewer: {
-            select: {
-              id: true,
-              username: true,
-              name: true,
-              profile: {
-                select: {
-                  avatarUrl: true
-                }
-              }
-            }
-          }
-        }
+        },
+        take: 100 // Limit reviews for rating calculation
       },
       _count: { select: { followers: true, following: true } },
     },
   });
+  
+  if (user) {
+    await responseCache.set(cacheKey, user, 60);
+  }
+  
+  return user;
+}
+
+export default async function UserProfilePage(props: { params: Promise<{ username: string }> }) {
+  const { username } = await props.params;
+  
+  // Fetch session and profile data in parallel
+  const [session, user] = await Promise.all([
+    getServerSession(authOptions),
+    getProfileData(username)
+  ]);
+
   if (!user) notFound();
+  
   const currentUserId = (session?.user as any)?.id as string | undefined;
+  
+  // Fetch following status only if logged in (separate fast query)
   const initialFollowing = currentUserId
-    ? !!(await prisma.follower.findUnique({ where: { followerId_followingId: { followerId: currentUserId, followingId: user.id } } }))
+    ? !!(await prisma.follower.findUnique({ 
+        where: { followerId_followingId: { followerId: currentUserId, followingId: user.id } },
+        select: { id: true }
+      }))
     : false;
+    
   const rating = user.reviewsReceived.length
-    ? (user.reviewsReceived.reduce((a, r) => a + r.rating, 0) / user.reviewsReceived.length).toFixed(1)
+    ? (user.reviewsReceived.reduce((a: number, r: any) => a + r.rating, 0) / user.reviewsReceived.length).toFixed(1)
     : "—";
 
   const getProfileTypeColors = (type: string) => {

@@ -34,7 +34,7 @@ export const metadata: Metadata = {
     template: "%s – DevLink",
   },
   description: "Portfolios, projects, and collaborations for Roblox developers, clients, and creators.",
-  metadataBase: new URL("https://devlink.local"),
+  metadataBase: new URL("https://devlink.ink"),
   icons: {
     icon: [
       { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
@@ -43,6 +43,10 @@ export const metadata: Metadata = {
     ],
     shortcut: "/favicon-32x32.png",
     apple: "/logo/logo.png",
+  },
+  // Performance hints
+  other: {
+    "dns-prefetch": "//wknkldqylnkqjmthnjez.supabase.co",
   },
 };
 
