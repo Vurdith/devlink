@@ -1330,3 +1330,110 @@ img, video {
     animation: none !important;
   }
 }
+
+/* ============================================
+   LOW-END DEVICE OPTIMIZATIONS
+   Applied via .low-end-device class on <html>
+   ============================================ */
+
+.low-end-device {
+  /* Disable all non-essential animations */
+  --animation-duration: 0.01ms;
+}
+
+.low-end-device *,
+.low-end-device *::before,
+.low-end-device *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.05s !important;
+  scroll-behavior: auto !important;
+}
+
+/* Keep essential animations like loading spinners */
+.low-end-device .animate-spin {
+  animation-duration: 1s !important;
+  animation-iteration-count: infinite !important;
+}
+
+.low-end-device .skeleton,
+.low-end-device .skeleton-optimized {
+  animation: none !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Disable expensive visual effects */
+.low-end-device .glass {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.low-end-device .gradient-bg,
+.low-end-device .orb,
+.low-end-device .orb-delayed {
+  display: none !important;
+}
+
+/* Simplify shadows */
+.low-end-device .shadow-lg,
+.low-end-device .shadow-xl,
+.low-end-device .shadow-2xl {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Disable hover transforms */
+.low-end-device .float-card:hover,
+.low-end-device .card-lift:hover,
+.low-end-device .lift-hover:hover,
+.low-end-device .scale-hover:hover {
+  transform: none !important;
+}
+
+/* ============================================
+   BATTERY SAVER MODE
+   Applied via .battery-saver class on <html>
+   ============================================ */
+
+.battery-saver {
+  /* Reduce color vibrancy to save OLED power */
+  filter: brightness(0.9);
+}
+
+.battery-saver .gradient-bg,
+.battery-saver .orb,
+.battery-saver .orb-delayed,
+.battery-saver .pulse-glow,
+.battery-saver .animate-glow-pulse {
+  display: none !important;
+}
+
+.battery-saver *,
+.battery-saver *::before,
+.battery-saver *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+}
+
+/* ============================================
+   PRINT STYLES
+   ============================================ */
+
+@media print {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+  
+  .gradient-bg,
+  .orb,
+  .orb-delayed,
+  nav,
+  .sidebar {
+    display: none !important;
+  }
+  
+  body {
+    background: white !important;
+    color: black !important;
+  }
+}

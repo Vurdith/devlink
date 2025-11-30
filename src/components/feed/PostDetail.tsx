@@ -1,17 +1,19 @@
 "use client";
 
-import { useState, useRef, useEffect, memo, useCallback, useMemo } from "react";
+import { useState, useRef, useEffect, memo, useCallback, useMemo, lazy, Suspense } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { TimeAgo } from "@/components/ui/TimeAgo";
 import { createPortal } from "react-dom";
-import { PollDisplay } from "@/components/ui/PollDisplay";
-import { ProfileTooltip } from "@/components/ui/ProfileTooltip";
 import { ContentRenderer } from "@/components/ui/ContentRenderer";
+import { ProfileTooltip } from "@/components/ui/ProfileTooltip";
 import { getProfileTypeConfig, ProfileTypeIcon } from "@/lib/profile-types";
 import { cn } from "@/lib/cn";
-import { ReplyModal } from "./ReplyModal";
+
+// Lazy load heavy components - only loaded when needed
+const PollDisplay = lazy(() => import("@/components/ui/PollDisplay").then(m => ({ default: m.PollDisplay })));
+const ReplyModal = lazy(() => import("./ReplyModal").then(m => ({ default: m.ReplyModal })));
 
 // Pre-computed profile type styles for better performance
 const PROFILE_TYPE_CLASSES: Record<string, string> = {
@@ -685,10 +687,12 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
       {/* Media */}
       {renderMedia()}
 
-      {/* Poll */}
+      {/* Poll - Lazy loaded */}
       {post.poll && (
         <div className={`${post.media && post.media.length > 0 ? 'mt-6' : 'mt-4'}`}>
-          <PollDisplay poll={post.poll} onVote={handlePollVote} currentUserId={session?.user?.id} />
+          <Suspense fallback={<div className="h-32 bg-white/5 rounded-lg animate-pulse" />}>
+            <PollDisplay poll={post.poll} onVote={handlePollVote} currentUserId={session?.user?.id} />
+          </Suspense>
         </div>
       )}
 
@@ -855,18 +859,22 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
         </div>
       )}
       
-      {/* Reply Modal - X.com style */}
-      <ReplyModal
-        isOpen={showReplyModal}
-        onClose={closeReplyModal}
-        post={post}
-        currentUserProfile={session?.user ? {
-          avatarUrl: (session.user as any).image || null,
-          name: session.user.name || null,
-          username: (session.user as any).username || session.user.email?.split('@')[0] || 'user'
-        } : null}
-        onReplyPosted={handleReplyPosted}
-      />
+      {/* Reply Modal - Lazy loaded */}
+      {showReplyModal && (
+        <Suspense fallback={null}>
+          <ReplyModal
+            isOpen={showReplyModal}
+            onClose={closeReplyModal}
+            post={post}
+            currentUserProfile={session?.user ? {
+              avatarUrl: (session.user as any).image || null,
+              name: session.user.name || null,
+              username: (session.user as any).username || session.user.email?.split('@')[0] || 'user'
+            } : null}
+            onReplyPosted={handleReplyPosted}
+          />
+        </Suspense>
+      )}
     </div>
   );
 });

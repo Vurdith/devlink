@@ -6,9 +6,10 @@ interface AvatarProps extends HTMLAttributes<HTMLDivElement> {
   src?: string | null;
   alt?: string;
   size?: number;
+  priority?: boolean;
 }
 
-export const Avatar = memo(function Avatar({ src, alt = "", size, className, ...props }: AvatarProps) {
+export const Avatar = memo(function Avatar({ src, alt = "", size, className, priority = false, ...props }: AvatarProps) {
   // If size is provided, use fixed sizing. Otherwise, use className for responsive sizing
   const sizeStyle = size ? { width: size, height: size } : undefined;
   
@@ -28,9 +29,11 @@ export const Avatar = memo(function Avatar({ src, alt = "", size, className, ...
           src={src} 
           alt={alt} 
           fill 
-          sizes={size ? `${size}px` : "(max-width: 640px) 80px, 112px"} 
+          sizes={size ? `${size}px` : "(max-width: 640px) 48px, 64px"} 
           className="object-cover"
-          loading="lazy"
+          loading={priority ? "eager" : "lazy"}
+          priority={priority}
+          quality={75}
         />
       ) : (
         <div className="w-full h-full grid place-items-center text-xs text-[var(--muted-foreground)]">

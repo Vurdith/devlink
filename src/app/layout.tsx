@@ -65,6 +65,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
+      <head>
+        {/* Preconnect to critical external origins */}
+        <link rel="preconnect" href="https://cdn.devlink.ink" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://lh3.googleusercontent.com" />
+        <link rel="dns-prefetch" href="https://avatars.githubusercontent.com" />
+        
+        {/* Optimize resource loading */}
+        <meta httpEquiv="x-dns-prefetch-control" content="on" />
+      </head>
       <body className={`${outfit.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable} antialiased min-h-screen`}>
         <SessionProvider>
           <ToastProvider>
