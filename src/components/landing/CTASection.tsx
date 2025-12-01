@@ -1,13 +1,9 @@
-"use client";
-
-import { useRef } from "react";
+// Server Component - No client JS needed
 import Link from "next/link";
 
 export function CTASection() {
-  const ref = useRef(null);
-
   return (
-    <section ref={ref} className="relative py-32 px-4 overflow-hidden">
+    <section className="relative py-32 px-4 overflow-hidden">
       {/* Background gradient - CSS only */}
       <div className="absolute inset-0">
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-purple-500/10 to-transparent" />

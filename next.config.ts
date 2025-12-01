@@ -15,7 +15,23 @@ const nextConfig: NextConfig = {
       'emoji-picker-react',
       '@sentry/nextjs',
       'lucide-react',
+      '@prisma/client',
+      'clsx',
+      'tailwind-merge',
     ],
+    // Enable server actions optimization
+    serverActions: {
+      bodySizeLimit: '2mb',
+    },
+  },
+  // Turbopack optimizations (moved from experimental.turbo)
+  turbopack: {
+    rules: {
+      '*.svg': {
+        loaders: ['@svgr/webpack'],
+        as: '*.js',
+      },
+    },
   },
   // Compiler optimizations
   compiler: {

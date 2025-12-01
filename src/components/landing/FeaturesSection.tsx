@@ -1,5 +1,4 @@
-"use client";
-
+// Server Component - No client JS needed
 const features = [
   {
     icon: (
