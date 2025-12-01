@@ -2,7 +2,6 @@
 import { Avatar } from "./Avatar";
 import { TimeAgo } from "./TimeAgo";
 import { ProfileTooltip } from "./ProfileTooltip";
-import { getProfileTypeConfig, ProfileTypeIcon } from "@/lib/profile-types";
 import { cn } from "@/lib/cn";
 
 // Derive sentiment from rating
@@ -131,17 +130,6 @@ export function Review({ review, currentUserId, onEdit, onDelete }: ReviewProps)
           
           <div className="flex items-center gap-2">
             <span className="text-sm text-white/40">@{review.reviewer.username}</span>
-            
-            {review.reviewer.profile?.profileType && (
-              <span className={cn(
-                "inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium",
-                getProfileTypeConfig(review.reviewer.profile.profileType).bgColor,
-                getProfileTypeConfig(review.reviewer.profile.profileType).color
-              )}>
-                <ProfileTypeIcon profileType={review.reviewer.profile.profileType} size={10} />
-                {getProfileTypeConfig(review.reviewer.profile.profileType).label}
-              </span>
-            )}
           </div>
         </div>
 
