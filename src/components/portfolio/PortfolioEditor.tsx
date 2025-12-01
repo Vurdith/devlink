@@ -13,60 +13,45 @@ interface PortfolioEditorProps {
 
 // Memoized list item components for better performance
 const MediaUrlItem = memo(({ url, idx, onRemove }: { url: string; idx: number; onRemove: (idx: number) => void }) => (
-  <div className="flex items-center gap-3 p-3 bg-[var(--muted)]/20 rounded-md group hover:bg-[var(--muted)]/30 transition-colors">
-    <span className="text-xs text-[var(--muted-foreground)] truncate flex-1">{url}</span>
+  <div className="flex items-center gap-2 px-2.5 py-1.5 bg-white/5 rounded-lg group hover:bg-white/10 transition-colors">
+    <span className="text-[11px] text-white/50 truncate flex-1">{url}</span>
     <button
       type="button"
       onClick={() => onRemove(idx)}
-      className="p-1 text-red-400 hover:bg-red-500/20 rounded transition-colors opacity-0 group-hover:opacity-100"
+      className="p-0.5 text-red-400 hover:bg-red-500/20 rounded transition-colors opacity-0 group-hover:opacity-100"
     >
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-        <path
-          d="M18 6L6 18M6 6l12 12"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-        />
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+        <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
       </svg>
     </button>
   </div>
 ));
 
 const LinkItem = memo(({ link, idx, onRemove }: { link: string; idx: number; onRemove: (idx: number) => void }) => (
-  <div className="flex items-center gap-3 p-3 bg-[var(--muted)]/20 rounded-md group hover:bg-[var(--muted)]/30 transition-colors">
-    <span className="text-xs text-[var(--muted-foreground)] truncate flex-1">{link}</span>
+  <div className="flex items-center gap-2 px-2.5 py-1.5 bg-white/5 rounded-lg group hover:bg-white/10 transition-colors">
+    <span className="text-[11px] text-white/50 truncate flex-1">{link}</span>
     <button
       type="button"
       onClick={() => onRemove(idx)}
-      className="p-1 text-red-400 hover:bg-red-500/20 rounded transition-colors opacity-0 group-hover:opacity-100"
+      className="p-0.5 text-red-400 hover:bg-red-500/20 rounded transition-colors opacity-0 group-hover:opacity-100"
     >
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-        <path
-          d="M18 6L6 18M6 6l12 12"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-        />
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+        <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
       </svg>
     </button>
   </div>
 ));
 
 const TagItem = memo(({ tag, idx, onRemove }: { tag: string; idx: number; onRemove: (idx: number) => void }) => (
-  <div className="flex items-center gap-2 px-3 py-2 bg-[var(--accent)]/20 text-[var(--accent)] rounded-full border border-[var(--accent)]/30 group hover:border-[var(--accent)] transition-all">
-    <span className="text-xs font-medium">#{tag}</span>
+  <div className="flex items-center gap-1 px-2 py-1 bg-purple-500/15 text-purple-400 rounded-full border border-purple-500/30 group hover:border-purple-500/50 transition-all">
+    <span className="text-[10px] font-medium">#{tag}</span>
     <button
       type="button"
       onClick={() => onRemove(idx)}
-      className="p-0.5 text-[var(--accent)] hover:bg-[var(--accent)]/30 rounded transition-colors opacity-0 group-hover:opacity-100"
+      className="p-0.5 text-purple-400 hover:bg-purple-500/30 rounded-full transition-colors opacity-0 group-hover:opacity-100"
     >
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-        <path
-          d="M18 6L6 18M6 6l12 12"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-        />
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="none">
+        <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
       </svg>
     </button>
   </div>
@@ -74,30 +59,22 @@ const TagItem = memo(({ tag, idx, onRemove }: { tag: string; idx: number; onRemo
 
 const MediaPreview = memo(({ url, idx, onRemove }: { url: string; idx: number; onRemove: (idx: number) => void }) => (
   <div className="relative group">
-    <div className="aspect-square rounded-md overflow-hidden bg-[var(--muted)]/20 flex items-center justify-center">
+    <div className="aspect-square rounded-lg overflow-hidden bg-white/5">
       <img
         src={url}
         alt={`Preview ${idx + 1}`}
         className="w-full h-full object-cover"
         loading="lazy"
-        onError={(e) => {
-          const img = e.target as HTMLImageElement;
-          img.style.display = "none";
-        }}
+        onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
       />
     </div>
     <button
       type="button"
       onClick={() => onRemove(idx)}
-      className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
+      className="absolute top-1 right-1 p-1 bg-black/70 text-white rounded-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500"
     >
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-        <path
-          d="M18 6L6 18M6 6l12 12"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-        />
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="none">
+        <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
       </svg>
     </button>
   </div>
@@ -251,99 +228,93 @@ export function PortfolioEditor({
   }, [title, description, category, links, mediaUrls, tags, isPublic, existingItem, onSave]);
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="bg-[var(--card)] border border-purple-500/20 rounded-[var(--radius)] p-8 max-w-2xl w-full mx-4 shadow-2xl max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-[#0d0d12] border border-white/10 rounded-2xl w-full max-w-lg shadow-2xl shadow-black/50 max-h-[85vh] flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <h2 className="text-2xl font-semibold">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
+          <h2 className="text-lg font-semibold text-white">
             {existingItem ? "Edit Portfolio Item" : "Add Portfolio Item"}
           </h2>
           <button
             onClick={onClose}
-            className="text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors"
+            className="p-1.5 rounded-lg text-white/50 hover:text-white hover:bg-white/10 transition-colors"
+            aria-label="Close"
           >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-              <path
-                d="M18 6L6 18M6 6l12 12"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-              />
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
             </svg>
           </button>
         </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Form - Scrollable */}
+        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
           {/* Title */}
           <div>
-            <label className="block text-sm font-semibold mb-3 text-[var(--foreground)]">Title *</label>
+            <label className="block text-xs font-medium mb-1.5 text-white/70">Title *</label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Project title or achievement"
-              className="w-full px-4 py-3 bg-[var(--input)] border border-[var(--border)] rounded-md text-[var(--foreground)] placeholder-[var(--muted-foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/50"
+              placeholder="Project title"
+              className="w-full px-3 py-2 bg-black/30 border border-white/10 rounded-lg text-sm text-white placeholder-white/30 focus:outline-none focus:border-purple-500/50 transition-colors"
               required
             />
           </div>
 
           {/* Category */}
           <div>
-            <label className="block text-sm font-semibold mb-3 text-[var(--foreground)]">Category</label>
+            <label className="block text-xs font-medium mb-1.5 text-white/70">Category</label>
             <input
               type="text"
               value={category}
               onChange={(e) => setCategory(e.target.value)}
-              placeholder="e.g. Project, Design, Development, Achievement"
-              className="w-full px-4 py-3 bg-[var(--input)] border border-[var(--border)] rounded-md text-[var(--foreground)] placeholder-[var(--muted-foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/50"
+              placeholder="e.g. Project, Design, Development"
+              className="w-full px-3 py-2 bg-black/30 border border-white/10 rounded-lg text-sm text-white placeholder-white/30 focus:outline-none focus:border-purple-500/50 transition-colors"
             />
           </div>
 
           {/* Description */}
           <div>
-            <label className="block text-sm font-semibold mb-3 text-[var(--foreground)]">
-              Description
-            </label>
+            <label className="block text-xs font-medium mb-1.5 text-white/70">Description</label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Tell us more about this item..."
-              rows={5}
-              className="w-full px-4 py-3 bg-[var(--input)] border border-[var(--border)] rounded-md text-[var(--foreground)] placeholder-[var(--muted-foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/50 resize-none"
+              placeholder="Tell us about this item..."
+              rows={3}
+              className="w-full px-3 py-2 bg-black/30 border border-white/10 rounded-lg text-sm text-white placeholder-white/30 focus:outline-none focus:border-purple-500/50 transition-colors resize-none"
             />
           </div>
 
           {/* Media Section */}
-          <div className="pt-2">
-            <label className="block text-sm font-semibold mb-4 text-[var(--foreground)]">Media</label>
-            <div className="flex gap-2 mb-4">
+          <div>
+            <label className="block text-xs font-medium mb-2 text-white/70">Media</label>
+            <div className="flex gap-1.5 mb-3">
               <button
                 type="button"
                 onClick={() => setMediaInputMethod("url")}
-                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                   mediaInputMethod === "url"
-                    ? "bg-[var(--accent)] text-[var(--accent-foreground)]"
-                    : "bg-[var(--muted)]/30 text-[var(--muted-foreground)] hover:bg-[var(--muted)]/50"
+                    ? "bg-purple-500/20 text-purple-400 border border-purple-500/30"
+                    : "bg-white/5 text-white/50 border border-white/10 hover:bg-white/10"
                 }`}
               >
-                Paste URLs
+                URL
               </button>
               <button
                 type="button"
                 onClick={() => setMediaInputMethod("upload")}
-                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                   mediaInputMethod === "upload"
-                    ? "bg-[var(--accent)] text-[var(--accent-foreground)]"
-                    : "bg-[var(--muted)]/30 text-[var(--muted-foreground)] hover:bg-[var(--muted)]/50"
+                    ? "bg-purple-500/20 text-purple-400 border border-purple-500/30"
+                    : "bg-white/5 text-white/50 border border-white/10 hover:bg-white/10"
                 }`}
               >
-                Upload Files
+                Upload
               </button>
             </div>
 
             {mediaInputMethod === "url" ? (
-              <div className="space-y-3">
+              <div className="space-y-2">
                 <div className="flex gap-2">
                   <input
                     type="text"
@@ -355,90 +326,52 @@ export function PortfolioEditor({
                         addMediaUrl();
                       }
                     }}
-                    placeholder="Paste image/video URL and press Enter"
-                    className="flex-1 px-4 py-3 bg-[var(--input)] border border-[var(--border)] rounded-md text-[var(--foreground)] placeholder-[var(--muted-foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/50"
+                    placeholder="Paste image URL"
+                    className="flex-1 px-3 py-2 bg-black/30 border border-white/10 rounded-lg text-sm text-white placeholder-white/30 focus:outline-none focus:border-purple-500/50 transition-colors"
                   />
                   <button
                     type="button"
                     onClick={addMediaUrl}
-                    className="px-4 py-3 bg-[var(--accent)]/20 text-[var(--accent)] hover:bg-[var(--accent)]/30 rounded-md transition-colors font-medium"
+                    className="px-3 py-2 bg-purple-500/20 text-purple-400 hover:bg-purple-500/30 rounded-lg transition-colors text-xs font-medium"
                   >
                     Add
                   </button>
                 </div>
-
-                {/* Media URL List */}
                 {mediaUrls.length > 0 && (
-                  <div className="space-y-2 mt-4 max-h-48 overflow-y-auto">
+                  <div className="space-y-1.5 max-h-24 overflow-y-auto">
                     {mediaUrls.map((url: string, idx: number) => (
-                      <MediaUrlItem
-                        key={idx}
-                        url={url}
-                        idx={idx}
-                        onRemove={removeMediaUrl}
-                      />
+                      <MediaUrlItem key={idx} url={url} idx={idx} onRemove={removeMediaUrl} />
                     ))}
                   </div>
                 )}
               </div>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-2">
                 <div
                   onDragEnter={handleDrag}
                   onDragLeave={handleDrag}
                   onDragOver={handleDrag}
                   onDrop={handleDrop}
-                  className={`flex items-center justify-center w-full px-4 py-8 border-2 border-dashed rounded-md cursor-pointer transition-colors ${
+                  className={`flex items-center justify-center w-full px-3 py-4 border border-dashed rounded-lg cursor-pointer transition-colors ${
                     dragActive
-                      ? "border-[var(--accent)] bg-[var(--accent)]/10"
-                      : "border-[var(--border)] hover:bg-[var(--muted)]/20"
+                      ? "border-purple-500 bg-purple-500/10"
+                      : "border-white/20 hover:bg-white/5"
                   }`}
                 >
                   <label className="text-center w-full cursor-pointer">
-                    <div>
-                      <svg
-                        width="32"
-                        height="32"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        className="mx-auto mb-3 text-[var(--muted-foreground)]"
-                      >
-                        <path
-                          d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                      <p className="text-sm font-medium">
-                        {uploadingMedia ? "Uploading..." : "Drag & drop or click to upload"}
-                      </p>
-                      <p className="text-xs text-[var(--muted-foreground)] mt-1">
-                        PNG, JPG, GIF, MP4 up to 50MB
-                      </p>
-                    </div>
-                    <input
-                      type="file"
-                      multiple
-                      accept="image/*,video/*"
-                      onChange={handleMediaUpload}
-                      disabled={uploadingMedia}
-                      className="hidden"
-                    />
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="mx-auto mb-2 text-white/40">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                    <p className="text-xs text-white/50">
+                      {uploadingMedia ? "Uploading..." : "Drop files or click to upload"}
+                    </p>
+                    <input type="file" multiple accept="image/*,video/*" onChange={handleMediaUpload} disabled={uploadingMedia} className="hidden" />
                   </label>
                 </div>
-
-                {/* Image Previews */}
                 {mediaUrls.length > 0 && (
-                  <div className="grid grid-cols-4 gap-3 mt-4">
+                  <div className="grid grid-cols-4 gap-2">
                     {mediaUrls.map((url: string, idx: number) => (
-                      <MediaPreview
-                        key={idx}
-                        url={url}
-                        idx={idx}
-                        onRemove={removeMediaUrl}
-                      />
+                      <MediaPreview key={idx} url={url} idx={idx} onRemove={removeMediaUrl} />
                     ))}
                   </div>
                 )}
@@ -447,122 +380,95 @@ export function PortfolioEditor({
           </div>
 
           {/* Links */}
-          <div className="pt-2">
-            <label className="block text-sm font-semibold mb-3 text-[var(--foreground)]">Links</label>
-            <div className="flex gap-2 mb-3">
+          <div>
+            <label className="block text-xs font-medium mb-1.5 text-white/70">Links</label>
+            <div className="flex gap-2 mb-2">
               <input
                 type="text"
                 value={newLink}
                 onChange={(e) => setNewLink(e.target.value)}
-                onKeyPress={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    addLink();
-                  }
-                }}
-                placeholder="Paste URL and press Enter"
-                className="flex-1 px-4 py-3 bg-[var(--input)] border border-[var(--border)] rounded-md text-[var(--foreground)] placeholder-[var(--muted-foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/50"
+                onKeyPress={(e) => { if (e.key === "Enter") { e.preventDefault(); addLink(); } }}
+                placeholder="Paste URL"
+                className="flex-1 px-3 py-2 bg-black/30 border border-white/10 rounded-lg text-sm text-white placeholder-white/30 focus:outline-none focus:border-purple-500/50 transition-colors"
               />
-              <button
-                type="button"
-                onClick={addLink}
-                className="px-4 py-3 bg-[var(--accent)]/20 text-[var(--accent)] hover:bg-[var(--accent)]/30 rounded-md transition-colors font-medium"
-              >
+              <button type="button" onClick={addLink} className="px-3 py-2 bg-purple-500/20 text-purple-400 hover:bg-purple-500/30 rounded-lg transition-colors text-xs font-medium">
                 Add
               </button>
             </div>
-
-            {/* Links List */}
             {links.length > 0 && (
-              <div className="space-y-2 max-h-40 overflow-y-auto">
+              <div className="space-y-1.5 max-h-20 overflow-y-auto">
                 {links.map((link: string, idx: number) => (
-                  <LinkItem
-                    key={idx}
-                    link={link}
-                    idx={idx}
-                    onRemove={removeLink}
-                  />
+                  <LinkItem key={idx} link={link} idx={idx} onRemove={removeLink} />
                 ))}
               </div>
             )}
           </div>
 
           {/* Tags */}
-          <div className="pt-2">
-            <label className="block text-sm font-semibold mb-3 text-[var(--foreground)]">Tags</label>
-            <div className="flex gap-2 mb-3">
+          <div>
+            <label className="block text-xs font-medium mb-1.5 text-white/70">Tags</label>
+            <div className="flex gap-2 mb-2">
               <input
                 type="text"
                 value={newTag}
                 onChange={(e) => setNewTag(e.target.value.toLowerCase())}
-                onKeyPress={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    addTag();
-                  }
-                }}
-                placeholder="Type tag and press Enter"
-                className="flex-1 px-4 py-3 bg-[var(--input)] border border-[var(--border)] rounded-md text-[var(--foreground)] placeholder-[var(--muted-foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/50"
+                onKeyPress={(e) => { if (e.key === "Enter") { e.preventDefault(); addTag(); } }}
+                placeholder="Type tag"
+                className="flex-1 px-3 py-2 bg-black/30 border border-white/10 rounded-lg text-sm text-white placeholder-white/30 focus:outline-none focus:border-purple-500/50 transition-colors"
               />
-              <button
-                type="button"
-                onClick={addTag}
-                className="px-4 py-3 bg-[var(--accent)]/20 text-[var(--accent)] hover:bg-[var(--accent)]/30 rounded-md transition-colors font-medium"
-              >
+              <button type="button" onClick={addTag} className="px-3 py-2 bg-purple-500/20 text-purple-400 hover:bg-purple-500/30 rounded-lg transition-colors text-xs font-medium">
                 Add
               </button>
             </div>
-
-            {/* Tags List */}
             {tags.length > 0 && (
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-1.5">
                 {tags.map((tag: string, idx: number) => (
-                  <TagItem
-                    key={idx}
-                    tag={tag}
-                    idx={idx}
-                    onRemove={removeTag}
-                  />
+                  <TagItem key={idx} tag={tag} idx={idx} onRemove={removeTag} />
                 ))}
               </div>
             )}
           </div>
 
           {/* Public Toggle */}
-          <div className="flex items-center gap-3 pt-2">
+          <div className="flex items-center gap-2.5">
             <input
               type="checkbox"
               id="isPublic"
               checked={isPublic}
               onChange={(e) => setIsPublic(e.target.checked)}
-              className="w-4 h-4 rounded cursor-pointer accent-[var(--accent)]"
+              className="w-4 h-4 rounded cursor-pointer accent-purple-500"
             />
-            <label htmlFor="isPublic" className="text-sm font-medium cursor-pointer">
-              Make this item public
+            <label htmlFor="isPublic" className="text-xs font-medium cursor-pointer text-white/70">
+              Make public
             </label>
           </div>
 
           {/* Error Message */}
           {error && (
-            <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-md text-red-400 text-sm">
+            <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-xs">
               {error}
             </div>
           )}
-
-          {/* Actions */}
-          <div className="flex gap-3 justify-end pt-6 border-t border-[var(--border)]">
-            <button
-              type="button"
-              onClick={onClose}
-              className="h-11 px-6 text-sm rounded-xl border border-red-500/30 bg-red-500/10 text-red-400 hover:bg-red-500/20 hover:border-red-500/50 transition-colors font-semibold"
-            >
-              Cancel
-            </button>
-            <Button type="submit" disabled={loading || uploadingMedia}>
-              {loading ? "Saving..." : existingItem ? "Update" : "Add"}
-            </Button>
-          </div>
         </form>
+
+        {/* Footer Actions */}
+        <div className="flex gap-2 justify-end px-5 py-4 border-t border-white/10">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-4 py-2 text-xs rounded-lg border border-white/10 bg-white/5 text-white/70 hover:bg-white/10 transition-colors font-medium"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            onClick={handleSubmit}
+            disabled={loading || uploadingMedia}
+            className="px-4 py-2 text-xs rounded-lg bg-gradient-to-r from-purple-500 to-purple-600 text-white hover:from-purple-600 hover:to-purple-700 transition-all font-medium disabled:opacity-50"
+          >
+            {loading ? "Saving..." : existingItem ? "Update" : "Add Item"}
+          </button>
+        </div>
       </div>
     </div>
   );

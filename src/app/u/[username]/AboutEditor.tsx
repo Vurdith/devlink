@@ -179,7 +179,7 @@ export function AboutEditor({ initialBio, initialLocation, initialWebsite, initi
 
   return (
     <>
-      <div className="absolute right-2 top-2 md:top-3 group z-10">
+      <div className="absolute right-3 top-3 sm:right-4 sm:top-4 group z-10">
         <button
           className="p-2 rounded-full bg-[#0d0d12] hover:bg-white/10 ring-1 ring-white/10 hover:ring-[color-mix(in_oklab,var(--accent)_60%,transparent)] transition duration-200 hover:scale-105"
           onClick={() => setOpen(true)}
