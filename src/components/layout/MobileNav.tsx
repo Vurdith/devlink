@@ -143,7 +143,7 @@ export const MobileNav = memo(function MobileNav() {
       {/* Hamburger Button - Fixed in top left, vertically centered in navbar (h-16 = 64px, button ~44px) */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="md:hidden fixed top-[10px] left-4 z-50 p-2.5 rounded-xl glass border border-white/10 hover:border-purple-500/30 transition-all duration-150 hover:scale-105 active:scale-95"
+        className="md:hidden fixed top-[10px] left-4 z-50 p-2.5 rounded-xl bg-[#0a0a0f] border border-white/10 hover:border-purple-500/30 transition-all duration-150 hover:scale-105 active:scale-95"
         aria-label="Toggle menu"
       >
         <svg
@@ -184,17 +184,10 @@ export const MobileNav = memo(function MobileNav() {
       {/* Slide-out Menu - Exact same styling as desktop Sidebar */}
       <div
         className={cn(
-          "md:hidden fixed top-0 left-0 h-full w-72 z-50 transform transition-transform duration-300 ease-out",
+          "md:hidden fixed top-0 left-0 h-full w-72 z-50 transform transition-transform duration-300 ease-out bg-[#0a0a0f] border-r border-white/5",
           isOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
-        {/* Background - matching Sidebar */}
-        <div className="absolute inset-0 glass border-r border-white/5" />
-        
-        {/* Gradient accents - matching Sidebar */}
-        <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-purple-500/10 to-transparent pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-purple-600/5 to-transparent pointer-events-none" />
-        
         <div className="relative flex flex-col h-full">
           {/* Logo Section - matching Sidebar */}
           <div className="p-6 border-b border-white/5">
@@ -320,7 +313,7 @@ export const MobileNav = memo(function MobileNav() {
       </div>
 
       {/* Bottom Navigation Bar */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 glass border-t border-white/10 safe-area-bottom">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#0a0a0f] border-t border-white/10 safe-area-bottom">
         <div className="flex justify-around items-center h-16 px-2">
           {navigation.map((item) => {
             const isActive = pathname === item.href;

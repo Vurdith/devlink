@@ -69,12 +69,10 @@ export const Navbar = memo(function Navbar() {
       className={cn(
         "sticky top-0 z-40 w-full transition-all duration-200",
         scrolled 
-          ? "glass border-b border-white/10 shadow-lg shadow-black/20" 
+          ? "bg-[#0a0a0f]/95 backdrop-blur-sm border-b border-white/10" 
           : "bg-transparent border-b border-transparent"
       )}
     >
-      {/* Gradient line on top */}
-      <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-purple-500/50 to-transparent" />
       
       <div className="relative w-full px-4 md:px-6 h-16 flex items-center gap-3">
         {/* Spacer for mobile hamburger - matches button size (p-2.5 + icon 20px = ~44px) */}

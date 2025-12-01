@@ -121,14 +121,7 @@ export const Sidebar = memo(function Sidebar() {
   const isAuthenticated = status === "authenticated";
 
   return (
-    <aside className="hidden md:flex fixed left-0 top-0 h-full w-72 z-40 flex-col">
-      {/* Background */}
-      <div className="absolute inset-0 glass border-r border-white/5" />
-      
-      {/* Gradient accents */}
-      <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-purple-500/10 to-transparent pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-purple-600/5 to-transparent pointer-events-none" />
-      
+    <aside className="hidden md:flex fixed left-0 top-0 h-full w-72 z-40 flex-col bg-[#0a0a0f] border-r border-white/5">
       <div className="relative flex flex-col h-full">
         {/* Logo Section */}
         <div className="p-6 border-b border-white/5">
