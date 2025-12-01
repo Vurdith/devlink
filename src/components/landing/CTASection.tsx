@@ -18,7 +18,7 @@ export function CTASection() {
       <div className="relative max-w-5xl mx-auto">
         <div className="relative rounded-[2rem] overflow-hidden animate-fade-in">
           {/* Card background */}
-          <div className="absolute inset-0 glass" />
+          <div className="absolute inset-0 bg-[#0d0d12]/95" />
           
           {/* Gradient border effect */}
           <div className="absolute inset-0 rounded-[2rem] border border-white/10" />

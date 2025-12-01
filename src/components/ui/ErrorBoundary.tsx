@@ -39,7 +39,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
 
       return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900/20 to-slate-900">
-          <div className="glass rounded-2xl p-8 max-w-md mx-4 text-center border border-white/10">
+          <div className="bg-[#0d0d12] rounded-2xl p-8 max-w-md mx-4 text-center border border-white/10">
             <div className="text-6xl mb-4">⚠️</div>
             <h2 className="text-2xl font-bold text-white mb-4">Something went wrong</h2>
             <p className="text-gray-400 mb-6">

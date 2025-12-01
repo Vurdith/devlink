@@ -330,7 +330,7 @@ export function ProfileTabs({ username, currentUserId, userId }: ProfileTabsProp
     return (
       <div key={reply.id} className="space-y-3">
         {/* Preview of original post */}
-        <div className="glass rounded-[var(--radius)] p-3 border border-white/10 bg-black/20">
+        <div className="bg-[#0d0d12] rounded-[var(--radius)] p-3 border border-white/10">
           <div className="flex items-center gap-2 mb-2">
             <div className="w-6 h-6 rounded-full bg-[var(--accent)]/20 flex items-center justify-center">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" className="text-[var(--accent)]">

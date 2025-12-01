@@ -170,3 +170,4 @@ async function runLoadTest(iterations: number = 10) {
 // Run the test
 runLoadTest(10).catch(console.error);
 
+

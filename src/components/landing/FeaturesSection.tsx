@@ -97,7 +97,7 @@ export function FeaturesSection() {
             style={{ animationDelay: `${index * 0.1}s` }}
           >
             <div 
-              className="relative p-8 rounded-3xl glass overflow-hidden h-full transition-all duration-300 hover:bg-white/[0.08] hover:-translate-y-1"
+              className="relative p-8 rounded-3xl bg-[#0d0d12] border border-white/10 overflow-hidden h-full transition-all duration-300 hover:bg-white/[0.08] hover:-translate-y-1"
               style={{
                 boxShadow: `0 0 0 1px rgba(255,255,255,0.05)`
               }}

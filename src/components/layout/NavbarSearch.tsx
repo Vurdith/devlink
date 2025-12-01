@@ -202,7 +202,7 @@ export const NavbarSearch = memo(function NavbarSearch() {
 
       {/* Results dropdown - CSS only animation */}
       {open && (hasResults || loading) && (
-        <div className="absolute left-0 mt-2 w-full glass rounded-2xl p-2 shadow-2xl border border-white/10 z-50 max-h-[70vh] overflow-y-auto animate-fade-in">
+        <div className="absolute left-0 mt-2 w-full bg-[#0d0d12] rounded-2xl p-2 shadow-2xl border border-white/10 z-50 max-h-[70vh] overflow-y-auto animate-fade-in">
           {loading && (
             <div className="flex items-center justify-center py-8">
               <div className="w-5 h-5 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />

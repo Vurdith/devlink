@@ -75,7 +75,7 @@ export const ScamReportForm = memo(function ScamReportForm({ targetUserId, targe
   };
 
   return (
-    <div className="glass rounded-lg p-6 border border-white/10 max-w-2xl mx-auto animate-slide-up">
+    <div className="bg-[#0d0d12] rounded-lg p-6 border border-white/10 max-w-2xl mx-auto animate-slide-up">
       <div className="mb-6">
         <h3 className="text-xl font-semibold mb-2">Report Issue</h3>
         <p className="text-sm text-[var(--muted-foreground)]">

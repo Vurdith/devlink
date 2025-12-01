@@ -43,7 +43,7 @@ export default async function FollowingPage({ params }: { params: Promise<{ user
       <h1 className="text-xl font-semibold mb-4">@{user.username} is following</h1>
       <div className="space-y-2">
         {following.map((f) => (
-          <div key={f.id} className="group relative glass rounded-[var(--radius)] p-3 flex items-center gap-3">
+          <div key={f.id} className="group relative bg-[#0d0d12] border border-white/10 rounded-[var(--radius)] p-3 flex items-center gap-3">
             <div className="absolute inset-0 rounded-[var(--radius)] pointer-events-none transition-colors group-hover:bg-white/10" />
             <Link href={`/u/${f.following.username}`} className="absolute inset-0" aria-label={`View @${f.following.username}`}>
               <span className="sr-only">View @{f.following.username}</span>

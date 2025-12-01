@@ -257,7 +257,7 @@ export default function RegisterPage() {
         </div>
 
         {/* Form card */}
-        <div className="glass rounded-2xl p-8 border border-white/10 animate-slide-up" style={{ animationDelay: '0.1s' }}>
+        <div className="bg-[#0d0d12] rounded-2xl p-8 border border-white/10 animate-slide-up" style={{ animationDelay: '0.1s' }}>
           <form onSubmit={onSubmit} className="space-y-5">
             {/* Username field */}
             <div>

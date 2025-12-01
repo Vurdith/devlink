@@ -150,7 +150,7 @@ function SearchContent() {
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-4">Search Results</h1>
         {query && (
-          <div className="glass rounded-[var(--radius)] p-4 mb-6">
+            <div className="bg-[#0d0d12] border border-white/10 rounded-[var(--radius)] p-4 mb-6">
             <div className="text-sm text-[var(--muted-foreground)]">
               Search results for: <span className="text-[var(--foreground)] font-medium">{query}</span>
               {totalResults > 0 && (
@@ -200,7 +200,7 @@ function SearchContent() {
               <h2 className="text-lg font-semibold mb-3 text-[var(--accent)]">Profiles</h2>
               <div className="space-y-2">
                 {users.map((user) => (
-                  <div key={user.id} className="group relative glass rounded-[var(--radius)] p-3 flex items-center gap-3">
+                  <div key={user.id} className="group relative bg-[#0d0d12] border border-white/10 rounded-[var(--radius)] p-3 flex items-center gap-3">
                     <div className="absolute inset-0 rounded-[var(--radius)] pointer-events-none transition-colors group-hover:bg-white/10" />
                     <Link href={`/u/${user.username}`} className="absolute inset-0 z-10" aria-label={`View @${user.username}`}>
                       <span className="sr-only">View @{user.username}</span>
@@ -241,7 +241,7 @@ function SearchContent() {
               <h2 className="text-lg font-semibold mb-3 text-[var(--accent)]">Hashtags</h2>
               <div className="space-y-2">
                 {hashtags.map((hashtag) => (
-                  <div key={hashtag.tag} className="group relative glass rounded-[var(--radius)] p-3 flex items-center gap-3">
+                  <div key={hashtag.tag} className="group relative bg-[#0d0d12] border border-white/10 rounded-[var(--radius)] p-3 flex items-center gap-3">
                     <div className="absolute inset-0 rounded-[var(--radius)] pointer-events-none transition-colors group-hover:bg-white/10" />
                     <Link href={`/hashtag/${hashtag.tag.replace('#', '')}`} className="absolute inset-0 z-10" aria-label={`View ${hashtag.tag}`}>
                       <span className="sr-only">View {hashtag.tag}</span>
@@ -279,7 +279,7 @@ function SearchContent() {
               <h2 className="text-lg font-semibold mb-3 text-[var(--accent)]">Projects</h2>
               <div className="space-y-2">
                 {projects.map((project) => (
-                  <div key={project.id} className="glass rounded-[var(--radius)] p-3">
+                  <div key={project.id} className="bg-[#0d0d12] border border-white/10 rounded-[var(--radius)] p-3">
                     <div className="flex items-start gap-3">
                       <div className="flex-1">
                         <div className="text-lg font-medium">{project.title}</div>

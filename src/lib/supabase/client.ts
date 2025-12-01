@@ -28,3 +28,4 @@ export const supabase = supabaseUrl && supabaseAnonKey
  */
 export const isRealtimeAvailable = () => supabase !== null;
 
+

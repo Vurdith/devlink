@@ -170,7 +170,7 @@ export default async function HashtagPage(props: { params: Promise<{ hashtag: st
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
         {/* Hashtag Header */}
-        <div className="glass rounded-2xl p-8 mb-8 border border-white/10">
+        <div className="bg-[#0d0d12] rounded-2xl p-8 mb-8 border border-white/10">
           <div className="flex items-center gap-4 mb-4">
             <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-500 rounded-2xl flex items-center justify-center">
               <span className="text-white font-bold text-3xl">#</span>

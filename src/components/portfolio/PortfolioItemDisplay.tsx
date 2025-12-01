@@ -148,7 +148,7 @@ export function PortfolioItemDisplay({
   const currentMediaUrl = mediaUrls[currentMediaIndex];
 
   return (
-    <div className="group relative glass rounded-[var(--radius)] border border-purple-500/20 overflow-hidden hover:border-purple-500/40 transition-all">
+    <div className="group relative bg-[#0d0d12] rounded-[var(--radius)] border border-purple-500/20 overflow-hidden hover:border-purple-500/40 transition-all">
       {/* Media Gallery */}
       {mediaUrls.length > 0 && (
         <div className="w-full h-[28rem] bg-gradient-to-br from-purple-500/10 to-blue-500/10 overflow-hidden flex items-center justify-center relative group">

@@ -92,7 +92,7 @@ function LoginForm() {
         </div>
 
         {/* Form card */}
-        <div className="glass rounded-2xl p-8 border border-white/10 animate-slide-up" style={{ animationDelay: '0.1s' }}>
+        <div className="bg-[#0d0d12] rounded-2xl p-8 border border-white/10 animate-slide-up" style={{ animationDelay: '0.1s' }}>
           <form onSubmit={onSubmit} className="space-y-5">
             {/* Email field */}
             <div>
@@ -251,7 +251,7 @@ function LoginSkeleton() {
           <div className="h-8 w-48 mx-auto mb-2 rounded-lg bg-white/10 animate-pulse" />
           <div className="h-4 w-56 mx-auto rounded bg-white/10 animate-pulse" />
         </div>
-        <div className="glass rounded-2xl p-8 border border-white/10">
+        <div className="bg-[#0d0d12] rounded-2xl p-8 border border-white/10">
           <div className="space-y-5">
             <div className="h-12 rounded-xl bg-white/5 animate-pulse" />
             <div className="h-12 rounded-xl bg-white/5 animate-pulse" />

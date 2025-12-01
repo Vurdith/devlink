@@ -96,7 +96,7 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
     <>
       {!session && (
         <div className="pt-20 pb-16 text-center">
-          <div className="glass rounded-3xl p-12 max-w-6xl mx-auto border border-white/10 hover:border-purple-500/30 transition-all duration-300 relative overflow-hidden group">
+          <div className="bg-[#0d0d12] rounded-3xl p-12 max-w-6xl mx-auto border border-white/10 hover:border-purple-500/30 transition-all duration-300 relative overflow-hidden group">
             <div className="relative">
               <div className="flex items-center justify-center gap-4 mb-8 animate-slide-down">
                 <img
@@ -166,7 +166,7 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
             {/* Animated glow background */}
             <div className="absolute -inset-1 bg-gradient-to-r from-purple-500/20 via-cyan-500/20 to-purple-500/20 rounded-3xl blur-xl opacity-50 group-hover:opacity-75 transition-opacity duration-500 animate-glow-pulse"></div>
             
-            <div className="relative glass rounded-2xl p-6 border border-purple-500/30 group-hover:border-purple-500/50 transition-all duration-300 shadow-2xl overflow-hidden">
+            <div className="relative bg-[#0d0d12] rounded-2xl p-6 border border-purple-500/30 group-hover:border-purple-500/50 transition-all duration-300 shadow-2xl overflow-hidden">
               {/* Subtle shimmer effect */}
               <div className="absolute inset-0 shimmer-hover" />
               

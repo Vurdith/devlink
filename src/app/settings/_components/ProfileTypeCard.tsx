@@ -130,7 +130,7 @@ export function ProfileTypeCard() {
   }
 
   return (
-    <div className="glass rounded-2xl p-6 border border-purple-500/20 bg-purple-500/5">
+    <div className="bg-[#0d0d12] rounded-2xl p-6 border border-purple-500/20">
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center shadow-lg shadow-purple-500/25">

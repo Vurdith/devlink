@@ -14,7 +14,7 @@ export default function SettingsLayout({ children }: { children: ReactNode }) {
             <div className="absolute -inset-1 bg-gradient-to-b from-[var(--accent)]/20 via-transparent to-[var(--accent-2)]/20 rounded-3xl blur-xl opacity-50" />
             
             {/* Navigation card */}
-            <div className="relative glass rounded-2xl p-6 border border-white/10">
+            <div className="relative bg-[#0d0d12] rounded-2xl p-6 border border-white/10">
               {/* Header */}
               <div className="flex items-center gap-3 mb-6 pb-4 border-b border-white/10">
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--accent)] to-[var(--accent-2)] flex items-center justify-center shadow-lg shadow-[var(--accent)]/20">

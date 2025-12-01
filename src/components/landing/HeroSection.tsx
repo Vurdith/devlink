@@ -136,7 +136,7 @@ export function HeroSection() {
           </Link>
           
           <Link href="/home">
-            <button className="px-8 py-4 glass rounded-2xl font-semibold text-lg text-white border border-white/20 hover:border-purple-500/50 hover:bg-white/5 transition-all duration-200 hover:scale-105 active:scale-95">
+            <button className="px-8 py-4 bg-[#0d0d12] rounded-2xl font-semibold text-lg text-white border border-white/20 hover:border-purple-500/50 hover:bg-white/5 transition-all duration-200 hover:scale-105 active:scale-95">
               Explore Feed
             </button>
           </Link>

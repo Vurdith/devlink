@@ -116,7 +116,7 @@ export function StatsSection({ totalUsers, totalPosts, totalStudios }: StatsSect
               className="relative group animate-fade-in"
               style={{ animationDelay: `${index * 0.15}s` }}
             >
-              <div className="relative p-8 rounded-3xl glass overflow-hidden text-center transition-transform duration-300 hover:-translate-y-1">
+              <div className="relative p-8 rounded-3xl bg-[#0d0d12] border border-white/10 overflow-hidden text-center transition-transform duration-300 hover:-translate-y-1">
                 {/* Glow effect */}
                 <div 
                   className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
@@ -156,7 +156,7 @@ export function StatsSection({ totalUsers, totalPosts, totalStudios }: StatsSect
 
         {/* Additional info */}
         <div className="mt-16 text-center animate-fade-in" style={{ animationDelay: "0.6s" }}>
-          <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full glass border border-white/10">
+          <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-[#0d0d12] border border-white/10">
             <div className="flex -space-x-2">
               {[1, 2, 3, 4, 5].map((i) => (
                 <div 

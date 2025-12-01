@@ -252,7 +252,7 @@ export default function SecuritySettings() {
 
       {/* Password Section Loading Skeleton */}
       {hasPassword === null && (
-        <div className="glass rounded-2xl p-6 border border-white/10 animate-pulse">
+        <div className="bg-[#0d0d12] rounded-2xl p-6 border border-white/10 animate-pulse">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-10 h-10 rounded-xl bg-white/10" />
             <div>
@@ -270,7 +270,7 @@ export default function SecuritySettings() {
 
       {/* Set Password Section - for OAuth users without a password */}
       {hasPassword === false && (
-        <div className="glass rounded-2xl p-6 border border-white/10 animate-slide-up" style={{ animationDelay: '0.05s' }}>
+        <div className="bg-[#0d0d12] rounded-2xl p-6 border border-white/10 animate-slide-up" style={{ animationDelay: '0.05s' }}>
           <div className="flex items-center gap-3 mb-6">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center shadow-lg shadow-emerald-500/20">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-white">
@@ -376,7 +376,7 @@ export default function SecuritySettings() {
 
       {/* Change Password Section */}
       {hasPassword && (
-        <div className="glass rounded-2xl p-6 border border-white/10 animate-slide-up" style={{ animationDelay: '0.05s' }}>
+        <div className="bg-[#0d0d12] rounded-2xl p-6 border border-white/10 animate-slide-up" style={{ animationDelay: '0.05s' }}>
           <div className="flex items-center gap-3 mb-6">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-blue-500/20">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-white">
@@ -474,7 +474,7 @@ export default function SecuritySettings() {
       )}
 
       {/* Reset Password Section */}
-      <div className="glass rounded-2xl p-6 border border-white/10 animate-slide-up" style={{ animationDelay: '0.1s' }}>
+      <div className="bg-[#0d0d12] rounded-2xl p-6 border border-white/10 animate-slide-up" style={{ animationDelay: '0.1s' }}>
         <div className="flex items-center gap-3 mb-6">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-lg shadow-amber-500/20">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-white">
@@ -508,7 +508,7 @@ export default function SecuritySettings() {
       </div>
 
       {/* Change Email Section */}
-      <div className="glass rounded-2xl p-6 border border-white/10 animate-slide-up" style={{ animationDelay: '0.15s' }}>
+      <div className="bg-[#0d0d12] rounded-2xl p-6 border border-white/10 animate-slide-up" style={{ animationDelay: '0.15s' }}>
         <div className="flex items-center gap-3 mb-6">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-green-500 flex items-center justify-center shadow-lg shadow-emerald-500/20">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-white">
@@ -574,7 +574,7 @@ export default function SecuritySettings() {
       </div>
 
       {/* Danger Zone - Account Deletion */}
-      <div className="glass rounded-2xl p-6 border border-red-500/30 bg-red-500/5 animate-slide-up" style={{ animationDelay: '0.2s' }}>
+      <div className="bg-[#0d0d12] rounded-2xl p-6 border border-red-500/30 animate-slide-up" style={{ animationDelay: '0.2s' }}>
         <div className="flex items-center gap-3 mb-6">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center shadow-lg shadow-red-500/20">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-white">

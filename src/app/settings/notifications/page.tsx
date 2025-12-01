@@ -87,7 +87,7 @@ export default function NotificationSettings() {
       </div>
 
       {/* Email Notifications */}
-      <div className="glass rounded-2xl p-6 border border-white/10 animate-slide-up" style={{ animationDelay: '0.05s' }}>
+      <div className="bg-[#0d0d12] rounded-2xl p-6 border border-white/10 animate-slide-up" style={{ animationDelay: '0.05s' }}>
         <div className="flex items-center gap-3 mb-6">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-500 flex items-center justify-center shadow-lg shadow-violet-500/20">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-white">
@@ -122,7 +122,7 @@ export default function NotificationSettings() {
       </div>
 
       {/* Push Notifications - Coming Soon */}
-      <div className="glass rounded-2xl p-6 border border-white/10 relative overflow-hidden animate-slide-up" style={{ animationDelay: '0.1s' }}>
+      <div className="bg-[#0d0d12] rounded-2xl p-6 border border-white/10 relative overflow-hidden animate-slide-up" style={{ animationDelay: '0.1s' }}>
         {/* Coming Soon Overlay */}
         <div className="absolute inset-0 bg-[var(--background)]/60 backdrop-blur-sm flex items-center justify-center z-10">
           <div className="text-center">
