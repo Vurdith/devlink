@@ -117,6 +117,14 @@ Run `/qa full` for complete audit, or `/qa [phase]` for specific areas.
 - [ ] Connection pooling
 - [ ] Query timeout limits
 
+### Query Pattern Verification *(actually trace each query)*
+- [ ] **Counting uses aggregation** - `_count` or `groupBy`, NOT fetching all records
+- [ ] **Averages use aggregation** - `aggregate({ _avg })`, NOT fetch-then-calculate
+- [ ] **Independent queries are parallel** - wrapped in `Promise.all()`, NOT sequential `await`
+- [ ] **Nested data uses single query** - `select` with relations, NOT multiple round trips
+- [ ] **Only needed fields selected** - no `include` for full records when `_count` suffices
+- [ ] **Pagination on large datasets** - `take/skip` or cursor, NOT `findMany` without limits
+
 ---
 
 ## 2. UX - User Experience
@@ -1051,6 +1059,29 @@ Check for these anti-patterns (adapt to your stack):
 | Flutter | Flutter DevTools |
 | iOS | Xcode Instruments |
 | Android | Android Studio Profiler |
+
+### Performance Profiling *(actually measure, don't guess)*
+
+Static code review CANNOT determine if queries are fast. You must measure:
+
+- [ ] **API Response Times** - Use Network tab to measure actual response times
+- [ ] **Database Query Time** - Enable query logging, check for slow queries (>100ms)
+- [ ] **Waterfall Analysis** - Check if requests are sequential when they should be parallel
+- [ ] **Cold vs Warm** - First load vs cached load times
+
+#### Red Flags to Look For:
+```
+❌ API returns in 2+ seconds with few/no records → likely inefficient query
+❌ Multiple sequential network requests → should be batched or parallel
+❌ Same data fetched multiple times → missing cache or deduplication
+❌ Large payload for simple view → over-fetching data
+```
+
+#### Quick Performance Test:
+1. Open Network tab
+2. Load each main page (home, profile, discover)
+3. Note response times
+4. If any API > 500ms with minimal data → investigate query
 
 ### Documentation Requirement
 
