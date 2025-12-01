@@ -1,10 +1,9 @@
 import { prisma } from "@/server/db";
-import { getUniqueViewCounts } from "@/lib/view-utils";
 import { responseCache } from "@/lib/cache";
 
-const FEED_CACHE_TTL = 30; // Cache feed for 30 seconds
+const FEED_CACHE_TTL = 60; // Cache feed for 60 seconds (increased for performance)
 
-// Full select for feed display AND ranking
+// Full select for feed display AND ranking - includes view count via _count
 const feedPostSelect = {
   id: true,
   content: true,
@@ -45,6 +44,7 @@ const feedPostSelect = {
       reposts: true,
       replies: true,
       savedBy: true,
+      views: true, // Use _count for views - much faster than fetching all records
     },
   },
   media: {
@@ -76,12 +76,13 @@ const feedPostSelect = {
 export async function fetchHomeFeedPosts(limit = 30) {
   const cacheKey = `feed:home:${limit}`;
   
-  // Try cache first
+  // Try cache first - this is the fast path
   const cached = await responseCache.get<any[]>(cacheKey);
   if (cached) {
     return cached;
   }
   
+  // Single database query - no separate view count query needed
   const posts = await prisma.post.findMany({
     where: { 
       replyToId: null,
@@ -92,11 +93,7 @@ export async function fetchHomeFeedPosts(limit = 30) {
     take: limit,
   });
 
-  // Get unique view counts for all posts (consistent with other endpoints)
-  const postIds = posts.map(p => p.id);
-  const uniqueViewCounts = await getUniqueViewCounts(postIds);
-
-  // Transform to expected format with consistent view counting
+  // Transform to expected format - views come from _count now
   const result = posts.map(post => ({
     ...post,
     likes: [],
@@ -104,7 +101,7 @@ export async function fetchHomeFeedPosts(limit = 30) {
     savedBy: [],
     hashtags: [],
     replies: Array(post._count?.replies || 0).fill(null),
-    views: uniqueViewCounts.get(post.id) || 0,
+    views: post._count?.views || 0, // Direct from _count - no extra query
     poll: post.poll ? {
       ...post.poll,
       options: post.poll.options.map(opt => ({

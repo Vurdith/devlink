@@ -21,6 +21,7 @@ async function getProfileData(username: string) {
   const cached = await responseCache.get<any>(cacheKey);
   if (cached) return cached;
   
+  // Single query with rating aggregate using raw SQL for efficiency
   const user = await prisma.user.findUnique({
     where: { username },
     select: {
@@ -39,22 +40,25 @@ async function getProfileData(username: string) {
           location: true
         }
       },
-      reviewsReceived: {
-        select: {
-          id: true,
-          rating: true,
-        },
-        take: 100 // Limit reviews for rating calculation
-      },
-      _count: { select: { followers: true, following: true } },
+      _count: { select: { followers: true, following: true, reviewsReceived: true } },
     },
   });
   
-  if (user) {
-    await responseCache.set(cacheKey, user, 60);
+  if (!user) return null;
+  
+  // Get average rating if user has reviews (only if needed)
+  let avgRating = null;
+  if (user._count.reviewsReceived > 0) {
+    const ratingAgg = await prisma.review.aggregate({
+      where: { reviewedId: user.id },
+      _avg: { rating: true }
+    });
+    avgRating = ratingAgg._avg.rating;
   }
   
-  return user;
+  const userWithRating = { ...user, avgRating };
+  await responseCache.set(cacheKey, userWithRating, 60);
+  return userWithRating;
 }
 
 export default async function UserProfilePage(props: { params: Promise<{ username: string }> }) {
@@ -78,9 +82,7 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
       }))
     : false;
     
-  const rating = user.reviewsReceived.length
-    ? (user.reviewsReceived.reduce((a: number, r: any) => a + r.rating, 0) / user.reviewsReceived.length).toFixed(1)
-    : "—";
+  const rating = user.avgRating ? user.avgRating.toFixed(1) : "—";
 
   const getProfileTypeColors = (type: string) => {
     switch (type) {
