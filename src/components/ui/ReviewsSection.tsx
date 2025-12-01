@@ -37,7 +37,7 @@ interface ReviewData {
   };
 }
 
-type SentimentFilter = "all" | "positive" | "negative";
+type SentimentFilter = "all" | "positive" | "neutral" | "negative";
 
 // Derive sentiment from rating
 function getSentiment(rating: number): "positive" | "negative" | "neutral" {
@@ -128,10 +128,11 @@ export const ReviewsSection = memo(function ReviewsSection({ targetUserId, targe
       (acc, review) => {
         const sentiment = getSentiment(review.rating);
         if (sentiment === "positive") acc.positive++;
+        else if (sentiment === "neutral") acc.neutral++;
         else if (sentiment === "negative") acc.negative++;
         return acc;
       },
-      { positive: 0, negative: 0 }
+      { positive: 0, neutral: 0, negative: 0 }
     );
   }, [reviews]);
 
@@ -257,6 +258,23 @@ export const ReviewsSection = memo(function ReviewsSection({ targetUserId, targe
             </span>
           </button>
           <button
+            onClick={() => setSentimentFilter("neutral")}
+            className={cn(
+              "px-4 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-1.5",
+              sentimentFilter === "neutral"
+                ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
+                : "text-white/50 hover:text-amber-400 hover:bg-amber-500/10"
+            )}
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Neutral
+            <span className={cn("ml-0.5", sentimentFilter === "neutral" ? "text-amber-400/70" : "text-white/40")}>
+              ({sentimentCounts.neutral})
+            </span>
+          </button>
+          <button
             onClick={() => setSentimentFilter("negative")}
             className={cn(
               "px-4 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-1.5",
@@ -315,11 +333,19 @@ export const ReviewsSection = memo(function ReviewsSection({ targetUserId, targe
           <div className="text-center py-16 px-6">
             <div className={cn(
               "w-16 h-16 mx-auto mb-6 rounded-2xl flex items-center justify-center",
-              sentimentFilter === "positive" ? "bg-emerald-500/10 border border-emerald-500/20" : "bg-red-500/10 border border-red-500/20"
+              sentimentFilter === "positive" 
+                ? "bg-emerald-500/10 border border-emerald-500/20" 
+                : sentimentFilter === "neutral"
+                  ? "bg-amber-500/10 border border-amber-500/20"
+                  : "bg-red-500/10 border border-red-500/20"
             )}>
               {sentimentFilter === "positive" ? (
                 <svg className="w-8 h-8 text-emerald-400/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
+                </svg>
+              ) : sentimentFilter === "neutral" ? (
+                <svg className="w-8 h-8 text-amber-400/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               ) : (
                 <svg className="w-8 h-8 text-red-400/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -333,7 +359,9 @@ export const ReviewsSection = memo(function ReviewsSection({ targetUserId, targe
             <p className="text-white/40">
               {sentimentFilter === "positive" 
                 ? "There are no positive reviews (4-5 stars) yet." 
-                : "There are no negative reviews (1-2 stars) yet."}
+                : sentimentFilter === "neutral"
+                  ? "There are no neutral reviews (3 stars) yet."
+                  : "There are no negative reviews (1-2 stars) yet."}
             </p>
             <button
               onClick={() => setSentimentFilter("all")}

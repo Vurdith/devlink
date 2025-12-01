@@ -88,7 +88,7 @@ export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const targetUserId = searchParams.get("targetUserId");
   const reviewerId = searchParams.get("reviewerId");
-  const sentiment = searchParams.get("sentiment"); // "positive" | "negative" | null
+  const sentiment = searchParams.get("sentiment"); // "positive" | "neutral" | "negative" | null
 
   if (!targetUserId && !reviewerId) {
     return new NextResponse("Missing targetUserId or reviewerId", { status: 400 });
@@ -99,6 +99,8 @@ export async function GET(req: Request) {
     let ratingFilter = {};
     if (sentiment === "positive") {
       ratingFilter = { gte: 4 }; // 4-5 stars
+    } else if (sentiment === "neutral") {
+      ratingFilter = { equals: 3 }; // 3 stars
     } else if (sentiment === "negative") {
       ratingFilter = { lte: 2 }; // 1-2 stars
     }
