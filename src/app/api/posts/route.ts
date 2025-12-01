@@ -470,9 +470,9 @@ export async function GET(request: NextRequest) {
       return transformedPost;
     });
 
-    // Add cache headers for better performance
+    // Add cache headers for better performance (stale-while-revalidate for fast subsequent loads)
     const response = NextResponse.json({ posts: transformedPosts });
-    response.headers.set('Cache-Control', 'private, max-age=10, stale-while-revalidate=30');
+    response.headers.set('Cache-Control', 'private, max-age=15, stale-while-revalidate=60');
     return response;
   } catch (error) {
     console.error("Posts fetch error:", error);

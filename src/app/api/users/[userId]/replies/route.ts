@@ -119,7 +119,10 @@ export async function GET(
     await responseCache.set(cacheKey, transformedPosts, CACHE_TTL);
     
     return NextResponse.json({ posts: transformedPosts }, {
-      headers: { "X-Cache": "MISS" }
+      headers: { 
+        "X-Cache": "MISS",
+        "Cache-Control": "private, max-age=15, stale-while-revalidate=60"
+      }
     });
   } catch (error) {
     console.error("Error fetching replied posts:", error);

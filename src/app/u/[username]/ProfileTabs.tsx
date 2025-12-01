@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { PostFeed } from "@/components/feed/PostFeed";
 import { ReviewsSection } from "@/components/ui/ReviewsSection";
 import { PortfolioEditor } from "@/components/portfolio/PortfolioEditor";
@@ -14,6 +14,10 @@ interface ProfileTabsProps {
 }
 
 type TabType = "posts" | "reposts" | "liked" | "replies" | "saved" | "portfolio" | "reviews";
+
+// Client-side cache for tab data (persists during session)
+const tabDataCache = new Map<string, { data: any[]; timestamp: number }>();
+const CACHE_TTL = 30000; // 30 seconds client-side cache
 
 export function ProfileTabs({ username, currentUserId, userId }: ProfileTabsProps) {
   const [activeTab, setActiveTab] = useState<TabType>("posts");
@@ -98,7 +102,20 @@ export function ProfileTabs({ username, currentUserId, userId }: ProfileTabsProp
     },
   ];
 
-  const fetchPosts = useCallback(async (tabType: TabType, page: number = 1, append: boolean = false) => {
+  const fetchPosts = useCallback(async (tabType: TabType, page: number = 1, append: boolean = false, forceRefresh: boolean = false) => {
+    // Build cache key
+    const cacheKey = `${userId}:${tabType}:${page}`;
+    
+    // Check client-side cache first (unless forcing refresh or appending)
+    if (!forceRefresh && !append) {
+      const cached = tabDataCache.get(cacheKey);
+      if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+        setPosts(cached.data);
+        setHasMore(cached.data.length === POSTS_PER_PAGE);
+        return; // Use cached data
+      }
+    }
+    
     setLoading(true);
     setError(null);
     try {
@@ -141,20 +158,13 @@ export function ProfileTabs({ username, currentUserId, userId }: ProfileTabsProp
           setLoading(false);
           return;
       }
-
-      // Add cache-bust timestamp
-      params.append("_t", Date.now().toString());
       
       if (params.toString()) {
         endpoint += `?${params.toString()}`;
       }
 
-      const response = await fetch(endpoint, {
-        cache: 'no-store',
-        headers: {
-          'Cache-Control': 'no-cache'
-        }
-      });
+      // Use default caching (let browser and server handle it)
+      const response = await fetch(endpoint);
       
       if (response.ok) {
         const data = await response.json();
@@ -165,6 +175,9 @@ export function ProfileTabs({ username, currentUserId, userId }: ProfileTabsProp
         } else {
           newPosts = data.posts || data;
         }
+        
+        // Cache the result
+        tabDataCache.set(cacheKey, { data: newPosts, timestamp: Date.now() });
         
         // If appending (load more), add to existing posts; otherwise replace
         if (append) {
@@ -210,6 +223,12 @@ export function ProfileTabs({ username, currentUserId, userId }: ProfileTabsProp
   };
 
   const handlePostUpdate = useCallback(async (updatedPost: any) => {
+    // Invalidate relevant caches when engagement changes
+    const invalidateCacheFor = (tab: TabType) => {
+      const cacheKey = `${userId}:${tab}:1`;
+      tabDataCache.delete(cacheKey);
+    };
+    
     // Immediately update local state for instant UI feedback
     setPosts(prevPosts => {
       // Check if post should be added to current tab (for when you like/repost/save on feed, then navigate to profile)
@@ -222,6 +241,7 @@ export function ProfileTabs({ username, currentUserId, userId }: ProfileTabsProp
       
       // If post should be in tab but isn't, add it at the top for instant feedback
       if (shouldBeInTab && !postExists && currentUserId) {
+        invalidateCacheFor(activeTab);
         return [updatedPost, ...prevPosts];
       }
       
@@ -229,6 +249,7 @@ export function ProfileTabs({ username, currentUserId, userId }: ProfileTabsProp
       if (activeTab === "liked") {
         const isStillLiked = updatedPost.likes?.some((like: any) => like.userId === currentUserId);
         if (!isStillLiked && currentUserId) {
+          invalidateCacheFor("liked");
           return prevPosts.filter(post => post.id !== updatedPost.id);
         }
       }
@@ -236,6 +257,7 @@ export function ProfileTabs({ username, currentUserId, userId }: ProfileTabsProp
       if (activeTab === "reposts") {
         const isStillReposted = updatedPost.reposts?.some((repost: any) => repost.userId === currentUserId);
         if (!isStillReposted && currentUserId) {
+          invalidateCacheFor("reposts");
           return prevPosts.filter(post => post.id !== updatedPost.id);
         }
       }
@@ -243,6 +265,7 @@ export function ProfileTabs({ username, currentUserId, userId }: ProfileTabsProp
       if (activeTab === "saved") {
         const isStillSaved = updatedPost.savedBy?.some((saved: any) => saved.userId === currentUserId);
         if (!isStillSaved && currentUserId) {
+          invalidateCacheFor("saved");
           return prevPosts.filter(post => post.id !== updatedPost.id);
         }
       }
@@ -250,15 +273,13 @@ export function ProfileTabs({ username, currentUserId, userId }: ProfileTabsProp
       return prevPosts.map(post => post.id === updatedPost.id ? updatedPost : post);
     });
     
-    // Immediately refetch the current tab to ensure we have the latest data
-    // This ensures that if you like something on feed, then go to profile, it appears instantly
-    // Uses 100ms delay to allow API to complete the database operation
-    setTimeout(() => {
-      if (activeTab === "liked" || activeTab === "reposts" || activeTab === "saved") {
-        fetchPosts(activeTab);
-      }
-    }, 100);
-  }, [activeTab, currentUserId, fetchPosts]);
+    // For engagement tabs, do a background refresh after a short delay (no loading state)
+    if (activeTab === "liked" || activeTab === "reposts" || activeTab === "saved") {
+      setTimeout(() => {
+        fetchPosts(activeTab, 1, false, true); // Force refresh in background
+      }, 500);
+    }
+  }, [activeTab, currentUserId, fetchPosts, userId]);
 
   useEffect(() => {
     // Reset pagination when switching tabs
@@ -268,8 +289,8 @@ export function ProfileTabs({ username, currentUserId, userId }: ProfileTabsProp
     if (activeTab === "portfolio") {
       fetchPortfolio();
     } else {
-      // Always fetch fresh data when switching tabs
-      fetchPosts(activeTab, 1, false);
+      // Fetch data (will use cache if available and fresh)
+      fetchPosts(activeTab, 1, false, false);
     }
   }, [activeTab, userId, fetchPosts]);
 
@@ -285,15 +306,20 @@ export function ProfileTabs({ username, currentUserId, userId }: ProfileTabsProp
     return () => window.removeEventListener('postEngagementUpdate', handleEngagementUpdate as EventListener);
   }, [handlePostUpdate]);
 
-  // Refetch current tab when page becomes visible (e.g., navigating back from feed)
+  // Background refresh when page becomes visible (only if cache is stale)
   useEffect(() => {
     let lastVisibilityState = document.visibilityState;
     
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible' && lastVisibilityState === 'hidden') {
-        // Page became visible after being hidden - refetch current tab to get latest data
-        if (activeTab === "liked" || activeTab === "reposts" || activeTab === "saved") {
-          fetchPosts(activeTab);
+        // Only do a background refresh if we have stale data
+        const cacheKey = `${userId}:${activeTab}:1`;
+        const cached = tabDataCache.get(cacheKey);
+        const isStale = !cached || Date.now() - cached.timestamp > CACHE_TTL;
+        
+        if (isStale && (activeTab === "liked" || activeTab === "reposts" || activeTab === "saved")) {
+          // Background refresh - don't show loading state
+          fetchPosts(activeTab, 1, false, true);
         }
       }
       lastVisibilityState = document.visibilityState;
@@ -301,7 +327,7 @@ export function ProfileTabs({ username, currentUserId, userId }: ProfileTabsProp
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-  }, [activeTab, fetchPosts]);
+  }, [activeTab, fetchPosts, userId]);
 
   const handleSavePortfolioItem = (newItem: any) => {
     if (editingItem) {
@@ -400,8 +426,28 @@ export function ProfileTabs({ username, currentUserId, userId }: ProfileTabsProp
       {/* Tab Content */}
       <div className="min-h-[400px]">
         {loading ? (
-          <div className="flex items-center justify-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-2 border-purple-500/20 border-t-purple-500"></div>
+          <div className="space-y-4 animate-pulse">
+            {/* Post skeleton */}
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="bg-[#0d0d12] rounded-xl border border-white/5 p-4">
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 rounded-full bg-white/10" />
+                  <div className="flex-1 space-y-2">
+                    <div className="flex gap-2">
+                      <div className="h-4 w-24 bg-white/10 rounded" />
+                      <div className="h-4 w-16 bg-white/5 rounded" />
+                    </div>
+                    <div className="h-4 w-full bg-white/10 rounded" />
+                    <div className="h-4 w-3/4 bg-white/10 rounded" />
+                    <div className="flex gap-4 mt-3">
+                      <div className="h-4 w-12 bg-white/5 rounded" />
+                      <div className="h-4 w-12 bg-white/5 rounded" />
+                      <div className="h-4 w-12 bg-white/5 rounded" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         ) : activeTab === "portfolio" ? (
           <>
