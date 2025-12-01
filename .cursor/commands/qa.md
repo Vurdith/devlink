@@ -1,6 +1,8 @@
 # Universal Quality Audit Framework
 
-A truly universal, framework-agnostic quality audit. Works for ANY tech stack, ANY language, ANY platform. 20 phases, 400+ checks adapted to whatever you're building.
+A truly universal, framework-agnostic quality audit. Works for ANY tech stack, ANY language, ANY platform. **21 phases, 450+ checks** adapted to whatever you're building.
+
+> ⚠️ **Important**: Static code analysis alone is insufficient. Phase 21 (RUNTIME) requires actually running and testing the application to catch state synchronization bugs that code review cannot detect.
 
 ## Adapts To Your Stack
 
@@ -23,7 +25,7 @@ Run `/qa full` for complete audit, or `/qa [phase]` for specific areas.
 
 | Command | Phase |
 |---------|-------|
-| `/qa full` | Complete 20-phase audit |
+| `/qa full` | Complete 21-phase audit |
 | `/qa perf` | Performance |
 | `/qa ux` | User Experience |
 | `/qa security` | Security Hardening |
@@ -43,10 +45,13 @@ Run `/qa full` for complete audit, or `/qa [phase]` for specific areas.
 | `/qa media` | Media Handling |
 | `/qa scale` | Scale & Infrastructure |
 | `/qa social` | Social Features |
+| `/qa runtime` | **Runtime Testing & State Verification** ⚡ |
 
 ---
 
-# THE 20 PHASES
+# THE 21 PHASES
+
+*Phases 1-20: Static analysis (code review). Phase 21: Runtime testing (actually using the app).*
 
 *Each phase lists universal concepts. Apply using your stack's equivalent tools/patterns.*
 
@@ -119,7 +124,7 @@ Run `/qa full` for complete audit, or `/qa [phase]` for specific areas.
 ### Loading States
 - [ ] Skeleton screens or spinners
 - [ ] Progress indicators for long operations
-- [ ] Optimistic updates for instant feedback
+- [ ] Optimistic updates for instant feedback *(verify in Phase 21 RUNTIME)*
 - [ ] Loading priority (critical content first)
 - [ ] Perceived performance optimization
 
@@ -335,6 +340,7 @@ Run `/qa full` for complete audit, or `/qa [phase]` for specific areas.
 - [ ] No duplicated state
 - [ ] Clear data flow
 - [ ] Cache invalidation strategy
+- [ ] State sync across components *(verify in Phase 21 RUNTIME)*
 
 ### Dependencies
 - [ ] Minimal dependencies
@@ -693,6 +699,8 @@ Run `/qa full` for complete audit, or `/qa [phase]` for specific areas.
 
 *Skip if not using real-time*
 
+> **Note**: This phase checks if real-time CODE EXISTS. Phase 21 (RUNTIME) verifies it actually WORKS by testing the app.
+
 ### Connection
 - [ ] Connection management
 - [ ] Reconnection logic
@@ -819,6 +827,244 @@ Run `/qa full` for complete audit, or `/qa [phase]` for specific areas.
 
 ---
 
+## 21. RUNTIME - Runtime Testing & State Verification
+
+*CRITICAL: Static code analysis cannot catch runtime state bugs. This phase requires actually running and testing the app.*
+
+### Applies To
+
+| App Type | Relevant? | Key Focus Areas |
+|----------|-----------|-----------------|
+| **Web App (SPA)** | ✅ Yes | Component state sync, cache invalidation, optimistic updates |
+| **Web App (MPA/SSR)** | ✅ Yes | Cache headers, revalidation, hydration issues |
+| **Mobile App** | ✅ Yes | Background/foreground state, offline sync, push handling |
+| **Desktop App** | ✅ Yes | Multi-window sync, system events, persistence |
+| **API/Backend** | ✅ Yes | Cache consistency, webhook delivery, replica lag |
+| **CLI Tool** | ⚠️ Partial | Config persistence, state between runs |
+| **Static Site** | ⚠️ Partial | Build-time data freshness, CDN cache |
+
+### Why This Phase Exists
+
+Code patterns can look correct while behavior is broken:
+- ✅ Event listener exists → ❌ But component doesn't re-render
+- ✅ Cache invalidation code exists → ❌ But wrong keys are invalidated
+- ✅ State update dispatched → ❌ But not all components subscribe to it
+
+**This phase cannot be skipped. It requires actually using the application.**
+
+### Critical User Flows (Test Each Manually)
+
+*Adapt to your application type:*
+
+#### Universal Flows (All Apps)
+- [ ] **First Launch** - App loads correctly, no errors
+- [ ] **Authentication** - Login/logout → all components reflect state change
+- [ ] **Navigation** - All routes work, back/forward behaves correctly
+- [ ] **Error Recovery** - App recovers gracefully from errors
+
+#### User Account Flows (Apps with Accounts)
+- [ ] **Registration → Login → First Use** - Complete new user journey
+- [ ] **Profile/Settings Update** - Changes reflect everywhere immediately
+- [ ] **Password/Email Change** - Sessions handled correctly
+- [ ] **Account Deletion** - All data properly removed
+
+#### Content Flows (Apps with User Content)
+- [ ] **Create** - New item appears in all relevant lists
+- [ ] **Read** - Detail view shows correct, fresh data
+- [ ] **Update** - Changes propagate to all displays
+- [ ] **Delete** - Item removed from all lists/caches
+
+#### E-Commerce Flows (Shopping Apps)
+- [ ] **Add to Cart** - Cart updates everywhere (header, sidebar, page)
+- [ ] **Update Quantity** - Totals recalculate everywhere
+- [ ] **Remove Item** - Item gone from all cart views
+- [ ] **Checkout** - Inventory/stock updates correctly
+- [ ] **Order Status** - Changes reflect in real-time
+
+#### Dashboard/SaaS Flows
+- [ ] **Data Refresh** - Charts/tables update correctly
+- [ ] **Filter/Sort** - Results update without page reload
+- [ ] **Settings Change** - Affects all relevant displays
+- [ ] **Role/Permission Change** - UI adapts immediately
+
+#### Real-Time Flows (Collaborative Apps)
+- [ ] **Multi-User Edit** - Changes from others appear
+- [ ] **Presence** - Online indicators accurate
+- [ ] **Notifications** - Arrive in real-time
+- [ ] **Conflict Resolution** - Handled gracefully
+
+### State Synchronization Checklist
+
+For each piece of shared state, verify it updates in ALL locations.
+
+*Identify your app's shared state, then map every place it's displayed:*
+
+#### Pattern: User/Account Data
+| Data | Common Display Locations |
+|------|-------------------------|
+| Avatar/Photo | Header, sidebar, profile page, comments, posts, settings |
+| Name | Header dropdown, profile page, authored content, @mentions |
+| Role/Plan | Header badge, feature gates, settings, billing page |
+| Preferences | All affected components (theme, language, notifications) |
+
+#### Pattern: Entity/Item Data
+| Data | Common Display Locations |
+|------|-------------------------|
+| Title/Name | List views, detail view, search results, breadcrumbs, related items |
+| Status | Cards, tables, detail page, filters, dashboards |
+| Count/Stats | Cards, detail page, analytics, reports |
+| Relationships | Parent/child views, linked items, navigation |
+
+#### Pattern: Transient State
+| Data | Common Display Locations |
+|------|-------------------------|
+| Cart/Selection | Header icon, sidebar, checkout page, mini-cart |
+| Notifications | Bell icon badge, dropdown, notification page |
+| Progress | Progress bar, step indicator, completion % |
+| Filters/Sort | URL, sidebar, applied filters display |
+
+### Cross-Component Data Flow Verification
+
+For critical data, trace the complete flow:
+
+```
+Data Source → API Response → Cache → Component State → Rendered UI
+       ↓           ↓           ↓            ↓              ↓
+   [Verify]    [Verify]    [Verify]     [Verify]       [Verify]
+```
+
+Specific checks:
+- [ ] **Immediate Update** - Change appears instantly (< 100ms perceived)
+- [ ] **No Stale Data** - Old data never flashes before new data
+- [ ] **Consistency** - Same data never shows different values in different places
+- [ ] **Cache Invalidation** - All relevant caches cleared on mutation
+- [ ] **Event Propagation** - State change events reach all subscribers
+- [ ] **Component Re-render** - Components actually re-render on state change
+
+### Common Sync Failure Patterns
+
+Check for these anti-patterns (adapt to your stack):
+
+#### Universal Patterns
+- [ ] **Missing Subscriber** - Component doesn't listen to state changes
+- [ ] **Wrong Cache Key** - Invalidating different key than what's cached
+- [ ] **Stale Reference** - Handler/callback captures outdated data
+- [ ] **Race Condition** - Old async response overwrites newer data
+- [ ] **Cache Not Cleared** - Browser/server cache holds stale data
+- [ ] **Optimistic Rollback Failure** - Failed mutation doesn't restore UI
+
+#### Frontend-Specific
+| Framework | Common Issues |
+|-----------|---------------|
+| React | Missing `key` prop, stale closure in hooks, missing dependency array item |
+| Vue | Reactivity lost (direct array mutation, new property on object) |
+| Angular | Zone.js not triggered, OnPush strategy blocking update |
+| Svelte | Reassignment needed for reactivity, store not subscribed |
+| Vanilla JS | DOM not updated, event listener not attached |
+
+#### Backend-Specific
+- [ ] **Database Transaction Not Committed** - Change not persisted
+- [ ] **Cache TTL Too Long** - Stale data served after mutation
+- [ ] **Pub/Sub Not Published** - Other services not notified
+- [ ] **Webhook Not Triggered** - External systems not updated
+- [ ] **Replication Lag** - Read replica behind primary
+
+### Real-Time Verification (if applicable)
+
+- [ ] **Multi-Tab Sync** - Change in one tab reflects in other tabs
+- [ ] **Multi-Device Sync** - Change on one device reflects on others
+- [ ] **Presence Updates** - Online/typing indicators update correctly
+- [ ] **Live Notifications** - Real-time events trigger appropriate UI updates
+
+### Testing Methodology
+
+1. **Identify Shared State** - List all data shown in multiple places
+2. **Map Display Locations** - For each piece of data, list ALL places that display it
+3. **Test Mutation** - Change the data and verify ALL locations update
+4. **Test Edge Cases**:
+   - [ ] Slow network (throttle to 3G)
+   - [ ] Offline → online transition
+   - [ ] Multiple rapid mutations
+   - [ ] Concurrent mutations from multiple sources
+   - [ ] Session timeout during operation
+   - [ ] Browser tab backgrounded then foregrounded
+
+### Platform-Specific Testing
+
+#### Web Apps
+- [ ] **Hard Refresh** - Ctrl+Shift+R shows latest data
+- [ ] **Soft Refresh** - F5 shows latest data
+- [ ] **Back/Forward** - Navigation shows correct state
+- [ ] **New Tab** - Fresh tab shows latest data
+- [ ] **Incognito** - Private browsing works correctly
+- [ ] **Cross-Browser** - Chrome, Firefox, Safari, Edge consistency
+- [ ] **PWA** - Service worker serves fresh data
+
+#### Mobile Apps
+- [ ] **App Restart** - Cold start shows fresh data
+- [ ] **Background/Foreground** - State preserved correctly
+- [ ] **Force Close** - Data persisted correctly
+- [ ] **OS Memory Pressure** - App recovers state
+- [ ] **Deep Link** - Opens correct state
+- [ ] **Push Notification Tap** - Navigates to correct updated state
+
+#### Desktop Apps
+- [ ] **Window Close/Open** - State preserved
+- [ ] **System Sleep/Wake** - Reconnects, refreshes
+- [ ] **Multiple Windows** - State syncs between windows
+
+#### APIs/Backend
+- [ ] **Concurrent Requests** - No race conditions
+- [ ] **Retry After Failure** - Idempotent, no duplicate effects
+- [ ] **Webhook Delivery** - External systems receive updates
+- [ ] **Database Replicas** - All replicas eventually consistent
+
+### Verification Tools
+
+*Use your stack's equivalent tools:*
+
+#### Browser DevTools (Universal)
+- **Network Tab** - Cache headers, request timing, response data
+- **Application Tab** - Session/Local storage, cookies, cache storage
+- **Console** - Errors, logs, event verification
+- **Performance Tab** - Rendering, repaints, frame drops
+
+#### Framework-Specific
+| Framework | Tool |
+|-----------|------|
+| React | React DevTools (component state, props, hooks) |
+| Vue | Vue DevTools (Vuex/Pinia state, component tree) |
+| Angular | Angular DevTools (component tree, change detection) |
+| Svelte | Svelte DevTools (state inspection) |
+| Redux/Zustand | Redux DevTools (action history, state diff) |
+
+#### Backend/API
+- **Postman/Insomnia** - API response verification
+- **Database GUI** - Direct data verification
+- **Redis CLI/GUI** - Cache contents inspection
+- **Log aggregator** - Server-side event trail
+
+#### Mobile
+| Platform | Tool |
+|----------|------|
+| React Native | Flipper, React DevTools |
+| Flutter | Flutter DevTools |
+| iOS | Xcode Instruments |
+| Android | Android Studio Profiler |
+
+### Documentation Requirement
+
+After this phase, document (if not already documented):
+
+1. **State Flow Diagram** - How critical data flows through the app
+2. **Event/Message System** - What events/messages exist, what subscribes
+3. **Cache Strategy** - What's cached (browser, CDN, server, DB), invalidation triggers
+4. **Sync Points** - Where data is expected to sync across components/services
+
+*This documentation prevents future regressions and onboards new developers.*
+
+---
+
 # Priority Levels
 
 | Level | Meaning | SLA |
@@ -840,25 +1086,88 @@ Run `/qa full` for complete audit, or `/qa [phase]` for specific areas.
     │       └── What features exist?
     │       └── Skip irrelevant phases
     │
-    ├── 2. 🔍 SCAN applicable phases
+    ├── 2. 🔍 STATIC SCAN (Phases 1-20)
     │       └── Search codebase systematically
     │       └── Check against relevant items
+    │       └── Code-level pattern analysis
     │
-    ├── 3. 📋 REPORT findings
+    ├── 3. 📋 REPORT static findings
     │       └── Prioritized list (P0 → P3)
     │       └── Issue count per phase
     │
-    ├── 4. 🔧 FIX issues
+    ├── 4. 🔧 FIX static issues
     │       └── P0 first, then P1, P2, P3
     │       └── Use stack-appropriate solutions
     │
-    ├── 5. ✅ VERIFY
+    ├── 5. ✅ VERIFY static fixes
     │       └── Build passes
     │       └── Tests pass
     │
-    └── 6. 🚀 DEPLOY
+    ├── 6. ⚡ RUNTIME TESTING (Phase 21) ← CRITICAL
+    │       └── Actually run the application
+    │       └── Test critical user flows manually
+    │       └── Verify state sync across components
+    │       └── Check data propagation on mutations
+    │       └── Multi-tab/multi-browser testing
+    │
+    ├── 7. 📋 REPORT runtime findings
+    │       └── State sync issues
+    │       └── Cache staleness
+    │       └── UI consistency problems
+    │
+    ├── 8. 🔧 FIX runtime issues
+    │       └── Event propagation fixes
+    │       └── Cache invalidation fixes
+    │       └── Re-render trigger fixes
+    │
+    └── 9. 🚀 DEPLOY
+            └── Final verification
             └── Commit & push
 ```
+
+## Why Runtime Testing is Separate
+
+Static analysis can verify:
+- ✅ Code pattern exists
+- ✅ Event handler is defined
+- ✅ Component imports hook
+
+Static analysis CANNOT verify:
+- ❌ Event actually reaches the handler
+- ❌ Component actually re-renders
+- ❌ Cache actually gets invalidated
+- ❌ User sees the update instantly
+
+**Examples of missed bugs:**
+
+*React/Vue/Frontend:*
+```typescript
+// Code looks perfect, but...
+useEffect(() => {
+  subscribe('data-updated', handleUpdate);
+  return () => unsubscribe('data-updated', handleUpdate);
+}, []);
+// Bug: handleUpdate captures stale state, key prop missing, cache stale
+```
+
+*Backend/API:*
+```python
+# Code looks perfect, but...
+def update_user(user_id, data):
+    db.update(user_id, data)
+    cache.delete(f"user:{user_id}")
+    return success
+# Bug: Also cached at "profile:{user_id}" and "users:list" - not invalidated
+```
+
+*Mobile:*
+```swift
+// Code looks perfect, but...
+NotificationCenter.default.addObserver(self, selector: #selector(refresh), name: .dataUpdated)
+// Bug: Observer added but view not on screen, or added multiple times
+```
+
+Static scan says ✅. Runtime test reveals ❌.
 
 ---
 
@@ -886,6 +1195,7 @@ Run `/qa full` for complete audit, or `/qa [phase]` for specific areas.
 /qa perf        → Performance
 /qa security    → Security
 /qa a11y        → Accessibility
+/qa runtime     → Runtime Testing & State Verification ⚡ NEW
 /qa [phase]     → Any specific phase
 ```
 
@@ -898,4 +1208,15 @@ Run `/qa full` for complete audit, or `/qa [phase]` for specific areas.
 
 ---
 
-**Total: 20 phases, 400+ checks, universally applicable.**
+**Total: 21 phases, 450+ checks, universally applicable.**
+
+---
+
+# Audit Type Comparison
+
+| Audit Type | What It Catches | What It Misses |
+|------------|-----------------|----------------|
+| **Static (Phases 1-20)** | Missing code, wrong patterns, security holes, a11y issues | Runtime behavior, state sync, actual user experience |
+| **Runtime (Phase 21)** | State sync bugs, cache issues, UX problems, race conditions | Nothing - sees what users see |
+
+**Both are required for a complete audit.**
