@@ -88,12 +88,6 @@ export default function RootLayout({
               <div className="md:ml-72 min-h-screen relative">
                 <Navbar />
                 <main className="min-h-screen relative isolate pb-20 md:pb-0">
-                  {/* Gradient overlay */}
-                  <div className="fixed inset-0 -z-10 gradient-bg pointer-events-none" />
-                  
-                  {/* Grid pattern */}
-                  <div className="fixed inset-0 -z-10 grid-pattern pointer-events-none opacity-50" />
-                  
                   <div className="relative z-10 p-4 md:p-6 pt-16 md:pt-6">
                     <ErrorBoundary>
                       {children}
