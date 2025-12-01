@@ -37,11 +37,21 @@ interface ReviewData {
   };
 }
 
+type SentimentFilter = "all" | "positive" | "negative";
+
+// Derive sentiment from rating
+function getSentiment(rating: number): "positive" | "negative" | "neutral" {
+  if (rating >= 4) return "positive";
+  if (rating <= 2) return "negative";
+  return "neutral";
+}
+
 export const ReviewsSection = memo(function ReviewsSection({ targetUserId, targetUsername, currentUserId, canReview = true }: ReviewsSectionProps) {
   const [reviews, setReviews] = useState<ReviewData[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [editingReviewId, setEditingReviewId] = useState<string | null>(null);
+  const [sentimentFilter, setSentimentFilter] = useState<SentimentFilter>("all");
 
   useEffect(() => {
     fetchReviews();
@@ -112,6 +122,25 @@ export const ReviewsSection = memo(function ReviewsSection({ targetUserId, targe
     return Math.round((total / reviews.length) * 10) / 10;
   }, [reviews]);
 
+  // Count reviews by sentiment
+  const sentimentCounts = useMemo(() => {
+    return reviews.reduce(
+      (acc, review) => {
+        const sentiment = getSentiment(review.rating);
+        if (sentiment === "positive") acc.positive++;
+        else if (sentiment === "negative") acc.negative++;
+        return acc;
+      },
+      { positive: 0, negative: 0 }
+    );
+  }, [reviews]);
+
+  // Filter reviews based on selected sentiment
+  const filteredReviews = useMemo(() => {
+    if (sentimentFilter === "all") return reviews;
+    return reviews.filter((review) => getSentiment(review.rating) === sentimentFilter);
+  }, [reviews, sentimentFilter]);
+
   const renderStars = (rating: number) => {
     return (
       <div className="flex items-center gap-1.5">
@@ -170,7 +199,7 @@ export const ReviewsSection = memo(function ReviewsSection({ targetUserId, targe
   return (
     <div className="py-6">
       {/* Header */}
-      <div className="flex items-start justify-between gap-6 mb-10">
+      <div className="flex items-start justify-between gap-6 mb-6">
         <div>
           <h2 className="text-2xl font-bold text-white mb-3">Reviews</h2>
           <div className="flex items-center gap-4">
@@ -194,6 +223,58 @@ export const ReviewsSection = memo(function ReviewsSection({ targetUserId, targe
           </button>
         )}
       </div>
+
+      {/* Sentiment Filter Tabs */}
+      {reviews.length > 0 && (
+        <div className="flex items-center gap-2 mb-8">
+          <button
+            onClick={() => setSentimentFilter("all")}
+            className={cn(
+              "px-4 py-2 rounded-full text-sm font-medium transition-all",
+              sentimentFilter === "all"
+                ? "bg-white/10 text-white border border-white/20"
+                : "text-white/50 hover:text-white/80 hover:bg-white/5"
+            )}
+          >
+            All
+            <span className="ml-1.5 text-white/40">({reviews.length})</span>
+          </button>
+          <button
+            onClick={() => setSentimentFilter("positive")}
+            className={cn(
+              "px-4 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-1.5",
+              sentimentFilter === "positive"
+                ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
+                : "text-white/50 hover:text-emerald-400 hover:bg-emerald-500/10"
+            )}
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
+            </svg>
+            Positive
+            <span className={cn("ml-0.5", sentimentFilter === "positive" ? "text-emerald-400/70" : "text-white/40")}>
+              ({sentimentCounts.positive})
+            </span>
+          </button>
+          <button
+            onClick={() => setSentimentFilter("negative")}
+            className={cn(
+              "px-4 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-1.5",
+              sentimentFilter === "negative"
+                ? "bg-red-500/20 text-red-400 border border-red-500/30"
+                : "text-white/50 hover:text-red-400 hover:bg-red-500/10"
+            )}
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14H5.236a2 2 0 01-1.789-2.894l3.5-7A2 2 0 018.736 3h4.018c.163 0 .326.02.485.06L17 4m-7 10v2a2 2 0 002 2h.095c.5 0 .905-.405.905-.905 0-.714.211-1.412.608-2.006L17 13V4m-7 10h2m5-10h2a2 2 0 012 2v6a2 2 0 01-2 2h-2.5" />
+            </svg>
+            Negative
+            <span className={cn("ml-0.5", sentimentFilter === "negative" ? "text-red-400/70" : "text-white/40")}>
+              ({sentimentCounts.negative})
+            </span>
+          </button>
+        </div>
+      )}
 
       {/* Create Review Form */}
       {showCreateForm && (
@@ -230,8 +311,39 @@ export const ReviewsSection = memo(function ReviewsSection({ targetUserId, targe
               </button>
             )}
           </div>
+        ) : filteredReviews.length === 0 ? (
+          <div className="text-center py-16 px-6">
+            <div className={cn(
+              "w-16 h-16 mx-auto mb-6 rounded-2xl flex items-center justify-center",
+              sentimentFilter === "positive" ? "bg-emerald-500/10 border border-emerald-500/20" : "bg-red-500/10 border border-red-500/20"
+            )}>
+              {sentimentFilter === "positive" ? (
+                <svg className="w-8 h-8 text-emerald-400/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
+                </svg>
+              ) : (
+                <svg className="w-8 h-8 text-red-400/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 14H5.236a2 2 0 01-1.789-2.894l3.5-7A2 2 0 018.736 3h4.018c.163 0 .326.02.485.06L17 4m-7 10v2a2 2 0 002 2h.095c.5 0 .905-.405.905-.905 0-.714.211-1.412.608-2.006L17 13V4m-7 10h2m5-10h2a2 2 0 012 2v6a2 2 0 01-2 2h-2.5" />
+                </svg>
+              )}
+            </div>
+            <h3 className="text-lg font-semibold text-white mb-2">
+              No {sentimentFilter} reviews
+            </h3>
+            <p className="text-white/40">
+              {sentimentFilter === "positive" 
+                ? "There are no positive reviews (4-5 stars) yet." 
+                : "There are no negative reviews (1-2 stars) yet."}
+            </p>
+            <button
+              onClick={() => setSentimentFilter("all")}
+              className="mt-4 text-sm text-purple-400 hover:text-purple-300 transition-colors"
+            >
+              View all reviews →
+            </button>
+          </div>
         ) : (
-          reviews.map((review) => (
+          filteredReviews.map((review) => (
             <Review
               key={review.id}
               review={review}

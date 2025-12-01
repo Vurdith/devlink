@@ -88,18 +88,30 @@ export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const targetUserId = searchParams.get("targetUserId");
   const reviewerId = searchParams.get("reviewerId");
+  const sentiment = searchParams.get("sentiment"); // "positive" | "negative" | null
 
   if (!targetUserId && !reviewerId) {
     return new NextResponse("Missing targetUserId or reviewerId", { status: 400 });
   }
 
   try {
+    // Build rating filter based on sentiment
+    let ratingFilter = {};
+    if (sentiment === "positive") {
+      ratingFilter = { gte: 4 }; // 4-5 stars
+    } else if (sentiment === "negative") {
+      ratingFilter = { lte: 2 }; // 1-2 stars
+    }
+
     let reviews;
     
     if (targetUserId) {
       // Get reviews received by a user
       reviews = await prisma.review.findMany({
-        where: { reviewedId: targetUserId },
+        where: { 
+          reviewedId: targetUserId,
+          ...(sentiment ? { rating: ratingFilter } : {})
+        },
         include: {
           reviewer: {
             include: {
@@ -118,7 +130,10 @@ export async function GET(req: Request) {
     } else {
       // Get reviews written by a user
       reviews = await prisma.review.findMany({
-        where: { reviewerId: reviewerId! },
+        where: { 
+          reviewerId: reviewerId!,
+          ...(sentiment ? { rating: ratingFilter } : {})
+        },
         include: {
           reviewed: {
             include: {
