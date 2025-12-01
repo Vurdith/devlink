@@ -115,7 +115,7 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
         />
         
         {/* Main profile card */}
-        <div className="relative bg-[#0a0a0f]/95 border-t border-purple-500/20 px-4 sm:px-8 pb-4 sm:pb-8">
+        <div className="relative bg-[#0a0a0f] border border-white/10 border-t-0 rounded-b-xl sm:rounded-b-2xl px-4 sm:px-8 pb-4 sm:pb-8 shadow-xl shadow-black/20">
           
           {/* Avatar and Follow button row */}
           <div className="flex justify-between items-start">
