@@ -1,16 +1,13 @@
 import { prisma } from "@/server/db";
 import { notFound } from "next/navigation";
-import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
-import { Button } from "@/components/ui/Button";
 import { FollowButton } from "@/components/ui/FollowButton";
 import Link from "next/link";
-import Image from "next/image";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/server/auth-options";
-import { AvatarEditOverlay, BannerEditOverlay } from "./MediaEditor";
 import { AboutEditor } from "./AboutEditor";
 import { ProfileTabs } from "./ProfileTabs";
+import { ProfileBanner, ProfileAvatar } from "./ProfileMedia";
 import { getProfileTypeConfig, ProfileTypeIcon } from "@/lib/profile-types";
 import { responseCache } from "@/lib/cache";
 
@@ -109,31 +106,22 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
   return (
     <main className="mx-auto max-w-5xl px-2 sm:px-4 py-4 sm:py-10">
       <section className="relative overflow-hidden rounded-xl sm:rounded-2xl">
-        {/* Banner - Taller aspect ratio for better visual impact */}
-        <div className="relative h-36 sm:h-64 w-full group">
-          {user.profile?.bannerUrl ? (
-            <Image src={user.profile.bannerUrl} alt="Banner" fill className="object-cover" priority />
-          ) : (
-            <div className="h-full w-full bg-gradient-to-br from-purple-900/50 via-purple-800/30 to-indigo-900/50" />
-          )}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-          <BannerEditOverlay editable={isOwnProfile} />
-        </div>
+        {/* Banner - Client component for instant updates */}
+        <ProfileBanner 
+          initialBannerUrl={user.profile?.bannerUrl}
+          isOwnProfile={isOwnProfile}
+        />
         
         {/* Main profile card */}
         <div className="relative bg-[#0a0a0f]/95 border-t border-purple-500/20 px-4 sm:px-8 pb-4 sm:pb-8">
           
-          {/* Avatar - positioned to overlap banner with higher z-index than banner overlay */}
+          {/* Avatar and Follow button row */}
           <div className="flex justify-between items-start">
-            <div className="relative -mt-12 sm:-mt-16 z-20">
-              <div className="relative w-20 h-20 sm:w-28 sm:h-28 group">
-                <div className="absolute -inset-1 bg-gradient-to-br from-purple-500 to-purple-700 rounded-full opacity-75 blur-sm" />
-                <div className="relative w-full h-full rounded-full border-4 border-[#0a0a0f] overflow-hidden flex items-center justify-center">
-                  <Avatar className="w-full h-full object-cover" src={user.profile?.avatarUrl || undefined} />
-                </div>
-                <AvatarEditOverlay editable={isOwnProfile} />
-              </div>
-            </div>
+            {/* Avatar - Client component for instant updates */}
+            <ProfileAvatar 
+              initialAvatarUrl={user.profile?.avatarUrl}
+              isOwnProfile={isOwnProfile}
+            />
             
             {/* Follow button - top right */}
             {!isOwnProfile && (
