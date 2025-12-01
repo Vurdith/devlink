@@ -472,7 +472,7 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
     if (post.isSlideshow) {
       return (
         <div className="mt-4">
-          <div className="relative rounded-2xl overflow-hidden glass shadow-lg max-w-full">
+          <div className="relative rounded-2xl overflow-hidden bg-[#0d0d12] border border-white/5 max-w-full">
             <div className="relative cursor-pointer group" onClick={() => openModal('slideshow', 0)}>
               {sortedMedia[0]?.mediaType === "video" ? (
                 <video src={sortedMedia[0].mediaUrl} className="w-full h-64 object-contain bg-gray-900/20" preload="metadata" />
@@ -575,7 +575,7 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
   }, [post.id, post.user.name, post.user.username, post.content]);
 
   return (
-    <div className="glass rounded-xl sm:rounded-2xl p-3 sm:p-6 mb-3 sm:mb-6 shadow-lg">
+    <div className="bg-[#0d0d12] border border-white/5 rounded-xl sm:rounded-2xl p-3 sm:p-6 mb-3 sm:mb-6">
       {/* Header */}
       <div className="flex items-start space-x-2 sm:space-x-3 mb-3 sm:mb-4">
         <ProfileTooltip user={post.user as any} currentUserId={session?.user?.id}>
@@ -637,7 +637,7 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
           </button>
 
           {showActionsMenu && (
-            <div className="absolute right-0 top-full mt-2 w-48 glass rounded-lg shadow-lg border border-white/20 z-50">
+            <div className="absolute right-0 top-full mt-2 w-48 bg-[#0d0d12] rounded-lg shadow-lg border border-white/10 z-50">
               <div className="py-1">
                 {isOwnPost && (
                   <>
@@ -835,7 +835,7 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
       {/* Delete Confirmation Modal */}
       {showDeleteConfirm && (
         <div className="fixed inset-0 bg-black/85 z-50 flex items-center justify-center" onClick={() => setShowDeleteConfirm(false)}>
-          <div className="relative glass glow rounded-xl p-6 w-[min(92vw,480px)] mx-4" onClick={(e) => e.stopPropagation()}>
+          <div className="relative bg-[#0d0d12] border border-white/10 rounded-xl p-6 w-[min(92vw,480px)] mx-4" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 bg-red-500/20 rounded-full flex items-center justify-center">
                 <svg className="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

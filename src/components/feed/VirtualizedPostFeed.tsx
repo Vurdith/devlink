@@ -129,7 +129,7 @@ const VirtualPostItem = memo(function VirtualPostItem({
       ) : (
         // Placeholder with estimated height
         <div 
-          className="glass rounded-xl sm:rounded-2xl p-3 sm:p-6 mb-3 sm:mb-6 shadow-lg"
+          className="bg-[#0d0d12] border border-white/5 rounded-xl sm:rounded-2xl p-3 sm:p-6 mb-3 sm:mb-6"
           style={{ minHeight: ESTIMATED_POST_HEIGHT }}
         >
           <div className="animate-pulse space-y-4">

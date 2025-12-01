@@ -214,7 +214,7 @@ export const CreatePost = memo(function CreatePost({
   if (!isOpen) {
     return (
       <div 
-        className="create-post-collapsed glass rounded-2xl p-4 mb-6 border border-white/20 cursor-pointer group relative overflow-hidden"
+        className="create-post-collapsed bg-[#0d0d12] rounded-2xl p-4 mb-6 border border-white/10 cursor-pointer group relative overflow-hidden"
         onClick={() => setIsOpen(true)}
       >
         {/* Shimmer effect - covers entire cell on hover */}
@@ -257,7 +257,7 @@ export const CreatePost = memo(function CreatePost({
   // Expanded state - with slide animations
   return (
     <>
-      <div className="create-post-expanded glass rounded-2xl p-5 mb-6 border border-purple-500/30 relative overflow-hidden">
+      <div className="create-post-expanded bg-[#0d0d12] rounded-2xl p-5 mb-6 border border-purple-500/30 relative overflow-hidden">
         <form onSubmit={handleSubmit} className="relative space-y-4">
           {/* Icon Buttons Row - with stagger animation */}
           <div className="flex items-center gap-2 p-2 bg-black/30 rounded-xl border border-white/10 stagger-in">
