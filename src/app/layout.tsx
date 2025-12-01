@@ -7,6 +7,7 @@ import { MobileNav } from "@/components/layout/MobileNav";
 import { SessionProvider } from "@/components/providers/SessionProvider";
 import { ToastProvider } from "@/components/providers/ToastProvider";
 import { PerformanceProvider } from "@/components/providers/PerformanceProvider";
+import { RealtimeProvider } from "@/components/providers/RealtimeProvider";
 import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
 import { AnimatedBackground } from "@/components/ui/AnimatedBackground";
 
@@ -78,6 +79,7 @@ export default function RootLayout({
       <body className={`${outfit.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable} antialiased min-h-screen`}>
         <SessionProvider>
           <ToastProvider>
+            <RealtimeProvider>
             <PerformanceProvider>
             <ErrorBoundary>
               {/* Animated background */}
@@ -97,6 +99,7 @@ export default function RootLayout({
               </div>
             </ErrorBoundary>
             </PerformanceProvider>
+            </RealtimeProvider>
           </ToastProvider>
         </SessionProvider>
       </body>
