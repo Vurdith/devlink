@@ -58,9 +58,11 @@ export function AboutEditor({ initialBio, initialLocation, initialWebsite, initi
         body: JSON.stringify({ bio, location, website, name })
       });
       setOpen(false);
-      try {
-        window.dispatchEvent(new Event("devlink:profile-updated"));
-      } catch {}
+      
+      // Dispatch event with name so navbar and other components update immediately
+      window.dispatchEvent(new CustomEvent('devlink:profile-updated', { 
+        detail: { name } 
+      }));
     } finally {
       setSaving(false);
     }

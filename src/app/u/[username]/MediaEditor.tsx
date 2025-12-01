@@ -11,6 +11,28 @@ async function uploadToServer(file: File) {
   return data.url as string;
 }
 
+// Clear all profile caches in sessionStorage
+function clearProfileCaches() {
+  if (typeof window === 'undefined') return;
+  try {
+    Object.keys(sessionStorage).forEach((key) => {
+      if (key.startsWith('navbar-profile-')) {
+        sessionStorage.removeItem(key);
+      }
+    });
+  } catch {}
+}
+
+// Dispatch profile update event so all components can update
+function dispatchProfileUpdate(updates: { avatarUrl?: string; bannerUrl?: string; name?: string }) {
+  if (typeof window !== 'undefined') {
+    // Clear caches first
+    clearProfileCaches();
+    // Then dispatch the event with new data
+    window.dispatchEvent(new CustomEvent('devlink:profile-updated', { detail: updates }));
+  }
+}
+
 export function AvatarEditOverlay({ editable }: { editable: boolean }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [saving, setSaving] = useState(false);
@@ -24,7 +46,18 @@ export function AvatarEditOverlay({ editable }: { editable: boolean }) {
     setSaving(true);
     try {
       const url = await uploadToServer(file);
-      await fetch("/api/profile", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ avatarUrl: url }) });
+      
+      // Save to backend (this also clears server-side cache)
+      await fetch("/api/profile", { 
+        method: "PATCH", 
+        headers: { "Content-Type": "application/json" }, 
+        body: JSON.stringify({ avatarUrl: url }) 
+      });
+      
+      // Clear client caches and dispatch event with new URL
+      dispatchProfileUpdate({ avatarUrl: url });
+      
+      // Refresh the page content
       router.refresh();
     } finally {
       setSaving(false);
@@ -64,6 +97,10 @@ export function BannerEditOverlay({ editable }: { editable: boolean }) {
     try {
       const url = await uploadToServer(file);
       await fetch("/api/profile", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ bannerUrl: url }) });
+      
+      // Dispatch event BEFORE refresh so components update immediately
+      dispatchProfileUpdate({ bannerUrl: url });
+      
       router.refresh();
     } finally {
       setSaving(false);

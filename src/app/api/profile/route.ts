@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/server/db";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/server/auth-options";
+import { responseCache } from "@/lib/cache";
 
 export async function GET() {
   const session = await getServerSession(authOptions);
@@ -76,7 +77,23 @@ export async function PATCH(req: Request) {
     });
   }
   
-  return NextResponse.json({ profile });
+  // Invalidate all profile-related caches
+  const username = user.username;
+  if (username) {
+    await Promise.all([
+      responseCache.delete(`profile:page:${username.toLowerCase()}`),
+      responseCache.delete(`user:profile:${username.toLowerCase()}`), // API endpoint cache
+    ]).catch(() => {}); // Ignore cache errors
+  }
+  
+  return NextResponse.json({ 
+    profile,
+    // Return updated data for immediate client-side update
+    avatarUrl: profile.avatarUrl,
+    bannerUrl: profile.bannerUrl,
+    name: typeof name === "string" ? name.trim() : undefined,
+    profileType: profile.profileType,
+  });
 }
 
 

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/Button";
 import { useSession } from "next-auth/react";
 import { ProfileMenu } from "@/components/layout/ProfileMenu";
 import { NavbarSearch } from "./NavbarSearch";
-import { useEffect, useState, memo } from "react";
+import { useEffect, useState, memo, useCallback } from "react";
 import { cn } from "@/lib/cn";
 
 export const Navbar = memo(function Navbar() {
@@ -18,22 +18,14 @@ export const Navbar = memo(function Navbar() {
   const [profileType, setProfileType] = useState<string | undefined>();
   const [scrolled, setScrolled] = useState(false);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 10);
-    };
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  useEffect(() => {
-    if (username) {
-      if (googleImage) {
-        setAvatarUrl(googleImage);
-      }
-      
-      // Check session storage cache first to prevent repeated API calls
-      const cacheKey = `navbar-profile-${username}`;
+  // Function to fetch fresh profile data
+  const fetchProfile = useCallback(async (bypassCache = false) => {
+    if (!username) return;
+    
+    const cacheKey = `navbar-profile-${username}`;
+    
+    // Check cache unless bypassing
+    if (!bypassCache) {
       const cached = sessionStorage.getItem(cacheKey);
       if (cached) {
         try {
@@ -44,25 +36,71 @@ export const Navbar = memo(function Navbar() {
           return;
         } catch {}
       }
-      
-      fetch(`/api/user/${username}`)
-        .then(res => res.json())
-        .then(data => {
-          // Cache the response for 5 minutes
-          sessionStorage.setItem(cacheKey, JSON.stringify(data));
-          if (data.user?.profile?.avatarUrl) {
-            setAvatarUrl(data.user.profile.avatarUrl);
-          }
-          if (data.user?.name) {
-            setDisplayName(data.user.name);
-          }
-          if (data.user?.profile?.profileType) {
-            setProfileType(data.user.profile.profileType);
-          }
-        })
-        .catch(console.error);
     }
-  }, [username, googleImage]);
+    
+    try {
+      const res = await fetch(`/api/user/${username}`, { cache: 'no-store' });
+      const data = await res.json();
+      
+      // Update cache
+      sessionStorage.setItem(cacheKey, JSON.stringify(data));
+      
+      if (data.user?.profile?.avatarUrl) {
+        setAvatarUrl(data.user.profile.avatarUrl);
+      }
+      if (data.user?.name) {
+        setDisplayName(data.user.name);
+      }
+      if (data.user?.profile?.profileType) {
+        setProfileType(data.user.profile.profileType);
+      }
+    } catch (error) {
+      console.error('Failed to fetch profile:', error);
+    }
+  }, [username]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 10);
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  // Initial profile fetch
+  useEffect(() => {
+    if (username) {
+      if (googleImage) {
+        setAvatarUrl(googleImage);
+      }
+      fetchProfile(false);
+    }
+  }, [username, googleImage, fetchProfile]);
+
+  // Listen for profile updates (from any component)
+  useEffect(() => {
+    const handleProfileUpdate = (event: CustomEvent) => {
+      const { avatarUrl: newAvatar, name: newName, profileType: newType } = event.detail || {};
+      
+      // Clear cache and update immediately
+      if (username) {
+        sessionStorage.removeItem(`navbar-profile-${username}`);
+      }
+      
+      // Update state immediately with new values
+      if (newAvatar !== undefined) setAvatarUrl(newAvatar);
+      if (newName !== undefined) setDisplayName(newName);
+      if (newType !== undefined) setProfileType(newType);
+      
+      // Also refetch to ensure consistency
+      fetchProfile(true);
+    };
+
+    window.addEventListener('devlink:profile-updated', handleProfileUpdate as EventListener);
+    return () => {
+      window.removeEventListener('devlink:profile-updated', handleProfileUpdate as EventListener);
+    };
+  }, [username, fetchProfile]);
 
   return (
     <header

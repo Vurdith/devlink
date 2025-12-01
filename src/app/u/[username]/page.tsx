@@ -247,8 +247,30 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
             (function(){
               if (window.__devlink_profile_live_hook) return;
               window.__devlink_profile_live_hook = true;
-              window.addEventListener('devlink:profile-updated', function(){ location.reload(); });
-              window.addEventListener('devlink:follow-toggled', function(){ location.reload(); });
+              
+              // Clear all profile caches
+              function clearProfileCaches() {
+                try {
+                  Object.keys(sessionStorage).forEach(function(key) {
+                    if (key.startsWith('navbar-profile-')) {
+                      sessionStorage.removeItem(key);
+                    }
+                  });
+                } catch(e) {}
+              }
+              
+              // Profile updates are handled by Next.js router.refresh() - no page reload needed
+              // The Navbar listens for this event and updates its state directly
+              window.addEventListener('devlink:profile-updated', function(e) {
+                clearProfileCaches();
+                // Don't reload - the MediaEditor already calls router.refresh()
+              });
+              
+              // Follow toggle needs a full reload to update follower counts
+              window.addEventListener('devlink:follow-toggled', function(){ 
+                clearProfileCaches();
+                location.reload(); 
+              });
             })();
           `}} />
         </div>
