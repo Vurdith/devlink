@@ -287,7 +287,7 @@ export default function RegisterPage() {
                   onChange={(e) => setUsername(e.target.value)}
                   required
                   aria-describedby={usernameError && username.trim() ? "username-error" : usernameStatus === "available" ? "username-success" : undefined}
-                  aria-invalid={usernameStatus === "unavailable" && username.trim()}
+                  aria-invalid={usernameStatus === "unavailable" && username.trim() ? "true" : undefined}
                 />
                 {getUsernameIndicator()}
               </div>
