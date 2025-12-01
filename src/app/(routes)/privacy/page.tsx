@@ -1,6 +1,10 @@
-"use client";
-
 import Link from "next/link";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Privacy Policy",
+  description: "Privacy Policy for DevLink - how we collect, use, and protect your data.",
+};
 
 export default function PrivacyPage() {
   return (
@@ -10,7 +14,7 @@ export default function PrivacyPage() {
           href="/"
           className="text-purple-400 hover:text-purple-300 transition-colors inline-flex items-center gap-2"
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
             <path d="M19 12H5M12 19l-7-7 7-7" />
           </svg>
           Back to Home
@@ -29,7 +33,7 @@ export default function PrivacyPage() {
           <section>
             <h2 className="text-xl font-semibold text-white mb-3">1. Introduction</h2>
             <p className="text-[var(--muted-foreground)] leading-relaxed">
-              DevLink ("we", "our", or "us") is committed to protecting your privacy. This Privacy Policy 
+              DevLink (&quot;we&quot;, &quot;our&quot;, or &quot;us&quot;) is committed to protecting your privacy. This Privacy Policy 
               explains how we collect, use, disclose, and safeguard your information when you use our platform.
             </p>
           </section>
@@ -127,7 +131,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-white mb-3">10. Children's Privacy</h2>
+            <h2 className="text-xl font-semibold text-white mb-3">10. Children&apos;s Privacy</h2>
             <p className="text-[var(--muted-foreground)] leading-relaxed">
               Our platform is not intended for users under 13 years of age. We do not knowingly collect 
               personal information from children under 13. If you believe we have collected such information, 
@@ -139,7 +143,7 @@ export default function PrivacyPage() {
             <h2 className="text-xl font-semibold text-white mb-3">11. Changes to This Policy</h2>
             <p className="text-[var(--muted-foreground)] leading-relaxed">
               We may update this Privacy Policy from time to time. We will notify you of any changes by 
-              posting the new Privacy Policy on this page and updating the "Last updated" date.
+              posting the new Privacy Policy on this page and updating the &quot;Last updated&quot; date.
             </p>
           </section>
 
@@ -155,4 +159,3 @@ export default function PrivacyPage() {
     </div>
   );
 }
-

@@ -88,7 +88,9 @@ export function useRealtimeSubscription({
       )
       .subscribe((status) => {
         if (status === "SUBSCRIBED") {
-          console.log(`[Realtime] Subscribed to ${table}`);
+          if (process.env.NODE_ENV === "development") {
+            console.log(`[Realtime] Subscribed to ${table}`);
+          }
         } else if (status === "CHANNEL_ERROR") {
           console.error(`[Realtime] Error subscribing to ${table}`);
         }

@@ -1,6 +1,10 @@
-"use client";
-
 import Link from "next/link";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Terms of Service",
+  description: "Terms of Service for DevLink - the professional network for Roblox developers.",
+};
 
 export default function TermsPage() {
   return (
@@ -10,7 +14,7 @@ export default function TermsPage() {
           href="/"
           className="text-purple-400 hover:text-purple-300 transition-colors inline-flex items-center gap-2"
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
             <path d="M19 12H5M12 19l-7-7 7-7" />
           </svg>
           Back to Home
@@ -29,7 +33,7 @@ export default function TermsPage() {
           <section>
             <h2 className="text-xl font-semibold text-white mb-3">1. Acceptance of Terms</h2>
             <p className="text-[var(--muted-foreground)] leading-relaxed">
-              By accessing or using DevLink ("the Service"), you agree to be bound by these Terms of Service. 
+              By accessing or using DevLink (&quot;the Service&quot;), you agree to be bound by these Terms of Service. 
               If you do not agree to these terms, please do not use the Service.
             </p>
           </section>
@@ -60,7 +64,7 @@ export default function TermsPage() {
               <li>Post content that is illegal, harmful, threatening, abusive, or otherwise objectionable</li>
               <li>Impersonate any person or entity</li>
               <li>Engage in spamming, phishing, or other malicious activities</li>
-              <li>Attempt to gain unauthorized access to other users' accounts</li>
+              <li>Attempt to gain unauthorized access to other users&apos; accounts</li>
               <li>Violate any applicable laws or regulations</li>
               <li>Scam or defraud other users</li>
             </ul>
@@ -95,7 +99,7 @@ export default function TermsPage() {
           <section>
             <h2 className="text-xl font-semibold text-white mb-3">8. Disclaimer of Warranties</h2>
             <p className="text-[var(--muted-foreground)] leading-relaxed">
-              The Service is provided "as is" without warranties of any kind. We do not guarantee that the 
+              The Service is provided &quot;as is&quot; without warranties of any kind. We do not guarantee that the 
               Service will be uninterrupted, secure, or error-free.
             </p>
           </section>
@@ -128,4 +132,3 @@ export default function TermsPage() {
     </div>
   );
 }
-

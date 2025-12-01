@@ -47,7 +47,9 @@ export function RealtimeProvider({ children }: RealtimeProviderProps) {
           table: "Profile",
         },
         (payload: any) => {
-          console.log("[Realtime] Profile updated:", payload.new?.userId);
+          if (process.env.NODE_ENV === "development") {
+            console.log("[Realtime] Profile updated:", payload.new?.userId);
+          }
           
           // Dispatch custom event for components to listen
           if (typeof window !== "undefined" && payload.new) {
