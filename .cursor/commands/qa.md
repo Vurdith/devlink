@@ -118,12 +118,36 @@ Run `/qa full` for complete audit, or `/qa [phase]` for specific areas.
 - [ ] Query timeout limits
 
 ### Query Pattern Verification *(actually trace each query)*
-- [ ] **Counting uses aggregation** - `_count` or `groupBy`, NOT fetching all records
-- [ ] **Averages use aggregation** - `aggregate({ _avg })`, NOT fetch-then-calculate
-- [ ] **Independent queries are parallel** - wrapped in `Promise.all()`, NOT sequential `await`
-- [ ] **Nested data uses single query** - `select` with relations, NOT multiple round trips
-- [ ] **Only needed fields selected** - no `include` for full records when `_count` suffices
-- [ ] **Pagination on large datasets** - `take/skip` or cursor, NOT `findMany` without limits
+
+*Adapt to your ORM/database:*
+
+| Pattern | ✅ Good | ❌ Bad |
+|---------|---------|--------|
+| **Counting** | `COUNT(*)`, `_count`, `.count()` | Fetch all records, count in app code |
+| **Averages/Sums** | `AVG()`, `SUM()`, `aggregate()` | Fetch all records, calculate in app |
+| **Parallel queries** | `Promise.all()`, `asyncio.gather()`, concurrent requests | Sequential `await` / blocking calls |
+| **Related data** | JOINs, eager loading, `select` with relations | N queries for N items (N+1 problem) |
+| **Field selection** | `SELECT col1, col2`, projection, `select:` | `SELECT *`, full record when only count needed |
+| **Large datasets** | Pagination, cursors, `LIMIT/OFFSET` | Unbounded queries returning all rows |
+
+#### ORM-Specific Examples
+
+| ORM/DB | Count | Average | Parallel |
+|--------|-------|---------|----------|
+| **Prisma** | `_count`, `groupBy` | `aggregate({ _avg })` | `Promise.all([...])` |
+| **Django** | `.count()`, `annotate(Count())` | `aggregate(Avg())` | `asyncio.gather()` |
+| **SQLAlchemy** | `func.count()` | `func.avg()` | `asyncio.gather()` |
+| **ActiveRecord** | `.count`, `.group(:x).count` | `.average(:col)` | `Parallel.map` |
+| **Sequelize** | `count()`, `findAndCountAll` | `aggregate('col', 'avg')` | `Promise.all([...])` |
+| **Raw SQL** | `SELECT COUNT(*)` | `SELECT AVG(col)` | Multiple concurrent connections |
+
+#### Checklist
+- [ ] **Counting uses DB aggregation** - not fetch-then-count
+- [ ] **Math operations use DB aggregation** - not fetch-then-calculate
+- [ ] **Independent queries run in parallel** - not sequential blocking
+- [ ] **Related data uses JOINs/eager loading** - not N+1 queries
+- [ ] **Only needed fields selected** - not full records
+- [ ] **Large datasets are paginated** - not unbounded queries
 
 ---
 
@@ -1062,26 +1086,42 @@ Check for these anti-patterns (adapt to your stack):
 
 ### Performance Profiling *(actually measure, don't guess)*
 
-Static code review CANNOT determine if queries are fast. You must measure:
+Static code review CANNOT determine if queries are fast. You must measure.
 
-- [ ] **API Response Times** - Use Network tab to measure actual response times
-- [ ] **Database Query Time** - Enable query logging, check for slow queries (>100ms)
-- [ ] **Waterfall Analysis** - Check if requests are sequential when they should be parallel
-- [ ] **Cold vs Warm** - First load vs cached load times
+#### What to Measure
 
-#### Red Flags to Look For:
+| Metric | Tool | Target |
+|--------|------|--------|
+| API Response Time | Browser Network tab, Postman, curl | < 200ms for simple, < 500ms for complex |
+| Database Query Time | Query logs, EXPLAIN, APM | < 50ms for simple, < 200ms for complex |
+| Time to First Byte | Lighthouse, WebPageTest | < 600ms |
+| Total Page Load | Lighthouse, WebPageTest | < 3s |
+
+#### Platform-Specific Profiling Tools
+
+| Platform | Tools |
+|----------|-------|
+| **Web (Browser)** | Chrome DevTools Network/Performance tab, Lighthouse |
+| **Web (Server)** | APM (Datadog, New Relic), query logs, `console.time()` |
+| **Mobile** | Flipper, Xcode Instruments, Android Profiler |
+| **Backend API** | Postman, curl timing, APM, slow query logs |
+| **Database** | `EXPLAIN ANALYZE`, slow query log, pg_stat_statements |
+
+#### Red Flags
 ```
-❌ API returns in 2+ seconds with few/no records → likely inefficient query
+❌ API returns in 2+ seconds with few/no records → inefficient query
 ❌ Multiple sequential network requests → should be batched or parallel
 ❌ Same data fetched multiple times → missing cache or deduplication
 ❌ Large payload for simple view → over-fetching data
+❌ Query time >> network time → database bottleneck
+❌ Network time >> query time → payload too large or no compression
 ```
 
-#### Quick Performance Test:
-1. Open Network tab
-2. Load each main page (home, profile, discover)
-3. Note response times
-4. If any API > 500ms with minimal data → investigate query
+#### Quick Performance Test
+1. Open Network/Performance tab (or equivalent for your platform)
+2. Load each main screen/page
+3. Note response times for each API call
+4. If any endpoint > 500ms with minimal data → trace and optimize that query
 
 ### Documentation Requirement
 
