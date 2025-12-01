@@ -21,7 +21,9 @@ if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) 
       url: process.env.UPSTASH_REDIS_REST_URL,
       token: process.env.UPSTASH_REDIS_REST_TOKEN,
     });
-    console.log("[Cache] Using Upstash Redis");
+    if (process.env.NODE_ENV === 'development') {
+      console.log("[Cache] Using Upstash Redis");
+    }
   } catch (e) {
     console.error("[Cache] Failed to initialize Upstash Redis:", e);
   }
@@ -33,13 +35,15 @@ else if (process.env.REDIS_URL) {
       maxRetriesPerRequest: 3,
       lazyConnect: true,
     });
-    console.log("[Cache] Using standard Redis");
+    if (process.env.NODE_ENV === 'development') {
+      console.log("[Cache] Using standard Redis");
+    }
   } catch (e) {
     console.error("[Cache] Failed to initialize Redis:", e);
   }
 }
 
-if (!upstashClient && !ioRedisClient) {
+if (!upstashClient && !ioRedisClient && process.env.NODE_ENV === 'development') {
   console.log("[Cache] Using in-memory cache (not recommended for production)");
 }
 

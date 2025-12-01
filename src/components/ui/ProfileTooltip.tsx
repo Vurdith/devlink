@@ -308,7 +308,8 @@ export const ProfileTooltip = memo(function ProfileTooltip({
                   src={user.profile?.bannerUrl} 
                   alt="" 
                   fill 
-                  className="object-cover" 
+                  className="object-cover"
+                  loading="lazy"
                 />
                 <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#0a0e14]" />
               </>

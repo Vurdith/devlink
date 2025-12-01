@@ -246,7 +246,9 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
                       sessionStorage.removeItem(key);
                     }
                   });
-                } catch(e) {}
+                } catch(e) {
+                  // Silently ignore - sessionStorage may be unavailable (private browsing, iframe, etc.)
+                }
               }
               
               // Profile updates are handled by Next.js router.refresh() - no page reload needed

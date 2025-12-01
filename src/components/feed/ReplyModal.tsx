@@ -299,6 +299,7 @@ export const ReplyModal = memo(function ReplyModal({
                     width={48}
                     height={48}
                     className="w-full h-full object-cover"
+                    loading="lazy"
                   />
                 ) : (
                   <div className="w-full h-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white text-sm font-semibold">
@@ -343,6 +344,7 @@ export const ReplyModal = memo(function ReplyModal({
                   width={48}
                   height={48}
                   className="w-full h-full object-cover"
+                  loading="lazy"
                 />
               ) : (
                 <div className="w-full h-full bg-gradient-to-br from-purple-500 to-cyan-500 flex items-center justify-center text-white text-sm font-semibold">

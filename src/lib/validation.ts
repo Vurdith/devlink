@@ -197,7 +197,7 @@ export function validateId(id: string): ValidationResult {
 export function validateRating(rating: number): ValidationResult {
   const errors: string[] = [];
   
-  if (typeof rating !== 'number') {
+  if (typeof rating !== 'number' || Number.isNaN(rating)) {
     errors.push('Rating must be a number');
   } else if (rating < 1 || rating > 5) {
     errors.push('Rating must be between 1 and 5');
