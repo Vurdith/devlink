@@ -1,6 +1,19 @@
 # Universal Quality Audit Framework
 
-The most comprehensive quality audit possible. 20 phases, 400+ checks. Covers everything from a simple landing page to X.com-scale platforms. Every detail. Nothing overlooked.
+A truly universal, framework-agnostic quality audit. Works for ANY tech stack, ANY language, ANY platform. 20 phases, 400+ checks adapted to whatever you're building.
+
+## Adapts To Your Stack
+
+| Stack Type | Examples |
+|------------|----------|
+| **Frontend Frameworks** | React, Vue, Angular, Svelte, Solid, Qwik, Astro, vanilla JS |
+| **Backend Frameworks** | Next.js, Express, Django, Rails, Laravel, FastAPI, Spring, .NET |
+| **Languages** | TypeScript, JavaScript, Python, Go, Rust, PHP, Ruby, Java, C# |
+| **Databases** | PostgreSQL, MySQL, MongoDB, Redis, SQLite, Supabase, Firebase |
+| **Platforms** | Web, Mobile (React Native, Flutter), Desktop (Electron, Tauri) |
+| **Architectures** | Monolith, Microservices, Serverless, JAMstack, Edge |
+
+---
 
 ## Usage
 
@@ -35,378 +48,299 @@ Run `/qa full` for complete audit, or `/qa [phase]` for specific areas.
 
 # THE 20 PHASES
 
+*Each phase lists universal concepts. Apply using your stack's equivalent tools/patterns.*
+
 ---
 
 ## 1. PERF - Performance Excellence
 
-### Bundle & Assets
-- [ ] Bundle size < 200KB initial JS (gzipped)
-- [ ] Code splitting per route
-- [ ] Dynamic imports for heavy components
-- [ ] Tree shaking verification
-- [ ] Dead code elimination
+### Bundle & Assets (Web/Mobile)
+- [ ] Minimize initial payload size
+- [ ] Code splitting / lazy loading
+- [ ] Tree shaking / dead code elimination
+- [ ] Asset minification (JS, CSS, HTML)
+- [ ] Compression (gzip, brotli, zstd)
 - [ ] No duplicate dependencies
-- [ ] Minification enabled
-- [ ] Source maps in production (optional, for debugging)
 
-### Images
-- [ ] Next-gen formats (WebP, AVIF)
-- [ ] Responsive srcset
-- [ ] Lazy loading (below fold)
-- [ ] Eager loading (above fold, LCP)
-- [ ] Proper sizing (no layout shift)
-- [ ] Image CDN with transforms
-- [ ] Blur placeholder / LQIP
-- [ ] SVG optimization
+### Images & Media
+- [ ] Modern formats (WebP, AVIF, HEIC where supported)
+- [ ] Responsive sizing
+- [ ] Lazy loading below fold
+- [ ] Eager loading for critical content
+- [ ] CDN delivery
+- [ ] Placeholder/skeleton during load
 
-### Fonts
-- [ ] Font subsetting
+### Fonts (if applicable)
+- [ ] Subset to used characters
 - [ ] Preload critical fonts
-- [ ] font-display: swap
-- [ ] Variable fonts where possible
-- [ ] Local font fallbacks
-- [ ] No FOUT/FOIT
+- [ ] Font display strategy (swap/optional)
+- [ ] Fallback fonts defined
 
-### Core Web Vitals
-- [ ] LCP < 2.5s
-- [ ] FID < 100ms (INP < 200ms)
-- [ ] CLS < 0.1
-- [ ] TTFB < 600ms
-- [ ] FCP < 1.8s
-- [ ] TBT < 200ms
+### Core Metrics (adapt to platform)
+- [ ] First meaningful paint / initial render < 2s
+- [ ] Time to interactive < 3s
+- [ ] Input responsiveness < 100ms
+- [ ] No layout shifts after load
+- [ ] Smooth animations (60fps)
 
 ### Runtime Performance
-- [ ] 60fps animations
-- [ ] GPU-accelerated transforms
-- [ ] will-change used sparingly
-- [ ] No forced synchronous layouts
-- [ ] Debounced scroll/resize handlers
-- [ ] RequestAnimationFrame for animations
-- [ ] Web Workers for heavy computation
-- [ ] Memory leak detection
-- [ ] No memory bloat over time
+- [ ] Efficient rendering (virtual lists, pagination)
+- [ ] Memoization where beneficial
+- [ ] No memory leaks
+- [ ] Debounced expensive operations
+- [ ] Background processing for heavy tasks
+- [ ] Proper garbage collection
 
 ### Network
-- [ ] HTTP/2 or HTTP/3
-- [ ] Preconnect to critical origins
-- [ ] DNS prefetch
-- [ ] Resource hints (prefetch, preload)
-- [ ] Service worker caching
-- [ ] Offline support
-- [ ] Background sync
-- [ ] Compression (gzip/brotli)
+- [ ] HTTP/2 or HTTP/3 where available
+- [ ] Connection reuse
+- [ ] Request batching where appropriate
+- [ ] Prefetching critical resources
+- [ ] Offline capability (if applicable)
 
-### Caching
-- [ ] CDN for static assets
-- [ ] Browser cache headers
-- [ ] Immutable assets with hashes
-- [ ] ISR/SSG where possible
-- [ ] Redis/memory cache for API
-- [ ] Database query cache
-- [ ] Edge caching
+### Caching (use your stack's tools)
+- [ ] CDN caching for static assets
+- [ ] Browser/client caching
+- [ ] Application-level caching (Redis, Memcached, in-memory)
+- [ ] Database query caching
+- [ ] Cache invalidation strategy
 
-### Database
+### Database/Data Layer
 - [ ] Query optimization
 - [ ] N+1 query prevention
-- [ ] Proper indexes
+- [ ] Proper indexing
 - [ ] Connection pooling
-- [ ] Read replicas
 - [ ] Query timeout limits
-- [ ] Slow query logging
 
 ---
 
 ## 2. UX - User Experience
 
 ### Loading States
-- [ ] Skeleton screens
-- [ ] Progress indicators
-- [ ] Shimmer effects
-- [ ] Optimistic updates
-- [ ] Stale-while-revalidate
-- [ ] Loading priority (critical first)
+- [ ] Skeleton screens or spinners
+- [ ] Progress indicators for long operations
+- [ ] Optimistic updates for instant feedback
+- [ ] Loading priority (critical content first)
+- [ ] Perceived performance optimization
 
 ### Empty States
 - [ ] Helpful messaging
 - [ ] Call to action
-- [ ] Illustration/icon
+- [ ] Visual indicator
 - [ ] First-time user guidance
 
 ### Error States
-- [ ] Clear error messaging
+- [ ] Clear error messaging (user-friendly)
 - [ ] Recovery suggestions
-- [ ] Retry buttons
-- [ ] Error boundaries per section
+- [ ] Retry options
 - [ ] Graceful degradation
+- [ ] No technical jargon
 
-### Forms
+### Forms (if applicable)
 - [ ] Inline validation
 - [ ] Real-time feedback
-- [ ] Clear labels
-- [ ] Placeholder text
-- [ ] Input masking
-- [ ] Autofill support
-- [ ] Autocomplete attributes
-- [ ] Error summary
+- [ ] Clear labels and placeholders
+- [ ] Error messages near fields
 - [ ] Success confirmation
-- [ ] Form persistence (draft saving)
+- [ ] Autosave / draft persistence
+- [ ] Proper input types
 
 ### Navigation
-- [ ] Consistent header/footer
-- [ ] Breadcrumbs
-- [ ] Back button works
-- [ ] Deep linking
-- [ ] URL reflects state
-- [ ] History management
-- [ ] Scroll position restoration
+- [ ] Consistent patterns
+- [ ] Clear hierarchy
+- [ ] Back/undo works as expected
+- [ ] Deep linking support
+- [ ] State reflected in URL (web)
+- [ ] Breadcrumbs where helpful
 
 ### Interactions
-- [ ] Touch targets 44x44px minimum
-- [ ] Hover states
+- [ ] Appropriate touch/click targets (min 44x44px)
+- [ ] Hover states (desktop)
 - [ ] Active/pressed states
 - [ ] Focus states
 - [ ] Disabled states
-- [ ] Loading states on buttons
+- [ ] Loading states on actions
 - [ ] Confirmation for destructive actions
-- [ ] Undo capability
-- [ ] Keyboard shortcuts
-- [ ] Gesture support (swipe, pinch)
+- [ ] Undo capability where possible
 
 ### Feedback
-- [ ] Toast notifications
-- [ ] Success messages
-- [ ] Error messages
+- [ ] Success notifications
+- [ ] Error notifications
 - [ ] Progress feedback
-- [ ] Haptic feedback (mobile)
-- [ ] Sound feedback (optional)
+- [ ] Sound/haptic feedback (if appropriate)
 
-### Responsive Design
-- [ ] Mobile-first approach
-- [ ] Breakpoints: 320, 640, 768, 1024, 1280, 1536
+### Responsive Design (if applicable)
+- [ ] Works on all target screen sizes
 - [ ] Touch-friendly on mobile
 - [ ] Hover-friendly on desktop
 - [ ] Orientation support
-- [ ] Foldable device support
-- [ ] Safe area insets (notch)
+- [ ] Safe areas (notches, etc.)
 
-### Dark Mode
+### Theming
+- [ ] Dark/light mode (if applicable)
 - [ ] System preference detection
-- [ ] Manual toggle
 - [ ] Persisted preference
-- [ ] Smooth transition
-- [ ] Proper contrast in both modes
-- [ ] Images adapted for dark mode
+- [ ] Proper contrast in all themes
 
 ---
 
 ## 3. SECURITY - Security Hardening
 
 ### Authentication
-- [ ] Secure password hashing (bcrypt/argon2)
-- [ ] Password strength requirements
-- [ ] Secure session management
-- [ ] Token refresh mechanism
-- [ ] Secure cookie settings (HttpOnly, Secure, SameSite)
+- [ ] Secure password hashing (bcrypt, argon2, scrypt)
+- [ ] Password complexity requirements
+- [ ] Secure session/token management
+- [ ] Token expiration and refresh
 - [ ] Session timeout
 - [ ] Session invalidation on password change
-- [ ] Remember me functionality
+- [ ] Logout functionality
 - [ ] Device/session management
-- [ ] Logout from all devices
 
-### Multi-Factor Authentication
-- [ ] TOTP support (authenticator apps)
-- [ ] SMS backup (with warnings)
-- [ ] Recovery codes
-- [ ] Security keys (WebAuthn)
-- [ ] Email verification
+### Multi-Factor Authentication (if applicable)
+- [ ] TOTP support
+- [ ] Backup codes
+- [ ] Recovery options
+- [ ] Security keys (WebAuthn/FIDO2)
 
 ### Authorization
-- [ ] Server-side permission checks
-- [ ] Role-based access control
+- [ ] Server-side permission checks on ALL operations
+- [ ] Role-based or attribute-based access control
 - [ ] Resource-level permissions
-- [ ] API endpoint protection
-- [ ] Admin panel protection
-- [ ] Rate limiting per role
+- [ ] Principle of least privilege
 
 ### Input Security
+- [ ] Input validation (server-side REQUIRED)
 - [ ] Input sanitization
-- [ ] Output encoding
-- [ ] XSS prevention
-- [ ] SQL injection prevention
-- [ ] NoSQL injection prevention
-- [ ] Command injection prevention
-- [ ] Path traversal prevention
+- [ ] Output encoding/escaping
+- [ ] Injection prevention (SQL, NoSQL, command, XSS)
 - [ ] File upload validation
 - [ ] Content-Type validation
-- [ ] File size limits
+- [ ] Size limits
 
-### Headers & Transport
-- [ ] HTTPS everywhere
-- [ ] HSTS header
-- [ ] Content-Security-Policy
-- [ ] X-Frame-Options
-- [ ] X-Content-Type-Options
-- [ ] Referrer-Policy
-- [ ] Permissions-Policy
+### Transport Security
+- [ ] TLS/HTTPS everywhere
+- [ ] Secure headers (HSTS, CSP, X-Frame-Options, etc.)
+- [ ] Secure cookies (HttpOnly, Secure, SameSite)
 - [ ] CORS configuration
+- [ ] Certificate management
 
 ### Rate Limiting
 - [ ] Per-IP limits
 - [ ] Per-user limits
 - [ ] Per-endpoint limits
-- [ ] Graduated responses
-- [ ] Bypass for trusted sources
-- [ ] DDoS protection
+- [ ] Brute force protection
+- [ ] DDoS mitigation
 
-### Secrets & Keys
-- [ ] Environment variables
-- [ ] Secret rotation
-- [ ] No secrets in code
+### Secrets Management
+- [ ] Environment variables (not in code)
+- [ ] Secret rotation capability
 - [ ] No secrets in logs
-- [ ] Vault/secret manager
-- [ ] API key scoping
+- [ ] Vault/secret manager (production)
 
 ### Audit & Monitoring
-- [ ] Login attempt logging
-- [ ] Failed auth logging
-- [ ] Permission change logging
+- [ ] Authentication event logging
+- [ ] Authorization failure logging
 - [ ] Suspicious activity detection
-- [ ] IP geolocation anomalies
-- [ ] Security event alerts
+- [ ] Security alerting
 
 ---
 
-## 4. A11Y - Accessibility (WCAG 2.1 AA+)
+## 4. A11Y - Accessibility
 
-### Semantic HTML
-- [ ] Proper heading hierarchy (h1-h6)
-- [ ] Landmark regions (nav, main, aside)
-- [ ] Lists for lists
+*Applies to web, mobile, desktop - adapt to platform standards*
+
+### Semantic Structure
+- [ ] Proper heading hierarchy
+- [ ] Meaningful landmarks/regions
+- [ ] Lists for list content
 - [ ] Tables for tabular data
-- [ ] Buttons for actions
-- [ ] Links for navigation
-- [ ] Form element associations
+- [ ] Buttons for actions, links for navigation
 
-### ARIA
-- [ ] aria-label on icon buttons
-- [ ] aria-labelledby for complex widgets
-- [ ] aria-describedby for help text
-- [ ] aria-expanded for accordions
-- [ ] aria-selected for tabs
-- [ ] aria-live for dynamic content
-- [ ] aria-busy for loading states
-- [ ] role attributes where needed
-- [ ] aria-hidden for decorative elements
+### Assistive Technology
+- [ ] Screen reader compatible
+- [ ] Labels on interactive elements
+- [ ] Descriptions for complex widgets
+- [ ] Live regions for dynamic content
+- [ ] Proper focus management
 
-### Keyboard
-- [ ] Tab navigation works
-- [ ] Logical tab order
-- [ ] Focus visible
-- [ ] Skip links
+### Keyboard/Input
+- [ ] Full keyboard navigation
+- [ ] Logical focus order
+- [ ] Visible focus indicators
 - [ ] No keyboard traps
-- [ ] Escape closes modals
-- [ ] Arrow keys for widgets
-- [ ] Enter/Space for buttons
+- [ ] Skip navigation (web)
+- [ ] Keyboard shortcuts (if applicable)
 
 ### Visual
-- [ ] 4.5:1 contrast (text)
-- [ ] 3:1 contrast (large text, UI)
+- [ ] Sufficient color contrast (4.5:1 text, 3:1 UI)
 - [ ] Not color-only information
-- [ ] Focus indicators visible
-- [ ] Text resizable to 200%
-- [ ] Zoom to 400% works
-- [ ] No horizontal scroll at 320px
-
-### Motion
-- [ ] Reduced motion support
-- [ ] No autoplay video
-- [ ] Pause/stop controls
-- [ ] No flashing > 3Hz
-- [ ] Animation duration controls
+- [ ] Text resizable without breaking
+- [ ] Zoom support
+- [ ] Reduced motion option
 
 ### Forms
 - [ ] Visible labels
 - [ ] Error identification
 - [ ] Error suggestions
 - [ ] Required field indication
-- [ ] Input purpose (autocomplete)
-- [ ] Inline validation accessible
+- [ ] Accessible validation messages
 
 ### Media
 - [ ] Alt text on images
 - [ ] Captions on video
 - [ ] Transcripts for audio
-- [ ] Audio descriptions
-- [ ] No audio autoplay
+- [ ] No autoplay
 
 ### Testing
-- [ ] Screen reader tested (NVDA, VoiceOver)
+- [ ] Screen reader tested
 - [ ] Keyboard-only tested
-- [ ] High contrast mode tested
-- [ ] axe-core automated testing
-- [ ] Manual accessibility audit
+- [ ] Automated a11y testing
+- [ ] Manual audit completed
 
 ---
 
 ## 5. ARCH - Architecture & Code Quality
 
 ### Structure
-- [ ] Consistent folder structure
-- [ ] Feature-based organization
+- [ ] Consistent file/folder organization
 - [ ] Clear separation of concerns
-- [ ] Colocation (related files together)
-- [ ] Barrel exports where appropriate
+- [ ] Logical module boundaries
+- [ ] Predictable patterns
 
 ### Principles
 - [ ] DRY (Don't Repeat Yourself)
-- [ ] SOLID principles
-- [ ] Single responsibility
-- [ ] Open/closed principle
+- [ ] Single Responsibility
+- [ ] Open/Closed
 - [ ] Composition over inheritance
+- [ ] Dependency inversion
 - [ ] Immutability preference
-- [ ] Pure functions where possible
 
-### TypeScript
+### Type Safety (if using typed language)
 - [ ] Strict mode enabled
-- [ ] No 'any' types
-- [ ] No 'as' assertions (prefer type guards)
-- [ ] Proper generics
-- [ ] Discriminated unions
-- [ ] Exhaustive switch statements
-- [ ] Proper null handling
+- [ ] No unsafe type assertions
+- [ ] Proper null/undefined handling
+- [ ] Complete type coverage
 
-### Components
-- [ ] Small, focused components
-- [ ] Proper prop types
-- [ ] Default props
-- [ ] Memoization where needed
-- [ ] Error boundaries
-- [ ] Loading boundaries (Suspense)
-- [ ] Proper key props
+### Code Quality
+- [ ] Small, focused functions/methods
+- [ ] Clear naming conventions
+- [ ] Consistent style
+- [ ] No dead code
+- [ ] No unused dependencies
+- [ ] Proper error handling patterns
 
-### State Management
+### State Management (if applicable)
 - [ ] Minimal global state
 - [ ] Colocated state
-- [ ] Derived state (not duplicated)
-- [ ] Server state separation
-- [ ] Optimistic updates
-- [ ] Cache invalidation
-
-### Patterns
-- [ ] Consistent async patterns
-- [ ] Consistent error handling
-- [ ] Consistent API calls
-- [ ] Consistent form handling
-- [ ] Custom hooks extraction
-- [ ] Utility function organization
+- [ ] No duplicated state
+- [ ] Clear data flow
+- [ ] Cache invalidation strategy
 
 ### Dependencies
 - [ ] Minimal dependencies
-- [ ] No duplicate functionality
 - [ ] Regular updates
 - [ ] Security audit
 - [ ] License compliance
-- [ ] Bundle impact awareness
 
 ---
 
@@ -416,199 +350,158 @@ Run `/qa full` for complete audit, or `/qa [phase]` for specific areas.
 - [ ] README with setup steps
 - [ ] Architecture overview
 - [ ] API documentation
-- [ ] Component documentation
 - [ ] Contributing guide
-- [ ] Code of conduct
 - [ ] Changelog
-- [ ] Decision records (ADRs)
 
 ### Setup
-- [ ] One-command setup
-- [ ] .env.example file
-- [ ] Docker development option
-- [ ] Seed data scripts
+- [ ] Simple setup process
+- [ ] Environment config template
+- [ ] Seed/sample data
 - [ ] Clear prerequisites
 
 ### Tooling
-- [ ] ESLint configured
-- [ ] Prettier configured
-- [ ] TypeScript configured
-- [ ] Git hooks (husky)
-- [ ] Commit message linting
-- [ ] Pre-commit checks
+- [ ] Linter configured
+- [ ] Formatter configured
+- [ ] Type checker (if applicable)
+- [ ] Git hooks
 - [ ] Editor config
 
 ### Development
-- [ ] Fast hot reload
-- [ ] Fast builds (< 30s)
-- [ ] Parallel task running
-- [ ] Watch mode for tests
-- [ ] Debug configuration
-- [ ] Source maps
+- [ ] Fast feedback loop (hot reload, watch mode)
+- [ ] Reasonable build times
+- [ ] Debug tooling
+- [ ] Local development works offline
 
 ### Git
 - [ ] Branch naming convention
 - [ ] Commit message convention
-- [ ] PR template
+- [ ] PR/MR template
 - [ ] Issue templates
 - [ ] Protected branches
-- [ ] Required reviews
 
 ### CI/CD
 - [ ] Automated testing
 - [ ] Automated linting
-- [ ] Type checking
 - [ ] Build verification
-- [ ] Preview deployments
+- [ ] Preview/staging deployments
 - [ ] Automated releases
 
 ---
 
 ## 7. SEO - Search Engine Optimization
 
-### Meta Tags
-- [ ] Unique titles (< 60 chars)
-- [ ] Unique descriptions (< 160 chars)
-- [ ] Canonical URLs
-- [ ] Robots meta (index, follow)
-- [ ] Viewport meta
+*Skip if not applicable (API-only, internal tools, native apps)*
 
-### Social
-- [ ] Open Graph tags (og:title, og:description, og:image)
-- [ ] Twitter Cards (twitter:card, twitter:title, etc.)
-- [ ] Social image dimensions (1200x630)
-- [ ] Social image alt text
+### Meta Tags
+- [ ] Unique titles
+- [ ] Unique descriptions
+- [ ] Canonical URLs
+- [ ] Robots directives
+
+### Social Sharing
+- [ ] Open Graph tags
+- [ ] Twitter/X Cards
+- [ ] Social images
 
 ### Structured Data
-- [ ] JSON-LD schema
-- [ ] Organization schema
-- [ ] Website schema
-- [ ] Breadcrumb schema
-- [ ] Article schema (if applicable)
-- [ ] Product schema (if applicable)
-- [ ] FAQ schema (if applicable)
+- [ ] Schema.org markup (JSON-LD)
+- [ ] Relevant schemas for content type
 
-### Technical
+### Technical SEO
 - [ ] XML sitemap
-- [ ] Sitemap in robots.txt
-- [ ] robots.txt configured
+- [ ] robots.txt
 - [ ] Clean URLs
 - [ ] No duplicate content
-- [ ] Proper redirects (301)
+- [ ] Proper redirects
 - [ ] No broken links
-- [ ] HTTPS
 
 ### Content
 - [ ] Heading hierarchy
-- [ ] Internal linking
 - [ ] Image alt text
-- [ ] Descriptive anchor text
-- [ ] Readable URLs
+- [ ] Internal linking
 - [ ] Fast page load
-
-### Crawlability
-- [ ] JavaScript rendered content indexable
-- [ ] Infinite scroll with pagination
-- [ ] Proper 404 pages
-- [ ] Proper error pages
-- [ ] No orphan pages
+- [ ] Mobile-friendly
 
 ---
 
 ## 8. RESILIENCE - Error Handling & Recovery
 
 ### Error Boundaries
-- [ ] Global error boundary
-- [ ] Route-level error boundaries
-- [ ] Component-level error boundaries
-- [ ] Error recovery UI
-- [ ] Error reporting
+- [ ] Global error catching
+- [ ] Graceful error UI
+- [ ] Error recovery options
+- [ ] Error reporting to monitoring
 
-### API Errors
+### API/Service Errors
 - [ ] Consistent error format
-- [ ] Proper HTTP status codes
-- [ ] Error messages (user-friendly)
-- [ ] Error codes (machine-readable)
-- [ ] Stack traces (dev only)
+- [ ] Appropriate error codes
+- [ ] User-friendly messages
+- [ ] No sensitive info in errors
 
 ### Network Resilience
 - [ ] Timeout handling
-- [ ] Retry with exponential backoff
-- [ ] Circuit breaker pattern
+- [ ] Retry with backoff
+- [ ] Circuit breaker pattern (if applicable)
 - [ ] Offline detection
-- [ ] Reconnection logic
 - [ ] Request deduplication
 
 ### Graceful Degradation
 - [ ] Feature flags
-- [ ] Fallback UI
-- [ ] Fallback data
-- [ ] Progressive enhancement
+- [ ] Fallback UI/behavior
 - [ ] Third-party failure isolation
+- [ ] Progressive enhancement
 
 ### Monitoring
-- [ ] Error tracking (Sentry, etc.)
-- [ ] Error grouping
+- [ ] Error tracking service
 - [ ] Error alerting
-- [ ] Error context
+- [ ] Error context/breadcrumbs
 - [ ] User impact tracking
-- [ ] Error trends
 
 ### Recovery
-- [ ] Auto-retry
-- [ ] Manual retry
-- [ ] Data recovery
+- [ ] Auto-retry where appropriate
+- [ ] Manual retry option
+- [ ] Data recovery (drafts, etc.)
 - [ ] Session recovery
-- [ ] Draft saving
-- [ ] Conflict resolution
 
 ---
 
 ## 9. DATA - Data Integrity & Consistency
 
-### Schema
+### Schema (if using database)
 - [ ] Proper data types
-- [ ] NOT NULL constraints
-- [ ] Foreign key constraints
-- [ ] Unique constraints
-- [ ] Check constraints
-- [ ] Default values
+- [ ] Constraints (NOT NULL, UNIQUE, FK)
 - [ ] Proper indexes
+- [ ] Default values
 
 ### Validation
-- [ ] Client-side validation
-- [ ] Server-side validation
-- [ ] Schema validation (Zod, etc.)
+- [ ] Client-side validation (UX)
+- [ ] Server-side validation (REQUIRED)
+- [ ] Schema validation
 - [ ] Sanitization
-- [ ] Type coercion
 
 ### Consistency
 - [ ] Transaction handling
-- [ ] Optimistic locking
+- [ ] Optimistic locking (if needed)
 - [ ] Conflict resolution
-- [ ] Eventual consistency handling
 - [ ] Cache invalidation
 
 ### Migrations
 - [ ] Version controlled
-- [ ] Reversible migrations
-- [ ] Zero-downtime migrations
-- [ ] Data migrations
-- [ ] Migration testing
+- [ ] Reversible
+- [ ] Tested before production
+- [ ] Zero-downtime capable
 
-### Backup
+### Backup & Recovery
 - [ ] Automated backups
 - [ ] Point-in-time recovery
 - [ ] Backup testing
 - [ ] Disaster recovery plan
-- [ ] Data export
 
 ### Privacy
 - [ ] Data minimization
-- [ ] Data retention policies
-- [ ] Data deletion (right to be forgotten)
-- [ ] Data portability (export)
-- [ ] Anonymization
+- [ ] Retention policies
+- [ ] Deletion capability
+- [ ] Export capability
 
 ---
 
@@ -616,17 +509,15 @@ Run `/qa full` for complete audit, or `/qa [phase]` for specific areas.
 
 ### Deployment
 - [ ] Zero-downtime deployment
-- [ ] Blue/green or canary
 - [ ] Rollback capability
 - [ ] Feature flags
 - [ ] Environment parity
 
 ### Infrastructure
-- [ ] Auto-scaling
-- [ ] Load balancing
-- [ ] Multi-region (if needed)
+- [ ] Auto-scaling (if applicable)
+- [ ] Load balancing (if applicable)
 - [ ] CDN configuration
-- [ ] Database scaling
+- [ ] Database scaling strategy
 
 ### Monitoring
 - [ ] Uptime monitoring
@@ -634,7 +525,6 @@ Run `/qa full` for complete audit, or `/qa [phase]` for specific areas.
 - [ ] Error monitoring
 - [ ] Log aggregation
 - [ ] Alerting rules
-- [ ] On-call rotation
 
 ### Security
 - [ ] SSL/TLS certificates
@@ -646,41 +536,37 @@ Run `/qa full` for complete audit, or `/qa [phase]` for specific areas.
 ### Cost
 - [ ] Resource limits
 - [ ] Cost monitoring
-- [ ] Cost alerts
-- [ ] Right-sizing
-- [ ] Reserved capacity
+- [ ] Alerts for anomalies
 
 ---
 
 ## 11. I18N - Internationalization
 
+*Skip if single-language only*
+
 ### Translation
 - [ ] Externalized strings
-- [ ] Translation management
-- [ ] Pluralization rules
-- [ ] Gender handling
+- [ ] No hardcoded text
+- [ ] Pluralization support
 - [ ] Context for translators
 
 ### Formatting
-- [ ] Date/time formatting
+- [ ] Date/time localization
 - [ ] Number formatting
 - [ ] Currency formatting
-- [ ] Relative time
 - [ ] Timezone handling
 
 ### Layout
-- [ ] RTL support
+- [ ] RTL support (if applicable)
 - [ ] Text expansion room
-- [ ] Dynamic layout
-- [ ] Font support
-- [ ] Character encoding (UTF-8)
+- [ ] Font support for all languages
+- [ ] Proper encoding (UTF-8)
 
 ### Content
 - [ ] Language detection
 - [ ] Language switcher
-- [ ] URL structure (/en/, /es/)
-- [ ] hreflang tags
-- [ ] Default language fallback
+- [ ] Proper URL structure
+- [ ] Fallback language
 
 ---
 
@@ -688,10 +574,10 @@ Run `/qa full` for complete audit, or `/qa [phase]` for specific areas.
 
 ### Privacy
 - [ ] Privacy policy
-- [ ] Cookie policy
-- [ ] Cookie consent banner
-- [ ] GDPR compliance
-- [ ] CCPA compliance
+- [ ] Cookie policy (if applicable)
+- [ ] Cookie consent (if required)
+- [ ] GDPR compliance (if applicable)
+- [ ] CCPA compliance (if applicable)
 - [ ] Data processing agreements
 
 ### Terms
@@ -699,69 +585,54 @@ Run `/qa full` for complete audit, or `/qa [phase]` for specific areas.
 - [ ] User agreements
 - [ ] Refund policy (if applicable)
 - [ ] Copyright notices
-- [ ] License information
 
 ### Accessibility
 - [ ] Accessibility statement
-- [ ] VPAT (if required)
 - [ ] Compliance documentation
 
-### Age
-- [ ] Age verification (if needed)
-- [ ] COPPA compliance (if kids)
+### Age Restrictions (if applicable)
+- [ ] Age verification
+- [ ] COPPA compliance
 - [ ] Age-gated content
 
 ---
 
 ## 13. ANALYTICS - Analytics & Tracking
 
+*Skip if not tracking users*
+
 ### Core Analytics
-- [ ] Page views
+- [ ] Page/screen views
 - [ ] User sessions
-- [ ] Unique visitors
-- [ ] Bounce rate
-- [ ] Session duration
+- [ ] User retention
 - [ ] Traffic sources
 
 ### Events
-- [ ] Click tracking
-- [ ] Form submissions
-- [ ] Downloads
-- [ ] Video plays
-- [ ] Custom events
+- [ ] Key action tracking
 - [ ] Conversion goals
-
-### User Journey
 - [ ] Funnel analysis
-- [ ] User flows
-- [ ] Drop-off points
-- [ ] Path analysis
-- [ ] Attribution
+- [ ] Custom events
 
 ### Technical
 - [ ] Performance metrics
 - [ ] Error tracking
-- [ ] Core Web Vitals
-- [ ] API performance
 - [ ] Feature usage
 
 ### Privacy-Compliant
 - [ ] Consent management
-- [ ] IP anonymization
-- [ ] Data retention
-- [ ] User opt-out
-- [ ] Cookie-less options
+- [ ] IP anonymization (if required)
+- [ ] Data retention limits
+- [ ] Opt-out option
 
 ---
 
 ## 14. TESTING - Test Coverage
 
 ### Unit Tests
-- [ ] Utility functions
 - [ ] Business logic
-- [ ] Hooks
-- [ ] Services
-- [ ] 80%+ coverage
+- [ ] Utility functions
+- [ ] Critical paths
+- [ ] Edge cases
 
 ### Integration Tests
 - [ ] API endpoints
@@ -769,239 +640,182 @@ Run `/qa full` for complete audit, or `/qa [phase]` for specific areas.
 - [ ] External services
 - [ ] Authentication flows
 
-### E2E Tests
-- [ ] Critical user paths
-- [ ] Checkout flow (if applicable)
-- [ ] Authentication
+### End-to-End Tests
+- [ ] Critical user journeys
+- [ ] Cross-browser/platform (if applicable)
 - [ ] Core features
-- [ ] Cross-browser
 
-### Visual Tests
-- [ ] Component screenshots
+### Additional Testing (as applicable)
 - [ ] Visual regression
-- [ ] Responsive screenshots
-- [ ] Dark mode screenshots
-
-### Performance Tests
-- [ ] Load testing
-- [ ] Stress testing
-- [ ] Spike testing
-- [ ] Soak testing
-
-### Security Tests
-- [ ] Penetration testing
-- [ ] Dependency scanning
-- [ ] SAST/DAST
-- [ ] Security headers
+- [ ] Performance testing
+- [ ] Security testing
+- [ ] Accessibility testing
 
 ---
 
 ## 15. API - API Design
 
-### REST Standards
-- [ ] Proper HTTP methods
-- [ ] Proper status codes
-- [ ] Resource naming
-- [ ] Consistent URLs
-- [ ] Query parameters
+*Applies to REST, GraphQL, gRPC, or any API*
+
+### Design
+- [ ] Consistent conventions
+- [ ] Proper status/error codes
+- [ ] Clear resource naming
 - [ ] Pagination
-- [ ] Filtering
-- [ ] Sorting
+- [ ] Filtering/sorting
 
 ### Documentation
-- [ ] OpenAPI/Swagger
-- [ ] Request examples
-- [ ] Response examples
+- [ ] API spec (OpenAPI, GraphQL schema, etc.)
+- [ ] Request/response examples
 - [ ] Error examples
 - [ ] Authentication docs
 
 ### Versioning
 - [ ] Version strategy
 - [ ] Deprecation policy
-- [ ] Breaking change handling
 - [ ] Migration guides
 
 ### Performance
 - [ ] Response compression
 - [ ] Caching headers
-- [ ] Field selection
-- [ ] Batch endpoints
-- [ ] Rate limiting
+- [ ] Field selection/sparse fieldsets
+- [ ] Batch operations
 
 ### Security
-- [ ] Authentication
-- [ ] Authorization
+- [ ] Authentication required
+- [ ] Authorization checked
 - [ ] Input validation
-- [ ] Output sanitization
 - [ ] Rate limiting
 
 ---
 
 ## 16. REALTIME - Real-time Features
 
-### WebSockets
+*Skip if not using real-time*
+
+### Connection
 - [ ] Connection management
 - [ ] Reconnection logic
-- [ ] Heartbeat/ping-pong
-- [ ] Message queuing
-- [ ] Backpressure handling
+- [ ] Heartbeat/keep-alive
+- [ ] Graceful disconnection
 
 ### State Sync
 - [ ] Optimistic updates
 - [ ] Conflict resolution
-- [ ] Eventual consistency
+- [ ] Eventual consistency handling
 - [ ] Offline queue
-- [ ] Sync indicators
 
-### Presence
+### Presence (if applicable)
 - [ ] Online indicators
 - [ ] Typing indicators
 - [ ] Activity status
-- [ ] Last seen
 
 ### Notifications
 - [ ] Push notifications
 - [ ] In-app notifications
 - [ ] Email notifications
-- [ ] SMS notifications
 - [ ] Notification preferences
 
 ---
 
 ## 17. MEDIA - Media Handling
 
-### Images
-- [ ] Upload validation
+*Skip if not handling media*
+
+### Upload
 - [ ] Size limits
 - [ ] Type validation
-- [ ] Virus scanning
-- [ ] Automatic optimization
+- [ ] Virus scanning (if applicable)
+- [ ] Progress indication
+
+### Processing
+- [ ] Image optimization
 - [ ] Thumbnail generation
+- [ ] Video transcoding (if applicable)
+- [ ] Format conversion
+
+### Delivery
 - [ ] CDN delivery
-
-### Video
-- [ ] Upload handling
-- [ ] Transcoding
-- [ ] Adaptive streaming (HLS/DASH)
-- [ ] Thumbnail extraction
-- [ ] Video player
-- [ ] Progress tracking
-
-### Audio
-- [ ] Upload handling
-- [ ] Format support
-- [ ] Waveform generation
-- [ ] Audio player
-- [ ] Progress tracking
-
-### Documents
-- [ ] PDF handling
-- [ ] Preview generation
-- [ ] Download handling
-- [ ] Virus scanning
+- [ ] Responsive serving
+- [ ] Lazy loading
+- [ ] Caching
 
 ---
 
 ## 18. SCALE - Scale & Infrastructure
 
+*Depth depends on scale requirements*
+
 ### Database
-- [ ] Read replicas
+- [ ] Read replicas (if needed)
 - [ ] Connection pooling
 - [ ] Query optimization
-- [ ] Sharding strategy
-- [ ] Archival strategy
+- [ ] Sharding strategy (if needed)
 
 ### Caching
 - [ ] Multi-layer caching
 - [ ] Cache invalidation
-- [ ] Cache warming
-- [ ] Distributed cache
-- [ ] Cache stampede prevention
+- [ ] Distributed cache (if needed)
 
-### Queues
-- [ ] Background jobs
-- [ ] Job retry logic
-- [ ] Dead letter queues
-- [ ] Job prioritization
+### Queues (if applicable)
+- [ ] Background job processing
+- [ ] Retry logic
+- [ ] Dead letter handling
 - [ ] Job monitoring
 
-### Search
+### Search (if applicable)
 - [ ] Full-text search
-- [ ] Faceted search
 - [ ] Relevance ranking
 - [ ] Search suggestions
-- [ ] Search analytics
-
-### CDN
-- [ ] Global distribution
-- [ ] Edge caching
-- [ ] Purge capability
-- [ ] Custom domains
-- [ ] SSL at edge
 
 ---
 
 ## 19. SOCIAL - Social Features
 
+*Skip if not a social platform*
+
 ### Sharing
-- [ ] Share buttons
-- [ ] Copy link
-- [ ] Native share (mobile)
+- [ ] Share functionality
 - [ ] Social meta tags
-- [ ] Share analytics
+- [ ] Embed support
 
-### Embeds
-- [ ] oEmbed support
-- [ ] Embed codes
-- [ ] Responsive embeds
-- [ ] Embed customization
-
-### Content
-- [ ] User-generated content
-- [ ] Content moderation
-- [ ] Spam detection
+### Content Moderation
+- [ ] User-generated content handling
 - [ ] Report system
-- [ ] Block/mute
+- [ ] Spam detection
+- [ ] Block/mute functionality
 
 ### Engagement
 - [ ] Likes/reactions
 - [ ] Comments
-- [ ] Shares/reposts
 - [ ] Follows
 - [ ] Mentions
-- [ ] Hashtags
+- [ ] Notifications
 
 ---
 
 ## 20. MOBILE - Mobile & PWA
 
-### PWA
+*Skip if not mobile/PWA*
+
+### PWA (Web)
 - [ ] Web app manifest
 - [ ] Service worker
 - [ ] Offline support
 - [ ] Install prompt
 - [ ] App icons
-- [ ] Splash screen
 
 ### Mobile UX
 - [ ] Touch-optimized
-- [ ] Swipe gestures
-- [ ] Pull to refresh
-- [ ] Bottom navigation
-- [ ] Safe areas (notch)
+- [ ] Gestures
+- [ ] Native patterns
+- [ ] Safe areas
 
-### Native Features
-- [ ] Camera access
+### Native Features (if applicable)
+- [ ] Camera/photos
 - [ ] Geolocation
 - [ ] Push notifications
-- [ ] Share target
-- [ ] Clipboard access
-
-### Performance
-- [ ] Mobile-first assets
-- [ ] Reduced motion
-- [ ] Data saver mode
-- [ ] Battery-aware
+- [ ] Biometrics
 
 ---
 
@@ -1009,10 +823,10 @@ Run `/qa full` for complete audit, or `/qa [phase]` for specific areas.
 
 | Level | Meaning | SLA |
 |-------|---------|-----|
-| **P0** | Critical - Site broken, security vuln, data loss | Fix immediately |
-| **P1** | High - Major feature broken, bad UX, legal issue | Fix within hours |
-| **P2** | Medium - Minor bugs, improvements, polish | Fix within days |
-| **P3** | Low - Nice to have, minor polish, optimization | Backlog |
+| **P0** | Critical - Broken, security vuln, data loss | Fix immediately |
+| **P1** | High - Major feature broken, legal issue | Fix within hours |
+| **P2** | Medium - Minor bugs, improvements | Fix within days |
+| **P3** | Low - Nice to have, polish | Backlog |
 
 ---
 
@@ -1021,33 +835,34 @@ Run `/qa full` for complete audit, or `/qa [phase]` for specific areas.
 ```
 /qa full
     │
-    ├── 1. 🔍 SCAN all 20 phases
-    │       └── Search codebase systematically
+    ├── 1. 🔍 IDENTIFY your stack
+    │       └── What framework/language/platform?
+    │       └── What features exist?
+    │       └── Skip irrelevant phases
     │
-    ├── 2. 📋 REPORT findings
+    ├── 2. 🔍 SCAN applicable phases
+    │       └── Search codebase systematically
+    │       └── Check against relevant items
+    │
+    ├── 3. 📋 REPORT findings
     │       └── Prioritized list (P0 → P3)
     │       └── Issue count per phase
-    │       └── Estimated effort
     │
-    ├── 3. 🔧 FIX issues
+    ├── 4. 🔧 FIX issues
     │       └── P0 first, then P1, P2, P3
-    │       └── Batch similar fixes
+    │       └── Use stack-appropriate solutions
     │
-    ├── 4. ✅ VERIFY
+    ├── 5. ✅ VERIFY
     │       └── Build passes
     │       └── Tests pass
-    │       └── Manual verification
     │
-    └── 5. 🚀 DEPLOY
-            └── Commit with detailed message
-            └── Push to trigger deployment
+    └── 6. 🚀 DEPLOY
+            └── Commit & push
 ```
 
 ---
 
 # Benchmark Standards
-
-Compare against the best:
 
 | Company | Known For |
 |---------|-----------|
@@ -1059,19 +874,28 @@ Compare against the best:
 | **Notion** | UX, real-time, offline |
 | **Figma** | Performance, real-time |
 | **Discord** | Real-time, scale, mobile |
+| **Shopify** | E-commerce, scale, i18n |
+| **Airbnb** | UX, i18n, mobile |
 
 ---
 
-# Quick Commands
+# Quick Reference
 
 ```
-/qa full        → Complete 20-phase audit (400+ checks)
-/qa perf        → Performance only
-/qa security    → Security only
-/qa a11y        → Accessibility only
+/qa full        → Complete audit (adapts to your stack)
+/qa perf        → Performance
+/qa security    → Security
+/qa a11y        → Accessibility
 /qa [phase]     → Any specific phase
 ```
 
+**Phases automatically adapt to:**
+- Your framework (React, Vue, Django, Rails, etc.)
+- Your language (TypeScript, Python, Go, etc.)
+- Your platform (Web, Mobile, Desktop, API)
+- Your architecture (Monolith, Microservices, Serverless)
+- Your features (skip what doesn't apply)
+
 ---
 
-**Total: 20 phases, 400+ individual checks, covering every aspect of a production application.**
+**Total: 20 phases, 400+ checks, universally applicable.**
