@@ -16,19 +16,17 @@ function clearProfileCaches() {
   if (typeof window === 'undefined') return;
   try {
     Object.keys(sessionStorage).forEach((key) => {
-      if (key.startsWith('navbar-profile-')) {
+      if (key.startsWith('navbar-profile-') || key.startsWith('profile:') || key.startsWith('user:')) {
         sessionStorage.removeItem(key);
       }
     });
   } catch {}
 }
 
-// Dispatch profile update event so all components can update
+// Dispatch profile update event so all components can update IMMEDIATELY
 function dispatchProfileUpdate(updates: { avatarUrl?: string; bannerUrl?: string; name?: string }) {
   if (typeof window !== 'undefined') {
-    // Clear caches first
     clearProfileCaches();
-    // Then dispatch the event with new data
     window.dispatchEvent(new CustomEvent('devlink:profile-updated', { detail: updates }));
   }
 }
@@ -44,23 +42,37 @@ export function AvatarEditOverlay({ editable }: { editable: boolean }) {
     const file = e.target.files?.[0];
     if (!file) return;
     setSaving(true);
+    
+    // OPTIMISTIC UPDATE: Show local preview IMMEDIATELY (no waiting)
+    const localPreviewUrl = URL.createObjectURL(file);
+    dispatchProfileUpdate({ avatarUrl: localPreviewUrl });
+    
     try {
+      // Upload in background
       const url = await uploadToServer(file);
       
-      // Save to backend (this also clears server-side cache)
-      await fetch("/api/profile", { 
+      // Update with real URL once uploaded
+      dispatchProfileUpdate({ avatarUrl: url });
+      
+      // Save to backend (don't block UI on this)
+      fetch("/api/profile", { 
         method: "PATCH", 
         headers: { "Content-Type": "application/json" }, 
         body: JSON.stringify({ avatarUrl: url }) 
-      });
+      }).then(() => {
+        // Refresh server components after save completes
+        router.refresh();
+      }).catch(console.error);
       
-      // Clear client caches and dispatch event with new URL
-      dispatchProfileUpdate({ avatarUrl: url });
-      
-      // Refresh the page content
+    } catch (error) {
+      // Rollback on error - revert to previous (will refetch from server)
+      console.error('Upload failed:', error);
+      dispatchProfileUpdate({ avatarUrl: undefined });
       router.refresh();
     } finally {
       setSaving(false);
+      // Revoke the blob URL to free memory
+      URL.revokeObjectURL(localPreviewUrl);
       if (inputRef.current) inputRef.current.value = "";
     }
   }
@@ -94,16 +106,33 @@ export function BannerEditOverlay({ editable }: { editable: boolean }) {
     const file = e.target.files?.[0];
     if (!file) return;
     setSaving(true);
+    
+    // OPTIMISTIC UPDATE: Show local preview IMMEDIATELY
+    const localPreviewUrl = URL.createObjectURL(file);
+    dispatchProfileUpdate({ bannerUrl: localPreviewUrl });
+    
     try {
       const url = await uploadToServer(file);
-      await fetch("/api/profile", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ bannerUrl: url }) });
       
-      // Dispatch event BEFORE refresh so components update immediately
+      // Update with real URL
       dispatchProfileUpdate({ bannerUrl: url });
       
+      // Save to backend (don't block UI)
+      fetch("/api/profile", { 
+        method: "PATCH", 
+        headers: { "Content-Type": "application/json" }, 
+        body: JSON.stringify({ bannerUrl: url }) 
+      }).then(() => {
+        router.refresh();
+      }).catch(console.error);
+      
+    } catch (error) {
+      console.error('Upload failed:', error);
+      dispatchProfileUpdate({ bannerUrl: undefined });
       router.refresh();
     } finally {
       setSaving(false);
+      URL.revokeObjectURL(localPreviewUrl);
       if (inputRef.current) inputRef.current.value = "";
     }
   }

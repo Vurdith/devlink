@@ -82,25 +82,35 @@ export const Navbar = memo(function Navbar() {
     const handleProfileUpdate = (event: CustomEvent) => {
       const { avatarUrl: newAvatar, name: newName, profileType: newType } = event.detail || {};
       
-      // Clear cache and update immediately
+      // Clear cache immediately
       if (username) {
         sessionStorage.removeItem(`navbar-profile-${username}`);
       }
       
-      // Update state immediately with new values
+      // Update state immediately with new values - no refetch needed since we have the values directly
       if (newAvatar !== undefined) setAvatarUrl(newAvatar);
       if (newName !== undefined) setDisplayName(newName);
       if (newType !== undefined) setProfileType(newType);
       
-      // Also refetch to ensure consistency
-      fetchProfile(true);
+      // Update the cache with new values for consistency
+      if (username && (newAvatar !== undefined || newName !== undefined || newType !== undefined)) {
+        try {
+          const cacheKey = `navbar-profile-${username}`;
+          const cached = sessionStorage.getItem(cacheKey);
+          const data = cached ? JSON.parse(cached) : { user: { profile: {} } };
+          if (newAvatar !== undefined && data.user?.profile) data.user.profile.avatarUrl = newAvatar;
+          if (newName !== undefined && data.user) data.user.name = newName;
+          if (newType !== undefined && data.user?.profile) data.user.profile.profileType = newType;
+          sessionStorage.setItem(cacheKey, JSON.stringify(data));
+        } catch {}
+      }
     };
 
     window.addEventListener('devlink:profile-updated', handleProfileUpdate as EventListener);
     return () => {
       window.removeEventListener('devlink:profile-updated', handleProfileUpdate as EventListener);
     };
-  }, [username, fetchProfile]);
+  }, [username]);
 
   return (
     <header

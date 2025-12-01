@@ -119,6 +119,8 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
   const { data: session } = useSession();
   const router = useRouter();
   const [avatarError, setAvatarError] = useState(false);
+  // Track updated avatar for current user's posts (instant update when they change avatar)
+  const [currentUserAvatar, setCurrentUserAvatar] = useState<string | null>(null);
   const [modalState, setModalState] = useState<{
     isOpen: boolean;
     type: 'slideshow' | 'grid' | null;
@@ -261,6 +263,29 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
   }, [showActionsMenu]);
 
   const isOwnPost = session?.user?.id === post.userId;
+
+  // Listen for profile updates to update avatar instantly for current user's posts
+  useEffect(() => {
+    if (!isOwnPost) return;
+    
+    const handleProfileUpdate = (event: CustomEvent) => {
+      const { avatarUrl } = event.detail || {};
+      if (avatarUrl !== undefined) {
+        setCurrentUserAvatar(avatarUrl);
+        setAvatarError(false); // Reset error state when avatar updates
+      }
+    };
+
+    window.addEventListener('devlink:profile-updated', handleProfileUpdate as EventListener);
+    return () => {
+      window.removeEventListener('devlink:profile-updated', handleProfileUpdate as EventListener);
+    };
+  }, [isOwnPost]);
+
+  // Determine which avatar URL to use - prioritize live updates for own posts
+  const displayAvatarUrl = isOwnPost && currentUserAvatar !== null 
+    ? currentUserAvatar 
+    : post.user.profile?.avatarUrl;
 
   const handleLike = useCallback(async () => {
     if (!session?.user?.id) return;
@@ -583,17 +608,26 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
             onClick={navigateToProfile}
             className="relative group cursor-pointer flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12"
           >
-            {!avatarError && post.user.profile?.avatarUrl ? (
-              <Image
-                src={post.user.profile.avatarUrl}
-                alt={post.user.name || post.user.username}
-                width={48}
-                height={48}
-                className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover border-2 border-white/20 group-hover:opacity-80 transition-opacity"
-                loading="lazy"
-                referrerPolicy="no-referrer"
-                onError={() => setAvatarError(true)}
-              />
+            {!avatarError && displayAvatarUrl ? (
+              // Use regular img for blob URLs (instant local preview), next/image for remote URLs
+              displayAvatarUrl.startsWith('blob:') ? (
+                <img
+                  src={displayAvatarUrl}
+                  alt={post.user.name || post.user.username}
+                  className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover border-2 border-white/20 group-hover:opacity-80 transition-opacity"
+                />
+              ) : (
+                <Image
+                  src={displayAvatarUrl}
+                  alt={post.user.name || post.user.username}
+                  width={48}
+                  height={48}
+                  className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover border-2 border-white/20 group-hover:opacity-80 transition-opacity"
+                  loading="lazy"
+                  referrerPolicy="no-referrer"
+                  onError={() => setAvatarError(true)}
+                />
+              )
             ) : (
               <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-white/20 bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center group-hover:opacity-80 transition-opacity">
                 <span className="text-white font-semibold text-xs sm:text-sm">

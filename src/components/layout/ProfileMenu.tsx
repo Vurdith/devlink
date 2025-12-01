@@ -39,9 +39,30 @@ const menuItems = [
   },
 ];
 
-export const ProfileMenu = memo(function ProfileMenu({ username, avatarUrl, name, profileType }: ProfileMenuProps) {
+export const ProfileMenu = memo(function ProfileMenu({ username, avatarUrl: initialAvatarUrl, name, profileType }: ProfileMenuProps) {
   const [open, setOpen] = useState(false);
+  const [currentAvatarUrl, setCurrentAvatarUrl] = useState<string | undefined>(initialAvatarUrl);
   const menuRef = useRef<HTMLDivElement>(null);
+
+  // Update avatar when prop changes
+  useEffect(() => {
+    setCurrentAvatarUrl(initialAvatarUrl);
+  }, [initialAvatarUrl]);
+
+  // Listen for profile updates for instant avatar updates
+  useEffect(() => {
+    const handleProfileUpdate = (event: CustomEvent) => {
+      const { avatarUrl: newAvatar } = event.detail || {};
+      if (newAvatar !== undefined) {
+        setCurrentAvatarUrl(newAvatar);
+      }
+    };
+
+    window.addEventListener('devlink:profile-updated', handleProfileUpdate as EventListener);
+    return () => {
+      window.removeEventListener('devlink:profile-updated', handleProfileUpdate as EventListener);
+    };
+  }, []);
 
   useEffect(() => {
     if (!open) return;
@@ -79,7 +100,7 @@ export const ProfileMenu = memo(function ProfileMenu({ username, avatarUrl, name
         )}
         onClick={() => setOpen(!open)}
       >
-        <Avatar size={36} src={avatarUrl} />
+        <Avatar size={36} src={currentAvatarUrl} />
         <div className="hidden sm:block text-left">
           <div className="text-sm font-medium text-white leading-tight">
             {name || username}
@@ -115,7 +136,7 @@ export const ProfileMenu = memo(function ProfileMenu({ username, avatarUrl, name
         {/* Header with user info */}
         <div className="p-4 border-b border-white/10 bg-gradient-to-br from-white/5 to-transparent">
           <div className="flex items-center gap-3">
-            <Avatar size={48} src={avatarUrl} />
+            <Avatar size={48} src={currentAvatarUrl} />
             <div className="flex-1 min-w-0">
               <div className="font-semibold text-white truncate">
                 {name || username}

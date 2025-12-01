@@ -44,18 +44,28 @@ function useProfileUpdates() {
 export function ProfileBanner({ initialBannerUrl, isOwnProfile }: ProfileBannerProps) {
   const { bannerUrl: updatedBannerUrl } = useProfileUpdates();
   const bannerUrl = updatedBannerUrl !== undefined ? updatedBannerUrl : initialBannerUrl;
+  const isBlob = bannerUrl?.startsWith('blob:');
 
   return (
     <div className="relative h-36 sm:h-64 w-full group">
       {bannerUrl ? (
-        <Image 
-          src={bannerUrl} 
-          alt="Banner" 
-          fill 
-          className="object-cover" 
-          priority 
-          key={bannerUrl} // Force re-render when URL changes
-        />
+        // Use regular img for blob URLs (instant local preview), next/image for remote URLs
+        isBlob ? (
+          <img 
+            src={bannerUrl} 
+            alt="Banner" 
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+        ) : (
+          <Image 
+            src={bannerUrl} 
+            alt="Banner" 
+            fill 
+            className="object-cover" 
+            priority 
+            key={bannerUrl}
+          />
+        )
       ) : (
         <div className="h-full w-full bg-gradient-to-br from-purple-900/50 via-purple-800/30 to-indigo-900/50" />
       )}
