@@ -49,6 +49,7 @@ export const metadata: Metadata = {
     shortcut: "/favicon-32x32.png",
     apple: "/logo/logo.png",
   },
+  manifest: "/manifest.json",
   // Open Graph meta tags for social sharing
   openGraph: {
     type: "website",

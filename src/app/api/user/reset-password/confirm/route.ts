@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
     // Hash new password
     const hashedNewPassword = await hash(newPassword, 12);
 
-    // Update user password and delete used token
+    // Update user password, delete used token, and invalidate all sessions
     await prisma.$transaction([
       prisma.user.update({
         where: { id: resetToken.user.id },
@@ -88,11 +88,12 @@ export async function POST(request: NextRequest) {
       }),
       prisma.passwordResetToken.delete({
         where: { id: resetToken.id }
+      }),
+      // Invalidate all sessions for this user - forces re-login everywhere
+      prisma.session.deleteMany({
+        where: { userId: resetToken.user.id }
       })
     ]);
-
-    // TODO: Invalidate all sessions to force re-login
-    // This would require implementing session management
 
     return NextResponse.json({ 
       success: true,

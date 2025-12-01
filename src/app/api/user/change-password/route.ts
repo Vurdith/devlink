@@ -74,21 +74,24 @@ export async function POST(request: NextRequest) {
     // Hash new password
     const hashedNewPassword = await hash(newPassword, 12);
 
-    // Update password
-    await prisma.user.update({
-      where: { id: session.user.id },
-      data: { 
-        password: hashedNewPassword,
-        updatedAt: new Date()
-      }
-    });
-
-    // TODO: Invalidate all sessions to force re-login
-    // This would require implementing session management
+    // Update password and invalidate all sessions (force re-login on all devices)
+    await prisma.$transaction([
+      prisma.user.update({
+        where: { id: session.user.id },
+        data: { 
+          password: hashedNewPassword,
+          updatedAt: new Date()
+        }
+      }),
+      // Invalidate all sessions for this user - forces re-login everywhere
+      prisma.session.deleteMany({
+        where: { userId: session.user.id }
+      })
+    ]);
 
     return NextResponse.json({ 
       success: true,
-      message: "Password updated successfully" 
+      message: "Password updated successfully. Please log in again on all devices." 
     });
 
   } catch (error) {
