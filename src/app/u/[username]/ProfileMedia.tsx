@@ -82,12 +82,11 @@ export function ProfileAvatar({ initialAvatarUrl, isOwnProfile }: ProfileAvatarP
   return (
     <div className="relative -mt-12 sm:-mt-16 z-20">
       <div className="relative w-20 h-20 sm:w-28 sm:h-28 group">
-        <div className="absolute -inset-1 bg-gradient-to-br from-purple-500 to-purple-700 rounded-full opacity-75 blur-sm" />
         <div className="relative w-full h-full rounded-full border-4 border-[#0a0a0f] overflow-hidden flex items-center justify-center">
           <Avatar 
             className="w-full h-full object-cover" 
             src={avatarUrl || undefined} 
-            key={avatarUrl || 'no-avatar'} // Force re-render when URL changes
+            key={avatarUrl || 'no-avatar'}
           />
         </div>
         <AvatarEditOverlay editable={isOwnProfile} />
