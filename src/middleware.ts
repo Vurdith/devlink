@@ -15,9 +15,19 @@ export function middleware(req: NextRequest) {
   response.headers.set('X-XSS-Protection', '1; mode=block');
   response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
   
-  // Prevent clickjacking with CSP frame-ancestors
-  // Note: This is in addition to X-Frame-Options for modern browsers
-  const csp = "frame-ancestors 'self';";
+  // Comprehensive Content Security Policy
+  const csp = [
+    "default-src 'self'",
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.devlink.ink",
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+    "font-src 'self' https://fonts.gstatic.com",
+    "img-src 'self' data: blob: https: http://localhost:*",
+    "media-src 'self' blob: https: http://localhost:*",
+    "connect-src 'self' https://*.supabase.co https://cdn.devlink.ink wss://*.supabase.co https://*.sentry.io",
+    "frame-ancestors 'self'",
+    "base-uri 'self'",
+    "form-action 'self'",
+  ].join('; ');
   response.headers.set('Content-Security-Policy', csp);
 
   // Add request ID for debugging/tracing

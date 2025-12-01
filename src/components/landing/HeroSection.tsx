@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 
 // Floating geometric shapes with gradient colors
 const floatingShapes = [
@@ -86,10 +87,13 @@ export function HeroSection() {
       <div className="relative z-10 max-w-6xl mx-auto text-center">
         {/* Logo */}
         <div className="mb-8 animate-fade-in">
-          <img
+          <Image
             src="/logo/logo.png"
             alt="DevLink"
+            width={128}
+            height={128}
             className="w-24 h-24 md:w-32 md:h-32 mx-auto pulse-glow-animation"
+            priority
           />
         </div>
 

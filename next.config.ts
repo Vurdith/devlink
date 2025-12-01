@@ -2,8 +2,14 @@ import type { NextConfig } from "next";
 import { withSentryConfig } from "@sentry/nextjs";
 
 const nextConfig: NextConfig = {
+  // ESLint configuration
+  // NOTE: There are ~100+ existing `no-explicit-any` errors to fix incrementally
+  // Run `npm run lint` to see full list. Fix these over time.
   eslint: {
+    // Temporarily ignore during builds while fixing existing issues
+    // TODO: Remove once all `any` types are replaced with proper types
     ignoreDuringBuilds: true,
+    dirs: ['src'], // Only lint src directory
   },
   reactStrictMode: true,
   // Enable experimental optimizations
@@ -117,14 +123,18 @@ const nextConfig: NextConfig = {
   compress: true,
   poweredByHeader: false,
   async headers() {
+    // CORS: Restrict to specific origins in production for security
+    const allowedOrigins = process.env.NODE_ENV === 'production'
+      ? process.env.ALLOWED_ORIGINS || 'https://devlink.ink'
+      : '*'; // Allow all in development for tunnel testing
+
     return [
       {
         source: '/(.*)',
         headers: [
-          // RESTORED: CORS headers are necessary for the Cloudflare tunnel and local dev to work correctly
           {
             key: 'Access-Control-Allow-Origin',
-            value: '*',
+            value: allowedOrigins,
           },
           {
             key: 'Access-Control-Allow-Methods',
@@ -134,7 +144,15 @@ const nextConfig: NextConfig = {
             key: 'Access-Control-Allow-Headers',
             value: 'Content-Type, Authorization',
           },
-          // Removed X-Content-Type-Options: nosniff as it can break style loading in some dev environments
+          // Security headers
+          {
+            key: 'Strict-Transport-Security',
+            value: 'max-age=31536000; includeSubDomains; preload',
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
         ],
       },
       {

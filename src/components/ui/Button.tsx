@@ -89,6 +89,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         ref={ref}
         className={cn(base, sizes[size], variants[variant], className)}
         disabled={disabled || isLoading}
+        aria-disabled={disabled || isLoading}
+        aria-busy={isLoading}
         {...props}
       >
         {/* Inner gradient overlay for depth on purple buttons */}

@@ -1,0 +1,14 @@
+# DevLink robots.txt
+# https://devlink.ink
+
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /settings/
+Disallow: /login
+Disallow: /register
+Disallow: /reset-password
+
+# Sitemap
+Sitemap: https://devlink.ink/sitemap.xml
+

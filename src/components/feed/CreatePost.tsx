@@ -350,22 +350,35 @@ export const CreatePost = memo(function CreatePost({
             </div>
           )}
 
-          <input ref={fileInputRef} type="file" accept="image/*,video/*" multiple onChange={handleFileChange} className="hidden" />
+          <input 
+            ref={fileInputRef} 
+            type="file" 
+            accept="image/*,video/*" 
+            multiple 
+            onChange={handleFileChange} 
+            className="hidden" 
+            aria-label="Upload media files"
+          />
 
           {/* Main textarea */}
           <div className="animate-slide-up stagger-2">
+            <label htmlFor="post-content" className="sr-only">
+              {replyToId ? "Write your reply" : "What's on your mind?"}
+            </label>
             <textarea
+              id="post-content"
               value={formData.content}
               onChange={(e) => setFormData(prev => ({ ...prev, content: e.target.value }))}
               className="w-full px-4 py-3 bg-black/30 border border-white/10 rounded-xl focus:border-purple-500 outline-none transition-all resize-none text-white placeholder:text-gray-500"
               rows={4}
               placeholder={replyToId ? "Write your reply..." : "What's on your mind? Share updates, ideas, or projects..."}
+              aria-describedby="post-hint post-count"
             />
             <div className="flex items-center justify-between mt-2">
-              <span className="text-xs text-[var(--muted-foreground)]">
+              <span id="post-hint" className="text-xs text-[var(--muted-foreground)]">
                 Use @username to mention • #tag for topics
               </span>
-              <span className={cn("text-xs transition-colors", formData.content.length > 280 ? "text-red-400" : "text-[var(--muted-foreground)]")}>
+              <span id="post-count" className={cn("text-xs transition-colors", formData.content.length > 280 ? "text-red-400" : "text-[var(--muted-foreground)]")} aria-live="polite">
                 {formData.content.length}/500
               </span>
             </div>

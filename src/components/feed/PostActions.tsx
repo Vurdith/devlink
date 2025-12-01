@@ -108,10 +108,13 @@ export function PostActions({ post, currentUserId, onEdit, onDelete, onPinToggle
             e.preventDefault();
             setIsOpen(!isOpen);
           }}
+          aria-label="Post options menu"
+          aria-haspopup="menu"
+          aria-expanded={isOpen}
           className="p-2 rounded-full hover:bg-white/10 transition-colors text-[var(--muted-foreground)] hover:text-white"
           title="More options"
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <circle cx="12" cy="12" r="1" fill="currentColor"/>
             <circle cx="19" cy="12" r="1" fill="currentColor"/>
             <circle cx="5" cy="12" r="1" fill="currentColor"/>
@@ -120,6 +123,8 @@ export function PostActions({ post, currentUserId, onEdit, onDelete, onPinToggle
 
         {isOpen && (
           <div 
+            role="menu"
+            aria-label="Post actions"
             className="absolute right-0 top-full mt-2 w-48 bg-black/90 border border-white/20 rounded-lg shadow-xl z-50"
             onClick={(e) => {
               e.stopPropagation();

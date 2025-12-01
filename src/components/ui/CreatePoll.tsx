@@ -77,35 +77,39 @@ export const CreatePoll = memo(function CreatePoll({ onSubmit, onCancel }: Creat
       
       <div className="space-y-4">
         <div>
-          <label className="block text-sm font-medium mb-2 text-[var(--accent)]">Question</label>
+          <label htmlFor="poll-question" className="block text-sm font-medium mb-2 text-[var(--accent)]">Question</label>
           <div className="relative">
             <input
+              id="poll-question"
               type="text"
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
               placeholder="What would you like to ask?"
               className="w-full px-4 py-3 bg-black/30 border border-[var(--accent)]/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/50 focus:border-[var(--accent)] transition-all"
               maxLength={200}
+              aria-describedby="poll-question-count"
             />
-            <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-xs text-[var(--muted-foreground)]">
+            <div id="poll-question-count" className="absolute right-3 top-1/2 transform -translate-y-1/2 text-xs text-[var(--muted-foreground)]" aria-live="polite">
               {question.length}/200
             </div>
           </div>
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-3 text-[var(--accent)]">Options</label>
-          <div className="space-y-3">
+          <label id="poll-options-label" className="block text-sm font-medium mb-3 text-[var(--accent)]">Options</label>
+          <div className="space-y-3" role="group" aria-labelledby="poll-options-label">
             {options.map((option, index) => (
               <div
                 key={index}
                 className="flex items-center gap-3 animate-slide-up"
                 style={{ animationDelay: `${index * 0.03}s` }}
               >
-                <div className="flex-shrink-0 w-8 h-8 bg-[var(--accent)]/20 border border-[var(--accent)]/30 rounded-full flex items-center justify-center text-sm font-bold text-[var(--accent)]">
+                <div className="flex-shrink-0 w-8 h-8 bg-[var(--accent)]/20 border border-[var(--accent)]/30 rounded-full flex items-center justify-center text-sm font-bold text-[var(--accent)]" aria-hidden="true">
                   {index + 1}
                 </div>
+                <label htmlFor={`poll-option-${index}`} className="sr-only">Option {index + 1}</label>
                 <input
+                  id={`poll-option-${index}`}
                   type="text"
                   value={option}
                   onChange={(e) => updateOption(index, e.target.value)}

@@ -104,6 +104,8 @@ export const Navbar = memo(function Navbar() {
 
   return (
     <header
+      role="banner"
+      aria-label="Main navigation"
       className={cn(
         "sticky top-0 z-40 w-full transition-all duration-200",
         scrolled 
@@ -128,20 +130,24 @@ export const Navbar = memo(function Navbar() {
             <div className="hidden md:flex items-center gap-2">
               {/* Notifications placeholder */}
               <button
+                aria-label="Notifications"
+                aria-haspopup="true"
                 className="relative p-2.5 rounded-xl text-[var(--muted-foreground)] hover:text-white hover:bg-white/5 transition-all duration-150 hover:scale-105 active:scale-95"
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                 </svg>
                 {/* Notification dot */}
-                <span className="absolute top-2 right-2 w-2 h-2 bg-purple-500 rounded-full" />
+                <span className="absolute top-2 right-2 w-2 h-2 bg-purple-500 rounded-full" aria-label="New notifications" />
               </button>
               
               {/* Messages placeholder */}
               <button
+                aria-label="Messages"
+                aria-haspopup="true"
                 className="relative p-2.5 rounded-xl text-[var(--muted-foreground)] hover:text-white hover:bg-white/5 transition-all duration-150 hover:scale-105 active:scale-95"
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                 </svg>
               </button>

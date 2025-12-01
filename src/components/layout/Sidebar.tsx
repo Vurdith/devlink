@@ -73,6 +73,8 @@ const NavLink = memo(function NavLink({ item, isActive }: { item: NavItem; isAct
     <Link
       href={item.href}
       prefetch={true}
+      aria-current={isActive ? "page" : undefined}
+      aria-label={item.description}
       className={cn(
         "group relative flex items-center gap-3 px-4 py-3 rounded-xl transition-colors duration-150",
         isActive 
@@ -121,7 +123,11 @@ export const Sidebar = memo(function Sidebar() {
   const isAuthenticated = status === "authenticated";
 
   return (
-    <aside className="hidden md:flex fixed left-0 top-0 h-full w-72 z-40 flex-col bg-[#0a0a0f] border-r border-white/5">
+    <aside 
+      role="navigation" 
+      aria-label="Main sidebar navigation"
+      className="hidden md:flex fixed left-0 top-0 h-full w-72 z-40 flex-col bg-[#0a0a0f] border-r border-white/5"
+    >
       <div className="relative flex flex-col h-full">
         {/* Logo Section */}
         <div className="p-6 border-b border-white/5">
@@ -149,7 +155,7 @@ export const Sidebar = memo(function Sidebar() {
         </div>
 
         {/* Main Navigation */}
-        <nav className="flex-1 overflow-y-auto px-4 py-4 space-y-1">
+        <nav aria-label="Primary" className="flex-1 overflow-y-auto px-4 py-4 space-y-1">
           {/* Primary nav */}
           <div className="space-y-1">
             {navigation.map((item) => (

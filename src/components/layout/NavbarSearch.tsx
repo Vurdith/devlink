@@ -176,9 +176,11 @@ export const NavbarSearch = memo(function NavbarSearch() {
             </svg>
           </div>
           
+          <label htmlFor="navbar-search" className="sr-only">Search DevLink</label>
           <input
+            id="navbar-search"
             ref={inputRef}
-            type="text"
+            type="search"
             placeholder="Search DevLink..."
             value={value}
             onChange={(e) => setValue(e.target.value)}
@@ -190,6 +192,10 @@ export const NavbarSearch = memo(function NavbarSearch() {
                 ? "border-purple-500/50 bg-white/10 shadow-lg shadow-purple-500/10" 
                 : "border-white/10 hover:border-white/20"
             )}
+            aria-autocomplete="list"
+            aria-expanded={open && hasResults}
+            aria-controls={open && hasResults ? "search-results" : undefined}
+            role="combobox"
           />
           
           <div className="absolute right-3 flex items-center gap-1 text-[var(--muted-foreground)] pointer-events-none">
@@ -202,7 +208,12 @@ export const NavbarSearch = memo(function NavbarSearch() {
 
       {/* Results dropdown - CSS only animation */}
       {open && (hasResults || loading) && (
-        <div className="absolute left-0 mt-2 w-full bg-[#0d0d12] rounded-2xl p-2 shadow-2xl border border-white/10 z-50 max-h-[70vh] overflow-y-auto animate-fade-in">
+        <div 
+          id="search-results"
+          role="listbox"
+          aria-label="Search results"
+          className="absolute left-0 mt-2 w-full bg-[#0d0d12] rounded-2xl p-2 shadow-2xl border border-white/10 z-50 max-h-[70vh] overflow-y-auto animate-fade-in"
+        >
           {loading && (
             <div className="flex items-center justify-center py-8">
               <div className="w-5 h-5 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
