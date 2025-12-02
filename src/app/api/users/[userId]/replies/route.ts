@@ -2,10 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/server/db";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/server/auth-options";
-import { responseCache } from "@/lib/cache";
 import { getUniqueViewCounts } from "@/lib/view-utils";
 
-const CACHE_TTL = 30;
+// NO server-side caching for user content tabs - they need real-time accuracy
 
 export async function GET(
   request: NextRequest,
@@ -20,15 +19,6 @@ export async function GET(
     const page = parseInt(searchParams.get('page') || '1');
     const limit = Math.min(parseInt(searchParams.get('limit') || '20'), 50);
     const skip = (page - 1) * limit;
-    
-    const cacheKey = `user:${userId}:replies:${page}:${currentUserId || 'anon'}`;
-    
-    const cached = await responseCache.get<any>(cacheKey);
-    if (cached) {
-      return NextResponse.json({ posts: cached }, {
-        headers: { "X-Cache": "HIT" }
-      });
-    }
     
     // OPTIMIZED query
     const repliedPosts = await prisma.post.findMany({
@@ -116,12 +106,10 @@ export async function GET(
       replies: Array(post._count?.replies || 0).fill(null),
     }));
     
-    await responseCache.set(cacheKey, transformedPosts, CACHE_TTL);
-    
+    // Return fresh data without caching
     return NextResponse.json({ posts: transformedPosts }, {
       headers: { 
-        "X-Cache": "MISS",
-        "Cache-Control": "private, max-age=15, stale-while-revalidate=60"
+        "Cache-Control": "no-store, no-cache, must-revalidate"
       }
     });
   } catch (error) {

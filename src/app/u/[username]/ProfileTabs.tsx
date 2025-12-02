@@ -16,8 +16,10 @@ interface ProfileTabsProps {
 type TabType = "posts" | "reposts" | "liked" | "replies" | "saved" | "portfolio" | "reviews";
 
 // Client-side cache for tab data (persists during session)
+// NOTE: Engagement tabs (liked, reposts, saved) skip cache for real-time accuracy
 const tabDataCache = new Map<string, { data: any[]; timestamp: number }>();
 const CACHE_TTL = 30000; // 30 seconds client-side cache
+const ENGAGEMENT_TABS = ['liked', 'reposts', 'saved'] as const;
 
 export function ProfileTabs({ username, currentUserId, userId }: ProfileTabsProps) {
   const [activeTab, setActiveTab] = useState<TabType>("posts");
@@ -106,8 +108,11 @@ export function ProfileTabs({ username, currentUserId, userId }: ProfileTabsProp
     // Build cache key
     const cacheKey = `${userId}:${tabType}:${page}`;
     
-    // Check client-side cache first (unless forcing refresh or appending)
-    if (!forceRefresh && !append) {
+    // Skip cache for engagement tabs (liked, reposts, saved) - they need real-time accuracy
+    const isEngagementTab = ENGAGEMENT_TABS.includes(tabType as any);
+    
+    // Check client-side cache first (unless forcing refresh, appending, or engagement tab)
+    if (!forceRefresh && !append && !isEngagementTab) {
       const cached = tabDataCache.get(cacheKey);
       if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
         setPosts(cached.data);

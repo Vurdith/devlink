@@ -54,10 +54,11 @@ export async function POST(req: Request) {
       throw dbError;
     }
 
-    // Invalidate all caches that contain user engagement state
-    responseCache.invalidatePattern(new RegExp(`^user:${userId}:`));
-    responseCache.invalidatePattern(new RegExp(`^hashtag:.*:${userId}$`));
-    // Note: Post pages are server-rendered and don't use response cache
+    // Invalidate all caches that contain user engagement state - MUST await
+    await Promise.all([
+      responseCache.invalidatePattern(new RegExp(`^user:${userId}:`)),
+      responseCache.invalidatePattern(new RegExp(`^hashtag:.*:${userId}$`))
+    ]);
 
     return NextResponse.json({ liked });
   } catch (error) {

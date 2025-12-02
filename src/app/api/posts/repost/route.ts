@@ -56,10 +56,12 @@ export async function POST(req: Request) {
       reposted = true;
     }
 
-    // Invalidate all caches that contain user engagement state
-    responseCache.invalidatePattern(/^feed:/);
-    responseCache.invalidatePattern(new RegExp(`^user:${userId}:`));
-    responseCache.invalidatePattern(new RegExp(`^hashtag:.*:${userId}$`));
+    // Invalidate all caches that contain user engagement state - MUST await
+    await Promise.all([
+      responseCache.invalidatePattern(/^feed:/),
+      responseCache.invalidatePattern(new RegExp(`^user:${userId}:`)),
+      responseCache.invalidatePattern(new RegExp(`^hashtag:.*:${userId}$`))
+    ]);
 
     return NextResponse.json({ reposted });
   } catch (error) {

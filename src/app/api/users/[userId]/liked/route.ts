@@ -2,10 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/server/db";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/server/auth-options";
-import { responseCache } from "@/lib/cache";
 import { getUniqueViewCounts } from "@/lib/view-utils";
 
-const CACHE_TTL = 30; // Short cache for fresh-ish data
+// NO server-side caching for engagement tabs - they change frequently and caching causes sync issues
 
 export async function GET(
   request: NextRequest,
@@ -20,16 +19,6 @@ export async function GET(
     const page = parseInt(searchParams.get('page') || '1');
     const limit = Math.min(parseInt(searchParams.get('limit') || '20'), 50);
     const skip = (page - 1) * limit;
-    
-    // Cache key includes user for personalized data
-    const cacheKey = `user:${userId}:liked:${page}:${currentUserId || 'anon'}`;
-    
-    const cached = await responseCache.get<any>(cacheKey);
-    if (cached) {
-      return NextResponse.json(cached, {
-        headers: { "X-Cache": "HIT" }
-      });
-    }
     
     // OPTIMIZED: Use select instead of include, only get counts
     const likedPosts = await prisma.post.findMany({
@@ -125,12 +114,10 @@ export async function GET(
       };
     });
     
-    await responseCache.set(cacheKey, transformedPosts, CACHE_TTL);
-    
+    // Return fresh data without caching - engagement data must be real-time
     return NextResponse.json(transformedPosts, {
       headers: { 
-        "X-Cache": "MISS",
-        "Cache-Control": "private, max-age=15, stale-while-revalidate=60"
+        "Cache-Control": "no-store, no-cache, must-revalidate"
       }
     });
   } catch (error) {
