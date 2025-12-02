@@ -8,6 +8,7 @@ import { getUniqueViewCounts } from "@/lib/view-utils";
 export default async function HashtagPage(props: { params: Promise<{ hashtag: string }> }) {
   const session = await getServerSession(authOptions);
   const { hashtag } = await props.params;
+  const currentUserId = (session?.user as any)?.id;
 
   // Find the hashtag directly from database
   const hashtagRecord = await prisma.hashtag.findUnique({
@@ -18,175 +19,131 @@ export default async function HashtagPage(props: { params: Promise<{ hashtag: st
     notFound();
   }
 
-  // Count posts matching this hashtag
-  const totalPosts = await prisma.post.count({
-    where: {
-      replyToId: null,
-      hashtags: {
-        some: { hashtagId: hashtagRecord.id },
+  // Fetch posts with OPTIMIZED query - use _count, not full arrays
+  const [totalPosts, posts] = await Promise.all([
+    prisma.post.count({
+      where: {
+        replyToId: null,
+        hashtags: { some: { hashtagId: hashtagRecord.id } },
       },
-    },
-  });
-
-  // Fetch posts for this hashtag
-  const posts = await prisma.post.findMany({
-    where: {
-      replyToId: null,
-      hashtags: {
-        some: {
-          hashtagId: hashtagRecord.id
-        }
-      }
-    },
-    orderBy: { createdAt: "desc" },
-    take: 20,
-    include: {
-      user: {
-        include: {
-          profile: {
-            select: {
-              avatarUrl: true,
-              bannerUrl: true,
-              profileType: true,
-              verified: true,
-              bio: true,
-              website: true,
-              location: true,
-              createdAt: true
-            }
-          },
-          _count: {
-            select: {
-              followers: true,
-              following: true
-            }
+    }),
+    prisma.post.findMany({
+      where: {
+        replyToId: null,
+        hashtags: { some: { hashtagId: hashtagRecord.id } }
+      },
+      orderBy: { createdAt: "desc" },
+      take: 20,
+      select: {
+        id: true,
+        content: true,
+        createdAt: true,
+        updatedAt: true,
+        isPinned: true,
+        isSlideshow: true,
+        location: true,
+        embedUrls: true,
+        userId: true,
+        user: {
+          select: {
+            id: true,
+            username: true,
+            name: true,
+            createdAt: true,
+            profile: {
+              select: {
+                avatarUrl: true,
+                bannerUrl: true,
+                profileType: true,
+                verified: true,
+                bio: true,
+                website: true,
+                location: true
+              }
+            },
+            _count: { select: { followers: true, following: true } }
           }
-        }
-      },
-      likes: true,
-      reposts: true,
-      savedBy: true,
-      hashtags: {
-        include: { hashtag: { select: { name: true } } }
-      },
-      media: {
-        orderBy: { order: 'asc' }
-      },
-      poll: {
-        include: {
-          options: {
-            include: {
-              votes: true
-            }
+        },
+        // Use _count - NOT full arrays
+        _count: {
+          select: {
+            likes: true,
+            reposts: true,
+            savedBy: true,
+            replies: true
           }
-        }
-      },
-      replies: {
-        include: {
-          user: {
-            include: {
-              profile: {
-                select: {
-                  avatarUrl: true,
-                  bannerUrl: true,
-                  profileType: true,
-                  verified: true,
-                  bio: true,
-                  website: true,
-                  location: true
-                }
-              },
-              _count: {
-                select: {
-                  followers: true,
-                  following: true
-                }
+        },
+        media: {
+          select: { id: true, mediaUrl: true, mediaType: true, order: true },
+          orderBy: { order: 'asc' }
+        },
+        poll: {
+          select: {
+            id: true,
+            question: true,
+            expiresAt: true,
+            isMultiple: true,
+            options: {
+              select: {
+                id: true,
+                text: true,
+                _count: { select: { votes: true } }
               }
             }
           }
         }
-      },
-      views: {
-        select: { postId: true, userId: true, viewedAt: true }
       }
-    }
-  });
+    })
+  ]);
 
-  // Get view counts and current user's engagement
-  const postIds = posts.map((post) => post.id);
-  const currentUserId = (session?.user as any)?.id;
+  // Batch fetch all engagement data in ONE query round
+  const postIds = posts.map(p => p.id);
   
-  const [viewCountMap, userLikes, userReposts, userSaves] = await Promise.all([
+  const [viewCountMap, userLikes, userReposts, userSaves, currentUserProfile] = await Promise.all([
     getUniqueViewCounts(postIds),
     currentUserId ? prisma.postLike.findMany({
       where: { postId: { in: postIds }, userId: currentUserId },
       select: { postId: true }
-    }) : Promise.resolve([]),
+    }) : [],
     currentUserId ? prisma.postRepost.findMany({
       where: { postId: { in: postIds }, userId: currentUserId },
       select: { postId: true }
-    }) : Promise.resolve([]),
+    }) : [],
     currentUserId ? prisma.savedPost.findMany({
       where: { postId: { in: postIds }, userId: currentUserId },
       select: { postId: true }
-    }) : Promise.resolve([])
+    }) : [],
+    session?.user?.username ? prisma.user.findUnique({
+      where: { username: session.user.username },
+      select: { id: true, username: true, name: true }
+    }) : null
   ]);
   
   const likedPostIds = new Set(userLikes.map(l => l.postId));
   const repostedPostIds = new Set(userReposts.map(r => r.postId));
   const savedPostIds = new Set(userSaves.map(s => s.postId));
 
-  // Transform posts with view counts, engagement flags, and poll data
-  const finalPosts = posts.map((post) => {
-    const poll = post.poll
-      ? {
-          id: post.poll.id,
-          question: post.poll.question,
-          isMultiple: post.poll.isMultiple,
-          expiresAt: post.poll.expiresAt,
-          totalVotes: post.poll.options.reduce((sum, option) => sum + option.votes.length, 0),
-          options: post.poll.options.map((option) => ({
-            id: option.id,
-            text: option.text,
-            votes: option.votes.length,
-          })),
-        }
-      : undefined;
-
-    return {
-      ...post,
-      views: viewCountMap.get(post.id) || 0,
-      isLiked: likedPostIds.has(post.id),
-      isReposted: repostedPostIds.has(post.id),
-      isSaved: savedPostIds.has(post.id),
-      poll,
-    };
-  });
-
-  const hashtagData = {
-    name: hashtagRecord.name,
-    postCount: totalPosts
-  };
-
-  const currentUserProfile = session?.user?.username ? await prisma.user.findUnique({
-    where: { username: session.user.username },
-    select: { 
-      id: true,
-      username: true,
-      name: true,
-      profile: { 
-        select: { 
-          avatarUrl: true,
-          bannerUrl: true,
-          profileType: true,
-          verified: true,
-          bio: true,
-          website: true,
-          location: true
-        } 
-      }
-    }
-  }) : null;
+  // Transform posts
+  const finalPosts = posts.map(post => ({
+    ...post,
+    views: viewCountMap.get(post.id) || 0,
+    isLiked: likedPostIds.has(post.id),
+    isReposted: repostedPostIds.has(post.id),
+    isSaved: savedPostIds.has(post.id),
+    likes: [],
+    reposts: [],
+    savedBy: [],
+    replies: Array(post._count.replies).fill(null),
+    poll: post.poll ? {
+      ...post.poll,
+      totalVotes: post.poll.options.reduce((sum, opt) => sum + opt._count.votes, 0),
+      options: post.poll.options.map(opt => ({
+        id: opt.id,
+        text: opt.text,
+        votes: opt._count.votes
+      }))
+    } : undefined
+  }));
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900/20 to-slate-900">
@@ -199,14 +156,14 @@ export default async function HashtagPage(props: { params: Promise<{ hashtag: st
               <span className="text-white font-bold text-3xl">#</span>
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-white">#{hashtagData.name}</h1>
+              <h1 className="text-3xl font-bold text-white">#{hashtagRecord.name}</h1>
               <p className="text-gray-400 mt-1">
-                {hashtagData.postCount} {hashtagData.postCount === 1 ? 'post' : 'posts'}
+                {totalPosts} {totalPosts === 1 ? 'post' : 'posts'}
               </p>
             </div>
           </div>
           <p className="text-gray-300">
-            Explore posts tagged with #{hashtagData.name}
+            Explore posts tagged with #{hashtagRecord.name}
           </p>
         </div>
 
@@ -220,13 +177,13 @@ export default async function HashtagPage(props: { params: Promise<{ hashtag: st
         ) : (
           <div className="text-center py-12">
             <div className="w-20 h-20 mx-auto mb-4 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center">
-            <svg className="w-10 h-10 text-[var(--muted-foreground)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
-            </svg>
-          </div>
+              <svg className="w-10 h-10 text-[var(--muted-foreground)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
+              </svg>
+            </div>
             <h3 className="text-xl font-semibold text-white mb-2">No posts found</h3>
             <p className="text-gray-400">
-              No posts have been tagged with #{hashtagData.name} yet.
+              No posts have been tagged with #{hashtagRecord.name} yet.
             </p>
           </div>
         )}

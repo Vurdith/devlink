@@ -1,5 +1,5 @@
 "use client";
-import { memo } from "react";
+import { memo, useState, useEffect, useCallback } from "react";
 import { CreatePost } from "./CreatePost";
 import { PostFeed } from "./PostFeed";
 
@@ -71,6 +71,9 @@ interface Post {
   replies: Array<{ id: string }>;
   views: number;
   isPinned: boolean;
+  isLiked?: boolean;
+  isReposted?: boolean;
+  isSaved?: boolean;
 }
 
 interface AnimatedHomeContentProps {
@@ -90,7 +93,48 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
   currentUserProfile, 
   postsWithViewCounts 
 }: AnimatedHomeContentProps) {
-  const feedPosts = postsWithViewCounts || [];
+  // Manage posts state locally so we can update on engagement changes
+  const [feedPosts, setFeedPosts] = useState<Post[]>(postsWithViewCounts || []);
+  
+  // Update posts when new data comes from server
+  useEffect(() => {
+    setFeedPosts(postsWithViewCounts || []);
+  }, [postsWithViewCounts]);
+  
+  // Listen for engagement updates and update posts immediately
+  useEffect(() => {
+    const handleEngagementUpdate = (event: CustomEvent) => {
+      const { post, action, liked, reposted, saved } = event.detail;
+      
+      setFeedPosts(prevPosts => prevPosts.map(p => {
+        if (p.id !== post.id) return p;
+        
+        // Update the specific engagement state
+        const updates: Partial<Post> = {};
+        if (action === 'like' && liked !== undefined) {
+          updates.isLiked = liked;
+        }
+        if (action === 'repost' && reposted !== undefined) {
+          updates.isReposted = reposted;
+        }
+        if (action === 'save' && saved !== undefined) {
+          updates.isSaved = saved;
+        }
+        
+        return { ...p, ...updates } as Post;
+      }));
+    };
+
+    window.addEventListener('postEngagementUpdate', handleEngagementUpdate as EventListener);
+    return () => window.removeEventListener('postEngagementUpdate', handleEngagementUpdate as EventListener);
+  }, []);
+  
+  // Handle post updates from child components
+  const handlePostUpdate = useCallback((updatedPost: any) => {
+    setFeedPosts(prevPosts => prevPosts.map(p => 
+      p.id === updatedPost.id ? { ...p, ...updatedPost } : p
+    ));
+  }, []);
   
   return (
     <>
@@ -199,6 +243,7 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
           currentUserId={currentUserProfile?.id}
           hidePinnedIndicator={true}
           showNavigationArrow={false}
+          onUpdate={handlePostUpdate}
         />
       </div>
     </>
