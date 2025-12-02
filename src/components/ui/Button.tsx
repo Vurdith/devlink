@@ -32,14 +32,14 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       icon: "h-11 w-11 rounded-xl",
     };
 
-    const isPurpleVariant = variant === "primary" || variant === "gradient" || variant === "glow";
+    const isAccentVariant = variant === "primary" || variant === "gradient" || variant === "glow";
 
     const variants: Record<Variant, string> = {
       primary: cn(
-        "bg-gradient-to-r from-red-700 via-red-600 to-indigo-500 text-white",
-        "hover:from-red-800 hover:via-red-700 hover:to-indigo-600",
-        "shadow-[0_4px_20px_rgba(168,85,247,0.35)]",
-        "hover:shadow-[0_6px_30px_rgba(168,85,247,0.5)]",
+        "bg-gradient-to-r from-red-700 via-red-600 to-red-500 text-white",
+        "hover:from-red-800 hover:via-red-700 hover:to-red-600",
+        "shadow-[0_4px_20px_rgba(220,38,38,0.35)]",
+        "hover:shadow-[0_6px_30px_rgba(220,38,38,0.5)]",
         "border border-red-500/30"
       ),
       secondary: cn(
@@ -64,10 +64,10 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         "border border-red-400/20"
       ),
       gradient: cn(
-        "bg-gradient-to-r from-red-700 via-red-600 to-indigo-500 text-white",
-        "hover:from-red-800 hover:via-red-700 hover:to-indigo-600",
-        "shadow-[0_4px_25px_rgba(168,85,247,0.4)]",
-        "hover:shadow-[0_8px_40px_rgba(168,85,247,0.55)]",
+        "bg-gradient-to-r from-red-700 via-red-600 to-red-500 text-white",
+        "hover:from-red-800 hover:via-red-700 hover:to-red-600",
+        "shadow-[0_4px_25px_rgba(220,38,38,0.4)]",
+        "hover:shadow-[0_8px_40px_rgba(220,38,38,0.55)]",
         "border border-red-500/40"
       ),
       outline: cn(
@@ -76,10 +76,10 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         "hover:bg-white/10 hover:border-white/50"
       ),
       glow: cn(
-        "bg-gradient-to-r from-red-700 via-red-600 to-indigo-500 text-white",
-        "hover:from-red-800 hover:via-red-700 hover:to-indigo-600",
-        "shadow-[0_0_25px_rgba(168,85,247,0.5),0_0_50px_rgba(168,85,247,0.3)]",
-        "hover:shadow-[0_0_35px_rgba(168,85,247,0.6),0_0_70px_rgba(168,85,247,0.4)]",
+        "bg-gradient-to-r from-red-700 via-red-600 to-red-500 text-white",
+        "hover:from-red-800 hover:via-red-700 hover:to-red-600",
+        "shadow-[0_0_25px_rgba(220,38,38,0.5),0_0_50px_rgba(220,38,38,0.3)]",
+        "hover:shadow-[0_0_35px_rgba(220,38,38,0.6),0_0_70px_rgba(220,38,38,0.4)]",
         "border border-red-500/50"
       ),
     };
@@ -94,12 +94,12 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         {...props}
       >
         {/* Inner gradient overlay for depth on red buttons */}
-        {isPurpleVariant && (
+        {isAccentVariant && (
           <span className="absolute inset-0 bg-gradient-to-t from-black/15 via-transparent to-white/10 pointer-events-none rounded-xl" />
         )}
         
         {/* Shimmer effect - CSS only */}
-        {isPurpleVariant && (
+        {isAccentVariant && (
           <span className="absolute inset-0 opacity-0 hover:opacity-100 transition-opacity duration-300 overflow-hidden rounded-xl pointer-events-none">
             <span className="absolute inset-0 -translate-x-full hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12" />
           </span>

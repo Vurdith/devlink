@@ -3,7 +3,7 @@ export default function ProfileLoading() {
     <main className="mx-auto max-w-5xl px-2 sm:px-4 py-4 sm:py-10">
       <section className="relative overflow-hidden rounded-xl sm:rounded-2xl animate-pulse">
         {/* Banner skeleton */}
-        <div className="h-36 sm:h-64 w-full bg-gradient-to-br from-red-900/30 via-red-800/20 to-indigo-900/30" />
+        <div className="h-36 sm:h-64 w-full bg-gradient-to-br from-red-900/30 via-red-800/20 to-red-900/30" />
         
         {/* Profile card skeleton */}
         <div className="relative bg-[#0a0a0f]/95 border-t border-red-600/20 px-4 sm:px-8 pb-4 sm:pb-8">

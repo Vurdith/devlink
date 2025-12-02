@@ -9,7 +9,7 @@ import { forwardRef, HTMLAttributes, ButtonHTMLAttributes } from "react";
  */
 
 // ============================================================================
-// RedCard - Glass card with purple accent
+// RedCard - Glass card with red accent
 // ============================================================================
 interface RedCardProps extends HTMLAttributes<HTMLDivElement> {
   variant?: "default" | "gradient" | "glow";
@@ -134,7 +134,7 @@ export const RedButton = forwardRef<HTMLButtonElement, RedButtonProps>(
 RedButton.displayName = "RedButton";
 
 // ============================================================================
-// RedListItem - Interactive list item with purple hover
+// RedListItem - Interactive list item with red hover
 // ============================================================================
 interface RedListItemProps extends HTMLAttributes<HTMLDivElement> {
   icon?: React.ReactNode;

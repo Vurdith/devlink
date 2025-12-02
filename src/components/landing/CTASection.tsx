@@ -10,7 +10,7 @@ export function CTASection() {
         <div 
           className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full animate-pulse"
           style={{
-            background: "radial-gradient(circle, rgba(168, 85, 247, 0.15) 0%, transparent 70%)",
+            background: "radial-gradient(circle, rgba(220, 38, 38, 0.15) 0%, transparent 70%)",
           }}
         />
       </div>
@@ -25,7 +25,7 @@ export function CTASection() {
           <div 
             className="absolute inset-[1px] rounded-[calc(2rem-1px)]"
             style={{
-              background: "linear-gradient(135deg, rgba(168, 85, 247, 0.1) 0%, transparent 50%, rgba(34, 211, 238, 0.1) 100%)",
+              background: "linear-gradient(135deg, rgba(220, 38, 38, 0.1) 0%, transparent 50%, rgba(239, 68, 68, 0.1) 100%)",
             }}
           />
 

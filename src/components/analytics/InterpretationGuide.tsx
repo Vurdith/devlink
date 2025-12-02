@@ -43,7 +43,7 @@ export const InterpretationGuide: FC<InterpretationGuideProps> = memo(function I
       ),
       title: "New Creator Discovery",
       description: `Accounts with under ${weights.newCreatorFollowerThreshold} followers or under ${weights.newCreatorAgeDays} days old get up to +${weights.maxDiscoveryBoost} bonus points to help them get discovered.`,
-      color: "from-violet-500 to-red-600",
+      color: "from-red-500 to-red-600",
     },
     {
       icon: (
@@ -60,7 +60,7 @@ export const InterpretationGuide: FC<InterpretationGuideProps> = memo(function I
   return (
     <AnalyticsCard delay={0.25}>
       <div className="flex items-center gap-3 mb-6">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-red-600 flex items-center justify-center">
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-white">
             <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
             <path d="M12 16v-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>

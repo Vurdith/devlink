@@ -111,7 +111,7 @@ export const PollDisplay = memo(function PollDisplay({ poll, currentUserId, onVo
   };
 
   return (
-    <div className="bg-gradient-to-br from-red-600/10 via-[#0d0f14] to-indigo-500/10 border border-red-600/20 rounded-xl p-5 shadow-lg shadow-red-600/5">
+    <div className="bg-gradient-to-br from-red-600/10 via-[#0d0f14] to-red-500/10 border border-red-600/20 rounded-xl p-5 shadow-lg shadow-red-600/5">
       <div className="flex items-center gap-3 mb-4">
         <div className="w-8 h-8 rounded-lg bg-red-600/20 flex items-center justify-center">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-red-500">

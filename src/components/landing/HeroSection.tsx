@@ -5,12 +5,12 @@ import Image from "next/image";
 
 // Floating geometric shapes with gradient colors
 const floatingShapes = [
-  { type: "hexagon", x: "10%", y: "20%", color: "from-red-600 to-violet-600", size: 40, delay: "0s" },
+  { type: "hexagon", x: "10%", y: "20%", color: "from-red-600 to-red-700", size: 40, delay: "0s" },
   { type: "circle", x: "85%", y: "15%", color: "from-cyan-400 to-blue-500", size: 32, delay: "0.5s" },
   { type: "diamond", x: "75%", y: "70%", color: "from-pink-500 to-rose-500", size: 36, delay: "1s" },
   { type: "square", x: "15%", y: "75%", color: "from-amber-400 to-orange-500", size: 34, delay: "1.5s" },
   { type: "circle", x: "90%", y: "45%", color: "from-emerald-400 to-green-500", size: 28, delay: "2s" },
-  { type: "hexagon", x: "5%", y: "50%", color: "from-indigo-400 to-red-600", size: 24, delay: "2.5s" },
+  { type: "hexagon", x: "5%", y: "50%", color: "from-red-400 to-red-600", size: 24, delay: "2.5s" },
 ];
 
 function FloatingShape({ type, color, size }: { type: string; color: string; size: number }) {
@@ -42,8 +42,8 @@ export function HeroSection() {
           50% { transform: translateY(-15px) rotate(5deg); }
         }
         @keyframes pulse-glow {
-          0%, 100% { filter: drop-shadow(0 0 20px rgba(168, 85, 247, 0.5)); }
-          50% { filter: drop-shadow(0 0 40px rgba(168, 85, 247, 0.8)); }
+          0%, 100% { filter: drop-shadow(0 0 20px rgba(220, 38, 38, 0.5)); }
+          50% { filter: drop-shadow(0 0 40px rgba(220, 38, 38, 0.8)); }
         }
         @keyframes bounce-arrow {
           0%, 100% { transform: translateX(0); }

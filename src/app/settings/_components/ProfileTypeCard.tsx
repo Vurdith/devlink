@@ -44,9 +44,9 @@ const profileTypes = [
         <path d="M16 3.13a4 4 0 0 1 0 7.75" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
       </svg>
     ),
-    gradient: "from-violet-500 to-red-600",
-    borderColor: "border-violet-500/50",
-    bgColor: "bg-violet-500/10"
+    gradient: "from-red-500 to-red-600",
+    borderColor: "border-red-500/50",
+    bgColor: "bg-red-500/10"
   },
   { 
     value: "INFLUENCER", 

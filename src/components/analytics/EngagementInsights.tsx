@@ -149,7 +149,7 @@ export const EngagementInsights: FC<EngagementInsightsProps> = memo(function Eng
           </div>
         </div>
 
-        <div className="p-4 rounded-xl bg-gradient-to-r from-violet-500/10 to-red-600/10 border border-violet-500/20">
+        <div className="p-4 rounded-xl bg-gradient-to-r from-red-500/10 to-red-600/10 border border-red-500/20">
           <div className="flex items-center justify-between">
             <div>
               <div className="text-sm text-[var(--muted-foreground)]">Weighted Engagement</div>
@@ -157,7 +157,7 @@ export const EngagementInsights: FC<EngagementInsightsProps> = memo(function Eng
                 After applying weights
               </div>
             </div>
-            <div className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-red-500">
+            <div className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-red-500">
               {(calc?.rawEngagement ?? 0).toFixed(1)}
             </div>
           </div>

@@ -8,8 +8,8 @@ const features = [
     ),
     title: "Portfolio Showcase",
     description: "Display your best work with beautiful portfolio galleries. Share game dev projects, scripts, models, and more.",
-    color: "from-red-600 to-violet-600",
-    glow: "rgba(168, 85, 247, 0.3)",
+    color: "from-red-600 to-red-700",
+    glow: "rgba(220, 38, 38, 0.3)",
   },
   {
     icon: (
@@ -63,8 +63,8 @@ const features = [
     ),
     title: "Community Feed",
     description: "Stay updated with the latest from the community. Share updates, showcase progress, and get inspired.",
-    color: "from-indigo-500 to-red-700",
-    glow: "rgba(99, 102, 241, 0.3)",
+    color: "from-red-500 to-red-700",
+    glow: "rgba(220, 38, 38, 0.3)",
   },
 ];
 

@@ -11,7 +11,7 @@ import { cn } from "@/lib/cn";
 const PROFILE_GRADIENTS: Record<string, string> = {
   DEVELOPER: "from-blue-500/20 via-blue-400/10 to-cyan-500/20",
   CLIENT: "from-emerald-500/20 via-green-400/10 to-teal-500/20",
-  STUDIO: "from-red-600/20 via-violet-400/10 to-fuchsia-500/20",
+  STUDIO: "from-red-600/20 via-red-400/10 to-rose-500/20",
   INFLUENCER: "from-rose-500/20 via-pink-400/10 to-red-500/20",
   INVESTOR: "from-amber-500/20 via-yellow-400/10 to-orange-500/20",
   DEFAULT: "from-slate-500/20 via-gray-400/10 to-zinc-500/20",
