@@ -372,45 +372,47 @@ export function PortfolioItemDisplay({
             className="relative w-full h-full flex flex-col items-center justify-center py-12 px-4"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Media Container with Zoom */}
-            <div
-              className="flex-1 w-full flex items-center justify-center overflow-hidden"
-              onMouseDown={handleMouseDown}
-              onMouseMove={handleMouseMove}
-              onMouseUp={handleMouseUp}
-              onMouseLeave={handleMouseUp}
-              onWheel={handleWheel}
-              style={{ cursor: zoomLevel > 1 ? (isDragging ? 'grabbing' : 'grab') : 'zoom-in' }}
-            >
-              {/* Image wrapper - close button positioned relative to actual image */}
-              <div className="relative inline-block">
-                {/* Close button - top right of image */}
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setShowMediaModal(false);
-                  }}
-                  className="absolute -top-3 -right-3 w-9 h-9 flex items-center justify-center bg-black/90 hover:bg-red-500 text-white/80 hover:text-white rounded-full z-20 border border-white/30 hover:border-red-400 shadow-xl transition-all duration-200 hover:scale-110"
-                  title="Close (Esc)"
-                >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                    <path
-                      d="M18 6L6 18M6 6l12 12"
-                      stroke="currentColor"
-                      strokeWidth="3"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </button>
+            {/* Image viewport container - fixed size, clips overflow when zoomed */}
+            <div className="relative max-w-[90vw] max-h-[75vh] flex items-center justify-center">
+              {/* Close button - top right of viewport */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowMediaModal(false);
+                }}
+                className="absolute -top-3 -right-3 w-9 h-9 flex items-center justify-center bg-black/90 hover:bg-red-500 text-white/80 hover:text-white rounded-full z-30 border border-white/30 hover:border-red-400 shadow-xl transition-all duration-200 hover:scale-110"
+                title="Close (Esc)"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="M18 6L6 18M6 6l12 12"
+                    stroke="currentColor"
+                    strokeWidth="3"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </button>
 
+              {/* Clipping viewport - this maintains the 100% size and clips zoomed content */}
+              <div
+                className="relative overflow-hidden rounded-lg shadow-2xl border border-white/10"
+                onMouseDown={handleMouseDown}
+                onMouseMove={handleMouseMove}
+                onMouseUp={handleMouseUp}
+                onMouseLeave={handleMouseUp}
+                onWheel={handleWheel}
+                style={{ cursor: zoomLevel > 1 ? (isDragging ? 'grabbing' : 'grab') : 'zoom-in' }}
+              >
                 <img
                   src={currentMediaUrl}
                   alt={`${item.title} - media ${currentMediaIndex + 1}`}
-                  className="max-w-[90vw] max-h-[75vh] object-contain select-none transition-transform duration-150 rounded-lg shadow-2xl"
+                  className="max-w-[90vw] max-h-[75vh] object-contain select-none block"
                   style={{ 
                     transform: `scale(${zoomLevel}) translate(${panPosition.x / zoomLevel}px, ${panPosition.y / zoomLevel}px)`,
-                    maxWidth: '1400px'
+                    transformOrigin: 'center center',
+                    maxWidth: '1400px',
+                    transition: isDragging ? 'none' : 'transform 0.15s ease-out'
                   }}
                   ref={imageRef}
                   draggable={false}
@@ -528,7 +530,7 @@ export function PortfolioItemDisplay({
 
             {/* Keyboard shortcuts hint */}
             <div className="absolute bottom-20 left-1/2 -translate-x-1/2 text-white/40 text-xs">
-              Scroll to zoom • Drag to pan • Press 0 to reset
+              Scroll to zoom • Drag to pan when zoomed • Press 0 to reset
             </div>
           </div>
         </div>
