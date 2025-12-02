@@ -1008,6 +1008,72 @@ Check for these anti-patterns (adapt to your stack):
 - [ ] **Presence Updates** - Online/typing indicators update correctly
 - [ ] **Live Notifications** - Real-time events trigger appropriate UI updates
 
+### ⚠️ Cross-Page Data Sync Verification (CRITICAL)
+
+**This catches the most common production bugs.** For each entity shown on multiple pages:
+
+#### Step-by-Step Protocol
+
+1. **Identify shared entities** (posts, users, products, orders, etc.)
+2. **Map all pages that display each entity**
+3. **For each entity, test engagement/status on ALL pages**
+
+#### Mandatory Test Matrix
+
+| Action | Verify On |
+|--------|-----------|
+| **Like/React** | Feed → Profile Liked Tab → Post Detail → Hashtag Page → Search Results |
+| **Save/Bookmark** | Feed → Profile Saved Tab → Post Detail → Any filtered view |
+| **Repost/Share** | Feed → Profile Reposts Tab → Post Detail → User's profile |
+| **Follow/Subscribe** | Profile → Followers list → Suggested users → Search → Comments |
+| **Edit Content** | Detail page → List views → Search results → Related items |
+| **Delete Content** | ALL pages where item appeared → Caches → Related counts |
+
+#### Specific Verification Steps
+
+```
+For each action (like, save, repost, follow, etc.):
+
+1. Perform action on Page A (e.g., home feed)
+2. Navigate to Page B (e.g., hashtag page) 
+3. Find the SAME item
+4. ❓ Does it show the action state? (liked = heart filled)
+5. ❓ Does it show correct count?
+6. Repeat for ALL pages that show this item
+```
+
+#### Common Failure Points
+
+| Symptom | Likely Cause |
+|---------|--------------|
+| Action shows on feed, not on profile tabs | API not setting `isLiked`/`isReposted`/`isSaved` flags |
+| Counts differ between pages | Some APIs use `_count`, others fetch full arrays |
+| Works after refresh, not immediately | Cache not invalidated after mutation |
+| Works in some tabs, not others | Different API endpoints with inconsistent response shapes |
+
+#### API Response Shape Verification
+
+**All APIs returning the same entity MUST return identical shapes:**
+
+```typescript
+// ❌ BAD - Inconsistent responses
+/api/posts          → { ...post, isLiked: true, _count: { likes: 5 } }
+/api/users/:id/liked → { ...post, likes: [] }  // Missing isLiked flag!
+/api/hashtags/:tag  → { ...post }  // Missing everything!
+
+// ✅ GOOD - Consistent responses  
+/api/posts          → { ...post, isLiked: true, isReposted: false, isSaved: true, ... }
+/api/users/:id/liked → { ...post, isLiked: true, isReposted: false, isSaved: true, ... }
+/api/hashtags/:tag  → { ...post, isLiked: true, isReposted: false, isSaved: true, ... }
+```
+
+**Checklist:**
+- [ ] All list endpoints return `isLiked`, `isReposted`, `isSaved` (or equivalent)
+- [ ] All detail endpoints return the same flags
+- [ ] Counts use consistent methods (`_count` vs `array.length`)
+- [ ] Cache keys include user ID for personalized data
+- [ ] Cache invalidation covers ALL endpoints on mutation
+
 ### Testing Methodology
 
 1. **Identify Shared State** - List all data shown in multiple places
