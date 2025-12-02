@@ -664,24 +664,24 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
 
         {/* Actions Menu */}
         <div className="relative" ref={actionsMenuRef}>
-          <button onClick={() => setShowActionsMenu(!showActionsMenu)} className="p-2 rounded-full hover:bg-white/20 transition-colors">
+          <button onClick={() => setShowActionsMenu(!showActionsMenu)} className="p-2 rounded-full hover:bg-white/10 transition-colors">
             <svg className="w-5 h-5 text-[var(--muted-foreground)]" fill="currentColor" viewBox="0 0 20 20">
               <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
             </svg>
           </button>
 
           {showActionsMenu && (
-            <div className="absolute right-0 top-full mt-2 w-48 bg-[#0d0d12] rounded-lg shadow-lg border border-white/10 z-50">
+            <div className="absolute right-0 top-full mt-2 w-48 bg-[#0d0d12] rounded-xl shadow-xl border border-white/10 z-50">
               <div className="py-1">
                 {isOwnPost && (
                   <>
-                    <button onClick={handlePin} className="w-full text-left px-4 py-2 text-sm text-[var(--foreground)] hover:bg-white/20 transition-colors flex items-center space-x-3">
+                    <button onClick={handlePin} className="w-full text-left px-4 py-2 text-sm text-[var(--foreground)] hover:bg-white/10 transition-colors flex items-center space-x-3">
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
                       </svg>
                       <span>{post.isPinned ? 'Unpin' : 'Pin'}</span>
                     </button>
-                    <a href={`/p/${post.id}/analytics`} className="w-full text-left px-4 py-2 text-sm text-[var(--foreground)] hover:bg-white/20 transition-colors flex items-center space-x-3">
+                    <a href={`/p/${post.id}/analytics`} className="w-full text-left px-4 py-2 text-sm text-[var(--foreground)] hover:bg-white/10 transition-colors flex items-center space-x-3">
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                       </svg>
@@ -829,11 +829,11 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
       {/* Media Modal */}
       {modalState.isOpen && post.media && post.media.length > 0 && typeof window !== 'undefined' && createPortal(
         <div 
-          className="fixed inset-0 bg-black/95 flex items-center justify-center z-[99999]"
+          className="fixed inset-0 bg-black/90 flex items-center justify-center z-[99999]"
           onClick={closeModal}
         >
           <div className="relative w-full h-full flex items-center justify-center p-4" onClick={(e) => e.stopPropagation()}>
-            <button onClick={closeModal} aria-label="Close media viewer" className="absolute top-6 right-6 text-white hover:text-gray-300 z-10 bg-black/80 rounded-full p-3 border border-white/40">
+            <button onClick={closeModal} aria-label="Close media viewer" className="absolute top-6 right-6 text-white/80 hover:text-white z-10 bg-black/90 hover:bg-red-500 rounded-full p-3 border border-white/20 hover:border-red-400 transition-all duration-200 hover:scale-110">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
@@ -849,17 +849,17 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
             
             {modalState.type === 'slideshow' && post.media.length > 1 && (
               <>
-                <button onClick={prevSlide} aria-label="Previous image" className="absolute left-6 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 bg-black/80 rounded-full p-3 border border-white/40">
+                <button onClick={prevSlide} aria-label="Previous image" className="absolute left-6 top-1/2 -translate-y-1/2 text-white/80 hover:text-white bg-black/60 hover:bg-black/80 rounded-full p-3 border border-white/20 transition-all duration-200 hover:scale-110">
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                   </svg>
                 </button>
-                <button onClick={nextSlide} aria-label="Next image" className="absolute right-6 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 bg-black/80 rounded-full p-3 border border-white/40">
+                <button onClick={nextSlide} aria-label="Next image" className="absolute right-6 top-1/2 -translate-y-1/2 text-white/80 hover:text-white bg-black/60 hover:bg-black/80 rounded-full p-3 border border-white/20 transition-all duration-200 hover:scale-110">
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
                 </button>
-                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-white text-sm bg-black/80 rounded-full px-4 py-2 border border-white/40">
+                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-white text-sm bg-black/60 rounded-full px-4 py-2 border border-white/20">
                   {modalState.currentIndex + 1} / {post.media.length}
                 </div>
               </>
@@ -871,7 +871,7 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
 
       {/* Delete Confirmation Modal */}
       {showDeleteConfirm && (
-        <div className="fixed inset-0 bg-black/85 z-50 flex items-center justify-center" onClick={() => setShowDeleteConfirm(false)}>
+        <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center" onClick={() => setShowDeleteConfirm(false)}>
           <div className="relative bg-[#0d0d12] border border-white/10 rounded-xl p-6 w-[min(92vw,480px)] mx-4" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 bg-red-500/20 rounded-full flex items-center justify-center">

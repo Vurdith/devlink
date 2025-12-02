@@ -364,7 +364,7 @@ export function PortfolioItemDisplay({
       {/* Media Modal with Zoom */}
       {showMediaModal && mediaUrls.length > 0 && (
         <div 
-          className="fixed inset-0 bg-black/98 flex items-center justify-center z-50"
+          className="fixed inset-0 bg-black/90 flex items-center justify-center z-50"
           style={{ contain: 'layout style paint' }}
           onClick={() => setShowMediaModal(false)}
         >
@@ -435,7 +435,7 @@ export function PortfolioItemDisplay({
               {mediaUrls.length > 1 && (
                 <button
                   onClick={goToPrevious}
-                  className="p-2.5 bg-white/10 hover:bg-white/20 text-white rounded-xl transition-all duration-200 hover:scale-105"
+                  className="p-2.5 bg-white/10 hover:bg-white/15 text-white rounded-xl transition-all duration-200 hover:scale-105"
                   title="Previous"
                 >
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -461,7 +461,7 @@ export function PortfolioItemDisplay({
               {mediaUrls.length > 1 && (
                 <button
                   onClick={goToNext}
-                  className="p-2.5 bg-white/10 hover:bg-white/20 text-white rounded-xl transition-all duration-200 hover:scale-105"
+                  className="p-2.5 bg-white/10 hover:bg-white/15 text-white rounded-xl transition-all duration-200 hover:scale-105"
                   title="Next"
                 >
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -482,7 +482,7 @@ export function PortfolioItemDisplay({
               {/* Zoom Out */}
               <button
                 onClick={() => setZoomLevel(prev => Math.max(prev - 0.5, 0.5))}
-                className="p-2.5 bg-white/10 hover:bg-white/20 text-white rounded-xl transition-all duration-200 hover:scale-105 disabled:opacity-40 disabled:hover:scale-100"
+                className="p-2.5 bg-white/10 hover:bg-white/15 text-white rounded-xl transition-all duration-200 hover:scale-105 disabled:opacity-40 disabled:hover:scale-100"
                 disabled={zoomLevel <= 0.5}
                 title="Zoom out (-)"
               >
@@ -501,7 +501,7 @@ export function PortfolioItemDisplay({
               {/* Zoom In */}
               <button
                 onClick={() => setZoomLevel(prev => Math.min(prev + 0.5, 5))}
-                className="p-2.5 bg-white/10 hover:bg-white/20 text-white rounded-xl transition-all duration-200 hover:scale-105 disabled:opacity-40 disabled:hover:scale-100"
+                className="p-2.5 bg-white/10 hover:bg-white/15 text-white rounded-xl transition-all duration-200 hover:scale-105 disabled:opacity-40 disabled:hover:scale-100"
                 disabled={zoomLevel >= 5}
                 title="Zoom in (+)"
               >
@@ -518,7 +518,7 @@ export function PortfolioItemDisplay({
                   setZoomLevel(1);
                   setPanPosition({ x: 0, y: 0 });
                 }}
-                className="p-2.5 bg-white/10 hover:bg-white/20 text-white rounded-xl transition-all duration-200 hover:scale-105"
+                className="p-2.5 bg-white/10 hover:bg-white/15 text-white rounded-xl transition-all duration-200 hover:scale-105"
                 title="Reset zoom (0)"
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
