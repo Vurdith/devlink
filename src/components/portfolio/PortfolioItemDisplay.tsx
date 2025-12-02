@@ -528,10 +528,6 @@ export function PortfolioItemDisplay({
               </button>
             </div>
 
-            {/* Keyboard shortcuts hint */}
-            <div className="absolute bottom-20 left-1/2 -translate-x-1/2 text-white/40 text-xs">
-              Scroll to zoom • Drag to pan when zoomed • Press 0 to reset
-            </div>
           </div>
         </div>
       )}
