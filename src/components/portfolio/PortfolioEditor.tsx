@@ -2,6 +2,7 @@
 
 import { useState, useCallback, memo, useRef } from "react";
 import { BaseModal, ModalInput, ModalTextarea, Tooltip } from "@/components/ui/BaseModal";
+import { Button } from "@/components/ui/Button";
 
 interface PortfolioEditorProps {
   isOpen: boolean;
@@ -262,22 +263,18 @@ export function PortfolioEditor({
   }, [links, mediaUrls, tags, isPublic, existingItem, onSave]);
 
   const footer = (
-    <div className="flex gap-2 justify-end">
-      <button
-        type="button"
-        onClick={onClose}
-        className="px-4 py-2 text-xs rounded-lg border border-white/10 bg-white/5 text-white/70 hover:bg-white/10 transition-colors font-medium"
-      >
+    <div className="flex gap-3 justify-end">
+      <Button variant="ghost" onClick={onClose} size="sm">
         Cancel
-      </button>
-      <button
-        type="submit"
+      </Button>
+      <Button
         onClick={handleSubmit}
         disabled={loading || uploadingMedia}
-        className="px-4 py-2 text-xs rounded-lg bg-gradient-to-r from-purple-500 to-purple-600 text-white hover:from-purple-600 hover:to-purple-700 transition-all font-medium disabled:opacity-50"
+        isLoading={loading}
+        size="sm"
       >
-        {loading ? "Saving..." : existingItem ? "Update" : "Add Item"}
-      </button>
+        {existingItem ? "Update" : "Add Item"}
+      </Button>
     </div>
   );
 

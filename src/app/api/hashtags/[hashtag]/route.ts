@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/server/db";
 import { getUniqueViewCounts } from "@/lib/view-utils";
 import { responseCache } from "@/lib/cache";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/server/auth-options";
 
 const HASHTAG_CACHE_TTL = 60; // Cache for 60 seconds
 
@@ -15,15 +17,19 @@ export async function GET(
     const page = parseInt(searchParams.get("page") || "1");
     const limit = Math.min(parseInt(searchParams.get("limit") || "20"), 50);
     const skip = (page - 1) * limit;
+    
+    const session = await getServerSession(authOptions);
+    const currentUserId = (session?.user as any)?.id;
 
-    const cacheKey = `hashtag:${hashtag.toLowerCase()}:${page}:${limit}`;
+    // Cache key includes user ID for personalized engagement flags
+    const cacheKey = `hashtag:${hashtag.toLowerCase()}:${page}:${limit}:${currentUserId || 'anon'}`;
     
     // Try cache first
     const cached = await responseCache.get<any>(cacheKey);
     if (cached) {
       const response = NextResponse.json(cached);
       response.headers.set("X-Cache", "HIT");
-      response.headers.set("Cache-Control", "public, max-age=30, stale-while-revalidate=60");
+      response.headers.set("Cache-Control", "private, max-age=30, stale-while-revalidate=60");
       return response;
     }
 
@@ -92,7 +98,27 @@ export async function GET(
     ]);
 
     const postIds = posts.map((post) => post.id);
-    const viewCountMap = await getUniqueViewCounts(postIds);
+    
+    // Batch fetch all engagement data in parallel
+    const [viewCountMap, userLikes, userReposts, userSaves] = await Promise.all([
+      getUniqueViewCounts(postIds),
+      currentUserId ? prisma.postLike.findMany({
+        where: { postId: { in: postIds }, userId: currentUserId },
+        select: { postId: true }
+      }) : Promise.resolve([]),
+      currentUserId ? prisma.postRepost.findMany({
+        where: { postId: { in: postIds }, userId: currentUserId },
+        select: { postId: true }
+      }) : Promise.resolve([]),
+      currentUserId ? prisma.savedPost.findMany({
+        where: { postId: { in: postIds }, userId: currentUserId },
+        select: { postId: true }
+      }) : Promise.resolve([])
+    ]);
+    
+    const likedPostIds = new Set(userLikes.map(l => l.postId));
+    const repostedPostIds = new Set(userReposts.map(r => r.postId));
+    const savedPostIds = new Set(userSaves.map(s => s.postId));
 
     const finalPosts = posts.map((post: any) => {
       const poll = post.poll
@@ -110,6 +136,9 @@ export async function GET(
       return {
         ...post,
         views: viewCountMap.get(post.id) || 0,
+        isLiked: likedPostIds.has(post.id),
+        isReposted: repostedPostIds.has(post.id),
+        isSaved: savedPostIds.has(post.id),
         poll,
         // Add counts for UI
         likes: [],
@@ -138,7 +167,7 @@ export async function GET(
 
     const response = NextResponse.json(result);
     response.headers.set("X-Cache", "MISS");
-    response.headers.set("Cache-Control", "public, max-age=30, stale-while-revalidate=60");
+    response.headers.set("Cache-Control", "private, max-age=30, stale-while-revalidate=60");
     return response;
 
   } catch (error) {

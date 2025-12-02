@@ -56,29 +56,10 @@ export async function POST(req: Request) {
       reposted = true;
     }
 
-    // Invalidate feed cache to reflect the new repost state
+    // Invalidate all caches that contain user engagement state
     responseCache.invalidatePattern(/^feed:/);
-    // Also invalidate current user's engagement caches
-    responseCache.invalidatePattern(new RegExp(`^users:${userId}:`));
-    responseCache.invalidatePattern(new RegExp(`^saved-posts:${userId}:`));
-    
-    // Explicitly delete engagement-related cache keys to ensure fresh data
-    const repostsCacheKey = `users:${userId}:reposts`;
-    const likedPostsCacheKey = `users:${userId}:liked-posts`;
-    responseCache.delete(repostsCacheKey);
-    responseCache.delete(likedPostsCacheKey);
-    
-    // Also delete the old cache key format if it exists
-    const oldRepostsCacheKey = `users:${userId}:reposted-posts`;
-    responseCache.delete(oldRepostsCacheKey);
-    
-    // Also delete all saved posts cache keys (they're paginated)
-    for (let page = 1; page <= 10; page++) {
-      for (let limit of [20, 50, 100]) {
-        const savedPostsCacheKey = `saved-posts:${userId}:page-${page}:limit-${limit}`;
-        responseCache.delete(savedPostsCacheKey);
-      }
-    }
+    responseCache.invalidatePattern(new RegExp(`^user:${userId}:`));
+    responseCache.invalidatePattern(new RegExp(`^hashtag:.*:${userId}$`));
 
     return NextResponse.json({ reposted });
   } catch (error) {

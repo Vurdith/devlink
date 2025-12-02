@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, memo, useCallback, Suspense, lazy } from "
 import { useSession } from "next-auth/react";
 import { TimeAgo } from "@/components/ui/TimeAgo";
 import { BaseModal, ModalActionButton, Tooltip } from "@/components/ui/BaseModal";
+import { Button } from "@/components/ui/Button";
 import Image from "next/image";
 import { cn } from "@/lib/cn";
 
@@ -182,25 +183,14 @@ export const ReplyModal = memo(function ReplyModal({
   };
 
   const headerRight = (
-    <button
+    <Button
       onClick={handleSubmit}
       disabled={(!content.trim() && !pollData) || isSubmitting}
-      className={cn(
-        "px-5 py-2 rounded-xl text-sm font-semibold transition-all",
-        (content.trim() || pollData) && !isSubmitting
-          ? "bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-400 hover:to-purple-500 text-white shadow-lg shadow-purple-500/25"
-          : "bg-white/10 text-white/40 cursor-not-allowed"
-      )}
+      isLoading={isSubmitting}
+      size="sm"
     >
-      {isSubmitting ? (
-        <div className="flex items-center gap-2">
-          <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-          <span>Posting...</span>
-        </div>
-      ) : (
-        "Reply"
-      )}
-    </button>
+      Reply
+    </Button>
   );
 
   const footer = (

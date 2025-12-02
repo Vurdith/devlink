@@ -60,23 +60,10 @@ export async function POST(request: NextRequest) {
       saved = true;
     }
 
-    // Invalidate feed cache to reflect the new save state
+    // Invalidate all caches that contain user engagement state
     responseCache.invalidatePattern(/^feed:/);
-    // Also invalidate current user's engagement caches
-    responseCache.invalidatePattern(new RegExp(`^users:${user.id}:`));
-    responseCache.invalidatePattern(new RegExp(`^saved-posts:${user.id}:`));
-    
-    // Explicitly delete all saved posts cache keys (they're paginated)
-    // Delete common pagination patterns
-    for (let page = 1; page <= 10; page++) {
-      for (let limit of [20, 50, 100]) {
-        const savedPostsCacheKey = `saved-posts:${user.id}:page-${page}:limit-${limit}`;
-        responseCache.delete(savedPostsCacheKey);
-      }
-    }
-    // Also delete the generic key pattern
-    const genericSavedCacheKey = `saved-posts:${user.id}:posts`;
-    responseCache.delete(genericSavedCacheKey);
+    responseCache.invalidatePattern(new RegExp(`^user:${user.id}:`));
+    responseCache.invalidatePattern(new RegExp(`^hashtag:.*:${user.id}$`));
 
     return NextResponse.json({ saved });
   } catch (error) {
@@ -214,19 +201,38 @@ export async function GET(request: NextRequest) {
     
     const userVotedOptions = new Set(userPollVotes.map(v => v.optionId));
 
+    // Batch fetch user's likes and reposts for these posts
+    const [userLikes, userReposts] = await Promise.all([
+      currentUserId ? prisma.postLike.findMany({
+        where: { postId: { in: postIds }, userId: currentUserId },
+        select: { postId: true }
+      }) : Promise.resolve([]),
+      currentUserId ? prisma.postRepost.findMany({
+        where: { postId: { in: postIds }, userId: currentUserId },
+        select: { postId: true }
+      }) : Promise.resolve([])
+    ]);
+    
+    const likedPostIds = new Set(userLikes.map(l => l.postId));
+    const repostedPostIds = new Set(userReposts.map(r => r.postId));
+
     // Transform posts (no async needed now - all data is pre-fetched)
     const postsWithViewCounts = savedPosts.map((savedPost) => {
       const viewCount = viewsMap.get(savedPost.post.id) || 0;
       const post = savedPost.post as any;
       
-      // Transform to expected format with counts
+      // Transform to expected format with proper engagement flags
       const transformedPost = {
         ...post,
         views: viewCount,
-        // Convert _count to arrays for API compatibility
-        likes: Array(post._count?.likes || 0).fill({ id: '', userId: '' }),
-        reposts: Array(post._count?.reposts || 0).fill({ id: '', userId: '' }),
-        savedBy: Array(post._count?.savedBy || 0).fill({ id: '', userId: '' }),
+        // Set boolean flags for current user's engagement
+        isLiked: likedPostIds.has(post.id),
+        isReposted: repostedPostIds.has(post.id),
+        isSaved: true, // Always true since these are saved posts
+        // Keep counts for display
+        likes: [],
+        reposts: [],
+        savedBy: [],
         replies: Array(post._count?.replies || 0).fill(null),
         poll: post.poll ? {
           id: post.poll.id,

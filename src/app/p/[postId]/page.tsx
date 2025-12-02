@@ -218,18 +218,37 @@ export default async function PostPage({ params }: { params: Promise<{ postId: s
     notFound();
   }
 
-  // Get unique account view count for the post
-  const allViews = await prisma.postView.findMany({
-    where: { postId: post.id },
-    select: { userId: true }
-  });
+  // Get unique account view count for the post and current user's engagement
+  const currentUserId = (session?.user as any)?.id;
+  
+  const [allViews, userLike, userRepost, userSave] = await Promise.all([
+    prisma.postView.findMany({
+      where: { postId: post.id },
+      select: { userId: true }
+    }),
+    currentUserId ? prisma.postLike.findFirst({
+      where: { postId: post.id, userId: currentUserId }
+    }) : Promise.resolve(null),
+    currentUserId ? prisma.postRepost.findFirst({
+      where: { postId: post.id, userId: currentUserId }
+    }) : Promise.resolve(null),
+    currentUserId ? prisma.savedPost.findFirst({
+      where: { postId: post.id, userId: currentUserId }
+    }) : Promise.resolve(null)
+  ]);
   
   const uniqueAccountViewCount = new Set(
     allViews.filter(v => v.userId).map(v => v.userId)
   ).size;
 
   // Transform poll data to include user's vote status and vote counts
-  let transformedPost = { ...post, views: uniqueAccountViewCount };
+  let transformedPost = { 
+    ...post, 
+    views: uniqueAccountViewCount,
+    isLiked: !!userLike,
+    isReposted: !!userRepost,
+    isSaved: !!userSave
+  };
   if (post.poll && session?.user?.id) {
     const totalVotes = post.poll.options.reduce((sum: number, option: any) => sum + option.votes.length, 0);
     
@@ -258,19 +277,45 @@ export default async function PostPage({ params }: { params: Promise<{ postId: s
     } as any;
   }
 
-  // Add unique account view counts to replies
-  const repliesWithViewCounts = await Promise.all(
-    transformedPost.replies.map(async (reply: any) => {
-      const replyViews = await prisma.postView.findMany({
-        where: { postId: reply.id },
-        select: { userId: true }
-      });
-      const replyUniqueViewCount = new Set(
-        replyViews.filter(v => v.userId).map(v => v.userId)
-      ).size;
-      return { ...reply, views: replyUniqueViewCount };
-    })
-  );
+  // Add unique account view counts and engagement flags to replies
+  const replyIds = transformedPost.replies.map((reply: any) => reply.id);
+  
+  const [replyViewCounts, replyUserLikes, replyUserReposts, replyUserSaves] = await Promise.all([
+    // Get view counts for all replies
+    prisma.postView.groupBy({
+      by: ['postId'],
+      where: { postId: { in: replyIds } },
+      _count: { userId: true }
+    }),
+    // Get current user's likes on replies
+    currentUserId ? prisma.postLike.findMany({
+      where: { postId: { in: replyIds }, userId: currentUserId },
+      select: { postId: true }
+    }) : Promise.resolve([]),
+    // Get current user's reposts on replies
+    currentUserId ? prisma.postRepost.findMany({
+      where: { postId: { in: replyIds }, userId: currentUserId },
+      select: { postId: true }
+    }) : Promise.resolve([]),
+    // Get current user's saves on replies
+    currentUserId ? prisma.savedPost.findMany({
+      where: { postId: { in: replyIds }, userId: currentUserId },
+      select: { postId: true }
+    }) : Promise.resolve([])
+  ]);
+  
+  const replyViewMap = new Map(replyViewCounts.map(r => [r.postId, r._count.userId]));
+  const likedReplyIds = new Set(replyUserLikes.map(l => l.postId));
+  const repostedReplyIds = new Set(replyUserReposts.map(r => r.postId));
+  const savedReplyIds = new Set(replyUserSaves.map(s => s.postId));
+  
+  const repliesWithViewCounts = transformedPost.replies.map((reply: any) => ({
+    ...reply,
+    views: replyViewMap.get(reply.id) || 0,
+    isLiked: likedReplyIds.has(reply.id),
+    isReposted: repostedReplyIds.has(reply.id),
+    isSaved: savedReplyIds.has(reply.id)
+  }));
 
   return (
     <PostPageContent 

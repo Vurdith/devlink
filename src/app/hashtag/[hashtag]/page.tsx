@@ -112,11 +112,31 @@ export default async function HashtagPage(props: { params: Promise<{ hashtag: st
     }
   });
 
-  // Get view counts
+  // Get view counts and current user's engagement
   const postIds = posts.map((post) => post.id);
-  const viewCountMap = await getUniqueViewCounts(postIds);
+  const currentUserId = (session?.user as any)?.id;
+  
+  const [viewCountMap, userLikes, userReposts, userSaves] = await Promise.all([
+    getUniqueViewCounts(postIds),
+    currentUserId ? prisma.postLike.findMany({
+      where: { postId: { in: postIds }, userId: currentUserId },
+      select: { postId: true }
+    }) : Promise.resolve([]),
+    currentUserId ? prisma.postRepost.findMany({
+      where: { postId: { in: postIds }, userId: currentUserId },
+      select: { postId: true }
+    }) : Promise.resolve([]),
+    currentUserId ? prisma.savedPost.findMany({
+      where: { postId: { in: postIds }, userId: currentUserId },
+      select: { postId: true }
+    }) : Promise.resolve([])
+  ]);
+  
+  const likedPostIds = new Set(userLikes.map(l => l.postId));
+  const repostedPostIds = new Set(userReposts.map(r => r.postId));
+  const savedPostIds = new Set(userSaves.map(s => s.postId));
 
-  // Transform posts with view counts and poll data
+  // Transform posts with view counts, engagement flags, and poll data
   const finalPosts = posts.map((post) => {
     const poll = post.poll
       ? {
@@ -136,6 +156,9 @@ export default async function HashtagPage(props: { params: Promise<{ hashtag: st
     return {
       ...post,
       views: viewCountMap.get(post.id) || 0,
+      isLiked: likedPostIds.has(post.id),
+      isReposted: repostedPostIds.has(post.id),
+      isSaved: savedPostIds.has(post.id),
       poll,
     };
   });

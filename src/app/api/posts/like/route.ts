@@ -54,8 +54,10 @@ export async function POST(req: Request) {
       throw dbError;
     }
 
-    // Invalidate only the specific caches needed (more targeted)
-    responseCache.delete(`users:${userId}:liked-posts`);
+    // Invalidate all caches that contain user engagement state
+    responseCache.invalidatePattern(new RegExp(`^user:${userId}:`));
+    responseCache.invalidatePattern(new RegExp(`^hashtag:.*:${userId}$`));
+    // Note: Post pages are server-rendered and don't use response cache
 
     return NextResponse.json({ liked });
   } catch (error) {

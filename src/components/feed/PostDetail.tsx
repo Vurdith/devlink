@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { TimeAgo } from "@/components/ui/TimeAgo";
+import { Button } from "@/components/ui/Button";
 import { createPortal } from "react-dom";
 import { ContentRenderer } from "@/components/ui/ContentRenderer";
 import { ProfileTooltip } from "@/components/ui/ProfileTooltip";
@@ -885,12 +886,12 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
               Are you sure you want to delete this post? This action cannot be undone.
             </p>
             <div className="flex gap-3 justify-end">
-              <button onClick={() => setShowDeleteConfirm(false)} className="px-4 py-2 text-sm font-medium text-[var(--muted-foreground)] hover:text-white transition-colors">
+              <Button variant="ghost" onClick={() => setShowDeleteConfirm(false)} size="sm">
                 Cancel
-              </button>
-              <button onClick={confirmDelete} className="px-4 py-2 text-sm font-medium text-white bg-red-500 hover:bg-red-600 rounded-md transition-colors">
+              </Button>
+              <Button variant="destructive" onClick={confirmDelete} size="sm">
                 Delete Post
-              </button>
+              </Button>
             </div>
           </div>
         </div>

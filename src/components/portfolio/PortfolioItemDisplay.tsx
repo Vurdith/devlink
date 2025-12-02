@@ -3,6 +3,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/Button";
 
 interface PortfolioItem {
   id: string;
@@ -578,39 +579,24 @@ export function PortfolioItemDisplay({
 
             {/* Actions */}
             <div className="flex gap-3">
-              <button
+              <Button
+                variant="ghost"
                 onClick={() => setShowDeleteConfirm(false)}
-                className="flex-1 px-4 py-2.5 rounded-xl border border-[var(--border)] bg-[var(--muted)]/10 text-[var(--foreground)] font-medium hover:bg-[var(--muted)]/25 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+                className="flex-1"
+                size="sm"
               >
                 Cancel
-              </button>
-              <button
+              </Button>
+              <Button
+                variant="destructive"
                 onClick={handleDelete}
                 disabled={isDeleting}
-                className="flex-1 px-4 py-2.5 rounded-xl bg-red-500/20 text-red-400 font-medium border border-red-500/30 hover:bg-red-500/30 hover:border-red-500/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2"
+                isLoading={isDeleting}
+                className="flex-1"
+                size="sm"
               >
-                {isDeleting ? (
-                  <>
-                    <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
-                      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeOpacity="0.3"/>
-                      <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/>
-                    </svg>
-                    Deleting...
-                  </>
-                ) : (
-                  <>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                      <path
-                        d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6h14z"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                      />
-                    </svg>
-                    Delete
-                  </>
-                )}
-              </button>
+                Delete
+              </Button>
             </div>
           </div>
         </div>

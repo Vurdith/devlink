@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState, useCallback, ReactNode, memo } from "react";
+import { useEffect, useState, useCallback, ReactNode, memo, useRef } from "react";
 import { createPortal } from "react-dom";
 import { cn } from "@/lib/cn";
 
-// Tooltip component for action buttons
+// Portal-based Tooltip component - won't clip at container boundaries
 export const Tooltip = memo(function Tooltip({ 
   children, 
   content,
@@ -14,22 +14,80 @@ export const Tooltip = memo(function Tooltip({
   content: string;
   side?: "top" | "bottom" | "left" | "right";
 }) {
-  const positionClasses = {
-    top: "bottom-full left-1/2 -translate-x-1/2 mb-2",
-    bottom: "top-full left-1/2 -translate-x-1/2 mt-2",
-    left: "right-full top-1/2 -translate-y-1/2 mr-2",
-    right: "left-full top-1/2 -translate-y-1/2 ml-2",
+  const [showTooltip, setShowTooltip] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const handleMouseEnter = () => {
+    if (containerRef.current) {
+      const rect = containerRef.current.getBoundingClientRect();
+      let x = rect.left + rect.width / 2;
+      let y = rect.top;
+      
+      // Adjust position based on side
+      switch (side) {
+        case "bottom":
+          y = rect.bottom + 8;
+          break;
+        case "left":
+          x = rect.left - 8;
+          y = rect.top + rect.height / 2;
+          break;
+        case "right":
+          x = rect.right + 8;
+          y = rect.top + rect.height / 2;
+          break;
+        default: // top
+          y = rect.top - 8;
+      }
+      
+      setPosition({ x, y });
+    }
+    setShowTooltip(true);
   };
 
-  return (
-    <div className="relative group">
-      {children}
-      <span className={cn(
-        "absolute z-50 px-2 py-1 text-xs font-medium text-white bg-black/90 border border-white/10 rounded-lg whitespace-nowrap opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 pointer-events-none",
-        positionClasses[side]
-      )}>
+  const getTransform = () => {
+    switch (side) {
+      case "bottom": return 'translate(-50%, 0)';
+      case "left": return 'translate(-100%, -50%)';
+      case "right": return 'translate(0, -50%)';
+      default: return 'translate(-50%, -100%)'; // top
+    }
+  };
+
+  const tooltipContent = showTooltip && mounted && createPortal(
+    <div 
+      className={cn(
+        "fixed pointer-events-none transition-all duration-200 z-[99999]",
+        showTooltip ? "opacity-100 scale-100" : "opacity-0 scale-95"
+      )}
+      style={{
+        left: position.x,
+        top: position.y,
+        transform: getTransform()
+      }}
+    >
+      <div className="px-2.5 py-1.5 text-xs font-medium text-white bg-gradient-to-r from-purple-500/90 to-purple-600/90 border border-purple-400/30 rounded-lg shadow-xl shadow-purple-500/20 whitespace-nowrap backdrop-blur-sm">
         {content}
-      </span>
+      </div>
+    </div>,
+    document.body
+  );
+
+  return (
+    <div 
+      ref={containerRef}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={() => setShowTooltip(false)}
+      className="inline-block"
+    >
+      {children}
+      {tooltipContent}
     </div>
   );
 });
