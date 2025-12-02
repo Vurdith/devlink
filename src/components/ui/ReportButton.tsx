@@ -68,7 +68,8 @@ export const ReportButton = memo(function ReportButton({ targetUserId, targetUse
       
       {showReportForm && (
         <div
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in"
+          className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4 animate-fade-in"
+          style={{ contain: 'layout style paint' }}
           onClick={(e) => {
             if (e.target === e.currentTarget) {
               setShowReportForm(false);

@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useCallback, useMemo, memo } from "react";
+import { useState, useCallback, memo, useRef, useTransition } from "react";
 import { Button } from "@/components/ui/Button";
 
 interface PortfolioEditorProps {
@@ -11,74 +11,82 @@ interface PortfolioEditorProps {
   userId: string;
 }
 
-// Memoized list item components for better performance
-const MediaUrlItem = memo(({ url, idx, onRemove }: { url: string; idx: number; onRemove: (idx: number) => void }) => (
-  <div className="flex items-center gap-2 px-2.5 py-1.5 bg-white/5 rounded-lg group hover:bg-white/10 transition-colors">
-    <span className="text-[11px] text-white/50 truncate flex-1">{url}</span>
-    <button
-      type="button"
-      onClick={() => onRemove(idx)}
-      className="p-0.5 text-red-400 hover:bg-red-500/20 rounded transition-colors opacity-0 group-hover:opacity-100"
-    >
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-        <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-      </svg>
-    </button>
-  </div>
-));
-
-const LinkItem = memo(({ link, idx, onRemove }: { link: string; idx: number; onRemove: (idx: number) => void }) => (
-  <div className="flex items-center gap-2 px-2.5 py-1.5 bg-white/5 rounded-lg group hover:bg-white/10 transition-colors">
-    <span className="text-[11px] text-white/50 truncate flex-1">{link}</span>
-    <button
-      type="button"
-      onClick={() => onRemove(idx)}
-      className="p-0.5 text-red-400 hover:bg-red-500/20 rounded transition-colors opacity-0 group-hover:opacity-100"
-    >
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-        <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-      </svg>
-    </button>
-  </div>
-));
-
-const TagItem = memo(({ tag, idx, onRemove }: { tag: string; idx: number; onRemove: (idx: number) => void }) => (
-  <div className="flex items-center gap-1 px-2 py-1 bg-purple-500/15 text-purple-400 rounded-full border border-purple-500/30 group hover:border-purple-500/50 transition-all">
-    <span className="text-[10px] font-medium">#{tag}</span>
-    <button
-      type="button"
-      onClick={() => onRemove(idx)}
-      className="p-0.5 text-purple-400 hover:bg-purple-500/30 rounded-full transition-colors opacity-0 group-hover:opacity-100"
-    >
-      <svg width="10" height="10" viewBox="0 0 24 24" fill="none">
-        <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
-      </svg>
-    </button>
-  </div>
-));
-
-const MediaPreview = memo(({ url, idx, onRemove }: { url: string; idx: number; onRemove: (idx: number) => void }) => (
-  <div className="relative group">
-    <div className="aspect-square rounded-lg overflow-hidden bg-white/5">
-      <img
-        src={url}
-        alt={`Preview ${idx + 1}`}
-        className="w-full h-full object-cover"
-        loading="lazy"
-        onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
-      />
+// Memoized list item components for better performance - removes re-renders
+const MediaUrlItem = memo(function MediaUrlItem({ url, idx, onRemove }: { url: string; idx: number; onRemove: (idx: number) => void }) {
+  return (
+    <div className="flex items-center gap-2 px-2.5 py-1.5 bg-white/5 rounded-lg group hover:bg-white/10">
+      <span className="text-[11px] text-white/50 truncate flex-1">{url}</span>
+      <button
+        type="button"
+        onClick={() => onRemove(idx)}
+        className="p-0.5 text-red-400 hover:bg-red-500/20 rounded opacity-0 group-hover:opacity-100"
+      >
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+          <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+        </svg>
+      </button>
     </div>
-    <button
-      type="button"
-      onClick={() => onRemove(idx)}
-      className="absolute top-1 right-1 p-1 bg-black/70 text-white rounded-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500"
-    >
-      <svg width="10" height="10" viewBox="0 0 24 24" fill="none">
-        <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
-      </svg>
-    </button>
-  </div>
-));
+  );
+});
+
+const LinkItem = memo(function LinkItem({ link, idx, onRemove }: { link: string; idx: number; onRemove: (idx: number) => void }) {
+  return (
+    <div className="flex items-center gap-2 px-2.5 py-1.5 bg-white/5 rounded-lg group hover:bg-white/10">
+      <span className="text-[11px] text-white/50 truncate flex-1">{link}</span>
+      <button
+        type="button"
+        onClick={() => onRemove(idx)}
+        className="p-0.5 text-red-400 hover:bg-red-500/20 rounded opacity-0 group-hover:opacity-100"
+      >
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+          <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+        </svg>
+      </button>
+    </div>
+  );
+});
+
+const TagItem = memo(function TagItem({ tag, idx, onRemove }: { tag: string; idx: number; onRemove: (idx: number) => void }) {
+  return (
+    <div className="flex items-center gap-1 px-2 py-1 bg-purple-500/15 text-purple-400 rounded-full border border-purple-500/30 group hover:border-purple-500/50">
+      <span className="text-[10px] font-medium">#{tag}</span>
+      <button
+        type="button"
+        onClick={() => onRemove(idx)}
+        className="p-0.5 text-purple-400 hover:bg-purple-500/30 rounded-full opacity-0 group-hover:opacity-100"
+      >
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none">
+          <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+        </svg>
+      </button>
+    </div>
+  );
+});
+
+const MediaPreview = memo(function MediaPreview({ url, idx, onRemove }: { url: string; idx: number; onRemove: (idx: number) => void }) {
+  return (
+    <div className="relative group">
+      <div className="aspect-square rounded-lg overflow-hidden bg-white/5">
+        <img
+          src={url}
+          alt={`Preview ${idx + 1}`}
+          className="w-full h-full object-cover"
+          loading="lazy"
+          onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+        />
+      </div>
+      <button
+        type="button"
+        onClick={() => onRemove(idx)}
+        className="absolute top-1 right-1 p-1 bg-black/70 text-white rounded-md opacity-0 group-hover:opacity-100 hover:bg-red-500"
+      >
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none">
+          <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+        </svg>
+      </button>
+    </div>
+  );
+});
 
 export function PortfolioEditor({
   onClose,
@@ -86,23 +94,26 @@ export function PortfolioEditor({
   existingItem,
   userId,
 }: PortfolioEditorProps) {
-  const [title, setTitle] = useState(existingItem?.title || "");
-  const [description, setDescription] = useState(
-    existingItem?.description || ""
-  );
-  const [category, setCategory] = useState(existingItem?.category || "");
-  const [links, setLinks] = useState(existingItem?.links ? existingItem.links.split(",").map((l: string) => l.trim()) : []);
-  const [mediaUrls, setMediaUrls] = useState(existingItem?.mediaUrls ? existingItem.mediaUrls.split(",").map((m: string) => m.trim()) : []);
-  const [tags, setTags] = useState(existingItem?.tags ? existingItem.tags.split(",").map((t: string) => t.trim()) : []);
+  // Use refs for main form fields to avoid re-renders on every keystroke
+  const titleRef = useRef<HTMLInputElement>(null);
+  const descriptionRef = useRef<HTMLTextAreaElement>(null);
+  const categoryRef = useRef<HTMLInputElement>(null);
+  
+  // Only use state for dynamic arrays and UI state
+  const [links, setLinks] = useState(() => existingItem?.links ? existingItem.links.split(",").map((l: string) => l.trim()).filter(Boolean) : []);
+  const [mediaUrls, setMediaUrls] = useState(() => existingItem?.mediaUrls ? existingItem.mediaUrls.split(",").map((m: string) => m.trim()).filter(Boolean) : []);
+  const [tags, setTags] = useState(() => existingItem?.tags ? existingItem.tags.split(",").map((t: string) => t.trim()).filter(Boolean) : []);
   const [isPublic, setIsPublic] = useState(existingItem?.isPublic ?? true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [mediaInputMethod, setMediaInputMethod] = useState<"url" | "upload">("url");
   const [uploadingMedia, setUploadingMedia] = useState(false);
   const [dragActive, setDragActive] = useState(false);
-  const [newMediaUrl, setNewMediaUrl] = useState("");
-  const [newLink, setNewLink] = useState("");
-  const [newTag, setNewTag] = useState("");
+  
+  // Use refs for small input fields to avoid re-renders
+  const newMediaUrlRef = useRef<HTMLInputElement>(null);
+  const newLinkRef = useRef<HTMLInputElement>(null);
+  const newTagRef = useRef<HTMLInputElement>(null);
 
   // Memoized callback functions to prevent re-creation on every render
   const handleDrag = useCallback((e: React.DragEvent) => {
@@ -156,33 +167,36 @@ export function PortfolioEditor({
   }, [uploadFiles]);
 
   const addMediaUrl = useCallback(() => {
-    if (newMediaUrl.trim()) {
-      setMediaUrls((prev: string[]) => [...prev, newMediaUrl.trim()]);
-      setNewMediaUrl("");
+    const value = newMediaUrlRef.current?.value.trim();
+    if (value) {
+      setMediaUrls((prev: string[]) => [...prev, value]);
+      if (newMediaUrlRef.current) newMediaUrlRef.current.value = "";
     }
-  }, [newMediaUrl]);
+  }, []);
 
   const removeMediaUrl = useCallback((index: number) => {
     setMediaUrls((prev: string[]) => prev.filter((_: string, i: number) => i !== index));
   }, []);
 
   const addLink = useCallback(() => {
-    if (newLink.trim()) {
-      setLinks((prev: string[]) => [...prev, newLink.trim()]);
-      setNewLink("");
+    const value = newLinkRef.current?.value.trim();
+    if (value) {
+      setLinks((prev: string[]) => [...prev, value]);
+      if (newLinkRef.current) newLinkRef.current.value = "";
     }
-  }, [newLink]);
+  }, []);
 
   const removeLink = useCallback((index: number) => {
     setLinks((prev: string[]) => prev.filter((_: string, i: number) => i !== index));
   }, []);
 
   const addTag = useCallback(() => {
-    if (newTag.trim()) {
-      setTags((prev: string[]) => [...prev, newTag.trim()]);
-      setNewTag("");
+    const value = newTagRef.current?.value.trim().toLowerCase();
+    if (value) {
+      setTags((prev: string[]) => [...prev, value]);
+      if (newTagRef.current) newTagRef.current.value = "";
     }
-  }, [newTag]);
+  }, []);
 
   const removeTag = useCallback((index: number) => {
     setTags((prev: string[]) => prev.filter((_: string, i: number) => i !== index));
@@ -192,6 +206,17 @@ export function PortfolioEditor({
     e.preventDefault();
     setLoading(true);
     setError("");
+
+    // Get values from refs
+    const title = titleRef.current?.value.trim() || "";
+    const description = descriptionRef.current?.value.trim() || "";
+    const category = categoryRef.current?.value.trim() || "";
+
+    if (!title) {
+      setError("Title is required");
+      setLoading(false);
+      return;
+    }
 
     try {
       const method = existingItem ? "PUT" : "POST";
@@ -225,11 +250,11 @@ export function PortfolioEditor({
     } finally {
       setLoading(false);
     }
-  }, [title, description, category, links, mediaUrls, tags, isPublic, existingItem, onSave]);
+  }, [links, mediaUrls, tags, isPublic, existingItem, onSave]);
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-[#0d0d12] border border-white/10 rounded-2xl w-full max-w-lg shadow-2xl shadow-black/50 max-h-[85vh] flex flex-col">
+    <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4" style={{ contain: 'layout style paint' }}>
+      <div className="bg-[#0d0d12] border border-white/10 rounded-2xl w-full max-w-lg shadow-2xl shadow-black/50 max-h-[85vh] flex flex-col" style={{ contain: 'content' }}>
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
           <h2 className="text-lg font-semibold text-white">
@@ -252,11 +277,11 @@ export function PortfolioEditor({
           <div>
             <label className="block text-xs font-medium mb-1.5 text-white/70">Title *</label>
             <input
+              ref={titleRef}
               type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              defaultValue={existingItem?.title || ""}
               placeholder="Project title"
-              className="w-full px-3 py-2 bg-black/30 border border-white/10 rounded-lg text-sm text-white placeholder-white/30 focus:outline-none focus:border-purple-500/50 transition-colors"
+              className="w-full px-3 py-2 bg-black/30 border border-white/10 rounded-lg text-sm text-white placeholder-white/30 focus:outline-none focus:border-purple-500/50"
               required
             />
           </div>
@@ -265,11 +290,11 @@ export function PortfolioEditor({
           <div>
             <label className="block text-xs font-medium mb-1.5 text-white/70">Category</label>
             <input
+              ref={categoryRef}
               type="text"
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
+              defaultValue={existingItem?.category || ""}
               placeholder="e.g. Project, Design, Development"
-              className="w-full px-3 py-2 bg-black/30 border border-white/10 rounded-lg text-sm text-white placeholder-white/30 focus:outline-none focus:border-purple-500/50 transition-colors"
+              className="w-full px-3 py-2 bg-black/30 border border-white/10 rounded-lg text-sm text-white placeholder-white/30 focus:outline-none focus:border-purple-500/50"
             />
           </div>
 
@@ -277,11 +302,11 @@ export function PortfolioEditor({
           <div>
             <label className="block text-xs font-medium mb-1.5 text-white/70">Description</label>
             <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              ref={descriptionRef}
+              defaultValue={existingItem?.description || ""}
               placeholder="Tell us about this item..."
               rows={3}
-              className="w-full px-3 py-2 bg-black/30 border border-white/10 rounded-lg text-sm text-white placeholder-white/30 focus:outline-none focus:border-purple-500/50 transition-colors resize-none"
+              className="w-full px-3 py-2 bg-black/30 border border-white/10 rounded-lg text-sm text-white placeholder-white/30 focus:outline-none focus:border-purple-500/50 resize-none"
             />
           </div>
 
@@ -317,22 +342,21 @@ export function PortfolioEditor({
               <div className="space-y-2">
                 <div className="flex gap-2">
                   <input
+                    ref={newMediaUrlRef}
                     type="text"
-                    value={newMediaUrl}
-                    onChange={(e) => setNewMediaUrl(e.target.value)}
-                    onKeyPress={(e) => {
+                    onKeyDown={(e) => {
                       if (e.key === "Enter") {
                         e.preventDefault();
                         addMediaUrl();
                       }
                     }}
                     placeholder="Paste image URL"
-                    className="flex-1 px-3 py-2 bg-black/30 border border-white/10 rounded-lg text-sm text-white placeholder-white/30 focus:outline-none focus:border-purple-500/50 transition-colors"
+                    className="flex-1 px-3 py-2 bg-black/30 border border-white/10 rounded-lg text-sm text-white placeholder-white/30 focus:outline-none focus:border-purple-500/50"
                   />
                   <button
                     type="button"
                     onClick={addMediaUrl}
-                    className="px-3 py-2 bg-purple-500/20 text-purple-400 hover:bg-purple-500/30 rounded-lg transition-colors text-xs font-medium"
+                    className="px-3 py-2 bg-purple-500/20 text-purple-400 hover:bg-purple-500/30 rounded-lg text-xs font-medium"
                   >
                     Add
                   </button>
@@ -384,14 +408,13 @@ export function PortfolioEditor({
             <label className="block text-xs font-medium mb-1.5 text-white/70">Links</label>
             <div className="flex gap-2 mb-2">
               <input
+                ref={newLinkRef}
                 type="text"
-                value={newLink}
-                onChange={(e) => setNewLink(e.target.value)}
-                onKeyPress={(e) => { if (e.key === "Enter") { e.preventDefault(); addLink(); } }}
+                onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addLink(); } }}
                 placeholder="Paste URL"
-                className="flex-1 px-3 py-2 bg-black/30 border border-white/10 rounded-lg text-sm text-white placeholder-white/30 focus:outline-none focus:border-purple-500/50 transition-colors"
+                className="flex-1 px-3 py-2 bg-black/30 border border-white/10 rounded-lg text-sm text-white placeholder-white/30 focus:outline-none focus:border-purple-500/50"
               />
-              <button type="button" onClick={addLink} className="px-3 py-2 bg-purple-500/20 text-purple-400 hover:bg-purple-500/30 rounded-lg transition-colors text-xs font-medium">
+              <button type="button" onClick={addLink} className="px-3 py-2 bg-purple-500/20 text-purple-400 hover:bg-purple-500/30 rounded-lg text-xs font-medium">
                 Add
               </button>
             </div>
@@ -409,14 +432,13 @@ export function PortfolioEditor({
             <label className="block text-xs font-medium mb-1.5 text-white/70">Tags</label>
             <div className="flex gap-2 mb-2">
               <input
+                ref={newTagRef}
                 type="text"
-                value={newTag}
-                onChange={(e) => setNewTag(e.target.value.toLowerCase())}
-                onKeyPress={(e) => { if (e.key === "Enter") { e.preventDefault(); addTag(); } }}
+                onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addTag(); } }}
                 placeholder="Type tag"
-                className="flex-1 px-3 py-2 bg-black/30 border border-white/10 rounded-lg text-sm text-white placeholder-white/30 focus:outline-none focus:border-purple-500/50 transition-colors"
+                className="flex-1 px-3 py-2 bg-black/30 border border-white/10 rounded-lg text-sm text-white placeholder-white/30 focus:outline-none focus:border-purple-500/50"
               />
-              <button type="button" onClick={addTag} className="px-3 py-2 bg-purple-500/20 text-purple-400 hover:bg-purple-500/30 rounded-lg transition-colors text-xs font-medium">
+              <button type="button" onClick={addTag} className="px-3 py-2 bg-purple-500/20 text-purple-400 hover:bg-purple-500/30 rounded-lg text-xs font-medium">
                 Add
               </button>
             </div>

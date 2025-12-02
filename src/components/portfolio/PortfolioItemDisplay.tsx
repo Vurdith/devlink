@@ -364,13 +364,14 @@ export function PortfolioItemDisplay({
       {/* Media Modal with Zoom */}
       {showMediaModal && mediaUrls.length > 0 && (
         <div 
-          className="fixed inset-0 bg-black/95 backdrop-blur-md flex items-center justify-center z-50"
+          className="fixed inset-0 bg-black/98 flex items-center justify-center z-50"
+          style={{ contain: 'layout style paint' }}
           onClick={() => setShowMediaModal(false)}
         >
           {/* Close button - top right corner */}
           <button
             onClick={() => setShowMediaModal(false)}
-            className="absolute top-4 right-4 p-3 bg-white/10 hover:bg-white/20 text-white rounded-full transition-all duration-200 hover:scale-110 z-[60] backdrop-blur-sm"
+            className="absolute top-4 right-4 p-3 bg-white/10 hover:bg-white/20 text-white rounded-full z-[60]"
             title="Close (Esc)"
           >
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -530,7 +531,8 @@ export function PortfolioItemDisplay({
       {/* Delete Confirmation Modal */}
       {showDeleteConfirm && (
         <div 
-          className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 animate-in fade-in duration-200"
+          className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 animate-in fade-in duration-200"
+          style={{ contain: 'layout style paint' }}
           onClick={() => setShowDeleteConfirm(false)}
         >
           <div 
