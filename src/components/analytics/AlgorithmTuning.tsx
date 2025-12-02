@@ -10,8 +10,8 @@ const TuningGroup: FC<{ title: string; children: React.ReactNode }> = ({
   title,
   children,
 }) => (
-  <div className="rounded-xl border border-purple-500/20 bg-gray-900/50 p-6 backdrop-blur-sm">
-    <h4 className="text-sm font-semibold text-purple-300">{title}</h4>
+  <div className="rounded-xl border border-red-600/20 bg-gray-900/50 p-6 backdrop-blur-sm">
+    <h4 className="text-sm font-semibold text-red-400">{title}</h4>
     <dl className="mt-4 space-y-3">{children}</dl>
   </div>
 );

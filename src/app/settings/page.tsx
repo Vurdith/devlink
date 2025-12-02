@@ -23,7 +23,7 @@ export default function SettingsPage() {
       
       {/* Account Linking Section */}
       <div 
-        className="bg-[#0d0d12] rounded-2xl p-6 border border-purple-500/20 animate-slide-up"
+        className="bg-[#0d0d12] rounded-2xl p-6 border border-red-600/20 animate-slide-up"
         style={{ animationDelay: '0.1s' }}
       >
         <AccountLinking />

@@ -11,7 +11,7 @@ import { cn } from "@/lib/cn";
 const PROFILE_GRADIENTS: Record<string, string> = {
   DEVELOPER: "from-blue-500/20 via-blue-400/10 to-cyan-500/20",
   CLIENT: "from-emerald-500/20 via-green-400/10 to-teal-500/20",
-  STUDIO: "from-purple-500/20 via-violet-400/10 to-fuchsia-500/20",
+  STUDIO: "from-red-600/20 via-violet-400/10 to-fuchsia-500/20",
   INFLUENCER: "from-rose-500/20 via-pink-400/10 to-red-500/20",
   INVESTOR: "from-amber-500/20 via-yellow-400/10 to-orange-500/20",
   DEFAULT: "from-slate-500/20 via-gray-400/10 to-zinc-500/20",
@@ -20,7 +20,7 @@ const PROFILE_GRADIENTS: Record<string, string> = {
 const PROFILE_BORDERS: Record<string, string> = {
   DEVELOPER: "border-blue-500/40 shadow-blue-500/20",
   CLIENT: "border-emerald-500/40 shadow-emerald-500/20",
-  STUDIO: "border-purple-500/40 shadow-purple-500/20",
+  STUDIO: "border-red-600/40 shadow-red-600/20",
   INFLUENCER: "border-rose-500/40 shadow-rose-500/20",
   INVESTOR: "border-amber-500/40 shadow-amber-500/20",
   DEFAULT: "border-white/20 shadow-white/10",
@@ -29,7 +29,7 @@ const PROFILE_BORDERS: Record<string, string> = {
 const BADGE_CLASSES: Record<string, string> = {
   DEVELOPER: "bg-blue-500/15 text-blue-300 border-blue-500/30 shadow-blue-500/20",
   CLIENT: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30 shadow-emerald-500/20",
-  STUDIO: "bg-purple-500/15 text-purple-300 border-purple-500/30 shadow-purple-500/20",
+  STUDIO: "bg-red-600/15 text-red-400 border-red-600/30 shadow-red-600/20",
   INFLUENCER: "bg-rose-500/15 text-rose-300 border-rose-500/30 shadow-rose-500/20",
   INVESTOR: "bg-amber-500/15 text-amber-300 border-amber-500/30 shadow-amber-500/20",
   DEFAULT: "bg-slate-500/15 text-slate-300 border-slate-500/30 shadow-slate-500/20",
@@ -359,7 +359,7 @@ export const ProfileTooltip = memo(function ProfileTooltip({
                   onClick={(e) => { e.stopPropagation(); window.location.href = `/u/${user.username}`; }}
                   className="group flex items-center gap-1.5"
                 >
-                  <span className="font-semibold text-white group-hover:text-purple-300 transition-colors truncate">
+                  <span className="font-semibold text-white group-hover:text-red-400 transition-colors truncate">
                     {user.name || user.username}
                   </span>
                   {user.profile?.verified && (
@@ -413,7 +413,7 @@ export const ProfileTooltip = memo(function ProfileTooltip({
                     href={user.profile?.website?.startsWith('http') ? user.profile.website : `https://${user.profile?.website}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-1.5 text-purple-400 hover:text-purple-300 transition-colors"
+                    className="flex items-center gap-1.5 text-red-500 hover:text-red-400 transition-colors"
                     onClick={(e) => e.stopPropagation()}
                   >
                     <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -430,18 +430,18 @@ export const ProfileTooltip = memo(function ProfileTooltip({
               <div className="flex gap-4 mb-4">
                 <button
                   onClick={(e) => { e.stopPropagation(); window.location.href = `/u/${user.username}/followers`; }}
-                  className="group flex items-center gap-1.5 text-sm hover:text-purple-300 transition-colors"
+                  className="group flex items-center gap-1.5 text-sm hover:text-red-400 transition-colors"
                 >
-                  <span className="font-bold text-white group-hover:text-purple-300 transition-colors">
+                  <span className="font-bold text-white group-hover:text-red-400 transition-colors">
                     {formatCount(user._count.followers)}
                   </span>
                   <span className="text-[var(--muted-foreground)] text-xs">followers</span>
                 </button>
                 <button
                   onClick={(e) => { e.stopPropagation(); window.location.href = `/u/${user.username}/following`; }}
-                  className="group flex items-center gap-1.5 text-sm hover:text-purple-300 transition-colors"
+                  className="group flex items-center gap-1.5 text-sm hover:text-red-400 transition-colors"
                 >
-                  <span className="font-bold text-white group-hover:text-purple-300 transition-colors">
+                  <span className="font-bold text-white group-hover:text-red-400 transition-colors">
                     {formatCount(user._count.following)}
                   </span>
                   <span className="text-[var(--muted-foreground)] text-xs">following</span>
@@ -454,7 +454,7 @@ export const ProfileTooltip = memo(function ProfileTooltip({
               <div className="relative">
                 {isLoadingFollow ? (
                   <div className="h-10 rounded-xl bg-white/5 animate-pulse flex items-center justify-center">
-                    <div className="w-4 h-4 border-2 border-purple-400/30 border-r-purple-400 rounded-full animate-spin" />
+                    <div className="w-4 h-4 border-2 border-red-500/30 border-r-red-500 rounded-full animate-spin" />
                   </div>
                 ) : (
                   <FollowButton

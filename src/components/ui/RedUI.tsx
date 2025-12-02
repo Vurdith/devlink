@@ -4,19 +4,19 @@ import { cn } from "@/lib/cn";
 import { forwardRef, HTMLAttributes, ButtonHTMLAttributes } from "react";
 
 /**
- * Reusable purple-themed UI components for DevLink
+ * Reusable red-themed UI components for DevLink
  * These provide consistent styling across the app
  */
 
 // ============================================================================
-// PurpleCard - Glass card with purple accent
+// RedCard - Glass card with purple accent
 // ============================================================================
-interface PurpleCardProps extends HTMLAttributes<HTMLDivElement> {
+interface RedCardProps extends HTMLAttributes<HTMLDivElement> {
   variant?: "default" | "gradient" | "glow";
   padding?: "sm" | "md" | "lg";
 }
 
-export const PurpleCard = forwardRef<HTMLDivElement, PurpleCardProps>(
+export const RedCard = forwardRef<HTMLDivElement, RedCardProps>(
   ({ className, variant = "default", padding = "md", children, ...props }, ref) => {
     const paddingStyles = {
       sm: "p-4",
@@ -25,9 +25,9 @@ export const PurpleCard = forwardRef<HTMLDivElement, PurpleCardProps>(
     };
 
     const variantStyles = {
-      default: "glass border border-purple-500/20 bg-purple-500/5",
-      gradient: "glass border border-purple-500/20 bg-gradient-to-br from-purple-500/10 via-transparent to-purple-500/5",
-      glow: "glass border border-purple-500/30 bg-purple-500/5 shadow-lg shadow-purple-500/10",
+      default: "glass border border-red-600/20 bg-red-600/5",
+      gradient: "glass border border-red-600/20 bg-gradient-to-br from-red-600/10 via-transparent to-red-600/5",
+      glow: "glass border border-red-600/30 bg-red-600/5 shadow-lg shadow-red-600/10",
     };
 
     return (
@@ -46,26 +46,26 @@ export const PurpleCard = forwardRef<HTMLDivElement, PurpleCardProps>(
     );
   }
 );
-PurpleCard.displayName = "PurpleCard";
+RedCard.displayName = "RedCard";
 
 // ============================================================================
-// PurpleSection - Section with icon header
+// RedSection - Section with icon header
 // ============================================================================
-interface PurpleSectionProps extends HTMLAttributes<HTMLDivElement> {
+interface RedSectionProps extends HTMLAttributes<HTMLDivElement> {
   title: string;
   description?: string;
   icon?: React.ReactNode;
   headerAction?: React.ReactNode;
 }
 
-export const PurpleSection = forwardRef<HTMLDivElement, PurpleSectionProps>(
+export const RedSection = forwardRef<HTMLDivElement, RedSectionProps>(
   ({ className, title, description, icon, headerAction, children, ...props }, ref) => {
     return (
-      <PurpleCard ref={ref} className={className} {...props}>
+      <RedCard ref={ref} className={className} {...props}>
         <div className="flex items-start justify-between gap-4 mb-6">
           <div className="flex items-center gap-3">
             {icon && (
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-purple-500/25">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-600 to-red-700 flex items-center justify-center text-white shadow-lg shadow-red-600/25">
                 {icon}
               </div>
             )}
@@ -79,22 +79,22 @@ export const PurpleSection = forwardRef<HTMLDivElement, PurpleSectionProps>(
           {headerAction}
         </div>
         {children}
-      </PurpleCard>
+      </RedCard>
     );
   }
 );
-PurpleSection.displayName = "PurpleSection";
+RedSection.displayName = "RedSection";
 
 // ============================================================================
-// PurpleButton - Purple styled button
+// RedButton - Red styled button
 // ============================================================================
-interface PurpleButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+interface RedButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: "solid" | "outline" | "ghost" | "gradient";
   size?: "sm" | "md" | "lg";
   isLoading?: boolean;
 }
 
-export const PurpleButton = forwardRef<HTMLButtonElement, PurpleButtonProps>(
+export const RedButton = forwardRef<HTMLButtonElement, RedButtonProps>(
   ({ className, variant = "solid", size = "md", isLoading, disabled, children, ...props }, ref) => {
     const sizeStyles = {
       sm: "h-8 px-3 text-xs rounded-lg gap-1.5",
@@ -103,10 +103,10 @@ export const PurpleButton = forwardRef<HTMLButtonElement, PurpleButtonProps>(
     };
 
     const variantStyles = {
-      solid: "bg-purple-500 text-white hover:bg-purple-600 shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40",
-      outline: "bg-transparent text-purple-400 border border-purple-500/30 hover:bg-purple-500/10 hover:border-purple-500/50",
-      ghost: "bg-transparent text-purple-400 hover:bg-purple-500/10",
-      gradient: "bg-gradient-to-r from-purple-500 to-purple-600 text-white hover:from-purple-600 hover:to-purple-700 shadow-lg shadow-purple-500/25",
+      solid: "bg-red-600 text-white hover:bg-red-700 shadow-lg shadow-red-600/25 hover:shadow-red-600/40",
+      outline: "bg-transparent text-red-500 border border-red-600/30 hover:bg-red-600/10 hover:border-red-600/50",
+      ghost: "bg-transparent text-red-500 hover:bg-red-600/10",
+      gradient: "bg-gradient-to-r from-red-600 to-red-700 text-white hover:from-red-700 hover:to-red-800 shadow-lg shadow-red-600/25",
     };
 
     return (
@@ -114,7 +114,7 @@ export const PurpleButton = forwardRef<HTMLButtonElement, PurpleButtonProps>(
         ref={ref}
         className={cn(
           "inline-flex items-center justify-center font-medium transition-all duration-200",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)]",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)]",
           "disabled:opacity-50 disabled:cursor-not-allowed",
           sizeStyles[size],
           variantStyles[variant],
@@ -131,12 +131,12 @@ export const PurpleButton = forwardRef<HTMLButtonElement, PurpleButtonProps>(
     );
   }
 );
-PurpleButton.displayName = "PurpleButton";
+RedButton.displayName = "RedButton";
 
 // ============================================================================
-// PurpleListItem - Interactive list item with purple hover
+// RedListItem - Interactive list item with purple hover
 // ============================================================================
-interface PurpleListItemProps extends HTMLAttributes<HTMLDivElement> {
+interface RedListItemProps extends HTMLAttributes<HTMLDivElement> {
   icon?: React.ReactNode;
   title: string;
   description?: string;
@@ -145,7 +145,7 @@ interface PurpleListItemProps extends HTMLAttributes<HTMLDivElement> {
   isClickable?: boolean;
 }
 
-export const PurpleListItem = forwardRef<HTMLDivElement, PurpleListItemProps>(
+export const RedListItem = forwardRef<HTMLDivElement, RedListItemProps>(
   ({ className, icon, title, description, rightElement, isActive, isClickable = true, ...props }, ref) => {
     return (
       <div
@@ -154,8 +154,8 @@ export const PurpleListItem = forwardRef<HTMLDivElement, PurpleListItemProps>(
           "flex items-center gap-4 p-4 rounded-xl transition-all duration-200",
           isClickable && "cursor-pointer",
           isActive
-            ? "bg-purple-500/15 border border-purple-500/30"
-            : "bg-white/5 border border-white/10 hover:bg-purple-500/10 hover:border-purple-500/20",
+            ? "bg-red-600/15 border border-red-600/30"
+            : "bg-white/5 border border-white/10 hover:bg-red-600/10 hover:border-red-600/20",
           className
         )}
         {...props}
@@ -164,8 +164,8 @@ export const PurpleListItem = forwardRef<HTMLDivElement, PurpleListItemProps>(
           <div className={cn(
             "w-10 h-10 rounded-xl flex items-center justify-center transition-colors",
             isActive
-              ? "bg-purple-500/20 text-purple-400"
-              : "bg-white/10 text-[var(--muted-foreground)] group-hover:bg-purple-500/10 group-hover:text-purple-400"
+              ? "bg-red-600/20 text-red-500"
+              : "bg-white/10 text-[var(--muted-foreground)] group-hover:bg-red-600/10 group-hover:text-red-500"
           )}>
             {icon}
           </div>
@@ -173,7 +173,7 @@ export const PurpleListItem = forwardRef<HTMLDivElement, PurpleListItemProps>(
         <div className="flex-1 min-w-0">
           <div className={cn(
             "font-medium",
-            isActive ? "text-purple-300" : "text-white"
+            isActive ? "text-red-400" : "text-white"
           )}>
             {title}
           </div>
@@ -186,21 +186,21 @@ export const PurpleListItem = forwardRef<HTMLDivElement, PurpleListItemProps>(
     );
   }
 );
-PurpleListItem.displayName = "PurpleListItem";
+RedListItem.displayName = "RedListItem";
 
 // ============================================================================
-// PurpleBadge - Purple themed badge
+// RedBadge - Red themed badge
 // ============================================================================
-interface PurpleBadgeProps extends HTMLAttributes<HTMLSpanElement> {
+interface RedBadgeProps extends HTMLAttributes<HTMLSpanElement> {
   variant?: "solid" | "outline" | "subtle";
 }
 
-export const PurpleBadge = forwardRef<HTMLSpanElement, PurpleBadgeProps>(
+export const RedBadge = forwardRef<HTMLSpanElement, RedBadgeProps>(
   ({ className, variant = "subtle", children, ...props }, ref) => {
     const variantStyles = {
-      solid: "bg-purple-500 text-white",
-      outline: "bg-transparent text-purple-400 border border-purple-500/40",
-      subtle: "bg-purple-500/20 text-purple-300 border border-purple-500/30",
+      solid: "bg-red-600 text-white",
+      outline: "bg-transparent text-red-500 border border-red-600/40",
+      subtle: "bg-red-600/20 text-red-400 border border-red-600/30",
     };
 
     return (
@@ -218,16 +218,16 @@ export const PurpleBadge = forwardRef<HTMLSpanElement, PurpleBadgeProps>(
     );
   }
 );
-PurpleBadge.displayName = "PurpleBadge";
+RedBadge.displayName = "RedBadge";
 
 // ============================================================================
-// PurpleInput - Purple themed input
+// RedInput - Red themed input
 // ============================================================================
-interface PurpleInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+interface RedInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   icon?: React.ReactNode;
 }
 
-export const PurpleInput = forwardRef<HTMLInputElement, PurpleInputProps>(
+export const RedInput = forwardRef<HTMLInputElement, RedInputProps>(
   ({ className, icon, ...props }, ref) => {
     return (
       <div className="relative">
@@ -239,9 +239,9 @@ export const PurpleInput = forwardRef<HTMLInputElement, PurpleInputProps>(
         <input
           ref={ref}
           className={cn(
-            "w-full h-11 rounded-xl bg-purple-500/5 border border-purple-500/20",
+            "w-full h-11 rounded-xl bg-red-600/5 border border-red-600/20",
             "text-white placeholder:text-[var(--muted-foreground)]",
-            "focus:border-purple-500/50 focus:bg-purple-500/10 focus:outline-none focus:ring-1 focus:ring-purple-500/30",
+            "focus:border-red-600/50 focus:bg-red-600/10 focus:outline-none focus:ring-1 focus:ring-red-600/30",
             "transition-all duration-200",
             icon ? "pl-11 pr-4" : "px-4",
             className
@@ -252,19 +252,19 @@ export const PurpleInput = forwardRef<HTMLInputElement, PurpleInputProps>(
     );
   }
 );
-PurpleInput.displayName = "PurpleInput";
+RedInput.displayName = "RedInput";
 
 // ============================================================================
-// PurpleToggle - Purple themed toggle switch
+// RedToggle - Red themed toggle switch
 // ============================================================================
-interface PurpleToggleProps {
+interface RedToggleProps {
   checked: boolean;
   onChange: (checked: boolean) => void;
   disabled?: boolean;
   className?: string;
 }
 
-export const PurpleToggle = ({ checked, onChange, disabled, className }: PurpleToggleProps) => {
+export const RedToggle = ({ checked, onChange, disabled, className }: RedToggleProps) => {
   return (
     <button
       type="button"
@@ -274,9 +274,9 @@ export const PurpleToggle = ({ checked, onChange, disabled, className }: PurpleT
       onClick={() => !disabled && onChange(!checked)}
       className={cn(
         "relative w-12 h-7 rounded-full transition-all duration-300",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2",
         checked
-          ? "bg-gradient-to-r from-purple-500 to-purple-600 shadow-lg shadow-purple-500/30"
+          ? "bg-gradient-to-r from-red-600 to-red-700 shadow-lg shadow-red-600/30"
           : "bg-white/10 border border-white/20",
         disabled && "opacity-50 cursor-not-allowed",
         className
@@ -293,20 +293,20 @@ export const PurpleToggle = ({ checked, onChange, disabled, className }: PurpleT
 };
 
 // ============================================================================
-// PurpleDivider - Purple themed divider
+// RedDivider - Red themed divider
 // ============================================================================
-interface PurpleDividerProps extends HTMLAttributes<HTMLDivElement> {
+interface RedDividerProps extends HTMLAttributes<HTMLDivElement> {
   label?: string;
 }
 
-export const PurpleDivider = forwardRef<HTMLDivElement, PurpleDividerProps>(
+export const RedDivider = forwardRef<HTMLDivElement, RedDividerProps>(
   ({ className, label, ...props }, ref) => {
     if (label) {
       return (
         <div ref={ref} className={cn("flex items-center gap-3 py-4", className)} {...props}>
-          <div className="h-px flex-1 bg-gradient-to-r from-transparent via-purple-500/30 to-transparent" />
+          <div className="h-px flex-1 bg-gradient-to-r from-transparent via-red-600/30 to-transparent" />
           <span className="text-xs text-[var(--muted-foreground)] uppercase tracking-widest">{label}</span>
-          <div className="h-px flex-1 bg-gradient-to-r from-transparent via-purple-500/30 to-transparent" />
+          <div className="h-px flex-1 bg-gradient-to-r from-transparent via-red-600/30 to-transparent" />
         </div>
       );
     }
@@ -314,13 +314,13 @@ export const PurpleDivider = forwardRef<HTMLDivElement, PurpleDividerProps>(
     return (
       <div
         ref={ref}
-        className={cn("h-px bg-gradient-to-r from-transparent via-purple-500/30 to-transparent", className)}
+        className={cn("h-px bg-gradient-to-r from-transparent via-red-600/30 to-transparent", className)}
         {...props}
       />
     );
   }
 );
-PurpleDivider.displayName = "PurpleDivider";
+RedDivider.displayName = "RedDivider";
 
 
 

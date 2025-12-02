@@ -44,7 +44,7 @@ const profileTypes = [
         <path d="M16 3.13a4 4 0 0 1 0 7.75" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
       </svg>
     ),
-    gradient: "from-violet-500 to-purple-500",
+    gradient: "from-violet-500 to-red-600",
     borderColor: "border-violet-500/50",
     bgColor: "bg-violet-500/10"
   },
@@ -130,10 +130,10 @@ export function ProfileTypeCard() {
   }
 
   return (
-    <div className="bg-[#0d0d12] rounded-2xl p-6 border border-purple-500/20">
+    <div className="bg-[#0d0d12] rounded-2xl p-6 border border-red-600/20">
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center shadow-lg shadow-purple-500/25">
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-600 to-red-700 flex items-center justify-center shadow-lg shadow-red-600/25">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-white">
             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             <circle cx="12" cy="7" r="4" stroke="currentColor" strokeWidth="2"/>

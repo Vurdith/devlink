@@ -18,7 +18,7 @@ export const LoadingSpinner = memo(function LoadingSpinner({ size = "md", classN
   return (
     <div
       className={cn(
-        "animate-spin rounded-full border-2 border-gray-300 border-t-purple-500",
+        "animate-spin rounded-full border-2 border-gray-300 border-t-red-600",
         sizeClasses[size],
         className
       )}

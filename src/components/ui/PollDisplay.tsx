@@ -111,16 +111,16 @@ export const PollDisplay = memo(function PollDisplay({ poll, currentUserId, onVo
   };
 
   return (
-    <div className="bg-gradient-to-br from-purple-500/10 via-[#0d0f14] to-indigo-500/10 border border-purple-500/20 rounded-xl p-5 shadow-lg shadow-purple-500/5">
+    <div className="bg-gradient-to-br from-red-600/10 via-[#0d0f14] to-indigo-500/10 border border-red-600/20 rounded-xl p-5 shadow-lg shadow-red-600/5">
       <div className="flex items-center gap-3 mb-4">
-        <div className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-purple-400">
+        <div className="w-8 h-8 rounded-lg bg-red-600/20 flex items-center justify-center">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-red-500">
             <path d="M9 12l2 2 4-4M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </div>
         <h3 className="font-semibold text-white flex-1">{poll.question}</h3>
         {poll.isMultiple && (
-          <span className="text-xs px-2.5 py-1 bg-purple-500/20 text-purple-300 rounded-full border border-purple-500/30 font-medium">
+          <span className="text-xs px-2.5 py-1 bg-red-600/20 text-red-400 rounded-full border border-red-600/30 font-medium">
             Multiple Choice
           </span>
         )}
@@ -148,15 +148,15 @@ export const PollDisplay = memo(function PollDisplay({ poll, currentUserId, onVo
                 "relative p-4 rounded-xl border-2 cursor-pointer transition-all duration-150",
                 "hover:scale-[1.01] active:scale-[0.99]",
                 isSelected 
-                  ? "border-purple-500 bg-purple-500/15 shadow-lg shadow-purple-500/10"
-                  : "border-white/10 hover:border-purple-500/40 hover:bg-white/5"
+                  ? "border-red-600 bg-red-600/15 shadow-lg shadow-red-600/10"
+                  : "border-white/10 hover:border-red-600/40 hover:bg-white/5"
               )}
               onClick={() => handleOptionClick(option.id)}
             >
               {/* Selection indicator */}
               <div className={cn(
                 "absolute top-4 left-4 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all",
-                isSelected ? "border-purple-500 bg-purple-500" : "border-white/30"
+                isSelected ? "border-red-600 bg-red-600" : "border-white/30"
               )}>
                 {isSelected && (
                   <svg className="w-3 h-3 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
@@ -168,7 +168,7 @@ export const PollDisplay = memo(function PollDisplay({ poll, currentUserId, onVo
               <div className="flex items-center justify-between mb-2 ml-8">
                 <span className="font-medium text-white">{option.text}</span>
                 {shouldShowResults && (
-                  <span className="text-sm text-purple-300 font-medium">
+                  <span className="text-sm text-red-400 font-medium">
                     {percentage}% <span className="text-[var(--muted-foreground)]">({option.votes})</span>
                   </span>
                 )}
@@ -177,7 +177,7 @@ export const PollDisplay = memo(function PollDisplay({ poll, currentUserId, onVo
               {shouldShowResults && (
                 <div className="relative h-2 bg-white/10 rounded-full overflow-hidden ml-8">
                   <div
-                    className="h-full bg-gradient-to-r from-purple-500 to-purple-600 rounded-full transition-all duration-500 ease-out"
+                    className="h-full bg-gradient-to-r from-red-600 to-red-700 rounded-full transition-all duration-500 ease-out"
                     style={{ width: `${percentage}%` }}
                   />
                 </div>
@@ -220,7 +220,7 @@ export const PollDisplay = memo(function PollDisplay({ poll, currentUserId, onVo
           </Button>
           
           {poll.isMultiple && selectedOptions.length > 0 && (
-            <div className="text-sm text-purple-300 self-center px-3 py-1.5 bg-purple-500/10 rounded-lg border border-purple-500/20">
+            <div className="text-sm text-red-400 self-center px-3 py-1.5 bg-red-600/10 rounded-lg border border-red-600/20">
               {selectedOptions.length} selected
             </div>
           )}
@@ -232,7 +232,7 @@ export const PollDisplay = memo(function PollDisplay({ poll, currentUserId, onVo
         {!hasVoted && !isExpired && (
           <button
             onClick={() => setShowResults(!showResults)}
-            className="text-purple-400 hover:text-purple-300 transition-colors"
+            className="text-red-500 hover:text-red-400 transition-colors"
           >
             {showResults ? "Hide results" : "View results"}
           </button>

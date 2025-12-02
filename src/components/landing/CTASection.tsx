@@ -6,7 +6,7 @@ export function CTASection() {
     <section className="relative py-32 px-4 overflow-hidden">
       {/* Background gradient - CSS only */}
       <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-purple-500/10 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-red-600/10 to-transparent" />
         <div 
           className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full animate-pulse"
           style={{
@@ -31,12 +31,12 @@ export function CTASection() {
 
           <div className="relative px-8 py-16 md:px-16 md:py-20 text-center">
             {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-500/20 border border-purple-500/30 mb-8">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-red-600/20 border border-red-600/30 mb-8">
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-500 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-purple-500"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-600 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-red-600"></span>
               </span>
-              <span className="text-sm font-medium text-purple-400">Start building your presence today</span>
+              <span className="text-sm font-medium text-red-500">Start building your presence today</span>
             </div>
 
             {/* Headline */}
@@ -55,7 +55,7 @@ export function CTASection() {
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Link href="/register">
-                <button className="group relative px-10 py-5 rounded-2xl font-semibold text-lg overflow-hidden bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-700 hover:to-purple-600 transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50">
+                <button className="group relative px-10 py-5 rounded-2xl font-semibold text-lg overflow-hidden bg-gradient-to-r from-red-700 to-red-600 hover:from-red-800 hover:to-red-700 transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg shadow-red-600/30 hover:shadow-red-600/50">
                   <span className="relative z-10 flex items-center gap-2 text-white">
                     Create Free Account
                     <svg 
@@ -71,7 +71,7 @@ export function CTASection() {
               </Link>
               
               <Link href="/discover">
-                <button className="px-10 py-5 rounded-2xl font-semibold text-lg text-white border border-white/20 hover:border-purple-500/50 hover:bg-white/5 transition-all duration-300 hover:scale-105 active:scale-95">
+                <button className="px-10 py-5 rounded-2xl font-semibold text-lg text-white border border-white/20 hover:border-red-600/50 hover:bg-white/5 transition-all duration-300 hover:scale-105 active:scale-95">
                   Discover Developers
                 </button>
               </Link>

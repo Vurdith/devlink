@@ -100,7 +100,7 @@ export default function CompleteSignupPage() {
   if (status === "loading") {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#0a0e14]">
-        <div className="animate-spin rounded-full h-8 w-8 border-2 border-purple-500 border-t-transparent"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-2 border-red-600 border-t-transparent"></div>
       </div>
     );
   }
@@ -171,7 +171,7 @@ export default function CompleteSignupPage() {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all"
+                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-600/50 focus:border-red-600/50 transition-all"
                 placeholder="Create a password"
               />
               {password && (
@@ -199,7 +199,7 @@ export default function CompleteSignupPage() {
                 type="password"
                 value={passwordConfirm}
                 onChange={(e) => setPasswordConfirm(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all"
+                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-600/50 focus:border-red-600/50 transition-all"
                 placeholder="Confirm your password"
               />
               {passwordConfirm && password !== passwordConfirm && (
@@ -219,7 +219,7 @@ export default function CompleteSignupPage() {
             <button
               type="submit"
               disabled={loading || !password || !passwordConfirm || password !== passwordConfirm}
-              className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold hover:from-purple-500 hover:to-pink-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-red-700 to-pink-600 text-white font-semibold hover:from-red-600 hover:to-pink-500 focus:outline-none focus:ring-2 focus:ring-red-600/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             >
               {loading ? (
                 <span className="flex items-center justify-center gap-2">
@@ -246,7 +246,7 @@ export default function CompleteSignupPage() {
 
           <p className="mt-6 text-center text-sm text-gray-500">
             You can always set a password later in{" "}
-            <Link href="/settings/security" className="text-purple-400 hover:text-purple-300">
+            <Link href="/settings/security" className="text-red-500 hover:text-red-400">
               Settings → Security
             </Link>
           </p>

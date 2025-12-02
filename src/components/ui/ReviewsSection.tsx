@@ -215,7 +215,7 @@ export const ReviewsSection = memo(function ReviewsSection({ targetUserId, targe
         {canUserReview && !showCreateForm && (
           <button
             onClick={() => setShowCreateForm(true)}
-            className="flex-shrink-0 flex items-center gap-2.5 px-6 py-3 rounded-xl font-semibold text-sm bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-500 hover:to-blue-500 transition-all duration-200 hover:scale-105 active:scale-95"
+            className="flex-shrink-0 flex items-center gap-2.5 px-6 py-3 rounded-xl font-semibold text-sm bg-gradient-to-r from-red-700 to-blue-600 text-white hover:from-red-600 hover:to-blue-500 transition-all duration-200 hover:scale-105 active:scale-95"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 5v14M5 12h14" />
@@ -318,12 +318,12 @@ export const ReviewsSection = memo(function ReviewsSection({ targetUserId, targe
             </div>
             <h3 className="text-xl font-semibold text-white mb-3">No reviews yet</h3>
             <p className="text-white/50 text-lg mb-8">
-              Be the first to review <span className="text-purple-400">@{targetUsername}</span>
+              Be the first to review <span className="text-red-500">@{targetUsername}</span>
             </p>
             {canUserReview && !showCreateForm && (
               <button
                 onClick={() => setShowCreateForm(true)}
-                className="px-6 py-3 rounded-xl font-semibold text-sm bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-500 hover:to-blue-500 transition-all"
+                className="px-6 py-3 rounded-xl font-semibold text-sm bg-gradient-to-r from-red-700 to-blue-600 text-white hover:from-red-600 hover:to-blue-500 transition-all"
               >
                 Write the first review
               </button>
@@ -365,7 +365,7 @@ export const ReviewsSection = memo(function ReviewsSection({ targetUserId, targe
             </p>
             <button
               onClick={() => setSentimentFilter("all")}
-              className="mt-4 text-sm text-purple-400 hover:text-purple-300 transition-colors"
+              className="mt-4 text-sm text-red-500 hover:text-red-400 transition-colors"
             >
               View all reviews →
             </button>

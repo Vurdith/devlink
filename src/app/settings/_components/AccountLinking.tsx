@@ -130,7 +130,7 @@ export default function AccountLinking() {
     <div className="space-y-5">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center shadow-lg shadow-purple-500/25">
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-600 to-red-700 flex items-center justify-center shadow-lg shadow-red-600/25">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-white">
             <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -179,8 +179,8 @@ export default function AccountLinking() {
               className={cn(
                 "flex items-center justify-between p-4 rounded-xl border transition-all animate-slide-up",
                 linked 
-                  ? "bg-purple-500/10 border-purple-500/30" 
-                  : "bg-white/5 border-white/10 hover:bg-purple-500/5 hover:border-purple-500/20"
+                  ? "bg-red-600/10 border-red-600/30" 
+                  : "bg-white/5 border-white/10 hover:bg-red-600/5 hover:border-red-600/20"
               )}
               style={{ animationDelay: `${index * 0.05}s` }}
             >
@@ -196,8 +196,8 @@ export default function AccountLinking() {
                   <div className="text-sm text-[var(--muted-foreground)] flex items-center gap-2">
                     {linked ? (
                       <>
-                        <span className="w-1.5 h-1.5 rounded-full bg-purple-500" />
-                        <span className="text-purple-400">Connected</span>
+                        <span className="w-1.5 h-1.5 rounded-full bg-red-600" />
+                        <span className="text-red-500">Connected</span>
                       </>
                     ) : (
                       "Not connected"

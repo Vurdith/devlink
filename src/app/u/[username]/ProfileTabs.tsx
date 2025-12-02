@@ -443,7 +443,7 @@ export function ProfileTabs({ username, currentUserId, userId }: ProfileTabsProp
     <div className="mt-4 sm:mt-8">
       {/* Tab Navigation - Horizontal scroll container */}
       <div 
-        className="flex gap-1 sm:gap-2 mb-4 sm:mb-6 overflow-x-auto bg-black/40 rounded-xl sm:rounded-2xl p-1.5 sm:p-3 border border-purple-500/20"
+        className="flex gap-1 sm:gap-2 mb-4 sm:mb-6 overflow-x-auto bg-black/40 rounded-xl sm:rounded-2xl p-1.5 sm:p-3 border border-red-600/20"
         style={{ 
           WebkitOverflowScrolling: 'touch',
           scrollbarWidth: 'none',
@@ -460,11 +460,11 @@ export function ProfileTabs({ username, currentUserId, userId }: ProfileTabsProp
               onClick={() => setActiveTab(tab.id)}
               className={`flex items-center gap-1 sm:gap-2 px-2.5 sm:px-4 py-1.5 sm:py-2.5 text-[11px] sm:text-sm font-medium transition-all duration-200 flex-shrink-0 rounded-lg sm:rounded-xl whitespace-nowrap ${
                 activeTab === tab.id
-                  ? "text-white bg-purple-500/20 border border-purple-500/40"
-                  : "text-[var(--muted-foreground)] hover:text-purple-300 hover:bg-purple-500/10 border border-transparent"
+                  ? "text-white bg-red-600/20 border border-red-600/40"
+                  : "text-[var(--muted-foreground)] hover:text-red-400 hover:bg-red-600/10 border border-transparent"
               }`}
             >
-              <span className={`flex items-center justify-center [&>svg]:w-3.5 [&>svg]:h-3.5 sm:[&>svg]:w-4 sm:[&>svg]:h-4 ${activeTab === tab.id ? 'text-purple-400' : ''}`}>{tab.icon}</span>
+              <span className={`flex items-center justify-center [&>svg]:w-3.5 [&>svg]:h-3.5 sm:[&>svg]:w-4 sm:[&>svg]:h-4 ${activeTab === tab.id ? 'text-red-500' : ''}`}>{tab.icon}</span>
               <span>{tab.label}</span>
             </button>
           );
@@ -501,17 +501,17 @@ export function ProfileTabs({ username, currentUserId, userId }: ProfileTabsProp
           <>
             {/* Portfolio Header with Add Button */}
             {isOwner && (
-              <div className="mb-8 p-5 rounded-2xl bg-gradient-to-r from-purple-500/10 via-indigo-500/10 to-purple-500/10 border border-purple-500/30 backdrop-blur-sm">
+              <div className="mb-8 p-5 rounded-2xl bg-gradient-to-r from-red-600/10 via-indigo-500/10 to-red-600/10 border border-red-600/30 backdrop-blur-sm">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-purple-500/30">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-red-600/30">
                       <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                       </svg>
                     </div>
                     <div>
                       <h3 className="text-base font-semibold text-white">Your Portfolio</h3>
-                      <p className="text-sm text-purple-300/80">
+                      <p className="text-sm text-red-400/80">
                         {portfolioItems.length === 0 
                           ? "Showcase your best work" 
                           : `${portfolioItems.length} ${portfolioItems.length === 1 ? 'item' : 'items'} showcased`}
@@ -552,8 +552,8 @@ export function ProfileTabs({ username, currentUserId, userId }: ProfileTabsProp
             ) : !isOwner ? (
               <div className="text-center py-12 text-[var(--muted-foreground)]">
                 <div className="flex justify-center mb-4">
-                  <div className="w-16 h-16 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center">
-                    <svg className="w-8 h-8 text-purple-400/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="w-16 h-16 rounded-2xl bg-red-600/10 border border-red-600/20 flex items-center justify-center">
+                    <svg className="w-8 h-8 text-red-500/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                     </svg>
                   </div>

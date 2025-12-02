@@ -8,7 +8,7 @@ const features = [
     ),
     title: "Portfolio Showcase",
     description: "Display your best work with beautiful portfolio galleries. Share game dev projects, scripts, models, and more.",
-    color: "from-purple-500 to-violet-600",
+    color: "from-red-600 to-violet-600",
     glow: "rgba(168, 85, 247, 0.3)",
   },
   {
@@ -63,7 +63,7 @@ const features = [
     ),
     title: "Community Feed",
     description: "Stay updated with the latest from the community. Share updates, showcase progress, and get inspired.",
-    color: "from-indigo-500 to-purple-600",
+    color: "from-indigo-500 to-red-700",
     glow: "rgba(99, 102, 241, 0.3)",
   },
 ];
@@ -73,7 +73,7 @@ export function FeaturesSection() {
     <section className="relative py-32 px-4">
       {/* Section header */}
       <div className="text-center mb-20 animate-fade-in">
-        <span className="inline-block px-4 py-2 rounded-full text-sm font-medium bg-purple-500/10 text-purple-400 border border-purple-500/20 mb-6">
+        <span className="inline-block px-4 py-2 rounded-full text-sm font-medium bg-red-600/10 text-red-500 border border-red-600/20 mb-6">
           Platform Features
         </span>
         

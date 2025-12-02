@@ -72,7 +72,7 @@ export const Tooltip = memo(function Tooltip({
         transform: getTransform()
       }}
     >
-      <div className="px-2.5 py-1.5 text-xs font-medium text-white bg-gradient-to-r from-purple-500/90 to-purple-600/90 border border-purple-400/30 rounded-lg shadow-xl shadow-purple-500/20 whitespace-nowrap backdrop-blur-sm">
+      <div className="px-2.5 py-1.5 text-xs font-medium text-white bg-gradient-to-r from-red-600/90 to-red-700/90 border border-red-500/30 rounded-lg shadow-xl shadow-red-600/20 whitespace-nowrap backdrop-blur-sm">
         {content}
       </div>
     </div>,
@@ -118,7 +118,7 @@ export const ModalActionButton = memo(function ModalActionButton({
       className={cn(
         "relative p-2.5 rounded-xl transition-colors",
         active 
-          ? "bg-purple-500/20 text-purple-400" 
+          ? "bg-red-600/20 text-red-500" 
           : "hover:bg-white/10 text-[var(--muted-foreground)] hover:text-white",
         disabled && "opacity-50 cursor-not-allowed",
         className
@@ -126,7 +126,7 @@ export const ModalActionButton = memo(function ModalActionButton({
     >
       {children}
       {badge !== undefined && badge > 0 && (
-        <span className="absolute -top-1 -right-1 w-4 h-4 bg-purple-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+        <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-600 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
           {badge}
         </span>
       )}
@@ -234,7 +234,7 @@ export const BaseModal = memo(function BaseModal({
       <div 
         className={cn(
           "relative w-full max-h-[85vh] flex flex-col rounded-2xl overflow-hidden",
-          "bg-[#0d0d12] border border-purple-500/20",
+          "bg-[#0d0d12] border border-red-600/20",
           "shadow-2xl shadow-black/50",
           "animate-pop-in",
           sizeClasses[size],
@@ -308,7 +308,7 @@ export const ModalInput = memo(function ModalInput({
         className={cn(
           "w-full h-11 px-4 rounded-xl bg-black/30 border border-white/10 text-white",
           "placeholder:text-white/30 outline-none",
-          "focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20",
+          "focus:border-red-600/50 focus:ring-2 focus:ring-red-600/20",
           "transition-all disabled:opacity-50 disabled:cursor-not-allowed",
           props.className
         )}
@@ -334,7 +334,7 @@ export const ModalTextarea = memo(function ModalTextarea({
         className={cn(
           "w-full px-4 py-3 rounded-xl bg-black/30 border border-white/10 text-white",
           "placeholder:text-white/30 outline-none resize-none",
-          "focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20",
+          "focus:border-red-600/50 focus:ring-2 focus:ring-red-600/20",
           "transition-all",
           props.className
         )}

@@ -89,7 +89,7 @@ export default function NotificationSettings() {
       {/* Email Notifications */}
       <div className="bg-[#0d0d12] rounded-2xl p-6 border border-white/10 animate-slide-up" style={{ animationDelay: '0.05s' }}>
         <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-500 flex items-center justify-center shadow-lg shadow-violet-500/20">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-red-600 flex items-center justify-center shadow-lg shadow-violet-500/20">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-white">
               <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" stroke="currentColor" strokeWidth="2"/>
               <polyline points="22,6 12,13 2,6" stroke="currentColor" strokeWidth="2"/>

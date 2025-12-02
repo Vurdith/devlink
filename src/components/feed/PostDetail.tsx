@@ -20,7 +20,7 @@ const ReplyModal = lazy(() => import("./ReplyModal").then(m => ({ default: m.Rep
 const PROFILE_TYPE_CLASSES: Record<string, string> = {
   DEVELOPER: "border-blue-500/40 bg-blue-500/10 text-blue-400",
   CLIENT: "border-green-500/40 bg-green-500/10 text-green-400",
-  STUDIO: "border-purple-500/40 bg-purple-500/10 text-purple-400",
+  STUDIO: "border-red-600/40 bg-red-600/10 text-red-500",
   INFLUENCER: "border-red-500/40 bg-red-500/10 text-red-400",
   INVESTOR: "border-yellow-500/40 bg-yellow-500/10 text-yellow-400",
   DEFAULT: "border-gray-500/40 bg-gray-500/10 text-gray-400",
@@ -640,7 +640,7 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
                 />
               )
             ) : (
-              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-white/20 bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center group-hover:opacity-80 transition-opacity">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-white/20 bg-gradient-to-br from-red-600 to-pink-500 flex items-center justify-center group-hover:opacity-80 transition-opacity">
                 <span className="text-white font-semibold text-xs sm:text-sm">
                   {getInitials(post.user.name, post.user.username)}
                 </span>
@@ -800,7 +800,7 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
         <EngagementButton
           onClick={handleShare}
           isActive={false}
-          activeColor="purple"
+          activeColor="red"
           label="Share"
         >
           <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -941,7 +941,7 @@ function EngagementButton({
 }: { 
   onClick?: () => void; 
   isActive: boolean; 
-  activeColor: 'red' | 'green' | 'blue' | 'yellow' | 'purple' | 'gray';
+  activeColor: 'red' | 'green' | 'blue' | 'yellow' | 'gray';
   count?: number;
   label?: string;
   ariaLabel?: string;
@@ -956,7 +956,6 @@ function EngagementButton({
     green: { active: 'text-green-500', hover: 'hover:text-green-500 hover:bg-green-500/10', particle: 'bg-green-500' },
     blue: { active: 'text-blue-500', hover: 'hover:text-blue-500 hover:bg-blue-500/10', particle: 'bg-blue-500' },
     yellow: { active: 'text-yellow-500', hover: 'hover:text-yellow-500 hover:bg-yellow-500/10', particle: 'bg-yellow-500' },
-    purple: { active: 'text-purple-500', hover: 'hover:text-purple-500 hover:bg-purple-500/10', particle: 'bg-purple-500' },
     gray: { active: 'text-gray-400', hover: 'hover:text-gray-300 hover:bg-white/5', particle: 'bg-gray-400' },
   };
   

@@ -99,7 +99,7 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
       case "GUEST":
         return "border-gray-400/50 bg-gray-500/15 text-gray-300";
       default:
-        return "border-purple-400/50 bg-purple-500/15 text-purple-300";
+        return "border-red-500/50 bg-red-600/15 text-red-400";
     }
   };
 
@@ -147,14 +147,14 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
             <h1 className="text-lg sm:text-2xl font-bold flex items-center gap-2 text-white">
               <span className="truncate">{user.name ?? user.username}</span>
               {user.profile?.verified && (
-                <span className="inline-flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-gradient-to-br from-purple-500 to-purple-600 flex-shrink-0">
+                <span className="inline-flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-gradient-to-br from-red-600 to-red-700 flex-shrink-0">
                   <svg width="10" height="10" viewBox="0 0 24 24" fill="none" className="text-white sm:w-3 sm:h-3">
                     <path d="M20 6L9 17l-5-5" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                 </span>
               )}
             </h1>
-            <p className="text-xs sm:text-sm text-purple-300/80">@{user.username}</p>
+            <p className="text-xs sm:text-sm text-red-400/80">@{user.username}</p>
           </div>
           
           {/* Profile type badge */}
@@ -170,14 +170,14 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
           {/* Stats row - inline flex for consistent alignment */}
           <div className="mt-3 inline-flex items-stretch gap-1.5 flex-wrap">
             {rating !== "—" && (
-              <div className="inline-flex items-center gap-1 text-xs bg-purple-500/15 border border-purple-500/30 text-purple-300 px-2.5 py-1 rounded-full">
+              <div className="inline-flex items-center gap-1 text-xs bg-red-600/15 border border-red-600/30 text-red-400 px-2.5 py-1 rounded-full">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" className="text-yellow-400">
                   <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/>
                 </svg>
                 <span className="font-medium">{rating}</span>
               </div>
             )}
-            <Link href={`/u/${user.username}/followers`} className="inline-flex items-center gap-1 text-xs bg-purple-500/10 border border-purple-500/20 text-purple-300 hover:bg-purple-500/20 px-2.5 py-1 rounded-full transition-colors">
+            <Link href={`/u/${user.username}/followers`} className="inline-flex items-center gap-1 text-xs bg-red-600/10 border border-red-600/20 text-red-400 hover:bg-red-600/20 px-2.5 py-1 rounded-full transition-colors">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
                 <circle cx="9" cy="7" r="4"/>
@@ -187,7 +187,7 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
               <span className="font-semibold">{user?._count?.followers ?? 0}</span>
               <span className="hidden sm:inline">Followers</span>
             </Link>
-            <Link href={`/u/${user.username}/following`} className="inline-flex items-center gap-1 text-xs bg-purple-500/10 border border-purple-500/20 text-purple-300 hover:bg-purple-500/20 px-2.5 py-1 rounded-full transition-colors">
+            <Link href={`/u/${user.username}/following`} className="inline-flex items-center gap-1 text-xs bg-red-600/10 border border-red-600/20 text-red-400 hover:bg-red-600/20 px-2.5 py-1 rounded-full transition-colors">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
                 <circle cx="12" cy="7" r="4"/>
@@ -199,7 +199,7 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
           
           {/* Bio */}
           {user.profile?.bio && (
-            <p className="mt-4 text-sm text-[var(--muted-foreground)] whitespace-pre-wrap leading-relaxed border-l-2 border-purple-500/30 pl-3">
+            <p className="mt-4 text-sm text-[var(--muted-foreground)] whitespace-pre-wrap leading-relaxed border-l-2 border-red-600/30 pl-3">
               {user.profile.bio}
             </p>
           )}
@@ -208,8 +208,8 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
           {(user.profile?.location || user.profile?.website) && (
             <div className="mt-3 flex flex-wrap gap-2 text-xs text-[var(--muted-foreground)]">
               {user.profile?.location && (
-                <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-purple-500/10 border border-purple-500/20">
-                  <svg className="w-3 h-3 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-red-600/10 border border-red-600/20">
+                  <svg className="w-3 h-3 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
@@ -221,12 +221,12 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
                   href={user.profile.website} 
                   target="_blank" 
                   rel="noreferrer" 
-                  className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-purple-500/10 border border-purple-500/20 hover:bg-purple-500/20 transition-colors"
+                  className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-red-600/10 border border-red-600/20 hover:bg-red-600/20 transition-colors"
                 >
-                  <svg className="w-3 h-3 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-3 h-3 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                   </svg>
-                  <span className="text-purple-300">{user.profile.website.replace(/^https?:\/\//, '')}</span>
+                  <span className="text-red-400">{user.profile.website.replace(/^https?:\/\//, '')}</span>
                 </a>
               )}
             </div>

@@ -227,7 +227,7 @@ export const VirtualizedPostFeed = memo(function VirtualizedPostFeed({
       {hasMore && (
         <div ref={loadMoreRef} className="flex justify-center py-4">
           <div className="flex items-center gap-2 text-[var(--muted-foreground)]">
-            <div className="w-5 h-5 border-2 border-purple-400/30 border-t-purple-400 rounded-full animate-spin" />
+            <div className="w-5 h-5 border-2 border-red-500/30 border-t-red-500 rounded-full animate-spin" />
             <span className="text-sm">Loading more...</span>
           </div>
         </div>

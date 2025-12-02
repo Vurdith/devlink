@@ -145,7 +145,7 @@ export function EditPostModal({ post, isOpen, onClose, onSave }: EditPostModalPr
                       strokeDasharray={`${(content.length / 500) * 62.83} 62.83`}
                       className={cn(
                         "transition-all",
-                        content.length > 480 ? "text-red-400" : content.length > 450 ? "text-amber-400" : "text-purple-400"
+                        content.length > 480 ? "text-red-400" : content.length > 450 ? "text-amber-400" : "text-red-500"
                       )}
                     />
                   </svg>

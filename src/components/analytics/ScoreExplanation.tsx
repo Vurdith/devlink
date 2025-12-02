@@ -61,7 +61,7 @@ export const ScoreExplanation: FC<ScoreExplanationProps> = ({
         </h3>
         <button
           type="button"
-          className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-purple-200 transition hover:border-purple-400/40 hover:bg-purple-500/10"
+          className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-red-300 transition hover:border-red-500/40 hover:bg-red-600/10"
           onClick={() => setExpanded((prev) => !prev)}
         >
           {expanded ? "Hide details" : "Show detailed math"}
@@ -95,7 +95,7 @@ export const ScoreExplanation: FC<ScoreExplanationProps> = ({
               weightedSaves
             )}){" "}
             ={" "}
-            <span className="font-semibold text-purple-200">
+            <span className="font-semibold text-red-300">
               {nf2.format(breakdown.baseEngagementScore)}
             </span>
           </p>
@@ -111,7 +111,7 @@ export const ScoreExplanation: FC<ScoreExplanationProps> = ({
               breakdown.metrics.engagementToFollowerRatio
             )}. Multiply by the engagement ratio weight (
             {nf2.format(weights.engagementRatio)}) to get{" "}
-            <span className="font-semibold text-purple-200">
+            <span className="font-semibold text-red-300">
               {nf2.format(breakdown.engagementRatioScore)}
             </span>
           </p>
@@ -123,7 +123,7 @@ export const ScoreExplanation: FC<ScoreExplanationProps> = ({
             {nf2.format(
               breakdown.timeDecayMultiplier
             )}) ={" "}
-            <span className="font-semibold text-purple-200">
+            <span className="font-semibold text-red-300">
               {nf2.format(breakdown.decayedCoreScore)}
             </span>
             . The multiplier is chosen using the {nf2.format(
@@ -139,7 +139,7 @@ export const ScoreExplanation: FC<ScoreExplanationProps> = ({
             max boost ({nf2.format(
               weights.newDeveloper.maxBoost
             )}). Result:{" "}
-            <span className="font-semibold text-purple-200">
+            <span className="font-semibold text-red-300">
               {nf2.format(breakdown.newDeveloperBoost)}
             </span>
           </p>
@@ -162,7 +162,7 @@ export const ScoreExplanation: FC<ScoreExplanationProps> = ({
             {nf2.format(breakdown.timeDecayMultiplier)}) +{" "}
             {nf2.format(breakdown.newDeveloperBoost)} −{" "}
             {nf2.format(breakdown.spamPenalty)} ={" "}
-            <span className="font-semibold text-purple-200">
+            <span className="font-semibold text-red-300">
               {nf2.format(finalScorePreFloor)}
             </span>
             , then floor-protected at{" "}

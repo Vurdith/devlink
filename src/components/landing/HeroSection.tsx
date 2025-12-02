@@ -5,12 +5,12 @@ import Image from "next/image";
 
 // Floating geometric shapes with gradient colors
 const floatingShapes = [
-  { type: "hexagon", x: "10%", y: "20%", color: "from-purple-500 to-violet-600", size: 40, delay: "0s" },
+  { type: "hexagon", x: "10%", y: "20%", color: "from-red-600 to-violet-600", size: 40, delay: "0s" },
   { type: "circle", x: "85%", y: "15%", color: "from-cyan-400 to-blue-500", size: 32, delay: "0.5s" },
   { type: "diamond", x: "75%", y: "70%", color: "from-pink-500 to-rose-500", size: 36, delay: "1s" },
   { type: "square", x: "15%", y: "75%", color: "from-amber-400 to-orange-500", size: 34, delay: "1.5s" },
   { type: "circle", x: "90%", y: "45%", color: "from-emerald-400 to-green-500", size: 28, delay: "2s" },
-  { type: "hexagon", x: "5%", y: "50%", color: "from-indigo-400 to-purple-500", size: 24, delay: "2.5s" },
+  { type: "hexagon", x: "5%", y: "50%", color: "from-indigo-400 to-red-600", size: 24, delay: "2.5s" },
 ];
 
 function FloatingShape({ type, color, size }: { type: string; color: string; size: number }) {
@@ -112,7 +112,7 @@ export function HeroSection() {
           className="text-lg md:text-xl lg:text-2xl text-[var(--muted-foreground)] max-w-3xl mx-auto mb-10 leading-relaxed animate-fade-in"
           style={{ animationDelay: "0.4s" }}
         >
-          The premier professional network for <span className="text-purple-400 font-semibold">developers</span>, 
+          The premier professional network for <span className="text-red-500 font-semibold">developers</span>, 
           <span className="text-cyan-400 font-semibold"> clients</span>, 
           <span className="text-pink-400 font-semibold"> studios</span>, and 
           <span className="text-white font-semibold"> influencers</span> in the Roblox ecosystem.
@@ -124,7 +124,7 @@ export function HeroSection() {
           style={{ animationDelay: "0.6s" }}
         >
           <Link href="/register">
-            <button className="group relative px-8 py-4 bg-gradient-to-r from-purple-500 to-purple-600 rounded-2xl font-semibold text-lg text-white overflow-hidden hover:from-purple-600 hover:to-purple-700 transition-all duration-200 hover:scale-105 active:scale-95 shadow-lg shadow-purple-500/30">
+            <button className="group relative px-8 py-4 bg-gradient-to-r from-red-600 to-red-700 rounded-2xl font-semibold text-lg text-white overflow-hidden hover:from-red-700 hover:to-red-800 transition-all duration-200 hover:scale-105 active:scale-95 shadow-lg shadow-red-600/30">
               <span className="relative z-10 flex items-center gap-2">
                 Get Started Free
                 <svg 
@@ -140,7 +140,7 @@ export function HeroSection() {
           </Link>
           
           <Link href="/home">
-            <button className="px-8 py-4 bg-[#0d0d12] rounded-2xl font-semibold text-lg text-white border border-white/20 hover:border-purple-500/50 hover:bg-white/5 transition-all duration-200 hover:scale-105 active:scale-95">
+            <button className="px-8 py-4 bg-[#0d0d12] rounded-2xl font-semibold text-lg text-white border border-white/20 hover:border-red-600/50 hover:bg-white/5 transition-all duration-200 hover:scale-105 active:scale-95">
               Explore Feed
             </button>
           </Link>
@@ -164,7 +164,7 @@ export function HeroSection() {
             <span>Secure platform</span>
           </div>
           <div className="flex items-center gap-2">
-            <svg className="w-5 h-5 text-purple-400" fill="currentColor" viewBox="0 0 20 20">
+            <svg className="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
               <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
             </svg>
             <span>Trusted by creators</span>

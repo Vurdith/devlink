@@ -115,7 +115,7 @@ export function Review({ review, currentUserId, onEdit, onDelete }: ReviewProps)
                   e.stopPropagation();
                   window.location.href = `/u/${review.reviewer.username}`;
                 }}
-                className="font-semibold text-white hover:text-purple-300 transition-colors"
+                className="font-semibold text-white hover:text-red-400 transition-colors"
               >
                 {review.reviewer.name || review.reviewer.username}
               </button>
@@ -182,7 +182,7 @@ export function Review({ review, currentUserId, onEdit, onDelete }: ReviewProps)
         <div className="flex items-center gap-4 mt-4 pt-4 border-t border-white/5 opacity-0 group-hover:opacity-100 transition-opacity">
           <button
             onClick={() => onEdit?.(review.id)}
-            className="flex items-center gap-2 text-sm font-medium text-purple-400 hover:text-purple-300 transition-colors"
+            className="flex items-center gap-2 text-sm font-medium text-red-500 hover:text-red-400 transition-colors"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />

@@ -173,7 +173,7 @@ export const ScoreBreakdown: FC<ScoreBreakdownProps> = memo(function ScoreBreakd
               <path d="M21 21l-4.35-4.35" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
             </svg>
           }
-          color="from-violet-500 to-purple-500"
+          color="from-violet-500 to-red-600"
           score={null}
           contribution={breakdown.discoveryBoost}
           weight={weights.discoveryWeight}

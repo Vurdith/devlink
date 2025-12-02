@@ -154,7 +154,7 @@ function ResetPasswordContent() {
         <div className="absolute -bottom-20 -left-24 w-96 h-96 rounded-full blur-3xl opacity-30" style={{ background: "radial-gradient(50% 50% at 50% 50%, var(--accent-2) 0%, transparent 70%)" }} />
         <div className="bg-[#0d0d12] border border-white/10 p-6">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-lg flex items-center justify-center border border-blue-500/30">
+            <div className="w-10 h-10 bg-gradient-to-br from-blue-500/20 to-red-600/20 rounded-lg flex items-center justify-center border border-blue-500/30">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-blue-300">
                 <rect x="3" y="11" width="18" height="11" rx="2" ry="2" stroke="currentColor" strokeWidth="2"/>
                 <circle cx="12" cy="16" r="1" fill="currentColor"/>

@@ -78,22 +78,22 @@ const NavLink = memo(function NavLink({ item, isActive }: { item: NavItem; isAct
       className={cn(
         "group relative flex items-center gap-3 px-4 py-3 rounded-xl transition-colors duration-150",
         isActive 
-          ? "bg-purple-500/15 text-white" 
-          : "text-[var(--muted-foreground)] hover:text-white hover:bg-purple-500/10"
+          ? "bg-red-600/15 text-white" 
+          : "text-[var(--muted-foreground)] hover:text-white hover:bg-red-600/10"
       )}
       title={item.description}
     >
       {/* Active indicator */}
       {isActive && (
-        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-gradient-to-b from-purple-400 to-purple-600 rounded-r-full" />
+        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-gradient-to-b from-red-500 to-red-700 rounded-r-full" />
       )}
       
       {/* Icon */}
       <div className={cn(
         "p-2 rounded-lg transition-colors duration-150",
         isActive 
-          ? "bg-purple-500/20 text-purple-400" 
-          : "text-[var(--muted-foreground)] group-hover:text-purple-400 group-hover:bg-purple-500/10"
+          ? "bg-red-600/20 text-red-500" 
+          : "text-[var(--muted-foreground)] group-hover:text-red-500 group-hover:bg-red-600/10"
       )}>
         {item.icon}
       </div>
@@ -105,7 +105,7 @@ const NavLink = memo(function NavLink({ item, isActive }: { item: NavItem; isAct
       <svg
         className={cn(
           "ml-auto w-4 h-4 transition-opacity duration-150",
-          isActive ? "text-purple-400 opacity-100" : "opacity-0 group-hover:opacity-50"
+          isActive ? "text-red-500 opacity-100" : "opacity-0 group-hover:opacity-50"
         )}
         fill="none"
         stroke="currentColor"
@@ -172,9 +172,9 @@ export const Sidebar = memo(function Sidebar() {
             <>
               <div className="py-4">
                 <div className="flex items-center gap-2">
-                  <div className="h-px flex-1 bg-gradient-to-r from-transparent via-purple-500/20 to-transparent" />
-                  <span className="text-[10px] text-purple-400/60 uppercase tracking-widest">Account</span>
-                  <div className="h-px flex-1 bg-gradient-to-r from-transparent via-purple-500/20 to-transparent" />
+                  <div className="h-px flex-1 bg-gradient-to-r from-transparent via-red-600/20 to-transparent" />
+                  <span className="text-[10px] text-red-500/60 uppercase tracking-widest">Account</span>
+                  <div className="h-px flex-1 bg-gradient-to-r from-transparent via-red-600/20 to-transparent" />
                 </div>
               </div>
               
@@ -196,9 +196,9 @@ export const Sidebar = memo(function Sidebar() {
         </nav>
 
         {/* Bottom section */}
-        <div className="p-4 border-t border-purple-500/10">
-          <div className="rounded-xl p-4 text-center space-y-2 bg-purple-500/5 border border-purple-500/20">
-            <p className="text-xs font-medium text-purple-300">
+        <div className="p-4 border-t border-red-600/10">
+          <div className="rounded-xl p-4 text-center space-y-2 bg-red-600/5 border border-red-600/20">
+            <p className="text-xs font-medium text-red-400">
               Connect • Create • Grow
             </p>
             <p className="text-[10px] text-[var(--muted-foreground)]">

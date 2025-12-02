@@ -53,13 +53,13 @@ const LinkItem = memo(function LinkItem({ link, idx, onRemove }: { link: string;
 
 const TagItem = memo(function TagItem({ tag, idx, onRemove }: { tag: string; idx: number; onRemove: (idx: number) => void }) {
   return (
-    <div className="flex items-center gap-1 px-2 py-1 bg-purple-500/15 text-purple-400 rounded-full border border-purple-500/30 group hover:border-purple-500/50">
+    <div className="flex items-center gap-1 px-2 py-1 bg-red-600/15 text-red-500 rounded-full border border-red-600/30 group hover:border-red-600/50">
       <span className="text-[10px] font-medium">#{tag}</span>
       <Tooltip content="Remove tag">
         <button
           type="button"
           onClick={() => onRemove(idx)}
-          className="p-0.5 text-purple-400 hover:bg-purple-500/30 rounded-full opacity-0 group-hover:opacity-100"
+          className="p-0.5 text-red-500 hover:bg-red-600/30 rounded-full opacity-0 group-hover:opacity-100"
         >
           <svg width="10" height="10" viewBox="0 0 24 24" fill="none">
             <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
@@ -296,7 +296,7 @@ export function PortfolioEditor({
             type="text"
             defaultValue={existingItem?.title || ""}
             placeholder="Project title"
-            className="w-full px-3 py-2 bg-black/30 border border-white/10 rounded-lg text-sm text-white placeholder-white/30 focus:outline-none focus:border-purple-500/50"
+            className="w-full px-3 py-2 bg-black/30 border border-white/10 rounded-lg text-sm text-white placeholder-white/30 focus:outline-none focus:border-red-600/50"
             required
           />
         </div>
@@ -309,7 +309,7 @@ export function PortfolioEditor({
             type="text"
             defaultValue={existingItem?.category || ""}
             placeholder="e.g. Project, Design, Development"
-            className="w-full px-3 py-2 bg-black/30 border border-white/10 rounded-lg text-sm text-white placeholder-white/30 focus:outline-none focus:border-purple-500/50"
+            className="w-full px-3 py-2 bg-black/30 border border-white/10 rounded-lg text-sm text-white placeholder-white/30 focus:outline-none focus:border-red-600/50"
           />
         </div>
 
@@ -321,7 +321,7 @@ export function PortfolioEditor({
             defaultValue={existingItem?.description || ""}
             placeholder="Tell us about this item..."
             rows={3}
-            className="w-full px-3 py-2 bg-black/30 border border-white/10 rounded-lg text-sm text-white placeholder-white/30 focus:outline-none focus:border-purple-500/50 resize-none"
+            className="w-full px-3 py-2 bg-black/30 border border-white/10 rounded-lg text-sm text-white placeholder-white/30 focus:outline-none focus:border-red-600/50 resize-none"
           />
         </div>
 
@@ -335,7 +335,7 @@ export function PortfolioEditor({
                 onClick={() => setMediaInputMethod("url")}
                 className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                   mediaInputMethod === "url"
-                    ? "bg-purple-500/20 text-purple-400 border border-purple-500/30"
+                    ? "bg-red-600/20 text-red-500 border border-red-600/30"
                     : "bg-white/5 text-white/50 border border-white/10 hover:bg-white/10"
                 }`}
               >
@@ -348,7 +348,7 @@ export function PortfolioEditor({
                 onClick={() => setMediaInputMethod("upload")}
                 className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                   mediaInputMethod === "upload"
-                    ? "bg-purple-500/20 text-purple-400 border border-purple-500/30"
+                    ? "bg-red-600/20 text-red-500 border border-red-600/30"
                     : "bg-white/5 text-white/50 border border-white/10 hover:bg-white/10"
                 }`}
               >
@@ -370,13 +370,13 @@ export function PortfolioEditor({
                     }
                   }}
                   placeholder="Paste image URL"
-                  className="flex-1 px-3 py-2 bg-black/30 border border-white/10 rounded-lg text-sm text-white placeholder-white/30 focus:outline-none focus:border-purple-500/50"
+                  className="flex-1 px-3 py-2 bg-black/30 border border-white/10 rounded-lg text-sm text-white placeholder-white/30 focus:outline-none focus:border-red-600/50"
                 />
                 <Tooltip content="Add URL">
                   <button
                     type="button"
                     onClick={addMediaUrl}
-                    className="px-3 py-2 bg-purple-500/20 text-purple-400 hover:bg-purple-500/30 rounded-lg text-xs font-medium"
+                    className="px-3 py-2 bg-red-600/20 text-red-500 hover:bg-red-600/30 rounded-lg text-xs font-medium"
                   >
                     Add
                   </button>
@@ -399,7 +399,7 @@ export function PortfolioEditor({
                 onDrop={handleDrop}
                 className={`flex items-center justify-center w-full px-3 py-4 border border-dashed rounded-lg cursor-pointer transition-colors ${
                   dragActive
-                    ? "border-purple-500 bg-purple-500/10"
+                    ? "border-red-600 bg-red-600/10"
                     : "border-white/20 hover:bg-white/5"
                 }`}
               >
@@ -433,10 +433,10 @@ export function PortfolioEditor({
               type="text"
               onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addLink(); } }}
               placeholder="Paste URL"
-              className="flex-1 px-3 py-2 bg-black/30 border border-white/10 rounded-lg text-sm text-white placeholder-white/30 focus:outline-none focus:border-purple-500/50"
+              className="flex-1 px-3 py-2 bg-black/30 border border-white/10 rounded-lg text-sm text-white placeholder-white/30 focus:outline-none focus:border-red-600/50"
             />
             <Tooltip content="Add link">
-              <button type="button" onClick={addLink} className="px-3 py-2 bg-purple-500/20 text-purple-400 hover:bg-purple-500/30 rounded-lg text-xs font-medium">
+              <button type="button" onClick={addLink} className="px-3 py-2 bg-red-600/20 text-red-500 hover:bg-red-600/30 rounded-lg text-xs font-medium">
                 Add
               </button>
             </Tooltip>
@@ -459,10 +459,10 @@ export function PortfolioEditor({
               type="text"
               onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addTag(); } }}
               placeholder="Type tag"
-              className="flex-1 px-3 py-2 bg-black/30 border border-white/10 rounded-lg text-sm text-white placeholder-white/30 focus:outline-none focus:border-purple-500/50"
+              className="flex-1 px-3 py-2 bg-black/30 border border-white/10 rounded-lg text-sm text-white placeholder-white/30 focus:outline-none focus:border-red-600/50"
             />
             <Tooltip content="Add tag">
-              <button type="button" onClick={addTag} className="px-3 py-2 bg-purple-500/20 text-purple-400 hover:bg-purple-500/30 rounded-lg text-xs font-medium">
+              <button type="button" onClick={addTag} className="px-3 py-2 bg-red-600/20 text-red-500 hover:bg-red-600/30 rounded-lg text-xs font-medium">
                 Add
               </button>
             </Tooltip>
@@ -483,7 +483,7 @@ export function PortfolioEditor({
             id="isPublic"
             checked={isPublic}
             onChange={(e) => setIsPublic(e.target.checked)}
-            className="w-4 h-4 rounded cursor-pointer accent-purple-500"
+            className="w-4 h-4 rounded cursor-pointer accent-red-600"
           />
           <Tooltip content="When enabled, this item will be visible on your public profile">
             <label htmlFor="isPublic" className="text-xs font-medium cursor-pointer text-white/70">
