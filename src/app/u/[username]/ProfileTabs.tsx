@@ -297,14 +297,57 @@ export function ProfileTabs({ username, currentUserId, userId }: ProfileTabsProp
   // Listen for engagement updates from other pages (e.g., feed page)
   useEffect(() => {
     const handleEngagementUpdate = (event: CustomEvent) => {
-      const { post } = event.detail;
-      // Immediately update local state if this post should be in the current tab
-      handlePostUpdate(post);
+      const { post, action, liked, reposted, saved } = event.detail;
+      
+      // Clear ALL relevant caches immediately
+      const clearCaches = () => {
+        ['posts', 'reposts', 'liked', 'saved', 'replies'].forEach(tab => {
+          for (let page = 1; page <= 10; page++) {
+            tabDataCache.delete(`${userId}:${tab}:${page}`);
+          }
+        });
+      };
+      
+      // Handle specific actions
+      if (action === 'repost') {
+        clearCaches();
+        if (activeTab === 'reposts') {
+          if (reposted === false) {
+            // Remove post from reposts tab immediately
+            setPosts(prevPosts => prevPosts.filter(p => p.id !== post.id));
+          }
+          // Force refresh
+          fetchPosts('reposts', 1, false, true);
+        }
+      } else if (action === 'save') {
+        clearCaches();
+        if (activeTab === 'saved') {
+          if (saved === false) {
+            // Remove post from saved tab immediately
+            setPosts(prevPosts => prevPosts.filter(p => p.id !== post.id));
+          }
+          // Force refresh
+          fetchPosts('saved', 1, false, true);
+        }
+      } else if (action === 'like') {
+        clearCaches();
+        if (activeTab === 'liked') {
+          if (liked === false) {
+            // Remove post from liked tab immediately
+            setPosts(prevPosts => prevPosts.filter(p => p.id !== post.id));
+          }
+          // Force refresh
+          fetchPosts('liked', 1, false, true);
+        }
+      } else {
+        // For any other action, still update
+        handlePostUpdate(post);
+      }
     };
 
     window.addEventListener('postEngagementUpdate', handleEngagementUpdate as EventListener);
     return () => window.removeEventListener('postEngagementUpdate', handleEngagementUpdate as EventListener);
-  }, [handlePostUpdate]);
+  }, [handlePostUpdate, activeTab, userId, fetchPosts]);
 
   // Background refresh when page becomes visible (only if cache is stale)
   useEffect(() => {

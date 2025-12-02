@@ -370,6 +370,11 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
           }
           onUpdate(updatedPost);
         }
+        
+        // Dispatch event to notify other components (like ProfileTabs)
+        window.dispatchEvent(new CustomEvent('postEngagementUpdate', {
+          detail: { post, action: 'repost', reposted: data.reposted }
+        }));
       } else {
         setIsReposted(!newRepostedState);
         setRepostCount(prev => newRepostedState ? Math.max(0, prev - 1) : prev + 1);
@@ -410,6 +415,11 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
           }
           onUpdate(updatedPost);
         }
+        
+        // Dispatch event to notify other components (like ProfileTabs)
+        window.dispatchEvent(new CustomEvent('postEngagementUpdate', {
+          detail: { post, action: 'save', saved: data.saved }
+        }));
       } else {
         setIsSaved(!newSavedState);
       }
