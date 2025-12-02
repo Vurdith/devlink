@@ -369,12 +369,12 @@ export function PortfolioItemDisplay({
           onClick={() => setShowMediaModal(false)}
         >
           <div 
-            className="relative w-full h-full flex flex-col items-center justify-center py-16 px-4"
+            className="relative w-full h-full flex flex-col items-center justify-center py-12 px-4"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Media Container with Zoom - relative positioning for close button */}
+            {/* Media Container with Zoom */}
             <div
-              className="relative flex-1 w-full max-w-[95vw] flex items-center justify-center overflow-hidden"
+              className="flex-1 w-full flex items-center justify-center overflow-hidden"
               onMouseDown={handleMouseDown}
               onMouseMove={handleMouseMove}
               onMouseUp={handleMouseUp}
@@ -382,46 +382,49 @@ export function PortfolioItemDisplay({
               onWheel={handleWheel}
               style={{ cursor: zoomLevel > 1 ? (isDragging ? 'grabbing' : 'grab') : 'zoom-in' }}
             >
-              {/* Close button - positioned relative to image container */}
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowMediaModal(false);
-                }}
-                className="absolute -top-2 -right-2 w-10 h-10 flex items-center justify-center bg-black/80 hover:bg-red-500/90 text-white/90 hover:text-white rounded-full z-20 border border-white/20 hover:border-red-400 shadow-lg shadow-black/50 transition-all duration-200 hover:scale-110"
-                title="Close (Esc)"
-              >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                  <path
-                    d="M18 6L6 18M6 6l12 12"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </button>
+              {/* Image wrapper - close button positioned relative to actual image */}
+              <div className="relative inline-block">
+                {/* Close button - top right of image */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowMediaModal(false);
+                  }}
+                  className="absolute -top-3 -right-3 w-9 h-9 flex items-center justify-center bg-black/90 hover:bg-red-500 text-white/80 hover:text-white rounded-full z-20 border border-white/30 hover:border-red-400 shadow-xl transition-all duration-200 hover:scale-110"
+                  title="Close (Esc)"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                    <path
+                      d="M18 6L6 18M6 6l12 12"
+                      stroke="currentColor"
+                      strokeWidth="3"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </button>
 
-              <img
-                src={currentMediaUrl}
-                alt={`${item.title} - media ${currentMediaIndex + 1}`}
-                className="max-w-full max-h-[75vh] object-contain select-none transition-transform duration-150 rounded-lg"
-                style={{ 
-                  transform: `scale(${zoomLevel}) translate(${panPosition.x / zoomLevel}px, ${panPosition.y / zoomLevel}px)`,
-                  maxWidth: '1600px'
-                }}
-                ref={imageRef}
-                draggable={false}
-                onClick={() => {
-                  if (zoomLevel === 1) {
-                    setZoomLevel(2);
-                  }
-                }}
-                onError={(e) => {
-                  const img = e.target as HTMLImageElement;
-                  img.style.display = "none";
-                }}
-              />
+                <img
+                  src={currentMediaUrl}
+                  alt={`${item.title} - media ${currentMediaIndex + 1}`}
+                  className="max-w-[90vw] max-h-[75vh] object-contain select-none transition-transform duration-150 rounded-lg shadow-2xl"
+                  style={{ 
+                    transform: `scale(${zoomLevel}) translate(${panPosition.x / zoomLevel}px, ${panPosition.y / zoomLevel}px)`,
+                    maxWidth: '1400px'
+                  }}
+                  ref={imageRef}
+                  draggable={false}
+                  onClick={() => {
+                    if (zoomLevel === 1) {
+                      setZoomLevel(2);
+                    }
+                  }}
+                  onError={(e) => {
+                    const img = e.target as HTMLImageElement;
+                    img.style.display = "none";
+                  }}
+                />
+              </div>
             </div>
 
             {/* Bottom Control Bar */}
