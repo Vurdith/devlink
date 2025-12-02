@@ -4,17 +4,19 @@
 
 import * as Sentry from "@sentry/nextjs";
 
+const isDev = process.env.NODE_ENV === "development";
+
 Sentry.init({
   dsn: process.env.SENTRY_DSN,
 
-  // Performance Monitoring
-  tracesSampleRate: 1.0,
+  // Performance Monitoring - disabled in dev
+  tracesSampleRate: isDev ? 0 : 1.0,
 
   // Set the environment
   environment: process.env.NODE_ENV,
 
-  // Debug mode
-  debug: process.env.NODE_ENV === "development",
+  // Disable debug mode to prevent log spam
+  debug: false,
 
   // Filter events in development
   beforeSend(event) {

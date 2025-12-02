@@ -10,21 +10,21 @@ const debugEnabled = process.env.SENTRY_DEBUG === "true";
 Sentry.init({
   dsn: process.env.SENTRY_DSN,
 
-  // Performance Monitoring - capture all transactions for full visibility
-  tracesSampleRate: isDev ? (debugEnabled ? 1.0 : 0.1) : 1.0,
+  // Performance Monitoring - reduced in dev to avoid log spam
+  tracesSampleRate: isDev ? 0 : 1.0,
   
-  // Profile 10% of transactions for deep performance insights
+  // Profile 10% of transactions for deep performance insights (prod only)
   profilesSampleRate: isDev ? 0 : 0.1,
 
   // Set the environment
   environment: process.env.NODE_ENV,
 
-  // Enable debug mode when SENTRY_DEBUG is set
-  debug: debugEnabled,
+  // NEVER enable debug in dev - causes massive log spam
+  debug: false,
 
   // Capture unhandled promise rejections with detailed context
-  integrations: [
-    Sentry.prismaIntegration(), // Track Prisma queries with timing
+  integrations: isDev ? [] : [
+    Sentry.prismaIntegration(), // Track Prisma queries with timing (prod only)
   ],
 
   // Filter error events

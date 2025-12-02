@@ -4,21 +4,23 @@
 
 import * as Sentry from "@sentry/nextjs";
 
+const isDev = process.env.NODE_ENV === "development";
+
 Sentry.init({
   dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
 
-  // Performance Monitoring
-  tracesSampleRate: 1.0, // Capture 100% of transactions in development, reduce in production
+  // Performance Monitoring - disabled in dev to reduce noise
+  tracesSampleRate: isDev ? 0 : 1.0,
 
-  // Session Replay
-  replaysSessionSampleRate: 0.1, // Sample 10% of sessions
-  replaysOnErrorSampleRate: 1.0, // Sample 100% of sessions with errors
+  // Session Replay - prod only
+  replaysSessionSampleRate: isDev ? 0 : 0.1,
+  replaysOnErrorSampleRate: isDev ? 0 : 1.0,
 
   // Set the environment
   environment: process.env.NODE_ENV,
 
-  // Enable debug mode in development
-  debug: process.env.NODE_ENV === "development",
+  // Disable debug mode to prevent log spam
+  debug: false,
 
   // Integrations
   integrations: [
