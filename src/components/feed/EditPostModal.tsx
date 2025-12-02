@@ -2,6 +2,8 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/Button";
 import { Toast } from "@/components/ui/Toast";
+import { BaseModal, ModalTextarea, Tooltip } from "@/components/ui/BaseModal";
+import { cn } from "@/lib/cn";
 
 interface EditPostModalProps {
   post: {
@@ -70,72 +72,102 @@ export function EditPostModal({ post, isOpen, onClose, onSave }: EditPostModalPr
     }
   };
 
-  if (!isOpen || !post) return null;
+  if (!post) return null;
+
+  const footer = (
+    <div className="flex gap-3">
+      <Button
+        type="button"
+        variant="ghost"
+        onClick={onClose}
+        className="flex-1"
+      >
+        Cancel
+      </Button>
+      <Button
+        type="submit"
+        onClick={handleSubmit}
+        disabled={!content.trim() || isSubmitting}
+        isLoading={isSubmitting}
+        className="flex-1"
+      >
+        Save Changes
+      </Button>
+    </div>
+  );
 
   return (
     <>
-      <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
-        <div className="bg-black/90 border border-white/20 rounded-lg w-full max-w-md p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold">Edit Post</h3>
-            <button
-              onClick={onClose}
-              className="p-2 rounded-full hover:bg-white/10 transition-colors"
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </button>
+      <BaseModal
+        isOpen={isOpen}
+        onClose={onClose}
+        title="Edit Post"
+        size="md"
+        footer={footer}
+        contentClassName="px-5 py-4"
+      >
+        <div className="space-y-4">
+          <div>
+            <ModalTextarea
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              placeholder="What's happening in the Roblox dev world?"
+              rows={4}
+            />
+            <div className="flex items-center justify-between mt-2">
+              <span className={cn(
+                "text-xs",
+                content.length > 450 ? "text-amber-400" : content.length > 480 ? "text-red-400" : "text-[var(--muted-foreground)]"
+              )}>
+                {content.length}/500
+              </span>
+              
+              {/* Progress ring */}
+              <Tooltip content={`${500 - content.length} characters remaining`}>
+                <div className="relative w-5 h-5">
+                  <svg className="w-5 h-5 -rotate-90" viewBox="0 0 24 24">
+                    <circle 
+                      cx="12" 
+                      cy="12" 
+                      r="10" 
+                      fill="none" 
+                      stroke="currentColor" 
+                      strokeWidth="2" 
+                      className="text-white/10"
+                    />
+                    <circle 
+                      cx="12" 
+                      cy="12" 
+                      r="10" 
+                      fill="none" 
+                      stroke="currentColor" 
+                      strokeWidth="2" 
+                      strokeDasharray={`${(content.length / 500) * 62.83} 62.83`}
+                      className={cn(
+                        "transition-all",
+                        content.length > 480 ? "text-red-400" : content.length > 450 ? "text-amber-400" : "text-purple-400"
+                      )}
+                    />
+                  </svg>
+                </div>
+              </Tooltip>
+            </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <textarea
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                placeholder="What's happening in the Roblox dev world?"
-                className="w-full bg-transparent border border-white/20 rounded-lg p-3 text-white placeholder:text-[var(--muted-foreground)] resize-none min-h-[100px] outline-none focus:border-[var(--accent)]"
-                maxLength={500}
-              />
-              <div className="text-right text-xs text-[var(--muted-foreground)] mt-1">
-                {content.length}/500
-              </div>
+          <div>
+            <label className="block text-xs font-medium mb-1.5 text-white/70">Media URLs (one per line)</label>
+            <ModalTextarea
+              value={mediaUrls.join('\n')}
+              onChange={(e) => setMediaUrls(e.target.value.split('\n').filter(url => url.trim()))}
+              placeholder="Enter media URLs, one per line (optional)"
+              rows={3}
+            />
+            <div className="text-xs text-[var(--muted-foreground)] mt-1.5">
+              {mediaUrls.filter(url => url.trim()).length} media items
             </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-2">Media URLs (one per line)</label>
-              <textarea
-                value={mediaUrls.join('\n')}
-                onChange={(e) => setMediaUrls(e.target.value.split('\n').filter(url => url.trim()))}
-                placeholder="Enter media URLs, one per line (optional)"
-                className="w-full bg-transparent border border-white/20 rounded-lg p-3 text-white placeholder:text-[var(--muted-foreground)] resize-none min-h-[80px] outline-none focus:border-[var(--accent)]"
-              />
-              <div className="text-xs text-[var(--muted-foreground)] mt-1">
-                {mediaUrls.filter(url => url.trim()).length} media items
-              </div>
-            </div>
-
-            <div className="flex gap-3 pt-4">
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={onClose}
-                className="flex-1"
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                disabled={!content.trim() || isSubmitting}
-                isLoading={isSubmitting}
-                className="flex-1 bg-[var(--accent)] hover:bg-[var(--accent)]/90"
-              >
-                Save Changes
-              </Button>
-            </div>
-          </form>
+          </div>
         </div>
-      </div>
+      </BaseModal>
 
       {showToast && (
         <Toast

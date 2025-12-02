@@ -1,10 +1,10 @@
-
 "use client";
 
-import { useState, useCallback, memo, useRef, useTransition } from "react";
-import { Button } from "@/components/ui/Button";
+import { useState, useCallback, memo, useRef } from "react";
+import { BaseModal, ModalInput, ModalTextarea, Tooltip } from "@/components/ui/BaseModal";
 
 interface PortfolioEditorProps {
+  isOpen: boolean;
   onClose: () => void;
   onSave: (item: any) => void;
   existingItem?: any;
@@ -16,15 +16,17 @@ const MediaUrlItem = memo(function MediaUrlItem({ url, idx, onRemove }: { url: s
   return (
     <div className="flex items-center gap-2 px-2.5 py-1.5 bg-white/5 rounded-lg group hover:bg-white/10">
       <span className="text-[11px] text-white/50 truncate flex-1">{url}</span>
-      <button
-        type="button"
-        onClick={() => onRemove(idx)}
-        className="p-0.5 text-red-400 hover:bg-red-500/20 rounded opacity-0 group-hover:opacity-100"
-      >
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-          <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-        </svg>
-      </button>
+      <Tooltip content="Remove media">
+        <button
+          type="button"
+          onClick={() => onRemove(idx)}
+          className="p-0.5 text-red-400 hover:bg-red-500/20 rounded opacity-0 group-hover:opacity-100"
+        >
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+            <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+          </svg>
+        </button>
+      </Tooltip>
     </div>
   );
 });
@@ -33,15 +35,17 @@ const LinkItem = memo(function LinkItem({ link, idx, onRemove }: { link: string;
   return (
     <div className="flex items-center gap-2 px-2.5 py-1.5 bg-white/5 rounded-lg group hover:bg-white/10">
       <span className="text-[11px] text-white/50 truncate flex-1">{link}</span>
-      <button
-        type="button"
-        onClick={() => onRemove(idx)}
-        className="p-0.5 text-red-400 hover:bg-red-500/20 rounded opacity-0 group-hover:opacity-100"
-      >
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-          <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-        </svg>
-      </button>
+      <Tooltip content="Remove link">
+        <button
+          type="button"
+          onClick={() => onRemove(idx)}
+          className="p-0.5 text-red-400 hover:bg-red-500/20 rounded opacity-0 group-hover:opacity-100"
+        >
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+            <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+          </svg>
+        </button>
+      </Tooltip>
     </div>
   );
 });
@@ -50,15 +54,17 @@ const TagItem = memo(function TagItem({ tag, idx, onRemove }: { tag: string; idx
   return (
     <div className="flex items-center gap-1 px-2 py-1 bg-purple-500/15 text-purple-400 rounded-full border border-purple-500/30 group hover:border-purple-500/50">
       <span className="text-[10px] font-medium">#{tag}</span>
-      <button
-        type="button"
-        onClick={() => onRemove(idx)}
-        className="p-0.5 text-purple-400 hover:bg-purple-500/30 rounded-full opacity-0 group-hover:opacity-100"
-      >
-        <svg width="10" height="10" viewBox="0 0 24 24" fill="none">
-          <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
-        </svg>
-      </button>
+      <Tooltip content="Remove tag">
+        <button
+          type="button"
+          onClick={() => onRemove(idx)}
+          className="p-0.5 text-purple-400 hover:bg-purple-500/30 rounded-full opacity-0 group-hover:opacity-100"
+        >
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none">
+            <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+          </svg>
+        </button>
+      </Tooltip>
     </div>
   );
 });
@@ -75,20 +81,23 @@ const MediaPreview = memo(function MediaPreview({ url, idx, onRemove }: { url: s
           onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
         />
       </div>
-      <button
-        type="button"
-        onClick={() => onRemove(idx)}
-        className="absolute top-1 right-1 p-1 bg-black/70 text-white rounded-md opacity-0 group-hover:opacity-100 hover:bg-red-500"
-      >
-        <svg width="10" height="10" viewBox="0 0 24 24" fill="none">
-          <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
-        </svg>
-      </button>
+      <Tooltip content="Remove">
+        <button
+          type="button"
+          onClick={() => onRemove(idx)}
+          className="absolute top-1 right-1 p-1 bg-black/70 text-white rounded-md opacity-0 group-hover:opacity-100 hover:bg-red-500"
+        >
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none">
+            <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+          </svg>
+        </button>
+      </Tooltip>
     </div>
   );
 });
 
 export function PortfolioEditor({
+  isOpen,
   onClose,
   onSave,
   existingItem,
@@ -252,68 +261,78 @@ export function PortfolioEditor({
     }
   }, [links, mediaUrls, tags, isPublic, existingItem, onSave]);
 
+  const footer = (
+    <div className="flex gap-2 justify-end">
+      <button
+        type="button"
+        onClick={onClose}
+        className="px-4 py-2 text-xs rounded-lg border border-white/10 bg-white/5 text-white/70 hover:bg-white/10 transition-colors font-medium"
+      >
+        Cancel
+      </button>
+      <button
+        type="submit"
+        onClick={handleSubmit}
+        disabled={loading || uploadingMedia}
+        className="px-4 py-2 text-xs rounded-lg bg-gradient-to-r from-purple-500 to-purple-600 text-white hover:from-purple-600 hover:to-purple-700 transition-all font-medium disabled:opacity-50"
+      >
+        {loading ? "Saving..." : existingItem ? "Update" : "Add Item"}
+      </button>
+    </div>
+  );
+
   return (
-    <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4" style={{ contain: 'layout style paint' }}>
-      <div className="bg-[#0d0d12] border border-white/10 rounded-2xl w-full max-w-lg shadow-2xl shadow-black/50 max-h-[85vh] flex flex-col" style={{ contain: 'content' }}>
-        {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
-          <h2 className="text-lg font-semibold text-white">
-            {existingItem ? "Edit Portfolio Item" : "Add Portfolio Item"}
-          </h2>
-          <button
-            onClick={onClose}
-            className="p-1.5 rounded-lg text-white/50 hover:text-white hover:bg-white/10 transition-colors"
-            aria-label="Close"
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-              <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-            </svg>
-          </button>
+    <BaseModal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={existingItem ? "Edit Portfolio Item" : "Add Portfolio Item"}
+      size="lg"
+      footer={footer}
+      contentClassName="px-5 py-4"
+    >
+      <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Title */}
+        <div>
+          <label className="block text-xs font-medium mb-1.5 text-white/70">Title *</label>
+          <input
+            ref={titleRef}
+            type="text"
+            defaultValue={existingItem?.title || ""}
+            placeholder="Project title"
+            className="w-full px-3 py-2 bg-black/30 border border-white/10 rounded-lg text-sm text-white placeholder-white/30 focus:outline-none focus:border-purple-500/50"
+            required
+          />
         </div>
 
-        {/* Form - Scrollable */}
-        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
-          {/* Title */}
-          <div>
-            <label className="block text-xs font-medium mb-1.5 text-white/70">Title *</label>
-            <input
-              ref={titleRef}
-              type="text"
-              defaultValue={existingItem?.title || ""}
-              placeholder="Project title"
-              className="w-full px-3 py-2 bg-black/30 border border-white/10 rounded-lg text-sm text-white placeholder-white/30 focus:outline-none focus:border-purple-500/50"
-              required
-            />
-          </div>
+        {/* Category */}
+        <div>
+          <label className="block text-xs font-medium mb-1.5 text-white/70">Category</label>
+          <input
+            ref={categoryRef}
+            type="text"
+            defaultValue={existingItem?.category || ""}
+            placeholder="e.g. Project, Design, Development"
+            className="w-full px-3 py-2 bg-black/30 border border-white/10 rounded-lg text-sm text-white placeholder-white/30 focus:outline-none focus:border-purple-500/50"
+          />
+        </div>
 
-          {/* Category */}
-          <div>
-            <label className="block text-xs font-medium mb-1.5 text-white/70">Category</label>
-            <input
-              ref={categoryRef}
-              type="text"
-              defaultValue={existingItem?.category || ""}
-              placeholder="e.g. Project, Design, Development"
-              className="w-full px-3 py-2 bg-black/30 border border-white/10 rounded-lg text-sm text-white placeholder-white/30 focus:outline-none focus:border-purple-500/50"
-            />
-          </div>
+        {/* Description */}
+        <div>
+          <label className="block text-xs font-medium mb-1.5 text-white/70">Description</label>
+          <textarea
+            ref={descriptionRef}
+            defaultValue={existingItem?.description || ""}
+            placeholder="Tell us about this item..."
+            rows={3}
+            className="w-full px-3 py-2 bg-black/30 border border-white/10 rounded-lg text-sm text-white placeholder-white/30 focus:outline-none focus:border-purple-500/50 resize-none"
+          />
+        </div>
 
-          {/* Description */}
-          <div>
-            <label className="block text-xs font-medium mb-1.5 text-white/70">Description</label>
-            <textarea
-              ref={descriptionRef}
-              defaultValue={existingItem?.description || ""}
-              placeholder="Tell us about this item..."
-              rows={3}
-              className="w-full px-3 py-2 bg-black/30 border border-white/10 rounded-lg text-sm text-white placeholder-white/30 focus:outline-none focus:border-purple-500/50 resize-none"
-            />
-          </div>
-
-          {/* Media Section */}
-          <div>
-            <label className="block text-xs font-medium mb-2 text-white/70">Media</label>
-            <div className="flex gap-1.5 mb-3">
+        {/* Media Section */}
+        <div>
+          <label className="block text-xs font-medium mb-2 text-white/70">Media</label>
+          <div className="flex gap-1.5 mb-3">
+            <Tooltip content="Add media via URL">
               <button
                 type="button"
                 onClick={() => setMediaInputMethod("url")}
@@ -325,6 +344,8 @@ export function PortfolioEditor({
               >
                 URL
               </button>
+            </Tooltip>
+            <Tooltip content="Upload files from device">
               <button
                 type="button"
                 onClick={() => setMediaInputMethod("upload")}
@@ -336,23 +357,25 @@ export function PortfolioEditor({
               >
                 Upload
               </button>
-            </div>
+            </Tooltip>
+          </div>
 
-            {mediaInputMethod === "url" ? (
-              <div className="space-y-2">
-                <div className="flex gap-2">
-                  <input
-                    ref={newMediaUrlRef}
-                    type="text"
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        e.preventDefault();
-                        addMediaUrl();
-                      }
-                    }}
-                    placeholder="Paste image URL"
-                    className="flex-1 px-3 py-2 bg-black/30 border border-white/10 rounded-lg text-sm text-white placeholder-white/30 focus:outline-none focus:border-purple-500/50"
-                  />
+          {mediaInputMethod === "url" ? (
+            <div className="space-y-2">
+              <div className="flex gap-2">
+                <input
+                  ref={newMediaUrlRef}
+                  type="text"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      addMediaUrl();
+                    }
+                  }}
+                  placeholder="Paste image URL"
+                  className="flex-1 px-3 py-2 bg-black/30 border border-white/10 rounded-lg text-sm text-white placeholder-white/30 focus:outline-none focus:border-purple-500/50"
+                />
+                <Tooltip content="Add URL">
                   <button
                     type="button"
                     onClick={addMediaUrl}
@@ -360,138 +383,125 @@ export function PortfolioEditor({
                   >
                     Add
                   </button>
-                </div>
-                {mediaUrls.length > 0 && (
-                  <div className="space-y-1.5 max-h-24 overflow-y-auto">
-                    {mediaUrls.map((url: string, idx: number) => (
-                      <MediaUrlItem key={idx} url={url} idx={idx} onRemove={removeMediaUrl} />
-                    ))}
-                  </div>
-                )}
+                </Tooltip>
               </div>
-            ) : (
-              <div className="space-y-2">
-                <div
-                  onDragEnter={handleDrag}
-                  onDragLeave={handleDrag}
-                  onDragOver={handleDrag}
-                  onDrop={handleDrop}
-                  className={`flex items-center justify-center w-full px-3 py-4 border border-dashed rounded-lg cursor-pointer transition-colors ${
-                    dragActive
-                      ? "border-purple-500 bg-purple-500/10"
-                      : "border-white/20 hover:bg-white/5"
-                  }`}
-                >
-                  <label className="text-center w-full cursor-pointer">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="mx-auto mb-2 text-white/40">
-                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                    <p className="text-xs text-white/50">
-                      {uploadingMedia ? "Uploading..." : "Drop files or click to upload"}
-                    </p>
-                    <input type="file" multiple accept="image/*,video/*" onChange={handleMediaUpload} disabled={uploadingMedia} className="hidden" />
-                  </label>
+              {mediaUrls.length > 0 && (
+                <div className="space-y-1.5 max-h-24 overflow-y-auto">
+                  {mediaUrls.map((url: string, idx: number) => (
+                    <MediaUrlItem key={idx} url={url} idx={idx} onRemove={removeMediaUrl} />
+                  ))}
                 </div>
-                {mediaUrls.length > 0 && (
-                  <div className="grid grid-cols-4 gap-2">
-                    {mediaUrls.map((url: string, idx: number) => (
-                      <MediaPreview key={idx} url={url} idx={idx} onRemove={removeMediaUrl} />
-                    ))}
-                  </div>
-                )}
+              )}
+            </div>
+          ) : (
+            <div className="space-y-2">
+              <div
+                onDragEnter={handleDrag}
+                onDragLeave={handleDrag}
+                onDragOver={handleDrag}
+                onDrop={handleDrop}
+                className={`flex items-center justify-center w-full px-3 py-4 border border-dashed rounded-lg cursor-pointer transition-colors ${
+                  dragActive
+                    ? "border-purple-500 bg-purple-500/10"
+                    : "border-white/20 hover:bg-white/5"
+                }`}
+              >
+                <label className="text-center w-full cursor-pointer">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="mx-auto mb-2 text-white/40">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                  <p className="text-xs text-white/50">
+                    {uploadingMedia ? "Uploading..." : "Drop files or click to upload"}
+                  </p>
+                  <input type="file" multiple accept="image/*,video/*" onChange={handleMediaUpload} disabled={uploadingMedia} className="hidden" />
+                </label>
               </div>
-            )}
-          </div>
+              {mediaUrls.length > 0 && (
+                <div className="grid grid-cols-4 gap-2">
+                  {mediaUrls.map((url: string, idx: number) => (
+                    <MediaPreview key={idx} url={url} idx={idx} onRemove={removeMediaUrl} />
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
 
-          {/* Links */}
-          <div>
-            <label className="block text-xs font-medium mb-1.5 text-white/70">Links</label>
-            <div className="flex gap-2 mb-2">
-              <input
-                ref={newLinkRef}
-                type="text"
-                onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addLink(); } }}
-                placeholder="Paste URL"
-                className="flex-1 px-3 py-2 bg-black/30 border border-white/10 rounded-lg text-sm text-white placeholder-white/30 focus:outline-none focus:border-purple-500/50"
-              />
+        {/* Links */}
+        <div>
+          <label className="block text-xs font-medium mb-1.5 text-white/70">Links</label>
+          <div className="flex gap-2 mb-2">
+            <input
+              ref={newLinkRef}
+              type="text"
+              onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addLink(); } }}
+              placeholder="Paste URL"
+              className="flex-1 px-3 py-2 bg-black/30 border border-white/10 rounded-lg text-sm text-white placeholder-white/30 focus:outline-none focus:border-purple-500/50"
+            />
+            <Tooltip content="Add link">
               <button type="button" onClick={addLink} className="px-3 py-2 bg-purple-500/20 text-purple-400 hover:bg-purple-500/30 rounded-lg text-xs font-medium">
                 Add
               </button>
-            </div>
-            {links.length > 0 && (
-              <div className="space-y-1.5 max-h-20 overflow-y-auto">
-                {links.map((link: string, idx: number) => (
-                  <LinkItem key={idx} link={link} idx={idx} onRemove={removeLink} />
-                ))}
-              </div>
-            )}
+            </Tooltip>
           </div>
+          {links.length > 0 && (
+            <div className="space-y-1.5 max-h-20 overflow-y-auto">
+              {links.map((link: string, idx: number) => (
+                <LinkItem key={idx} link={link} idx={idx} onRemove={removeLink} />
+              ))}
+            </div>
+          )}
+        </div>
 
-          {/* Tags */}
-          <div>
-            <label className="block text-xs font-medium mb-1.5 text-white/70">Tags</label>
-            <div className="flex gap-2 mb-2">
-              <input
-                ref={newTagRef}
-                type="text"
-                onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addTag(); } }}
-                placeholder="Type tag"
-                className="flex-1 px-3 py-2 bg-black/30 border border-white/10 rounded-lg text-sm text-white placeholder-white/30 focus:outline-none focus:border-purple-500/50"
-              />
+        {/* Tags */}
+        <div>
+          <label className="block text-xs font-medium mb-1.5 text-white/70">Tags</label>
+          <div className="flex gap-2 mb-2">
+            <input
+              ref={newTagRef}
+              type="text"
+              onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addTag(); } }}
+              placeholder="Type tag"
+              className="flex-1 px-3 py-2 bg-black/30 border border-white/10 rounded-lg text-sm text-white placeholder-white/30 focus:outline-none focus:border-purple-500/50"
+            />
+            <Tooltip content="Add tag">
               <button type="button" onClick={addTag} className="px-3 py-2 bg-purple-500/20 text-purple-400 hover:bg-purple-500/30 rounded-lg text-xs font-medium">
                 Add
               </button>
-            </div>
-            {tags.length > 0 && (
-              <div className="flex flex-wrap gap-1.5">
-                {tags.map((tag: string, idx: number) => (
-                  <TagItem key={idx} tag={tag} idx={idx} onRemove={removeTag} />
-                ))}
-              </div>
-            )}
+            </Tooltip>
           </div>
+          {tags.length > 0 && (
+            <div className="flex flex-wrap gap-1.5">
+              {tags.map((tag: string, idx: number) => (
+                <TagItem key={idx} tag={tag} idx={idx} onRemove={removeTag} />
+              ))}
+            </div>
+          )}
+        </div>
 
-          {/* Public Toggle */}
-          <div className="flex items-center gap-2.5">
-            <input
-              type="checkbox"
-              id="isPublic"
-              checked={isPublic}
-              onChange={(e) => setIsPublic(e.target.checked)}
-              className="w-4 h-4 rounded cursor-pointer accent-purple-500"
-            />
+        {/* Public Toggle */}
+        <div className="flex items-center gap-2.5">
+          <input
+            type="checkbox"
+            id="isPublic"
+            checked={isPublic}
+            onChange={(e) => setIsPublic(e.target.checked)}
+            className="w-4 h-4 rounded cursor-pointer accent-purple-500"
+          />
+          <Tooltip content="When enabled, this item will be visible on your public profile">
             <label htmlFor="isPublic" className="text-xs font-medium cursor-pointer text-white/70">
               Make public
             </label>
-          </div>
-
-          {/* Error Message */}
-          {error && (
-            <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-xs">
-              {error}
-            </div>
-          )}
-        </form>
-
-        {/* Footer Actions */}
-        <div className="flex gap-2 justify-end px-5 py-4 border-t border-white/10">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-2 text-xs rounded-lg border border-white/10 bg-white/5 text-white/70 hover:bg-white/10 transition-colors font-medium"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            onClick={handleSubmit}
-            disabled={loading || uploadingMedia}
-            className="px-4 py-2 text-xs rounded-lg bg-gradient-to-r from-purple-500 to-purple-600 text-white hover:from-purple-600 hover:to-purple-700 transition-all font-medium disabled:opacity-50"
-          >
-            {loading ? "Saving..." : existingItem ? "Update" : "Add Item"}
-          </button>
+          </Tooltip>
         </div>
-      </div>
-    </div>
+
+        {/* Error Message */}
+        {error && (
+          <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-xs">
+            {error}
+          </div>
+        )}
+      </form>
+    </BaseModal>
   );
 }

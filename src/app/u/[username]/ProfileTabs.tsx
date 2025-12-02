@@ -622,17 +622,16 @@ export function ProfileTabs({ username, currentUserId, userId }: ProfileTabsProp
       </div>
 
       {/* Portfolio Editor Modal */}
-      {showPortfolioEditor && (
-        <PortfolioEditor 
-          onClose={() => {
-            setShowPortfolioEditor(false);
-            setEditingItem(null);
-          }}
-          onSave={handleSavePortfolioItem}
-          existingItem={editingItem}
-          userId={userId}
-        />
-      )}
+      <PortfolioEditor 
+        isOpen={showPortfolioEditor}
+        onClose={() => {
+          setShowPortfolioEditor(false);
+          setEditingItem(null);
+        }}
+        onSave={handleSavePortfolioItem}
+        existingItem={editingItem}
+        userId={userId}
+      />
     </div>
   );
 }
