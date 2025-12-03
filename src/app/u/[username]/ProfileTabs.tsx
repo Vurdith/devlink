@@ -397,40 +397,82 @@ export function ProfileTabs({ username, currentUserId, userId }: ProfileTabsProp
     setShowPortfolioEditor(true);
   };
 
-  // Render reply with preview of original post
+  // Render reply with preview of original post - Twitter-like thread view
   const renderReplyWithPreview = (reply: any) => {
     if (!reply.replyTo) return null;
 
+    const originalPost = reply.replyTo;
+    const originalAuthor = originalPost.user;
+
     return (
-      <div key={reply.id} className="space-y-3">
-        {/* Preview of original post */}
-        <div className="bg-[#0d0d12] rounded-[var(--radius)] p-3 border border-white/10">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="w-6 h-6 rounded-full bg-[var(--accent)]/20 flex items-center justify-center">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" className="text-[var(--accent)]">
-                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
+      <div key={reply.id} className="bg-[#0a0a0f] rounded-2xl border border-white/5 overflow-hidden hover:border-white/10 transition-colors">
+        {/* Original post preview - compact thread header */}
+        <button
+          onClick={() => window.location.href = `/p/${originalPost.id}`}
+          className="w-full text-left p-4 pb-3 hover:bg-white/[0.02] transition-colors group"
+        >
+          <div className="flex items-start gap-3">
+            {/* Avatar with thread line */}
+            <div className="relative flex flex-col items-center">
+              <img
+                src={originalAuthor?.image || '/default-avatar.png'}
+                alt={originalAuthor?.username || 'User'}
+                className="w-8 h-8 rounded-full object-cover ring-2 ring-white/10 group-hover:ring-red-500/30 transition-all"
+              />
+              {/* Thread connector line */}
+              <div className="w-0.5 h-6 bg-gradient-to-b from-white/20 to-transparent mt-2" />
             </div>
-            <span className="text-xs text-[var(--muted-foreground)]">Replying to</span>
-            <span className="text-xs font-medium text-white">@{reply.replyTo.user?.username || 'unknown'}</span>
-          </div>
-          <div className="text-sm text-[var(--muted-foreground)] mb-2 overflow-hidden" style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
-            {reply.replyTo.content}
-          </div>
-          <button
-            onClick={() => window.location.href = `/p/${reply.replyTo.id}`}
-            className="text-xs text-[var(--accent)] hover:text-[var(--accent)]/80 transition-colors flex items-center gap-1"
-          >
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-              <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            
+            {/* Original post content */}
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-sm font-medium text-white/90 group-hover:text-white truncate">
+                  {originalAuthor?.displayName || originalAuthor?.username || 'Unknown'}
+                </span>
+                <span className="text-xs text-white/40">@{originalAuthor?.username || 'unknown'}</span>
+              </div>
+              <p className="text-sm text-white/60 line-clamp-2 leading-relaxed">
+                {originalPost.content}
+              </p>
+              {originalPost.media?.length > 0 && (
+                <div className="flex items-center gap-1.5 mt-2 text-xs text-white/40">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                    <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" strokeWidth="2"/>
+                    <circle cx="8.5" cy="8.5" r="1.5" fill="currentColor"/>
+                    <path d="M21 15l-5-5L5 21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  <span>{originalPost.media.length} {originalPost.media.length === 1 ? 'image' : 'images'}</span>
+                </div>
+              )}
+            </div>
+            
+            {/* Arrow indicator */}
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="text-white/20 group-hover:text-red-500/60 transition-colors flex-shrink-0 mt-1">
+              <path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
-            Go to post
-          </button>
+          </div>
+        </button>
+        
+        {/* Divider with "replied" indicator */}
+        <div className="flex items-center gap-3 px-4 py-2 bg-white/[0.02]">
+          <div className="flex items-center gap-2 text-xs text-white/40">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="text-red-500/60">
+              <path d="M3 10h10a5 5 0 0 1 5 5v6M3 10l6 6M3 10l6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            <span>Replied</span>
+          </div>
+          <div className="flex-1 h-px bg-white/5" />
         </div>
         
         {/* The actual reply */}
-        <div className="ml-4">
-          <PostFeed posts={[reply]} currentUserId={currentUserId} showNavigationArrow={false} hidePinnedIndicator={false} onUpdate={handlePostUpdate} />
+        <div className="px-0">
+          <PostFeed 
+            posts={[reply]} 
+            currentUserId={currentUserId} 
+            showNavigationArrow={false} 
+            hidePinnedIndicator={true}
+            onUpdate={handlePostUpdate} 
+          />
         </div>
       </div>
     );
