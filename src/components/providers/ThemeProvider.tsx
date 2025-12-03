@@ -46,16 +46,39 @@ export function ThemeProvider({ children, defaultTheme = DEFAULT_THEME }: ThemeP
       root.style.setProperty(key, value);
     });
 
-    // Update favicon
-    const faviconLink = document.querySelector('link[rel="icon"]') as HTMLLinkElement;
-    if (faviconLink) {
-      faviconLink.href = getFaviconPath(themeId);
+    // Update all favicon-related links
+    const faviconPath = getFaviconPath(themeId);
+    const logoPath = getLogoPath(themeId);
+    
+    // Update shortcut icon
+    const shortcutIcon = document.querySelector('link[rel="shortcut icon"]') as HTMLLinkElement;
+    if (shortcutIcon) {
+      shortcutIcon.href = faviconPath;
     }
+    
+    // Update all icon links (Next.js generates multiple)
+    const iconLinks = document.querySelectorAll('link[rel="icon"]');
+    iconLinks.forEach((link) => {
+      const htmlLink = link as HTMLLinkElement;
+      // For sized icons, use the favicon
+      if (htmlLink.sizes?.value) {
+        htmlLink.href = faviconPath;
+      } else {
+        // For generic icons, use logo
+        htmlLink.href = logoPath;
+      }
+    });
 
     // Update apple-touch-icon
     const appleTouchIcon = document.querySelector('link[rel="apple-touch-icon"]') as HTMLLinkElement;
     if (appleTouchIcon) {
-      appleTouchIcon.href = getLogoPath(themeId);
+      appleTouchIcon.href = logoPath;
+    }
+    
+    // Also update the main favicon.ico reference if it exists
+    const mainFavicon = document.querySelector('link[href*="favicon"]') as HTMLLinkElement;
+    if (mainFavicon && mainFavicon.rel === 'icon') {
+      mainFavicon.href = faviconPath;
     }
 
     // Store in localStorage

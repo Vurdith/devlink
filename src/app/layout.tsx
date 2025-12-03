@@ -43,12 +43,11 @@ export const metadata: Metadata = {
   publisher: "DevLink",
   icons: {
     icon: [
-      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
-      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
-      { url: "/logo/logo.png", sizes: "any", type: "image/png" },
+      { url: "/favicon-purple.ico", type: "image/x-icon" },
+      { url: "/logo/logo-purple.png", sizes: "any", type: "image/png" },
     ],
-    shortcut: "/favicon-32x32.png",
-    apple: "/logo/logo.png",
+    shortcut: "/favicon-purple.ico",
+    apple: "/logo/logo-purple.png",
   },
   manifest: "/manifest.json",
   // Open Graph meta tags for social sharing
