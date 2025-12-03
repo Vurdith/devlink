@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 @theme {
-  /* Core colors - Deep space theme with crimson accents */
+  /* Core colors - Deep space theme */
   --color-background: #050508;
   --color-foreground: #f0f2f5;
   --color-muted: #0a0d12;
@@ -9,20 +9,27 @@
   --color-card: #080b10;
   --color-card-foreground: #f0f2f5;
   
-  /* Primary accent - Crimson red */
-  --color-accent: #dc2626;
-  --color-accent-hover: #b91c1c;
-  --color-accent-glow: rgba(220, 38, 38, 0.4);
+  /* 
+   * Theme-aware accent colors
+   * These are set dynamically by ThemeProvider based on selected theme
+   * Default values (purple) are defined here as fallback
+   */
+  --color-accent: #a855f7;
+  --color-accent-hover: #9333ea;
+  --color-accent-glow: rgba(168, 85, 247, 0.4);
   
-  /* Secondary accent - Dark red */
-  --color-accent-2: #ef4444;
-  --color-accent-2-glow: rgba(239, 68, 68, 0.3);
+  --color-accent-2: #c084fc;
+  --color-accent-2-glow: rgba(192, 132, 252, 0.3);
   
-  /* Tertiary accent - Rose */
-  --color-accent-3: #f43f5e;
-  --color-accent-3-glow: rgba(244, 63, 94, 0.3);
+  --color-accent-3: #e879f9;
+  --color-accent-3-glow: rgba(232, 121, 249, 0.3);
   
-  /* Success/Warning/Error */
+  /* RGB values for rgba() usage in animations */
+  --color-accent-rgb: 168, 85, 247;
+  --color-accent-2-rgb: 192, 132, 252;
+  --color-accent-3-rgb: 232, 121, 249;
+  
+  /* Success/Warning/Error - Theme independent */
   --color-success: #10b981;
   --color-warning: #f59e0b;
   --color-error: #ef4444;
@@ -103,7 +110,7 @@ body {
 
 .glass-hover:hover {
   background: rgba(20, 22, 30, 0.95);
-  border-color: rgba(220, 38, 38, 0.3);
+  border-color: rgba(var(--color-accent-rgb), 0.3);
   box-shadow: 
     0 8px 30px rgba(0, 0, 0, 0.5),
     0 0 40px var(--color-accent-glow),
@@ -113,16 +120,16 @@ body {
 /* Glow effects */
 .glow {
   box-shadow:
-    0 0 1px rgba(220, 38, 38, 0.6),
-    0 4px 20px rgba(220, 38, 38, 0.15),
-    0 8px 40px rgba(220, 38, 38, 0.1);
+    0 0 1px rgba(var(--color-accent-rgb), 0.6),
+    0 4px 20px rgba(var(--color-accent-rgb), 0.15),
+    0 8px 40px rgba(var(--color-accent-rgb), 0.1);
 }
 
 .glow-strong {
   box-shadow:
-    0 0 2px rgba(220, 38, 38, 0.8),
-    0 4px 30px rgba(220, 38, 38, 0.3),
-    0 8px 60px rgba(220, 38, 38, 0.2);
+    0 0 2px rgba(var(--color-accent-rgb), 0.8),
+    0 4px 30px rgba(var(--color-accent-rgb), 0.3),
+    0 8px 60px rgba(var(--color-accent-rgb), 0.2);
 }
 
 .glow-cyan {
@@ -143,7 +150,7 @@ body {
 .text-glow {
   text-shadow:
     0 0 20px var(--color-accent-glow),
-    0 0 40px rgba(220, 38, 38, 0.2);
+    0 0 40px rgba(var(--color-accent-rgb), 0.2);
 }
 
 .text-glow-cyan {
@@ -160,8 +167,8 @@ body {
   background-clip: text;
 }
 
-.gradient-text-red {
-  background: linear-gradient(135deg, #f87171 0%, var(--color-accent) 50%, #991b1b 100%);
+.gradient-text-accent {
+  background: linear-gradient(135deg, rgba(var(--color-accent-2-rgb), 1) 0%, var(--color-accent) 50%, rgba(var(--color-accent-rgb), 0.7) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -185,8 +192,8 @@ body {
 .float-card:hover {
   transform: translateY(-4px) scale(1.01);
   box-shadow:
-    0 20px 50px -12px rgba(220, 38, 38, 0.35),
-    0 0 20px rgba(220, 38, 38, 0.1);
+    0 20px 50px -12px rgba(var(--color-accent-rgb), 0.35),
+    0 0 20px rgba(var(--color-accent-rgb), 0.1);
 }
 
 /* Button gradients */
@@ -249,7 +256,7 @@ body {
     box-shadow: 0 0 20px var(--color-accent-glow);
   }
   50% {
-    box-shadow: 0 0 40px var(--color-accent-glow), 0 0 60px rgba(220, 38, 38, 0.2);
+    box-shadow: 0 0 40px var(--color-accent-glow), 0 0 60px rgba(var(--color-accent-rgb), 0.2);
   }
 }
 
@@ -260,8 +267,8 @@ body {
 /* Grid pattern background */
 .grid-pattern {
   background-image: 
-    linear-gradient(rgba(220, 38, 38, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(220, 38, 38, 0.03) 1px, transparent 1px);
+    linear-gradient(rgba(var(--color-accent-rgb), 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(var(--color-accent-rgb), 0.03) 1px, transparent 1px);
   background-size: 50px 50px;
 }
 
@@ -303,7 +310,7 @@ body {
 
 /* Selection styles */
 ::selection {
-  background-color: rgba(220, 38, 38, 0.4);
+  background-color: rgba(var(--color-accent-rgb), 0.4);
   color: white;
 }
 
@@ -367,7 +374,7 @@ a, button {
 /* Input focus glow */
 input:focus, textarea:focus, select:focus {
   border-color: var(--color-accent) !important;
-  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1), 0 0 20px rgba(220, 38, 38, 0.1);
+  box-shadow: 0 0 0 3px rgba(var(--color-accent-rgb), 0.1), 0 0 20px rgba(var(--color-accent-rgb), 0.1);
 }
 
 /* Skeleton loading animation */
@@ -394,8 +401,8 @@ input:focus, textarea:focus, select:focus {
 /* Tooltip styles */
 .tooltip {
   background: linear-gradient(135deg, rgba(10, 13, 18, 0.95) 0%, rgba(5, 5, 8, 0.95) 100%);
-  border: 1px solid rgba(220, 38, 38, 0.3);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 20px rgba(220, 38, 38, 0.1);
+  border: 1px solid rgba(var(--color-accent-rgb), 0.3);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 20px rgba(var(--color-accent-rgb), 0.1);
 }
 
 /* Modal backdrop */
@@ -573,14 +580,14 @@ input:focus, textarea:focus, select:focus {
 @keyframes glow-pulse {
   0%, 100% {
     box-shadow: 
-      0 0 5px rgba(220, 38, 38, 0.3),
-      0 0 20px rgba(220, 38, 38, 0.1);
+      0 0 5px rgba(var(--color-accent-rgb), 0.3),
+      0 0 20px rgba(var(--color-accent-rgb), 0.1);
   }
   50% {
     box-shadow: 
-      0 0 20px rgba(220, 38, 38, 0.5),
-      0 0 40px rgba(220, 38, 38, 0.2),
-      0 0 60px rgba(220, 38, 38, 0.1);
+      0 0 20px rgba(var(--color-accent-rgb), 0.5),
+      0 0 40px rgba(var(--color-accent-rgb), 0.2),
+      0 0 60px rgba(var(--color-accent-rgb), 0.1);
   }
 }
 
@@ -591,10 +598,10 @@ input:focus, textarea:focus, select:focus {
 /* Border glow animation */
 @keyframes border-glow {
   0%, 100% {
-    border-color: rgba(220, 38, 38, 0.3);
+    border-color: rgba(var(--color-accent-rgb), 0.3);
   }
   50% {
-    border-color: rgba(220, 38, 38, 0.6);
+    border-color: rgba(var(--color-accent-rgb), 0.6);
   }
 }
 
@@ -645,7 +652,7 @@ input:focus, textarea:focus, select:focus {
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at center, rgba(220, 38, 38, 0.3) 0%, transparent 70%);
+  background: radial-gradient(circle at center, rgba(var(--color-accent-rgb), 0.3) 0%, transparent 70%);
   opacity: 0;
   transform: scale(0);
   transition: all 0.3s ease;
@@ -717,19 +724,19 @@ input:focus, textarea:focus, select:focus {
 
 .lift-hover:hover {
   transform: translateY(-3px);
-  box-shadow: 0 10px 30px -10px rgba(220, 38, 38, 0.3);
+  box-shadow: 0 10px 30px -10px rgba(var(--color-accent-rgb), 0.3);
 }
 
 /* Ring pulse on focus */
 @keyframes ring-pulse {
   0% {
-    box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4);
+    box-shadow: 0 0 0 0 rgba(var(--color-accent-rgb), 0.4);
   }
   70% {
-    box-shadow: 0 0 0 8px rgba(220, 38, 38, 0);
+    box-shadow: 0 0 0 8px rgba(var(--color-accent-rgb), 0);
   }
   100% {
-    box-shadow: 0 0 0 0 rgba(220, 38, 38, 0);
+    box-shadow: 0 0 0 0 rgba(var(--color-accent-rgb), 0);
   }
 }
 
@@ -834,10 +841,10 @@ input:focus, textarea:focus, select:focus {
 .gradient-border-animated {
   background: linear-gradient(
     90deg,
-    rgba(220, 38, 38, 0.5),
-    rgba(34, 211, 238, 0.5),
-    rgba(244, 114, 182, 0.5),
-    rgba(220, 38, 38, 0.5)
+    rgba(var(--color-accent-rgb), 0.5),
+    rgba(var(--color-accent-2-rgb), 0.5),
+    rgba(var(--color-accent-3-rgb), 0.5),
+    rgba(var(--color-accent-rgb), 0.5)
   );
   background-size: 300% 100%;
   animation: gradient-rotate 3s ease infinite;
@@ -880,8 +887,8 @@ input:focus, textarea:focus, select:focus {
 .create-post-collapsed:hover {
   transform: translateY(-2px);
   box-shadow: 
-    0 8px 30px -10px rgba(220, 38, 38, 0.3),
-    0 0 0 1px rgba(220, 38, 38, 0.2);
+    0 8px 30px -10px rgba(var(--color-accent-rgb), 0.3),
+    0 0 0 1px rgba(var(--color-accent-rgb), 0.2);
 }
 
 .create-post-collapsed:active {
@@ -1192,7 +1199,7 @@ img, video {
 /* Profile type badge glow */
 .badge-glow-blue { box-shadow: 0 0 12px rgba(59, 130, 246, 0.3); }
 .badge-glow-emerald { box-shadow: 0 0 12px rgba(16, 185, 129, 0.3); }
-.badge-glow-red { box-shadow: 0 0 12px rgba(220, 38, 38, 0.3); }
+.badge-glow-accent { box-shadow: 0 0 12px rgba(var(--color-accent-rgb), 0.3); }
 .badge-glow-rose { box-shadow: 0 0 12px rgba(244, 63, 94, 0.3); }
 .badge-glow-amber { box-shadow: 0 0 12px rgba(245, 158, 11, 0.3); }
 

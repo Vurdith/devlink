@@ -15,7 +15,19 @@ const navItems = [
         <circle cx="12" cy="7" r="4" stroke="currentColor" strokeWidth="2"/>
       </svg>
     ),
-    color: "from-red-600 to-red-700"
+    useAccent: true
+  },
+  { 
+    href: "/settings/appearance", 
+    label: "Appearance", 
+    description: "Theme & color settings",
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="12" r="5" stroke="currentColor" strokeWidth="2"/>
+        <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+      </svg>
+    ),
+    useAccent: true
   },
   { 
     href: "/settings/security", 
@@ -28,7 +40,7 @@ const navItems = [
         <path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="currentColor" strokeWidth="2"/>
       </svg>
     ),
-    color: "from-red-500 to-red-600"
+    useAccent: true
   },
   { 
     href: "/settings/notifications", 
@@ -40,7 +52,7 @@ const navItems = [
         <path d="M13.73 21a2 2 0 0 1-3.46 0" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
       </svg>
     ),
-    color: "from-red-600 to-red-800"
+    useAccent: true
   }
 ];
 
@@ -67,21 +79,21 @@ export default function SettingsNav() {
               className={cn(
                 "group relative flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200",
                 isActive 
-                  ? "bg-red-600/15" 
-                  : "hover:bg-red-600/10"
+                  ? "bg-[var(--color-accent)]/15" 
+                  : "hover:bg-[var(--color-accent)]/10"
               )}
             >
               {/* Active indicator */}
               {isActive && (
-                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-gradient-to-b from-red-500 to-red-700 rounded-r-full" />
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-gradient-to-b from-[var(--color-accent)] to-[var(--color-accent-hover)] rounded-r-full" />
               )}
               
               {/* Icon */}
               <div className={cn(
                 "w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-200",
                 isActive 
-                  ? `bg-gradient-to-br ${item.color} text-white shadow-lg shadow-red-600/25` 
-                  : "bg-red-600/10 text-red-500 group-hover:bg-red-600/20 group-hover:text-red-400"
+                  ? "bg-gradient-to-br from-[var(--color-accent)] to-[var(--color-accent-hover)] text-white shadow-lg shadow-[var(--color-accent)]/25" 
+                  : "bg-[var(--color-accent)]/10 text-[var(--color-accent)] group-hover:bg-[var(--color-accent)]/20"
               )}>
                 {item.icon}
               </div>
@@ -104,7 +116,7 @@ export default function SettingsNav() {
                 className={cn(
                   "w-4 h-4 transition-all duration-200",
                   isActive 
-                    ? "text-red-500 opacity-100" 
+                    ? "text-[var(--color-accent)] opacity-100" 
                     : "text-[var(--muted-foreground)] opacity-0 group-hover:opacity-50 -translate-x-1 group-hover:translate-x-0"
                 )}
                 fill="none" 
