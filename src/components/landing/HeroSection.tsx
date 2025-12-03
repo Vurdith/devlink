@@ -86,13 +86,13 @@ export function HeroSection() {
       {/* Main content */}
       <div className="relative z-10 max-w-6xl mx-auto text-center">
         {/* Logo */}
-        <div className="mb-8 animate-fade-in">
+        <div className="mb-8 animate-fade-in flex justify-center">
           <Image
             src="/logo/logo.png"
             alt="DevLink"
-            width={128}
-            height={128}
-            className="w-24 h-24 md:w-32 md:h-32 mx-auto pulse-glow-animation"
+            width={200}
+            height={200}
+            className="w-auto h-24 md:h-32 mx-auto pulse-glow-animation object-contain"
             priority
           />
         </div>
