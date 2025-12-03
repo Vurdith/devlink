@@ -215,7 +215,7 @@ export const ReviewsSection = memo(function ReviewsSection({ targetUserId, targe
         {canUserReview && !showCreateForm && (
           <button
             onClick={() => setShowCreateForm(true)}
-            className="flex-shrink-0 flex items-center gap-2.5 px-6 py-3 rounded-xl font-semibold text-sm bg-gradient-to-r from-red-700 to-blue-600 text-white hover:from-red-600 hover:to-blue-500 transition-all duration-200 hover:scale-105 active:scale-95"
+            className="flex-shrink-0 flex items-center gap-2.5 px-6 py-3 rounded-xl font-semibold text-sm bg-gradient-to-r from-red-700 to-blue-600 text-white hover:from-[var(--color-accent)] hover:to-blue-500 transition-all duration-200 hover:scale-105 active:scale-95"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 5v14M5 12h14" />
@@ -279,8 +279,8 @@ export const ReviewsSection = memo(function ReviewsSection({ targetUserId, targe
             className={cn(
               "px-4 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-1.5",
               sentimentFilter === "negative"
-                ? "bg-red-500/20 text-red-400 border border-red-500/30"
-                : "text-white/50 hover:text-red-400 hover:bg-red-500/10"
+                ? "bg-[var(--color-accent)]/20 text-red-400 border border-[var(--color-accent)]/30"
+                : "text-white/50 hover:text-red-400 hover:bg-[var(--color-accent)]/10"
             )}
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -318,12 +318,12 @@ export const ReviewsSection = memo(function ReviewsSection({ targetUserId, targe
             </div>
             <h3 className="text-xl font-semibold text-white mb-3">No reviews yet</h3>
             <p className="text-white/50 text-lg mb-8">
-              Be the first to review <span className="text-red-500">@{targetUsername}</span>
+              Be the first to review <span className="text-[var(--color-accent)]">@{targetUsername}</span>
             </p>
             {canUserReview && !showCreateForm && (
               <button
                 onClick={() => setShowCreateForm(true)}
-                className="px-6 py-3 rounded-xl font-semibold text-sm bg-gradient-to-r from-red-700 to-blue-600 text-white hover:from-red-600 hover:to-blue-500 transition-all"
+                className="px-6 py-3 rounded-xl font-semibold text-sm bg-gradient-to-r from-red-700 to-blue-600 text-white hover:from-[var(--color-accent)] hover:to-blue-500 transition-all"
               >
                 Write the first review
               </button>
@@ -337,7 +337,7 @@ export const ReviewsSection = memo(function ReviewsSection({ targetUserId, targe
                 ? "bg-emerald-500/10 border border-emerald-500/20" 
                 : sentimentFilter === "neutral"
                   ? "bg-amber-500/10 border border-amber-500/20"
-                  : "bg-red-500/10 border border-red-500/20"
+                  : "bg-[var(--color-accent)]/10 border border-[var(--color-accent)]/20"
             )}>
               {sentimentFilter === "positive" ? (
                 <svg className="w-8 h-8 text-emerald-400/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -365,7 +365,7 @@ export const ReviewsSection = memo(function ReviewsSection({ targetUserId, targe
             </p>
             <button
               onClick={() => setSentimentFilter("all")}
-              className="mt-4 text-sm text-red-500 hover:text-red-400 transition-colors"
+              className="mt-4 text-sm text-[var(--color-accent)] hover:text-red-400 transition-colors"
             >
               View all reviews →
             </button>

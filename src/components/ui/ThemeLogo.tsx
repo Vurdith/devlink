@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTheme } from "@/components/providers/ThemeProvider";
 import { getDefaultLogoPath } from "@/lib/themes";
 
@@ -26,10 +26,16 @@ export function ThemeLogo({
   const { logoPath, theme } = useTheme();
   const [imgSrc, setImgSrc] = useState(logoPath);
 
-  // Update src when theme changes
-  if (imgSrc !== logoPath && !imgSrc.includes('logo.png')) {
+  // Update src when theme changes - always try the new themed logo
+  useEffect(() => {
     setImgSrc(logoPath);
-  }
+  }, [logoPath]);
+
+  const handleError = () => {
+    if (imgSrc !== getDefaultLogoPath()) {
+      setImgSrc(getDefaultLogoPath());
+    }
+  };
 
   return (
     <Image
@@ -39,8 +45,8 @@ export function ThemeLogo({
       height={height}
       className={className}
       priority={priority}
-      onError={() => setImgSrc(getDefaultLogoPath())}
-      key={theme.id}
+      onError={handleError}
+      key={`${theme.id}-${imgSrc}`}
     />
   );
 }

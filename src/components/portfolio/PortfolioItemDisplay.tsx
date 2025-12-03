@@ -149,10 +149,10 @@ export function PortfolioItemDisplay({
   const currentMediaUrl = mediaUrls[currentMediaIndex];
 
   return (
-    <div className="group relative bg-[#0d0d12] rounded-[var(--radius)] border border-red-600/20 overflow-hidden hover:border-red-600/40 transition-all">
+    <div className="group relative bg-[#0d0d12] rounded-[var(--radius)] border border-[var(--color-accent)]/20 overflow-hidden hover:border-[var(--color-accent)]/40 transition-all">
       {/* Media Gallery */}
       {mediaUrls.length > 0 && (
-        <div className="w-full h-[28rem] bg-gradient-to-br from-red-600/10 to-blue-500/10 overflow-hidden flex items-center justify-center relative group">
+        <div className="w-full h-[28rem] bg-gradient-to-br from-[var(--color-accent)]/10 to-blue-500/10 overflow-hidden flex items-center justify-center relative group">
           {/* Current Media */}
           <div 
             className="w-full h-full flex items-center justify-center bg-[var(--muted)]/20 cursor-pointer hover:bg-[var(--muted)]/30 transition-colors"
@@ -276,7 +276,7 @@ export function PortfolioItemDisplay({
               </button>
               <button
                 onClick={() => setShowDeleteConfirm(true)}
-                className="p-2.5 text-[var(--muted-foreground)] rounded-lg transition-all duration-200 hover:bg-red-500/20 hover:text-red-400 hover:scale-110 hover:shadow-lg hover:shadow-red-500/20 active:scale-95"
+                className="p-2.5 text-[var(--muted-foreground)] rounded-lg transition-all duration-200 hover:bg-[var(--color-accent)]/20 hover:text-red-400 hover:scale-110 hover:shadow-lg hover:shadow-[var(--color-accent)]/20 active:scale-95"
                 title="Delete"
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
@@ -381,7 +381,7 @@ export function PortfolioItemDisplay({
                   e.stopPropagation();
                   setShowMediaModal(false);
                 }}
-                className="absolute -top-3 -right-3 w-9 h-9 flex items-center justify-center bg-black/90 hover:bg-red-500 text-white/80 hover:text-white rounded-full z-30 border border-white/30 hover:border-red-400 shadow-xl transition-all duration-200 hover:scale-110"
+                className="absolute -top-3 -right-3 w-9 h-9 flex items-center justify-center bg-black/90 hover:bg-[var(--color-accent)] text-white/80 hover:text-white rounded-full z-30 border border-white/30 hover:border-red-400 shadow-xl transition-all duration-200 hover:scale-110"
                 title="Close (Esc)"
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
@@ -541,12 +541,12 @@ export function PortfolioItemDisplay({
           onClick={() => setShowDeleteConfirm(false)}
         >
           <div 
-            className="bg-[var(--card)] border border-red-500/30 rounded-2xl p-6 max-w-sm w-full mx-4 shadow-2xl shadow-red-500/10 animate-in zoom-in-95 duration-200"
+            className="bg-[var(--card)] border border-[var(--color-accent)]/30 rounded-2xl p-6 max-w-sm w-full mx-4 shadow-2xl shadow-[var(--color-accent)]/10 animate-in zoom-in-95 duration-200"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Warning Icon */}
             <div className="flex justify-center mb-4">
-              <div className="w-16 h-16 rounded-full bg-red-500/15 flex items-center justify-center">
+              <div className="w-16 h-16 rounded-full bg-[var(--color-accent)]/15 flex items-center justify-center">
                 <svg width="32" height="32" viewBox="0 0 24 24" fill="none" className="text-red-400">
                   <path
                     d="M12 9v4M12 17h.01"

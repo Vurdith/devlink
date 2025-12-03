@@ -126,7 +126,7 @@ export const ProfileMenu = memo(function ProfileMenu({ username, avatarUrl: init
       {/* Dropdown Menu */}
       <div
         className={cn(
-          "absolute right-0 mt-2 w-72 glass rounded-2xl border border-red-600/20 shadow-2xl shadow-red-600/10 overflow-hidden z-50",
+          "absolute right-0 mt-2 w-72 glass rounded-2xl border border-[var(--color-accent)]/20 shadow-2xl shadow-[var(--color-accent)]/10 overflow-hidden z-50",
           "transition-all duration-200 origin-top-right",
           open 
             ? "opacity-100 scale-100 translate-y-0 pointer-events-auto" 
@@ -168,9 +168,9 @@ export const ProfileMenu = memo(function ProfileMenu({ username, avatarUrl: init
               key={item.href}
               href={item.href}
               onClick={() => setOpen(false)}
-              className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-red-600/10 transition-colors group"
+              className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-[var(--color-accent)]/10 transition-colors group"
             >
-              <div className="w-9 h-9 rounded-lg bg-red-600/10 flex items-center justify-center text-red-500 group-hover:bg-red-600/20 group-hover:text-red-400 transition-colors">
+              <div className="w-9 h-9 rounded-lg bg-[var(--color-accent)]/10 flex items-center justify-center text-[var(--color-accent)] group-hover:bg-[var(--color-accent)]/20 group-hover:text-red-400 transition-colors">
                 {item.icon}
               </div>
               <div className="flex-1 min-w-0">
@@ -201,9 +201,9 @@ export const ProfileMenu = memo(function ProfileMenu({ username, avatarUrl: init
         <div className="p-2">
           <button
             onClick={handleSignOut}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-red-500/10 transition-colors group"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-[var(--color-accent)]/10 transition-colors group"
           >
-            <div className="w-9 h-9 rounded-lg bg-red-500/10 flex items-center justify-center text-red-400 group-hover:bg-red-500/20 transition-colors">
+            <div className="w-9 h-9 rounded-lg bg-[var(--color-accent)]/10 flex items-center justify-center text-red-400 group-hover:bg-[var(--color-accent)]/20 transition-colors">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 <polyline points="16,17 21,12 16,7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>

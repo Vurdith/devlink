@@ -12,10 +12,10 @@ interface CardProps extends HTMLAttributes<HTMLDivElement> {
 export const Card = forwardRef<HTMLDivElement, CardProps>(
   ({ className, variant = "default", hover = false, glow = false, children, ...props }, ref) => {
     const variants = {
-      default: "glass border border-red-600/10",
-      elevated: "glass border border-red-600/20 shadow-xl shadow-red-600/10",
-      bordered: "glass border border-red-600/20",
-      gradient: "glass border border-red-600/30 bg-gradient-to-br from-red-600/10 via-transparent to-red-600/5",
+      default: "glass border border-[var(--color-accent)]/10",
+      elevated: "glass border border-[var(--color-accent)]/20 shadow-xl shadow-[var(--color-accent)]/10",
+      bordered: "glass border border-[var(--color-accent)]/20",
+      gradient: "glass border border-[var(--color-accent)]/30 bg-gradient-to-br from-[var(--color-accent)]/10 via-transparent to-[var(--color-accent)]/5",
     };
 
     return (
@@ -24,8 +24,8 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
         className={cn(
           "rounded-2xl p-6 transition-all duration-200",
           variants[variant],
-          hover && "hover:bg-red-600/[0.08] hover:border-red-600/30 hover:-translate-y-1 cursor-pointer",
-          glow && "shadow-lg shadow-red-600/20",
+          hover && "hover:bg-[var(--color-accent)]/[0.08] hover:border-[var(--color-accent)]/30 hover:-translate-y-1 cursor-pointer",
+          glow && "shadow-lg shadow-[var(--color-accent)]/20",
           className
         )}
         {...props}
@@ -90,7 +90,7 @@ export function CardFooter({ className, ...props }: HTMLAttributes<HTMLDivElemen
   return (
     <div 
       className={cn(
-        "mt-4 pt-4 border-t border-red-600/20 flex items-center justify-between",
+        "mt-4 pt-4 border-t border-[var(--color-accent)]/20 flex items-center justify-between",
         className
       )} 
       {...props} 
@@ -112,7 +112,7 @@ export function FeatureCard({
 }) {
   return (
     <Card hover variant="bordered" className={cn("group", className)} {...props}>
-      <div className="mb-4 inline-flex p-3 rounded-xl bg-red-600/15 text-red-500 group-hover:bg-red-600/25 transition-colors">
+      <div className="mb-4 inline-flex p-3 rounded-xl bg-[var(--color-accent)]/15 text-[var(--color-accent)] group-hover:bg-[var(--color-accent)]/25 transition-colors">
         {icon}
       </div>
       <CardTitle>{title}</CardTitle>
@@ -160,7 +160,7 @@ export function StatCard({
           )}
         </div>
         {icon && (
-          <div className="p-3 rounded-xl bg-red-600/15 text-red-500">
+          <div className="p-3 rounded-xl bg-[var(--color-accent)]/15 text-[var(--color-accent)]">
             {icon}
           </div>
         )}

@@ -135,7 +135,7 @@ export const CreateReview = memo(function CreateReview({ targetUserId, targetUse
             value={text}
             onChange={(e) => setText(e.target.value)}
             placeholder="Tell others about your experience..."
-            className="w-full px-5 py-4 rounded-xl resize-none bg-white/[0.03] border border-white/10 text-white placeholder-white/30 focus:outline-none focus:border-red-600/50 transition-colors text-base"
+            className="w-full px-5 py-4 rounded-xl resize-none bg-white/[0.03] border border-white/10 text-white placeholder-white/30 focus:outline-none focus:border-[var(--color-accent)]/50 transition-colors text-base"
             rows={5}
             maxLength={500}
           />
@@ -153,7 +153,7 @@ export const CreateReview = memo(function CreateReview({ targetUserId, targetUse
               "flex-1 px-6 py-4 rounded-xl font-semibold text-white transition-all",
               rating === 0 
                 ? "bg-white/10 cursor-not-allowed" 
-                : "bg-gradient-to-r from-red-700 to-blue-600 hover:from-red-600 hover:to-blue-500"
+                : "bg-gradient-to-r from-red-700 to-blue-600 hover:from-[var(--color-accent)] hover:to-blue-500"
             )}
           >
             {isSubmitting ? "Submitting..." : "Submit Review"}

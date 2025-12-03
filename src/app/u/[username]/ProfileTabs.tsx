@@ -417,7 +417,7 @@ export function ProfileTabs({ username, currentUserId, userId }: ProfileTabsProp
               <img
                 src={originalAuthor?.image || '/default-avatar.png'}
                 alt={originalAuthor?.username || 'User'}
-                className="w-8 h-8 rounded-full object-cover ring-2 ring-white/10 group-hover:ring-red-500/30 transition-all"
+                className="w-8 h-8 rounded-full object-cover ring-2 ring-white/10 group-hover:ring-[rgba(var(--color-accent-rgb),0.3)] transition-all"
               />
               {/* Thread connector line */}
               <div className="w-0.5 h-6 bg-gradient-to-b from-white/20 to-transparent mt-2" />
@@ -447,7 +447,7 @@ export function ProfileTabs({ username, currentUserId, userId }: ProfileTabsProp
             </div>
             
             {/* Arrow indicator */}
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="text-white/20 group-hover:text-red-500/60 transition-colors flex-shrink-0 mt-1">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="text-white/20 group-hover:text-[rgba(var(--color-accent-rgb),0.6)] transition-colors flex-shrink-0 mt-1">
               <path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </div>
@@ -456,7 +456,7 @@ export function ProfileTabs({ username, currentUserId, userId }: ProfileTabsProp
         {/* Divider with "replied" indicator */}
         <div className="flex items-center gap-3 px-4 py-2 bg-white/[0.02]">
           <div className="flex items-center gap-2 text-xs text-white/40">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="text-red-500/60">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="text-[rgba(var(--color-accent-rgb),0.6)]">
               <path d="M3 10h10a5 5 0 0 1 5 5v6M3 10l6 6M3 10l6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
             <span>Replied</span>
@@ -485,7 +485,7 @@ export function ProfileTabs({ username, currentUserId, userId }: ProfileTabsProp
     <div className="mt-4 sm:mt-8">
       {/* Tab Navigation - Horizontal scroll container */}
       <div 
-        className="flex gap-1 sm:gap-2 mb-4 sm:mb-6 overflow-x-auto bg-black/40 rounded-xl sm:rounded-2xl p-1.5 sm:p-3 border border-red-600/20"
+        className="flex gap-1 sm:gap-2 mb-4 sm:mb-6 overflow-x-auto bg-black/40 rounded-xl sm:rounded-2xl p-1.5 sm:p-3 border border-[rgba(var(--color-accent-rgb),0.2)]"
         style={{ 
           WebkitOverflowScrolling: 'touch',
           scrollbarWidth: 'none',
@@ -502,11 +502,11 @@ export function ProfileTabs({ username, currentUserId, userId }: ProfileTabsProp
               onClick={() => setActiveTab(tab.id)}
               className={`flex items-center gap-1 sm:gap-2 px-2.5 sm:px-4 py-1.5 sm:py-2.5 text-[11px] sm:text-sm font-medium transition-all duration-200 flex-shrink-0 rounded-lg sm:rounded-xl whitespace-nowrap ${
                 activeTab === tab.id
-                  ? "text-white bg-red-600/20 border border-red-600/40"
-                  : "text-[var(--muted-foreground)] hover:text-red-400 hover:bg-red-600/10 border border-transparent"
+                  ? "text-white bg-[rgba(var(--color-accent-rgb),0.2)] border border-[rgba(var(--color-accent-rgb),0.4)]"
+                  : "text-[var(--muted-foreground)] hover:text-[var(--color-accent)] hover:bg-[rgba(var(--color-accent-rgb),0.1)] border border-transparent"
               }`}
             >
-              <span className={`flex items-center justify-center [&>svg]:w-3.5 [&>svg]:h-3.5 sm:[&>svg]:w-4 sm:[&>svg]:h-4 ${activeTab === tab.id ? 'text-red-500' : ''}`}>{tab.icon}</span>
+              <span className={`flex items-center justify-center [&>svg]:w-3.5 [&>svg]:h-3.5 sm:[&>svg]:w-4 sm:[&>svg]:h-4 ${activeTab === tab.id ? 'text-[var(--color-accent)]' : ''}`}>{tab.icon}</span>
               <span>{tab.label}</span>
             </button>
           );
@@ -543,17 +543,17 @@ export function ProfileTabs({ username, currentUserId, userId }: ProfileTabsProp
           <>
             {/* Portfolio Header with Add Button */}
             {isOwner && (
-              <div className="mb-8 p-5 rounded-2xl bg-gradient-to-r from-red-600/10 via-red-500/10 to-red-600/10 border border-red-600/30 backdrop-blur-sm">
+              <div className="mb-8 p-5 rounded-2xl bg-gradient-to-r from-[rgba(var(--color-accent-rgb),0.1)] via-[rgba(var(--color-accent-rgb),0.1)] to-[rgba(var(--color-accent-rgb),0.1)] border border-[rgba(var(--color-accent-rgb),0.3)] backdrop-blur-sm">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-600 to-red-700 flex items-center justify-center shadow-lg shadow-red-600/30">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--color-accent)] to-[var(--color-accent-hover)] flex items-center justify-center shadow-lg shadow-[rgba(var(--color-accent-rgb),0.3)]">
                       <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                       </svg>
                     </div>
                     <div>
                       <h3 className="text-base font-semibold text-white">Your Portfolio</h3>
-                      <p className="text-sm text-red-400/80">
+                      <p className="text-sm text-[rgba(var(--color-accent-rgb),0.8)]">
                         {portfolioItems.length === 0 
                           ? "Showcase your best work" 
                           : `${portfolioItems.length} ${portfolioItems.length === 1 ? 'item' : 'items'} showcased`}
@@ -594,8 +594,8 @@ export function ProfileTabs({ username, currentUserId, userId }: ProfileTabsProp
             ) : !isOwner ? (
               <div className="text-center py-12 text-[var(--muted-foreground)]">
                 <div className="flex justify-center mb-4">
-                  <div className="w-16 h-16 rounded-2xl bg-red-600/10 border border-red-600/20 flex items-center justify-center">
-                    <svg className="w-8 h-8 text-red-500/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="w-16 h-16 rounded-2xl bg-[rgba(var(--color-accent-rgb),0.1)] border border-[rgba(var(--color-accent-rgb),0.2)] flex items-center justify-center">
+                    <svg className="w-8 h-8 text-[rgba(var(--color-accent-rgb),0.6)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                     </svg>
                   </div>
@@ -606,14 +606,14 @@ export function ProfileTabs({ username, currentUserId, userId }: ProfileTabsProp
             ) : null}
           </>
         ) : error ? (
-          <div className="rounded-lg bg-red-500/10 border border-red-500/20 p-4 mb-4">
+          <div className="rounded-lg bg-[rgba(var(--color-accent-rgb),0.1)] border border-[rgba(var(--color-accent-rgb),0.2)] p-4 mb-4">
             <div className="flex items-start gap-3">
-              <svg className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              <svg className="w-5 h-5 text-[var(--color-accent)] mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
               </svg>
               <div>
-                <h3 className="font-medium text-red-500">Failed to load {activeTab}</h3>
-                <p className="text-sm text-red-500/80 mt-1">{error}</p>
+                <h3 className="font-medium text-[var(--color-accent)]">Failed to load {activeTab}</h3>
+                <p className="text-sm text-[var(--color-accent)]/80 mt-1">{error}</p>
               </div>
             </div>
           </div>

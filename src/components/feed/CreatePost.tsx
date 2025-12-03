@@ -230,21 +230,21 @@ export const CreatePost = memo(function CreatePost({
         </div>
         
         {/* Glow effect on hover */}
-        <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-red-600/0 via-red-600/5 to-red-600/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+        <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-[var(--color-accent)]/0 via-[rgba(var(--color-accent-rgb),0.05)] to-[rgba(var(--color-accent-rgb),0)] opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
         
         <div className="relative z-10 flex items-center gap-4">
           <div className="scale-hover">
             <Avatar src={currentUserProfile.avatarUrl} size={44} />
           </div>
           <div className="flex-1">
-            <div className="text-sm font-semibold text-white mb-1 group-hover:text-red-300 transition-colors">
+            <div className="text-sm font-semibold text-white mb-1 group-hover:text-[var(--color-accent)] transition-colors">
               {replyToId ? "Reply to this post" : "Create a new post"}
             </div>
             <div className="text-sm text-[var(--muted-foreground)] opacity-70 group-hover:opacity-100 transition-opacity">
               {placeholder}
             </div>
           </div>
-          <button className="icon-btn p-3 rounded-xl text-red-500 group-hover:text-red-400 transition-colors">
+          <button className="icon-btn p-3 rounded-xl text-[var(--color-accent)] group-hover:text-[var(--color-accent)] transition-colors">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" className="rotate-hover">
               <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
@@ -257,7 +257,7 @@ export const CreatePost = memo(function CreatePost({
   // Expanded state - with slide animations
   return (
     <>
-      <div className="create-post-expanded bg-[#0d0d12] rounded-2xl p-5 mb-6 border border-red-600/30 relative overflow-hidden">
+      <div className="create-post-expanded bg-[#0d0d12] rounded-2xl p-5 mb-6 border border-[rgba(var(--color-accent-rgb),0.3)] relative overflow-hidden">
         <form onSubmit={handleSubmit} className="relative space-y-4">
           {/* Icon Buttons Row - with stagger animation */}
           <div className="flex items-center gap-2 p-2 bg-black/30 rounded-xl border border-white/10 stagger-in">
@@ -293,8 +293,8 @@ export const CreatePost = memo(function CreatePost({
           {showSchedule && (
             <div className="animate-slide-down p-4 bg-black/30 rounded-xl border border-white/10">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-red-600/20 rounded-lg">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-red-500">
+                <div className="p-2 bg-[rgba(var(--color-accent-rgb),0.2)] rounded-lg">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-[var(--color-accent)]">
                     <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
                     <path d="M12 6v6l4 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
                   </svg>
@@ -303,9 +303,9 @@ export const CreatePost = memo(function CreatePost({
                   type="datetime-local" 
                   value={scheduledFor} 
                   onChange={(e) => setScheduledFor(e.target.value)} 
-                  className="flex-1 bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm focus:border-red-600 transition-colors" 
+                  className="flex-1 bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm focus:border-[var(--color-accent)] transition-colors" 
                 />
-                {scheduledFor && <button type="button" onClick={() => setScheduledFor("")} className="icon-btn p-2 text-red-400 hover:bg-red-500/10 rounded-lg">✕</button>}
+                {scheduledFor && <button type="button" onClick={() => setScheduledFor("")} className="icon-btn p-2 text-[var(--color-accent)] hover:bg-[rgba(var(--color-accent-rgb),0.1)] rounded-lg">✕</button>}
               </div>
             </div>
           )}
@@ -319,8 +319,8 @@ export const CreatePost = memo(function CreatePost({
                     <circle cx="12" cy="10" r="3" stroke="currentColor" strokeWidth="2"/>
                   </svg>
                 </div>
-                <input value={location} onChange={(e) => setLocation(e.target.value)} placeholder="Add location" className="flex-1 bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm focus:border-red-600 transition-colors" />
-                {location && <button type="button" onClick={() => setLocation("")} className="icon-btn p-2 text-red-400 hover:bg-red-500/10 rounded-lg">✕</button>}
+                <input value={location} onChange={(e) => setLocation(e.target.value)} placeholder="Add location" className="flex-1 bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm focus:border-[var(--color-accent)] transition-colors" />
+                {location && <button type="button" onClick={() => setLocation("")} className="icon-btn p-2 text-[var(--color-accent)] hover:bg-[rgba(var(--color-accent-rgb),0.1)] rounded-lg">✕</button>}
               </div>
             </div>
           )}
@@ -334,7 +334,7 @@ export const CreatePost = memo(function CreatePost({
                     <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
                   </svg>
                 </div>
-                <input value={embedInput} onChange={(e) => setEmbedInput(e.target.value)} placeholder="Paste a link to embed" className="flex-1 bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm focus:border-red-600 transition-colors" />
+                <input value={embedInput} onChange={(e) => setEmbedInput(e.target.value)} placeholder="Paste a link to embed" className="flex-1 bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm focus:border-[var(--color-accent)] transition-colors" />
                 <button type="button" onClick={addEmbedUrl} className="btn-press px-4 py-2 bg-cyan-500/20 text-cyan-400 rounded-lg text-sm font-medium hover:bg-cyan-500/30 transition-colors">Add</button>
               </div>
               {embedUrls.length > 0 && (
@@ -342,7 +342,7 @@ export const CreatePost = memo(function CreatePost({
                   {embedUrls.map((u, i) => (
                     <span key={i} className="animate-pop-in inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-cyan-500/30 bg-cyan-500/10 text-sm">
                       <a href={u} target="_blank" rel="noreferrer" className="text-cyan-400 hover:underline truncate max-w-[200px]">{u}</a>
-                      <button type="button" onClick={() => setEmbedUrls(prev => prev.filter((_, idx) => idx !== i))} className="text-red-400 hover:text-red-300">✕</button>
+                      <button type="button" onClick={() => setEmbedUrls(prev => prev.filter((_, idx) => idx !== i))} className="text-[var(--color-accent)] hover:text-[var(--color-accent)]">✕</button>
                     </span>
                   ))}
                 </div>
@@ -369,7 +369,7 @@ export const CreatePost = memo(function CreatePost({
               id="post-content"
               value={formData.content}
               onChange={(e) => setFormData(prev => ({ ...prev, content: e.target.value }))}
-              className="w-full px-4 py-3 bg-black/30 border border-white/10 rounded-xl focus:border-red-600 outline-none transition-all resize-none text-white placeholder:text-gray-500"
+              className="w-full px-4 py-3 bg-black/30 border border-white/10 rounded-xl focus:border-[var(--color-accent)] outline-none transition-all resize-none text-white placeholder:text-gray-500"
               rows={4}
               placeholder={replyToId ? "Write your reply..." : "What's on your mind? Share updates, ideas, or projects..."}
               aria-describedby="post-hint post-count"
@@ -378,7 +378,7 @@ export const CreatePost = memo(function CreatePost({
               <span id="post-hint" className="text-xs text-[var(--muted-foreground)]">
                 Use @username to mention • #tag for topics
               </span>
-              <span id="post-count" className={cn("text-xs transition-colors", formData.content.length > 280 ? "text-red-400" : "text-[var(--muted-foreground)]")} aria-live="polite">
+              <span id="post-count" className={cn("text-xs transition-colors", formData.content.length > 280 ? "text-[var(--color-accent)]" : "text-[var(--muted-foreground)]")} aria-live="polite">
                 {formData.content.length}/500
               </span>
             </div>
@@ -391,10 +391,10 @@ export const CreatePost = memo(function CreatePost({
                 <div key={fileName} className="space-y-1">
                   <div className="flex items-center justify-between text-xs">
                     <span className="text-[var(--muted-foreground)] truncate">{fileName}</span>
-                    <span className="text-red-500">{progress}%</span>
+                    <span className="text-[var(--color-accent)]">{progress}%</span>
                   </div>
                   <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
-                    <div className="h-full bg-gradient-to-r from-red-600 to-cyan-500 rounded-full transition-all duration-300" style={{ width: `${progress}%` }} />
+                    <div className="h-full bg-gradient-to-r from-[var(--color-accent)] to-cyan-500 rounded-full transition-all duration-300" style={{ width: `${progress}%` }} />
                   </div>
                 </div>
               ))}
@@ -406,10 +406,10 @@ export const CreatePost = memo(function CreatePost({
             <div className="animate-slide-up space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-red-600 rounded-full animate-glow-pulse" />
-                  <span className="text-sm font-medium text-red-500">Media ({formData.mediaUrls.length}/10)</span>
+                  <div className="w-2 h-2 bg-[var(--color-accent)] rounded-full animate-glow-pulse" />
+                  <span className="text-sm font-medium text-[var(--color-accent)]">Media ({formData.mediaUrls.length}/10)</span>
                 </div>
-                <button type="button" onClick={() => removeMedia()} className="icon-btn text-xs text-red-400 hover:bg-red-500/10 px-3 py-1.5 rounded-lg transition-colors">Remove All</button>
+                <button type="button" onClick={() => removeMedia()} className="icon-btn text-xs text-[var(--color-accent)] hover:bg-[rgba(var(--color-accent-rgb),0.1)] px-3 py-1.5 rounded-lg transition-colors">Remove All</button>
               </div>
               <div className={cn(
                 "grid gap-2 rounded-xl overflow-hidden",
@@ -419,12 +419,12 @@ export const CreatePost = memo(function CreatePost({
               )}>
                 {formData.mediaUrls.map((url, index) => (
                   <div key={index} className="relative group animate-pop-in" style={{ animationDelay: `${index * 0.05}s` }}>
-                    <img src={url} alt={`Media ${index + 1}`} className="w-full h-24 object-cover rounded-lg border border-white/10 group-hover:border-red-600/50 transition-colors" />
+                    <img src={url} alt={`Media ${index + 1}`} className="w-full h-24 object-cover rounded-lg border border-white/10 group-hover:border-[rgba(var(--color-accent-rgb),0.05)]0 transition-colors" />
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors rounded-lg" />
                     <button
                       type="button"
                       onClick={() => removeMedia(index)}
-                      className="absolute top-2 right-2 bg-red-500/90 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 scale-90 group-hover:scale-100 transition-all"
+                      className="absolute top-2 right-2 bg-[rgba(var(--color-accent-rgb),0.9)] text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 scale-90 group-hover:scale-100 transition-all"
                     >
                       <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none">
                         <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
@@ -438,22 +438,22 @@ export const CreatePost = memo(function CreatePost({
 
           {/* Slideshow Toggle */}
           {formData.mediaUrls.length > 1 && (
-            <div className="animate-slide-up p-3 bg-red-600/10 border border-red-600/20 rounded-xl flex items-center justify-between">
+            <div className="animate-slide-up p-3 bg-[rgba(var(--color-accent-rgb),0.1)] border border-[rgba(var(--color-accent-rgb),0.2)] rounded-xl flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className={cn("p-2 rounded-lg transition-colors", isSlideshow ? "bg-red-600/30" : "bg-white/10")}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className={cn(isSlideshow ? "text-red-400" : "text-gray-400")}>
+                <div className={cn("p-2 rounded-lg transition-colors", isSlideshow ? "bg-[rgba(var(--color-accent-rgb),0.3)]" : "bg-white/10")}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className={cn(isSlideshow ? "text-[var(--color-accent)]" : "text-gray-400")}>
                     <rect x="2" y="4" width="20" height="16" rx="2" stroke="currentColor" strokeWidth="2"/>
                     <path d="M6 4v16M18 4v16" stroke="currentColor" strokeWidth="2"/>
                   </svg>
                 </div>
-                <span className="text-sm font-medium text-red-400">{isSlideshow ? "Slideshow Mode" : "Grid Mode"}</span>
+                <span className="text-sm font-medium text-[var(--color-accent)]">{isSlideshow ? "Slideshow Mode" : "Grid Mode"}</span>
               </div>
               <button 
                 type="button" 
                 onClick={() => setIsSlideshow(!isSlideshow)} 
                 className={cn(
                   "px-3 py-1.5 rounded-lg text-xs font-medium transition-all btn-press",
-                  isSlideshow ? "bg-red-600 text-white" : "bg-white/10 text-gray-300 hover:bg-white/20"
+                  isSlideshow ? "bg-[var(--color-accent)] text-white" : "bg-white/10 text-gray-300 hover:bg-white/20"
                 )}
               >
                 {isSlideshow ? "Switch to Grid" : "Switch to Slideshow"}
@@ -471,11 +471,11 @@ export const CreatePost = memo(function CreatePost({
           )}
 
           {pollData && !showPoll && (
-            <div className="animate-pop-in p-4 bg-gradient-to-r from-red-600/10 to-cyan-500/10 border border-red-600/30 rounded-xl">
+            <div className="animate-pop-in p-4 bg-gradient-to-r from-[rgba(var(--color-accent-rgb),0.1)] to-cyan-500/10 border border-[rgba(var(--color-accent-rgb),0.3)] rounded-xl">
               <div className="flex items-start justify-between">
                 <div className="flex items-start gap-3">
-                  <div className="p-2 bg-red-600/20 rounded-lg mt-0.5">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-red-500">
+                  <div className="p-2 bg-[rgba(var(--color-accent-rgb),0.2)] rounded-lg mt-0.5">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-[var(--color-accent)]">
                       <path d="M9 12l2 2 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                       <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
                     </svg>
@@ -487,7 +487,7 @@ export const CreatePost = memo(function CreatePost({
                     </div>
                   </div>
                 </div>
-                <button type="button" onClick={() => setPollData(null)} className="icon-btn p-2 text-red-400 hover:bg-red-500/10 rounded-lg">
+                <button type="button" onClick={() => setPollData(null)} className="icon-btn p-2 text-[var(--color-accent)] hover:bg-[rgba(var(--color-accent-rgb),0.1)] rounded-lg">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                     <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
                   </svg>
@@ -577,18 +577,18 @@ function ActionButton({
         transform: 'translate(-50%, -100%)'
       }}
     >
-      <div className="relative px-3 py-1.5 bg-[#1a1a2e] border border-red-600/30 rounded-lg shadow-xl shadow-black/50">
+      <div className="relative px-3 py-1.5 bg-[#1a1a2e] border border-[rgba(var(--color-accent-rgb),0.3)] rounded-lg shadow-xl shadow-black/50">
         <div className="flex items-center gap-2 whitespace-nowrap">
           <span className="text-xs font-medium text-white">{title}</span>
           {shortcut && (
-            <kbd className="px-1.5 py-0.5 text-[10px] font-medium text-red-400 bg-red-600/20 border border-red-600/30 rounded">
+            <kbd className="px-1.5 py-0.5 text-[10px] font-medium text-[var(--color-accent)] bg-[rgba(var(--color-accent-rgb),0.2)] border border-[rgba(var(--color-accent-rgb),0.3)] rounded">
               {shortcut}
             </kbd>
           )}
         </div>
         {/* Arrow */}
         <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-px">
-          <div className="border-4 border-transparent border-t-red-600/30" />
+          <div className="border-4 border-transparent border-t-[rgba(var(--color-accent-rgb),0.3)]" />
           <div className="absolute top-0 left-1/2 -translate-x-1/2 -mt-[1px] border-4 border-transparent border-t-[#1a1a2e]" />
         </div>
       </div>
@@ -607,14 +607,14 @@ function ActionButton({
         className={cn(
           "icon-btn p-2.5 rounded-xl transition-all relative",
           active 
-            ? "text-red-400 bg-red-600/20 shadow-lg shadow-red-600/20" 
-            : "text-gray-400 hover:text-red-400 hover:bg-red-600/10"
+            ? "text-[var(--color-accent)] bg-[rgba(var(--color-accent-rgb),0.2)] shadow-lg shadow-[rgba(var(--color-accent-rgb),0.2)]" 
+            : "text-gray-400 hover:text-[var(--color-accent)] hover:bg-[rgba(var(--color-accent-rgb),0.1)]"
         )}
         style={{ animationDelay: `${delay * 0.05}s` }}
       >
         {children}
         {badge !== undefined && badge > 0 && (
-          <span className="absolute -top-1 -right-1 bg-gradient-to-r from-red-600 to-pink-500 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-lg badge-animated">
+          <span className="absolute -top-1 -right-1 bg-gradient-to-r from-[var(--color-accent)] to-pink-500 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-lg badge-animated">
             {badge}
           </span>
         )}
@@ -629,9 +629,9 @@ function LoadingPlaceholder({ height = "h-32" }: { height?: string }) {
   return (
     <div className={cn("flex items-center justify-center", height)}>
       <div className="flex items-center gap-2">
-        <div className="typing-dot w-2 h-2 bg-red-500 rounded-full" />
-        <div className="typing-dot w-2 h-2 bg-red-500 rounded-full" />
-        <div className="typing-dot w-2 h-2 bg-red-500 rounded-full" />
+        <div className="typing-dot w-2 h-2 bg-[var(--color-accent)] rounded-full" />
+        <div className="typing-dot w-2 h-2 bg-[var(--color-accent)] rounded-full" />
+        <div className="typing-dot w-2 h-2 bg-[var(--color-accent)] rounded-full" />
       </div>
     </div>
   );

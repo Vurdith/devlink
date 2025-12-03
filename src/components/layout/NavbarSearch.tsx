@@ -189,7 +189,7 @@ export const NavbarSearch = memo(function NavbarSearch() {
             className={cn(
               "w-full h-11 rounded-xl bg-white/5 border pl-11 pr-16 text-sm outline-none placeholder:text-[var(--muted-foreground)] text-white transition-all duration-150",
               focused 
-                ? "border-red-600/50 bg-white/10 shadow-lg shadow-red-600/10" 
+                ? "border-[var(--color-accent)]/50 bg-white/10 shadow-lg shadow-[var(--color-accent)]/10" 
                 : "border-white/10 hover:border-white/20"
             )}
             aria-autocomplete="list"
@@ -216,7 +216,7 @@ export const NavbarSearch = memo(function NavbarSearch() {
         >
           {loading && (
             <div className="flex items-center justify-center py-8">
-              <div className="w-5 h-5 border-2 border-red-600 border-t-transparent rounded-full animate-spin" />
+              <div className="w-5 h-5 border-2 border-[var(--color-accent)] border-t-transparent rounded-full animate-spin" />
             </div>
           )}
 
@@ -248,7 +248,7 @@ export const NavbarSearch = memo(function NavbarSearch() {
                   onClick={() => setOpen(false)}
                   className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/5 transition-colors group"
                 >
-                  <div className="w-10 h-10 bg-gradient-to-br from-red-600 to-pink-500 rounded-xl flex items-center justify-center shadow-lg">
+                  <div className="w-10 h-10 bg-gradient-to-br from-[var(--color-accent)] to-pink-500 rounded-xl flex items-center justify-center shadow-lg">
                     <span className="text-white font-bold text-lg">#</span>
                   </div>
                   <div className="flex-1 min-w-0">
@@ -287,12 +287,12 @@ export const NavbarSearch = memo(function NavbarSearch() {
                     <div className="text-sm font-semibold text-white flex items-center gap-1.5">
                       <span className="truncate">{user.name ?? user.username}</span>
                       {user.verified && (
-                        <svg className="w-4 h-4 text-red-500 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                        <svg className="w-4 h-4 text-[var(--color-accent)] flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
                           <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
                       )}
                       {user.isYou && (
-                        <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-red-600/20 text-red-500">You</span>
+                        <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-[var(--color-accent)]/20 text-[var(--color-accent)]">You</span>
                       )}
                       {user.profileType && (
                         <span className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-medium flex-shrink-0 ${getProfileTypeConfig(user.profileType).bgColor} ${getProfileTypeConfig(user.profileType).color}`}>

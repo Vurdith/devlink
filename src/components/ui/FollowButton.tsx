@@ -49,12 +49,12 @@ export const FollowButton = memo(function FollowButton({
       onMouseLeave={() => setIsHovered(false)}
       className={cn(
         "relative overflow-hidden font-semibold transition-all active:scale-95",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]",
         "disabled:opacity-50 disabled:cursor-not-allowed",
         compact ? "text-xs px-3 py-1.5 rounded-lg" : "text-sm px-5 py-2 rounded-xl",
         following 
-          ? "bg-red-600/10 text-red-400 border border-red-600/30 hover:bg-red-500/15 hover:border-red-500/40 hover:text-red-400"
-          : "bg-gradient-to-r from-red-600 to-red-700 text-white border border-red-500/30 shadow-lg shadow-red-600/30 hover:from-red-700 hover:to-red-800"
+          ? "bg-[var(--color-accent)]/10 text-red-400 border border-[var(--color-accent)]/30 hover:bg-[var(--color-accent)]/15 hover:border-[var(--color-accent)]/40 hover:text-red-400"
+          : "bg-gradient-to-r from-[var(--color-accent)] to-red-700 text-white border border-[var(--color-accent)]/30 shadow-lg shadow-[var(--color-accent)]/30 hover:from-red-700 hover:to-red-800"
       )}
     >
       <span className="relative z-10 flex items-center justify-center gap-1.5">

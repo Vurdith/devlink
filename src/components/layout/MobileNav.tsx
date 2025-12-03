@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { cn } from "@/lib/cn";
 import { BackButton } from "@/components/ui/BackButton";
+import { ThemeLogoImg } from "@/components/ui/ThemeLogo";
 
 interface NavItem {
   name: string;
@@ -76,22 +77,22 @@ const NavLink = memo(function NavLink({ item, isActive, onClick }: { item: NavIt
       className={cn(
         "group relative flex items-center gap-3 px-4 py-3 rounded-xl transition-colors duration-150",
         isActive 
-          ? "bg-red-600/15 text-white" 
-          : "text-[var(--muted-foreground)] hover:text-white hover:bg-red-600/10"
+          ? "bg-[rgba(var(--color-accent-rgb),0.15)] text-white" 
+          : "text-[var(--muted-foreground)] hover:text-white hover:bg-[rgba(var(--color-accent-rgb),0.1)]"
       )}
       title={item.description}
     >
       {/* Active indicator */}
       {isActive && (
-        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-gradient-to-b from-red-500 to-red-700 rounded-r-full" />
+        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-gradient-to-b from-[var(--color-accent)] to-[var(--color-accent-hover)] rounded-r-full" />
       )}
       
       {/* Icon */}
       <div className={cn(
         "p-2 rounded-lg transition-colors duration-150",
         isActive 
-          ? "bg-red-600/20 text-red-500" 
-          : "text-[var(--muted-foreground)] group-hover:text-red-500 group-hover:bg-red-600/10"
+          ? "bg-[rgba(var(--color-accent-rgb),0.2)] text-[var(--color-accent)]" 
+          : "text-[var(--muted-foreground)] group-hover:text-[var(--color-accent)] group-hover:bg-[rgba(var(--color-accent-rgb),0.1)]"
       )}>
         {item.icon}
       </div>
@@ -103,7 +104,7 @@ const NavLink = memo(function NavLink({ item, isActive, onClick }: { item: NavIt
       <svg
         className={cn(
           "ml-auto w-4 h-4 transition-opacity duration-150",
-          isActive ? "text-red-500 opacity-100" : "opacity-0 group-hover:opacity-50"
+          isActive ? "text-[var(--color-accent)] opacity-100" : "opacity-0 group-hover:opacity-50"
         )}
         fill="none"
         stroke="currentColor"
@@ -143,7 +144,7 @@ export const MobileNav = memo(function MobileNav() {
       {/* Hamburger Button - Fixed in top left, vertically centered in navbar (h-16 = 64px, button ~44px) */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="md:hidden fixed top-[10px] left-4 z-50 p-2.5 rounded-xl bg-[#0a0a0f] border border-white/10 hover:border-red-600/30 transition-all duration-150 hover:scale-105 active:scale-95"
+        className="md:hidden fixed top-[10px] left-4 z-50 p-2.5 rounded-xl bg-[#0a0a0f] border border-white/10 hover:border-[var(--color-accent)]/30 transition-all duration-150 hover:scale-105 active:scale-95"
         aria-label="Toggle menu"
       >
         <svg
@@ -192,11 +193,7 @@ export const MobileNav = memo(function MobileNav() {
           {/* Logo Section - matching Sidebar */}
           <div className="p-6 border-b border-white/5">
             <Link href="/" className="flex items-center gap-3 group" onClick={() => setIsOpen(false)}>
-              <img
-                src="/logo/logo.png"
-                alt="DevLink"
-                className="w-10 h-10 object-contain"
-              />
+              <ThemeLogoImg className="w-10 h-10 object-contain" />
               <div>
                 <h1 className="text-xl font-bold gradient-text font-[var(--font-space-grotesk)]">
                   DevLink
@@ -235,9 +232,9 @@ export const MobileNav = memo(function MobileNav() {
               <>
                 <div className="py-4">
                   <div className="flex items-center gap-2">
-                    <div className="h-px flex-1 bg-gradient-to-r from-transparent via-red-600/20 to-transparent" />
-                    <span className="text-[10px] text-red-500/60 uppercase tracking-widest">Account</span>
-                    <div className="h-px flex-1 bg-gradient-to-r from-transparent via-red-600/20 to-transparent" />
+                    <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-rgb),0.2)] to-transparent" />
+                    <span className="text-[10px] text-[rgba(var(--color-accent-rgb),0.6)] uppercase tracking-widest">Account</span>
+                    <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-rgb),0.2)] to-transparent" />
                   </div>
                 </div>
                 
@@ -263,9 +260,9 @@ export const MobileNav = memo(function MobileNav() {
               <>
                 <div className="py-4">
                   <div className="flex items-center gap-2">
-                    <div className="h-px flex-1 bg-gradient-to-r from-transparent via-red-600/20 to-transparent" />
-                    <span className="text-[10px] text-red-500/60 uppercase tracking-widest">Account</span>
-                    <div className="h-px flex-1 bg-gradient-to-r from-transparent via-red-600/20 to-transparent" />
+                    <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-rgb),0.2)] to-transparent" />
+                    <span className="text-[10px] text-[rgba(var(--color-accent-rgb),0.6)] uppercase tracking-widest">Account</span>
+                    <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-rgb),0.2)] to-transparent" />
                   </div>
                 </div>
                 
@@ -283,7 +280,7 @@ export const MobileNav = memo(function MobileNav() {
                   <Link
                     href="/register"
                     onClick={() => setIsOpen(false)}
-                    className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-gradient-to-r from-red-600 to-red-700 text-white font-medium hover:from-red-700 hover:to-red-800 transition-all shadow-lg shadow-red-600/20"
+                    className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-gradient-to-r from-[var(--color-accent)] to-[var(--color-accent-hover)] text-white font-medium hover:from-[var(--color-accent-hover)] hover:to-[var(--color-accent-hover)] transition-all shadow-lg shadow-[rgba(var(--color-accent-rgb),0.2)]"
                   >
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -299,9 +296,9 @@ export const MobileNav = memo(function MobileNav() {
           </nav>
 
           {/* Bottom section - matching Sidebar */}
-          <div className="p-4 border-t border-red-600/10">
-            <div className="rounded-xl p-4 text-center space-y-2 bg-red-600/5 border border-red-600/20">
-              <p className="text-xs font-medium text-red-400">
+          <div className="p-4 border-t border-[rgba(var(--color-accent-rgb),0.1)]">
+            <div className="rounded-xl p-4 text-center space-y-2 bg-[rgba(var(--color-accent-rgb),0.05)] border border-[rgba(var(--color-accent-rgb),0.2)]">
+              <p className="text-xs font-medium text-[var(--color-accent)]">
                 Connect • Create • Grow
               </p>
               <p className="text-[10px] text-[var(--muted-foreground)]">
@@ -324,13 +321,13 @@ export const MobileNav = memo(function MobileNav() {
                 className={cn(
                   "flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all duration-150",
                   isActive
-                    ? "text-red-500"
+                    ? "text-[var(--color-accent)]"
                     : "text-[var(--muted-foreground)] hover:text-white active:scale-95"
                 )}
               >
                 <div className={cn(
                   "p-1.5 rounded-lg transition-all",
-                  isActive && "bg-red-600/20 scale-110"
+                  isActive && "bg-[rgba(var(--color-accent-rgb),0.2)] scale-110"
                 )}>
                   {item.icon}
                 </div>
@@ -346,13 +343,13 @@ export const MobileNav = memo(function MobileNav() {
               className={cn(
                 "flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all duration-150",
                 pathname.startsWith("/u/") || pathname === "/me"
-                  ? "text-red-500"
+                  ? "text-[var(--color-accent)]"
                   : "text-[var(--muted-foreground)] hover:text-white active:scale-95"
               )}
             >
               <div className={cn(
                 "p-1.5 rounded-lg transition-all",
-                (pathname.startsWith("/u/") || pathname === "/me") && "bg-red-600/20 scale-110"
+                (pathname.startsWith("/u/") || pathname === "/me") && "bg-[rgba(var(--color-accent-rgb),0.2)] scale-110"
               )}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                   <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>

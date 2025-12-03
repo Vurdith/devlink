@@ -151,7 +151,7 @@ export function Review({ review, currentUserId, onEdit, onDelete }: ReviewProps)
             ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"
             : sentiment === "neutral"
               ? "bg-amber-500/15 text-amber-400 border border-amber-500/30"
-              : "bg-red-500/15 text-red-400 border border-red-500/30"
+              : "bg-[var(--color-accent)]/15 text-red-400 border border-[var(--color-accent)]/30"
         )}>
           {sentiment === "positive" ? (
             <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -182,7 +182,7 @@ export function Review({ review, currentUserId, onEdit, onDelete }: ReviewProps)
         <div className="flex items-center gap-4 mt-4 pt-4 border-t border-white/5 opacity-0 group-hover:opacity-100 transition-opacity">
           <button
             onClick={() => onEdit?.(review.id)}
-            className="flex items-center gap-2 text-sm font-medium text-red-500 hover:text-red-400 transition-colors"
+            className="flex items-center gap-2 text-sm font-medium text-[var(--color-accent)] hover:text-red-400 transition-colors"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />

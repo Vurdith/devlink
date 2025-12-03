@@ -19,7 +19,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 
     const base = cn(
       "relative inline-flex items-center justify-center font-semibold transition-all duration-200",
-      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)]",
+      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)]",
       "disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none",
       "overflow-hidden",
       "hover:scale-[1.02] hover:-translate-y-0.5 active:scale-[0.98]"
@@ -34,13 +34,13 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 
     const isAccentVariant = variant === "primary" || variant === "gradient" || variant === "glow";
 
+    // Theme-aware variants using CSS variables
     const variants: Record<Variant, string> = {
       primary: cn(
-        "bg-gradient-to-r from-red-700 via-red-600 to-red-500 text-white",
-        "hover:from-red-800 hover:via-red-700 hover:to-red-600",
-        "shadow-[0_4px_20px_rgba(220,38,38,0.35)]",
-        "hover:shadow-[0_6px_30px_rgba(220,38,38,0.5)]",
-        "border border-red-500/30"
+        "text-white border border-[rgba(var(--color-accent-rgb),0.3)]",
+        "shadow-[0_4px_20px_rgba(var(--color-accent-rgb),0.35)]",
+        "hover:shadow-[0_6px_30px_rgba(var(--color-accent-rgb),0.5)]",
+        "bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)]"
       ),
       secondary: cn(
         "bg-white/5 text-white",
@@ -64,11 +64,10 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         "border border-red-400/20"
       ),
       gradient: cn(
-        "bg-gradient-to-r from-red-700 via-red-600 to-red-500 text-white",
-        "hover:from-red-800 hover:via-red-700 hover:to-red-600",
-        "shadow-[0_4px_25px_rgba(220,38,38,0.4)]",
-        "hover:shadow-[0_8px_40px_rgba(220,38,38,0.55)]",
-        "border border-red-500/40"
+        "text-white border border-[rgba(var(--color-accent-rgb),0.4)]",
+        "shadow-[0_4px_25px_rgba(var(--color-accent-rgb),0.4)]",
+        "hover:shadow-[0_8px_40px_rgba(var(--color-accent-rgb),0.55)]",
+        "bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)]"
       ),
       outline: cn(
         "bg-transparent text-white",
@@ -76,11 +75,10 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         "hover:bg-white/10 hover:border-white/50"
       ),
       glow: cn(
-        "bg-gradient-to-r from-red-700 via-red-600 to-red-500 text-white",
-        "hover:from-red-800 hover:via-red-700 hover:to-red-600",
-        "shadow-[0_0_25px_rgba(220,38,38,0.5),0_0_50px_rgba(220,38,38,0.3)]",
-        "hover:shadow-[0_0_35px_rgba(220,38,38,0.6),0_0_70px_rgba(220,38,38,0.4)]",
-        "border border-red-500/50"
+        "text-white border border-[rgba(var(--color-accent-rgb),0.5)]",
+        "shadow-[0_0_25px_rgba(var(--color-accent-rgb),0.5),0_0_50px_rgba(var(--color-accent-rgb),0.3)]",
+        "hover:shadow-[0_0_35px_rgba(var(--color-accent-rgb),0.6),0_0_70px_rgba(var(--color-accent-rgb),0.4)]",
+        "bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)]"
       ),
     };
 

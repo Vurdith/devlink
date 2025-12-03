@@ -45,7 +45,7 @@ interface ReplyModalProps {
 function LoadingPlaceholder({ height = "h-64" }: { height?: string }) {
   return (
     <div className={`${height} flex items-center justify-center`}>
-      <div className="w-6 h-6 border-2 border-red-500/30 border-t-red-500 rounded-full animate-spin" />
+      <div className="w-6 h-6 border-2 border-[var(--color-accent)]/30 border-t-[var(--color-accent)] rounded-full animate-spin" />
     </div>
   );
 }
@@ -279,7 +279,7 @@ export const ReplyModal = memo(function ReplyModal({
           content.length > 450 
             ? "text-amber-400" 
             : content.length > 480 
-              ? "text-red-400" 
+              ? "text-[var(--color-accent)]" 
               : "text-[var(--muted-foreground)]"
         )}>
           {content.length}/500
@@ -308,7 +308,7 @@ export const ReplyModal = memo(function ReplyModal({
                 strokeDasharray={`${(content.length / 500) * 62.83} 62.83`}
                 className={cn(
                   "transition-all",
-                  content.length > 480 ? "text-red-400" : content.length > 450 ? "text-amber-400" : "text-red-500"
+                  content.length > 480 ? "text-[var(--color-accent)]" : content.length > 450 ? "text-amber-400" : "text-[var(--color-accent)]"
                 )}
               />
             </svg>
@@ -341,13 +341,13 @@ export const ReplyModal = memo(function ReplyModal({
                 loading="lazy"
               />
             ) : (
-              <div className="w-full h-full bg-gradient-to-br from-red-600 to-pink-500 flex items-center justify-center text-white text-sm font-semibold">
+              <div className="w-full h-full bg-gradient-to-br from-[var(--color-accent)] to-pink-500 flex items-center justify-center text-white text-sm font-semibold">
                 {(post.user.name || post.user.username).charAt(0).toUpperCase()}
               </div>
             )}
           </div>
           {/* Connection line */}
-          <div className="w-0.5 flex-1 bg-gradient-to-b from-red-600/50 to-transparent mt-2 mb-2 min-h-[20px]" />
+          <div className="w-0.5 flex-1 bg-gradient-to-b from-[var(--color-accent)]/50 to-transparent mt-2 mb-2 min-h-[20px]" />
         </div>
         
         <div className="flex-1 min-w-0">
@@ -356,7 +356,7 @@ export const ReplyModal = memo(function ReplyModal({
               {post.user.name || post.user.username}
             </span>
             {post.user.profile?.verified && (
-              <svg className="w-4 h-4 text-red-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              <svg className="w-4 h-4 text-[var(--color-accent)] flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
               </svg>
             )}
@@ -368,14 +368,14 @@ export const ReplyModal = memo(function ReplyModal({
             {post.content}
           </p>
           <p className="text-[var(--muted-foreground)] text-sm mt-2">
-            Replying to <span className="text-red-500">@{post.user.username}</span>
+            Replying to <span className="text-[var(--color-accent)]">@{post.user.username}</span>
           </p>
         </div>
       </div>
       
       {/* Reply input area */}
       <div className="flex gap-3">
-        <div className="w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0 rounded-full overflow-hidden border-2 border-red-600/30">
+        <div className="w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0 rounded-full overflow-hidden border-2 border-[var(--color-accent)]/30">
           {currentUserProfile?.avatarUrl ? (
             <Image
               src={currentUserProfile.avatarUrl}
@@ -386,7 +386,7 @@ export const ReplyModal = memo(function ReplyModal({
               loading="lazy"
             />
           ) : (
-            <div className="w-full h-full bg-gradient-to-br from-red-600 to-cyan-500 flex items-center justify-center text-white text-sm font-semibold">
+            <div className="w-full h-full bg-gradient-to-br from-[var(--color-accent)] to-cyan-500 flex items-center justify-center text-white text-sm font-semibold">
               {(currentUserProfile?.name || currentUserProfile?.username || "U").charAt(0).toUpperCase()}
             </div>
           )}
@@ -421,8 +421,8 @@ export const ReplyModal = memo(function ReplyModal({
           {showSchedule && (
             <div className="mt-3 p-3 bg-black/30 rounded-xl border border-white/10 animate-slide-down">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-red-600/20 rounded-lg">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-red-500">
+                <div className="p-2 bg-[var(--color-accent)]/20 rounded-lg">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-[var(--color-accent)]">
                     <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
                     <path d="M12 6v6l4 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
                   </svg>
@@ -431,11 +431,11 @@ export const ReplyModal = memo(function ReplyModal({
                   type="datetime-local" 
                   value={scheduledFor} 
                   onChange={(e) => setScheduledFor(e.target.value)} 
-                  className="flex-1 bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm focus:border-red-600 transition-colors text-white" 
+                  className="flex-1 bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm focus:border-[var(--color-accent)] transition-colors text-white" 
                 />
                 {scheduledFor && (
                   <Tooltip content="Clear scheduled time">
-                    <button type="button" onClick={() => setScheduledFor("")} className="p-2 text-red-400 hover:bg-red-500/10 rounded-lg">✕</button>
+                    <button type="button" onClick={() => setScheduledFor("")} className="p-2 text-[var(--color-accent)] hover:bg-[var(--color-accent)]/10 rounded-lg">✕</button>
                   </Tooltip>
                 )}
               </div>
@@ -455,7 +455,7 @@ export const ReplyModal = memo(function ReplyModal({
                   value={embedInput} 
                   onChange={(e) => setEmbedInput(e.target.value)} 
                   placeholder="Paste a link to embed" 
-                  className="flex-1 bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm focus:border-red-600 transition-colors text-white placeholder:text-gray-500" 
+                  className="flex-1 bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm focus:border-[var(--color-accent)] transition-colors text-white placeholder:text-gray-500" 
                 />
                 <button 
                   type="button" 
@@ -471,7 +471,7 @@ export const ReplyModal = memo(function ReplyModal({
                     <span key={i} className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-cyan-500/30 bg-cyan-500/10 text-sm">
                       <a href={u} target="_blank" rel="noreferrer" className="text-cyan-400 hover:underline truncate max-w-[200px]">{u}</a>
                       <Tooltip content="Remove link">
-                        <button type="button" onClick={() => setEmbedUrls(prev => prev.filter((_, idx) => idx !== i))} className="text-red-400 hover:text-red-300">✕</button>
+                        <button type="button" onClick={() => setEmbedUrls(prev => prev.filter((_, idx) => idx !== i))} className="text-[var(--color-accent)] hover:text-red-300">✕</button>
                       </Tooltip>
                     </span>
                   ))}
@@ -500,11 +500,11 @@ export const ReplyModal = memo(function ReplyModal({
 
           {/* Poll Preview (after creation) */}
           {pollData && !showPoll && (
-            <div className="mt-3 p-4 bg-gradient-to-r from-red-600/10 to-cyan-500/10 border border-red-600/30 rounded-xl animate-pop-in">
+            <div className="mt-3 p-4 bg-gradient-to-r from-[var(--color-accent)]/10 to-cyan-500/10 border border-[var(--color-accent)]/30 rounded-xl animate-pop-in">
               <div className="flex items-start justify-between">
                 <div className="flex items-start gap-3">
-                  <div className="p-2 bg-red-600/20 rounded-lg mt-0.5">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-red-500">
+                  <div className="p-2 bg-[var(--color-accent)]/20 rounded-lg mt-0.5">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-[var(--color-accent)]">
                       <path d="M9 12l2 2 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                       <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
                     </svg>
@@ -517,7 +517,7 @@ export const ReplyModal = memo(function ReplyModal({
                   </div>
                 </div>
                 <Tooltip content="Remove poll">
-                  <button type="button" onClick={() => setPollData(null)} className="p-2 text-red-400 hover:bg-red-500/10 rounded-lg">
+                  <button type="button" onClick={() => setPollData(null)} className="p-2 text-[var(--color-accent)] hover:bg-[var(--color-accent)]/10 rounded-lg">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                       <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
                     </svg>
@@ -544,7 +544,7 @@ export const ReplyModal = memo(function ReplyModal({
                     <button
                       type="button"
                       onClick={() => removeMedia(index)}
-                      className="absolute top-2 right-2 bg-black/70 hover:bg-red-500 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-all"
+                      className="absolute top-2 right-2 bg-black/70 hover:bg-[var(--color-accent)] text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-all"
                     >
                       <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none">
                         <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
@@ -559,8 +559,8 @@ export const ReplyModal = memo(function ReplyModal({
           {/* Upload progress */}
           {Object.keys(uploadProgress).length > 0 && (
             <div className="mt-3 p-3 bg-black/30 rounded-xl border border-white/10">
-              <div className="flex items-center gap-2 text-sm text-red-500">
-                <div className="w-4 h-4 border-2 border-red-500/30 border-t-red-500 rounded-full animate-spin" />
+              <div className="flex items-center gap-2 text-sm text-[var(--color-accent)]">
+                <div className="w-4 h-4 border-2 border-[var(--color-accent)]/30 border-t-[var(--color-accent)] rounded-full animate-spin" />
                 <span>Uploading media...</span>
               </div>
             </div>

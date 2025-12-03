@@ -6,6 +6,7 @@ import { cn } from "@/lib/cn";
 import { BackButton } from "@/components/ui/BackButton";
 import { useSession } from "next-auth/react";
 import { memo } from "react";
+import { ThemeLogoImg } from "@/components/ui/ThemeLogo";
 
 interface NavItem {
   name: string;
@@ -78,22 +79,22 @@ const NavLink = memo(function NavLink({ item, isActive }: { item: NavItem; isAct
       className={cn(
         "group relative flex items-center gap-3 px-4 py-3 rounded-xl transition-colors duration-150",
         isActive 
-          ? "bg-red-600/15 text-white" 
-          : "text-[var(--muted-foreground)] hover:text-white hover:bg-red-600/10"
+          ? "bg-[rgba(var(--color-accent-rgb),0.15)] text-white" 
+          : "text-[var(--muted-foreground)] hover:text-white hover:bg-[rgba(var(--color-accent-rgb),0.1)]"
       )}
       title={item.description}
     >
       {/* Active indicator */}
       {isActive && (
-        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-gradient-to-b from-red-500 to-red-700 rounded-r-full" />
+        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-gradient-to-b from-[var(--color-accent)] to-[var(--color-accent-hover)] rounded-r-full" />
       )}
       
       {/* Icon */}
       <div className={cn(
         "p-2 rounded-lg transition-colors duration-150",
         isActive 
-          ? "bg-red-600/20 text-red-500" 
-          : "text-[var(--muted-foreground)] group-hover:text-red-500 group-hover:bg-red-600/10"
+          ? "bg-[rgba(var(--color-accent-rgb),0.2)] text-[var(--color-accent)]" 
+          : "text-[var(--muted-foreground)] group-hover:text-[var(--color-accent)] group-hover:bg-[rgba(var(--color-accent-rgb),0.1)]"
       )}>
         {item.icon}
       </div>
@@ -105,7 +106,7 @@ const NavLink = memo(function NavLink({ item, isActive }: { item: NavItem; isAct
       <svg
         className={cn(
           "ml-auto w-4 h-4 transition-opacity duration-150",
-          isActive ? "text-red-500 opacity-100" : "opacity-0 group-hover:opacity-50"
+          isActive ? "text-[var(--color-accent)] opacity-100" : "opacity-0 group-hover:opacity-50"
         )}
         fill="none"
         stroke="currentColor"
@@ -132,12 +133,7 @@ export const Sidebar = memo(function Sidebar() {
         {/* Logo Section */}
         <div className="p-6 border-b border-white/5">
           <Link href="/" className="flex items-center gap-3 group" prefetch={true}>
-            <img
-              src="/logo/logo.png"
-              alt="DevLink"
-              className="w-10 h-10 object-contain"
-              loading="eager"
-            />
+            <ThemeLogoImg className="w-10 h-10 object-contain" />
             <div>
               <h1 className="text-xl font-bold gradient-text font-[var(--font-space-grotesk)]">
                 DevLink
@@ -172,9 +168,9 @@ export const Sidebar = memo(function Sidebar() {
             <>
               <div className="py-4">
                 <div className="flex items-center gap-2">
-                  <div className="h-px flex-1 bg-gradient-to-r from-transparent via-red-600/20 to-transparent" />
-                  <span className="text-[10px] text-red-500/60 uppercase tracking-widest">Account</span>
-                  <div className="h-px flex-1 bg-gradient-to-r from-transparent via-red-600/20 to-transparent" />
+                  <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-rgb),0.2)] to-transparent" />
+                  <span className="text-[10px] text-[rgba(var(--color-accent-rgb),0.6)] uppercase tracking-widest">Account</span>
+                  <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-rgb),0.2)] to-transparent" />
                 </div>
               </div>
               
@@ -196,9 +192,9 @@ export const Sidebar = memo(function Sidebar() {
         </nav>
 
         {/* Bottom section */}
-        <div className="p-4 border-t border-red-600/10">
-          <div className="rounded-xl p-4 text-center space-y-2 bg-red-600/5 border border-red-600/20">
-            <p className="text-xs font-medium text-red-400">
+        <div className="p-4 border-t border-[rgba(var(--color-accent-rgb),0.1)]">
+          <div className="rounded-xl p-4 text-center space-y-2 bg-[rgba(var(--color-accent-rgb),0.05)] border border-[rgba(var(--color-accent-rgb),0.2)]">
+            <p className="text-xs font-medium text-[var(--color-accent)]">
               Connect • Create • Grow
             </p>
             <p className="text-[10px] text-[var(--muted-foreground)]">

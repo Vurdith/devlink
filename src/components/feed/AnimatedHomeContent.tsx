@@ -140,7 +140,7 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
     <>
       {!session && (
         <div className="pt-20 pb-16 text-center">
-          <div className="bg-[#0d0d12] rounded-3xl p-12 max-w-6xl mx-auto border border-white/10 hover:border-red-600/30 transition-all duration-300 relative overflow-hidden group">
+          <div className="bg-[#0d0d12] rounded-3xl p-12 max-w-6xl mx-auto border border-white/10 hover:border-[var(--color-accent)]/30 transition-all duration-300 relative overflow-hidden group">
             <div className="relative">
               <div className="flex items-center justify-center gap-4 mb-8 animate-slide-down">
                 <img
@@ -148,7 +148,7 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
                   alt="DevLink"
                   className="w-20 h-20 object-contain animate-float"
                 />
-                <h1 className="text-6xl lg:text-7xl font-bold bg-gradient-to-r from-red-500 via-pink-400 to-blue-400 bg-clip-text text-transparent">
+                <h1 className="text-6xl lg:text-7xl font-bold bg-gradient-to-r from-[var(--color-accent)] via-pink-400 to-blue-400 bg-clip-text text-transparent">
                   DevLink
                 </h1>
               </div>
@@ -208,14 +208,14 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
         <div className="mb-12 animate-slide-up" style={{ animationDelay: "0.1s" }}>
           <div className="relative group">
             {/* Animated glow background */}
-            <div className="absolute -inset-1 bg-gradient-to-r from-red-600/20 via-cyan-500/20 to-red-600/20 rounded-3xl blur-xl opacity-50 group-hover:opacity-75 transition-opacity duration-500 animate-glow-pulse"></div>
+            <div className="absolute -inset-1 bg-gradient-to-r from-[var(--color-accent)]/20 via-cyan-500/20 to-[var(--color-accent)]/20 rounded-3xl blur-xl opacity-50 group-hover:opacity-75 transition-opacity duration-500 animate-glow-pulse"></div>
             
-            <div className="relative bg-[#0d0d12] rounded-2xl p-6 border border-red-600/30 group-hover:border-red-600/50 transition-all duration-300 shadow-2xl overflow-hidden">
+            <div className="relative bg-[#0d0d12] rounded-2xl p-6 border border-[var(--color-accent)]/30 group-hover:border-[var(--color-accent)]/50 transition-all duration-300 shadow-2xl overflow-hidden">
               {/* Subtle shimmer effect */}
               <div className="absolute inset-0 shimmer-hover" />
               
               <div className="relative flex items-center gap-4 mb-6">
-                <div className="w-10 h-10 bg-gradient-to-br from-red-600/30 to-cyan-500/30 rounded-xl flex items-center justify-center border border-red-600/30 shadow-lg shadow-red-600/20">
+                <div className="w-10 h-10 bg-gradient-to-br from-[var(--color-accent)]/30 to-cyan-500/30 rounded-xl flex items-center justify-center border border-[var(--color-accent)]/30 shadow-lg shadow-[var(--color-accent)]/20">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-red-400">
                     <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
