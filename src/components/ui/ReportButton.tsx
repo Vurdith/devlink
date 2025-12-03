@@ -28,7 +28,7 @@ export const ReportButton = memo(function ReportButton({ targetUserId, targetUse
             variant="ghost"
             size="sm"
             onClick={() => setShowReportForm(true)}
-            className={cn("text-red-400 hover:text-red-300 hover:bg-red-500/10", className)}
+            className={cn("text-[var(--color-accent)] hover:text-[var(--color-accent)] hover:bg-[var(--color-accent)]/10", className)}
           >
             Report
           </Button>
@@ -38,7 +38,7 @@ export const ReportButton = memo(function ReportButton({ targetUserId, targetUse
           <Button
             variant="secondary"
             onClick={() => setShowReportForm(true)}
-            className={cn("border-red-500/30 text-red-400 hover:bg-red-500/10 hover:border-red-500/50", className)}
+            className={cn("border-[var(--color-accent)]/30 text-[var(--color-accent)] hover:bg-[var(--color-accent)]/10 hover:border-[var(--color-accent)]/50", className)}
           >
             Report Issue
           </Button>
@@ -49,7 +49,7 @@ export const ReportButton = memo(function ReportButton({ targetUserId, targetUse
             variant="ghost"
             size="sm"
             onClick={() => setShowReportForm(true)}
-            className={cn("p-2 text-red-400 hover:text-red-300 hover:bg-red-500/10", className)}
+            className={cn("p-2 text-[var(--color-accent)] hover:text-[var(--color-accent)] hover:bg-[var(--color-accent)]/10", className)}
             title="Report this content"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none">

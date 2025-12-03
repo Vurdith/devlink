@@ -59,9 +59,9 @@ export function StatsSection({ totalUsers, totalPosts, totalStudios }: StatsSect
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
         </svg>
       ),
-      color: "from-red-600 to-red-500",
-      textColor: "text-red-500",
-      glowColor: "rgba(220, 38, 38, 0.2)",
+      color: "from-[var(--color-accent)] to-[var(--color-accent)]",
+      textColor: "text-[var(--color-accent)]",
+      glowColor: "rgba(var(--color-accent-rgb), 0.2)",
     },
     {
       value: totalPosts,
@@ -94,7 +94,7 @@ export function StatsSection({ totalUsers, totalPosts, totalStudios }: StatsSect
   return (
     <section className="relative py-32 px-4 overflow-hidden">
       {/* Background effects */}
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-red-600/5 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[var(--color-accent)]/5 to-transparent" />
       
       <div className="max-w-6xl mx-auto">
         {/* Section header */}
@@ -161,7 +161,7 @@ export function StatsSection({ totalUsers, totalPosts, totalStudios }: StatsSect
               {[1, 2, 3, 4, 5].map((i) => (
                 <div 
                   key={i} 
-                  className="w-8 h-8 rounded-full bg-gradient-to-br from-red-600 to-pink-500 border-2 border-[var(--background)] flex items-center justify-center text-xs font-bold text-white"
+                  className="w-8 h-8 rounded-full bg-gradient-to-br from-[var(--color-accent)] to-pink-500 border-2 border-[var(--background)] flex items-center justify-center text-xs font-bold text-white"
                 >
                   {String.fromCharCode(65 + i - 1)}
                 </div>

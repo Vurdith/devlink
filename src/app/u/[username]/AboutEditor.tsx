@@ -55,7 +55,7 @@ export function AboutEditor({ initialBio, initialLocation, initialWebsite, initi
       <div className="absolute right-3 top-3 sm:right-4 sm:top-4 group z-10">
         <Tooltip content="Edit profile" side="left">
           <button
-            className="p-2 rounded-full bg-[#0d0d12] hover:bg-white/10 ring-1 ring-white/10 hover:ring-red-600/50 transition duration-200 hover:scale-105"
+            className="p-2 rounded-full bg-[#0d0d12] hover:bg-white/10 ring-1 ring-white/10 hover:ring-[var(--color-accent)]/50 transition duration-200 hover:scale-105"
             onClick={() => setOpen(true)}
             aria-label="Edit profile"
           >

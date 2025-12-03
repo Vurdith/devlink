@@ -21,7 +21,7 @@ const PROFILE_TYPE_CLASSES: Record<string, string> = {
   DEVELOPER: "border-blue-500/40 bg-blue-500/10 text-blue-400",
   CLIENT: "border-green-500/40 bg-green-500/10 text-green-400",
   STUDIO: "border-[var(--color-accent)]/40 bg-[var(--color-accent)]/10 text-[var(--color-accent)]",
-  INFLUENCER: "border-[var(--color-accent)]/40 bg-[var(--color-accent)]/10 text-red-400",
+  INFLUENCER: "border-[var(--color-accent)]/40 bg-[var(--color-accent)]/10 text-[var(--color-accent)]",
   INVESTOR: "border-yellow-500/40 bg-yellow-500/10 text-yellow-400",
   DEFAULT: "border-gray-500/40 bg-gray-500/10 text-gray-400",
 };
@@ -698,7 +698,7 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
                       </svg>
                       <span>Analytics</span>
                     </a>
-                    <button onClick={() => { setShowActionsMenu(false); setShowDeleteConfirm(true); }} className="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-[var(--color-accent)]/10 transition-colors flex items-center space-x-3">
+                    <button onClick={() => { setShowActionsMenu(false); setShowDeleteConfirm(true); }} className="w-full text-left px-4 py-2 text-sm text-[var(--color-accent)] hover:bg-[var(--color-accent)]/10 transition-colors flex items-center space-x-3">
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                       </svg>
@@ -706,7 +706,7 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
                     </button>
                   </>
                 )}
-                <button className="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-[var(--color-accent)]/10 transition-colors flex items-center space-x-3">
+                <button className="w-full text-left px-4 py-2 text-sm text-[var(--color-accent)] hover:bg-[var(--color-accent)]/10 transition-colors flex items-center space-x-3">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 19.5c-.77.833.192 2.5 1.732 2.5z" />
                   </svg>
@@ -844,7 +844,7 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
           onClick={closeModal}
         >
           <div className="relative w-full h-full flex items-center justify-center p-4" onClick={(e) => e.stopPropagation()}>
-            <button onClick={closeModal} aria-label="Close media viewer" className="absolute top-6 right-6 text-white/80 hover:text-white z-10 bg-black/90 hover:bg-[var(--color-accent)] rounded-full p-3 border border-white/20 hover:border-red-400 transition-all duration-200 hover:scale-110">
+            <button onClick={closeModal} aria-label="Close media viewer" className="absolute top-6 right-6 text-white/80 hover:text-white z-10 bg-black/90 hover:bg-[var(--color-accent)] rounded-full p-3 border border-white/20 hover:border-[var(--color-accent)] transition-all duration-200 hover:scale-110">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
@@ -886,7 +886,7 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
           <div className="relative bg-[#0d0d12] border border-white/10 rounded-xl p-6 w-[min(92vw,480px)] mx-4" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 bg-[var(--color-accent)]/20 rounded-full flex items-center justify-center">
-                <svg className="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 text-[var(--color-accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 19.5c-.77.833.192 2.5 1.732 2.5z" />
                 </svg>
               </div>

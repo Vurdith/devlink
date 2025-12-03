@@ -193,7 +193,7 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
                         )}
                       </svg>
                     </div>
-                    <div className="text-2xl font-semibold mb-3 text-white group-hover/card:text-red-300 transition-colors">{item.title}</div>
+                    <div className="text-2xl font-semibold mb-3 text-white group-hover/card:text-[var(--color-accent)] transition-colors">{item.title}</div>
                     <div className="text-gray-400 group-hover/card:text-gray-300 transition-colors">{item.desc}</div>
                   </div>
                 ))}
@@ -216,7 +216,7 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
               
               <div className="relative flex items-center gap-4 mb-6">
                 <div className="w-10 h-10 bg-gradient-to-br from-[var(--color-accent)]/30 to-cyan-500/30 rounded-xl flex items-center justify-center border border-[var(--color-accent)]/30 shadow-lg shadow-[var(--color-accent)]/20">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-red-400">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-[var(--color-accent)]">
                     <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                 </div>

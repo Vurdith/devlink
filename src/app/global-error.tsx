@@ -19,9 +19,9 @@ export default function GlobalError({
     <html>
       <body className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center p-4">
         <div className="max-w-md w-full bg-gray-800/50 backdrop-blur-lg border border-gray-700/50 rounded-2xl p-8 text-center shadow-2xl">
-          <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-red-500/20 flex items-center justify-center">
+          <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-[var(--color-accent)]/20 flex items-center justify-center">
             <svg
-              className="w-8 h-8 text-red-400"
+              className="w-8 h-8 text-[var(--color-accent)]"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -52,7 +52,7 @@ export default function GlobalError({
           <div className="flex gap-3 justify-center">
             <button
               onClick={() => reset()}
-              className="px-6 py-2.5 bg-red-700 hover:bg-red-800 text-white font-medium rounded-lg transition-colors"
+              className="px-6 py-2.5 bg-[var(--color-accent-hover)] hover:bg-[var(--color-accent-hover)] text-white font-medium rounded-lg transition-colors"
             >
               Try Again
             </button>

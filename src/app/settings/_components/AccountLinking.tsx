@@ -130,7 +130,7 @@ export default function AccountLinking() {
     <div className="space-y-5">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-600 to-red-700 flex items-center justify-center shadow-lg shadow-red-600/25">
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--color-accent)] to-[var(--color-accent-hover)] flex items-center justify-center shadow-lg shadow-[var(--color-accent)]/25">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-white">
             <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -144,7 +144,7 @@ export default function AccountLinking() {
 
       {/* Error Message */}
       {error && (
-        <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm flex items-center gap-2 animate-fade-in">
+        <div className="p-3 rounded-xl bg-[var(--color-accent)]/10 border border-[var(--color-accent)]/20 text-[var(--color-accent)] text-sm flex items-center gap-2 animate-fade-in">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
             <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
             <path d="M12 8v4m0 4h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
@@ -179,8 +179,8 @@ export default function AccountLinking() {
               className={cn(
                 "flex items-center justify-between p-4 rounded-xl border transition-all animate-slide-up",
                 linked 
-                  ? "bg-red-600/10 border-red-600/30" 
-                  : "bg-white/5 border-white/10 hover:bg-red-600/5 hover:border-red-600/20"
+                  ? "bg-[var(--color-accent)]/10 border-[var(--color-accent)]/30" 
+                  : "bg-white/5 border-white/10 hover:bg-[var(--color-accent)]/5 hover:border-[var(--color-accent)]/20"
               )}
               style={{ animationDelay: `${index * 0.05}s` }}
             >
@@ -196,8 +196,8 @@ export default function AccountLinking() {
                   <div className="text-sm text-[var(--muted-foreground)] flex items-center gap-2">
                     {linked ? (
                       <>
-                        <span className="w-1.5 h-1.5 rounded-full bg-red-600" />
-                        <span className="text-red-500">Connected</span>
+                        <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-accent)]" />
+                        <span className="text-[var(--color-accent)]">Connected</span>
                       </>
                     ) : (
                       "Not connected"
@@ -213,7 +213,7 @@ export default function AccountLinking() {
                 onClick={() => linked ? unlinkAccount(provider.id) : linkAccount(provider.id)}
                 isLoading={isLoading}
                 className={cn(
-                  linked && "text-[var(--muted-foreground)] hover:text-red-400 hover:bg-red-500/10"
+                  linked && "text-[var(--muted-foreground)] hover:text-[var(--color-accent)] hover:bg-[var(--color-accent)]/10"
                 )}
               >
                 {linked ? "Disconnect" : "Connect"}

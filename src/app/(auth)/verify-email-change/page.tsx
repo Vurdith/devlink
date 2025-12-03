@@ -69,8 +69,8 @@ function VerifyEmailChangeContent() {
     return (
       <main className="mx-auto max-w-md px-4 py-16">
         <div className="bg-[#0d0d12] border border-white/10 rounded-[var(--radius)] p-6 text-center">
-          <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-red-400">
+          <div className="w-16 h-16 bg-[var(--color-accent)]/20 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-[var(--color-accent)]">
               <path d="M12 9v4m0 4h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" stroke="currentColor" strokeWidth="2"/>
             </svg>
           </div>

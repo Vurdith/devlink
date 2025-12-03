@@ -3,10 +3,10 @@ export default function ProfileLoading() {
     <main className="mx-auto max-w-5xl px-2 sm:px-4 py-4 sm:py-10">
       <section className="relative overflow-hidden rounded-xl sm:rounded-2xl animate-pulse">
         {/* Banner skeleton */}
-        <div className="h-36 sm:h-64 w-full bg-gradient-to-br from-red-900/30 via-red-800/20 to-red-900/30" />
+        <div className="h-36 sm:h-64 w-full bg-gradient-to-br from-[var(--color-accent-hover)]/30 via-[var(--color-accent)]/20 to-[var(--color-accent-hover)]/30" />
         
         {/* Profile card skeleton */}
-        <div className="relative bg-[#0a0a0f]/95 border-t border-red-600/20 px-4 sm:px-8 pb-4 sm:pb-8">
+        <div className="relative bg-[#0a0a0f]/95 border-t border-[var(--color-accent)]/20 px-4 sm:px-8 pb-4 sm:pb-8">
           {/* Avatar */}
           <div className="flex justify-between items-start">
             <div className="relative -mt-12 sm:-mt-16 z-20">
@@ -43,7 +43,7 @@ export default function ProfileLoading() {
       
       {/* Tabs skeleton */}
       <div className="mt-4 sm:mt-8">
-        <div className="flex gap-2 mb-6 bg-black/40 rounded-2xl p-3 border border-red-600/20">
+        <div className="flex gap-2 mb-6 bg-black/40 rounded-2xl p-3 border border-[var(--color-accent)]/20">
           {[1, 2, 3, 4, 5].map((i) => (
             <div key={i} className="h-9 w-20 bg-white/10 rounded-lg" />
           ))}

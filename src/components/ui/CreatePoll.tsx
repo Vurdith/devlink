@@ -121,7 +121,7 @@ export const CreatePoll = memo(function CreatePoll({ onSubmit, onCancel }: Creat
                   <button
                     type="button"
                     onClick={() => removeOption(index)}
-                    className="p-2 text-red-400 hover:text-red-300 hover:bg-red-500/20 rounded-lg transition-all active:scale-95"
+                    className="p-2 text-[var(--color-accent)] hover:text-[var(--color-accent)] hover:bg-[var(--color-accent)]/20 rounded-lg transition-all active:scale-95"
                   >
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                       <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>

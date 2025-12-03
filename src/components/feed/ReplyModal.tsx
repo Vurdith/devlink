@@ -471,7 +471,7 @@ export const ReplyModal = memo(function ReplyModal({
                     <span key={i} className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-cyan-500/30 bg-cyan-500/10 text-sm">
                       <a href={u} target="_blank" rel="noreferrer" className="text-cyan-400 hover:underline truncate max-w-[200px]">{u}</a>
                       <Tooltip content="Remove link">
-                        <button type="button" onClick={() => setEmbedUrls(prev => prev.filter((_, idx) => idx !== i))} className="text-[var(--color-accent)] hover:text-red-300">✕</button>
+                        <button type="button" onClick={() => setEmbedUrls(prev => prev.filter((_, idx) => idx !== i))} className="text-[var(--color-accent)] hover:text-[var(--color-accent)]">✕</button>
                       </Tooltip>
                     </span>
                   ))}

@@ -100,7 +100,7 @@ export default function CompleteSignupPage() {
   if (status === "loading") {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#0a0e14]">
-        <div className="animate-spin rounded-full h-8 w-8 border-2 border-red-600 border-t-transparent"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-2 border-[var(--color-accent)] border-t-transparent"></div>
       </div>
     );
   }
@@ -155,8 +155,8 @@ export default function CompleteSignupPage() {
           </div>
 
           {error && (
-            <div className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20">
-              <p className="text-red-400 text-sm">{error}</p>
+            <div className="mb-6 p-4 rounded-xl bg-[var(--color-accent)]/10 border border-[var(--color-accent)]/20">
+              <p className="text-[var(--color-accent)] text-sm">{error}</p>
             </div>
           )}
 
@@ -171,7 +171,7 @@ export default function CompleteSignupPage() {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-600/50 focus:border-red-600/50 transition-all"
+                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]/50 focus:border-[var(--color-accent)]/50 transition-all"
                 placeholder="Create a password"
               />
               {password && (
@@ -199,11 +199,11 @@ export default function CompleteSignupPage() {
                 type="password"
                 value={passwordConfirm}
                 onChange={(e) => setPasswordConfirm(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-600/50 focus:border-red-600/50 transition-all"
+                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]/50 focus:border-[var(--color-accent)]/50 transition-all"
                 placeholder="Confirm your password"
               />
               {passwordConfirm && password !== passwordConfirm && (
-                <p className="text-xs text-red-400 mt-1">Passwords do not match</p>
+                <p className="text-xs text-[var(--color-accent)] mt-1">Passwords do not match</p>
               )}
               {passwordConfirm && password === passwordConfirm && passwordConfirm.length >= 8 && (
                 <p className="text-xs text-green-400 mt-1 flex items-center gap-1">
@@ -219,7 +219,7 @@ export default function CompleteSignupPage() {
             <button
               type="submit"
               disabled={loading || !password || !passwordConfirm || password !== passwordConfirm}
-              className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-red-700 to-pink-600 text-white font-semibold hover:from-red-600 hover:to-pink-500 focus:outline-none focus:ring-2 focus:ring-red-600/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-[var(--color-accent-hover)] to-pink-600 text-white font-semibold hover:from-[var(--color-accent)] hover:to-pink-500 focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             >
               {loading ? (
                 <span className="flex items-center justify-center gap-2">
@@ -246,7 +246,7 @@ export default function CompleteSignupPage() {
 
           <p className="mt-6 text-center text-sm text-gray-500">
             You can always set a password later in{" "}
-            <Link href="/settings/security" className="text-red-500 hover:text-red-400">
+            <Link href="/settings/security" className="text-[var(--color-accent)] hover:text-[var(--color-accent)]">
               Settings → Security
             </Link>
           </p>

@@ -348,7 +348,7 @@ export default function SecuritySettings() {
                 required
               />
               {newPasswordData.confirmPassword && newPasswordData.password !== newPasswordData.confirmPassword && (
-                <p className="text-xs text-red-400 mt-2 flex items-center gap-1">
+                <p className="text-xs text-[var(--color-accent)] mt-2 flex items-center gap-1">
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
                     <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
                     <path d="M12 8v4m0 4h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
@@ -450,7 +450,7 @@ export default function SecuritySettings() {
                 required
               />
               {passwordData.confirmPassword && passwordData.newPassword !== passwordData.confirmPassword && (
-                <p className="text-xs text-red-400 mt-2 flex items-center gap-1">
+                <p className="text-xs text-[var(--color-accent)] mt-2 flex items-center gap-1">
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
                     <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
                     <path d="M12 8v4m0 4h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
@@ -582,8 +582,8 @@ export default function SecuritySettings() {
             </svg>
           </div>
           <div>
-            <h2 className="text-lg font-semibold text-red-400">Danger Zone</h2>
-            <p className="text-sm text-red-300/70">Permanently delete your account</p>
+            <h2 className="text-lg font-semibold text-[var(--color-accent)]">Danger Zone</h2>
+            <p className="text-sm text-[var(--color-accent)]/70">Permanently delete your account</p>
           </div>
         </div>
 
@@ -596,7 +596,7 @@ export default function SecuritySettings() {
             <Button
               onClick={() => setShowDeleteConfirm(true)}
               variant="secondary"
-              className="w-full border-[var(--color-accent)]/30 hover:bg-[var(--color-accent)]/20 hover:border-[var(--color-accent)]/50 text-red-400"
+              className="w-full border-[var(--color-accent)]/30 hover:bg-[var(--color-accent)]/20 hover:border-[var(--color-accent)]/50 text-[var(--color-accent)]"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="mr-2">
                 <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -608,12 +608,12 @@ export default function SecuritySettings() {
           <div className="space-y-4">
             <div className="bg-[var(--color-accent)]/10 border border-[var(--color-accent)]/20 rounded-xl p-4">
               <div className="flex items-start gap-3">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-red-400 mt-0.5 flex-shrink-0">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-[var(--color-accent)] mt-0.5 flex-shrink-0">
                   <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
                 <div>
-                  <p className="text-sm text-red-300 font-medium">This action cannot be undone!</p>
-                  <p className="text-xs text-red-300/70 mt-1">
+                  <p className="text-sm text-[var(--color-accent)] font-medium">This action cannot be undone!</p>
+                  <p className="text-xs text-[var(--color-accent)]/70 mt-1">
                     All your posts, likes, followers, and profile data will be permanently deleted.
                   </p>
                 </div>
@@ -636,7 +636,7 @@ export default function SecuritySettings() {
 
             <div>
               <label className="block text-sm font-medium text-white mb-2">
-                Type <span className="text-red-400 font-mono">DELETE</span> to confirm
+                Type <span className="text-[var(--color-accent)] font-mono">DELETE</span> to confirm
               </label>
               <input
                 type="text"

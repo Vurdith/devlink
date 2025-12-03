@@ -74,7 +74,7 @@ const ScoreComponent = memo(function ScoreComponent({
             </div>
             <span className={cn(
               "text-lg font-bold",
-              isPenalty ? "text-red-400" : isBonus ? "text-emerald-400" : "text-white"
+              isPenalty ? "text-[var(--color-accent)]" : isBonus ? "text-emerald-400" : "text-white"
             )}>
               {isPenalty ? "" : "+"}{contribution.toFixed(1)}
             </span>
@@ -173,7 +173,7 @@ export const ScoreBreakdown: FC<ScoreBreakdownProps> = memo(function ScoreBreakd
               <path d="M21 21l-4.35-4.35" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
             </svg>
           }
-          color="from-red-500 to-red-600"
+          color="from-[var(--color-accent)] to-[var(--color-accent)]"
           score={null}
           contribution={breakdown.discoveryBoost}
           weight={weights.discoveryWeight}
@@ -199,7 +199,7 @@ export const ScoreBreakdown: FC<ScoreBreakdownProps> = memo(function ScoreBreakd
                 <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.268 16.5c-.77.833.192 2.5 1.732 2.5z" stroke="currentColor" strokeWidth="2"/>
               </svg>
             }
-            color="from-red-500 to-rose-500"
+            color="from-[var(--color-accent)] to-rose-500"
             score={null}
             contribution={-breakdown.penalties}
             weight={0}

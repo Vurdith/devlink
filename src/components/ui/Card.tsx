@@ -145,7 +145,7 @@ export function StatCard({
           {trend && (
             <div className={cn(
               "flex items-center gap-1 mt-2 text-xs font-medium",
-              trend.positive ? "text-green-400" : "text-red-400"
+              trend.positive ? "text-green-400" : "text-[var(--color-accent)]"
             )}>
               <svg 
                 className={cn("w-3 h-3", !trend.positive && "rotate-180")} 

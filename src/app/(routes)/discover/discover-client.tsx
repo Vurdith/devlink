@@ -233,7 +233,7 @@ export function DiscoverClient({
                 >
                   {/* Banner */}
                   <Link href={`/u/${user.username}`} className="block">
-                    <div className="h-16 sm:h-20 w-full bg-gradient-to-br from-red-950/30 to-slate-900/50 relative">
+                    <div className="h-16 sm:h-20 w-full bg-gradient-to-br from-[var(--color-accent-hover)]/30 to-slate-900/50 relative">
                       {user.profile?.bannerUrl && (
                         <Image
                           src={user.profile.bannerUrl}
@@ -259,7 +259,7 @@ export function DiscoverClient({
                             className="w-12 h-12 sm:w-16 sm:h-16 rounded-full object-cover border-3 sm:border-4 border-[var(--background)]"
                           />
                         ) : (
-                          <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-red-600 to-pink-500 flex items-center justify-center text-white text-lg sm:text-xl font-bold border-3 sm:border-4 border-[var(--background)]">
+                          <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-[var(--color-accent)] to-pink-500 flex items-center justify-center text-white text-lg sm:text-xl font-bold border-3 sm:border-4 border-[var(--background)]">
                             {user.username.charAt(0).toUpperCase()}
                           </div>
                         )}

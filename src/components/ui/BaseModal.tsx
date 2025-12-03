@@ -72,7 +72,7 @@ export const Tooltip = memo(function Tooltip({
         transform: getTransform()
       }}
     >
-      <div className="px-2.5 py-1.5 text-xs font-medium text-white bg-gradient-to-r from-[var(--color-accent)]/90 to-red-700/90 border border-[var(--color-accent)]/30 rounded-lg shadow-xl shadow-[var(--color-accent)]/20 whitespace-nowrap backdrop-blur-sm">
+      <div className="px-2.5 py-1.5 text-xs font-medium text-white bg-gradient-to-r from-[var(--color-accent)]/90 to-[var(--color-accent-hover)]/90 border border-[var(--color-accent)]/30 rounded-lg shadow-xl shadow-[var(--color-accent)]/20 whitespace-nowrap backdrop-blur-sm">
         {content}
       </div>
     </div>,

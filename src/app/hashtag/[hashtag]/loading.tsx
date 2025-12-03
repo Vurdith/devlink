@@ -1,12 +1,12 @@
 export default function HashtagPageLoading() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-red-900/20 to-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-[var(--color-accent-hover)]/20 to-slate-900">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
         {/* Hashtag Header skeleton */}
         <div className="bg-[#0d0d12] rounded-2xl p-8 mb-8 border border-white/10 animate-pulse">
           <div className="flex items-center gap-4 mb-4">
-            <div className="w-16 h-16 bg-gradient-to-br from-blue-500/20 to-red-600/20 rounded-2xl" />
+            <div className="w-16 h-16 bg-gradient-to-br from-blue-500/20 to-[var(--color-accent)]/20 rounded-2xl" />
             <div>
               <div className="h-8 w-48 bg-white/10 rounded mb-2" />
               <div className="h-4 w-24 bg-white/5 rounded" />

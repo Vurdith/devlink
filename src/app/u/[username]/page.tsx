@@ -147,7 +147,7 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
             <h1 className="text-lg sm:text-2xl font-bold flex items-center gap-2 text-white">
               <span className="truncate">{user.name ?? user.username}</span>
               {user.profile?.verified && (
-                <span className="inline-flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-gradient-to-br from-[var(--color-accent)] to-red-700 flex-shrink-0">
+                <span className="inline-flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-gradient-to-br from-[var(--color-accent)] to-[var(--color-accent-hover)] flex-shrink-0">
                   <svg width="10" height="10" viewBox="0 0 24 24" fill="none" className="text-white sm:w-3 sm:h-3">
                     <path d="M20 6L9 17l-5-5" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>

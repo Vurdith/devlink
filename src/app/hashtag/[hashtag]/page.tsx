@@ -146,13 +146,13 @@ export default async function HashtagPage(props: { params: Promise<{ hashtag: st
   }));
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-red-900/20 to-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-[var(--color-accent-hover)]/20 to-slate-900">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
         {/* Hashtag Header */}
         <div className="bg-[#0d0d12] rounded-2xl p-8 mb-8 border border-white/10">
           <div className="flex items-center gap-4 mb-4">
-            <div className="w-16 h-16 bg-gradient-to-br from-red-700 to-red-500 rounded-2xl flex items-center justify-center">
+            <div className="w-16 h-16 bg-gradient-to-br from-[var(--color-accent-hover)] to-[var(--color-accent)] rounded-2xl flex items-center justify-center">
               <span className="text-white font-bold text-3xl">#</span>
             </div>
             <div>

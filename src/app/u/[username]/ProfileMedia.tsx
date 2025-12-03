@@ -67,7 +67,7 @@ export function ProfileBanner({ initialBannerUrl, isOwnProfile }: ProfileBannerP
           />
         )
       ) : (
-        <div className="h-full w-full bg-gradient-to-br from-red-900/50 via-red-800/30 to-rose-900/50" />
+        <div className="h-full w-full bg-gradient-to-br from-[var(--color-accent-hover)]/50 via-[var(--color-accent)]/30 to-[var(--color-accent-hover)]/50" />
       )}
       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
       <BannerEditOverlay editable={isOwnProfile} />

@@ -25,9 +25,9 @@ export const RedCard = forwardRef<HTMLDivElement, RedCardProps>(
     };
 
     const variantStyles = {
-      default: "glass border border-red-600/20 bg-red-600/5",
-      gradient: "glass border border-red-600/20 bg-gradient-to-br from-red-600/10 via-transparent to-red-600/5",
-      glow: "glass border border-red-600/30 bg-red-600/5 shadow-lg shadow-red-600/10",
+      default: "glass border border-[var(--color-accent)]/20 bg-[var(--color-accent)]/5",
+      gradient: "glass border border-[var(--color-accent)]/20 bg-gradient-to-br from-[var(--color-accent)]/10 via-transparent to-[var(--color-accent)]/5",
+      glow: "glass border border-[var(--color-accent)]/30 bg-[var(--color-accent)]/5 shadow-lg shadow-[var(--color-accent)]/10",
     };
 
     return (
@@ -65,7 +65,7 @@ export const RedSection = forwardRef<HTMLDivElement, RedSectionProps>(
         <div className="flex items-start justify-between gap-4 mb-6">
           <div className="flex items-center gap-3">
             {icon && (
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-600 to-red-700 flex items-center justify-center text-white shadow-lg shadow-red-600/25">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--color-accent)] to-[var(--color-accent-hover)] flex items-center justify-center text-white shadow-lg shadow-[var(--color-accent)]/25">
                 {icon}
               </div>
             )}
@@ -103,10 +103,10 @@ export const RedButton = forwardRef<HTMLButtonElement, RedButtonProps>(
     };
 
     const variantStyles = {
-      solid: "bg-red-600 text-white hover:bg-red-700 shadow-lg shadow-red-600/25 hover:shadow-red-600/40",
-      outline: "bg-transparent text-red-500 border border-red-600/30 hover:bg-red-600/10 hover:border-red-600/50",
-      ghost: "bg-transparent text-red-500 hover:bg-red-600/10",
-      gradient: "bg-gradient-to-r from-red-600 to-red-700 text-white hover:from-red-700 hover:to-red-800 shadow-lg shadow-red-600/25",
+      solid: "bg-[var(--color-accent)] text-white hover:bg-[var(--color-accent-hover)] shadow-lg shadow-[var(--color-accent)]/25 hover:shadow-[var(--color-accent)]/40",
+      outline: "bg-transparent text-[var(--color-accent)] border border-[var(--color-accent)]/30 hover:bg-[var(--color-accent)]/10 hover:border-[var(--color-accent)]/50",
+      ghost: "bg-transparent text-[var(--color-accent)] hover:bg-[var(--color-accent)]/10",
+      gradient: "bg-gradient-to-r from-[var(--color-accent)] to-[var(--color-accent-hover)] text-white hover:from-[var(--color-accent-hover)] hover:to-[var(--color-accent-hover)] shadow-lg shadow-[var(--color-accent)]/25",
     };
 
     return (
@@ -114,7 +114,7 @@ export const RedButton = forwardRef<HTMLButtonElement, RedButtonProps>(
         ref={ref}
         className={cn(
           "inline-flex items-center justify-center font-medium transition-all duration-200",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)]",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)]",
           "disabled:opacity-50 disabled:cursor-not-allowed",
           sizeStyles[size],
           variantStyles[variant],
@@ -154,8 +154,8 @@ export const RedListItem = forwardRef<HTMLDivElement, RedListItemProps>(
           "flex items-center gap-4 p-4 rounded-xl transition-all duration-200",
           isClickable && "cursor-pointer",
           isActive
-            ? "bg-red-600/15 border border-red-600/30"
-            : "bg-white/5 border border-white/10 hover:bg-red-600/10 hover:border-red-600/20",
+            ? "bg-[var(--color-accent)]/15 border border-[var(--color-accent)]/30"
+            : "bg-white/5 border border-white/10 hover:bg-[var(--color-accent)]/10 hover:border-[var(--color-accent)]/20",
           className
         )}
         {...props}
@@ -164,8 +164,8 @@ export const RedListItem = forwardRef<HTMLDivElement, RedListItemProps>(
           <div className={cn(
             "w-10 h-10 rounded-xl flex items-center justify-center transition-colors",
             isActive
-              ? "bg-red-600/20 text-red-500"
-              : "bg-white/10 text-[var(--muted-foreground)] group-hover:bg-red-600/10 group-hover:text-red-500"
+              ? "bg-[var(--color-accent)]/20 text-[var(--color-accent)]"
+              : "bg-white/10 text-[var(--muted-foreground)] group-hover:bg-[var(--color-accent)]/10 group-hover:text-[var(--color-accent)]"
           )}>
             {icon}
           </div>
@@ -173,7 +173,7 @@ export const RedListItem = forwardRef<HTMLDivElement, RedListItemProps>(
         <div className="flex-1 min-w-0">
           <div className={cn(
             "font-medium",
-            isActive ? "text-red-400" : "text-white"
+            isActive ? "text-[var(--color-accent)]" : "text-white"
           )}>
             {title}
           </div>
@@ -198,9 +198,9 @@ interface RedBadgeProps extends HTMLAttributes<HTMLSpanElement> {
 export const RedBadge = forwardRef<HTMLSpanElement, RedBadgeProps>(
   ({ className, variant = "subtle", children, ...props }, ref) => {
     const variantStyles = {
-      solid: "bg-red-600 text-white",
-      outline: "bg-transparent text-red-500 border border-red-600/40",
-      subtle: "bg-red-600/20 text-red-400 border border-red-600/30",
+      solid: "bg-[var(--color-accent)] text-white",
+      outline: "bg-transparent text-[var(--color-accent)] border border-[var(--color-accent)]/40",
+      subtle: "bg-[var(--color-accent)]/20 text-[var(--color-accent)] border border-[var(--color-accent)]/30",
     };
 
     return (
@@ -239,9 +239,9 @@ export const RedInput = forwardRef<HTMLInputElement, RedInputProps>(
         <input
           ref={ref}
           className={cn(
-            "w-full h-11 rounded-xl bg-red-600/5 border border-red-600/20",
+            "w-full h-11 rounded-xl bg-[var(--color-accent)]/5 border border-[var(--color-accent)]/20",
             "text-white placeholder:text-[var(--muted-foreground)]",
-            "focus:border-red-600/50 focus:bg-red-600/10 focus:outline-none focus:ring-1 focus:ring-red-600/30",
+            "focus:border-[var(--color-accent)]/50 focus:bg-[var(--color-accent)]/10 focus:outline-none focus:ring-1 focus:ring-[var(--color-accent)]/30",
             "transition-all duration-200",
             icon ? "pl-11 pr-4" : "px-4",
             className
@@ -274,9 +274,9 @@ export const RedToggle = ({ checked, onChange, disabled, className }: RedToggleP
       onClick={() => !disabled && onChange(!checked)}
       className={cn(
         "relative w-12 h-7 rounded-full transition-all duration-300",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2",
         checked
-          ? "bg-gradient-to-r from-red-600 to-red-700 shadow-lg shadow-red-600/30"
+          ? "bg-gradient-to-r from-[var(--color-accent)] to-[var(--color-accent-hover)] shadow-lg shadow-[var(--color-accent)]/30"
           : "bg-white/10 border border-white/20",
         disabled && "opacity-50 cursor-not-allowed",
         className
@@ -304,9 +304,9 @@ export const RedDivider = forwardRef<HTMLDivElement, RedDividerProps>(
     if (label) {
       return (
         <div ref={ref} className={cn("flex items-center gap-3 py-4", className)} {...props}>
-          <div className="h-px flex-1 bg-gradient-to-r from-transparent via-red-600/30 to-transparent" />
+          <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[var(--color-accent)]/30 to-transparent" />
           <span className="text-xs text-[var(--muted-foreground)] uppercase tracking-widest">{label}</span>
-          <div className="h-px flex-1 bg-gradient-to-r from-transparent via-red-600/30 to-transparent" />
+          <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[var(--color-accent)]/30 to-transparent" />
         </div>
       );
     }
@@ -314,7 +314,7 @@ export const RedDivider = forwardRef<HTMLDivElement, RedDividerProps>(
     return (
       <div
         ref={ref}
-        className={cn("h-px bg-gradient-to-r from-transparent via-red-600/30 to-transparent", className)}
+        className={cn("h-px bg-gradient-to-r from-transparent via-[var(--color-accent)]/30 to-transparent", className)}
         {...props}
       />
     );

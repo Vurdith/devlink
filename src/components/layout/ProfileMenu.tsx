@@ -170,7 +170,7 @@ export const ProfileMenu = memo(function ProfileMenu({ username, avatarUrl: init
               onClick={() => setOpen(false)}
               className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-[var(--color-accent)]/10 transition-colors group"
             >
-              <div className="w-9 h-9 rounded-lg bg-[var(--color-accent)]/10 flex items-center justify-center text-[var(--color-accent)] group-hover:bg-[var(--color-accent)]/20 group-hover:text-red-400 transition-colors">
+              <div className="w-9 h-9 rounded-lg bg-[var(--color-accent)]/10 flex items-center justify-center text-[var(--color-accent)] group-hover:bg-[var(--color-accent)]/20 group-hover:text-[var(--color-accent)] transition-colors">
                 {item.icon}
               </div>
               <div className="flex-1 min-w-0">
@@ -203,7 +203,7 @@ export const ProfileMenu = memo(function ProfileMenu({ username, avatarUrl: init
             onClick={handleSignOut}
             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-[var(--color-accent)]/10 transition-colors group"
           >
-            <div className="w-9 h-9 rounded-lg bg-[var(--color-accent)]/10 flex items-center justify-center text-red-400 group-hover:bg-[var(--color-accent)]/20 transition-colors">
+            <div className="w-9 h-9 rounded-lg bg-[var(--color-accent)]/10 flex items-center justify-center text-[var(--color-accent)] group-hover:bg-[var(--color-accent)]/20 transition-colors">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 <polyline points="16,17 21,12 16,7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -211,10 +211,10 @@ export const ProfileMenu = memo(function ProfileMenu({ username, avatarUrl: init
               </svg>
             </div>
             <div className="flex-1 text-left">
-              <div className="text-sm font-medium text-red-400 group-hover:text-red-300">
+              <div className="text-sm font-medium text-[var(--color-accent)] group-hover:text-[var(--color-accent)]">
                 Sign Out
               </div>
-              <div className="text-xs text-red-400/60">
+              <div className="text-xs text-[var(--color-accent)]/60">
                 End your session
               </div>
             </div>

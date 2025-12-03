@@ -120,7 +120,7 @@ export const PollDisplay = memo(function PollDisplay({ poll, currentUserId, onVo
         </div>
         <h3 className="font-semibold text-white flex-1">{poll.question}</h3>
         {poll.isMultiple && (
-          <span className="text-xs px-2.5 py-1 bg-[var(--color-accent)]/20 text-red-400 rounded-full border border-[var(--color-accent)]/30 font-medium">
+          <span className="text-xs px-2.5 py-1 bg-[var(--color-accent)]/20 text-[var(--color-accent)] rounded-full border border-[var(--color-accent)]/30 font-medium">
             Multiple Choice
           </span>
         )}
@@ -129,7 +129,7 @@ export const PollDisplay = memo(function PollDisplay({ poll, currentUserId, onVo
       {poll.expiresAt && (
         <div className="text-sm text-[var(--muted-foreground)] mb-3">
           {isExpired ? (
-            <span className="text-red-400">Poll ended</span>
+            <span className="text-[var(--color-accent)]">Poll ended</span>
           ) : (
             <span>Ends {format(new Date(poll.expiresAt), "MMM d, yyyy")}</span>
           )}
@@ -168,7 +168,7 @@ export const PollDisplay = memo(function PollDisplay({ poll, currentUserId, onVo
               <div className="flex items-center justify-between mb-2 ml-8">
                 <span className="font-medium text-white">{option.text}</span>
                 {shouldShowResults && (
-                  <span className="text-sm text-red-400 font-medium">
+                  <span className="text-sm text-[var(--color-accent)] font-medium">
                     {percentage}% <span className="text-[var(--muted-foreground)]">({option.votes})</span>
                   </span>
                 )}
@@ -177,7 +177,7 @@ export const PollDisplay = memo(function PollDisplay({ poll, currentUserId, onVo
               {shouldShowResults && (
                 <div className="relative h-2 bg-white/10 rounded-full overflow-hidden ml-8">
                   <div
-                    className="h-full bg-gradient-to-r from-[var(--color-accent)] to-red-700 rounded-full transition-all duration-500 ease-out"
+                    className="h-full bg-gradient-to-r from-[var(--color-accent)] to-[var(--color-accent-hover)] rounded-full transition-all duration-500 ease-out"
                     style={{ width: `${percentage}%` }}
                   />
                 </div>
@@ -220,7 +220,7 @@ export const PollDisplay = memo(function PollDisplay({ poll, currentUserId, onVo
           </Button>
           
           {poll.isMultiple && selectedOptions.length > 0 && (
-            <div className="text-sm text-red-400 self-center px-3 py-1.5 bg-[var(--color-accent)]/10 rounded-lg border border-[var(--color-accent)]/20">
+            <div className="text-sm text-[var(--color-accent)] self-center px-3 py-1.5 bg-[var(--color-accent)]/10 rounded-lg border border-[var(--color-accent)]/20">
               {selectedOptions.length} selected
             </div>
           )}
@@ -232,7 +232,7 @@ export const PollDisplay = memo(function PollDisplay({ poll, currentUserId, onVo
         {!hasVoted && !isExpired && (
           <button
             onClick={() => setShowResults(!showResults)}
-            className="text-[var(--color-accent)] hover:text-red-400 transition-colors"
+            className="text-[var(--color-accent)] hover:text-[var(--color-accent)] transition-colors"
           >
             {showResults ? "Hide results" : "View results"}
           </button>

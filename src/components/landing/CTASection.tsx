@@ -6,11 +6,11 @@ export function CTASection() {
     <section className="relative py-32 px-4 overflow-hidden">
       {/* Background gradient - CSS only */}
       <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-red-600/10 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[var(--color-accent)]/10 to-transparent" />
         <div 
           className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full animate-pulse"
           style={{
-            background: "radial-gradient(circle, rgba(220, 38, 38, 0.15) 0%, transparent 70%)",
+            background: "radial-gradient(circle, rgba(var(--color-accent-rgb), 0.15) 0%, transparent 70%)",
           }}
         />
       </div>
@@ -25,18 +25,18 @@ export function CTASection() {
           <div 
             className="absolute inset-[1px] rounded-[calc(2rem-1px)]"
             style={{
-              background: "linear-gradient(135deg, rgba(220, 38, 38, 0.1) 0%, transparent 50%, rgba(239, 68, 68, 0.1) 100%)",
+              background: "linear-gradient(135deg, rgba(var(--color-accent-rgb), 0.1) 0%, transparent 50%, rgba(var(--color-accent-rgb), 0.1) 100%)",
             }}
           />
 
           <div className="relative px-8 py-16 md:px-16 md:py-20 text-center">
             {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-red-600/20 border border-red-600/30 mb-8">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--color-accent)]/20 border border-[var(--color-accent)]/30 mb-8">
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-600 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-red-600"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--color-accent)] opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--color-accent)]"></span>
               </span>
-              <span className="text-sm font-medium text-red-500">Start building your presence today</span>
+              <span className="text-sm font-medium text-[var(--color-accent)]">Start building your presence today</span>
             </div>
 
             {/* Headline */}
@@ -55,7 +55,7 @@ export function CTASection() {
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Link href="/register">
-                <button className="group relative px-10 py-5 rounded-2xl font-semibold text-lg overflow-hidden bg-gradient-to-r from-red-700 to-red-600 hover:from-red-800 hover:to-red-700 transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg shadow-red-600/30 hover:shadow-red-600/50">
+                <button className="group relative px-10 py-5 rounded-2xl font-semibold text-lg overflow-hidden bg-gradient-to-r from-[var(--color-accent-hover)] to-[var(--color-accent)] hover:from-[var(--color-accent-hover)] hover:to-[var(--color-accent-hover)] transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg shadow-[var(--color-accent)]/30 hover:shadow-[var(--color-accent)]/50">
                   <span className="relative z-10 flex items-center gap-2 text-white">
                     Create Free Account
                     <svg 
@@ -71,7 +71,7 @@ export function CTASection() {
               </Link>
               
               <Link href="/discover">
-                <button className="px-10 py-5 rounded-2xl font-semibold text-lg text-white border border-white/20 hover:border-red-600/50 hover:bg-white/5 transition-all duration-300 hover:scale-105 active:scale-95">
+                <button className="px-10 py-5 rounded-2xl font-semibold text-lg text-white border border-white/20 hover:border-[var(--color-accent)]/50 hover:bg-white/5 transition-all duration-300 hover:scale-105 active:scale-95">
                   Discover Developers
                 </button>
               </Link>

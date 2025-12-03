@@ -276,7 +276,7 @@ export function PortfolioItemDisplay({
               </button>
               <button
                 onClick={() => setShowDeleteConfirm(true)}
-                className="p-2.5 text-[var(--muted-foreground)] rounded-lg transition-all duration-200 hover:bg-[var(--color-accent)]/20 hover:text-red-400 hover:scale-110 hover:shadow-lg hover:shadow-[var(--color-accent)]/20 active:scale-95"
+                className="p-2.5 text-[var(--muted-foreground)] rounded-lg transition-all duration-200 hover:bg-[var(--color-accent)]/20 hover:text-[var(--color-accent)] hover:scale-110 hover:shadow-lg hover:shadow-[var(--color-accent)]/20 active:scale-95"
                 title="Delete"
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
@@ -381,7 +381,7 @@ export function PortfolioItemDisplay({
                   e.stopPropagation();
                   setShowMediaModal(false);
                 }}
-                className="absolute -top-3 -right-3 w-9 h-9 flex items-center justify-center bg-black/90 hover:bg-[var(--color-accent)] text-white/80 hover:text-white rounded-full z-30 border border-white/30 hover:border-red-400 shadow-xl transition-all duration-200 hover:scale-110"
+                className="absolute -top-3 -right-3 w-9 h-9 flex items-center justify-center bg-black/90 hover:bg-[var(--color-accent)] text-white/80 hover:text-white rounded-full z-30 border border-white/30 hover:border-[var(--color-accent)] shadow-xl transition-all duration-200 hover:scale-110"
                 title="Close (Esc)"
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
@@ -547,7 +547,7 @@ export function PortfolioItemDisplay({
             {/* Warning Icon */}
             <div className="flex justify-center mb-4">
               <div className="w-16 h-16 rounded-full bg-[var(--color-accent)]/15 flex items-center justify-center">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" className="text-red-400">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" className="text-[var(--color-accent)]">
                   <path
                     d="M12 9v4M12 17h.01"
                     stroke="currentColor"

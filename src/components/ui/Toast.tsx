@@ -31,7 +31,7 @@ export function Toast({ message, type = "success", duration = 3000, onClose }: T
         );
       case "error":
         return (
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="text-red-400">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="text-[var(--color-accent)]">
             <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         );
@@ -49,7 +49,7 @@ export function Toast({ message, type = "success", duration = 3000, onClose }: T
       case "success":
         return "bg-green-900/90 border-green-700/50";
       case "error":
-        return "bg-red-900/90 border-red-700/50";
+        return "bg-[var(--color-accent-hover)]/50 border-[var(--color-accent)]/50";
       default:
         return "bg-blue-900/90 border-blue-700/50";
     }
@@ -67,7 +67,7 @@ export function Toast({ message, type = "success", duration = 3000, onClose }: T
         position: 'fixed',
         top: '16px',
         right: '16px',
-        backgroundColor: type === 'error' ? 'rgba(239, 68, 68, 0.9)' : type === 'success' ? 'rgba(34, 197, 94, 0.9)' : 'rgba(59, 130, 246, 0.9)',
+        backgroundColor: type === 'error' ? 'rgba(var(--color-accent-rgb), 0.9)' : type === 'success' ? 'rgba(34, 197, 94, 0.9)' : 'rgba(59, 130, 246, 0.9)',
         color: 'white',
         padding: '12px 16px',
         borderRadius: '8px',

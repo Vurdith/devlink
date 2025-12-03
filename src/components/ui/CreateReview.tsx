@@ -107,7 +107,7 @@ export const CreateReview = memo(function CreateReview({ targetUserId, targetUse
       <div className="mb-8">
         <h3 className="text-xl font-bold text-white mb-2">Write a Review</h3>
         <p className="text-white/50">
-          Share your experience with <span className="text-red-500 font-medium">@{targetUsername}</span>
+          Share your experience with <span className="text-[var(--color-accent)] font-medium">@{targetUsername}</span>
         </p>
       </div>
 
@@ -153,7 +153,7 @@ export const CreateReview = memo(function CreateReview({ targetUserId, targetUse
               "flex-1 px-6 py-4 rounded-xl font-semibold text-white transition-all",
               rating === 0 
                 ? "bg-white/10 cursor-not-allowed" 
-                : "bg-gradient-to-r from-red-700 to-blue-600 hover:from-[var(--color-accent)] hover:to-blue-500"
+                : "bg-gradient-to-r from-[var(--color-accent-hover)] to-blue-600 hover:from-[var(--color-accent)] hover:to-blue-500"
             )}
           >
             {isSubmitting ? "Submitting..." : "Submit Review"}

@@ -38,7 +38,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
       }
 
       return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-red-950/20 to-slate-900">
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-[var(--color-accent-hover)]/20 to-slate-900">
           <div className="bg-[#0d0d12] rounded-2xl p-8 max-w-md mx-4 text-center border border-white/10">
             <div className="text-6xl mb-4">⚠️</div>
             <h2 className="text-2xl font-bold text-white mb-4">Something went wrong</h2>
@@ -64,7 +64,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
                 <summary className="cursor-pointer text-sm text-gray-400 hover:text-white">
                   Error Details
                 </summary>
-                <pre className="mt-2 text-xs text-red-400 bg-black/20 p-2 rounded overflow-auto">
+                <pre className="mt-2 text-xs text-[var(--color-accent)] bg-black/20 p-2 rounded overflow-auto">
                   {this.state.error.stack}
                 </pre>
               </details>

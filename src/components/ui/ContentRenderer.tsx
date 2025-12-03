@@ -73,7 +73,7 @@ export const ContentRenderer = memo(function ContentRenderer({ content, classNam
               position="bottom"
             >
               <span
-                className="text-white hover:text-red-500 cursor-pointer hover:underline transition-colors"
+                className="text-white hover:text-[var(--color-accent)] cursor-pointer hover:underline transition-colors"
                 onClick={() => router.push(`/u/${value}`)}
                 onMouseEnter={() => fetchUserData(value)}
               >
@@ -85,7 +85,7 @@ export const ContentRenderer = memo(function ContentRenderer({ content, classNam
           parts.push(
             <span
               key={`mention-${match.index}`}
-              className="text-white hover:text-red-500 cursor-pointer hover:underline transition-colors"
+              className="text-white hover:text-[var(--color-accent)] cursor-pointer hover:underline transition-colors"
               onClick={() => router.push(`/u/${value}`)}
               onMouseEnter={() => fetchUserData(value)}
             >

@@ -204,7 +204,7 @@ export default function RegisterPage() {
     }
     if (usernameStatus === "unavailable" && username.trim()) {
       return (
-        <div className="absolute right-3 top-1/2 -translate-y-1/2 text-red-400">
+        <div className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--color-accent)]">
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
           </svg>
@@ -217,7 +217,7 @@ export default function RegisterPage() {
   // Get password strength color
   const getStrengthColor = () => {
     if (passwordStrength === 0) return "bg-gray-600";
-    if (passwordStrength === 1) return "bg-red-500";
+    if (passwordStrength === 1) return "bg-[var(--color-accent)]";
     if (passwordStrength === 2) return "bg-orange-500";
     if (passwordStrength === 3) return "bg-yellow-500";
     return "bg-emerald-500";
@@ -280,7 +280,7 @@ export default function RegisterPage() {
                     usernameStatus === "available" 
                       ? "border-emerald-500/50 focus:border-emerald-500" 
                       : usernameStatus === "unavailable" && username.trim()
-                        ? "border-red-500/50 focus:border-red-500"
+                        ? "border-[var(--color-accent)]/50 focus:border-[var(--color-accent)]"
                         : "border-white/10 focus:border-[var(--accent)]"
                   }`}
                   value={username}
@@ -292,7 +292,7 @@ export default function RegisterPage() {
                 {getUsernameIndicator()}
               </div>
               {usernameError && username.trim() && (
-                <p id="username-error" className="mt-1.5 text-xs text-red-400 flex items-center gap-1" role="alert">
+                <p id="username-error" className="mt-1.5 text-xs text-[var(--color-accent)] flex items-center gap-1" role="alert">
                   <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
@@ -325,7 +325,7 @@ export default function RegisterPage() {
                   placeholder="you@example.com"
                   className={`w-full h-12 pl-11 pr-4 rounded-xl bg-white/5 border outline-none text-white placeholder:text-[var(--muted-foreground)] focus:bg-white/10 transition-all ${
                     emailError 
-                      ? "border-red-500/50 focus:border-red-500" 
+                      ? "border-[var(--color-accent)]/50 focus:border-[var(--color-accent)]" 
                       : "border-white/10 focus:border-[var(--accent)]"
                   }`}
                   value={email}
@@ -340,7 +340,7 @@ export default function RegisterPage() {
                 />
               </div>
               {emailError && (
-                <p id="email-error" className="mt-1.5 text-xs text-red-400 flex items-center gap-1" role="alert">
+                <p id="email-error" className="mt-1.5 text-xs text-[var(--color-accent)] flex items-center gap-1" role="alert">
                   <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
@@ -454,7 +454,7 @@ export default function RegisterPage() {
                   placeholder="••••••••"
                   className={`w-full h-12 pl-11 pr-11 rounded-xl bg-white/5 border outline-none text-white placeholder:text-[var(--muted-foreground)] focus:bg-white/10 transition-all ${
                     confirmPassword && !passwordsMatch
-                      ? "border-red-500/50 focus:border-red-500"
+                      ? "border-[var(--color-accent)]/50 focus:border-[var(--color-accent)]"
                       : confirmPassword && passwordsMatch
                         ? "border-emerald-500/50 focus:border-emerald-500"
                         : "border-white/10 focus:border-[var(--accent)]"
@@ -466,7 +466,7 @@ export default function RegisterPage() {
                   aria-invalid={confirmPassword ? !passwordsMatch : undefined}
                 />
                 {confirmPassword && (
-                  <div className={`absolute right-3 top-1/2 -translate-y-1/2 ${passwordsMatch ? "text-emerald-400" : "text-red-400"}`} aria-hidden="true">
+                  <div className={`absolute right-3 top-1/2 -translate-y-1/2 ${passwordsMatch ? "text-emerald-400" : "text-[var(--color-accent)]"}`} aria-hidden="true">
                     {passwordsMatch ? (
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -480,7 +480,7 @@ export default function RegisterPage() {
                 )}
               </div>
               {confirmPassword && !passwordsMatch && (
-                <p id="confirm-password-error" className="mt-1.5 text-xs text-red-400 flex items-center gap-1" role="alert">
+                <p id="confirm-password-error" className="mt-1.5 text-xs text-[var(--color-accent)] flex items-center gap-1" role="alert">
                   <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
@@ -491,7 +491,7 @@ export default function RegisterPage() {
 
             {/* Error message */}
             {error && (
-              <div role="alert" className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm flex items-center gap-2 animate-fade-in">
+              <div role="alert" className="p-3 rounded-xl bg-[var(--color-accent)]/10 border border-[var(--color-accent)]/20 text-[var(--color-accent)] text-sm flex items-center gap-2 animate-fade-in">
                 <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>

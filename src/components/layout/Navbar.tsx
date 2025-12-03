@@ -183,7 +183,7 @@ export const Navbar = memo(function Navbar() {
                 </Button>
               </Link>
               <Link href="/register">
-                <Button className="bg-gradient-to-r from-[var(--color-accent)] to-red-700 hover:from-red-700 hover:to-red-800 text-white border-0 shadow-lg shadow-[var(--color-accent)]/20">
+                <Button className="bg-gradient-to-r from-[var(--color-accent)] to-[var(--color-accent-hover)] hover:from-[var(--color-accent-hover)] hover:to-[var(--color-accent-hover)] text-white border-0 shadow-lg shadow-[var(--color-accent)]/20">
                   Sign up
                 </Button>
               </Link>

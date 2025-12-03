@@ -53,8 +53,8 @@ export const FollowButton = memo(function FollowButton({
         "disabled:opacity-50 disabled:cursor-not-allowed",
         compact ? "text-xs px-3 py-1.5 rounded-lg" : "text-sm px-5 py-2 rounded-xl",
         following 
-          ? "bg-[var(--color-accent)]/10 text-red-400 border border-[var(--color-accent)]/30 hover:bg-[var(--color-accent)]/15 hover:border-[var(--color-accent)]/40 hover:text-red-400"
-          : "bg-gradient-to-r from-[var(--color-accent)] to-red-700 text-white border border-[var(--color-accent)]/30 shadow-lg shadow-[var(--color-accent)]/30 hover:from-red-700 hover:to-red-800"
+          ? "bg-[var(--color-accent)]/10 text-[var(--color-accent)] border border-[var(--color-accent)]/30 hover:bg-[var(--color-accent)]/15 hover:border-[var(--color-accent)]/40 hover:text-[var(--color-accent)]"
+          : "bg-gradient-to-r from-[var(--color-accent)] to-[var(--color-accent-hover)] text-white border border-[var(--color-accent)]/30 shadow-lg shadow-[var(--color-accent)]/30 hover:from-[var(--color-accent-hover)] hover:to-[var(--color-accent-hover)]"
       )}
     >
       <span className="relative z-10 flex items-center justify-center gap-1.5">

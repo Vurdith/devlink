@@ -117,7 +117,7 @@ export function EditPostModal({ post, isOpen, onClose, onSave }: EditPostModalPr
             <div className="flex items-center justify-between mt-2">
               <span className={cn(
                 "text-xs",
-                content.length > 450 ? "text-amber-400" : content.length > 480 ? "text-red-400" : "text-[var(--muted-foreground)]"
+                content.length > 450 ? "text-amber-400" : content.length > 480 ? "text-[var(--color-accent)]" : "text-[var(--muted-foreground)]"
               )}>
                 {content.length}/500
               </span>
@@ -145,7 +145,7 @@ export function EditPostModal({ post, isOpen, onClose, onSave }: EditPostModalPr
                       strokeDasharray={`${(content.length / 500) * 62.83} 62.83`}
                       className={cn(
                         "transition-all",
-                        content.length > 480 ? "text-red-400" : content.length > 450 ? "text-amber-400" : "text-red-500"
+                        content.length > 480 ? "text-[var(--color-accent)]" : content.length > 450 ? "text-amber-400" : "text-[var(--color-accent)]"
                       )}
                     />
                   </svg>

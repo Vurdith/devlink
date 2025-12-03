@@ -44,9 +44,9 @@ const profileTypes = [
         <path d="M16 3.13a4 4 0 0 1 0 7.75" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
       </svg>
     ),
-    gradient: "from-red-500 to-red-600",
-    borderColor: "border-red-500/50",
-    bgColor: "bg-red-500/10"
+    gradient: "from-[var(--color-accent)] to-[var(--color-accent)]",
+    borderColor: "border-[var(--color-accent)]/50",
+    bgColor: "bg-[var(--color-accent)]/10"
   },
   { 
     value: "INFLUENCER", 
@@ -130,10 +130,10 @@ export function ProfileTypeCard() {
   }
 
   return (
-    <div className="bg-[#0d0d12] rounded-2xl p-6 border border-red-600/20">
+    <div className="bg-[#0d0d12] rounded-2xl p-6 border border-[var(--color-accent)]/20">
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-600 to-red-700 flex items-center justify-center shadow-lg shadow-red-600/25">
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--color-accent)] to-[var(--color-accent-hover)] flex items-center justify-center shadow-lg shadow-[var(--color-accent)]/25">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-white">
             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             <circle cx="12" cy="7" r="4" stroke="currentColor" strokeWidth="2"/>
