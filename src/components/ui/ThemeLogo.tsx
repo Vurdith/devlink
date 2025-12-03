@@ -26,10 +26,17 @@ export function ThemeLogo({
   const { logoPath, theme } = useTheme();
   const [imgSrc, setImgSrc] = useState(logoPath);
 
-  // Update src when theme changes
-  if (imgSrc !== logoPath && !imgSrc.includes('logo.png')) {
+  // Update src when theme changes - always try the new themed logo
+  useEffect(() => {
     setImgSrc(logoPath);
-  }
+  }, [logoPath]);
+
+  const handleError = () => {
+    // Only fall back if we're not already on the default
+    if (imgSrc !== getDefaultLogoPath()) {
+      setImgSrc(getDefaultLogoPath());
+    }
+  };
 
   return (
     <Image
@@ -39,8 +46,8 @@ export function ThemeLogo({
       height={height}
       className={className}
       priority={priority}
-      onError={() => setImgSrc(getDefaultLogoPath())}
-      key={theme.id}
+      onError={handleError}
+      key={`${theme.id}-${imgSrc}`}
     />
   );
 }
@@ -70,4 +77,3 @@ export function ThemeLogoImg({
     />
   );
 }
-
