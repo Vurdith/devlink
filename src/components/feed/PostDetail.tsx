@@ -952,7 +952,7 @@ function EngagementButton({
   const [particles, setParticles] = useState<number[]>([]);
   
   const colorClasses = {
-    red: { active: 'text-[var(--color-accent)]', hover: 'hover:text-[var(--color-accent)] hover:bg-[var(--color-accent)]/10', particle: 'bg-[var(--color-accent)]' },
+    red: { active: 'text-red-500', hover: 'hover:text-red-500 hover:bg-red-500/10', particle: 'bg-red-500' },
     green: { active: 'text-green-500', hover: 'hover:text-green-500 hover:bg-green-500/10', particle: 'bg-green-500' },
     blue: { active: 'text-blue-500', hover: 'hover:text-blue-500 hover:bg-blue-500/10', particle: 'bg-blue-500' },
     yellow: { active: 'text-yellow-500', hover: 'hover:text-yellow-500 hover:bg-yellow-500/10', particle: 'bg-yellow-500' },

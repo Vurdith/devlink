@@ -7,6 +7,7 @@ import { OAuthButton } from "@/components/ui/OAuthButton";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { useTheme } from "@/components/providers/ThemeProvider";
 
 function LoginForm() {
   const [email, setEmail] = useState("");
@@ -15,6 +16,7 @@ function LoginForm() {
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
+  const { logoPath } = useTheme();
   
   const searchParams = useSearchParams();
 
@@ -79,7 +81,7 @@ function LoginForm() {
         <div className="text-center mb-8 animate-slide-down">
           <Link href="/" className="inline-block mb-6 hover:scale-110 transition-transform">
             <Image
-              src="/logo/logo.png"
+              src={logoPath}
               alt="DevLink"
               width={64}
               height={64}

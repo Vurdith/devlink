@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { useTheme } from "@/components/providers/ThemeProvider";
 
 // Floating geometric shapes with gradient colors
 const floatingShapes = [
@@ -33,6 +34,8 @@ function FloatingShape({ type, color, size }: { type: string; color: string; siz
 }
 
 export function HeroSection() {
+  const { logoPath } = useTheme();
+  
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden px-4 py-20">
       {/* CSS Animations */}
@@ -88,7 +91,7 @@ export function HeroSection() {
         {/* Logo */}
         <div className="mb-8 animate-fade-in flex justify-center">
           <Image
-            src="/logo/logo.png"
+            src={logoPath}
             alt="DevLink"
             width={200}
             height={200}

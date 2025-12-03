@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { OAuthButton } from "@/components/ui/OAuthButton";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
+import { useTheme } from "@/components/providers/ThemeProvider";
 
 // Password validation requirements
 const PASSWORD_REQUIREMENTS = [
@@ -48,6 +49,8 @@ function useDebounce<T>(value: T, delay: number): T {
 }
 
 export default function RegisterPage() {
+  const { logoPath } = useTheme();
+  
   // Form state
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -244,7 +247,7 @@ export default function RegisterPage() {
         <div className="text-center mb-8 animate-slide-down">
           <Link href="/" className="inline-block mb-6 hover:scale-110 transition-transform">
             <Image
-              src="/logo/logo.png"
+              src={logoPath}
               alt="DevLink"
               width={64}
               height={64}

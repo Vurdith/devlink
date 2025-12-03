@@ -4,10 +4,12 @@ import { useState, useEffect } from "react";
 import { useSession, signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useTheme } from "@/components/providers/ThemeProvider";
 
 export default function CompleteSignupPage() {
   const { data: session, status, update } = useSession();
   const router = useRouter();
+  const { logoPath } = useTheme();
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
   const [loading, setLoading] = useState(false);
@@ -130,7 +132,7 @@ export default function CompleteSignupPage() {
         {/* Header */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-block mb-6">
-            <img src="/logo/logo.png" alt="DevLink" className="h-12 mx-auto" />
+            <img src={logoPath} alt="DevLink" className="h-12 mx-auto" />
           </Link>
           <h1 className="text-3xl font-bold text-white mb-2">Complete Your Account</h1>
           <p className="text-gray-400">
