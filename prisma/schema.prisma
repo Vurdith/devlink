@@ -385,6 +385,14 @@ model UserSkill {
   experienceLevel String   @default("INTERMEDIATE") // BEGINNER, INTERMEDIATE, ADVANCED, EXPERT
   yearsOfExp      Int?     // Optional years of experience
   isPrimary       Boolean  @default(false) // Is this a primary/main skill?
+  
+  // Per-skill service data
+  headline          String?  // Skill-specific headline e.g. "Senior Lua Developer"
+  rate              Int?     // Price in cents (e.g., 5000 = $50)
+  rateUnit          String?  // HOURLY, PER_FRAME, PER_MODEL, PER_PROJECT, PER_ASSET, NEGOTIABLE
+  skillAvailability String?  // Override availability: AVAILABLE, BUSY, NOT_AVAILABLE, OPEN_TO_OFFERS
+  description       String?  // Description of services for this skill
+  
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
   user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)

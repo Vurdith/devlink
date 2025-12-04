@@ -32,7 +32,7 @@ export async function GET() {
       ],
     });
 
-    return NextResponse.json({ skills: userSkills });
+    return NextResponse.json(userSkills);
   } catch (error) {
     console.error("Error fetching user skills:", error);
     return NextResponse.json(
@@ -116,7 +116,7 @@ export async function POST(request: NextRequest) {
     // Invalidate profile cache
     await responseCache.delete(`profile:page:${user.username.toLowerCase()}`);
 
-    return NextResponse.json({ skill: userSkill }, { status: 201 });
+    return NextResponse.json(userSkill, { status: 201 });
   } catch (error) {
     console.error("Error adding skill:", error);
     return NextResponse.json(
@@ -126,7 +126,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// PUT /api/users/me/skills - Update user skills (bulk)
+// PUT /api/users/me/skills - Update a single user skill
 export async function PUT(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
@@ -144,57 +144,62 @@ export async function PUT(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { skills } = body;
+    const { 
+      id, 
+      experienceLevel, 
+      yearsOfExp, 
+      isPrimary,
+      headline,
+      rate,
+      rateUnit,
+      skillAvailability,
+      description,
+    } = body;
 
-    if (!Array.isArray(skills)) {
-      return NextResponse.json(
-        { error: "Skills must be an array" },
-        { status: 400 }
-      );
+    if (!id) {
+      return NextResponse.json({ error: "Skill ID is required" }, { status: 400 });
     }
 
-    // Limit to 15 skills max
-    if (skills.length > 15) {
-      return NextResponse.json(
-        { error: "Maximum 15 skills allowed" },
-        { status: 400 }
-      );
-    }
-
-    // Delete existing skills
-    await prisma.userSkill.deleteMany({
-      where: { userId: user.id },
+    // Verify the skill belongs to the user
+    const existingSkill = await prisma.userSkill.findFirst({
+      where: { id, userId: user.id },
     });
 
-    // Create new skills
-    if (skills.length > 0) {
-      const skillData = skills.map((s: any, index: number) => ({
-        userId: user.id,
-        skillId: s.skillId,
-        experienceLevel: s.experienceLevel || "INTERMEDIATE",
-        yearsOfExp: s.yearsOfExp || null,
-        isPrimary: index === 0, // First skill is primary
-      }));
+    if (!existingSkill) {
+      return NextResponse.json({ error: "Skill not found" }, { status: 404 });
+    }
 
-      await prisma.userSkill.createMany({
-        data: skillData,
+    // If setting as primary, unset other primary skills
+    if (isPrimary) {
+      await prisma.userSkill.updateMany({
+        where: { userId: user.id, isPrimary: true, NOT: { id } },
+        data: { isPrimary: false },
       });
     }
+
+    const updatedSkill = await prisma.userSkill.update({
+      where: { id },
+      data: {
+        ...(experienceLevel !== undefined && { experienceLevel }),
+        ...(yearsOfExp !== undefined && { yearsOfExp }),
+        ...(isPrimary !== undefined && { isPrimary }),
+        ...(headline !== undefined && { headline }),
+        ...(rate !== undefined && { rate }),
+        ...(rateUnit !== undefined && { rateUnit }),
+        ...(skillAvailability !== undefined && { skillAvailability }),
+        ...(description !== undefined && { description }),
+      },
+      include: { skill: true },
+    });
 
     // Invalidate profile cache
     await responseCache.delete(`profile:page:${user.username.toLowerCase()}`);
 
-    const updatedSkills = await prisma.userSkill.findMany({
-      where: { userId: user.id },
-      include: { skill: true },
-      orderBy: [{ isPrimary: "desc" }, { createdAt: "asc" }],
-    });
-
-    return NextResponse.json({ skills: updatedSkills });
+    return NextResponse.json(updatedSkill);
   } catch (error) {
-    console.error("Error updating skills:", error);
+    console.error("Error updating skill:", error);
     return NextResponse.json(
-      { error: "Failed to update skills" },
+      { error: "Failed to update skill" },
       { status: 500 }
     );
   }
@@ -218,21 +223,26 @@ export async function DELETE(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url);
-    const skillId = searchParams.get("skillId");
+    const id = searchParams.get("id");
+    const skillId = searchParams.get("skillId"); // Legacy support
 
-    if (!skillId) {
+    if (!id && !skillId) {
       return NextResponse.json(
         { error: "Skill ID is required" },
         { status: 400 }
       );
     }
 
-    await prisma.userSkill.deleteMany({
-      where: {
-        userId: user.id,
-        skillId,
-      },
-    });
+    // Delete by userSkill id or by skillId
+    if (id) {
+      await prisma.userSkill.deleteMany({
+        where: { id, userId: user.id },
+      });
+    } else if (skillId) {
+      await prisma.userSkill.deleteMany({
+        where: { userId: user.id, skillId },
+      });
+    }
 
     // Invalidate profile cache
     await responseCache.delete(`profile:page:${user.username.toLowerCase()}`);

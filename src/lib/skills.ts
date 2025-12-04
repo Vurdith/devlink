@@ -17,6 +17,8 @@ export type AvailabilityStatus = "AVAILABLE" | "BUSY" | "NOT_AVAILABLE" | "OPEN_
 
 export type ResponseTime = "WITHIN_HOURS" | "WITHIN_DAY" | "WITHIN_WEEK";
 
+export type RateUnit = "HOURLY" | "PER_FRAME" | "PER_MODEL" | "PER_PROJECT" | "PER_ASSET" | "PER_TRACK" | "PER_WORD" | "NEGOTIABLE";
+
 // Experience level configurations
 export const EXPERIENCE_LEVELS: Record<ExperienceLevel, { 
   label: string; 
@@ -104,6 +106,54 @@ export const RESPONSE_TIMES: Record<ResponseTime, {
   WITHIN_WEEK: {
     label: "Within a week",
     description: "Usually responds within a week",
+  },
+};
+
+// Rate unit configurations
+export const RATE_UNITS: Record<RateUnit, {
+  label: string;
+  shortLabel: string;
+  description: string;
+}> = {
+  HOURLY: {
+    label: "Per Hour",
+    shortLabel: "/hr",
+    description: "Charged by the hour",
+  },
+  PER_FRAME: {
+    label: "Per Frame",
+    shortLabel: "/frame",
+    description: "Charged per UI frame or screen",
+  },
+  PER_MODEL: {
+    label: "Per Model",
+    shortLabel: "/model",
+    description: "Charged per 3D model or asset",
+  },
+  PER_PROJECT: {
+    label: "Per Project",
+    shortLabel: "/project",
+    description: "Fixed price per project",
+  },
+  PER_ASSET: {
+    label: "Per Asset",
+    shortLabel: "/asset",
+    description: "Charged per individual asset",
+  },
+  PER_TRACK: {
+    label: "Per Track",
+    shortLabel: "/track",
+    description: "Charged per audio track or song",
+  },
+  PER_WORD: {
+    label: "Per Word",
+    shortLabel: "/word",
+    description: "Charged per word (writing/translation)",
+  },
+  NEGOTIABLE: {
+    label: "Negotiable",
+    shortLabel: "",
+    description: "Price discussed per project",
   },
 };
 
@@ -277,16 +327,28 @@ export function getSkillsByCategory(category: SkillCategory): string[] {
   return PREDEFINED_SKILLS[category] || [];
 }
 
-// Format hourly rate for display
-export function formatHourlyRate(cents: number | null | undefined, currency: string = "USD"): string {
+// Format rate for display (supports different rate units)
+export function formatRate(
+  cents: number | null | undefined, 
+  rateUnit: RateUnit = "HOURLY",
+  currency: string = "USD"
+): string {
   if (!cents) return "";
   const amount = cents / 100;
-  return new Intl.NumberFormat("en-US", {
+  const formattedAmount = new Intl.NumberFormat("en-US", {
     style: "currency",
     currency,
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
-  }).format(amount) + "/hr";
+  }).format(amount);
+  
+  const unit = RATE_UNITS[rateUnit];
+  return unit?.shortLabel ? `${formattedAmount}${unit.shortLabel}` : formattedAmount;
+}
+
+// Legacy function for backward compatibility
+export function formatHourlyRate(cents: number | null | undefined, currency: string = "USD"): string {
+  return formatRate(cents, "HOURLY", currency);
 }
 
 // Parse hourly rate from display to cents

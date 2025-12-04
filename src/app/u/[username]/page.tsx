@@ -200,7 +200,7 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
           
           {/* Bio */}
           {user.profile?.bio && (
-            <p className="mt-4 text-sm text-[var(--muted-foreground)] whitespace-pre-wrap leading-relaxed">
+            <p className="mt-4 text-sm text-[var(--muted-foreground)] whitespace-pre-wrap leading-relaxed border-l-2 border-[var(--color-accent)]/30 pl-3">
               {user.profile.bio}
             </p>
           )}
