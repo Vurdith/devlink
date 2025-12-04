@@ -209,24 +209,27 @@ export function MediaViewer({
   const renderPreview = () => {
     const count = media.length;
     
-    // Slideshow mode - natural aspect ratio within bounds
+    // Slideshow mode - full width container, image scales to fit
     if (isSlideshow && count > 1) {
       return (
         <div 
-          className={`relative inline-block rounded-2xl overflow-hidden group cursor-pointer ${className}`}
+          className={`relative w-full rounded-2xl overflow-hidden group cursor-pointer bg-black/40 ${className}`}
+          style={{ maxHeight: '400px' }}
           onClick={() => openModal(currentIndex)}
         >
           {currentMedia.type === "video" ? (
             <video
               src={currentMedia.url}
-              className="max-w-full max-h-[350px] rounded-2xl"
+              className="w-full h-full object-contain"
+              style={{ maxHeight: '400px' }}
               preload="metadata"
             />
           ) : (
             <img
               src={currentMedia.url}
               alt={`${alt} - ${currentIndex + 1}`}
-              className="max-w-full max-h-[350px] rounded-2xl"
+              className="w-full h-full object-contain"
+              style={{ maxHeight: '400px' }}
               loading="lazy"
             />
           )}
@@ -269,19 +272,21 @@ export function MediaViewer({
       );
     }
 
-    // Single image - natural aspect ratio, capped dimensions
+    // Single image - full width container, image scales to fit
     if (count === 1) {
       const item = media[0];
       return (
         <div 
-          className={`relative inline-block rounded-2xl overflow-hidden cursor-pointer group ${className}`}
+          className={`relative w-full rounded-2xl overflow-hidden cursor-pointer group bg-black/40 ${className}`}
+          style={{ maxHeight: '400px' }}
           onClick={() => openModal(0)}
         >
           {item.type === "video" ? (
             <>
               <video
                 src={item.url}
-                className="max-w-full max-h-[350px] rounded-2xl"
+                className="w-full h-full object-contain"
+                style={{ maxHeight: '400px' }}
                 preload="metadata"
               />
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -296,7 +301,8 @@ export function MediaViewer({
             <img
               src={item.url}
               alt={`${alt} - 1`}
-              className="max-w-full max-h-[350px] rounded-2xl"
+              className="w-full h-full object-contain"
+              style={{ maxHeight: '400px' }}
               loading="lazy"
             />
           )}
