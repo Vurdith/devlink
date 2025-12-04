@@ -214,7 +214,7 @@ export function MediaViewer({
     if (isSlideshow && count > 1) {
       return (
         <div 
-          className={`relative w-full aspect-[16/9] rounded-2xl overflow-hidden group cursor-pointer bg-[#0a0a0f] ${className}`}
+          className={`relative w-full aspect-[2/1] max-h-[280px] rounded-2xl overflow-hidden group cursor-pointer bg-[#0a0a0f] ${className}`}
           onClick={() => openModal(currentIndex)}
         >
           {currentMedia.type === "video" ? (
@@ -270,12 +270,12 @@ export function MediaViewer({
       );
     }
 
-    // Single image - full width, cropped to 16:9 aspect ratio
+    // Single image - full width, cropped to fit
     if (count === 1) {
       const item = media[0];
       return (
         <div 
-          className={`relative w-full aspect-[16/9] rounded-2xl overflow-hidden cursor-pointer group bg-[#0a0a0f] ${className}`}
+          className={`relative w-full aspect-[2/1] max-h-[280px] rounded-2xl overflow-hidden cursor-pointer group bg-[#0a0a0f] ${className}`}
           onClick={() => openModal(0)}
         >
           {item.type === "video" ? (
