@@ -210,24 +210,24 @@ export function MediaViewer({
   const renderPreview = () => {
     const count = media.length;
     
-    // Slideshow mode - full width, cropped to fit
+    // Slideshow mode - natural aspect ratio within bounds
     if (isSlideshow && count > 1) {
       return (
         <div 
-          className={`relative w-full aspect-[2/1] max-h-[280px] rounded-2xl overflow-hidden group cursor-pointer bg-[#0a0a0f] ${className}`}
+          className={`relative inline-block rounded-2xl overflow-hidden group cursor-pointer ${className}`}
           onClick={() => openModal(currentIndex)}
         >
           {currentMedia.type === "video" ? (
             <video
               src={currentMedia.url}
-              className="w-full h-full object-cover"
+              className="max-w-full max-h-[350px] rounded-2xl"
               preload="metadata"
             />
           ) : (
             <img
               src={currentMedia.url}
               alt={`${alt} - ${currentIndex + 1}`}
-              className="w-full h-full object-cover"
+              className="max-w-full max-h-[350px] rounded-2xl"
               loading="lazy"
             />
           )}
@@ -265,24 +265,24 @@ export function MediaViewer({
             ))}
           </div>
           
-          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-150 pointer-events-none" />
+          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-150 pointer-events-none rounded-2xl" />
         </div>
       );
     }
 
-    // Single image - full width, cropped to fit
+    // Single image - natural aspect ratio, capped dimensions
     if (count === 1) {
       const item = media[0];
       return (
         <div 
-          className={`relative w-full aspect-[2/1] max-h-[280px] rounded-2xl overflow-hidden cursor-pointer group bg-[#0a0a0f] ${className}`}
+          className={`relative inline-block rounded-2xl overflow-hidden cursor-pointer group ${className}`}
           onClick={() => openModal(0)}
         >
           {item.type === "video" ? (
             <>
               <video
                 src={item.url}
-                className="w-full h-full object-cover"
+                className="max-w-full max-h-[350px] rounded-2xl"
                 preload="metadata"
               />
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -297,11 +297,11 @@ export function MediaViewer({
             <img
               src={item.url}
               alt={`${alt} - 1`}
-              className="w-full h-full object-cover"
+              className="max-w-full max-h-[350px] rounded-2xl"
               loading="lazy"
             />
           )}
-          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-150 pointer-events-none" />
+          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-150 pointer-events-none rounded-2xl" />
         </div>
       );
     }
