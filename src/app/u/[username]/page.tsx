@@ -53,6 +53,11 @@ async function getProfileData(username: string) {
           experienceLevel: true,
           yearsOfExp: true,
           isPrimary: true,
+          headline: true,
+          rate: true,
+          rateUnit: true,
+          skillAvailability: true,
+          description: true,
           skill: {
             select: {
               id: true,

@@ -8,14 +8,12 @@ import { Button } from "@/components/ui/Button";
 import { useToast } from "@/hooks/useToast";
 import { SkillsDisplay, AvailabilityBadge } from "@/components/ui/SkillsDisplay";
 import { 
-  SKILL_CATEGORIES,
   EXPERIENCE_LEVELS,
   AVAILABILITY_STATUS,
-  RESPONSE_TIMES,
-  formatHourlyRate,
+  formatRate,
   type ExperienceLevel,
   type AvailabilityStatus,
-  type ResponseTime,
+  type RateUnit,
 } from "@/lib/skills";
 
 interface UserSkill {
@@ -24,6 +22,11 @@ interface UserSkill {
   experienceLevel: string;
   yearsOfExp: number | null;
   isPrimary: boolean;
+  headline?: string | null;
+  rate?: number | null;
+  rateUnit?: string | null;
+  skillAvailability?: string | null;
+  description?: string | null;
   skill: { id: string; name: string; category: string };
 }
 
@@ -46,6 +49,116 @@ interface ProfileTabsProps {
 
 type TabType = "about" | "posts" | "reposts" | "liked" | "replies" | "saved" | "portfolio" | "reviews";
 
+// Expandable Skill Card Component
+function ExpandableSkillCard({ 
+  skill, 
+  levelConfig, 
+  availabilityConfig,
+  currency 
+}: { 
+  skill: UserSkill; 
+  levelConfig: typeof EXPERIENCE_LEVELS[ExperienceLevel];
+  availabilityConfig: typeof AVAILABILITY_STATUS[AvailabilityStatus] | null;
+  currency: string;
+}) {
+  const [expanded, setExpanded] = useState(false);
+  const hasExpandableContent = skill.description;
+  
+  return (
+    <div
+      className={`rounded-xl border transition-all overflow-hidden ${
+        skill.isPrimary 
+          ? 'bg-gradient-to-r from-amber-500/5 to-transparent border-amber-500/20' 
+          : 'bg-white/[0.01] border-white/[0.06] hover:border-white/10'
+      }`}
+    >
+      {/* Main content */}
+      <div className="p-5">
+        {/* Top row: Name + Rate */}
+        <div className="flex items-start justify-between gap-4 mb-3">
+          <div className="flex items-center gap-2">
+            {skill.isPrimary && (
+              <span className="text-amber-400">
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                </svg>
+              </span>
+            )}
+            <h4 className="font-semibold text-white text-base">{skill.skill.name}</h4>
+          </div>
+          
+          {/* Rate */}
+          {skill.rate && skill.rateUnit && (
+            <span className="text-sm font-medium text-emerald-400">
+              {formatRate(skill.rate, skill.rateUnit as RateUnit, currency)}
+            </span>
+          )}
+        </div>
+        
+        {/* Middle row: Metadata */}
+        <div className="flex items-center gap-4 text-xs text-white/50 mb-3">
+          <span className={levelConfig?.color || 'text-white/50'}>
+            {levelConfig?.label}
+          </span>
+          
+          {skill.yearsOfExp && (
+            <>
+              <span className="text-white/20">•</span>
+              <span>{skill.yearsOfExp}+ years</span>
+            </>
+          )}
+          
+          {availabilityConfig && (
+            <>
+              <span className="text-white/20">•</span>
+              <span className="flex items-center gap-1.5">
+                <span className={`w-1.5 h-1.5 rounded-full ${
+                  skill.skillAvailability === 'AVAILABLE' ? 'bg-emerald-400' :
+                  skill.skillAvailability === 'OPEN_TO_OFFERS' ? 'bg-blue-400' :
+                  skill.skillAvailability === 'BUSY' ? 'bg-amber-400' : 'bg-red-400'
+                }`} />
+                <span className={availabilityConfig.color}>{availabilityConfig.label}</span>
+              </span>
+            </>
+          )}
+        </div>
+        
+        {/* Headline */}
+        {skill.headline && (
+          <p className="text-sm text-white/60 leading-relaxed">{skill.headline}</p>
+        )}
+      </div>
+      
+      {/* Details section - full width like actions area */}
+      {hasExpandableContent && (
+        <div 
+          className="flex items-center gap-2 px-5 py-3 border-t border-white/5 bg-white/[0.01] cursor-pointer hover:bg-white/[0.02] transition-colors"
+          onClick={() => setExpanded(!expanded)}
+        >
+          <span className="text-xs text-white/40">{expanded ? 'Hide details' : 'Show details'}</span>
+          <svg 
+            className={`w-3 h-3 text-white/40 transition-transform ${expanded ? 'rotate-180' : ''}`} 
+            fill="none" 
+            stroke="currentColor" 
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </div>
+      )}
+      
+      {/* Expanded description - separate full-width section */}
+      {expanded && skill.description && (
+        <div className="px-5 py-4 border-t border-white/5 bg-white/[0.01]">
+          <p className="text-sm text-white/50 leading-relaxed">
+            {skill.description}
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // Client-side cache for tab data (persists during session)
 // NOTE: Engagement tabs (liked, reposts, saved) skip cache for real-time accuracy
 const tabDataCache = new Map<string, { data: any[]; timestamp: number }>();
@@ -53,7 +166,9 @@ const CACHE_TTL = 30000; // 30 seconds client-side cache
 const ENGAGEMENT_TABS = ['liked', 'reposts', 'saved'] as const;
 
 export function ProfileTabs({ username, currentUserId, userId, skills = [], profileData = {} }: ProfileTabsProps) {
-  const [activeTab, setActiveTab] = useState<TabType>("posts");
+  // Default to "about" if there's content, otherwise "posts"
+  const hasAboutContent = skills.length > 0 || profileData.location || profileData.website;
+  const [activeTab, setActiveTab] = useState<TabType>(hasAboutContent ? "about" : "posts");
   const [posts, setPosts] = useState<any[]>([]);
   const [portfolioItems, setPortfolioItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -67,9 +182,6 @@ export function ProfileTabs({ username, currentUserId, userId, skills = [], prof
   const POSTS_PER_PAGE = 20;
 
   const isOwner = currentUserId === userId;
-
-  // Check if there's any about content to show
-  const hasAboutContent = skills.length > 0 || profileData.location || profileData.website || profileData.availability || profileData.hourlyRate;
 
   const tabs = [
     ...(hasAboutContent ? [{
@@ -584,108 +696,37 @@ export function ProfileTabs({ username, currentUserId, userId, skills = [], prof
           </div>
         ) : activeTab === "about" ? (
           <div className="space-y-6">
-            {/* Skills Section - Visual cards */}
+            {/* Skills Section - Detailed cards */}
             {skills.length > 0 && (
               <div className="p-5 rounded-xl bg-gradient-to-br from-white/[0.03] to-transparent border border-white/[0.06]">
                 <h3 className="text-xs font-semibold text-white/50 uppercase tracking-wider mb-4 flex items-center gap-2">
                   <svg className="w-4 h-4 text-[var(--color-accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                   </svg>
-                  Skills & Expertise
+                  Skills & Services
                 </h3>
-                <div className="flex flex-wrap gap-2">
+                <div className="space-y-3">
                   {skills.map((s) => {
                     const levelConfig = EXPERIENCE_LEVELS[s.experienceLevel as ExperienceLevel];
+                    const availabilityConfig = s.skillAvailability ? AVAILABILITY_STATUS[s.skillAvailability as AvailabilityStatus] : null;
+                    
                     return (
-                      <div
+                      <ExpandableSkillCard
                         key={s.id}
-                        className={`group relative inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all hover:scale-[1.02] ${
-                          s.isPrimary 
-                            ? 'bg-gradient-to-r from-amber-500/20 to-amber-600/10 border border-amber-500/30 text-amber-200' 
-                            : `${levelConfig?.bgColor || 'bg-white/5'} ${levelConfig?.color || 'text-white/70'} border border-white/10 hover:border-white/20`
-                        }`}
-                      >
-                        {s.isPrimary && (
-                          <span className="text-amber-400">
-                            <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
-                              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                            </svg>
-                          </span>
-                        )}
-                        <span className="font-medium">{s.skill.name}</span>
-                        <span className={`text-[10px] px-1.5 py-0.5 rounded ${
-                          s.isPrimary ? 'bg-amber-500/20 text-amber-300' : 'bg-white/10 text-white/50'
-                        }`}>
-                          {levelConfig?.label}
-                        </span>
-                      </div>
+                        skill={s}
+                        levelConfig={levelConfig}
+                        availabilityConfig={availabilityConfig}
+                        currency={profileData.currency || "USD"}
+                      />
                     );
                   })}
                 </div>
               </div>
             )}
 
-            {/* Work Info - Visual cards */}
-            {(profileData.availability || profileData.hourlyRate || profileData.responseTime || profileData.location || profileData.website) && (
+            {/* Contact Info - Only location and website */}
+            {(profileData.location || profileData.website) && (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {/* Availability Card */}
-                {profileData.availability && (
-                  <div className="p-4 rounded-xl bg-gradient-to-br from-white/[0.03] to-transparent border border-white/[0.06] flex items-center gap-3">
-                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                      profileData.availability === 'AVAILABLE' ? 'bg-emerald-500/20' :
-                      profileData.availability === 'OPEN_TO_OFFERS' ? 'bg-blue-500/20' :
-                      profileData.availability === 'BUSY' ? 'bg-amber-500/20' : 'bg-red-500/20'
-                    }`}>
-                      <div className={`w-3 h-3 rounded-full ${
-                        profileData.availability === 'AVAILABLE' ? 'bg-emerald-400 animate-pulse' :
-                        profileData.availability === 'OPEN_TO_OFFERS' ? 'bg-blue-400' :
-                        profileData.availability === 'BUSY' ? 'bg-amber-400' : 'bg-red-400'
-                      }`} />
-                    </div>
-                    <div>
-                      <p className="text-xs text-white/40 uppercase tracking-wide">Status</p>
-                      <p className={`text-sm font-medium ${
-                        profileData.availability === 'AVAILABLE' ? 'text-emerald-400' :
-                        profileData.availability === 'OPEN_TO_OFFERS' ? 'text-blue-400' :
-                        profileData.availability === 'BUSY' ? 'text-amber-400' : 'text-red-400'
-                      }`}>
-                        {AVAILABILITY_STATUS[profileData.availability as AvailabilityStatus]?.label}
-                      </p>
-                    </div>
-                  </div>
-                )}
-                
-                {/* Rate Card */}
-                {profileData.hourlyRate && (
-                  <div className="p-4 rounded-xl bg-gradient-to-br from-emerald-500/[0.08] to-transparent border border-emerald-500/20 flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-emerald-500/20 flex items-center justify-center">
-                      <span className="text-emerald-400 font-bold text-lg">$</span>
-                    </div>
-                    <div>
-                      <p className="text-xs text-white/40 uppercase tracking-wide">Rate</p>
-                      <p className="text-sm font-medium text-emerald-400">
-                        {formatHourlyRate(profileData.hourlyRate, profileData.currency || "USD")}
-                      </p>
-                    </div>
-                  </div>
-                )}
-                
-                {/* Response Time Card */}
-                {profileData.responseTime && (
-                  <div className="p-4 rounded-xl bg-gradient-to-br from-white/[0.03] to-transparent border border-white/[0.06] flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-[var(--color-accent)]/10 flex items-center justify-center">
-                      <svg className="w-5 h-5 text-[var(--color-accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                    </div>
-                    <div>
-                      <p className="text-xs text-white/40 uppercase tracking-wide">Response</p>
-                      <p className="text-sm font-medium text-white/80">
-                        {RESPONSE_TIMES[profileData.responseTime as ResponseTime]?.label}
-                      </p>
-                    </div>
-                  </div>
-                )}
                 
                 {/* Location Card */}
                 {profileData.location && (

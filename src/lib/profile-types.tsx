@@ -13,8 +13,8 @@ export const PROFILE_TYPE_CONFIG = {
   },
   STUDIO: { 
     label: "Studio", 
-    color: "text-red-500", 
-    bgColor: "bg-red-500/20",
+    color: "text-purple-400", 
+    bgColor: "bg-purple-500/20",
     icon: "M12 3L1 9l11 6 9-4.91V17h2V9L12 3z M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82z"
   },
   INFLUENCER: { 

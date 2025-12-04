@@ -23,30 +23,53 @@ export async function GET() {
           verified: true,
           bio: true,
           website: true,
-          location: true
+          location: true,
+          availability: true,
+          hourlyRate: true,
+          currency: true,
+          headline: true,
+          responseTime: true,
         }
       }
     } 
   });
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  return NextResponse.json({ user: { id: user.id, username: user.username, name: user.name }, profile: user.profile });
+  return NextResponse.json({ user: { id: user.id, username: user.username, name: user.name }, profile: user.profile, name: user.name });
 }
 
-export async function PATCH(req: Request) {
+async function handleProfileUpdate(req: Request) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.email) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   const body = await req.json();
-      const { avatarUrl, bannerUrl, bio, location, website, profileType, name } = body as {
-      avatarUrl?: string;
-      bannerUrl?: string;
-      bio?: string;
-      location?: string;
-      website?: string;
-      profileType?: string;
-      name?: string;
-    };
+  const { 
+    avatarUrl, 
+    bannerUrl, 
+    bio, 
+    location, 
+    website, 
+    profileType, 
+    name,
+    availability,
+    hourlyRate,
+    currency,
+    headline,
+    responseTime,
+  } = body as {
+    avatarUrl?: string;
+    bannerUrl?: string;
+    bio?: string;
+    location?: string;
+    website?: string;
+    profileType?: string;
+    name?: string;
+    availability?: string;
+    hourlyRate?: number | null;
+    currency?: string;
+    headline?: string;
+    responseTime?: string;
+  };
   const user = await prisma.user.findUnique({ where: { email: session.user.email } });
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -59,10 +82,15 @@ export async function PATCH(req: Request) {
   const data: Record<string, any> = {};
   if (typeof avatarUrl === "string") data.avatarUrl = avatarUrl;
   if (typeof bannerUrl === "string") data.bannerUrl = bannerUrl;
-  if (typeof bio === "string") data.bio = bio.slice(0, 150);
+  if (typeof bio === "string") data.bio = bio.slice(0, 500); // Allow longer bio
   if (typeof location === "string") data.location = location;
   if (typeof website === "string") data.website = website;
-  if (typeof profileType === "string") data.profileType = profileType as any;
+  if (typeof profileType === "string") data.profileType = profileType;
+  if (typeof availability === "string") data.availability = availability;
+  if (hourlyRate !== undefined) data.hourlyRate = hourlyRate;
+  if (typeof currency === "string") data.currency = currency;
+  if (typeof headline === "string") data.headline = headline.slice(0, 100);
+  if (typeof responseTime === "string") data.responseTime = responseTime;
 
   const profile = await prisma.profile.update({
     where: { userId: user.id },
@@ -82,18 +110,25 @@ export async function PATCH(req: Request) {
   if (username) {
     await Promise.all([
       responseCache.delete(`profile:page:${username.toLowerCase()}`),
-      responseCache.delete(`user:profile:${username.toLowerCase()}`), // API endpoint cache
-    ]).catch(() => {}); // Ignore cache errors
+      responseCache.delete(`user:profile:${username.toLowerCase()}`),
+    ]).catch(() => {});
   }
   
   return NextResponse.json({ 
     profile,
-    // Return updated data for immediate client-side update
     avatarUrl: profile.avatarUrl,
     bannerUrl: profile.bannerUrl,
     name: typeof name === "string" ? name.trim() : undefined,
     profileType: profile.profileType,
   });
+}
+
+export async function PATCH(req: Request) {
+  return handleProfileUpdate(req);
+}
+
+export async function PUT(req: Request) {
+  return handleProfileUpdate(req);
 }
 
 

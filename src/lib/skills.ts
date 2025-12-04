@@ -28,25 +28,25 @@ export const EXPERIENCE_LEVELS: Record<ExperienceLevel, {
 }> = {
   BEGINNER: {
     label: "Beginner",
-    description: "Less than 1 year",
+    description: "Learning the fundamentals • Less than 1 year experience",
     color: "text-emerald-400",
     bgColor: "bg-emerald-500/15 border-emerald-500/30",
   },
   INTERMEDIATE: {
     label: "Intermediate",
-    description: "1-3 years",
+    description: "Solid foundation with practical experience • 1-3 years",
     color: "text-blue-400",
     bgColor: "bg-blue-500/15 border-blue-500/30",
   },
   ADVANCED: {
     label: "Advanced",
-    description: "3-5 years",
+    description: "Deep expertise and complex problem solving • 3-5 years",
     color: "text-purple-400",
     bgColor: "bg-purple-500/15 border-purple-500/30",
   },
   EXPERT: {
     label: "Expert",
-    description: "5+ years",
+    description: "Industry leader with comprehensive mastery • 5+ years",
     color: "text-amber-400",
     bgColor: "bg-amber-500/15 border-amber-500/30",
   },
