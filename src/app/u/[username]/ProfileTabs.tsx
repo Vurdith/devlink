@@ -607,13 +607,13 @@ export function ProfileTabs({ username, currentUserId, userId, skills = [], prof
               </div>
             )}
 
-            {/* Work Info - Clean inline layout */}
+            {/* Work Info - Inline flow */}
             {(profileData.availability || profileData.hourlyRate || profileData.responseTime || profileData.location || profileData.website) && (
               <div>
                 <h3 className="text-xs font-medium text-white/40 uppercase tracking-wider mb-3">Work & Contact</h3>
-                <div className="grid gap-3 sm:grid-cols-2">
+                <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
                   {profileData.availability && (
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2">
                       <div className={`w-2 h-2 rounded-full ${
                         profileData.availability === 'AVAILABLE' ? 'bg-emerald-400' :
                         profileData.availability === 'OPEN_TO_OFFERS' ? 'bg-blue-400' :
@@ -626,27 +626,19 @@ export function ProfileTabs({ username, currentUserId, userId, skills = [], prof
                   )}
                   
                   {profileData.hourlyRate && (
-                    <div className="flex items-center gap-3">
-                      <span className="text-emerald-400 text-sm">$</span>
-                      <span className="text-sm text-white/70">
-                        {formatHourlyRate(profileData.hourlyRate, profileData.currency || "USD")}
-                      </span>
-                    </div>
+                    <span className="text-sm text-emerald-400">
+                      {formatHourlyRate(profileData.hourlyRate, profileData.currency || "USD")}
+                    </span>
                   )}
                   
                   {profileData.responseTime && (
-                    <div className="flex items-center gap-3">
-                      <svg className="w-4 h-4 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                      <span className="text-sm text-white/70">
-                        Responds {RESPONSE_TIMES[profileData.responseTime as ResponseTime]?.label.toLowerCase()}
-                      </span>
-                    </div>
+                    <span className="text-sm text-white/70">
+                      Responds {RESPONSE_TIMES[profileData.responseTime as ResponseTime]?.label.toLowerCase()}
+                    </span>
                   )}
                   
                   {profileData.location && (
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2">
                       <svg className="w-4 h-4 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -660,7 +652,7 @@ export function ProfileTabs({ username, currentUserId, userId, skills = [], prof
                       href={profileData.website} 
                       target="_blank" 
                       rel="noreferrer" 
-                      className="flex items-center gap-3 group"
+                      className="flex items-center gap-2 group"
                     >
                       <svg className="w-4 h-4 text-white/40 group-hover:text-[var(--color-accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
