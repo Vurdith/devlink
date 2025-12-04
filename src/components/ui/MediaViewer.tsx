@@ -213,7 +213,7 @@ export function MediaViewer({
     // Slideshow mode - single image with navigation arrows
     if (isSlideshow && count > 1) {
       return (
-        <div className={`flex justify-center ${className}`}>
+        <div className={`flex ${className}`}>
           <div 
             className="relative rounded-2xl overflow-hidden group cursor-pointer inline-block"
             onClick={() => openModal(currentIndex)}
@@ -276,7 +276,7 @@ export function MediaViewer({
     if (count === 1) {
       const item = media[0];
       return (
-        <div className={`flex justify-center ${className}`}>
+        <div className={`flex ${className}`}>
           <div 
             className="relative rounded-2xl overflow-hidden cursor-pointer group inline-block"
             onClick={() => openModal(0)}
