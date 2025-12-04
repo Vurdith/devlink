@@ -169,12 +169,11 @@ export function MediaViewer({
     setShowModal(true);
   }, []);
 
-  // Single media item component
-  const MediaItem = ({ item, index, aspectClass = "", fillMode = "cover" }: { 
+  // Grid media item component (for multi-image layouts with fixed aspect ratios)
+  const GridMediaItem = ({ item, index, aspectClass = "" }: { 
     item: MediaItem; 
     index: number; 
     aspectClass?: string;
-    fillMode?: "cover" | "contain";
   }) => (
     <div
       className={`relative cursor-pointer group overflow-hidden bg-[#0a0a0f] ${aspectClass}`}
@@ -184,7 +183,7 @@ export function MediaViewer({
         <>
           <video
             src={item.url}
-            className={`w-full h-full ${fillMode === "cover" ? "object-cover" : "object-contain"}`}
+            className="w-full h-full object-cover"
             preload="metadata"
           />
           <div className="absolute inset-0 flex items-center justify-center">
@@ -199,7 +198,7 @@ export function MediaViewer({
         <img
           src={item.url}
           alt={`${alt} - ${index + 1}`}
-          className={`w-full h-full ${fillMode === "cover" ? "object-cover" : "object-contain"}`}
+          className="w-full h-full object-cover"
           loading="lazy"
         />
       )}
@@ -214,13 +213,24 @@ export function MediaViewer({
     // Slideshow mode - single image with navigation arrows
     if (isSlideshow && count > 1) {
       return (
-        <div className={`relative rounded-2xl overflow-hidden group ${className}`}>
-          <MediaItem 
-            item={currentMedia} 
-            index={currentIndex} 
-            aspectClass="aspect-[16/9] max-h-[512px]"
-            fillMode="contain"
-          />
+        <div 
+          className={`relative rounded-2xl overflow-hidden group cursor-pointer ${className}`}
+          onClick={() => openModal(currentIndex)}
+        >
+          {currentMedia.type === "video" ? (
+            <video
+              src={currentMedia.url}
+              className="w-full max-h-[512px] object-contain"
+              preload="metadata"
+            />
+          ) : (
+            <img
+              src={currentMedia.url}
+              alt={`${alt} - ${currentIndex + 1}`}
+              className="w-full max-h-[512px] object-contain"
+              loading="lazy"
+            />
+          )}
           
           {/* Navigation Arrows */}
           <button
@@ -254,30 +264,54 @@ export function MediaViewer({
               />
             ))}
           </div>
+          
+          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-150 pointer-events-none" />
         </div>
       );
     }
 
-    // Single image - fill width, natural aspect with max height
+    // Single image - natural aspect ratio, capped height
     if (count === 1) {
+      const item = media[0];
       return (
-        <div className={`rounded-2xl overflow-hidden ${className}`}>
-          <MediaItem 
-            item={media[0]} 
-            index={0} 
-            aspectClass="max-h-[512px]"
-            fillMode="contain"
-          />
+        <div 
+          className={`rounded-2xl overflow-hidden cursor-pointer group ${className}`}
+          onClick={() => openModal(0)}
+        >
+          {item.type === "video" ? (
+            <>
+              <video
+                src={item.url}
+                className="w-full max-h-[512px] object-contain"
+                preload="metadata"
+              />
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <div className="bg-black/60 rounded-full p-4 backdrop-blur-sm">
+                  <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+                  </svg>
+                </div>
+              </div>
+            </>
+          ) : (
+            <img
+              src={item.url}
+              alt={`${alt} - 1`}
+              className="w-full max-h-[512px] object-contain"
+              loading="lazy"
+            />
+          )}
+          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-150 pointer-events-none" />
         </div>
       );
     }
 
-    // 2 images - side by side, equal height
+    // 2 images - side by side, equal height (cropped to fill)
     if (count === 2) {
       return (
         <div className={`grid grid-cols-2 gap-0.5 rounded-2xl overflow-hidden ${className}`}>
-          <MediaItem item={media[0]} index={0} aspectClass="aspect-[4/5]" />
-          <MediaItem item={media[1]} index={1} aspectClass="aspect-[4/5]" />
+          <GridMediaItem item={media[0]} index={0} aspectClass="aspect-[4/5]" />
+          <GridMediaItem item={media[1]} index={1} aspectClass="aspect-[4/5]" />
         </div>
       );
     }
@@ -286,10 +320,10 @@ export function MediaViewer({
     if (count === 3) {
       return (
         <div className={`grid grid-cols-2 gap-0.5 rounded-2xl overflow-hidden ${className}`}>
-          <MediaItem item={media[0]} index={0} aspectClass="aspect-[3/4] row-span-2" />
+          <GridMediaItem item={media[0]} index={0} aspectClass="aspect-[3/4] row-span-2" />
           <div className="flex flex-col gap-0.5">
-            <MediaItem item={media[1]} index={1} aspectClass="aspect-[4/3]" />
-            <MediaItem item={media[2]} index={2} aspectClass="aspect-[4/3]" />
+            <GridMediaItem item={media[1]} index={1} aspectClass="aspect-[4/3]" />
+            <GridMediaItem item={media[2]} index={2} aspectClass="aspect-[4/3]" />
           </div>
         </div>
       );
@@ -299,10 +333,10 @@ export function MediaViewer({
     if (count === 4) {
       return (
         <div className={`grid grid-cols-2 gap-0.5 rounded-2xl overflow-hidden ${className}`}>
-          <MediaItem item={media[0]} index={0} aspectClass="aspect-square" />
-          <MediaItem item={media[1]} index={1} aspectClass="aspect-square" />
-          <MediaItem item={media[2]} index={2} aspectClass="aspect-square" />
-          <MediaItem item={media[3]} index={3} aspectClass="aspect-square" />
+          <GridMediaItem item={media[0]} index={0} aspectClass="aspect-square" />
+          <GridMediaItem item={media[1]} index={1} aspectClass="aspect-square" />
+          <GridMediaItem item={media[2]} index={2} aspectClass="aspect-square" />
+          <GridMediaItem item={media[3]} index={3} aspectClass="aspect-square" />
         </div>
       );
     }
@@ -310,9 +344,9 @@ export function MediaViewer({
     // 5+ images - 2x2 grid with +N overlay on last
     return (
       <div className={`grid grid-cols-2 gap-0.5 rounded-2xl overflow-hidden ${className}`}>
-        <MediaItem item={media[0]} index={0} aspectClass="aspect-square" />
-        <MediaItem item={media[1]} index={1} aspectClass="aspect-square" />
-        <MediaItem item={media[2]} index={2} aspectClass="aspect-square" />
+        <GridMediaItem item={media[0]} index={0} aspectClass="aspect-square" />
+        <GridMediaItem item={media[1]} index={1} aspectClass="aspect-square" />
+        <GridMediaItem item={media[2]} index={2} aspectClass="aspect-square" />
         <div
           className="relative cursor-pointer group overflow-hidden aspect-square bg-[#0a0a0f]"
           onClick={() => openModal(3)}
