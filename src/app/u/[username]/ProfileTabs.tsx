@@ -6,14 +6,45 @@ import { PortfolioEditor } from "@/components/portfolio/PortfolioEditor";
 import { PortfolioItemDisplay } from "@/components/portfolio/PortfolioItemDisplay";
 import { Button } from "@/components/ui/Button";
 import { useToast } from "@/hooks/useToast";
+import { SkillsDisplay, AvailabilityBadge } from "@/components/ui/SkillsDisplay";
+import { 
+  SKILL_CATEGORIES,
+  EXPERIENCE_LEVELS,
+  AVAILABILITY_STATUS,
+  RESPONSE_TIMES,
+  formatHourlyRate,
+  type ExperienceLevel,
+  type AvailabilityStatus,
+  type ResponseTime,
+} from "@/lib/skills";
+
+interface UserSkill {
+  id: string;
+  skillId: string;
+  experienceLevel: string;
+  yearsOfExp: number | null;
+  isPrimary: boolean;
+  skill: { id: string; name: string; category: string };
+}
+
+interface ProfileData {
+  location?: string | null;
+  website?: string | null;
+  availability?: string | null;
+  hourlyRate?: number | null;
+  currency?: string | null;
+  responseTime?: string | null;
+}
 
 interface ProfileTabsProps {
   username: string;
   currentUserId?: string;
   userId: string;
+  skills?: UserSkill[];
+  profileData?: ProfileData;
 }
 
-type TabType = "posts" | "reposts" | "liked" | "replies" | "saved" | "portfolio" | "reviews";
+type TabType = "about" | "posts" | "reposts" | "liked" | "replies" | "saved" | "portfolio" | "reviews";
 
 // Client-side cache for tab data (persists during session)
 // NOTE: Engagement tabs (liked, reposts, saved) skip cache for real-time accuracy
@@ -21,7 +52,7 @@ const tabDataCache = new Map<string, { data: any[]; timestamp: number }>();
 const CACHE_TTL = 30000; // 30 seconds client-side cache
 const ENGAGEMENT_TABS = ['liked', 'reposts', 'saved'] as const;
 
-export function ProfileTabs({ username, currentUserId, userId }: ProfileTabsProps) {
+export function ProfileTabs({ username, currentUserId, userId, skills = [], profileData = {} }: ProfileTabsProps) {
   const [activeTab, setActiveTab] = useState<TabType>("posts");
   const [posts, setPosts] = useState<any[]>([]);
   const [portfolioItems, setPortfolioItems] = useState<any[]>([]);
@@ -37,7 +68,19 @@ export function ProfileTabs({ username, currentUserId, userId }: ProfileTabsProp
 
   const isOwner = currentUserId === userId;
 
+  // Check if there's any about content to show
+  const hasAboutContent = skills.length > 0 || profileData.location || profileData.website || profileData.availability || profileData.hourlyRate;
+
   const tabs = [
+    ...(hasAboutContent ? [{
+      id: "about" as TabType, 
+      label: "About", 
+      icon: (
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      )
+    }] : []),
     { 
       id: "posts" as TabType, 
       label: "Posts", 
@@ -538,6 +581,85 @@ export function ProfileTabs({ username, currentUserId, userId }: ProfileTabsProp
                 </div>
               </div>
             ))}
+          </div>
+        ) : activeTab === "about" ? (
+          <div className="space-y-6">
+            {/* Skills Section */}
+            {skills.length > 0 && (
+              <div className="p-5 rounded-2xl bg-[#0d0d12] border border-white/10">
+                <h3 className="text-sm font-medium text-white/60 uppercase tracking-wide mb-4">Skills</h3>
+                <SkillsDisplay 
+                  skills={skills.map(s => ({
+                    ...s,
+                    experienceLevel: s.experienceLevel as ExperienceLevel,
+                  }))} 
+                />
+              </div>
+            )}
+
+            {/* Availability & Rates */}
+            {(profileData.availability || profileData.hourlyRate) && (
+              <div className="p-5 rounded-2xl bg-[#0d0d12] border border-white/10">
+                <h3 className="text-sm font-medium text-white/60 uppercase tracking-wide mb-4">Availability</h3>
+                <div className="flex flex-wrap gap-4">
+                  {profileData.availability && (
+                    <div className="flex items-center gap-3">
+                      <AvailabilityBadge 
+                        status={profileData.availability as AvailabilityStatus}
+                        showRate={false}
+                      />
+                    </div>
+                  )}
+                  {profileData.hourlyRate && (
+                    <div className="flex items-center gap-2 text-emerald-400">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <span className="font-medium">{formatHourlyRate(profileData.hourlyRate, profileData.currency || "USD")}</span>
+                    </div>
+                  )}
+                  {profileData.responseTime && (
+                    <div className="flex items-center gap-2 text-[var(--muted-foreground)]">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <span className="text-sm">Responds {RESPONSE_TIMES[profileData.responseTime as ResponseTime]?.label.toLowerCase()}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Location & Links */}
+            {(profileData.location || profileData.website) && (
+              <div className="p-5 rounded-2xl bg-[#0d0d12] border border-white/10">
+                <h3 className="text-sm font-medium text-white/60 uppercase tracking-wide mb-4">Contact & Location</h3>
+                <div className="space-y-3">
+                  {profileData.location && (
+                    <div className="flex items-center gap-3 text-[var(--muted-foreground)]">
+                      <svg className="w-5 h-5 text-[var(--color-accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                      <span>{profileData.location}</span>
+                    </div>
+                  )}
+                  {profileData.website && (
+                    <a 
+                      href={profileData.website} 
+                      target="_blank" 
+                      rel="noreferrer" 
+                      className="flex items-center gap-3 text-[var(--color-accent)] hover:underline"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                      </svg>
+                      <span>{profileData.website.replace(/^https?:\/\//, '')}</span>
+                    </a>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         ) : activeTab === "portfolio" ? (
           <>
