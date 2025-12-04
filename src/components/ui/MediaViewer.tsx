@@ -176,14 +176,14 @@ export function MediaViewer({
     aspectClass?: string;
   }) => (
     <div
-      className={`relative cursor-pointer group overflow-hidden bg-[#0a0a0f] flex items-center justify-center ${aspectClass}`}
+      className={`relative cursor-pointer group overflow-hidden bg-[#0a0a0f] ${aspectClass}`}
       onClick={() => openModal(index)}
     >
       {item.type === "video" ? (
         <>
           <video
             src={item.url}
-            className="w-full h-full object-contain"
+            className="w-full h-full object-cover"
             preload="metadata"
           />
           <div className="absolute inset-0 flex items-center justify-center">
@@ -198,7 +198,7 @@ export function MediaViewer({
         <img
           src={item.url}
           alt={`${alt} - ${index + 1}`}
-          className="w-full h-full object-contain"
+          className="w-full h-full object-cover"
           loading="lazy"
         />
       )}
@@ -210,102 +210,98 @@ export function MediaViewer({
   const renderPreview = () => {
     const count = media.length;
     
-    // Slideshow mode - single image with navigation arrows
+    // Slideshow mode - full width, cropped to fit
     if (isSlideshow && count > 1) {
       return (
-        <div className={`flex ${className}`}>
-          <div 
-            className="relative rounded-2xl overflow-hidden group cursor-pointer inline-block"
-            onClick={() => openModal(currentIndex)}
+        <div 
+          className={`relative w-full aspect-[16/9] rounded-2xl overflow-hidden group cursor-pointer bg-[#0a0a0f] ${className}`}
+          onClick={() => openModal(currentIndex)}
+        >
+          {currentMedia.type === "video" ? (
+            <video
+              src={currentMedia.url}
+              className="w-full h-full object-cover"
+              preload="metadata"
+            />
+          ) : (
+            <img
+              src={currentMedia.url}
+              alt={`${alt} - ${currentIndex + 1}`}
+              className="w-full h-full object-cover"
+              loading="lazy"
+            />
+          )}
+          
+          {/* Navigation Arrows */}
+          <button
+            onClick={(e) => { e.stopPropagation(); goToPrevious(); }}
+            className="absolute left-3 top-1/2 -translate-y-1/2 p-2.5 bg-black/70 hover:bg-black/90 text-white rounded-full transition-all opacity-0 group-hover:opacity-100 backdrop-blur-sm"
+            title="Previous"
           >
-            {currentMedia.type === "video" ? (
-              <video
-                src={currentMedia.url}
-                className="max-w-full max-h-[380px] block"
-                preload="metadata"
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+          <button
+            onClick={(e) => { e.stopPropagation(); goToNext(); }}
+            className="absolute right-3 top-1/2 -translate-y-1/2 p-2.5 bg-black/70 hover:bg-black/90 text-white rounded-full transition-all opacity-0 group-hover:opacity-100 backdrop-blur-sm"
+            title="Next"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+          
+          {/* Slide Indicators */}
+          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 bg-black/50 backdrop-blur-sm px-3 py-1.5 rounded-full">
+            {media.map((_, idx) => (
+              <button
+                key={idx}
+                onClick={(e) => { e.stopPropagation(); setCurrentIndex(idx); }}
+                className={`h-1.5 rounded-full transition-all ${
+                  idx === currentIndex ? "bg-white w-4" : "bg-white/40 hover:bg-white/60 w-1.5"
+                }`}
               />
-            ) : (
-              <img
-                src={currentMedia.url}
-                alt={`${alt} - ${currentIndex + 1}`}
-                className="max-w-full max-h-[380px] block"
-                loading="lazy"
-              />
-            )}
-            
-            {/* Navigation Arrows */}
-            <button
-              onClick={(e) => { e.stopPropagation(); goToPrevious(); }}
-              className="absolute left-3 top-1/2 -translate-y-1/2 p-2.5 bg-black/70 hover:bg-black/90 text-white rounded-full transition-all opacity-0 group-hover:opacity-100 backdrop-blur-sm"
-              title="Previous"
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                <path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </button>
-            <button
-              onClick={(e) => { e.stopPropagation(); goToNext(); }}
-              className="absolute right-3 top-1/2 -translate-y-1/2 p-2.5 bg-black/70 hover:bg-black/90 text-white rounded-full transition-all opacity-0 group-hover:opacity-100 backdrop-blur-sm"
-              title="Next"
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                <path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </button>
-            
-            {/* Slide Indicators */}
-            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 bg-black/50 backdrop-blur-sm px-3 py-1.5 rounded-full">
-              {media.map((_, idx) => (
-                <button
-                  key={idx}
-                  onClick={(e) => { e.stopPropagation(); setCurrentIndex(idx); }}
-                  className={`h-1.5 rounded-full transition-all ${
-                    idx === currentIndex ? "bg-white w-4" : "bg-white/40 hover:bg-white/60 w-1.5"
-                  }`}
-                />
-              ))}
-            </div>
-            
-            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-150 pointer-events-none" />
+            ))}
           </div>
+          
+          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-150 pointer-events-none" />
         </div>
       );
     }
 
-    // Single image - container fits the image tightly
+    // Single image - full width, cropped to 16:9 aspect ratio
     if (count === 1) {
       const item = media[0];
       return (
-        <div className={`flex ${className}`}>
-          <div 
-            className="relative rounded-2xl overflow-hidden cursor-pointer group inline-block"
-            onClick={() => openModal(0)}
-          >
-            {item.type === "video" ? (
-              <>
-                <video
-                  src={item.url}
-                  className="max-w-full max-h-[380px] block"
-                  preload="metadata"
-                />
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  <div className="bg-black/60 rounded-full p-4 backdrop-blur-sm">
-                    <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                </div>
-              </>
-            ) : (
-              <img
+        <div 
+          className={`relative w-full aspect-[16/9] rounded-2xl overflow-hidden cursor-pointer group bg-[#0a0a0f] ${className}`}
+          onClick={() => openModal(0)}
+        >
+          {item.type === "video" ? (
+            <>
+              <video
                 src={item.url}
-                alt={`${alt} - 1`}
-                className="max-w-full max-h-[380px] block"
-                loading="lazy"
+                className="w-full h-full object-cover"
+                preload="metadata"
               />
-            )}
-            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-150 pointer-events-none" />
-          </div>
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <div className="bg-black/60 rounded-full p-4 backdrop-blur-sm">
+                  <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+                  </svg>
+                </div>
+              </div>
+            </>
+          ) : (
+            <img
+              src={item.url}
+              alt={`${alt} - 1`}
+              className="w-full h-full object-cover"
+              loading="lazy"
+            />
+          )}
+          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-150 pointer-events-none" />
         </div>
       );
     }
