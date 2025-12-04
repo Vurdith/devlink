@@ -314,7 +314,7 @@ export function MediaViewer({
     // 2 images - side by side
     if (count === 2) {
       return (
-        <div className={`grid grid-cols-2 gap-1 ${className}`}>
+        <div className={`grid grid-cols-2 gap-2 ${className}`}>
           <GridMediaItem item={media[0]} index={0} />
           <GridMediaItem item={media[1]} index={1} />
         </div>
@@ -323,7 +323,7 @@ export function MediaViewer({
 
     // 3+ images - 2 column grid
     return (
-      <div className={`grid grid-cols-2 gap-1 ${className}`}>
+      <div className={`grid grid-cols-2 gap-2 ${className}`}>
         {media.slice(0, 4).map((item, index) => (
           <div key={item.id || index} className="relative">
             <GridMediaItem item={item} index={index} />
