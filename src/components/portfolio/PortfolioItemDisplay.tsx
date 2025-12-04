@@ -52,6 +52,25 @@ export function PortfolioItemDisplay({
     setContainerDimensions({ width: 0, height: 0 });
   }, [showMediaModal, currentMediaIndex]);
 
+  // Lock body scroll when modal is open
+  useEffect(() => {
+    if (showMediaModal) {
+      const scrollY = window.scrollY;
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = '100%';
+      document.body.style.overflow = 'hidden';
+      
+      return () => {
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.width = '';
+        document.body.style.overflow = '';
+        window.scrollTo(0, scrollY);
+      };
+    }
+  }, [showMediaModal]);
+
   // Calculate pan boundaries based on zoom level and image/container dimensions
   const calculatePanBounds = useCallback(() => {
     if (!imageDimensions.width || !containerDimensions.width) {

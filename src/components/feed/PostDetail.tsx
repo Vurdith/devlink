@@ -6,11 +6,11 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { TimeAgo } from "@/components/ui/TimeAgo";
 import { Button } from "@/components/ui/Button";
-import { createPortal } from "react-dom";
 import { ContentRenderer } from "@/components/ui/ContentRenderer";
 import { ProfileTooltip } from "@/components/ui/ProfileTooltip";
 import { getProfileTypeConfig, ProfileTypeIcon } from "@/lib/profile-types";
 import { cn } from "@/lib/cn";
+import { MediaViewer } from "@/components/ui/MediaViewer";
 
 // Lazy load heavy components - only loaded when needed
 const PollDisplay = lazy(() => import("@/components/ui/PollDisplay").then(m => ({ default: m.PollDisplay })));
@@ -122,15 +122,6 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
   const [avatarError, setAvatarError] = useState(false);
   // Track updated avatar for current user's posts (instant update when they change avatar)
   const [currentUserAvatar, setCurrentUserAvatar] = useState<string | null>(null);
-  const [modalState, setModalState] = useState<{
-    isOpen: boolean;
-    type: 'slideshow' | 'grid' | null;
-    currentIndex: number;
-  }>({
-    isOpen: false,
-    type: null,
-    currentIndex: 0
-  });
   const [showActionsMenu, setShowActionsMenu] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
@@ -185,38 +176,6 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
     setRepostCount(engagementState.repostCount);
   }, [engagementState, isUpdating, lastUpdateTime, pendingState]);
 
-  // Keyboard navigation for modals
-  useEffect(() => {
-    if (!modalState.isOpen) return;
-    
-    const handleKeyDown = (event: KeyboardEvent) => {
-      switch (event.key) {
-        case 'Escape':
-          closeModal();
-          break;
-        case 'ArrowLeft':
-          if (modalState.type === 'slideshow') {
-            event.preventDefault();
-            prevSlide();
-          }
-          break;
-        case 'ArrowRight':
-          if (modalState.type === 'slideshow') {
-            event.preventDefault();
-            nextSlide();
-          }
-          break;
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    document.body.style.overflow = 'hidden';
-
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-      document.body.style.overflow = 'unset';
-    };
-  }, [modalState.isOpen, modalState.type, post.media?.length]);
 
   // Track view - debounced, unique per user
   useEffect(() => {
@@ -486,82 +445,29 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
     }
   }, [post.id, router]);
 
-  const openModal = (type: 'slideshow' | 'grid', index: number = 0) => {
-    if (!post.media || post.media.length === 0 || index < 0 || index >= post.media.length) return;
-    setModalState({ isOpen: true, type, currentIndex: index });
-  };
-
-  const closeModal = () => setModalState({ isOpen: false, type: null, currentIndex: 0 });
-  const nextSlide = () => {
-    if (!post.media?.length) return;
-    setModalState(prev => ({ ...prev, currentIndex: (prev.currentIndex + 1) % post.media.length }));
-  };
-  const prevSlide = () => {
-    if (!post.media?.length) return;
-    setModalState(prev => ({ ...prev, currentIndex: (prev.currentIndex - 1 + post.media.length) % post.media.length }));
-  };
+  // Convert post media to MediaViewer format
+  const mediaItems = useMemo(() => {
+    if (!post.media || post.media.length === 0) return [];
+    return [...post.media]
+      .sort((a, b) => a.order - b.order)
+      .map(m => ({
+        id: m.id,
+        url: m.mediaUrl,
+        type: m.mediaType === "video" ? "video" as const : "image" as const,
+      }));
+  }, [post.media]);
 
   const renderMedia = () => {
-    if (!post.media || post.media.length === 0) return null;
-    const sortedMedia = [...post.media].sort((a, b) => a.order - b.order);
-
-    if (post.isSlideshow) {
-      return (
-        <div className="mt-4">
-          <div className="relative rounded-2xl overflow-hidden bg-[#0d0d12] border border-white/5 max-w-full">
-            <div className="relative cursor-pointer group" onClick={() => openModal('slideshow', 0)}>
-              {sortedMedia[0]?.mediaType === "video" ? (
-                <video src={sortedMedia[0].mediaUrl} className="w-full h-64 object-contain bg-gray-900/20" preload="metadata" />
-              ) : (
-                <img src={sortedMedia[0]?.mediaUrl} alt="Main image" className="w-full h-64 object-contain bg-gray-900/20" loading="lazy" />
-              )}
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-150" />
-              <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-3 py-1 rounded-full">
-                {sortedMedia.length} images
-              </div>
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    const getGridConfig = (count: number) => {
-      if (count === 1) return { containerClass: "rounded-2xl overflow-hidden max-h-80", itemClass: "w-full h-auto max-h-80 object-contain" };
-      if (count === 2) return { containerClass: "grid grid-cols-2 gap-1 rounded-2xl overflow-hidden", itemClass: "w-full h-auto max-h-40 object-contain" };
-      if (count <= 4) return { containerClass: "grid grid-cols-2 gap-1 rounded-2xl overflow-hidden", itemClass: "w-full h-auto max-h-40 object-contain" };
-      return { containerClass: "grid grid-cols-3 gap-1 rounded-2xl overflow-hidden", itemClass: "w-full h-auto max-h-24 object-contain" };
-    };
-
-    const config = getGridConfig(sortedMedia.length);
-
+    if (mediaItems.length === 0) return null;
     return (
       <div className="mt-4">
-        <div className={config.containerClass}>
-          {sortedMedia.slice(0, 10).map((media, index) => (
-            <div key={media.id} className="relative cursor-pointer group" onClick={() => openModal('grid', index)}>
-              {media.mediaType === "video" ? (
-                <video src={media.mediaUrl} className={config.itemClass} preload="metadata" />
-              ) : (
-                <img src={media.mediaUrl} alt={`Image ${index + 1}`} className={config.itemClass} loading="lazy" />
-              )}
-              {media.mediaType === "video" && (
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="bg-black/50 rounded-full p-2">
-                    <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                </div>
-              )}
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-150" />
-            </div>
-          ))}
-        </div>
-        {post.media.length > 10 && (
-          <div className="mt-2 text-center text-sm text-[var(--muted-foreground)]">
-            +{post.media.length - 10} more images
-          </div>
-        )}
+        <MediaViewer
+          media={mediaItems}
+          isSlideshow={post.isSlideshow}
+          maxHeight="20rem"
+          alt={`${post.user.name || post.user.username}'s post`}
+          className="rounded-2xl border border-white/5"
+        />
       </div>
     );
   };
@@ -837,48 +743,6 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
         ) : <div />}
       </div>
 
-      {/* Media Modal */}
-      {modalState.isOpen && post.media && post.media.length > 0 && typeof window !== 'undefined' && createPortal(
-        <div 
-          className="fixed inset-0 bg-black/90 flex items-center justify-center z-[99999]"
-          onClick={closeModal}
-        >
-          <div className="relative w-full h-full flex items-center justify-center p-4" onClick={(e) => e.stopPropagation()}>
-            <button onClick={closeModal} aria-label="Close media viewer" className="absolute top-6 right-6 text-white/80 hover:text-white z-10 bg-black/90 hover:bg-[var(--color-accent)] rounded-full p-3 border border-white/20 hover:border-[var(--color-accent)] transition-all duration-200 hover:scale-110">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-            
-            <div className="relative w-full h-full flex items-center justify-center">
-              {post.media[modalState.currentIndex]?.mediaType === "video" ? (
-                <video src={post.media[modalState.currentIndex].mediaUrl} className="max-w-full max-h-full object-contain" controls autoPlay />
-              ) : (
-                <img src={post.media[modalState.currentIndex]?.mediaUrl} alt={`Media ${modalState.currentIndex + 1}`} className="max-w-full max-h-full object-contain" />
-              )}
-            </div>
-            
-            {modalState.type === 'slideshow' && post.media.length > 1 && (
-              <>
-                <button onClick={prevSlide} aria-label="Previous image" className="absolute left-6 top-1/2 -translate-y-1/2 text-white/80 hover:text-white bg-black/60 hover:bg-black/80 rounded-full p-3 border border-white/20 transition-all duration-200 hover:scale-110">
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                  </svg>
-                </button>
-                <button onClick={nextSlide} aria-label="Next image" className="absolute right-6 top-1/2 -translate-y-1/2 text-white/80 hover:text-white bg-black/60 hover:bg-black/80 rounded-full p-3 border border-white/20 transition-all duration-200 hover:scale-110">
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </button>
-                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-white text-sm bg-black/60 rounded-full px-4 py-2 border border-white/20">
-                  {modalState.currentIndex + 1} / {post.media.length}
-                </div>
-              </>
-            )}
-          </div>
-        </div>,
-        document.body
-      )}
 
       {/* Delete Confirmation Modal */}
       {showDeleteConfirm && (
