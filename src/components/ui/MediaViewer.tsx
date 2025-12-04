@@ -176,14 +176,14 @@ export function MediaViewer({
     aspectClass?: string;
   }) => (
     <div
-      className={`relative cursor-pointer group overflow-hidden bg-[#0a0a0f] ${aspectClass}`}
+      className={`relative cursor-pointer group overflow-hidden bg-[#0a0a0f] flex items-center justify-center ${aspectClass}`}
       onClick={() => openModal(index)}
     >
       {item.type === "video" ? (
         <>
           <video
             src={item.url}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-contain"
             preload="metadata"
           />
           <div className="absolute inset-0 flex items-center justify-center">
@@ -198,7 +198,7 @@ export function MediaViewer({
         <img
           src={item.url}
           alt={`${alt} - ${index + 1}`}
-          className="w-full h-full object-cover"
+          className="w-full h-full object-contain"
           loading="lazy"
         />
       )}
@@ -220,14 +220,14 @@ export function MediaViewer({
           {currentMedia.type === "video" ? (
             <video
               src={currentMedia.url}
-              className="w-full max-h-[512px] object-contain"
+              className="w-full max-h-[380px] object-contain"
               preload="metadata"
             />
           ) : (
             <img
               src={currentMedia.url}
               alt={`${alt} - ${currentIndex + 1}`}
-              className="w-full max-h-[512px] object-contain"
+              className="w-full max-h-[380px] object-contain"
               loading="lazy"
             />
           )}
@@ -282,7 +282,7 @@ export function MediaViewer({
             <>
               <video
                 src={item.url}
-                className="w-full max-h-[512px] object-contain"
+                className="w-full max-h-[380px] object-contain"
                 preload="metadata"
               />
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -297,7 +297,7 @@ export function MediaViewer({
             <img
               src={item.url}
               alt={`${alt} - 1`}
-              className="w-full max-h-[512px] object-contain"
+              className="w-full max-h-[380px] object-contain"
               loading="lazy"
             />
           )}
