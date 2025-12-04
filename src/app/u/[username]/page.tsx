@@ -205,20 +205,35 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
             </p>
           )}
           
-          {/* Stats row */}
-          <div className="mt-4 flex items-center gap-5 text-sm">
-            <Link href={`/u/${user.username}/followers`} className="hover:underline text-[var(--muted-foreground)]">
-              <span className="font-semibold text-white">{user?._count?.followers ?? 0}</span> followers
+          {/* Stats Pills */}
+          <div className="mt-4 flex flex-wrap items-center gap-2">
+            <Link 
+              href={`/u/${user.username}/followers`} 
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-colors"
+            >
+              <svg className="w-3.5 h-3.5 text-[var(--color-accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              <span className="text-white font-semibold">{user?._count?.followers ?? 0}</span>
+              <span className="text-white/60">followers</span>
             </Link>
-            <Link href={`/u/${user.username}/following`} className="hover:underline text-[var(--muted-foreground)]">
-              <span className="font-semibold text-white">{user?._count?.following ?? 0}</span> following
+            <Link 
+              href={`/u/${user.username}/following`} 
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-colors"
+            >
+              <svg className="w-3.5 h-3.5 text-[var(--color-accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+              </svg>
+              <span className="text-white font-semibold">{user?._count?.following ?? 0}</span>
+              <span className="text-white/60">following</span>
             </Link>
             {rating !== "—" && (
-              <span className="flex items-center gap-1.5 text-[var(--muted-foreground)]">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" className="text-yellow-400">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-amber-500/10 border border-amber-500/30">
+                <svg className="w-3.5 h-3.5 text-amber-400" fill="currentColor" viewBox="0 0 24 24">
                   <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/>
                 </svg>
-                <span className="font-semibold text-white">{rating}</span>
+                <span className="text-amber-400 font-semibold">{rating}</span>
+                <span className="text-amber-400/60">rating</span>
               </span>
             )}
           </div>
