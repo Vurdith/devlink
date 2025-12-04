@@ -39,11 +39,7 @@ async function getProfileData(username: string) {
           bio: true,
           website: true,
           location: true,
-          availability: true,
-          hourlyRate: true,
           currency: true,
-          headline: true,
-          responseTime: true,
         }
       },
       skills: {
@@ -190,18 +186,15 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
             <p className="text-sm text-[var(--muted-foreground)]">@{user.username}</p>
           </div>
           
-          {/* Headline + Profile Type */}
-          <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
-            {user.profile?.headline && (
-              <p className="text-sm text-white/70">{user.profile.headline}</p>
-            )}
-            {user.profile?.profileType && (
+          {/* Profile Type */}
+          {user.profile?.profileType && (
+            <div className="mt-2">
               <Badge className={`gap-1 text-[10px] px-2 py-0.5 ${getProfileTypeColors(user.profile.profileType)}`}>
                 <ProfileTypeIcon profileType={user.profile.profileType} size={10} />
                 {getProfileTypeConfig(user.profile.profileType).label}
               </Badge>
-            )}
-          </div>
+            </div>
+          )}
           
           {/* Bio */}
           {user.profile?.bio && (
