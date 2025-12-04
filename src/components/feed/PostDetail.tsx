@@ -464,9 +464,8 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
         <MediaViewer
           media={mediaItems}
           isSlideshow={post.isSlideshow}
-          maxHeight="20rem"
           alt={`${post.user.name || post.user.username}'s post`}
-          className="rounded-2xl border border-white/5"
+          className="border border-white/5"
         />
       </div>
     );

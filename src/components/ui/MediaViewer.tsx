@@ -13,7 +13,6 @@ interface MediaViewerProps {
   media: MediaItem[];
   isSlideshow?: boolean;
   className?: string;
-  maxHeight?: string;
   alt?: string;
 }
 
@@ -21,7 +20,6 @@ export function MediaViewer({
   media,
   isSlideshow = false,
   className = "",
-  maxHeight = "28rem",
   alt = "Media",
 }: MediaViewerProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -171,126 +169,167 @@ export function MediaViewer({
     setShowModal(true);
   }, []);
 
-  // Grid configuration
-  const getGridConfig = (count: number) => {
-    if (count === 1) return { containerClass: "grid-cols-1", itemClass: "aspect-video" };
-    if (count === 2) return { containerClass: "grid-cols-2 gap-1", itemClass: "aspect-[4/3]" };
-    if (count <= 4) return { containerClass: "grid-cols-2 gap-1", itemClass: "aspect-square" };
-    return { containerClass: "grid-cols-3 gap-1", itemClass: "aspect-square" };
-  };
-
-  const config = getGridConfig(media.length);
-
-  // Render preview (slideshow or grid)
-  const renderPreview = () => {
-    if (isSlideshow || media.length === 1) {
-      // Slideshow view - single image with navigation
-      return (
-        <div 
-          className={`relative w-full bg-gradient-to-br from-[var(--color-accent)]/10 to-blue-500/10 overflow-hidden flex items-center justify-center group ${className}`}
-          style={{ height: maxHeight }}
-        >
-          <div 
-            className="w-full h-full flex items-center justify-center bg-[var(--muted)]/20 cursor-pointer hover:bg-[var(--muted)]/30 transition-colors"
-            onClick={() => openModal(currentIndex)}
-          >
-            {currentMedia.type === "video" ? (
-              <video
-                src={currentMedia.url}
-                className="w-full h-full object-contain pointer-events-none"
-                preload="metadata"
-              />
-            ) : (
-              <img
-                src={currentMedia.url}
-                alt={`${alt} - ${currentIndex + 1}`}
-                className="w-full h-full object-contain pointer-events-none"
-                loading="lazy"
-              />
-            )}
+  // Single media item component
+  const MediaItem = ({ item, index, aspectClass = "", fillMode = "cover" }: { 
+    item: MediaItem; 
+    index: number; 
+    aspectClass?: string;
+    fillMode?: "cover" | "contain";
+  }) => (
+    <div
+      className={`relative cursor-pointer group overflow-hidden bg-[#0a0a0f] ${aspectClass}`}
+      onClick={() => openModal(index)}
+    >
+      {item.type === "video" ? (
+        <>
+          <video
+            src={item.url}
+            className={`w-full h-full ${fillMode === "cover" ? "object-cover" : "object-contain"}`}
+            preload="metadata"
+          />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="bg-black/60 rounded-full p-3 backdrop-blur-sm">
+              <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+              </svg>
+            </div>
           </div>
+        </>
+      ) : (
+        <img
+          src={item.url}
+          alt={`${alt} - ${index + 1}`}
+          className={`w-full h-full ${fillMode === "cover" ? "object-cover" : "object-contain"}`}
+          loading="lazy"
+        />
+      )}
+      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-150" />
+    </div>
+  );
 
+  // Render preview with X.com-style layouts
+  const renderPreview = () => {
+    const count = media.length;
+    
+    // Slideshow mode - single image with navigation arrows
+    if (isSlideshow && count > 1) {
+      return (
+        <div className={`relative rounded-2xl overflow-hidden group ${className}`}>
+          <MediaItem 
+            item={currentMedia} 
+            index={currentIndex} 
+            aspectClass="aspect-[16/9] max-h-[512px]"
+            fillMode="contain"
+          />
+          
           {/* Navigation Arrows */}
-          {media.length > 1 && (
-            <>
+          <button
+            onClick={(e) => { e.stopPropagation(); goToPrevious(); }}
+            className="absolute left-3 top-1/2 -translate-y-1/2 p-2.5 bg-black/70 hover:bg-black/90 text-white rounded-full transition-all opacity-0 group-hover:opacity-100 backdrop-blur-sm"
+            title="Previous"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+          <button
+            onClick={(e) => { e.stopPropagation(); goToNext(); }}
+            className="absolute right-3 top-1/2 -translate-y-1/2 p-2.5 bg-black/70 hover:bg-black/90 text-white rounded-full transition-all opacity-0 group-hover:opacity-100 backdrop-blur-sm"
+            title="Next"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+          
+          {/* Slide Indicators */}
+          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 bg-black/50 backdrop-blur-sm px-3 py-1.5 rounded-full">
+            {media.map((_, idx) => (
               <button
-                onClick={(e) => { e.stopPropagation(); goToPrevious(); }}
-                className="absolute left-2 top-1/2 -translate-y-1/2 p-2 bg-black/50 hover:bg-black/70 text-white rounded-full transition-all opacity-0 group-hover:opacity-100"
-                title="Previous"
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                  <path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </button>
-              <button
-                onClick={(e) => { e.stopPropagation(); goToNext(); }}
-                className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-black/50 hover:bg-black/70 text-white rounded-full transition-all opacity-0 group-hover:opacity-100"
-                title="Next"
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                  <path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </button>
-              {/* Slide Indicators */}
-              <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
-                {media.map((_, idx) => (
-                  <button
-                    key={idx}
-                    onClick={(e) => { e.stopPropagation(); setCurrentIndex(idx); }}
-                    className={`w-2 h-2 rounded-full transition-all ${
-                      idx === currentIndex ? "bg-white w-6" : "bg-white/50 hover:bg-white/75"
-                    }`}
-                  />
-                ))}
-              </div>
-            </>
-          )}
+                key={idx}
+                onClick={(e) => { e.stopPropagation(); setCurrentIndex(idx); }}
+                className={`h-1.5 rounded-full transition-all ${
+                  idx === currentIndex ? "bg-white w-4" : "bg-white/40 hover:bg-white/60 w-1.5"
+                }`}
+              />
+            ))}
+          </div>
         </div>
       );
     }
 
-    // Grid view
-    return (
-      <div className={`grid ${config.containerClass} rounded-2xl overflow-hidden ${className}`}>
-        {media.slice(0, 10).map((item, index) => (
-          <div
-            key={item.id || index}
-            className={`relative cursor-pointer group overflow-hidden ${config.itemClass}`}
-            onClick={() => openModal(index)}
-          >
-            {item.type === "video" ? (
-              <>
-                <video
-                  src={item.url}
-                  className="w-full h-full object-cover"
-                  preload="metadata"
-                />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="bg-black/50 rounded-full p-2">
-                    <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                </div>
-              </>
-            ) : (
-              <img
-                src={item.url}
-                alt={`${alt} - ${index + 1}`}
-                className="w-full h-full object-cover"
-                loading="lazy"
-              />
-            )}
-            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-150" />
-            
-            {/* Show remaining count on last visible item */}
-            {index === 9 && media.length > 10 && (
-              <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
-                <span className="text-white text-xl font-semibold">+{media.length - 10}</span>
-              </div>
-            )}
+    // Single image - fill width, natural aspect with max height
+    if (count === 1) {
+      return (
+        <div className={`rounded-2xl overflow-hidden ${className}`}>
+          <MediaItem 
+            item={media[0]} 
+            index={0} 
+            aspectClass="max-h-[512px]"
+            fillMode="contain"
+          />
+        </div>
+      );
+    }
+
+    // 2 images - side by side, equal height
+    if (count === 2) {
+      return (
+        <div className={`grid grid-cols-2 gap-0.5 rounded-2xl overflow-hidden ${className}`}>
+          <MediaItem item={media[0]} index={0} aspectClass="aspect-[4/5]" />
+          <MediaItem item={media[1]} index={1} aspectClass="aspect-[4/5]" />
+        </div>
+      );
+    }
+
+    // 3 images - one large left, two stacked right
+    if (count === 3) {
+      return (
+        <div className={`grid grid-cols-2 gap-0.5 rounded-2xl overflow-hidden ${className}`}>
+          <MediaItem item={media[0]} index={0} aspectClass="aspect-[3/4] row-span-2" />
+          <div className="flex flex-col gap-0.5">
+            <MediaItem item={media[1]} index={1} aspectClass="aspect-[4/3]" />
+            <MediaItem item={media[2]} index={2} aspectClass="aspect-[4/3]" />
           </div>
-        ))}
+        </div>
+      );
+    }
+
+    // 4 images - 2x2 grid
+    if (count === 4) {
+      return (
+        <div className={`grid grid-cols-2 gap-0.5 rounded-2xl overflow-hidden ${className}`}>
+          <MediaItem item={media[0]} index={0} aspectClass="aspect-square" />
+          <MediaItem item={media[1]} index={1} aspectClass="aspect-square" />
+          <MediaItem item={media[2]} index={2} aspectClass="aspect-square" />
+          <MediaItem item={media[3]} index={3} aspectClass="aspect-square" />
+        </div>
+      );
+    }
+
+    // 5+ images - 2x2 grid with +N overlay on last
+    return (
+      <div className={`grid grid-cols-2 gap-0.5 rounded-2xl overflow-hidden ${className}`}>
+        <MediaItem item={media[0]} index={0} aspectClass="aspect-square" />
+        <MediaItem item={media[1]} index={1} aspectClass="aspect-square" />
+        <MediaItem item={media[2]} index={2} aspectClass="aspect-square" />
+        <div
+          className="relative cursor-pointer group overflow-hidden aspect-square bg-[#0a0a0f]"
+          onClick={() => openModal(3)}
+        >
+          <img
+            src={media[3].url}
+            alt={`${alt} - 4`}
+            className="w-full h-full object-cover"
+            loading="lazy"
+          />
+          {count > 4 && (
+            <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-[2px]">
+              <span className="text-white text-2xl font-bold">+{count - 4}</span>
+            </div>
+          )}
+          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-150" />
+        </div>
       </div>
     );
   };
