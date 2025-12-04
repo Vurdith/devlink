@@ -38,14 +38,63 @@ export function PortfolioItemDisplay({
   const [panPosition, setPanPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [imageDimensions, setImageDimensions] = useState({ width: 0, height: 0 });
+  const [containerDimensions, setContainerDimensions] = useState({ width: 0, height: 0 });
   const imageRef = React.useRef<HTMLImageElement>(null);
+  const containerRef = React.useRef<HTMLDivElement>(null);
   const router = useRouter();
 
   // Reset zoom when modal opens/closes or image changes
   useEffect(() => {
     setZoomLevel(1);
     setPanPosition({ x: 0, y: 0 });
+    setImageDimensions({ width: 0, height: 0 });
+    setContainerDimensions({ width: 0, height: 0 });
   }, [showMediaModal, currentMediaIndex]);
+
+  // Calculate pan boundaries based on zoom level and image/container dimensions
+  const calculatePanBounds = useCallback(() => {
+    if (!imageDimensions.width || !containerDimensions.width) {
+      return { minX: 0, maxX: 0, minY: 0, maxY: 0 };
+    }
+
+    // The scaled image size
+    const scaledWidth = imageDimensions.width * zoomLevel;
+    const scaledHeight = imageDimensions.height * zoomLevel;
+
+    // How much the image overflows the container on each axis
+    const overflowX = Math.max(0, (scaledWidth - containerDimensions.width) / 2);
+    const overflowY = Math.max(0, (scaledHeight - containerDimensions.height) / 2);
+
+    // Pan bounds (in screen pixels, before dividing by zoom for transform)
+    return {
+      minX: -overflowX,
+      maxX: overflowX,
+      minY: -overflowY,
+      maxY: overflowY,
+    };
+  }, [imageDimensions, containerDimensions, zoomLevel]);
+
+  // Clamp pan position to boundaries
+  const clampPanPosition = useCallback((x: number, y: number) => {
+    const bounds = calculatePanBounds();
+    return {
+      x: Math.max(bounds.minX, Math.min(bounds.maxX, x)),
+      y: Math.max(bounds.minY, Math.min(bounds.maxY, y)),
+    };
+  }, [calculatePanBounds]);
+
+  // Update dimensions when image loads
+  const handleImageLoad = useCallback(() => {
+    if (imageRef.current && containerRef.current) {
+      // Get the displayed size of the image (after object-contain scaling)
+      const imgRect = imageRef.current.getBoundingClientRect();
+      const containerRect = containerRef.current.getBoundingClientRect();
+      
+      setImageDimensions({ width: imgRect.width, height: imgRect.height });
+      setContainerDimensions({ width: containerRect.width, height: containerRect.height });
+    }
+  }, []);
 
   // Handle keyboard shortcuts for zoom modal
   useEffect(() => {
@@ -55,9 +104,37 @@ export function PortfolioItemDisplay({
       if (e.key === "Escape") {
         setShowMediaModal(false);
       } else if (e.key === "+" || e.key === "=") {
-        setZoomLevel(prev => Math.min(prev + 0.5, 5));
+        setZoomLevel(prev => {
+          const newZoom = Math.min(prev + 0.5, 5);
+          // Re-clamp position for new zoom
+          if (imageDimensions.width && containerDimensions.width) {
+            const scaledWidth = imageDimensions.width * newZoom;
+            const scaledHeight = imageDimensions.height * newZoom;
+            const overflowX = Math.max(0, (scaledWidth - containerDimensions.width) / 2);
+            const overflowY = Math.max(0, (scaledHeight - containerDimensions.height) / 2);
+            setPanPosition(pos => ({
+              x: Math.max(-overflowX, Math.min(overflowX, pos.x)),
+              y: Math.max(-overflowY, Math.min(overflowY, pos.y)),
+            }));
+          }
+          return newZoom;
+        });
       } else if (e.key === "-") {
-        setZoomLevel(prev => Math.max(prev - 0.5, 0.5));
+        setZoomLevel(prev => {
+          const newZoom = Math.max(prev - 0.5, 0.5);
+          // Re-clamp position for new zoom
+          if (imageDimensions.width && containerDimensions.width) {
+            const scaledWidth = imageDimensions.width * newZoom;
+            const scaledHeight = imageDimensions.height * newZoom;
+            const overflowX = Math.max(0, (scaledWidth - containerDimensions.width) / 2);
+            const overflowY = Math.max(0, (scaledHeight - containerDimensions.height) / 2);
+            setPanPosition(pos => ({
+              x: Math.max(-overflowX, Math.min(overflowX, pos.x)),
+              y: Math.max(-overflowY, Math.min(overflowY, pos.y)),
+            }));
+          }
+          return newZoom;
+        });
       } else if (e.key === "0") {
         setZoomLevel(1);
         setPanPosition({ x: 0, y: 0 });
@@ -66,7 +143,7 @@ export function PortfolioItemDisplay({
     
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [showMediaModal]);
+  }, [showMediaModal, imageDimensions, containerDimensions]);
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     if (zoomLevel > 1) {
@@ -77,12 +154,12 @@ export function PortfolioItemDisplay({
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
     if (isDragging && zoomLevel > 1) {
-      setPanPosition({
-        x: e.clientX - dragStart.x,
-        y: e.clientY - dragStart.y
-      });
+      const newX = e.clientX - dragStart.x;
+      const newY = e.clientY - dragStart.y;
+      const clamped = clampPanPosition(newX, newY);
+      setPanPosition(clamped);
     }
-  }, [isDragging, zoomLevel, dragStart]);
+  }, [isDragging, zoomLevel, dragStart, clampPanPosition]);
 
   const handleMouseUp = useCallback(() => {
     setIsDragging(false);
@@ -91,8 +168,23 @@ export function PortfolioItemDisplay({
   const handleWheel = useCallback((e: React.WheelEvent) => {
     e.preventDefault();
     const delta = e.deltaY > 0 ? -0.25 : 0.25;
-    setZoomLevel(prev => Math.min(Math.max(prev + delta, 0.5), 5));
-  }, []);
+    const newZoom = Math.min(Math.max(zoomLevel + delta, 0.5), 5);
+    setZoomLevel(newZoom);
+    
+    // Re-clamp pan position for new zoom level
+    // Need to recalculate bounds with new zoom
+    if (imageDimensions.width && containerDimensions.width) {
+      const scaledWidth = imageDimensions.width * newZoom;
+      const scaledHeight = imageDimensions.height * newZoom;
+      const overflowX = Math.max(0, (scaledWidth - containerDimensions.width) / 2);
+      const overflowY = Math.max(0, (scaledHeight - containerDimensions.height) / 2);
+      
+      setPanPosition(prev => ({
+        x: Math.max(-overflowX, Math.min(overflowX, prev.x)),
+        y: Math.max(-overflowY, Math.min(overflowY, prev.y)),
+      }));
+    }
+  }, [zoomLevel, imageDimensions, containerDimensions]);
 
   const handleDelete = async () => {
     setIsDeleting(true);
@@ -397,6 +489,7 @@ export function PortfolioItemDisplay({
 
               {/* Clipping viewport - this maintains the 100% size and clips zoomed content */}
               <div
+                ref={containerRef}
                 className="relative overflow-hidden rounded-lg shadow-2xl border border-white/10"
                 onMouseDown={handleMouseDown}
                 onMouseMove={handleMouseMove}
@@ -417,6 +510,7 @@ export function PortfolioItemDisplay({
                   }}
                   ref={imageRef}
                   draggable={false}
+                  onLoad={handleImageLoad}
                   onClick={() => {
                     if (zoomLevel === 1) {
                       setZoomLevel(2);
@@ -482,7 +576,21 @@ export function PortfolioItemDisplay({
 
               {/* Zoom Out */}
               <button
-                onClick={() => setZoomLevel(prev => Math.max(prev - 0.5, 0.5))}
+                onClick={() => {
+                  const newZoom = Math.max(zoomLevel - 0.5, 0.5);
+                  setZoomLevel(newZoom);
+                  // Re-clamp pan for new zoom
+                  if (imageDimensions.width && containerDimensions.width) {
+                    const scaledWidth = imageDimensions.width * newZoom;
+                    const scaledHeight = imageDimensions.height * newZoom;
+                    const overflowX = Math.max(0, (scaledWidth - containerDimensions.width) / 2);
+                    const overflowY = Math.max(0, (scaledHeight - containerDimensions.height) / 2);
+                    setPanPosition(prev => ({
+                      x: Math.max(-overflowX, Math.min(overflowX, prev.x)),
+                      y: Math.max(-overflowY, Math.min(overflowY, prev.y)),
+                    }));
+                  }
+                }}
                 className="p-2.5 bg-white/10 hover:bg-white/15 text-white rounded-xl transition-all duration-200 hover:scale-105 disabled:opacity-40 disabled:hover:scale-100"
                 disabled={zoomLevel <= 0.5}
                 title="Zoom out (-)"
@@ -501,7 +609,21 @@ export function PortfolioItemDisplay({
 
               {/* Zoom In */}
               <button
-                onClick={() => setZoomLevel(prev => Math.min(prev + 0.5, 5))}
+                onClick={() => {
+                  const newZoom = Math.min(zoomLevel + 0.5, 5);
+                  setZoomLevel(newZoom);
+                  // Re-clamp pan for new zoom
+                  if (imageDimensions.width && containerDimensions.width) {
+                    const scaledWidth = imageDimensions.width * newZoom;
+                    const scaledHeight = imageDimensions.height * newZoom;
+                    const overflowX = Math.max(0, (scaledWidth - containerDimensions.width) / 2);
+                    const overflowY = Math.max(0, (scaledHeight - containerDimensions.height) / 2);
+                    setPanPosition(prev => ({
+                      x: Math.max(-overflowX, Math.min(overflowX, prev.x)),
+                      y: Math.max(-overflowY, Math.min(overflowY, prev.y)),
+                    }));
+                  }
+                }}
                 className="p-2.5 bg-white/10 hover:bg-white/15 text-white rounded-xl transition-all duration-200 hover:scale-105 disabled:opacity-40 disabled:hover:scale-100"
                 disabled={zoomLevel >= 5}
                 title="Zoom in (+)"
