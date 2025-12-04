@@ -38,6 +38,7 @@ model User {
   mentions        PostMention[]
   passwordResetTokens PasswordResetToken[]
   emailChangeTokens   EmailChangeToken[]
+  skills          UserSkill[]
 
   // Index for discover page sorting
   @@index([createdAt])
@@ -78,21 +79,25 @@ model VerificationToken {
 }
 
 model Profile {
-  id           String   @id @default(cuid())
-  userId       String   @unique
-  bio          String?
-  rates        String?
-  bannerUrl    String?
-  avatarUrl    String?
-  location     String?
-  website      String?
-  profileType  String   @default("DEVELOPER")
-  themeColor   String?
-  availability String?
-  verified     Boolean  @default(false)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id             String   @id @default(cuid())
+  userId         String   @unique
+  bio            String?
+  rates          String?
+  bannerUrl      String?
+  avatarUrl      String?
+  location       String?
+  website        String?
+  profileType    String   @default("DEVELOPER")
+  themeColor     String?
+  availability   String?  // AVAILABLE, BUSY, NOT_AVAILABLE, OPEN_TO_OFFERS
+  verified       Boolean  @default(false)
+  hourlyRate     Int?     // Hourly rate in cents (e.g., 5000 = $50/hr)
+  currency       String?  // Currency code (USD, EUR, GBP, etc.)
+  headline       String?  // Short tagline like "Senior Lua Developer | 5+ Years Experience"
+  responseTime   String?  // WITHIN_HOURS, WITHIN_DAY, WITHIN_WEEK
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   // Indexes for discover page performance
   @@index([verified])
@@ -356,4 +361,38 @@ model EmailChangeToken {
   expires    DateTime
   createdAt  DateTime @default(now())
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ============================================
+// SKILLS & ROLES SYSTEM
+// ============================================
+
+model Skill {
+  id          String      @id @default(cuid())
+  name        String      @unique
+  category    String      // DEVELOPMENT, DESIGN, AUDIO, ANIMATION, BUILDING, MANAGEMENT, OTHER
+  icon        String?     // Icon identifier
+  createdAt   DateTime    @default(now())
+  users       UserSkill[]
+
+  @@index([category])
+}
+
+model UserSkill {
+  id              String   @id @default(cuid())
+  userId          String
+  skillId         String
+  experienceLevel String   @default("INTERMEDIATE") // BEGINNER, INTERMEDIATE, ADVANCED, EXPERT
+  yearsOfExp      Int?     // Optional years of experience
+  isPrimary       Boolean  @default(false) // Is this a primary/main skill?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  skill           Skill    @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, skillId])
+  @@index([userId])
+  @@index([skillId])
+  @@index([experienceLevel])
+  @@index([isPrimary])
 }

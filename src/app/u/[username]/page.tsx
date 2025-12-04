@@ -10,6 +10,8 @@ import { ProfileTabs } from "./ProfileTabs";
 import { ProfileBanner, ProfileAvatar } from "./ProfileMedia";
 import { getProfileTypeConfig, ProfileTypeIcon } from "@/lib/profile-types";
 import { responseCache } from "@/lib/cache";
+import { SkillsDisplay, AvailabilityBadge, HeadlineDisplay } from "@/components/ui/SkillsDisplay";
+import type { ExperienceLevel, AvailabilityStatus } from "@/lib/skills";
 
 // Revalidate every 60 seconds
 export const revalidate = 60;
@@ -37,8 +39,33 @@ async function getProfileData(username: string) {
           verified: true,
           bio: true,
           website: true,
-          location: true
+          location: true,
+          availability: true,
+          hourlyRate: true,
+          currency: true,
+          headline: true,
+          responseTime: true,
         }
+      },
+      skills: {
+        select: {
+          id: true,
+          skillId: true,
+          experienceLevel: true,
+          yearsOfExp: true,
+          isPrimary: true,
+          skill: {
+            select: {
+              id: true,
+              name: true,
+              category: true,
+            }
+          }
+        },
+        orderBy: [
+          { isPrimary: "desc" },
+          { createdAt: "asc" },
+        ],
       },
       _count: { select: { followers: true, following: true, reviewsReceived: true } },
     },
@@ -157,15 +184,29 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
             <p className="text-xs sm:text-sm text-[var(--color-accent)]/80">@{user.username}</p>
           </div>
           
-          {/* Profile type badge */}
-          {user.profile?.profileType && (
+          {/* Headline */}
+          {user.profile?.headline && (
             <div className="mt-2">
+              <HeadlineDisplay headline={user.profile.headline} />
+            </div>
+          )}
+          
+          {/* Profile type badge and availability */}
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            {user.profile?.profileType && (
               <Badge className={`gap-1 text-xs px-2 py-0.5 ${getProfileTypeColors(user.profile.profileType)}`}>
                 <ProfileTypeIcon profileType={user.profile.profileType} size={12} />
                 {getProfileTypeConfig(user.profile.profileType).label}
               </Badge>
-            </div>
-          )}
+            )}
+            {(user.profile?.availability || user.profile?.hourlyRate) && (
+              <AvailabilityBadge 
+                status={(user.profile?.availability || "AVAILABLE") as AvailabilityStatus} 
+                hourlyRate={user.profile?.hourlyRate}
+                currency={user.profile?.currency || "USD"}
+              />
+            )}
+          </div>
           
           {/* Stats row - inline flex for consistent alignment */}
           <div className="mt-3 inline-flex items-stretch gap-1.5 flex-wrap">
@@ -202,6 +243,26 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
             <p className="mt-4 text-sm text-[var(--muted-foreground)] whitespace-pre-wrap leading-relaxed border-l-2 border-[var(--color-accent)]/30 pl-3">
               {user.profile.bio}
             </p>
+          )}
+          
+          {/* Skills */}
+          {user.skills && user.skills.length > 0 && (
+            <div className="mt-4">
+              <SkillsDisplay 
+                skills={user.skills.map((s: {
+                  id: string;
+                  skillId: string;
+                  experienceLevel: string;
+                  yearsOfExp: number | null;
+                  isPrimary: boolean;
+                  skill: { id: string; name: string; category: string };
+                }) => ({
+                  ...s,
+                  experienceLevel: s.experienceLevel as ExperienceLevel,
+                }))} 
+                maxDisplay={8}
+              />
+            </div>
           )}
           
           {/* Location & Website */}
