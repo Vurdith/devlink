@@ -169,21 +169,20 @@ export function MediaViewer({
     setShowModal(true);
   }, []);
 
-  // Grid media item component (for multi-image layouts with fixed aspect ratios)
-  const GridMediaItem = ({ item, index, aspectClass = "" }: { 
+  // Grid media item - NO cropping, natural aspect ratio
+  const GridMediaItem = ({ item, index }: { 
     item: MediaItem; 
     index: number; 
-    aspectClass?: string;
   }) => (
     <div
-      className={`relative cursor-pointer group overflow-hidden bg-[#0a0a0f] ${aspectClass}`}
+      className="relative cursor-pointer group"
       onClick={() => openModal(index)}
     >
       {item.type === "video" ? (
         <>
           <video
             src={item.url}
-            className="w-full h-full object-cover"
+            className="w-full h-auto rounded-xl"
             preload="metadata"
           />
           <div className="absolute inset-0 flex items-center justify-center">
@@ -198,11 +197,11 @@ export function MediaViewer({
         <img
           src={item.url}
           alt={`${alt} - ${index + 1}`}
-          className="w-full h-full object-cover"
+          className="w-full h-auto rounded-xl"
           loading="lazy"
         />
       )}
-      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-150" />
+      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-150 rounded-xl" />
     </div>
   );
 
@@ -306,64 +305,29 @@ export function MediaViewer({
       );
     }
 
-    // 2 images - side by side, equal height (cropped to fill)
+    // 2 images - side by side
     if (count === 2) {
       return (
-        <div className={`grid grid-cols-2 gap-0.5 rounded-2xl overflow-hidden ${className}`}>
-          <GridMediaItem item={media[0]} index={0} aspectClass="aspect-[4/5]" />
-          <GridMediaItem item={media[1]} index={1} aspectClass="aspect-[4/5]" />
+        <div className={`grid grid-cols-2 gap-1 ${className}`}>
+          <GridMediaItem item={media[0]} index={0} />
+          <GridMediaItem item={media[1]} index={1} />
         </div>
       );
     }
 
-    // 3 images - one large left, two stacked right
-    if (count === 3) {
-      return (
-        <div className={`grid grid-cols-2 gap-0.5 rounded-2xl overflow-hidden ${className}`}>
-          <GridMediaItem item={media[0]} index={0} aspectClass="aspect-[3/4] row-span-2" />
-          <div className="flex flex-col gap-0.5">
-            <GridMediaItem item={media[1]} index={1} aspectClass="aspect-[4/3]" />
-            <GridMediaItem item={media[2]} index={2} aspectClass="aspect-[4/3]" />
-          </div>
-        </div>
-      );
-    }
-
-    // 4 images - 2x2 grid
-    if (count === 4) {
-      return (
-        <div className={`grid grid-cols-2 gap-0.5 rounded-2xl overflow-hidden ${className}`}>
-          <GridMediaItem item={media[0]} index={0} aspectClass="aspect-square" />
-          <GridMediaItem item={media[1]} index={1} aspectClass="aspect-square" />
-          <GridMediaItem item={media[2]} index={2} aspectClass="aspect-square" />
-          <GridMediaItem item={media[3]} index={3} aspectClass="aspect-square" />
-        </div>
-      );
-    }
-
-    // 5+ images - 2x2 grid with +N overlay on last
+    // 3+ images - 2 column grid
     return (
-      <div className={`grid grid-cols-2 gap-0.5 rounded-2xl overflow-hidden ${className}`}>
-        <GridMediaItem item={media[0]} index={0} aspectClass="aspect-square" />
-        <GridMediaItem item={media[1]} index={1} aspectClass="aspect-square" />
-        <GridMediaItem item={media[2]} index={2} aspectClass="aspect-square" />
-        <div
-          className="relative cursor-pointer group overflow-hidden aspect-square bg-[#0a0a0f]"
-          onClick={() => openModal(3)}
-        >
-          <img
-            src={media[3].url}
-            alt={`${alt} - 4`}
-            className="w-full h-full object-cover"
-            loading="lazy"
-          />
-          {count > 4 && (
-            <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-[2px]">
-              <span className="text-white text-2xl font-bold">+{count - 4}</span>
-            </div>
-          )}
-          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-150" />
-        </div>
+      <div className={`grid grid-cols-2 gap-1 ${className}`}>
+        {media.slice(0, 4).map((item, index) => (
+          <div key={item.id || index} className="relative">
+            <GridMediaItem item={item} index={index} />
+            {index === 3 && count > 4 && (
+              <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-[2px] rounded-xl">
+                <span className="text-white text-2xl font-bold">+{count - 4}</span>
+              </div>
+            )}
+          </div>
+        ))}
       </div>
     );
   };
