@@ -168,48 +168,53 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
             editable={isOwnProfile}
           />
           
-          {/* Name & Username Row */}
-          <div className="mt-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-lg sm:text-2xl font-bold text-white truncate">
-                  {user.name ?? user.username}
-                </h1>
-                {user.profile?.verified && (
-                  <span className="inline-flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-gradient-to-br from-[var(--color-accent)] to-[var(--color-accent-hover)] flex-shrink-0">
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" className="text-white sm:w-3 sm:h-3">
-                      <path d="M20 6L9 17l-5-5" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </span>
-                )}
-                {user.profile?.profileType && (
-                  <Badge className={`gap-1 text-[10px] px-1.5 py-0.5 ${getProfileTypeColors(user.profile.profileType)}`}>
-                    <ProfileTypeIcon profileType={user.profile.profileType} size={10} />
-                    {getProfileTypeConfig(user.profile.profileType).label}
-                  </Badge>
-                )}
-              </div>
-              <p className="text-xs sm:text-sm text-[var(--muted-foreground)]">@{user.username}</p>
+          {/* Name & Verification */}
+          <div className="mt-4">
+            <div className="flex items-center gap-2">
+              <h1 className="text-xl sm:text-2xl font-bold text-white">
+                {user.name ?? user.username}
+              </h1>
+              {user.profile?.verified && (
+                <span className="inline-flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-gradient-to-br from-[var(--color-accent)] to-[var(--color-accent-hover)] flex-shrink-0">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" className="text-white sm:w-3 sm:h-3">
+                    <path d="M20 6L9 17l-5-5" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </span>
+              )}
             </div>
+            <p className="text-sm text-[var(--muted-foreground)]">@{user.username}</p>
           </div>
           
-          {/* Headline - if exists */}
-          {user.profile?.headline && (
-            <p className="mt-1 text-sm text-[var(--muted-foreground)] italic">
-              {user.profile.headline}
+          {/* Headline + Profile Type */}
+          <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
+            {user.profile?.headline && (
+              <p className="text-sm text-white/70">{user.profile.headline}</p>
+            )}
+            {user.profile?.profileType && (
+              <Badge className={`gap-1 text-[10px] px-2 py-0.5 ${getProfileTypeColors(user.profile.profileType)}`}>
+                <ProfileTypeIcon profileType={user.profile.profileType} size={10} />
+                {getProfileTypeConfig(user.profile.profileType).label}
+              </Badge>
+            )}
+          </div>
+          
+          {/* Bio */}
+          {user.profile?.bio && (
+            <p className="mt-4 text-sm text-[var(--muted-foreground)] whitespace-pre-wrap leading-relaxed">
+              {user.profile.bio}
             </p>
           )}
           
-          {/* Stats row - clean text-based */}
-          <div className="mt-3 flex items-center gap-4 text-sm text-[var(--muted-foreground)]">
-            <Link href={`/u/${user.username}/followers`} className="hover:text-white transition-colors">
+          {/* Stats row */}
+          <div className="mt-4 flex items-center gap-5 text-sm">
+            <Link href={`/u/${user.username}/followers`} className="hover:underline text-[var(--muted-foreground)]">
               <span className="font-semibold text-white">{user?._count?.followers ?? 0}</span> followers
             </Link>
-            <Link href={`/u/${user.username}/following`} className="hover:text-white transition-colors">
+            <Link href={`/u/${user.username}/following`} className="hover:underline text-[var(--muted-foreground)]">
               <span className="font-semibold text-white">{user?._count?.following ?? 0}</span> following
             </Link>
             {rating !== "—" && (
-              <span className="flex items-center gap-1">
+              <span className="flex items-center gap-1.5 text-[var(--muted-foreground)]">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" className="text-yellow-400">
                   <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/>
                 </svg>
@@ -217,13 +222,6 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
               </span>
             )}
           </div>
-          
-          {/* Bio - keep concise */}
-          {user.profile?.bio && (
-            <p className="mt-3 text-sm text-[var(--muted-foreground)] whitespace-pre-wrap leading-relaxed">
-              {user.profile.bio}
-            </p>
-          )}
           
           {/* Client-side live updates */}
           <script dangerouslySetInnerHTML={{ __html: `

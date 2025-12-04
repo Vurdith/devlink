@@ -583,78 +583,91 @@ export function ProfileTabs({ username, currentUserId, userId, skills = [], prof
             ))}
           </div>
         ) : activeTab === "about" ? (
-          <div className="space-y-6">
+          <div className="space-y-8">
             {/* Skills Section */}
             {skills.length > 0 && (
-              <div className="p-5 rounded-2xl bg-[#0d0d12] border border-white/10">
-                <h3 className="text-sm font-medium text-white/60 uppercase tracking-wide mb-4">Skills</h3>
-                <SkillsDisplay 
-                  skills={skills.map(s => ({
-                    ...s,
-                    experienceLevel: s.experienceLevel as ExperienceLevel,
-                  }))} 
-                />
-              </div>
-            )}
-
-            {/* Availability & Rates */}
-            {(profileData.availability || profileData.hourlyRate) && (
-              <div className="p-5 rounded-2xl bg-[#0d0d12] border border-white/10">
-                <h3 className="text-sm font-medium text-white/60 uppercase tracking-wide mb-4">Availability</h3>
-                <div className="flex flex-wrap gap-4">
-                  {profileData.availability && (
-                    <div className="flex items-center gap-3">
-                      <AvailabilityBadge 
-                        status={profileData.availability as AvailabilityStatus}
-                        showRate={false}
-                      />
-                    </div>
-                  )}
-                  {profileData.hourlyRate && (
-                    <div className="flex items-center gap-2 text-emerald-400">
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                      <span className="font-medium">{formatHourlyRate(profileData.hourlyRate, profileData.currency || "USD")}</span>
-                    </div>
-                  )}
-                  {profileData.responseTime && (
-                    <div className="flex items-center gap-2 text-[var(--muted-foreground)]">
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                      <span className="text-sm">Responds {RESPONSE_TIMES[profileData.responseTime as ResponseTime]?.label.toLowerCase()}</span>
-                    </div>
-                  )}
+              <div>
+                <h3 className="text-xs font-medium text-white/40 uppercase tracking-wider mb-3">Skills & Expertise</h3>
+                <div className="flex flex-wrap gap-2">
+                  {skills.map((s) => {
+                    const levelConfig = EXPERIENCE_LEVELS[s.experienceLevel as ExperienceLevel];
+                    const categoryConfig = SKILL_CATEGORIES[s.skill.category as keyof typeof SKILL_CATEGORIES];
+                    return (
+                      <div
+                        key={s.id}
+                        className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm ${levelConfig?.bgColor || 'bg-white/5'} ${levelConfig?.color || 'text-white/70'} border`}
+                      >
+                        {s.isPrimary && <span className="text-amber-400 text-xs">★</span>}
+                        <span className="font-medium">{s.skill.name}</span>
+                        <span className="text-xs opacity-60">{levelConfig?.label}</span>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             )}
 
-            {/* Location & Links */}
-            {(profileData.location || profileData.website) && (
-              <div className="p-5 rounded-2xl bg-[#0d0d12] border border-white/10">
-                <h3 className="text-sm font-medium text-white/60 uppercase tracking-wide mb-4">Contact & Location</h3>
-                <div className="space-y-3">
+            {/* Work Info - Clean inline layout */}
+            {(profileData.availability || profileData.hourlyRate || profileData.responseTime || profileData.location || profileData.website) && (
+              <div>
+                <h3 className="text-xs font-medium text-white/40 uppercase tracking-wider mb-3">Work & Contact</h3>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {profileData.availability && (
+                    <div className="flex items-center gap-3">
+                      <div className={`w-2 h-2 rounded-full ${
+                        profileData.availability === 'AVAILABLE' ? 'bg-emerald-400' :
+                        profileData.availability === 'OPEN_TO_OFFERS' ? 'bg-blue-400' :
+                        profileData.availability === 'BUSY' ? 'bg-amber-400' : 'bg-red-400'
+                      }`} />
+                      <span className="text-sm text-white/70">
+                        {AVAILABILITY_STATUS[profileData.availability as AvailabilityStatus]?.label}
+                      </span>
+                    </div>
+                  )}
+                  
+                  {profileData.hourlyRate && (
+                    <div className="flex items-center gap-3">
+                      <span className="text-emerald-400 text-sm">$</span>
+                      <span className="text-sm text-white/70">
+                        {formatHourlyRate(profileData.hourlyRate, profileData.currency || "USD")}
+                      </span>
+                    </div>
+                  )}
+                  
+                  {profileData.responseTime && (
+                    <div className="flex items-center gap-3">
+                      <svg className="w-4 h-4 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <span className="text-sm text-white/70">
+                        Responds {RESPONSE_TIMES[profileData.responseTime as ResponseTime]?.label.toLowerCase()}
+                      </span>
+                    </div>
+                  )}
+                  
                   {profileData.location && (
-                    <div className="flex items-center gap-3 text-[var(--muted-foreground)]">
-                      <svg className="w-5 h-5 text-[var(--color-accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="flex items-center gap-3">
+                      <svg className="w-4 h-4 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                       </svg>
-                      <span>{profileData.location}</span>
+                      <span className="text-sm text-white/70">{profileData.location}</span>
                     </div>
                   )}
+                  
                   {profileData.website && (
                     <a 
                       href={profileData.website} 
                       target="_blank" 
                       rel="noreferrer" 
-                      className="flex items-center gap-3 text-[var(--color-accent)] hover:underline"
+                      className="flex items-center gap-3 group"
                     >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4 text-white/40 group-hover:text-[var(--color-accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                       </svg>
-                      <span>{profileData.website.replace(/^https?:\/\//, '')}</span>
+                      <span className="text-sm text-[var(--color-accent)] group-hover:underline">
+                        {profileData.website.replace(/^https?:\/\//, '')}
+                      </span>
                     </a>
                   )}
                 </div>
