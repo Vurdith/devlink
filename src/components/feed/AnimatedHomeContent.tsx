@@ -2,6 +2,7 @@
 import { memo, useState, useEffect, useCallback } from "react";
 import { CreatePost } from "./CreatePost";
 import { PostFeed } from "./PostFeed";
+import { ThemeLogoImg } from "@/components/ui/ThemeLogo";
 
 interface UserProfile {
   id: string;
@@ -143,9 +144,7 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
           <div className="bg-[#0d0d12] rounded-3xl p-12 max-w-6xl mx-auto border border-white/10 hover:border-[var(--color-accent)]/30 transition-all duration-300 relative overflow-hidden group">
             <div className="relative">
               <div className="flex items-center justify-center gap-4 mb-8 animate-slide-down">
-                <img
-                  src="/logo/logo.png"
-                  alt="DevLink"
+                <ThemeLogoImg
                   className="w-20 h-20 object-contain animate-float"
                 />
                 <h1 className="text-6xl lg:text-7xl font-bold bg-gradient-to-r from-[var(--color-accent)] via-pink-400 to-blue-400 bg-clip-text text-transparent">

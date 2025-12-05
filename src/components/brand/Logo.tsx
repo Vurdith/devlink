@@ -1,11 +1,11 @@
-import Image from "next/image";
+"use client";
+
+import { ThemeLogo } from "@/components/ui/ThemeLogo";
 
 export function Logo({ size = 24 }: { size?: number }) {
   return (
     <div className="inline-flex items-center gap-2">
-      <Image
-        src="/logo/logo.png"
-        alt="DevLink"
+      <ThemeLogo
         width={size}
         height={size}
         className="object-contain"
