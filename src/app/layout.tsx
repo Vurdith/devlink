@@ -117,6 +117,25 @@ export default function RootLayout({
         
         {/* Optimize resource loading */}
         <meta httpEquiv="x-dns-prefetch-control" content="on" />
+        
+        {/* Early theme favicon sync - runs before React hydrates */}
+        <script dangerouslySetInnerHTML={{ __html: `
+          (function() {
+            try {
+              var theme = localStorage.getItem('devlink-theme');
+              if (theme && (theme === 'red' || theme === 'purple')) {
+                var links = document.querySelectorAll('link[rel*="icon"]');
+                links.forEach(function(link) {
+                  if (link.href.includes('favicon')) {
+                    link.href = '/favicon-' + theme + '.ico';
+                  } else if (link.href.includes('logo')) {
+                    link.href = '/logo/logo-' + theme + '.png';
+                  }
+                });
+              }
+            } catch(e) {}
+          })();
+        `}} />
       </head>
       <body className={`${outfit.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable} antialiased min-h-screen`}>
         {/* Skip to main content link for accessibility */}
