@@ -3,9 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")      // Pooler URL for app runtime
-  directUrl = env("DIRECT_URL")        // Direct URL for migrations
+  provider = "postgresql"
 }
 
 model User {

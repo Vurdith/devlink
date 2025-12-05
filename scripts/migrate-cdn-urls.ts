@@ -4,8 +4,12 @@
  */
 
 import { PrismaClient } from "@prisma/client";
+import { PrismaPg } from "@prisma/adapter-pg";
+import { Pool } from "pg";
 
-const prisma = new PrismaClient();
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+const adapter = new PrismaPg(pool);
+const prisma = new PrismaClient({ adapter });
 
 const OLD_URL = "pub-ea722416a40b40849162fc1e5c82e2b5.r2.dev";
 const NEW_URL = "cdn.devlink.ink";
