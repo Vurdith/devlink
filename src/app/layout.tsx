@@ -124,23 +124,22 @@ export default function RootLayout({
             try {
               var theme = localStorage.getItem('devlink-theme');
               if (theme && (theme === 'red' || theme === 'purple')) {
-                // Create favicon link immediately
-                var link = document.createElement('link');
-                link.rel = 'icon';
-                link.href = '/favicon-' + theme + '.ico?v=' + Date.now();
-                document.head.appendChild(link);
+                // Remove ALL existing favicon/icon links first
+                var existingIcons = document.querySelectorAll('link[rel*="icon"]');
+                existingIcons.forEach(function(l) { l.remove(); });
                 
-                // Also update existing links when DOM is ready
-                document.addEventListener('DOMContentLoaded', function() {
-                  var links = document.querySelectorAll('link[rel*="icon"]');
-                  links.forEach(function(l) {
-                    if (l.href.includes('favicon')) {
-                      l.href = '/favicon-' + theme + '.ico';
-                    } else if (l.href.includes('logo')) {
-                      l.href = '/logo/logo-' + theme + '.png';
-                    }
-                  });
-                });
+                // Create new favicon link with cache-busting
+                var favicon = document.createElement('link');
+                favicon.rel = 'icon';
+                favicon.type = 'image/x-icon';
+                favicon.href = '/favicon-' + theme + '.ico?t=' + Date.now();
+                document.head.appendChild(favicon);
+                
+                // Create shortcut icon too (for older browsers)
+                var shortcut = document.createElement('link');
+                shortcut.rel = 'shortcut icon';
+                shortcut.href = '/favicon-' + theme + '.ico?t=' + Date.now();
+                document.head.appendChild(shortcut);
               }
             } catch(e) {}
           })();

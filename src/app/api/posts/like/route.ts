@@ -54,13 +54,25 @@ export async function POST(req: Request) {
       throw dbError;
     }
 
-    // Invalidate all caches that contain user engagement state - MUST await
+    // Invalidate ALL relevant caches - MUST await
+    // This ensures counts are fresh everywhere
     await Promise.all([
       responseCache.invalidatePattern(new RegExp(`^user:${userId}:`)),
-      responseCache.invalidatePattern(new RegExp(`^hashtag:.*:${userId}$`))
+      responseCache.invalidatePattern(new RegExp(`^hashtag:`)),
+      responseCache.invalidatePattern(new RegExp(`^feed:`)), // Invalidate feed cache
+      responseCache.invalidatePattern(new RegExp(`^post:${postId}`)) // Invalidate specific post cache
     ]);
 
-    return NextResponse.json({ liked });
+    // Get the updated like count to return to client
+    const updatedPost = await prisma.post.findUnique({
+      where: { id: postId },
+      select: { _count: { select: { likes: true } } }
+    });
+
+    return NextResponse.json({ 
+      liked,
+      likeCount: updatedPost?._count.likes || 0
+    });
   } catch (error) {
     console.error("Error toggling like:", error);
     return NextResponse.json({ error: "Failed to toggle like" }, { status: 500 });

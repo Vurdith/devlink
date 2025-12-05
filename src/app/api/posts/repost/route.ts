@@ -56,14 +56,24 @@ export async function POST(req: Request) {
       reposted = true;
     }
 
-    // Invalidate all caches that contain user engagement state - MUST await
+    // Invalidate ALL relevant caches - MUST await
     await Promise.all([
       responseCache.invalidatePattern(/^feed:/),
       responseCache.invalidatePattern(new RegExp(`^user:${userId}:`)),
-      responseCache.invalidatePattern(new RegExp(`^hashtag:.*:${userId}$`))
+      responseCache.invalidatePattern(/^hashtag:/),
+      responseCache.invalidatePattern(new RegExp(`^post:${postId}`))
     ]);
 
-    return NextResponse.json({ reposted });
+    // Get updated repost count
+    const updatedPost = await prisma.post.findUnique({
+      where: { id: postId },
+      select: { _count: { select: { reposts: true } } }
+    });
+
+    return NextResponse.json({ 
+      reposted,
+      repostCount: updatedPost?._count.reposts || 0
+    });
   } catch (error) {
     console.error("Error toggling repost:", error);
     return NextResponse.json({ error: "Failed to toggle repost" }, { status: 500 });

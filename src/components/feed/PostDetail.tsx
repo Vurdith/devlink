@@ -266,7 +266,11 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
 
       if (data.liked !== undefined) {
         setIsLiked(data.liked);
-        if (data.liked !== newLikedState) {
+        // Use the authoritative count from the server
+        if (data.likeCount !== undefined) {
+          setLikeCount(data.likeCount);
+        } else if (data.liked !== newLikedState) {
+          // Fallback if server doesn't return count
           setLikeCount(prev => data.liked ? prev + 1 : Math.max(0, prev - 1));
         }
         setLastUpdateTime(Date.now());
@@ -314,7 +318,11 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
       const data = await response.json();
       if (response.ok && data.reposted !== undefined) {
         setIsReposted(data.reposted);
-        if (data.reposted !== newRepostedState) {
+        // Use the authoritative count from the server
+        if (data.repostCount !== undefined) {
+          setRepostCount(data.repostCount);
+        } else if (data.reposted !== newRepostedState) {
+          // Fallback if server doesn't return count
           setRepostCount(prev => data.reposted ? prev + 1 : Math.max(0, prev - 1));
         }
         setLastUpdateTime(Date.now());
