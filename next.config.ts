@@ -2,15 +2,8 @@ import type { NextConfig } from "next";
 import { withSentryConfig } from "@sentry/nextjs";
 
 const nextConfig: NextConfig = {
-  // ESLint configuration
-  // NOTE: There are ~100+ existing `no-explicit-any` errors to fix incrementally
-  // Run `npm run lint` to see full list. Fix these over time.
-  eslint: {
-    // Temporarily ignore during builds while fixing existing issues
-    // TODO: Remove once all `any` types are replaced with proper types
-    ignoreDuringBuilds: true,
-    dirs: ['src'], // Only lint src directory
-  },
+  // NOTE: ESLint config moved to eslint.config.mjs in Next.js 16
+  // Run `npm run lint` to see full list of issues to fix.
   reactStrictMode: true,
   // Enable experimental optimizations
   experimental: {

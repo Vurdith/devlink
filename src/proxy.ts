@@ -2,10 +2,11 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 /**
- * Global middleware for security headers and basic protection
+ * Global proxy for security headers and basic protection
  * Runs on all routes except static files
+ * (Renamed from middleware to proxy in Next.js 16)
  */
-export function middleware(req: NextRequest) {
+export function proxy(req: NextRequest) {
   const response = NextResponse.next();
   
   // Security headers
