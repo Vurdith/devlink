@@ -53,6 +53,7 @@ interface Post {
   views: number;
   isLiked?: boolean;
   isReposted?: boolean;
+  isSaved?: boolean;
   isPinned: boolean;
   userVote?: {
     optionIds: string[];
@@ -151,8 +152,12 @@ const VirtualPostItem = memo(function VirtualPostItem({
     </article>
   );
 }, (prev, next) => {
+  // Check all fields that affect rendering, including engagement state
   return prev.post.id === next.post.id && 
          prev.post.updatedAt === next.post.updatedAt &&
+         prev.post.isLiked === next.post.isLiked &&
+         prev.post.isReposted === next.post.isReposted &&
+         prev.post.isSaved === next.post.isSaved &&
          prev.showPinnedTag === next.showPinnedTag;
 });
 

@@ -53,6 +53,7 @@ interface Post {
   views: number;
   isLiked?: boolean;
   isReposted?: boolean;
+  isSaved?: boolean;
   isPinned: boolean;
   userVote?: {
     optionIds: string[];
