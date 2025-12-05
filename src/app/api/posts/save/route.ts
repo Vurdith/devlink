@@ -60,11 +60,13 @@ export async function POST(request: NextRequest) {
       saved = true;
     }
 
-    // Invalidate all caches that contain user engagement state - MUST await
+    // Invalidate ALL relevant caches - MUST await
     await Promise.all([
       responseCache.invalidatePattern(/^feed:/),
       responseCache.invalidatePattern(new RegExp(`^user:${user.id}:`)),
-      responseCache.invalidatePattern(new RegExp(`^hashtag:.*:${user.id}$`))
+      responseCache.invalidatePattern(/^hashtag:/),
+      responseCache.invalidatePattern(new RegExp(`^post:${postId}`)),
+      responseCache.invalidatePattern(new RegExp(`^saved-posts:${user.id}:`))
     ]);
 
     return NextResponse.json({ saved });
