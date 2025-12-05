@@ -124,13 +124,22 @@ export default function RootLayout({
             try {
               var theme = localStorage.getItem('devlink-theme');
               if (theme && (theme === 'red' || theme === 'purple')) {
-                var links = document.querySelectorAll('link[rel*="icon"]');
-                links.forEach(function(link) {
-                  if (link.href.includes('favicon')) {
-                    link.href = '/favicon-' + theme + '.ico';
-                  } else if (link.href.includes('logo')) {
-                    link.href = '/logo/logo-' + theme + '.png';
-                  }
+                // Create favicon link immediately
+                var link = document.createElement('link');
+                link.rel = 'icon';
+                link.href = '/favicon-' + theme + '.ico?v=' + Date.now();
+                document.head.appendChild(link);
+                
+                // Also update existing links when DOM is ready
+                document.addEventListener('DOMContentLoaded', function() {
+                  var links = document.querySelectorAll('link[rel*="icon"]');
+                  links.forEach(function(l) {
+                    if (l.href.includes('favicon')) {
+                      l.href = '/favicon-' + theme + '.ico';
+                    } else if (l.href.includes('logo')) {
+                      l.href = '/logo/logo-' + theme + '.png';
+                    }
+                  });
                 });
               }
             } catch(e) {}
