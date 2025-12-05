@@ -98,6 +98,8 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
   const [feedPosts, setFeedPosts] = useState<Post[]>(postsWithViewCounts || []);
   // Track when we last made a local update to avoid server overwriting optimistic state
   const [lastLocalUpdate, setLastLocalUpdate] = useState(0);
+  // Track if we've fetched fresh engagement state
+  const [engagementFetched, setEngagementFetched] = useState(false);
   
   // Update posts when new data comes from server
   // BUT don't overwrite if we just made a local update (prevents reverting optimistic state)
@@ -106,8 +108,52 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
     // Only sync from server if it's been more than 2 seconds since last local update
     if (timeSinceLastUpdate > 2000) {
       setFeedPosts(postsWithViewCounts || []);
+      setEngagementFetched(false); // Need to re-fetch engagement for new posts
     }
   }, [postsWithViewCounts, lastLocalUpdate]);
+  
+  // Fetch fresh engagement state client-side after mount
+  // This allows the page to be cached while still showing accurate engagement
+  useEffect(() => {
+    if (!session?.user?.id || engagementFetched || feedPosts.length === 0) return;
+    
+    const fetchEngagement = async () => {
+      try {
+        const postIds = feedPosts.map(p => p.id);
+        const response = await fetch('/api/posts/engagement', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ postIds })
+        });
+        
+        if (!response.ok) return;
+        
+        const { engagement } = await response.json();
+        if (!engagement) return;
+        
+        // Update posts with fresh engagement state
+        setFeedPosts(prevPosts => prevPosts.map(post => {
+          const postEngagement = engagement[post.id];
+          if (!postEngagement) return post;
+          
+          return {
+            ...post,
+            isLiked: postEngagement.isLiked,
+            isReposted: postEngagement.isReposted,
+            isSaved: postEngagement.isSaved
+          };
+        }));
+        
+        setEngagementFetched(true);
+      } catch (error) {
+        console.error('Failed to fetch engagement:', error);
+      }
+    };
+    
+    // Small delay to not block initial render
+    const timeoutId = setTimeout(fetchEngagement, 100);
+    return () => clearTimeout(timeoutId);
+  }, [session?.user?.id, engagementFetched, feedPosts.length]);
   
   // Listen for engagement updates and update posts immediately
   useEffect(() => {
