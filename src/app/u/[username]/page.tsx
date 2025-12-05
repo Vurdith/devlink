@@ -1,5 +1,6 @@
 import { prisma } from "@/server/db";
 import { notFound } from "next/navigation";
+import { unstable_noStore as noStore } from "next/cache";
 import { Badge } from "@/components/ui/Badge";
 import { FollowButton } from "@/components/ui/FollowButton";
 import Link from "next/link";
@@ -12,8 +13,9 @@ import { getProfileTypeConfig, ProfileTypeIcon } from "@/lib/profile-types";
 import { responseCache } from "@/lib/cache";
 import type { ExperienceLevel, AvailabilityStatus } from "@/lib/skills";
 
-// Revalidate every 60 seconds
-export const revalidate = 60;
+// Completely disable all caching for this page
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 // Cache profile data for faster repeat loads
 async function getProfileData(username: string) {
@@ -89,6 +91,9 @@ async function getProfileData(username: string) {
 }
 
 export default async function UserProfilePage(props: { params: Promise<{ username: string }> }) {
+  // Opt out of all caching - engagement state must be real-time
+  noStore();
+  
   const { username } = await props.params;
   
   // Fetch session and profile data in parallel

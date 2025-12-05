@@ -1,5 +1,6 @@
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
+import { unstable_noStore as noStore } from "next/cache";
 import { authOptions } from "@/server/auth-options";
 import { prisma } from "@/server/db";
 import { AnimatedHomeContent } from "@/components/feed/AnimatedHomeContent";
@@ -7,11 +8,14 @@ import { fetchHomeFeedPosts } from "@/server/feed/fetch-home-feed";
 import { rankPosts, type RankablePost } from "@/lib/ranking/devlink-ranking";
 import { buildRankablePost } from "@/lib/ranking/ranking-transforms";
 
-// Disable page caching - engagement state must be fresh
-// The feed data itself is cached in responseCache, but user's isLiked/isReposted/isSaved must be real-time
+// Completely disable all caching for this page
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export default async function HomePage() {
+  // Opt out of all caching - engagement state must be real-time
+  noStore();
+  
   // Fetch session and posts in parallel (first batch)
   const [session, posts] = await Promise.all([
     getServerSession(authOptions),

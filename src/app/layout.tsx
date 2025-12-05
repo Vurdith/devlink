@@ -9,6 +9,7 @@ import { ToastProvider } from "@/components/providers/ToastProvider";
 import { PerformanceProvider } from "@/components/providers/PerformanceProvider";
 import { RealtimeProvider } from "@/components/providers/RealtimeProvider";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
+import { ThemeFavicon } from "@/components/ui/ThemeFavicon";
 import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
 import { AnimatedBackground } from "@/components/ui/AnimatedBackground";
 
@@ -175,6 +176,7 @@ export default function RootLayout({
         
         <SessionProvider>
           <ThemeProvider>
+          <ThemeFavicon />
           <ToastProvider>
             <RealtimeProvider>
             <PerformanceProvider>
