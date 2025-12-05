@@ -248,7 +248,7 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
     : post.user.profile?.avatarUrl;
 
   const handleLike = useCallback(async () => {
-    if (!session?.user?.id) return;
+    if (!session?.user?.id || isUpdating) return;
     const newLikedState = !isLiked;
     setIsUpdating(true);
     setIsLiked(newLikedState);
@@ -299,10 +299,10 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
     } finally {
       setIsUpdating(false);
     }
-  }, [session?.user?.id, isLiked, post, onUpdate]);
+  }, [session?.user?.id, isLiked, isUpdating, post, onUpdate]);
 
   const handleRepost = useCallback(async () => {
-    if (!session?.user?.id) return;
+    if (!session?.user?.id || isUpdating) return;
     const newRepostedState = !isReposted;
     setIsUpdating(true);
     setIsReposted(newRepostedState);
@@ -353,10 +353,10 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
     } finally {
       setIsUpdating(false);
     }
-  }, [session?.user?.id, isReposted, post, onUpdate]);
+  }, [session?.user?.id, isReposted, isUpdating, post, onUpdate]);
 
   const handleSave = useCallback(async () => {
-    if (!session?.user?.id) return;
+    if (!session?.user?.id || isUpdating) return;
     const newSavedState = !isSaved;
     setIsUpdating(true);
     setIsSaved(newSavedState);
@@ -396,7 +396,7 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
     } finally {
       setIsUpdating(false);
     }
-  }, [session?.user?.id, isSaved, post, onUpdate]);
+  }, [session?.user?.id, isSaved, isUpdating, post, onUpdate]);
 
   const handlePin = async () => {
     if (!session?.user?.id || !isOwnPost) return;

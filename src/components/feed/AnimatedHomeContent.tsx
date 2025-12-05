@@ -96,16 +96,26 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
 }: AnimatedHomeContentProps) {
   // Manage posts state locally so we can update on engagement changes
   const [feedPosts, setFeedPosts] = useState<Post[]>(postsWithViewCounts || []);
+  // Track when we last made a local update to avoid server overwriting optimistic state
+  const [lastLocalUpdate, setLastLocalUpdate] = useState(0);
   
   // Update posts when new data comes from server
+  // BUT don't overwrite if we just made a local update (prevents reverting optimistic state)
   useEffect(() => {
-    setFeedPosts(postsWithViewCounts || []);
-  }, [postsWithViewCounts]);
+    const timeSinceLastUpdate = Date.now() - lastLocalUpdate;
+    // Only sync from server if it's been more than 2 seconds since last local update
+    if (timeSinceLastUpdate > 2000) {
+      setFeedPosts(postsWithViewCounts || []);
+    }
+  }, [postsWithViewCounts, lastLocalUpdate]);
   
   // Listen for engagement updates and update posts immediately
   useEffect(() => {
     const handleEngagementUpdate = (event: CustomEvent) => {
       const { post, action, liked, reposted, saved } = event.detail;
+      
+      // Mark that we're making a local update
+      setLastLocalUpdate(Date.now());
       
       setFeedPosts(prevPosts => prevPosts.map(p => {
         if (p.id !== post.id) return p;
@@ -132,6 +142,7 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
   
   // Handle post updates from child components
   const handlePostUpdate = useCallback((updatedPost: any) => {
+    setLastLocalUpdate(Date.now());
     setFeedPosts(prevPosts => prevPosts.map(p => 
       p.id === updatedPost.id ? { ...p, ...updatedPost } : p
     ));
