@@ -2,7 +2,7 @@ import { prisma } from "@/server/db";
 import { responseCache } from "@/lib/cache";
 import { getUniqueViewCounts } from "@/lib/view-utils";
 
-const FEED_CACHE_TTL = 60; // Cache feed for 60 seconds (increased for performance)
+const FEED_CACHE_TTL = 30; // Cache feed for 30 seconds - invalidated on engagement actions
 
 // Full select for feed display AND ranking
 const feedPostSelect = {

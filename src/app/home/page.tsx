@@ -7,8 +7,9 @@ import { fetchHomeFeedPosts } from "@/server/feed/fetch-home-feed";
 import { rankPosts, type RankablePost } from "@/lib/ranking/devlink-ranking";
 import { buildRankablePost } from "@/lib/ranking/ranking-transforms";
 
-// Cache for 30 seconds
-export const revalidate = 30;
+// Disable page caching - engagement state must be fresh
+// The feed data itself is cached in responseCache, but user's isLiked/isReposted/isSaved must be real-time
+export const dynamic = 'force-dynamic';
 
 export default async function HomePage() {
   // Fetch session and posts in parallel (first batch)
