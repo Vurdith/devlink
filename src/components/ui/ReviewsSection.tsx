@@ -3,6 +3,7 @@
 import { useState, useEffect, memo, useMemo } from "react";
 import { Review } from "./Review";
 import { CreateReview } from "./CreateReview";
+import { ConfirmModal } from "./BaseModal";
 import { cn } from "@/lib/cn";
 
 interface ReviewsSectionProps {
@@ -52,6 +53,8 @@ export const ReviewsSection = memo(function ReviewsSection({ targetUserId, targe
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [editingReviewId, setEditingReviewId] = useState<string | null>(null);
   const [sentimentFilter, setSentimentFilter] = useState<SentimentFilter>("all");
+  const [deleteConfirm, setDeleteConfirm] = useState<{ isOpen: boolean; reviewId: string | null }>({ isOpen: false, reviewId: null });
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     fetchReviews();
@@ -80,19 +83,27 @@ export const ReviewsSection = memo(function ReviewsSection({ targetUserId, targe
     setEditingReviewId(reviewId);
   };
 
-  const handleDeleteReview = async (reviewId: string) => {
-    if (!confirm("Are you sure you want to delete this review?")) return;
+  const handleDeleteReview = (reviewId: string) => {
+    setDeleteConfirm({ isOpen: true, reviewId });
+  };
 
+  const confirmDeleteReview = async () => {
+    if (!deleteConfirm.reviewId) return;
+
+    setIsDeleting(true);
     try {
-      const response = await fetch(`/api/reviews/${reviewId}`, {
+      const response = await fetch(`/api/reviews/${deleteConfirm.reviewId}`, {
         method: "DELETE",
       });
 
       if (response.ok) {
-        setReviews(prev => prev.filter(review => review.id !== reviewId));
+        setReviews(prev => prev.filter(review => review.id !== deleteConfirm.reviewId));
+        setDeleteConfirm({ isOpen: false, reviewId: null });
       }
     } catch (error) {
       console.error("Error deleting review:", error);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -382,6 +393,19 @@ export const ReviewsSection = memo(function ReviewsSection({ targetUserId, targe
           ))
         )}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        isOpen={deleteConfirm.isOpen}
+        onClose={() => setDeleteConfirm({ isOpen: false, reviewId: null })}
+        onConfirm={confirmDeleteReview}
+        title="Delete Review"
+        message="Are you sure you want to delete this review? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        isDestructive={true}
+        isLoading={isDeleting}
+      />
     </div>
   );
 });

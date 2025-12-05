@@ -17,12 +17,16 @@ const sizeClasses = {
 export const LoadingSpinner = memo(function LoadingSpinner({ size = "md", className }: LoadingSpinnerProps) {
   return (
     <div
+      role="status"
+      aria-label="Loading"
       className={cn(
         "animate-spin rounded-full border-2 border-gray-300 border-t-[var(--color-accent)]",
         sizeClasses[size],
         className
       )}
-    />
+    >
+      <span className="sr-only">Loading...</span>
+    </div>
   );
 });
 

@@ -57,6 +57,9 @@ export function Toast({ message, type = "success", duration = 3000, onClose }: T
 
   return (
     <div
+      role="alert"
+      aria-live={type === "error" ? "assertive" : "polite"}
+      aria-atomic="true"
       className={cn(
         "fixed top-4 right-4 z-[999999] flex items-center gap-3 px-4 py-3 rounded-lg border shadow-lg transition-all duration-300",
         getBgColor(),
@@ -75,16 +78,17 @@ export function Toast({ message, type = "success", duration = 3000, onClose }: T
         boxShadow: '0 10px 25px rgba(0, 0, 0, 0.3)'
       }}
     >
-      {getIcon()}
+      <span aria-hidden="true">{getIcon()}</span>
       <span className="text-white text-sm font-medium">{message}</span>
       <button
         onClick={() => {
           setIsVisible(false);
           setTimeout(onClose, 300);
         }}
+        aria-label="Dismiss notification"
         className="ml-2 text-white/70 hover:text-white transition-colors"
       >
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
       </button>

@@ -4,6 +4,72 @@ import { useEffect, useState, useCallback, ReactNode, memo, useRef } from "react
 import { createPortal } from "react-dom";
 import { cn } from "@/lib/cn";
 
+// Focus trap hook for modal accessibility
+function useFocusTrap(isOpen: boolean) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const previousActiveElement = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    // Store the previously focused element
+    previousActiveElement.current = document.activeElement as HTMLElement;
+
+    const container = containerRef.current;
+    if (!container) return;
+
+    // Find all focusable elements
+    const getFocusableElements = () => {
+      return container.querySelectorAll<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      );
+    };
+
+    // Focus the first focusable element or the container
+    const focusableElements = getFocusableElements();
+    if (focusableElements.length > 0) {
+      focusableElements[0].focus();
+    } else {
+      container.focus();
+    }
+
+    // Handle tab key to trap focus
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab') return;
+
+      const focusable = getFocusableElements();
+      if (focusable.length === 0) return;
+
+      const firstElement = focusable[0];
+      const lastElement = focusable[focusable.length - 1];
+
+      if (e.shiftKey) {
+        // Shift + Tab
+        if (document.activeElement === firstElement) {
+          e.preventDefault();
+          lastElement.focus();
+        }
+      } else {
+        // Tab
+        if (document.activeElement === lastElement) {
+          e.preventDefault();
+          firstElement.focus();
+        }
+      }
+    };
+
+    container.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      container.removeEventListener('keydown', handleKeyDown);
+      // Restore focus to previously focused element
+      previousActiveElement.current?.focus();
+    };
+  }, [isOpen]);
+
+  return containerRef;
+}
+
 // Portal-based Tooltip component - won't clip at container boundaries
 export const Tooltip = memo(function Tooltip({ 
   children, 
@@ -180,6 +246,8 @@ export const BaseModal = memo(function BaseModal({
   headerRight,
 }: BaseModalProps) {
   const [mounted, setMounted] = useState(false);
+  const focusTrapRef = useFocusTrap(isOpen);
+  const titleId = useRef(`modal-title-${Math.random().toString(36).slice(2, 9)}`).current;
 
   // Mount check for portal
   useEffect(() => {
@@ -223,15 +291,22 @@ export const BaseModal = memo(function BaseModal({
     <div 
       className="fixed inset-0 z-[9999] flex items-start justify-center pt-[5vh] sm:pt-[10vh] px-2 sm:px-4"
       style={{ contain: 'layout style paint' }}
+      role="presentation"
     >
       {/* Backdrop - solid black, no blur for performance */}
       <div 
         className="absolute inset-0 bg-black/90" 
-        onClick={handleBackdropClick} 
+        onClick={handleBackdropClick}
+        aria-hidden="true"
       />
       
-      {/* Modal container */}
+      {/* Modal container with focus trap */}
       <div 
+        ref={focusTrapRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={title ? titleId : undefined}
+        tabIndex={-1}
         className={cn(
           "relative w-full max-h-[85vh] flex flex-col rounded-2xl overflow-hidden",
           "bg-[#0d0d12] border border-[var(--color-accent)]/20",
@@ -250,15 +325,15 @@ export const BaseModal = memo(function BaseModal({
                 <button
                   onClick={onClose}
                   className="p-2 -ml-2 rounded-xl hover:bg-white/10 transition-colors text-white/70 hover:text-white"
-                  aria-label="Close"
+                  aria-label="Close modal"
                 >
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
                     <path d="M18 6L6 18M6 6l12 12" />
                   </svg>
                 </button>
               )}
               {title && (
-                <h2 className="text-lg font-semibold text-white">{title}</h2>
+                <h2 id={titleId} className="text-lg font-semibold text-white">{title}</h2>
               )}
             </div>
             {headerRight}
@@ -340,6 +415,75 @@ export const ModalTextarea = memo(function ModalTextarea({
         )}
       />
     </div>
+  );
+});
+
+// Confirmation modal for destructive actions (accessible alternative to native confirm())
+interface ConfirmModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+  title: string;
+  message: string;
+  confirmText?: string;
+  cancelText?: string;
+  isDestructive?: boolean;
+  isLoading?: boolean;
+}
+
+export const ConfirmModal = memo(function ConfirmModal({
+  isOpen,
+  onClose,
+  onConfirm,
+  title,
+  message,
+  confirmText = "Confirm",
+  cancelText = "Cancel",
+  isDestructive = true,
+  isLoading = false,
+}: ConfirmModalProps) {
+  return (
+    <BaseModal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={title}
+      size="sm"
+      showCloseButton={false}
+      footer={
+        <div className="flex items-center justify-end gap-3">
+          <button
+            onClick={onClose}
+            disabled={isLoading}
+            className="px-4 py-2.5 rounded-xl text-sm font-medium text-white/70 hover:text-white hover:bg-white/10 transition-colors disabled:opacity-50"
+          >
+            {cancelText}
+          </button>
+          <button
+            onClick={onConfirm}
+            disabled={isLoading}
+            className={cn(
+              "px-4 py-2.5 rounded-xl text-sm font-semibold transition-all disabled:opacity-50",
+              isDestructive
+                ? "bg-red-500 hover:bg-red-600 text-white"
+                : "bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] text-white"
+            )}
+          >
+            {isLoading ? (
+              <span className="flex items-center gap-2">
+                <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                {confirmText}
+              </span>
+            ) : (
+              confirmText
+            )}
+          </button>
+        </div>
+      }
+    >
+      <div className="px-5 py-4">
+        <p className="text-white/70">{message}</p>
+      </div>
+    </BaseModal>
   );
 });
 
