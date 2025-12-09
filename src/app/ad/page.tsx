@@ -3,811 +3,373 @@
 import { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-// --- Configuration ---
+// --- Script & Timing Configuration ---
+// The duration is now relative. If you add an audio file, it will sync to timestamps.
+// If no audio, it falls back to these durations.
 
 const SCENES = [
-  // 1. Chaos Intro
-  { 
-    id: 'chaos_intro', 
-    duration: 2500, 
-    type: 'text_slam', 
-    text: 'HIRING DEVS\nSHOULDN’T FEEL\nLIKE THIS...', 
-    bg: 'bg-[#1a0505]',
-    speech: "Hiring developers shouldn’t feel like this..."
-  },
+  // 0: Chaos - Intro
+  { id: 'intro', duration: 3000, type: 'kinetic_slam', text: ['HIRING', 'SHOULDN’T', 'HURT'], bg: '#000000' },
   
-  // 2. Chaos Flash (Grouped for speech)
-  { 
-    id: 'chaos_1', 
-    duration: 600, 
-    type: 'flash_cut', 
-    text: 'RANDOM DMs?', 
-    sub: '🚫 SCAM ALERT', 
-    bg: 'bg-[#2a0505]',
-    speech: "Random Discord DMs?"
-  },
-  { 
-    id: 'chaos_2', 
-    duration: 600, 
-    type: 'flash_cut', 
-    text: 'UNVERIFIED?', 
-    sub: '❓ WHO ARE YOU?', 
-    bg: 'bg-[#3a0505]',
-    speech: "Unverified work?"
-  },
-  { 
-    id: 'chaos_3', 
-    duration: 600, 
-    type: 'flash_cut', 
-    text: 'MISSED DEADLINES?', 
-    sub: '⏰ LATE AGAIN', 
-    bg: 'bg-[#2a0505]',
-    speech: "Missed deadlines?"
-  },
-  { 
-    id: 'chaos_4', 
-    duration: 600, 
-    type: 'flash_cut', 
-    text: 'NO PROTECTION?', 
-    sub: '💸 MONEY GONE', 
-    bg: 'bg-[#1a0505]',
-    speech: "No protection?"
-  },
+  // 1: Pain Points - Rapid Fire
+  { id: 'pain_1', duration: 800, type: 'flash_word', text: 'SCAMS?', bg: '#1a0000', accent: '#ff0000' },
+  { id: 'pain_2', duration: 800, type: 'flash_word', text: 'GHOSTED?', bg: '#1a0000', accent: '#ff0000' },
+  { id: 'pain_3', duration: 800, type: 'flash_word', text: 'LATE?', bg: '#1a0000', accent: '#ff0000' },
+  { id: 'pain_4', duration: 1000, type: 'flash_word', text: 'NOPE.', bg: '#000000', accent: '#ffffff' },
+
+  // 2: The Solution - Smooth
+  { id: 'meet', duration: 2500, type: 'hero_smooth', text: 'MEET DEVLINK', sub: 'THE REAL NETWORK', bg: '#050508' },
+
+  // 3: Features - 3D Cards
+  { id: 'feat_1', duration: 1200, type: 'card_3d', text: 'VERIFIED', icon: '✅' },
+  { id: 'feat_2', duration: 1200, type: 'card_3d', text: 'HISTORY', icon: '📂' },
+  { id: 'feat_3', duration: 1200, type: 'card_3d', text: 'RATED', icon: '⭐' },
   
-  // 3. The Wipe
-  { 
-    id: 'nope', 
-    duration: 1500, 
-    type: 'big_nope', 
-    text: 'YEAH... NO.', 
-    bg: 'bg-black',
-    speech: "Yeah… no."
-  },
-  
-  // 4. Hero Reveal
-  { 
-    id: 'meet', 
-    duration: 3500, 
-    type: 'hero_reveal', 
-    text: 'MEET DEVLINK', 
-    sub: 'BUILT FOR REAL STUDIOS', 
-    bg: 'bg-[#050508]',
-    speech: "Meet DevLink — the platform built for REAL game developers and REAL studios."
-  },
-  
-  // 5. Feature Montage
-  { 
-    id: 'feat_1', 
-    duration: 1000, 
-    type: 'feature_3d', 
-    text: 'VERIFIED PORTFOLIOS', 
-    icon: '✅',
-    speech: "With DevLink, you get verified portfolios,"
-  },
-  { 
-    id: 'feat_2', 
-    duration: 1000, 
-    type: 'feature_3d', 
-    text: 'REAL HISTORY', 
-    icon: '📂',
-    speech: "real project history,"
-  },
-  { 
-    id: 'feat_3', 
-    duration: 1000, 
-    type: 'feature_3d', 
-    text: 'SKILLS & RATINGS', 
-    icon: '⭐',
-    speech: "skills, ratings,"
-  },
-  { 
-    id: 'feat_4', 
-    duration: 1800, 
-    type: 'feature_3d', 
-    text: 'PROOF OF WORK', 
-    icon: '💼', 
-    sub: 'ALL IN ONE PLACE',
-    speech: "and proof-of-work— all in one place."
-  },
-  
-  // 6. Search
-  { 
-    id: 'search_1', 
-    duration: 2500, 
-    type: 'search_zoom', 
-    text: 'NEED A PRO?', 
-    sub: 'PROGRAMMER? ARTIST? SFX?',
-    speech: "Need a programmer? A 3D artist? UI, SFX, scripting?"
-  },
-  { 
-    id: 'search_2', 
-    duration: 2500, 
-    type: 'search_ui', 
-    text: 'PRECISE FILTERS', 
-    sub: 'SEARCH THOUSANDS',
-    speech: "Search thousands of devs with hyper-precise filters."
-  },
-  
-  // 7. Escrow
-  { 
-    id: 'escrow', 
-    duration: 5000, 
-    type: 'escrow_flow', 
-    text: 'SECURE ESCROW',
-    speech: "Found the perfect match? Lock the deal with secure escrow payments, built-in contracts, and deadlines that actually mean something."
-  },
-  
-  // 8. Team
-  { 
-    id: 'team', 
-    duration: 5000, 
-    type: 'team_grid', 
-    text: 'OPERATE LIKE A STUDIO',
-    speech: "Want to build a team? DevLink gives you team hubs, shared task boards, project chats, and version tracking— so you can operate like a studio from day one."
-  },
-  
-  // 9. Ecosystem
-  { 
-    id: 'market_1', 
-    duration: 600, 
-    type: 'kinetic_word', 
-    text: 'SELL',
-    speech: "Sell assets."
-  },
-  { 
-    id: 'market_2', 
-    duration: 600, 
-    type: 'kinetic_word', 
-    text: 'LICENSE',
-    speech: "License code."
-  },
-  { 
-    id: 'market_3', 
-    duration: 600, 
-    type: 'kinetic_word', 
-    text: 'OFFER',
-    speech: "Offer services."
-  },
-  { 
-    id: 'market_4', 
-    duration: 600, 
-    type: 'kinetic_word', 
-    text: 'HIRE',
-    speech: "Get hired."
-  },
-  { 
-    id: 'market_5', 
-    duration: 2500, 
-    type: 'ecosystem_reveal', 
-    text: 'FULL DEVELOPER ECOSYSTEM',
-    speech: "It’s not just a hiring platform— it’s a full developer ecosystem."
-  },
-  
-  // 10. Trust
-  { 
-    id: 'trust', 
-    duration: 5000, 
-    type: 'stamp_sequence', 
-    text: 'NO BS',
-    speech: "Every dev is verified. Every studio is vetted. Every payment is protected. No scams. No ghosting. No drama."
-  },
-  
-  // 11. Punchline
-  { 
-    id: 'punchline', 
-    duration: 4000, 
-    type: 'text_elegant', 
-    text: 'EFFORTLESS', 
-    sub: 'SCALING FOR STUDIOS',
-    speech: "Whether you're building your first Roblox game, scaling a studio, or hiring your next lead developer— DevLink makes it effortless."
-  },
-  
-  // 12. Finale
-  { 
-    id: 'finale', 
-    duration: 6000, 
-    type: 'logo_finish', 
-    text: 'DEVLINK', 
-    sub: 'BUILD TOGETHER',
-    speech: "Your team. Your tools. Your future. All in one place. DevLink — Build Together."
-  }
+  // 4: Search - Zoom
+  { id: 'search', duration: 2000, type: 'zoom_tunnel', text: 'FIND PROS', sub: 'PROGRAMMERS • ARTISTS • SFX' },
+
+  // 5: Escrow - Secure
+  { id: 'escrow', duration: 3000, type: 'lock_in', text: 'SECURE ESCROW', sub: 'FUNDS HELD • WORK DONE • PAID' },
+
+  // 6: Team - Grid
+  { id: 'team', duration: 3000, type: 'grid_build', text: 'BUILD YOUR STUDIO' },
+
+  // 7: Ecosystem - Fast Words
+  { id: 'eco_1', duration: 600, type: 'big_word', text: 'SELL' },
+  { id: 'eco_2', duration: 600, type: 'big_word', text: 'LICENSE' },
+  { id: 'eco_3', duration: 600, type: 'big_word', text: 'HIRE' },
+  { id: 'eco_4', duration: 2000, type: 'logo_burst', text: 'FULL ECOSYSTEM' },
+
+  // 8: Trust - Stamps
+  { id: 'trust', duration: 3000, type: 'stamp_check', text: 'NO BS.' },
+
+  // 9: Finale
+  { id: 'end', duration: 5000, type: 'final_logo', text: 'DEVLINK' }
 ];
 
-const TOTAL_DURATION = SCENES.reduce((acc, s) => acc + s.duration, 0);
-
-// --- Main Component ---
+const TOTAL_DURATION_MS = SCENES.reduce((acc, s) => acc + s.duration, 0);
 
 export default function AdPage() {
   const [sceneIndex, setSceneIndex] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [hasStarted, setHasStarted] = useState(false);
-  const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
   
-  // Initialize voices
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const requestRef = useRef<number>(0);
+  const startTimeRef = useRef<number>(0);
+
+  // --- Engine: Audio-Driven Sync ---
+  // This is the "Video Game" loop. It doesn't rely on React state for timing.
+  // It checks the audio timestamp every frame.
+  
+  const animate = () => {
+    let currentTime = 0;
+
+    if (audioRef.current && !audioRef.current.paused) {
+      // Sync to Audio Time (Precision)
+      currentTime = audioRef.current.currentTime * 1000;
+    } else {
+      // Fallback: System Clock Time
+      currentTime = Date.now() - startTimeRef.current;
+    }
+
+    // Loop
+    if (currentTime >= TOTAL_DURATION_MS) {
+      if (audioRef.current) {
+        audioRef.current.currentTime = 0;
+        audioRef.current.play();
+      }
+      startTimeRef.current = Date.now();
+      currentTime = 0;
+    }
+
+    // Calculate Scene
+    let acc = 0;
+    let foundIndex = 0;
+    for (let i = 0; i < SCENES.length; i++) {
+      acc += SCENES[i].duration;
+      if (currentTime < acc) {
+        foundIndex = i;
+        break;
+      }
+    }
+
+    // Only update React state if scene changed (Performance)
+    setSceneIndex(prev => {
+      if (prev !== foundIndex) return foundIndex;
+      return prev;
+    });
+
+    setProgress(currentTime / TOTAL_DURATION_MS);
+    requestRef.current = requestAnimationFrame(animate);
+  };
+
+  const startExperience = () => {
+    setIsPlaying(true);
+    startTimeRef.current = Date.now();
+    
+    if (audioRef.current) {
+      audioRef.current.play().catch(e => console.log("Audio play failed (user interaction needed)", e));
+    }
+    
+    requestRef.current = requestAnimationFrame(animate);
+  };
+
   useEffect(() => {
-    const updateVoices = () => {
-      setVoices(window.speechSynthesis.getVoices());
-    };
-    
-    window.speechSynthesis.onvoiceschanged = updateVoices;
-    updateVoices();
-    
-    return () => {
-      window.speechSynthesis.cancel();
-    };
+    return () => cancelAnimationFrame(requestRef.current);
   }, []);
 
-  // Speak function
-  const speak = (text: string) => {
-    if (!text) return;
-    
-    // Cancel previous utterance to prevent queue buildup
-    window.speechSynthesis.cancel();
-    
-    const utterance = new SpeechSynthesisUtterance(text);
-    
-    // Try to find a good English voice
-    // Priority: Google US English -> Microsoft Mark -> Any English
-    const preferredVoice = voices.find(v => v.name.includes('Google US English')) || 
-                          voices.find(v => v.name.includes('Microsoft Mark')) ||
-                          voices.find(v => v.lang.startsWith('en'));
-                          
-    if (preferredVoice) utterance.voice = preferredVoice;
-    
-    utterance.rate = 1.1; // Slightly faster for energy
-    utterance.pitch = 1.0;
-    utterance.volume = 1.0;
-    
-    window.speechSynthesis.speak(utterance);
-  };
+  // --- Render ---
 
-  // Start sequence
-  const startAd = () => {
-    setHasStarted(true);
-    // Slight delay to allow state update before loop starts
-  };
-
-  useEffect(() => {
-    if (!hasStarted) return;
-    
-    let active = true;
-    let startTime = Date.now();
-    let currentSceneIdx = 0;
-    
-    // Initial speech
-    speak(SCENES[0].speech!);
-
-    const loop = () => {
-      if (!active) return;
-      const now = Date.now();
-      const elapsed = (now - startTime) % TOTAL_DURATION;
-      setProgress(elapsed / TOTAL_DURATION);
-      
-      let acc = 0;
-      let nextSceneIdx = 0;
-      for (let i = 0; i < SCENES.length; i++) {
-        acc += SCENES[i].duration;
-        if (elapsed < acc) {
-          nextSceneIdx = i;
-          break;
-        }
-      }
-      
-      if (nextSceneIdx !== currentSceneIdx) {
-        // Scene changed
-        currentSceneIdx = nextSceneIdx;
-        setSceneIndex(nextSceneIdx);
-        
-        // Trigger speech for new scene
-        const text = SCENES[nextSceneIdx].speech;
-        if (text) {
-          speak(text);
-        }
-      }
-      
-      // Loop reset detection (approximate)
-      if (elapsed < 50 && elapsed > 0 && currentSceneIdx !== 0) {
-        // Reset occurred
-        startTime = Date.now(); // Resync
-        currentSceneIdx = 0;
-        setSceneIndex(0);
-        speak(SCENES[0].speech!);
-      }
-      
-      requestAnimationFrame(loop);
-    };
-    
-    requestAnimationFrame(loop);
-    return () => { 
-      active = false; 
-      window.speechSynthesis.cancel();
-    };
-  }, [hasStarted, voices]);
-
-  const scene = SCENES[sceneIndex];
-
-  if (!hasStarted) {
+  if (!isPlaying) {
     return (
-      <div className="fixed inset-0 bg-black flex items-center justify-center z-[10000]">
-        <motion.button
-          onClick={startAd}
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-          className="bg-white text-black font-black text-2xl md:text-4xl px-12 py-6 rounded-full shadow-[0_0_50px_rgba(255,255,255,0.5)] animate-pulse"
-        >
-          CLICK TO START EXPERIENCE 🔊
-        </motion.button>
+      <div className="fixed inset-0 bg-black flex items-center justify-center cursor-pointer z-50" onClick={startExperience}>
+        <div className="text-center">
+          <motion.div 
+            initial={{ scale: 0.9, opacity: 0.5 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ repeat: Infinity, duration: 1.5, repeatType: "reverse" }}
+            className="w-24 h-24 rounded-full border-4 border-white/20 flex items-center justify-center mx-auto mb-8"
+          >
+            <div className="w-0 h-0 border-t-[15px] border-t-transparent border-l-[30px] border-l-white border-b-[15px] border-b-transparent ml-2" />
+          </motion.div>
+          <h1 className="text-4xl font-black text-white tracking-widest">START EXPERIENCE</h1>
+          <p className="text-gray-500 mt-4 font-mono text-sm">SOUND ON • FULLSCREEN</p>
+        </div>
       </div>
     );
   }
 
-  return (
-    <div className={`fixed inset-0 overflow-hidden ${scene.bg || 'bg-[#050508]'} text-white font-sans transition-colors duration-200 perspective-1000`}>
-      {/* Dynamic Background */}
-      <BackgroundEffects type={scene.type} />
+  const scene = SCENES[sceneIndex];
 
+  return (
+    <div className="fixed inset-0 bg-black text-white overflow-hidden font-sans select-none">
+      {/* Audio Source - Auto-syncs if file exists */}
+      <audio ref={audioRef} src="/ad-voice.mp3" preload="auto" />
+
+      {/* Dynamic Background */}
+      <div 
+        className="absolute inset-0 transition-colors duration-300 ease-linear"
+        style={{ backgroundColor: scene.bg }}
+      />
+      
+      {/* Noise Grain Overlay (Cinematic feel) */}
+      <div className="absolute inset-0 opacity-10 pointer-events-none mix-blend-overlay bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
+
+      {/* Scene Content */}
       <AnimatePresence mode="wait">
         <motion.div
           key={scene.id}
-          className="absolute inset-0 flex flex-col items-center justify-center p-4 z-10"
-          initial={{ opacity: 0, scale: 1.1, filter: 'blur(10px)' }}
-          animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
-          exit={{ opacity: 0, scale: 0.9, filter: 'blur(10px)' }}
-          transition={{ duration: 0.2 }}
+          className="absolute inset-0 flex items-center justify-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.1 }} // Fast cuts
         >
-          <SceneContent scene={scene} />
+          <SceneRenderer scene={scene} />
         </motion.div>
       </AnimatePresence>
 
-      {/* Progress Line */}
-      <div className="absolute bottom-0 left-0 w-full h-2 bg-white/10 z-50">
+      {/* Progress Bar */}
+      <div className="absolute bottom-0 left-0 w-full h-1 bg-white/10">
         <div 
-          className="h-full bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 shadow-[0_0_20px_rgba(168,85,247,0.8)]"
+          className="h-full bg-white transition-all duration-75 ease-linear" 
           style={{ width: `${progress * 100}%` }}
         />
       </div>
       
-      {/* Cinematic Vignette */}
-      <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_center,transparent_0%,black_100%)] opacity-40 z-40" />
-      
-      {/* Audio toggle hint */}
-      <div className="absolute top-4 right-4 z-50 opacity-50 text-xs">
-        🔊 AUDIO ON
+      {/* Debug/Info */}
+      <div className="absolute bottom-4 right-4 text-xs font-mono text-white/30">
+        DEVLINK AD • {scene.id.toUpperCase()}
       </div>
     </div>
   );
 }
 
-// --- Background Effects ---
+// --- High-Performance Renderers ---
 
-function BackgroundEffects({ type }: { type: string }) {
-  return (
-    <div className="absolute inset-0 overflow-hidden z-0">
-      {type.includes('chaos') && (
-        <>
-           <div className="absolute inset-0 opacity-20 animate-noise bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIj48ZmlsdGVyIGlkPSJnoiPjxmZVR1cmJ1bGVuY2UgdHlwZT0iZnJhY3RhbE5vaXNlIiBiYXNlRnJlcXVlbmN5PSIwLjY1IiBudW1PY3RhdmVzPSIzIiBzdGl0Y2hUaWxlcz0ic3RpdGNoIi8+PC9maWx0ZXI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsdGVyPSJ1cmwoI2cpIiBvcGFjaXR5PSIwLjUiLz48L3N2Zz4=')]" />
-          <motion.div 
-            className="absolute inset-0 bg-red-500/10 mix-blend-overlay"
-            animate={{ opacity: [0, 0.5, 0] }}
-            transition={{ duration: 0.1, repeat: Infinity }}
-          />
-        </>
-      )}
-      
-      {!type.includes('chaos') && (
-        <div className="absolute inset-0">
-          <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,rgba(76,29,149,0.1),transparent_70%)]" />
-          <div className="absolute w-[500px] h-[500px] bg-purple-600/20 rounded-full blur-[100px] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse" />
-          <FloatingParticles />
-        </div>
-      )}
-    </div>
-  );
-}
-
-function FloatingParticles() {
-  return (
-    <div className="absolute inset-0">
-      {[...Array(20)].map((_, i) => (
-        <motion.div
-          key={i}
-          className="absolute w-1 h-1 bg-white/30 rounded-full"
-          initial={{ 
-            x: Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 1000), 
-            y: Math.random() * (typeof window !== 'undefined' ? window.innerHeight : 1000) 
-          }}
-          animate={{ 
-            y: [null, -100], 
-            opacity: [0, 1, 0] 
-          }}
-          transition={{ 
-            duration: 2 + Math.random() * 3, 
-            repeat: Infinity,
-            delay: Math.random() * 2 
-          }}
-        />
-      ))}
-    </div>
-  );
-}
-
-// --- Scene Router ---
-
-function SceneContent({ scene }: { scene: any }) {
+function SceneRenderer({ scene }: { scene: any }) {
   switch (scene.type) {
-    case 'text_slam': return <TextSlam text={scene.text} />;
-    case 'flash_cut': return <FlashCut text={scene.text} sub={scene.sub} />;
-    case 'big_nope': return <BigNope text={scene.text} />;
-    case 'hero_reveal': return <HeroReveal text={scene.text} sub={scene.sub} />;
-    case 'feature_3d': return <Feature3D text={scene.text} icon={scene.icon} sub={scene.sub} />;
-    case 'search_zoom': return <SearchZoom text={scene.text} sub={scene.sub} />;
-    case 'search_ui': return <SearchUI text={scene.text} sub={scene.sub} />;
-    case 'escrow_flow': return <EscrowFlow />;
-    case 'team_grid': return <TeamGrid text={scene.text} />;
-    case 'kinetic_word': return <KineticWord text={scene.text} />;
-    case 'ecosystem_reveal': return <EcosystemReveal text={scene.text} />;
-    case 'stamp_sequence': return <StampSequence />;
-    case 'text_elegant': return <TextElegant text={scene.text} sub={scene.sub} />;
-    case 'logo_finish': return <LogoFinish />;
-    default: return null;
-  }
-}
-
-// --- Scene Components ---
-
-function TextSlam({ text }: { text: string }) {
-  return (
-    <div className="relative">
-      <motion.h1 
-        className="text-6xl md:text-9xl font-black text-center leading-none tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white to-gray-400"
-        initial={{ scale: 3, rotateZ: 10, opacity: 0 }}
-        animate={{ scale: 1, rotateZ: 0, opacity: 1 }}
-        transition={{ type: "spring", stiffness: 300, damping: 15 }}
-      >
-        {text}
-      </motion.h1>
-      <motion.div 
-        className="absolute -inset-4 border-4 border-red-500/50"
-        initial={{ scale: 1.2, opacity: 0 }}
-        animate={{ scale: 1, opacity: [0, 1, 0] }}
-        transition={{ duration: 0.2, repeat: 5 }}
-      />
-    </div>
-  );
-}
-
-function FlashCut({ text, sub }: { text: string, sub: string }) {
-  return (
-    <div className="flex flex-col items-center">
-      <motion.h2 
-        className="text-5xl md:text-8xl font-black text-red-500 mb-4 glitch-text"
-        initial={{ x: -100 }}
-        animate={{ x: 0 }}
-      >
-        {text}
-      </motion.h2>
-      <motion.div 
-        className="bg-red-600 text-black font-black text-3xl md:text-5xl px-8 py-2 transform -rotate-3"
-        initial={{ scale: 0 }}
-        animate={{ scale: 1 }}
-      >
-        {sub}
-      </motion.div>
-    </div>
-  );
-}
-
-function BigNope({ text }: { text: string }) {
-  return (
-    <div className="relative">
-      <motion.div
-        className="text-[20rem] leading-none text-white/5 font-black absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
-        animate={{ rotate: 360 }}
-        transition={{ duration: 20, ease: "linear", repeat: Infinity }}
-      >
-        ✕
-      </motion.div>
-      <motion.h1
-        initial={{ scale: 0.5, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ type: "spring", bounce: 0.6 }}
-        className="text-7xl md:text-9xl font-black text-white relative z-10"
-      >
-        {text}
-      </motion.h1>
-    </div>
-  );
-}
-
-function HeroReveal({ text, sub }: { text: string, sub: string }) {
-  return (
-    <div className="text-center">
-      <motion.div
-        initial={{ y: 100, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.8, ease: "circOut" }}
-      >
-        <h1 className="text-8xl md:text-[10rem] font-black tracking-tighter bg-gradient-to-r from-purple-400 via-pink-500 to-purple-400 bg-clip-text text-transparent leading-none">
-          {text}
-        </h1>
-      </motion.div>
-      <motion.div
-        initial={{ width: 0 }}
-        animate={{ width: "100%" }}
-        transition={{ delay: 0.5, duration: 0.5 }}
-        className="h-2 bg-gradient-to-r from-purple-500 to-pink-500 mx-auto mt-4"
-      />
-      <motion.p
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.8 }}
-        className="text-3xl md:text-5xl mt-8 text-gray-300 font-light tracking-wide"
-      >
-        {sub}
-      </motion.p>
-    </div>
-  );
-}
-
-function Feature3D({ text, icon, sub }: { text: string, icon: string, sub?: string }) {
-  return (
-    <div className="perspective-1000">
-      <motion.div
-        initial={{ rotateX: 90, opacity: 0 }}
-        animate={{ rotateX: 0, opacity: 1 }}
-        transition={{ type: "spring", stiffness: 100 }}
-        className="bg-gradient-to-br from-gray-900 to-black border border-white/10 p-12 rounded-3xl shadow-2xl flex flex-col items-center"
-      >
-        <span className="text-8xl mb-6 filter drop-shadow-[0_0_20px_rgba(255,255,255,0.3)]">{icon}</span>
-        <h2 className="text-5xl md:text-7xl font-bold text-center bg-clip-text text-transparent bg-gradient-to-b from-white to-gray-500">
-          {text}
-        </h2>
-        {sub && (
-          <motion.p
-            initial={{ opacity: 0, scale: 0.5 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.3 }}
-            className="text-2xl mt-4 text-purple-400 font-bold tracking-widest uppercase"
-          >
-            {sub}
-          </motion.p>
-        )}
-      </motion.div>
-    </div>
-  );
-}
-
-function SearchZoom({ text, sub }: { text: string, sub: string }) {
-  return (
-    <div className="text-center relative">
-      <motion.div
-        className="absolute inset-0 bg-purple-500/20 blur-[100px] -z-10"
-        animate={{ scale: [1, 1.2, 1] }}
-        transition={{ duration: 2, repeat: Infinity }}
-      />
-      <motion.h2 
-        className="text-7xl md:text-9xl font-black mb-6"
-        initial={{ scale: 3, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ duration: 0.5 }}
-      >
-        {text}
-      </motion.h2>
-      <motion.p className="text-3xl md:text-4xl text-gray-400 font-mono">
-        {sub}
-      </motion.p>
-    </div>
-  );
-}
-
-function SearchUI({ text, sub }: { text: string, sub: string }) {
-  const tags = ["React", "UE5", "Unity", "Node.js", "Blender", "Maya", "C#", "C++", "Python", "Rust"];
-  return (
-    <div className="w-full max-w-6xl text-center">
-      <motion.h2 
-        className="text-6xl md:text-8xl font-black mb-16 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500"
-        initial={{ y: -50 }}
-        animate={{ y: 0 }}
-      >
-        {text}
-      </motion.h2>
-      <div className="flex flex-wrap justify-center gap-4">
-        {tags.map((tag, i) => (
-          <motion.div
-            key={tag}
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ delay: i * 0.05 }}
-            className="bg-white/5 border border-white/10 px-8 py-4 rounded-full text-2xl font-bold backdrop-blur-md"
-            whileHover={{ scale: 1.1, backgroundColor: "rgba(255,255,255,0.1)" }}
-          >
-            {tag}
-          </motion.div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function EscrowFlow() {
-  const steps = [
-    { label: "FUNDS HELD", icon: "🔒" },
-    { label: "WORK STARTS", icon: "🛠️" },
-    { label: "APPROVE", icon: "👍" },
-    { label: "PAID", icon: "💸" }
-  ];
-  return (
-    <div className="w-full max-w-7xl px-4 text-center">
-      <motion.h2 
-        initial={{ opacity: 0, y: -50 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="text-5xl md:text-7xl font-black mb-20"
-      >
-        SECURE ESCROW
-      </motion.h2>
-      <div className="flex justify-between items-center relative">
-        <div className="absolute top-1/2 left-0 w-full h-1 bg-gray-800 -z-10" />
-        <motion.div 
-          className="absolute top-1/2 left-0 h-1 bg-green-500 -z-10"
-          initial={{ width: "0%" }}
-          animate={{ width: "100%" }}
-          transition={{ duration: 3, ease: "linear" }}
-        />
-        {steps.map((step, i) => (
-          <motion.div
-            key={i}
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: i * 0.8 }}
-            className="flex flex-col items-center bg-[#050508] p-4 rounded-xl border border-white/10"
-          >
-            <div className="text-6xl mb-4">{step.icon}</div>
-            <div className="text-2xl font-black">{step.label}</div>
-          </motion.div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function TeamGrid({ text }: { text: string }) {
-  return (
-    <div className="text-center w-full max-w-5xl">
-      <div className="grid grid-cols-2 gap-8 mb-16 perspective-1000">
-        {[
-          { t: "HUBS", c: "bg-blue-500/20" },
-          { t: "TASKS", c: "bg-purple-500/20" },
-          { t: "CHAT", c: "bg-pink-500/20" },
-          { t: "GIT", c: "bg-orange-500/20" }
-        ].map((item, i) => (
-          <motion.div
-            key={i}
-            initial={{ opacity: 0, rotateY: 90 }}
-            animate={{ opacity: 1, rotateY: 0 }}
-            transition={{ delay: i * 0.2, type: "spring" }}
-            className={`${item.c} h-40 rounded-2xl border border-white/10 flex items-center justify-center`}
-          >
-            <span className="text-4xl font-black">{item.t}</span>
-          </motion.div>
-        ))}
-      </div>
-      <motion.h2 
-        initial={{ opacity: 0, scale: 2 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="text-5xl md:text-7xl font-black"
-      >
-        {text}
-      </motion.h2>
-    </div>
-  );
-}
-
-function KineticWord({ text }: { text: string }) {
-  return (
-    <motion.h1
-      key={text}
-      initial={{ scale: 0.5, opacity: 0, rotateX: 90 }}
-      animate={{ scale: 1, opacity: 1, rotateX: 0 }}
-      exit={{ scale: 1.5, opacity: 0 }}
-      transition={{ type: "spring", stiffness: 200 }}
-      className="text-8xl md:text-[12rem] font-black uppercase text-transparent bg-clip-text bg-gradient-to-t from-gray-500 to-white"
-    >
-      {text}
-    </motion.h1>
-  );
-}
-
-function EcosystemReveal({ text }: { text: string }) {
-  return (
-    <div className="text-center">
-      <div className="relative">
-        <motion.div 
-          className="absolute inset-0 bg-gradient-to-r from-purple-500 to-pink-500 blur-[100px] opacity-30"
-          animate={{ rotate: 360 }}
-          transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-        />
-        <h2 className="text-6xl md:text-9xl font-black leading-tight relative z-10">
-          {text.split(' ').map((word, i) => (
-            <motion.div 
-              key={i} 
-              initial={{ y: 100, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: i * 0.2, type: "spring" }}
+    case 'kinetic_slam':
+      return (
+        <div className="flex flex-col items-center gap-2">
+          {scene.text.map((line: string, i: number) => (
+            <motion.h1
+              key={line}
+              initial={{ y: 100, opacity: 0, rotateX: 90 }}
+              animate={{ y: 0, opacity: 1, rotateX: 0 }}
+              transition={{ delay: i * 0.1, type: "spring", stiffness: 200 }}
+              className="text-7xl md:text-9xl font-black tracking-tighter leading-none"
             >
-              {word}
-            </motion.div>
+              {line}
+            </motion.h1>
           ))}
-        </h2>
-      </div>
-    </div>
-  );
-}
-
-function StampSequence() {
-  return (
-    <div className="flex flex-col gap-8 items-center justify-center">
-      {["NO SCAMS", "NO GHOSTING", "NO DRAMA"].map((item, i) => (
-        <motion.div
-          key={i}
-          initial={{ scale: 5, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ delay: i * 0.6, type: "spring", stiffness: 300, damping: 20 }}
-          className="text-6xl md:text-8xl font-black text-white bg-red-600 px-12 py-4 transform -skew-x-12 shadow-[10px_10px_0px_rgba(0,0,0,0.5)]"
+        </div>
+      );
+      
+    case 'flash_word':
+      return (
+        <motion.div 
+          className="flex flex-col items-center justify-center w-full h-full"
+          style={{ backgroundColor: scene.accent ? scene.bg : undefined }}
         >
-          {item}
+          <motion.h1 
+            initial={{ scale: 2, opacity: 0, filter: "blur(10px)" }}
+            animate={{ scale: 1, opacity: 1, filter: "blur(0px)" }}
+            className="text-[12vw] font-black uppercase text-center leading-none"
+            style={{ color: scene.accent || 'white' }}
+          >
+            {scene.text}
+          </motion.h1>
         </motion.div>
-      ))}
-    </div>
-  );
-}
+      );
 
-function TextElegant({ text, sub }: { text: string, sub: string }) {
-  return (
-    <div className="text-center">
-      <motion.h1
-        initial={{ letterSpacing: "1em", opacity: 0 }}
-        animate={{ letterSpacing: "0.1em", opacity: 1 }}
-        transition={{ duration: 1 }}
-        className="text-5xl md:text-8xl font-black uppercase"
-      >
-        {text}
-      </motion.h1>
-      <motion.p
-        initial={{ y: 20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 1 }}
-        className="text-3xl md:text-5xl mt-8 text-purple-400 font-light"
-      >
-        {sub}
-      </motion.p>
-    </div>
-  );
-}
+    case 'hero_smooth':
+      return (
+        <div className="text-center z-10">
+          <motion.h1 
+            initial={{ letterSpacing: "-0.1em", opacity: 0 }}
+            animate={{ letterSpacing: "0em", opacity: 1 }}
+            transition={{ duration: 1, ease: "circOut" }}
+            className="text-[10vw] font-black bg-gradient-to-r from-purple-400 to-white bg-clip-text text-transparent"
+          >
+            {scene.text}
+          </motion.h1>
+          <motion.div 
+            initial={{ width: 0 }}
+            animate={{ width: "100%" }}
+            transition={{ delay: 0.5, duration: 0.5 }}
+            className="h-1 bg-white/20 mx-auto mt-4"
+          />
+          <motion.p 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.8 }}
+            className="text-2xl md:text-4xl mt-6 font-mono tracking-widest text-gray-400"
+          >
+            {scene.sub}
+          </motion.p>
+        </div>
+      );
 
-function LogoFinish() {
-  return (
-    <div className="relative flex flex-col items-center justify-center">
-      <motion.div
-        className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 blur-[150px] opacity-40"
-        animate={{ scale: [1, 1.2, 1] }}
-        transition={{ duration: 3, repeat: Infinity }}
-      />
-      <motion.h1
-        initial={{ scale: 0, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ type: "spring", bounce: 0.5 }}
-        className="text-8xl md:text-[15rem] font-black uppercase text-transparent bg-clip-text bg-gradient-to-br from-white to-gray-400"
-      >
-        DEVLINK
-      </motion.h1>
-      <motion.p
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1, duration: 1 }}
-        className="text-4xl md:text-6xl font-light tracking-[1em] mt-8 text-white"
-      >
-        BUILD TOGETHER
-      </motion.p>
-    </div>
-  );
+    case 'card_3d':
+      return (
+        <motion.div 
+          initial={{ rotateY: 90, opacity: 0 }}
+          animate={{ rotateY: 0, opacity: 1 }}
+          exit={{ rotateY: -90, opacity: 0 }}
+          transition={{ type: "spring", stiffness: 100 }}
+          className="bg-white/5 border border-white/10 p-16 rounded-3xl backdrop-blur-lg flex flex-col items-center justify-center min-w-[300px]"
+        >
+          <span className="text-8xl mb-8">{scene.icon}</span>
+          <h2 className="text-5xl font-bold tracking-tight">{scene.text}</h2>
+        </motion.div>
+      );
+
+    case 'zoom_tunnel':
+      return (
+        <div className="text-center">
+          <motion.div
+            className="absolute inset-0 border-[20px] border-white/5 rounded-full"
+            animate={{ scale: [1, 2], opacity: [1, 0] }}
+            transition={{ repeat: Infinity, duration: 1 }}
+          />
+           <motion.h1 
+            initial={{ scale: 0.5, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="text-8xl font-black mb-4 relative z-10"
+          >
+            {scene.text}
+          </motion.h1>
+          <p className="text-3xl text-purple-400 font-bold">{scene.sub}</p>
+        </div>
+      );
+      
+    case 'lock_in':
+      return (
+        <div className="flex flex-col items-center">
+          <motion.div 
+            initial={{ scale: 2 }}
+            animate={{ scale: 1 }}
+            className="text-9xl mb-8"
+          >
+            🔒
+          </motion.div>
+          <h1 className="text-6xl md:text-8xl font-black">{scene.text}</h1>
+          <motion.div 
+            className="flex gap-4 mt-8"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+          >
+            {scene.sub.split('•').map((s: string) => (
+              <span key={s} className="bg-white/10 px-4 py-2 rounded text-sm font-mono">{s}</span>
+            ))}
+          </motion.div>
+        </div>
+      );
+      
+    case 'big_word':
+      return (
+        <motion.h1
+          initial={{ y: 100, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          exit={{ y: -100, opacity: 0 }}
+          className="text-[15vw] font-black italic uppercase"
+        >
+          {scene.text}
+        </motion.h1>
+      );
+      
+    case 'logo_burst':
+      return (
+        <div className="relative">
+          <motion.div 
+            className="absolute inset-0 bg-purple-500 blur-[150px] opacity-30"
+            animate={{ scale: [1, 1.2, 1] }}
+            transition={{ repeat: Infinity, duration: 2 }}
+          />
+          <h1 className="text-7xl md:text-9xl font-black text-center relative z-10 leading-none">
+            {scene.text}
+          </h1>
+        </div>
+      );
+      
+    case 'stamp_check':
+      return (
+        <motion.div 
+          initial={{ scale: 5, rotate: -20, opacity: 0 }}
+          animate={{ scale: 1, rotate: -5, opacity: 1 }}
+          transition={{ type: "spring", stiffness: 300, damping: 20 }}
+          className="border-8 border-white p-8 md:p-12"
+        >
+          <h1 className="text-8xl md:text-[12rem] font-black leading-none">{scene.text}</h1>
+        </motion.div>
+      );
+      
+    case 'final_logo':
+      return (
+        <div className="flex flex-col items-center">
+           <motion.h1 
+            initial={{ letterSpacing: "0.5em", opacity: 0 }}
+            animate={{ letterSpacing: "0em", opacity: 1 }}
+            transition={{ duration: 1.5, ease: "circOut" }}
+            className="text-[12vw] font-black bg-gradient-to-br from-white to-gray-500 bg-clip-text text-transparent"
+          >
+            {scene.text}
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1 }}
+            className="text-2xl tracking-[1em] mt-4"
+          >
+            BUILD TOGETHER
+          </motion.p>
+        </div>
+      );
+
+    default:
+      return null;
+  }
 }
