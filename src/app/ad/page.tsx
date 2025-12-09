@@ -1,57 +1,216 @@
 "use client";
 
 import { useEffect, useState, useRef } from 'react';
-import { motion, AnimatePresence, useScroll, useTransform, useSpring } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 // --- Configuration ---
 
 const SCENES = [
-  // 1. Chaos Intro - AGGRESSIVE
-  { id: 'chaos_intro', duration: 2500, type: 'text_slam', text: 'HIRING DEVS\nSHOULDN’T FEEL\nLIKE THIS...', bg: 'bg-[#1a0505]' },
+  // 1. Chaos Intro
+  { 
+    id: 'chaos_intro', 
+    duration: 2500, 
+    type: 'text_slam', 
+    text: 'HIRING DEVS\nSHOULDN’T FEEL\nLIKE THIS...', 
+    bg: 'bg-[#1a0505]',
+    speech: "Hiring developers shouldn’t feel like this..."
+  },
   
-  // 2. Chaos Flash - FAST CUTS
-  { id: 'chaos_1', duration: 600, type: 'flash_cut', text: 'RANDOM DMs?', sub: '🚫 SCAM ALERT', bg: 'bg-[#2a0505]' },
-  { id: 'chaos_2', duration: 600, type: 'flash_cut', text: 'UNVERIFIED?', sub: '❓ WHO ARE YOU?', bg: 'bg-[#3a0505]' },
-  { id: 'chaos_3', duration: 600, type: 'flash_cut', text: 'MISSED DEADLINES?', sub: '⏰ LATE AGAIN', bg: 'bg-[#2a0505]' },
-  { id: 'chaos_4', duration: 600, type: 'flash_cut', text: 'NO PROTECTION?', sub: '💸 MONEY GONE', bg: 'bg-[#1a0505]' },
+  // 2. Chaos Flash (Grouped for speech)
+  { 
+    id: 'chaos_1', 
+    duration: 600, 
+    type: 'flash_cut', 
+    text: 'RANDOM DMs?', 
+    sub: '🚫 SCAM ALERT', 
+    bg: 'bg-[#2a0505]',
+    speech: "Random Discord DMs?"
+  },
+  { 
+    id: 'chaos_2', 
+    duration: 600, 
+    type: 'flash_cut', 
+    text: 'UNVERIFIED?', 
+    sub: '❓ WHO ARE YOU?', 
+    bg: 'bg-[#3a0505]',
+    speech: "Unverified work?"
+  },
+  { 
+    id: 'chaos_3', 
+    duration: 600, 
+    type: 'flash_cut', 
+    text: 'MISSED DEADLINES?', 
+    sub: '⏰ LATE AGAIN', 
+    bg: 'bg-[#2a0505]',
+    speech: "Missed deadlines?"
+  },
+  { 
+    id: 'chaos_4', 
+    duration: 600, 
+    type: 'flash_cut', 
+    text: 'NO PROTECTION?', 
+    sub: '💸 MONEY GONE', 
+    bg: 'bg-[#1a0505]',
+    speech: "No protection?"
+  },
   
-  // 3. The Wipe - CLEANSE
-  { id: 'nope', duration: 1500, type: 'big_nope', text: 'YEAH... NO.', bg: 'bg-black' },
+  // 3. The Wipe
+  { 
+    id: 'nope', 
+    duration: 1500, 
+    type: 'big_nope', 
+    text: 'YEAH... NO.', 
+    bg: 'bg-black',
+    speech: "Yeah… no."
+  },
   
-  // 4. Hero Reveal - EPIC
-  { id: 'meet', duration: 3000, type: 'hero_reveal', text: 'MEET DEVLINK', sub: 'BUILT FOR REAL STUDIOS', bg: 'bg-[#050508]' },
+  // 4. Hero Reveal
+  { 
+    id: 'meet', 
+    duration: 3500, 
+    type: 'hero_reveal', 
+    text: 'MEET DEVLINK', 
+    sub: 'BUILT FOR REAL STUDIOS', 
+    bg: 'bg-[#050508]',
+    speech: "Meet DevLink — the platform built for REAL game developers and REAL studios."
+  },
   
-  // 5. Feature Montage - SLEEK 3D
-  { id: 'feat_1', duration: 1000, type: 'feature_3d', text: 'VERIFIED PORTFOLIOS', icon: '✅' },
-  { id: 'feat_2', duration: 1000, type: 'feature_3d', text: 'REAL HISTORY', icon: '📂' },
-  { id: 'feat_3', duration: 1000, type: 'feature_3d', text: 'SKILLS & RATINGS', icon: '⭐' },
-  { id: 'feat_4', duration: 1500, type: 'feature_3d', text: 'PROOF OF WORK', icon: '💼', sub: 'ALL IN ONE PLACE' },
+  // 5. Feature Montage
+  { 
+    id: 'feat_1', 
+    duration: 1000, 
+    type: 'feature_3d', 
+    text: 'VERIFIED PORTFOLIOS', 
+    icon: '✅',
+    speech: "With DevLink, you get verified portfolios,"
+  },
+  { 
+    id: 'feat_2', 
+    duration: 1000, 
+    type: 'feature_3d', 
+    text: 'REAL HISTORY', 
+    icon: '📂',
+    speech: "real project history,"
+  },
+  { 
+    id: 'feat_3', 
+    duration: 1000, 
+    type: 'feature_3d', 
+    text: 'SKILLS & RATINGS', 
+    icon: '⭐',
+    speech: "skills, ratings,"
+  },
+  { 
+    id: 'feat_4', 
+    duration: 1800, 
+    type: 'feature_3d', 
+    text: 'PROOF OF WORK', 
+    icon: '💼', 
+    sub: 'ALL IN ONE PLACE',
+    speech: "and proof-of-work— all in one place."
+  },
   
-  // 6. Search - HIGH TECH
-  { id: 'search_1', duration: 2000, type: 'search_zoom', text: 'NEED A PRO?', sub: 'PROGRAMMER? ARTIST? SFX?' },
-  { id: 'search_2', duration: 2000, type: 'search_ui', text: 'PRECISE FILTERS', sub: 'SEARCH THOUSANDS' },
+  // 6. Search
+  { 
+    id: 'search_1', 
+    duration: 2500, 
+    type: 'search_zoom', 
+    text: 'NEED A PRO?', 
+    sub: 'PROGRAMMER? ARTIST? SFX?',
+    speech: "Need a programmer? A 3D artist? UI, SFX, scripting?"
+  },
+  { 
+    id: 'search_2', 
+    duration: 2500, 
+    type: 'search_ui', 
+    text: 'PRECISE FILTERS', 
+    sub: 'SEARCH THOUSANDS',
+    speech: "Search thousands of devs with hyper-precise filters."
+  },
   
-  // 7. Escrow - SECURE
-  { id: 'escrow', duration: 4000, type: 'escrow_flow', text: 'SECURE ESCROW' },
+  // 7. Escrow
+  { 
+    id: 'escrow', 
+    duration: 5000, 
+    type: 'escrow_flow', 
+    text: 'SECURE ESCROW',
+    speech: "Found the perfect match? Lock the deal with secure escrow payments, built-in contracts, and deadlines that actually mean something."
+  },
   
-  // 8. Team - COLLABORATIVE
-  { id: 'team', duration: 4000, type: 'team_grid', text: 'OPERATE LIKE A STUDIO' },
+  // 8. Team
+  { 
+    id: 'team', 
+    duration: 5000, 
+    type: 'team_grid', 
+    text: 'OPERATE LIKE A STUDIO',
+    speech: "Want to build a team? DevLink gives you team hubs, shared task boards, project chats, and version tracking— so you can operate like a studio from day one."
+  },
   
-  // 9. Ecosystem - KINETIC
-  { id: 'market_1', duration: 500, type: 'kinetic_word', text: 'SELL' },
-  { id: 'market_2', duration: 500, type: 'kinetic_word', text: 'LICENSE' },
-  { id: 'market_3', duration: 500, type: 'kinetic_word', text: 'OFFER' },
-  { id: 'market_4', duration: 500, type: 'kinetic_word', text: 'HIRE' },
-  { id: 'market_5', duration: 2000, type: 'ecosystem_reveal', text: 'FULL DEVELOPER ECOSYSTEM' },
+  // 9. Ecosystem
+  { 
+    id: 'market_1', 
+    duration: 600, 
+    type: 'kinetic_word', 
+    text: 'SELL',
+    speech: "Sell assets."
+  },
+  { 
+    id: 'market_2', 
+    duration: 600, 
+    type: 'kinetic_word', 
+    text: 'LICENSE',
+    speech: "License code."
+  },
+  { 
+    id: 'market_3', 
+    duration: 600, 
+    type: 'kinetic_word', 
+    text: 'OFFER',
+    speech: "Offer services."
+  },
+  { 
+    id: 'market_4', 
+    duration: 600, 
+    type: 'kinetic_word', 
+    text: 'HIRE',
+    speech: "Get hired."
+  },
+  { 
+    id: 'market_5', 
+    duration: 2500, 
+    type: 'ecosystem_reveal', 
+    text: 'FULL DEVELOPER ECOSYSTEM',
+    speech: "It’s not just a hiring platform— it’s a full developer ecosystem."
+  },
   
-  // 10. Trust - IMPACT
-  { id: 'trust', duration: 3000, type: 'stamp_sequence', text: 'NO BS' },
+  // 10. Trust
+  { 
+    id: 'trust', 
+    duration: 5000, 
+    type: 'stamp_sequence', 
+    text: 'NO BS',
+    speech: "Every dev is verified. Every studio is vetted. Every payment is protected. No scams. No ghosting. No drama."
+  },
   
   // 11. Punchline
-  { id: 'punchline', duration: 3000, type: 'text_elegant', text: 'EFFORTLESS', sub: 'SCALING FOR STUDIOS' },
+  { 
+    id: 'punchline', 
+    duration: 4000, 
+    type: 'text_elegant', 
+    text: 'EFFORTLESS', 
+    sub: 'SCALING FOR STUDIOS',
+    speech: "Whether you're building your first Roblox game, scaling a studio, or hiring your next lead developer— DevLink makes it effortless."
+  },
   
   // 12. Finale
-  { id: 'finale', duration: 5000, type: 'logo_finish', text: 'DEVLINK', sub: 'BUILD TOGETHER' }
+  { 
+    id: 'finale', 
+    duration: 6000, 
+    type: 'logo_finish', 
+    text: 'DEVLINK', 
+    sub: 'BUILD TOGETHER',
+    speech: "Your team. Your tools. Your future. All in one place. DevLink — Build Together."
+  }
 ];
 
 const TOTAL_DURATION = SCENES.reduce((acc, s) => acc + s.duration, 0);
@@ -61,12 +220,63 @@ const TOTAL_DURATION = SCENES.reduce((acc, s) => acc + s.duration, 0);
 export default function AdPage() {
   const [sceneIndex, setSceneIndex] = useState(0);
   const [progress, setProgress] = useState(0);
+  const [hasStarted, setHasStarted] = useState(false);
+  const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
+  
+  // Initialize voices
+  useEffect(() => {
+    const updateVoices = () => {
+      setVoices(window.speechSynthesis.getVoices());
+    };
+    
+    window.speechSynthesis.onvoiceschanged = updateVoices;
+    updateVoices();
+    
+    return () => {
+      window.speechSynthesis.cancel();
+    };
+  }, []);
+
+  // Speak function
+  const speak = (text: string) => {
+    if (!text) return;
+    
+    // Cancel previous utterance to prevent queue buildup
+    window.speechSynthesis.cancel();
+    
+    const utterance = new SpeechSynthesisUtterance(text);
+    
+    // Try to find a good English voice
+    // Priority: Google US English -> Microsoft Mark -> Any English
+    const preferredVoice = voices.find(v => v.name.includes('Google US English')) || 
+                          voices.find(v => v.name.includes('Microsoft Mark')) ||
+                          voices.find(v => v.lang.startsWith('en'));
+                          
+    if (preferredVoice) utterance.voice = preferredVoice;
+    
+    utterance.rate = 1.1; // Slightly faster for energy
+    utterance.pitch = 1.0;
+    utterance.volume = 1.0;
+    
+    window.speechSynthesis.speak(utterance);
+  };
+
+  // Start sequence
+  const startAd = () => {
+    setHasStarted(true);
+    // Slight delay to allow state update before loop starts
+  };
 
   useEffect(() => {
+    if (!hasStarted) return;
+    
     let active = true;
     let startTime = Date.now();
     let currentSceneIdx = 0;
     
+    // Initial speech
+    speak(SCENES[0].speech!);
+
     const loop = () => {
       if (!active) return;
       const now = Date.now();
@@ -84,18 +294,52 @@ export default function AdPage() {
       }
       
       if (nextSceneIdx !== currentSceneIdx) {
+        // Scene changed
         currentSceneIdx = nextSceneIdx;
         setSceneIndex(nextSceneIdx);
+        
+        // Trigger speech for new scene
+        const text = SCENES[nextSceneIdx].speech;
+        if (text) {
+          speak(text);
+        }
+      }
+      
+      // Loop reset detection (approximate)
+      if (elapsed < 50 && elapsed > 0 && currentSceneIdx !== 0) {
+        // Reset occurred
+        startTime = Date.now(); // Resync
+        currentSceneIdx = 0;
+        setSceneIndex(0);
+        speak(SCENES[0].speech!);
       }
       
       requestAnimationFrame(loop);
     };
     
     requestAnimationFrame(loop);
-    return () => { active = false; };
-  }, []);
+    return () => { 
+      active = false; 
+      window.speechSynthesis.cancel();
+    };
+  }, [hasStarted, voices]);
 
   const scene = SCENES[sceneIndex];
+
+  if (!hasStarted) {
+    return (
+      <div className="fixed inset-0 bg-black flex items-center justify-center z-[10000]">
+        <motion.button
+          onClick={startAd}
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          className="bg-white text-black font-black text-2xl md:text-4xl px-12 py-6 rounded-full shadow-[0_0_50px_rgba(255,255,255,0.5)] animate-pulse"
+        >
+          CLICK TO START EXPERIENCE 🔊
+        </motion.button>
+      </div>
+    );
+  }
 
   return (
     <div className={`fixed inset-0 overflow-hidden ${scene.bg || 'bg-[#050508]'} text-white font-sans transition-colors duration-200 perspective-1000`}>
@@ -125,6 +369,11 @@ export default function AdPage() {
       
       {/* Cinematic Vignette */}
       <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_center,transparent_0%,black_100%)] opacity-40 z-40" />
+      
+      {/* Audio toggle hint */}
+      <div className="absolute top-4 right-4 z-50 opacity-50 text-xs">
+        🔊 AUDIO ON
+      </div>
     </div>
   );
 }
@@ -136,7 +385,7 @@ function BackgroundEffects({ type }: { type: string }) {
     <div className="absolute inset-0 overflow-hidden z-0">
       {type.includes('chaos') && (
         <>
-          <div className="absolute inset-0 opacity-20 animate-noise bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIj48ZmlsdGVyIGlkPSJnoiPjxmZVR1cmJ1bGVuY2UgdHlwZT0iZnJhY3RhbE5vaXNlIiBiYXNlRnJlcXVlbmN5PSIwLjY1IiBudW1PY3RhdmVzPSIzIiBzdGl0Y2hUaWxlcz0ic3RpdGNoIi8+PC9maWx0ZXI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsdGVyPSJ1cmwoI2cpIiBvcGFjaXR5PSIwLjUiLz48L3N2Zz4=')]" />
+           <div className="absolute inset-0 opacity-20 animate-noise bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIj48ZmlsdGVyIGlkPSJnoiPjxmZVR1cmJ1bGVuY2UgdHlwZT0iZnJhY3RhbE5vaXNlIiBiYXNlRnJlcXVlbmN5PSIwLjY1IiBudW1PY3RhdmVzPSIzIiBzdGl0Y2hUaWxlcz0ic3RpdGNoIi8+PC9maWx0ZXI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsdGVyPSJ1cmwoI2cpIiBvcGFjaXR5PSIwLjUiLz48L3N2Zz4=')]" />
           <motion.div 
             className="absolute inset-0 bg-red-500/10 mix-blend-overlay"
             animate={{ opacity: [0, 0.5, 0] }}
