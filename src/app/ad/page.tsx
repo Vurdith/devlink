@@ -4,47 +4,61 @@ import { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // --- Script & Timing Configuration ---
-// The duration is now relative. If you add an audio file, it will sync to timestamps.
-// If no audio, it falls back to these durations.
+// Total Target: ~62s (1:02)
 
 const SCENES = [
   // 0: Chaos - Intro
-  { id: 'intro', duration: 3000, type: 'kinetic_slam', text: ['HIRING', 'SHOULDN’T', 'HURT'], bg: '#000000' },
+  // "Hiring developers shouldn’t feel like this."
+  { id: 'intro', duration: 4000, type: 'kinetic_slam', text: ['HIRING', 'SHOULDN’T', 'HURT'], bg: '#000000' },
   
   // 1: Pain Points - Rapid Fire
-  { id: 'pain_1', duration: 800, type: 'flash_word', text: 'SCAMS?', bg: '#1a0000', accent: '#ff0000' },
-  { id: 'pain_2', duration: 800, type: 'flash_word', text: 'GHOSTED?', bg: '#1a0000', accent: '#ff0000' },
-  { id: 'pain_3', duration: 800, type: 'flash_word', text: 'LATE?', bg: '#1a0000', accent: '#ff0000' },
-  { id: 'pain_4', duration: 1000, type: 'flash_word', text: 'NOPE.', bg: '#000000', accent: '#ffffff' },
+  // "Random Discord DMs? Scams? Ghosted? Late? Nope."
+  { id: 'pain_1', duration: 1500, type: 'flash_word', text: 'SCAMS?', bg: '#1a0000', accent: '#ff0000' },
+  { id: 'pain_2', duration: 1500, type: 'flash_word', text: 'GHOSTED?', bg: '#1a0000', accent: '#ff0000' },
+  { id: 'pain_3', duration: 1500, type: 'flash_word', text: 'LATE?', bg: '#1a0000', accent: '#ff0000' },
+  { id: 'pain_4', duration: 2000, type: 'flash_word', text: 'NOPE.', bg: '#000000', accent: '#ffffff' },
 
   // 2: The Solution - Smooth
-  { id: 'meet', duration: 2500, type: 'hero_smooth', text: 'MEET DEVLINK', sub: 'THE REAL NETWORK', bg: '#050508' },
+  // "Meet DevLink. The real network."
+  { id: 'meet', duration: 4000, type: 'hero_smooth', text: 'MEET DEVLINK', sub: 'THE REAL NETWORK', bg: '#050508' },
 
   // 3: Features - 3D Cards
-  { id: 'feat_1', duration: 1200, type: 'card_3d', text: 'VERIFIED', icon: '✅' },
-  { id: 'feat_2', duration: 1200, type: 'card_3d', text: 'HISTORY', icon: '📂' },
-  { id: 'feat_3', duration: 1200, type: 'card_3d', text: 'RATED', icon: '⭐' },
+  // "Verified portfolios. Real history. Rated skills. Proof of work. All in one place."
+  { id: 'feat_1', duration: 2500, type: 'card_3d', text: 'VERIFIED', icon: '✅' },
+  { id: 'feat_2', duration: 2500, type: 'card_3d', text: 'HISTORY', icon: '📂' },
+  { id: 'feat_3', duration: 2500, type: 'card_3d', text: 'RATED', icon: '⭐' },
   
   // 4: Search - Zoom
-  { id: 'search', duration: 2000, type: 'zoom_tunnel', text: 'FIND PROS', sub: 'PROGRAMMERS • ARTISTS • SFX' },
+  // "Need a pro? Programmer. Artist. SFX. Find them instantly."
+  { id: 'search', duration: 4500, type: 'zoom_tunnel', text: 'FIND PROS', sub: 'PROGRAMMERS • ARTISTS • SFX' },
 
   // 5: Escrow - Secure
-  { id: 'escrow', duration: 3000, type: 'lock_in', text: 'SECURE ESCROW', sub: 'FUNDS HELD • WORK DONE • PAID' },
+  // "Found the perfect match? Lock it in. Secure escrow. Funds held. Work done. Paid."
+  { id: 'escrow', duration: 6000, type: 'lock_in', text: 'SECURE ESCROW', sub: 'FUNDS HELD • WORK DONE • PAID' },
 
   // 6: Team - Grid
-  { id: 'team', duration: 3000, type: 'grid_build', text: 'BUILD YOUR STUDIO' },
+  // "Want to build a studio? Team hubs. Task boards. Project chats. Build your dream team."
+  { id: 'team', duration: 6000, type: 'grid_build', text: 'BUILD YOUR STUDIO' },
 
   // 7: Ecosystem - Fast Words
-  { id: 'eco_1', duration: 600, type: 'big_word', text: 'SELL' },
-  { id: 'eco_2', duration: 600, type: 'big_word', text: 'LICENSE' },
-  { id: 'eco_3', duration: 600, type: 'big_word', text: 'HIRE' },
-  { id: 'eco_4', duration: 2000, type: 'logo_burst', text: 'FULL ECOSYSTEM' },
+  // "Sell assets. License code. Offer services. Get hired."
+  { id: 'eco_1', duration: 1200, type: 'big_word', text: 'SELL' },
+  { id: 'eco_2', duration: 1200, type: 'big_word', text: 'LICENSE' },
+  { id: 'eco_3', duration: 1200, type: 'big_word', text: 'HIRE' },
+  
+  // "It’s a full developer ecosystem."
+  { id: 'eco_4', duration: 3500, type: 'logo_burst', text: 'FULL ECOSYSTEM' },
 
   // 8: Trust - Stamps
-  { id: 'trust', duration: 3000, type: 'stamp_check', text: 'NO BS.' },
+  // "Every dev verified. Every studio vetted. Every payment protected. No BS."
+  { id: 'trust', duration: 5000, type: 'stamp_check', text: 'NO BS.' },
 
   // 9: Finale
-  { id: 'end', duration: 5000, type: 'final_logo', text: 'DEVLINK' }
+  // "Whether you're building your first game or scaling a studio... DevLink makes it effortless."
+  { id: 'effortless', duration: 4000, type: 'hero_smooth', text: 'EFFORTLESS', sub: 'SCALING FOR STUDIOS', bg: '#050508' },
+
+  // "DevLink. Build Together."
+  { id: 'end', duration: 8000, type: 'final_logo', text: 'DEVLINK' }
 ];
 
 const TOTAL_DURATION_MS = SCENES.reduce((acc, s) => acc + s.duration, 0);
@@ -309,6 +323,37 @@ function SceneRenderer({ scene }: { scene: any }) {
         </div>
       );
       
+    case 'grid_build':
+      return (
+        <div className="text-center w-full max-w-5xl">
+          <div className="grid grid-cols-2 gap-8 mb-16 perspective-1000">
+            {[
+              { t: "HUBS", c: "bg-blue-500/20" },
+              { t: "TASKS", c: "bg-purple-500/20" },
+              { t: "CHAT", c: "bg-pink-500/20" },
+              { t: "GIT", c: "bg-orange-500/20" }
+            ].map((item, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, rotateY: 90 }}
+                animate={{ opacity: 1, rotateY: 0 }}
+                transition={{ delay: i * 0.2, type: "spring" }}
+                className={`${item.c} h-40 rounded-2xl border border-white/10 flex items-center justify-center`}
+              >
+                <span className="text-4xl font-black">{item.t}</span>
+              </motion.div>
+            ))}
+          </div>
+          <motion.h2 
+            initial={{ opacity: 0, scale: 2 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="text-5xl md:text-7xl font-black"
+          >
+            {scene.text}
+          </motion.h2>
+        </div>
+      );
+
     case 'big_word':
       return (
         <motion.h1
