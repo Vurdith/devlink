@@ -122,8 +122,17 @@ export default function AdPage() {
     setIsPlaying(true);
     startTimeRef.current = Date.now();
     
+    // Explicit play call inside user gesture
     if (audioRef.current) {
-      audioRef.current.play().catch(e => console.log("Audio play failed (user interaction needed)", e));
+      audioRef.current.volume = 1.0; // Ensure full volume
+      const playPromise = audioRef.current.play();
+      
+      if (playPromise !== undefined) {
+        playPromise.catch(error => {
+          console.error("Audio playback failed:", error);
+          // Fallback UI or logic could go here
+        });
+      }
     }
     
     requestRef.current = requestAnimationFrame(animate);
@@ -196,6 +205,15 @@ export default function AdPage() {
       <div className="absolute bottom-4 right-4 text-xs font-mono text-white/30">
         DEVLINK AD • {scene.id.toUpperCase()}
       </div>
+
+      {/* Unmute Fallback */}
+      <button 
+        onClick={() => audioRef.current && (audioRef.current.muted = false)}
+        className="absolute top-4 right-4 z-50 opacity-0 hover:opacity-100 transition-opacity bg-white/10 p-2 rounded-full"
+        title="Unmute"
+      >
+        🔊
+      </button>
     </div>
   );
 }
