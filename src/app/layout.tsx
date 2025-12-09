@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
 import { Outfit, Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
-import { Navbar } from "@/components/layout/Navbar";
-import { Sidebar } from "@/components/layout/Sidebar";
-import { MobileNav } from "@/components/layout/MobileNav";
+import { AppShell } from "@/components/layout/AppShell";
 import { SessionProvider } from "@/components/providers/SessionProvider";
 import { ToastProvider } from "@/components/providers/ToastProvider";
 import { PerformanceProvider } from "@/components/providers/PerformanceProvider";
@@ -184,18 +182,11 @@ export default function RootLayout({
               {/* Animated background */}
               <AnimatedBackground />
               
-              <Sidebar />
-              <MobileNav />
-              <div className="md:ml-72 min-h-screen relative">
-                <Navbar />
-                <main id="main-content" className="min-h-screen relative isolate pb-20 md:pb-0" role="main">
-                  <div className="relative z-10 p-4 md:p-6 pt-16 md:pt-6">
-                    <ErrorBoundary>
-                      {children}
-                    </ErrorBoundary>
-                  </div>
-                </main>
-              </div>
+              <AppShell>
+                <ErrorBoundary>
+                  {children}
+                </ErrorBoundary>
+              </AppShell>
             </ErrorBoundary>
             </PerformanceProvider>
             </RealtimeProvider>
