@@ -3,6 +3,26 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/server/auth-options";
 import { prisma } from "@/server/db";
 
+function explainNotificationDbError(e: any) {
+  const msg = typeof e?.message === "string" ? e.message : "";
+  const code = e?.code;
+
+  // Prisma codes for missing table/enum can vary; Postgres missing relation is 42P01.
+  const looksLikeMissingTable =
+    code === "P2021" ||
+    msg.includes("does not exist") ||
+    msg.includes("relation") ||
+    msg.includes("Notification");
+
+  if (looksLikeMissingTable) {
+    return {
+      error:
+        "Notifications table missing in your database. Apply the migration (Notification + NotificationType) and restart the server.",
+    };
+  }
+  return { error: "Failed to load notifications" };
+}
+
 export async function GET(req: Request) {
   try {
     const session = await getServerSession(authOptions);
@@ -44,7 +64,15 @@ export async function GET(req: Request) {
     return NextResponse.json({ notifications: sliced, nextCursor });
   } catch (e) {
     console.error("Notifications GET error:", e);
-    return NextResponse.json({ error: "Failed to load notifications" }, { status: 500 });
+    const payload = explainNotificationDbError(e);
+    // Add extra debug info in dev to speed up setup.
+    if (process.env.NODE_ENV !== "production") {
+      (payload as any).debug = {
+        code: (e as any)?.code,
+        message: (e as any)?.message,
+      };
+    }
+    return NextResponse.json(payload, { status: 500 });
   }
 }
 
