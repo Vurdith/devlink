@@ -6,15 +6,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { MobileNav } from "@/components/layout/MobileNav";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname();
-  
-  // List of paths that should hide the app shell (sidebar/navbar)
-  const fullScreenPaths = ["/ad"];
-  const isFullScreen = fullScreenPaths.includes(pathname);
-
-  if (isFullScreen) {
-    return <>{children}</>;
-  }
+  usePathname(); // keep hook for future route-based shell toggles
 
   return (
     <>

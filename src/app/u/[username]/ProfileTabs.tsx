@@ -953,6 +953,7 @@ export function ProfileTabs({ username, currentUserId, userId, skills = [], prof
         onSave={handleSavePortfolioItem}
         existingItem={editingItem}
         userId={userId}
+        userSkills={skills}
       />
     </div>
   );

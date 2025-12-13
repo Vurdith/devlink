@@ -31,6 +31,13 @@ export async function GET(request: NextRequest) {
       skip,
       take: limit,
       include: {
+        skills: {
+          include: {
+            skill: {
+              select: { id: true, name: true, category: true, icon: true },
+            },
+          },
+        },
         user: {
           include: {
             profile: {

@@ -195,9 +195,14 @@ export interface PortfolioItem {
   userId: string;
   title: string;
   description: string | null;
-  imageUrl: string | null;
-  projectUrl: string | null;
-  technologies: string[];
+  mediaUrls: string | null;
+  links: string | null;
+  category: string | null;
+  tags: string | null;
+  isPublic: boolean;
+  skills?: Array<{
+    skill: { id: string; name: string; category: string; icon?: string | null };
+  }>;
   createdAt: Date;
   updatedAt: Date;
 }

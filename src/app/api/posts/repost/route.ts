@@ -3,6 +3,7 @@ import { prisma } from "@/server/db";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/server/auth-options";
 import { responseCache } from "@/lib/cache";
+import { createNotification } from "@/server/notifications";
 
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
@@ -21,7 +22,7 @@ export async function POST(req: Request) {
     // Verify post exists
     const postExists = await prisma.post.findUnique({
       where: { id: postId },
-      select: { id: true }
+      select: { id: true, userId: true }
     });
 
     if (!postExists) {
@@ -54,6 +55,17 @@ export async function POST(req: Request) {
         },
       });
       reposted = true;
+
+      if (postExists.userId) {
+        // Non-blocking: don't fail reposts if notification creation fails.
+        void createNotification({
+          recipientId: postExists.userId,
+          actorId: userId,
+          type: "REPOST",
+          postId,
+          dedupeKey: `n:${postExists.userId}:repost:${postId}:${userId}`,
+        });
+      }
     }
 
     // Invalidate ALL relevant caches - MUST await

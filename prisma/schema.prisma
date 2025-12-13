@@ -37,9 +37,43 @@ model User {
   passwordResetTokens PasswordResetToken[]
   emailChangeTokens   EmailChangeToken[]
   skills          UserSkill[]
+  notificationsReceived Notification[] @relation("UserNotifications")
+  notificationsSent     Notification[] @relation("ActorNotifications")
 
   // Index for discover page sorting
   @@index([createdAt])
+}
+
+enum NotificationType {
+  LIKE
+  REPOST
+  REPLY
+  FOLLOW
+  MENTION
+}
+
+model Notification {
+  id           String           @id @default(cuid())
+  userId       String           // recipient
+  actorId      String           // who triggered it
+  type         NotificationType
+  postId       String?
+  sourcePostId String?          // e.g. reply post id
+  dedupeKey    String?          @unique
+  metadata     Json?
+  readAt       DateTime?
+  createdAt    DateTime         @default(now())
+
+  user         User             @relation("UserNotifications", fields: [userId], references: [id], onDelete: Cascade)
+  actor        User             @relation("ActorNotifications", fields: [actorId], references: [id], onDelete: Cascade)
+  post         Post?            @relation(fields: [postId], references: [id], onDelete: Cascade)
+  sourcePost   Post?            @relation("NotificationSourcePost", fields: [sourcePostId], references: [id], onDelete: Cascade)
+
+  @@index([userId, readAt])
+  @@index([userId, createdAt])
+  @@index([actorId])
+  @@index([postId])
+  @@index([sourcePostId])
 }
 
 model Account {
@@ -129,6 +163,8 @@ model Post {
   media        PostMedia[]
   hashtags     PostHashtag[]
   mentions     PostMention[]
+  notificationsTarget Notification[]
+  notificationsSource Notification[] @relation("NotificationSourcePost")
 
   @@index([userId])
   @@index([createdAt])
@@ -213,6 +249,7 @@ model PortfolioItem {
   links       String?
   category    String?
   tags        String?
+  skills      PortfolioItemSkill[]
   isPublic    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -372,8 +409,23 @@ model Skill {
   icon        String?     // Icon identifier
   createdAt   DateTime    @default(now())
   users       UserSkill[]
+  portfolioItems PortfolioItemSkill[]
 
   @@index([category])
+}
+
+model PortfolioItemSkill {
+  id              String        @id @default(cuid())
+  portfolioItemId String
+  skillId         String
+  createdAt       DateTime      @default(now())
+
+  portfolioItem PortfolioItem @relation(fields: [portfolioItemId], references: [id], onDelete: Cascade)
+  skill         Skill         @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@unique([portfolioItemId, skillId])
+  @@index([portfolioItemId])
+  @@index([skillId])
 }
 
 model UserSkill {

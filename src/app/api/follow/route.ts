@@ -2,6 +2,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/server/auth-options";
 import { prisma } from "@/server/db";
 import { NextResponse } from "next/server";
+import { createNotification } from "@/server/notifications";
 
 export async function POST(req: Request) {
   try {
@@ -41,6 +42,13 @@ export async function POST(req: Request) {
       return NextResponse.json({ following: false });
     } else {
       await prisma.follower.create({ data: { followerId: currentUserId, followingId: body.targetUserId } });
+      // Non-blocking: don't fail follows if notification creation fails.
+      void createNotification({
+        recipientId: body.targetUserId,
+        actorId: currentUserId,
+        type: "FOLLOW",
+        dedupeKey: `n:${body.targetUserId}:follow:${body.targetUserId}:${currentUserId}`,
+      });
       return NextResponse.json({ following: true });
     }
   } catch (error) {

@@ -13,6 +13,7 @@ interface PortfolioItem {
   links?: string;
   mediaUrls?: string;
   tags?: string;
+  skills?: Array<{ skill?: { id: string; name: string; category: string; icon?: string | null } }>;
   isPublic: boolean;
   createdAt: string;
 }
@@ -244,6 +245,8 @@ export function PortfolioItemDisplay({
   const mediaUrls = parseUrls(item.mediaUrls);
   const links = parseUrls(item.links);
   const tags = parseTags(item.tags);
+  const linkedSkills =
+    item.skills?.map((s) => s.skill).filter(Boolean) as Array<{ id: string; name: string; category: string; icon?: string | null }> | undefined;
 
   const goToPrevious = () => {
     setCurrentMediaIndex((prev) =>
@@ -421,6 +424,21 @@ export function PortfolioItemDisplay({
               >
                 #{tag}
               </button>
+            ))}
+          </div>
+        )}
+
+        {/* Linked Skills */}
+        {linkedSkills && linkedSkills.length > 0 && (
+          <div className="flex flex-wrap gap-2 mb-5">
+            {linkedSkills.map((s) => (
+              <span
+                key={s.id}
+                className="px-3 py-1.5 text-xs font-medium bg-white/5 text-white/60 rounded-full border border-white/10"
+                title={s.category}
+              >
+                {s.name}
+              </span>
             ))}
           </div>
         )}

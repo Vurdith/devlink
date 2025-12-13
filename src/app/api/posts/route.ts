@@ -7,6 +7,7 @@ import { CreatePostRequest, PostsResponse, ApiResponse } from "@/types/api";
 import { RATE_LIMITS, CONTENT_LIMITS, COLLECTION_LIMITS, HTTP_STATUS } from "@/lib/constants";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { getUniqueViewCounts } from "@/lib/view-utils";
+import { createNotification } from "@/server/notifications";
 
 export async function POST(request: NextRequest) {
   try {
@@ -134,6 +135,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Invalid reply ID" }, { status: 400 });
     }
 
+    // If replying, resolve parent post + owner for notification and validate it exists
+    let replyTarget: { id: string; userId: string } | null = null;
+    if (replyToId) {
+      replyTarget = await prisma.post.findUnique({
+        where: { id: replyToId },
+        select: { id: true, userId: true },
+      });
+      if (!replyTarget) {
+        return NextResponse.json({ error: "Reply target not found" }, { status: 404 });
+      }
+    }
+
     // Get user ID
     const user = await prisma.user.findUnique({
       where: { username: session.user.username }
@@ -185,6 +198,20 @@ export async function POST(request: NextRequest) {
     // Parallel processing for auxiliary data
     const promises = [];
 
+    // Notifications: reply
+    if (!isScheduled && replyTarget) {
+      promises.push(
+        createNotification({
+          recipientId: replyTarget.userId,
+          actorId: user.id,
+          type: "REPLY",
+          postId: replyTarget.id,
+          sourcePostId: post.id,
+          // Allow multiple replies; no dedupeKey.
+        }).catch((e) => console.error("Reply notification error", e))
+      );
+    }
+
     // Hashtags
     if (parsedContent.hashtags.length > 0) {
       const hashtagPromise = (async () => {
@@ -223,6 +250,20 @@ export async function POST(request: NextRequest) {
                  userId: u.id
                }))
              });
+
+             if (!isScheduled) {
+               await Promise.all(
+                 users.map((u) =>
+                   createNotification({
+                     recipientId: u.id,
+                     actorId: user.id,
+                     type: "MENTION",
+                     postId: post.id,
+                     dedupeKey: `n:${u.id}:mention:${post.id}:${user.id}`,
+                   }).catch((e) => console.error("Mention notification error", e))
+                 )
+               );
+             }
            }
         } catch (e) {
           console.error("Mention error", e);

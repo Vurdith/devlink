@@ -3,6 +3,7 @@ import { prisma } from "@/server/db";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/server/auth-options";
 import { responseCache } from "@/lib/cache";
+import { createNotification } from "@/server/notifications";
 
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
@@ -45,6 +46,22 @@ export async function POST(req: Request) {
           },
         });
         liked = true;
+
+        // Create notification for the post owner (deduped per actor+post)
+        const post = await prisma.post.findUnique({
+          where: { id: postId },
+          select: { userId: true },
+        });
+        if (post?.userId) {
+          // Non-blocking: don't fail likes if notification creation fails.
+          void createNotification({
+            recipientId: post.userId,
+            actorId: userId,
+            type: "LIKE",
+            postId,
+            dedupeKey: `n:${post.userId}:like:${postId}:${userId}`,
+          });
+        }
       }
     } catch (dbError: any) {
       // Handle case where post doesn't exist (FK constraint)

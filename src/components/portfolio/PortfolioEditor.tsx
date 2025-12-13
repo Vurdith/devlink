@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, memo, useRef } from "react";
+import { useState, useCallback, memo, useRef, useEffect } from "react";
 import { BaseModal, ModalInput, ModalTextarea, Tooltip } from "@/components/ui/BaseModal";
 import { Button } from "@/components/ui/Button";
 
@@ -10,6 +10,11 @@ interface PortfolioEditorProps {
   onSave: (item: any) => void;
   existingItem?: any;
   userId: string;
+  userSkills?: Array<{
+    skillId: string;
+    isPrimary?: boolean;
+    skill: { id: string; name: string; category: string };
+  }>;
 }
 
 // Memoized list item components for better performance - removes re-renders
@@ -103,16 +108,28 @@ export function PortfolioEditor({
   onSave,
   existingItem,
   userId,
+  userSkills = [],
 }: PortfolioEditorProps) {
   // Use refs for main form fields to avoid re-renders on every keystroke
   const titleRef = useRef<HTMLInputElement>(null);
   const descriptionRef = useRef<HTMLTextAreaElement>(null);
-  const categoryRef = useRef<HTMLInputElement>(null);
   
   // Only use state for dynamic arrays and UI state
   const [links, setLinks] = useState(() => existingItem?.links ? existingItem.links.split(",").map((l: string) => l.trim()).filter(Boolean) : []);
   const [mediaUrls, setMediaUrls] = useState(() => existingItem?.mediaUrls ? existingItem.mediaUrls.split(",").map((m: string) => m.trim()).filter(Boolean) : []);
   const [tags, setTags] = useState(() => existingItem?.tags ? existingItem.tags.split(",").map((t: string) => t.trim()).filter(Boolean) : []);
+  const [selectedSkillIds, setSelectedSkillIds] = useState<string[]>(() => {
+    const skills = existingItem?.skills;
+    if (!Array.isArray(skills)) return [];
+    return Array.from(
+      new Set(
+        skills
+          .map((s: any) => s?.skill?.id ?? s?.skillId)
+          .filter((id: any) => typeof id === "string")
+      )
+    );
+  });
+  const [skillSearch, setSkillSearch] = useState("");
   const [isPublic, setIsPublic] = useState(existingItem?.isPublic ?? true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -124,6 +141,60 @@ export function PortfolioEditor({
   const newMediaUrlRef = useRef<HTMLInputElement>(null);
   const newLinkRef = useRef<HTMLInputElement>(null);
   const newTagRef = useRef<HTMLInputElement>(null);
+
+  const parseListField = useCallback((value: any): string[] => {
+    if (!value || typeof value !== "string") return [];
+    const raw = value.trim();
+    if (!raw) return [];
+    // Support accidental JSON storage (e.g. ["a","b"]) as well as comma separated.
+    if (raw.startsWith("[") && raw.endsWith("]")) {
+      try {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          return parsed.map((x) => String(x).trim()).filter(Boolean);
+        }
+      } catch {
+        // fall back to CSV
+      }
+    }
+    return raw
+      .split(",")
+      .map((x) => x.trim())
+      .filter(Boolean);
+  }, []);
+
+  const extractSkillIds = useCallback((item: any): string[] => {
+    const skills = item?.skills;
+    if (!Array.isArray(skills)) return [];
+    const ids = skills
+      .map((s: any) => s?.skill?.id ?? s?.skillId ?? s?.skill?.skillId)
+      .filter((id: any) => typeof id === "string");
+    return Array.from(new Set(ids));
+  }, []);
+
+  // Re-hydrate the modal every time it opens or the item changes.
+  // Without this, the initial useState/defaultValue only applies on first mount.
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const item = existingItem ?? null;
+
+    // refs (uncontrolled inputs) need manual sync
+    if (titleRef.current) titleRef.current.value = item?.title ?? "";
+    if (descriptionRef.current) descriptionRef.current.value = item?.description ?? "";
+
+    setLinks(parseListField(item?.links));
+    setMediaUrls(parseListField(item?.mediaUrls));
+    setTags(parseListField(item?.tags).map((t) => t.toLowerCase()));
+    setSelectedSkillIds(extractSkillIds(item));
+    setIsPublic(item?.isPublic ?? true);
+
+    // reset transient UI bits
+    setSkillSearch("");
+    setError("");
+    setMediaInputMethod("url");
+    setDragActive(false);
+  }, [isOpen, existingItem?.id, parseListField, extractSkillIds]);
 
   // Memoized callback functions to prevent re-creation on every render
   const handleDrag = useCallback((e: React.DragEvent) => {
@@ -220,7 +291,6 @@ export function PortfolioEditor({
     // Get values from refs
     const title = titleRef.current?.value.trim() || "";
     const description = descriptionRef.current?.value.trim() || "";
-    const category = categoryRef.current?.value.trim() || "";
 
     if (!title) {
       setError("Title is required");
@@ -240,10 +310,10 @@ export function PortfolioEditor({
         body: JSON.stringify({
           title,
           description,
-          category,
           links: links.join(", "),
           mediaUrls: mediaUrls.join(", "),
           tags: tags.join(", "),
+          skillIds: selectedSkillIds,
           isPublic,
         }),
       });
@@ -260,7 +330,7 @@ export function PortfolioEditor({
     } finally {
       setLoading(false);
     }
-  }, [links, mediaUrls, tags, isPublic, existingItem, onSave]);
+  }, [links, mediaUrls, tags, selectedSkillIds, isPublic, existingItem, onSave]);
 
   const footer = (
     <div className="flex gap-3 justify-end">
@@ -298,18 +368,6 @@ export function PortfolioEditor({
             placeholder="Project title"
             className="w-full px-3 py-2 bg-black/30 border border-white/10 rounded-lg text-sm text-white placeholder-white/30 focus:outline-none focus:border-[var(--color-accent)]/50"
             required
-          />
-        </div>
-
-        {/* Category */}
-        <div>
-          <label className="block text-xs font-medium mb-1.5 text-white/70">Category</label>
-          <input
-            ref={categoryRef}
-            type="text"
-            defaultValue={existingItem?.category || ""}
-            placeholder="e.g. Project, Design, Development"
-            className="w-full px-3 py-2 bg-black/30 border border-white/10 rounded-lg text-sm text-white placeholder-white/30 focus:outline-none focus:border-[var(--color-accent)]/50"
           />
         </div>
 
@@ -475,6 +533,71 @@ export function PortfolioEditor({
             </div>
           )}
         </div>
+
+        {/* Skills */}
+        {userSkills.length > 0 && (
+          <div>
+            <label className="block text-xs font-medium mb-1.5 text-white/70">
+              Link to your skills
+              <span className="text-white/40 font-normal"> (optional)</span>
+            </label>
+            <input
+              type="text"
+              value={skillSearch}
+              onChange={(e) => setSkillSearch(e.target.value)}
+              placeholder="Search your skills..."
+              className="w-full px-3 py-2 mb-2 bg-black/30 border border-white/10 rounded-lg text-sm text-white placeholder-white/30 focus:outline-none focus:border-[var(--color-accent)]/50"
+            />
+            <div className="max-h-40 overflow-y-auto rounded-lg border border-white/10 bg-black/20">
+              {userSkills
+                .filter((us) => us.skill.name.toLowerCase().includes(skillSearch.toLowerCase()))
+                .map((us) => {
+                  const checked = selectedSkillIds.includes(us.skillId);
+                  return (
+                    <label
+                      key={us.skillId}
+                      className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:bg-white/5 cursor-pointer"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        onChange={() => {
+                          setSelectedSkillIds((prev) =>
+                            checked ? prev.filter((id) => id !== us.skillId) : [...prev, us.skillId]
+                          );
+                        }}
+                        className="w-4 h-4 rounded cursor-pointer accent-[var(--color-accent)]"
+                      />
+                      <span className="flex-1">{us.skill.name}</span>
+                      {us.isPrimary && (
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/20">
+                          Primary
+                        </span>
+                      )}
+                    </label>
+                  );
+                })}
+              {userSkills.filter((us) => us.skill.name.toLowerCase().includes(skillSearch.toLowerCase())).length === 0 && (
+                <div className="px-3 py-3 text-xs text-white/40">No matching skills.</div>
+              )}
+            </div>
+            {selectedSkillIds.length > 0 && (
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {selectedSkillIds
+                  .map((id) => userSkills.find((us) => us.skillId === id)?.skill?.name)
+                  .filter(Boolean)
+                  .map((name) => (
+                    <span
+                      key={name as string}
+                      className="px-2 py-1 bg-white/5 text-white/60 rounded-full border border-white/10 text-[10px]"
+                    >
+                      {name}
+                    </span>
+                  ))}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Public Toggle */}
         <div className="flex items-center gap-2.5">

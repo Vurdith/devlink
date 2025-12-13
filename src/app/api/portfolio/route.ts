@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { title, description, mediaUrls, links, category, tags, isPublic } = body;
+    const { title, description, mediaUrls, links, category, tags, isPublic, skillIds } = body;
 
     // Validate title
     const titleValidation = validatePortfolioTitle(title);
@@ -67,6 +67,19 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "isPublic must be a boolean" }, { status: 400 });
     }
 
+    // Validate skillIds if provided
+    let validatedSkillIds: string[] | undefined = undefined;
+    if (typeof skillIds !== "undefined") {
+      if (!Array.isArray(skillIds) || !skillIds.every((id: any) => typeof id === "string")) {
+        return NextResponse.json({ error: "skillIds must be an array of strings" }, { status: 400 });
+      }
+      const unique = Array.from(new Set(skillIds.map((s: string) => s.trim()).filter(Boolean)));
+      if (unique.length > 15) {
+        return NextResponse.json({ error: "Maximum 15 skills can be linked" }, { status: 400 });
+      }
+      validatedSkillIds = unique;
+    }
+
     // Get user ID
     const user = await prisma.user.findUnique({
       where: { username: session.user.username }
@@ -74,6 +87,17 @@ export async function POST(request: NextRequest) {
 
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    // Ensure user can only link skills they actually have
+    if (validatedSkillIds && validatedSkillIds.length > 0) {
+      const owned = await prisma.userSkill.findMany({
+        where: { userId: user.id, skillId: { in: validatedSkillIds } },
+        select: { skillId: true },
+      });
+      if (owned.length !== validatedSkillIds.length) {
+        return NextResponse.json({ error: "You can only link portfolio items to skills in your skillset." }, { status: 400 });
+      }
     }
 
     // Create portfolio item
@@ -86,9 +110,23 @@ export async function POST(request: NextRequest) {
         category,
         tags,
         isPublic: isPublic ?? true,
-        userId: user.id
+        userId: user.id,
+        ...(validatedSkillIds
+          ? {
+              skills: {
+                create: validatedSkillIds.map((skillId: string) => ({ skillId })),
+              },
+            }
+          : {}),
       },
       include: {
+        skills: {
+          include: {
+            skill: {
+              select: { id: true, name: true, category: true, icon: true },
+            },
+          },
+        },
         user: {
           include: {
             profile: {
@@ -151,6 +189,13 @@ export async function GET(request: NextRequest) {
         category: true,
         tags: true,
         createdAt: true,
+        skills: {
+          select: {
+            skill: {
+              select: { id: true, name: true, category: true, icon: true },
+            },
+          },
+        },
         user: {
           select: {
             id: true,

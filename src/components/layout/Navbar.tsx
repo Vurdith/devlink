@@ -17,6 +17,17 @@ export const Navbar = memo(function Navbar() {
   const [displayName, setDisplayName] = useState<string | undefined>(sessionName);
   const [profileType, setProfileType] = useState<string | undefined>();
   const [scrolled, setScrolled] = useState(false);
+  const [unread, setUnread] = useState<number>(0);
+
+  const fetchUnread = useCallback(async () => {
+    if (!username) return;
+    try {
+      const res = await fetch("/api/notifications/unread-count", { cache: "no-store" });
+      if (!res.ok) return;
+      const data = await res.json();
+      if (typeof data?.unread === "number") setUnread(data.unread);
+    } catch {}
+  }, [username]);
 
   // Function to fetch fresh profile data
   const fetchProfile = useCallback(async (bypassCache = false) => {
@@ -76,6 +87,14 @@ export const Navbar = memo(function Navbar() {
       fetchProfile(false);
     }
   }, [username, googleImage, fetchProfile]);
+
+  // Poll unread notifications count (lightweight)
+  useEffect(() => {
+    if (!username) return;
+    fetchUnread();
+    const id = window.setInterval(fetchUnread, 15000);
+    return () => window.clearInterval(id);
+  }, [username, fetchUnread]);
 
   // Listen for profile updates (from any component)
   useEffect(() => {
@@ -138,18 +157,23 @@ export const Navbar = memo(function Navbar() {
           {/* Quick action buttons for logged-in users */}
           {username && (
             <div className="hidden md:flex items-center gap-2">
-              {/* Notifications placeholder */}
-              <button
+              <Link
+                href="/notifications"
                 aria-label="Notifications"
-                aria-haspopup="true"
                 className="relative p-2.5 rounded-xl text-[var(--muted-foreground)] hover:text-white hover:bg-white/5 transition-all duration-150 hover:scale-105 active:scale-95"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                 </svg>
-                {/* Notification dot */}
-                <span className="absolute top-2 right-2 w-2 h-2 bg-[var(--color-accent)] rounded-full" aria-label="New notifications" />
-              </button>
+                {unread > 0 ? (
+                  <span
+                    className="absolute -top-0.5 -right-0.5 min-w-5 h-5 px-1 rounded-full bg-[var(--color-accent)] text-[10px] font-bold text-black flex items-center justify-center"
+                    aria-label={`${unread} unread notifications`}
+                  >
+                    {unread > 99 ? "99+" : unread}
+                  </span>
+                ) : null}
+              </Link>
               
               {/* Messages placeholder */}
               <button
