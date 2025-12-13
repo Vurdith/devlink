@@ -23,6 +23,18 @@ type NotificationItem = {
   sourcePost: { id: string; content: string; createdAt: string } | null;
 };
 
+type ActivityItem = {
+  id: string;
+  type: NotificationType;
+  createdAt: string;
+  readAt: string | null;
+  actors: NotificationItem["actor"][];
+  actorCount: number;
+  notificationIds: string[];
+  post: NotificationItem["post"];
+  sourcePost: NotificationItem["sourcePost"];
+};
+
 function BellIcon() {
   return (
     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -100,8 +112,8 @@ function TypeIcon({ type }: { type: NotificationType }) {
   }
 }
 
-function labelFor(n: NotificationItem) {
-  switch (n.type) {
+function labelForType(type: NotificationType) {
+  switch (type) {
     case "LIKE":
       return "liked your post";
     case "REPOST":
@@ -115,8 +127,37 @@ function labelFor(n: NotificationItem) {
   }
 }
 
+function actorsLine(actors: ActivityItem["actors"], actorCount: number) {
+  const names = actors.map((a) => a?.name || a?.username).filter(Boolean) as string[];
+  if (actorCount <= 1) return names[0] || "Someone";
+  const first = names[0] || "Someone";
+  const second = names[1];
+  const others = actorCount - (second ? 2 : 1);
+  if (second && others <= 0) return `${first} and ${second}`;
+  if (second) return `${first}, ${second} and ${others} others`;
+  return `${first} and ${others} others`;
+}
+
+function StackedAvatars({ actors }: { actors: ActivityItem["actors"] }) {
+  const top = actors.slice(0, 3);
+  return (
+    <div className="relative w-[56px] h-10">
+      {top.map((a, i) => (
+        <div key={a.id} className="absolute top-0" style={{ left: i * 14, zIndex: 10 - i }}>
+          <Avatar
+            size={32}
+            src={a.profile?.avatarUrl || null}
+            alt={a.name || a.username}
+            className="border border-white/10"
+          />
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function NotificationsPage() {
-  const [items, setItems] = useState<NotificationItem[]>([]);
+  const [items, setItems] = useState<ActivityItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [marking, setMarking] = useState(false);
   const [error, setError] = useState<string>("");
@@ -125,7 +166,7 @@ export default function NotificationsPage() {
   const [hasMore, setHasMore] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
 
-  const unreadIds = useMemo(() => items.filter((i) => !i.readAt).map((i) => i.id), [items]);
+  const unreadCount = useMemo(() => items.filter((i) => !i.readAt).length, [items]);
   const visible = useMemo(() => (tab === "unread" ? items.filter((i) => !i.readAt) : items), [items, tab]);
 
   const fetchFirstPage = async () => {
@@ -142,8 +183,8 @@ export default function NotificationsPage() {
         setHasMore(false);
         return;
       }
-      const list = Array.isArray((data as any)?.notifications) ? (data as any).notifications : [];
-      setItems(list);
+      const list = Array.isArray((data as any)?.activity) ? (data as any).activity : [];
+      setItems(list as any);
       const next = (data as any)?.nextCursor ?? null;
       setCursor(typeof next === "string" ? next : null);
       setHasMore(!!next);
@@ -159,8 +200,8 @@ export default function NotificationsPage() {
       const res = await fetch(`/api/notifications?limit=40&cursor=${encodeURIComponent(cursor)}`, { cache: "no-store" });
       const data = await safeJson(res);
       if (!res.ok) return;
-      const list = Array.isArray((data as any)?.notifications) ? (data as any).notifications : [];
-      setItems((prev) => [...prev, ...list]);
+      const list = Array.isArray((data as any)?.activity) ? (data as any).activity : [];
+      setItems((prev) => [...prev, ...(list as any[])]);
       const next = (data as any)?.nextCursor ?? null;
       setCursor(typeof next === "string" ? next : null);
       setHasMore(!!next);
@@ -191,7 +232,11 @@ export default function NotificationsPage() {
       });
       if (!res.ok) return;
       const now = new Date().toISOString();
-      setItems((prev) => prev.map((n) => (ids.includes(n.id) ? { ...n, readAt: n.readAt ?? now } : n)));
+      setItems((prev) =>
+        prev.map((n) =>
+          n.notificationIds.some((nid) => ids.includes(nid)) ? { ...n, readAt: n.readAt ?? now } : n
+        )
+      );
       window.dispatchEvent(new CustomEvent("devlink:notifications-updated"));
     } catch {}
   };
@@ -223,7 +268,7 @@ export default function NotificationsPage() {
           <div>
             <div className="text-xl font-bold text-white font-[var(--font-space-grotesk)]">Notifications</div>
             <div className="text-sm text-[var(--muted-foreground)]">
-              {unreadIds.length} unread
+              {unreadCount} unread
             </div>
           </div>
         </div>
@@ -231,7 +276,7 @@ export default function NotificationsPage() {
           <Button size="sm" variant="ghost" onClick={fetchFirstPage} disabled={loading || loadingMore}>
             Refresh
           </Button>
-          <Button size="sm" variant="ghost" onClick={markAllRead} disabled={marking || unreadIds.length === 0}>
+          <Button size="sm" variant="ghost" onClick={markAllRead} disabled={marking || unreadCount === 0}>
             Mark all read
           </Button>
         </div>
@@ -301,31 +346,33 @@ export default function NotificationsPage() {
         ) : (
           <>
             {visible.map((n) => {
-              const primary = n.actor?.name || n.actor?.username || "Someone";
+              const firstActor = n.actors?.[0];
               const href =
-                n.post?.id ? `/p/${n.post.id}` : n.type === "FOLLOW" ? `/u/${n.actor.username}` : "#";
+                n.post?.id
+                  ? `/p/${n.post.id}`
+                  : n.type === "FOLLOW" && firstActor?.username
+                    ? `/u/${firstActor.username}`
+                    : "#";
               const when = safeDistance(n.createdAt);
-              const avatarUrl = n.actor?.profile?.avatarUrl || null;
-              const verified = !!n.actor?.profile?.verified;
+              const verified = !!firstActor?.profile?.verified;
+              const headline = actorsLine(n.actors, n.actorCount);
 
               return (
                 <Link
                   key={n.id}
                   href={href}
                   onClick={() => {
-                    if (!n.readAt) void markRead([n.id]);
+                    if (!n.readAt) void markRead(n.notificationIds);
                   }}
                   className={[
                     "block rounded-2xl border p-4 transition-colors",
-                    n.readAt
-                      ? "border-white/10 bg-white/5 hover:bg-white/7"
-                      : "border-[rgba(var(--color-accent-rgb),0.30)] bg-[rgba(var(--color-accent-rgb),0.10)] hover:bg-[rgba(var(--color-accent-rgb),0.14)]",
+                    "border-white/10 bg-white/5 hover:bg-white/7",
                   ].join(" ")}
                 >
                   <div className="flex items-start gap-3">
-                    <div className="relative">
-                      <Avatar size={40} src={avatarUrl} alt={primary} />
-                      <span className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full border border-white/10 bg-[var(--color-card)] grid place-items-center text-white/80">
+                    <div className="relative flex items-center">
+                      <StackedAvatars actors={n.actors} />
+                      <span className="absolute -bottom-1 left-[36px] w-6 h-6 rounded-full border border-white/10 bg-[var(--color-card)] grid place-items-center text-white/80">
                         <TypeIcon type={n.type} />
                       </span>
                     </div>
@@ -334,9 +381,11 @@ export default function NotificationsPage() {
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0">
                           <div className="text-white/90 flex items-center gap-2 min-w-0">
-                            <span className="font-semibold truncate">{primary}</span>
+                            <span className={["truncate", n.readAt ? "font-semibold" : "font-black"].join(" ")}>
+                              {headline}
+                            </span>
                             {verified ? <VerifiedBadge /> : null}
-                            <span className="text-white/60 truncate">{labelFor(n)}.</span>
+                            <span className="text-white/60 truncate">{labelForType(n.type)}.</span>
                           </div>
                         </div>
                         <div className="flex items-center gap-2 flex-shrink-0">
@@ -348,12 +397,12 @@ export default function NotificationsPage() {
                       </div>
 
                       {n.post?.content ? (
-                        <div className="mt-2 text-sm text-white/55 line-clamp-2">
+                        <div className="mt-2 text-sm text-white/70 whitespace-pre-wrap break-words">
                           {n.post.content}
                         </div>
                       ) : null}
                       {n.sourcePost?.content && n.type === "REPLY" ? (
-                        <div className="mt-2 text-sm text-white/55 line-clamp-2">
+                        <div className="mt-2 text-sm text-white/70 whitespace-pre-wrap break-words">
                           Reply: {n.sourcePost.content}
                         </div>
                       ) : null}
