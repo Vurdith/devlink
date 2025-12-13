@@ -96,6 +96,14 @@ export const Navbar = memo(function Navbar() {
     return () => window.clearInterval(id);
   }, [username, fetchUnread]);
 
+  // Refresh unread count on demand (e.g. after marking read)
+  useEffect(() => {
+    if (!username) return;
+    const onUpdate = () => fetchUnread();
+    window.addEventListener("devlink:notifications-updated", onUpdate as EventListener);
+    return () => window.removeEventListener("devlink:notifications-updated", onUpdate as EventListener);
+  }, [username, fetchUnread]);
+
   // Listen for profile updates (from any component)
   useEffect(() => {
     const handleProfileUpdate = (event: CustomEvent) => {
