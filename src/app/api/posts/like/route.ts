@@ -3,7 +3,7 @@ import { prisma } from "@/server/db";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/server/auth-options";
 import { responseCache } from "@/lib/cache";
-import { createNotification } from "@/server/notifications";
+import { removeActorFromStackedNotification, upsertStackedNotification } from "@/server/notifications";
 
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
@@ -19,7 +19,16 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Post ID is required" }, { status: 400 });
     }
 
-    // Check if user already liked the post (also verifies post exists via FK)
+    // Verify post exists and get owner
+    const post = await prisma.post.findUnique({
+      where: { id: postId },
+      select: { id: true, userId: true },
+    });
+    if (!post) {
+      return NextResponse.json({ error: "Post not found" }, { status: 404 });
+    }
+
+    // Check if user already liked the post
     const existingLike = await prisma.postLike.findUnique({
       where: {
         postId_userId: {
@@ -37,6 +46,14 @@ export async function POST(req: Request) {
           where: { id: existingLike.id },
         });
         liked = false;
+
+        // Remove actor from stacked notification (non-blocking)
+        void removeActorFromStackedNotification({
+          recipientId: post.userId,
+          actorId: userId,
+          type: "LIKE",
+          postId,
+        });
       } else {
         // Like the post - will fail with FK error if post doesn't exist
         await prisma.postLike.create({
@@ -47,21 +64,13 @@ export async function POST(req: Request) {
         });
         liked = true;
 
-        // Create notification for the post owner (deduped per actor+post)
-        const post = await prisma.post.findUnique({
-          where: { id: postId },
-          select: { userId: true },
+        // Stacked notification for the post owner (single notification with many actors)
+        void upsertStackedNotification({
+          recipientId: post.userId,
+          actorId: userId,
+          type: "LIKE",
+          postId,
         });
-        if (post?.userId) {
-          // Non-blocking: don't fail likes if notification creation fails.
-          void createNotification({
-            recipientId: post.userId,
-            actorId: userId,
-            type: "LIKE",
-            postId,
-            dedupeKey: `n:${post.userId}:like:${postId}:${userId}`,
-          });
-        }
       }
     } catch (dbError: any) {
       // Handle case where post doesn't exist (FK constraint)

@@ -3,7 +3,7 @@ import { prisma } from "@/server/db";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/server/auth-options";
 import { responseCache } from "@/lib/cache";
-import { createNotification } from "@/server/notifications";
+import { removeActorFromStackedNotification, upsertStackedNotification } from "@/server/notifications";
 
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
@@ -46,6 +46,13 @@ export async function POST(req: Request) {
         where: { id: existingRepost.id },
       });
       reposted = false;
+
+      void removeActorFromStackedNotification({
+        recipientId: postExists.userId,
+        actorId: userId,
+        type: "REPOST",
+        postId,
+      });
     } else {
       // Create repost
       await prisma.postRepost.create({
@@ -57,13 +64,11 @@ export async function POST(req: Request) {
       reposted = true;
 
       if (postExists.userId) {
-        // Non-blocking: don't fail reposts if notification creation fails.
-        void createNotification({
+        void upsertStackedNotification({
           recipientId: postExists.userId,
           actorId: userId,
           type: "REPOST",
           postId,
-          dedupeKey: `n:${postExists.userId}:repost:${postId}:${userId}`,
         });
       }
     }

@@ -19,20 +19,17 @@ type NotificationItem = {
     name: string | null;
     profile: { avatarUrl: string | null; verified: boolean; profileType: string | null } | null;
   };
+  actors?: Array<{
+    actor: {
+      id: string;
+      username: string;
+      name: string | null;
+      profile: { avatarUrl: string | null; verified: boolean; profileType: string | null } | null;
+    };
+    createdAt: string;
+  }>;
   post: { id: string; userId: string; content: string; createdAt: string } | null;
   sourcePost: { id: string; content: string; createdAt: string } | null;
-};
-
-type ActivityItem = {
-  id: string;
-  type: NotificationType;
-  createdAt: string;
-  readAt: string | null;
-  actors: NotificationItem["actor"][];
-  actorCount: number;
-  notificationIds: string[];
-  post: NotificationItem["post"];
-  sourcePost: NotificationItem["sourcePost"];
 };
 
 function BellIcon() {
@@ -112,8 +109,8 @@ function TypeIcon({ type }: { type: NotificationType }) {
   }
 }
 
-function labelForType(type: NotificationType) {
-  switch (type) {
+function labelFor(n: NotificationItem) {
+  switch (n.type) {
     case "LIKE":
       return "liked your post";
     case "REPOST":
@@ -127,37 +124,31 @@ function labelForType(type: NotificationType) {
   }
 }
 
-function actorsLine(actors: ActivityItem["actors"], actorCount: number) {
-  const names = actors.map((a) => a?.name || a?.username).filter(Boolean) as string[];
-  if (actorCount <= 1) return names[0] || "Someone";
-  const first = names[0] || "Someone";
-  const second = names[1];
-  const others = actorCount - (second ? 2 : 1);
-  if (second && others <= 0) return `${first} and ${second}`;
-  if (second) return `${first}, ${second} and ${others} others`;
-  return `${first} and ${others} others`;
+function stackedActors(n: NotificationItem) {
+  const list = (n.actors ?? [])
+    .map((x) => x?.actor)
+    .filter(Boolean) as NonNullable<NotificationItem["actor"]>[];
+
+  // Fallback to single actor when API doesn't include actors.
+  if (list.length === 0 && n.actor) return [n.actor];
+  return list;
 }
 
-function StackedAvatars({ actors }: { actors: ActivityItem["actors"] }) {
-  const top = actors.slice(0, 3);
-  return (
-    <div className="relative w-[56px] h-10">
-      {top.map((a, i) => (
-        <div key={a.id} className="absolute top-0" style={{ left: i * 14, zIndex: 10 - i }}>
-          <Avatar
-            size={32}
-            src={a.profile?.avatarUrl || null}
-            alt={a.name || a.username}
-            className="border border-white/10"
-          />
-        </div>
-      ))}
-    </div>
-  );
+function stackedLabel(n: NotificationItem) {
+  const a = stackedActors(n);
+  const names = a
+    .map((x) => x.name || x.username)
+    .filter(Boolean) as string[];
+  const first = names[0] || "Someone";
+  if (names.length <= 1) return { who: first, rest: "" };
+  const second = names[1];
+  const remaining = names.length - 2;
+  if (remaining <= 0) return { who: `${first} and ${second}`, rest: "" };
+  return { who: `${first}, ${second}`, rest: `and ${remaining} others` };
 }
 
 export default function NotificationsPage() {
-  const [items, setItems] = useState<ActivityItem[]>([]);
+  const [items, setItems] = useState<NotificationItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [marking, setMarking] = useState(false);
   const [error, setError] = useState<string>("");
@@ -166,7 +157,7 @@ export default function NotificationsPage() {
   const [hasMore, setHasMore] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
 
-  const unreadCount = useMemo(() => items.filter((i) => !i.readAt).length, [items]);
+  const unreadIds = useMemo(() => items.filter((i) => !i.readAt).map((i) => i.id), [items]);
   const visible = useMemo(() => (tab === "unread" ? items.filter((i) => !i.readAt) : items), [items, tab]);
 
   const fetchFirstPage = async () => {
@@ -183,8 +174,8 @@ export default function NotificationsPage() {
         setHasMore(false);
         return;
       }
-      const list = Array.isArray((data as any)?.activity) ? (data as any).activity : [];
-      setItems(list as any);
+      const list = Array.isArray((data as any)?.notifications) ? (data as any).notifications : [];
+      setItems(list);
       const next = (data as any)?.nextCursor ?? null;
       setCursor(typeof next === "string" ? next : null);
       setHasMore(!!next);
@@ -200,8 +191,8 @@ export default function NotificationsPage() {
       const res = await fetch(`/api/notifications?limit=40&cursor=${encodeURIComponent(cursor)}`, { cache: "no-store" });
       const data = await safeJson(res);
       if (!res.ok) return;
-      const list = Array.isArray((data as any)?.activity) ? (data as any).activity : [];
-      setItems((prev) => [...prev, ...(list as any[])]);
+      const list = Array.isArray((data as any)?.notifications) ? (data as any).notifications : [];
+      setItems((prev) => [...prev, ...list]);
       const next = (data as any)?.nextCursor ?? null;
       setCursor(typeof next === "string" ? next : null);
       setHasMore(!!next);
@@ -232,11 +223,7 @@ export default function NotificationsPage() {
       });
       if (!res.ok) return;
       const now = new Date().toISOString();
-      setItems((prev) =>
-        prev.map((n) =>
-          n.notificationIds.some((nid) => ids.includes(nid)) ? { ...n, readAt: n.readAt ?? now } : n
-        )
-      );
+      setItems((prev) => prev.map((n) => (ids.includes(n.id) ? { ...n, readAt: n.readAt ?? now } : n)));
       window.dispatchEvent(new CustomEvent("devlink:notifications-updated"));
     } catch {}
   };
@@ -268,7 +255,7 @@ export default function NotificationsPage() {
           <div>
             <div className="text-xl font-bold text-white font-[var(--font-space-grotesk)]">Notifications</div>
             <div className="text-sm text-[var(--muted-foreground)]">
-              {unreadCount} unread
+              {unreadIds.length} unread
             </div>
           </div>
         </div>
@@ -276,7 +263,7 @@ export default function NotificationsPage() {
           <Button size="sm" variant="ghost" onClick={fetchFirstPage} disabled={loading || loadingMore}>
             Refresh
           </Button>
-          <Button size="sm" variant="ghost" onClick={markAllRead} disabled={marking || unreadCount === 0}>
+          <Button size="sm" variant="ghost" onClick={markAllRead} disabled={marking || unreadIds.length === 0}>
             Mark all read
           </Button>
         </div>
@@ -346,33 +333,45 @@ export default function NotificationsPage() {
         ) : (
           <>
             {visible.map((n) => {
-              const firstActor = n.actors?.[0];
+              const who = stackedLabel(n);
+              const primary = who.who;
               const href =
-                n.post?.id
-                  ? `/p/${n.post.id}`
-                  : n.type === "FOLLOW" && firstActor?.username
-                    ? `/u/${firstActor.username}`
-                    : "#";
+                n.post?.id ? `/p/${n.post.id}` : n.type === "FOLLOW" ? `/u/${n.actor.username}` : "#";
               const when = safeDistance(n.createdAt);
-              const verified = !!firstActor?.profile?.verified;
-              const headline = actorsLine(n.actors, n.actorCount);
+              const a = stackedActors(n);
+              const avatarUrl = a[0]?.profile?.avatarUrl || null;
+              const verified = !!a[0]?.profile?.verified;
+              const avatarStack = a.slice(0, 3).map((x) => ({
+                id: x.id,
+                name: x.name || x.username,
+                avatarUrl: x.profile?.avatarUrl || null,
+                verified: !!x.profile?.verified,
+              }));
 
               return (
                 <Link
                   key={n.id}
                   href={href}
                   onClick={() => {
-                    if (!n.readAt) void markRead(n.notificationIds);
+                    if (!n.readAt) void markRead([n.id]);
                   }}
                   className={[
                     "block rounded-2xl border p-4 transition-colors",
-                    "border-white/10 bg-white/5 hover:bg-white/7",
+                    n.readAt
+                      ? "border-white/10 bg-white/5 hover:bg-white/7"
+                      : "border-[rgba(var(--color-accent-rgb),0.30)] bg-[rgba(var(--color-accent-rgb),0.10)] hover:bg-[rgba(var(--color-accent-rgb),0.14)]",
                   ].join(" ")}
                 >
                   <div className="flex items-start gap-3">
-                    <div className="relative flex items-center">
-                      <StackedAvatars actors={n.actors} />
-                      <span className="absolute -bottom-1 left-[36px] w-6 h-6 rounded-full border border-white/10 bg-[var(--color-card)] grid place-items-center text-white/80">
+                    <div className="relative">
+                      <div className="flex -space-x-3">
+                        {avatarStack.map((av) => (
+                          <div key={av.id} className="ring-2 ring-[var(--color-background)] rounded-full">
+                            <Avatar size={40} src={av.avatarUrl} alt={av.name} />
+                          </div>
+                        ))}
+                      </div>
+                      <span className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full border border-white/10 bg-[var(--color-card)] grid place-items-center text-white/80">
                         <TypeIcon type={n.type} />
                       </span>
                     </div>
@@ -381,11 +380,12 @@ export default function NotificationsPage() {
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0">
                           <div className="text-white/90 flex items-center gap-2 min-w-0">
-                            <span className={["truncate", n.readAt ? "font-semibold" : "font-black"].join(" ")}>
-                              {headline}
-                            </span>
+                            <span className="font-semibold truncate">{primary}</span>
                             {verified ? <VerifiedBadge /> : null}
-                            <span className="text-white/60 truncate">{labelForType(n.type)}.</span>
+                            <span className="text-white/60 truncate">
+                              {who.rest ? `${who.rest} ` : ""}
+                              {labelFor(n)}.
+                            </span>
                           </div>
                         </div>
                         <div className="flex items-center gap-2 flex-shrink-0">
@@ -397,12 +397,12 @@ export default function NotificationsPage() {
                       </div>
 
                       {n.post?.content ? (
-                        <div className="mt-2 text-sm text-white/70 whitespace-pre-wrap break-words">
+                        <div className="mt-3 rounded-xl border border-white/10 bg-black/20 p-3 text-sm text-white/65 whitespace-pre-wrap break-words">
                           {n.post.content}
                         </div>
                       ) : null}
                       {n.sourcePost?.content && n.type === "REPLY" ? (
-                        <div className="mt-2 text-sm text-white/70 whitespace-pre-wrap break-words">
+                        <div className="mt-3 rounded-xl border border-white/10 bg-black/20 p-3 text-sm text-white/65 whitespace-pre-wrap break-words">
                           Reply: {n.sourcePost.content}
                         </div>
                       ) : null}

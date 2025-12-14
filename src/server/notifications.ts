@@ -75,4 +75,92 @@ export async function createNotification(input: NotificationCreateInput) {
   }
 }
 
+type StackedNotificationInput = {
+  recipientId: string;
+  actorId: string;
+  type: "LIKE" | "REPOST";
+  postId: string;
+};
+
+export async function upsertStackedNotification(input: StackedNotificationInput) {
+  const notificationDelegate = (prisma as any)?.notification as
+    | { upsert: Function; findUnique: Function }
+    | undefined;
+  const notificationActorDelegate = (prisma as any)?.notificationActor as
+    | { createMany: Function; deleteMany: Function; count: Function }
+    | undefined;
+
+  if (!notificationDelegate || !notificationActorDelegate) return;
+
+  const { recipientId, actorId, type, postId } = input;
+  if (!recipientId || !actorId || !postId) return;
+  if (recipientId === actorId) return;
+
+  const dedupeKey = `n:${recipientId}:${type.toLowerCase()}:${postId}`; // group per post
+
+  try {
+    const n = await (notificationDelegate as any).upsert({
+      where: { dedupeKey },
+      update: {
+        actorId, // last actor (for fallback)
+        readAt: null,
+        createdAt: new Date(),
+      },
+      create: {
+        userId: recipientId,
+        actorId,
+        type,
+        postId,
+        dedupeKey,
+      },
+      select: { id: true },
+    });
+
+    await (notificationActorDelegate as any).createMany({
+      data: [{ notificationId: n.id, actorId }],
+      skipDuplicates: true,
+    });
+  } catch (e) {
+    console.error("upsertStackedNotification failed:", e);
+  }
+}
+
+export async function removeActorFromStackedNotification(input: StackedNotificationInput) {
+  const notificationDelegate = (prisma as any)?.notification as
+    | { findUnique: Function; delete: Function }
+    | undefined;
+  const notificationActorDelegate = (prisma as any)?.notificationActor as
+    | { deleteMany: Function; count: Function }
+    | undefined;
+
+  if (!notificationDelegate || !notificationActorDelegate) return;
+
+  const { recipientId, actorId, type, postId } = input;
+  if (!recipientId || !actorId || !postId) return;
+
+  const dedupeKey = `n:${recipientId}:${type.toLowerCase()}:${postId}`;
+
+  try {
+    const n = await (notificationDelegate as any).findUnique({
+      where: { dedupeKey },
+      select: { id: true },
+    });
+    if (!n?.id) return;
+
+    await (notificationActorDelegate as any).deleteMany({
+      where: { notificationId: n.id, actorId },
+    });
+
+    const remaining = await (notificationActorDelegate as any).count({
+      where: { notificationId: n.id },
+    });
+
+    if (remaining === 0) {
+      await (notificationDelegate as any).delete({ where: { id: n.id } });
+    }
+  } catch (e) {
+    console.error("removeActorFromStackedNotification failed:", e);
+  }
+}
+
 
