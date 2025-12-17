@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useTheme } from "@/components/providers/ThemeProvider";
 
-export function HeroSection() {
+export function HeroSection({ isLoggedIn }: { isLoggedIn: boolean }) {
   const { logoPath } = useTheme();
   
   return (
@@ -57,14 +57,14 @@ export function HeroSection() {
             </p>
 
             <div className="mt-8 flex flex-col sm:flex-row gap-3 sm:items-center">
-              <Link href="/register" className="inline-flex">
+              <Link href={isLoggedIn ? "/home" : "/register"} className="inline-flex">
                 <button className="btn-gradient btn-press px-6 py-3 rounded-2xl font-semibold text-white shadow-lg shadow-[var(--color-accent)]/25">
-                  Create your profile
+                  {isLoggedIn ? "Go to feed" : "Create your profile"}
                 </button>
               </Link>
               <Link href="/discover" className="inline-flex">
                 <button className="px-6 py-3 rounded-2xl font-semibold text-white/90 border border-white/15 bg-white/[0.03] hover:bg-white/[0.06] hover:border-white/25">
-                  Browse talent
+                  Discover
                 </button>
               </Link>
             </div>
@@ -155,8 +155,10 @@ export function HeroSection() {
                 </div>
               </div>
 
-              <div className="mt-4 text-center text-xs text-white/40">
-                A quick look at the product.
+              <div className="mt-4 flex items-center justify-center gap-2 text-xs text-white/35">
+                <span className="w-1.5 h-1.5 rounded-full bg-white/20" />
+                <span className="w-1.5 h-1.5 rounded-full bg-white/20" />
+                <span className="w-1.5 h-1.5 rounded-full bg-white/20" />
               </div>
             </div>
           </div>
