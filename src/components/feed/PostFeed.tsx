@@ -107,7 +107,7 @@ export const PostFeed = memo(function PostFeed({
           </svg>
         </div>
         <h3 className="text-xl font-semibold text-white mb-2">No posts found</h3>
-        <p className="text-gray-400">
+        <p className="text-[var(--muted-foreground)]">
           Be the first to share something with the community!
         </p>
       </div>

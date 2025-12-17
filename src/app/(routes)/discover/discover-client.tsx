@@ -180,7 +180,7 @@ export function DiscoverClient({
       
       {/* Filter Tabs */}
       <div className="mb-4 sm:mb-8 -mx-3 sm:mx-0 px-3 sm:px-0">
-        <div className="flex gap-1.5 sm:gap-2 overflow-x-auto pb-2 sm:pb-0 sm:flex-wrap">
+        <div className="relative overflow-hidden glass noise-overlay rounded-2xl border border-white/10 p-2 flex gap-1.5 sm:gap-2 overflow-x-auto pb-2 sm:pb-0 sm:flex-wrap">
           {filters.map((filter) => (
             <button
               key={filter.value}
@@ -188,7 +188,7 @@ export function DiscoverClient({
               className={`flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-2 sm:py-2.5 rounded-lg sm:rounded-xl transition-all duration-200 flex-shrink-0 ${
                 selectedFilter === filter.value
                   ? `${filter.bgColor} ${filter.color} border border-current/30 shadow-lg`
-                  : "bg-white/5 text-[var(--muted-foreground)] hover:bg-white/10 hover:text-white border border-transparent"
+                  : "bg-white/[0.03] text-[var(--muted-foreground)] hover:bg-white/[0.06] hover:text-white border border-white/10"
               }`}
             >
               <div className={`p-1 sm:p-1.5 rounded-md sm:rounded-lg ${selectedFilter === filter.value ? "bg-current/20" : "bg-white/10"}`}>
@@ -206,7 +206,7 @@ export function DiscoverClient({
       {loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           {[...Array(6)].map((_, i) => (
-            <div key={i} className="bg-[#0d0d12] border border-white/10 rounded-xl sm:rounded-2xl overflow-hidden animate-pulse">
+            <div key={i} className="relative overflow-hidden glass noise-overlay border border-white/10 rounded-xl sm:rounded-2xl overflow-hidden animate-pulse">
               <div className="h-16 sm:h-20 bg-white/5" />
               <div className="p-3 sm:p-6">
                 <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
@@ -230,7 +230,7 @@ export function DiscoverClient({
               return (
                 <div 
                   key={user.id} 
-                  className="bg-[#0d0d12] rounded-xl sm:rounded-2xl overflow-hidden hover:bg-white/5 transition-all duration-200 border border-white/10 hover:border-white/20"
+                  className="relative overflow-hidden glass glass-hover noise-overlay rounded-xl sm:rounded-2xl overflow-hidden transition-all duration-200 border border-white/10 hover:border-white/20"
                 >
                   {/* Banner */}
                   <Link href={`/u/${user.username}`} className="block">
@@ -349,7 +349,7 @@ export function DiscoverClient({
               </div>
             )}
             {!hasMore && users.length > 0 && (
-              <p className="text-[var(--muted-foreground)] text-sm">You've reached the end! 🎉</p>
+              <p className="text-[var(--muted-foreground)] text-sm">You’re all caught up.</p>
             )}
           </div>
         </>

@@ -101,7 +101,7 @@ export default function CompleteSignupPage() {
 
   if (status === "loading") {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#0a0e14]">
+      <div className="min-h-screen flex items-center justify-center -m-6">
         <div className="animate-spin rounded-full h-8 w-8 border-2 border-[var(--color-accent)] border-t-transparent"></div>
       </div>
     );
@@ -109,17 +109,17 @@ export default function CompleteSignupPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#0a0e14] px-4">
+      <div className="min-h-screen flex items-center justify-center -m-6 px-4">
         <div className="w-full max-w-md">
-          <div className="bg-[#0d0d12] border border-white/10 rounded-2xl p-8 text-center">
+          <div className="relative overflow-hidden glass noise-overlay border border-white/10 rounded-2xl p-8 text-center">
             <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-green-500/20 flex items-center justify-center">
               <svg className="w-8 h-8 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
             </div>
             <h2 className="text-2xl font-bold text-white mb-2">Password Set!</h2>
-            <p className="text-gray-400 mb-4">You can now log in with your email and password.</p>
-            <p className="text-sm text-gray-500">Redirecting to home...</p>
+            <p className="text-[var(--muted-foreground)] mb-4">You can now log in with your email and password.</p>
+            <p className="text-sm text-[var(--muted-foreground)]/70">Redirecting to home...</p>
           </div>
         </div>
       </div>
@@ -127,7 +127,7 @@ export default function CompleteSignupPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#0a0e14] px-4 py-12">
+    <div className="min-h-screen flex items-center justify-center -m-6 px-4 py-12">
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-8">
@@ -135,13 +135,13 @@ export default function CompleteSignupPage() {
             <img src={logoPath} alt="DevLink" className="h-12 mx-auto" />
           </Link>
           <h1 className="text-3xl font-bold text-white mb-2">Complete Your Account</h1>
-          <p className="text-gray-400">
+          <p className="text-[var(--muted-foreground)]">
             Set a password to log in with your email in the future
           </p>
         </div>
 
         {/* Form */}
-        <div className="bg-[#0d0d12] border border-white/10 rounded-2xl p-8">
+        <div className="relative overflow-hidden glass noise-overlay border border-white/10 rounded-2xl p-8">
           <div className="mb-6 p-4 rounded-xl bg-blue-500/10 border border-blue-500/20">
             <div className="flex items-start gap-3">
               <svg className="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">

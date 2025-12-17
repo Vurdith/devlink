@@ -130,7 +130,7 @@ const VirtualPostItem = memo(function VirtualPostItem({
       ) : (
         // Placeholder with estimated height
         <div 
-          className="bg-[#0d0d12] border border-white/5 rounded-xl sm:rounded-2xl p-3 sm:p-6 mb-3 sm:mb-6"
+          className="relative overflow-hidden glass border border-white/10 rounded-xl sm:rounded-2xl p-3 sm:p-6 mb-3 sm:mb-6 noise-overlay"
           style={{ minHeight: ESTIMATED_POST_HEIGHT }}
         >
           <div className="animate-pulse space-y-4">
@@ -210,7 +210,7 @@ export const VirtualizedPostFeed = memo(function VirtualizedPostFeed({
           </svg>
         </div>
         <h3 className="text-xl font-semibold text-white mb-2">No posts found</h3>
-        <p className="text-gray-400">
+        <p className="text-[var(--muted-foreground)]">
           Be the first to share something with the community!
         </p>
       </div>
@@ -218,7 +218,7 @@ export const VirtualizedPostFeed = memo(function VirtualizedPostFeed({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-0">
       {posts.map((post) => (
         <VirtualPostItem
           key={post.id}

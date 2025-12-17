@@ -560,7 +560,7 @@ export function ProfileTabs({ username, currentUserId, userId, skills = [], prof
     const originalAuthor = originalPost.user;
 
     return (
-      <div key={reply.id} className="bg-[#0a0a0f] rounded-2xl border border-white/5 overflow-hidden hover:border-white/10 transition-colors">
+      <div key={reply.id} className="relative overflow-hidden glass glass-hover noise-overlay rounded-2xl border border-white/10 overflow-hidden transition-colors">
         {/* Original post preview - compact thread header */}
         <button
           onClick={() => window.location.href = `/p/${originalPost.id}`}
@@ -640,7 +640,7 @@ export function ProfileTabs({ username, currentUserId, userId, skills = [], prof
     <div className="mt-4 sm:mt-8">
       {/* Tab Navigation - Horizontal scroll container */}
       <div 
-        className="flex gap-1 sm:gap-2 mb-4 sm:mb-6 overflow-x-auto bg-black/40 rounded-xl sm:rounded-2xl p-1.5 sm:p-3 border border-[rgba(var(--color-accent-rgb),0.2)]"
+        className="flex gap-1 sm:gap-2 mb-4 sm:mb-6 overflow-x-auto glass noise-overlay rounded-xl sm:rounded-2xl p-1.5 sm:p-3 border border-white/10"
         style={{ 
           WebkitOverflowScrolling: 'touch',
           scrollbarWidth: 'none',
@@ -657,8 +657,8 @@ export function ProfileTabs({ username, currentUserId, userId, skills = [], prof
               onClick={() => setActiveTab(tab.id)}
               className={`flex items-center gap-1 sm:gap-2 px-2.5 sm:px-4 py-1.5 sm:py-2.5 text-[11px] sm:text-sm font-medium transition-all duration-200 flex-shrink-0 rounded-lg sm:rounded-xl whitespace-nowrap ${
                 activeTab === tab.id
-                  ? "text-white bg-[rgba(var(--color-accent-rgb),0.2)] border border-[rgba(var(--color-accent-rgb),0.4)]"
-                  : "text-[var(--muted-foreground)] hover:text-[var(--color-accent)] hover:bg-[rgba(var(--color-accent-rgb),0.1)] border border-transparent"
+                  ? "text-white bg-[rgba(var(--color-accent-rgb),0.14)] border border-[rgba(var(--color-accent-rgb),0.28)]"
+                  : "text-[var(--muted-foreground)] hover:text-white hover:bg-white/[0.04] border border-transparent"
               }`}
             >
               <span className={`flex items-center justify-center [&>svg]:w-3.5 [&>svg]:h-3.5 sm:[&>svg]:w-4 sm:[&>svg]:h-4 ${activeTab === tab.id ? 'text-[var(--color-accent)]' : ''}`}>{tab.icon}</span>
@@ -674,7 +674,7 @@ export function ProfileTabs({ username, currentUserId, userId, skills = [], prof
           <div className="space-y-4 animate-pulse">
             {/* Post skeleton */}
             {[1, 2, 3].map((i) => (
-              <div key={i} className="bg-[#0d0d12] rounded-xl border border-white/5 p-4">
+              <div key={i} className="relative overflow-hidden glass noise-overlay rounded-xl border border-white/10 p-4">
                 <div className="flex items-start gap-3">
                   <div className="w-10 h-10 rounded-full bg-white/10" />
                   <div className="flex-1 space-y-2">
@@ -775,7 +775,15 @@ export function ProfileTabs({ username, currentUserId, userId, skills = [], prof
           <>
             {/* Portfolio Header with Add Button */}
             {isOwner && (
-              <div className="mb-8 p-5 rounded-2xl bg-gradient-to-r from-[rgba(var(--color-accent-rgb),0.1)] via-[rgba(var(--color-accent-rgb),0.1)] to-[rgba(var(--color-accent-rgb),0.1)] border border-[rgba(var(--color-accent-rgb),0.3)] backdrop-blur-sm">
+              <div className="relative overflow-hidden mb-8 p-5 rounded-2xl glass noise-overlay border border-[rgba(var(--color-accent-rgb),0.22)]">
+                <div
+                  aria-hidden="true"
+                  className="absolute inset-0 pointer-events-none opacity-65"
+                  style={{
+                    background:
+                      "radial-gradient(900px 260px at 20% 0%, rgba(var(--color-accent-rgb),0.18), transparent 62%), radial-gradient(700px 260px at 90% 10%, rgba(var(--color-accent-2-rgb),0.12), transparent 60%)",
+                  }}
+                />
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--color-accent)] to-[var(--color-accent-hover)] flex items-center justify-center shadow-lg shadow-[rgba(var(--color-accent-rgb),0.3)]">

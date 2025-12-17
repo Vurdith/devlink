@@ -2,6 +2,7 @@
 import PostDetail from "@/components/feed/PostDetail";
 import { CreatePost } from "@/components/feed/CreatePost";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 interface PostPageContentProps {
   post: any;
@@ -15,11 +16,11 @@ interface PostPageContentProps {
 }
 
 export function PostPageContent({ post, replies, currentUserId, currentUserProfile }: PostPageContentProps) {
-  const [expandedReplies, setExpandedReplies] = useState<Set<string>>(new Set());
+  const router = useRouter();
 
   const handlePostCreated = () => {
-    // Refresh the page to show new replies
-    window.location.reload();
+    // Refresh server data without a full reload (keeps the app feeling snappy)
+    router.refresh();
   };
 
   // Handle reply anchors for direct links to specific replies
@@ -28,7 +29,6 @@ export function PostPageContent({ post, replies, currentUserId, currentUserProfi
       const hash = window.location.hash;
       if (hash && hash.startsWith('#reply-')) {
         const replyId = hash.replace('#reply-', '');
-        setExpandedReplies(prev => new Set([...prev, replyId]));
         
         const replyElement = document.getElementById(`reply-${replyId}`);
         if (replyElement) {
@@ -42,79 +42,14 @@ export function PostPageContent({ post, replies, currentUserId, currentUserProfi
     }
   }, []);
 
-  const toggleReplyExpansion = (replyId: string) => {
-    setExpandedReplies(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(replyId)) {
-        newSet.delete(replyId);
-      } else {
-        newSet.add(replyId);
-      }
-      return newSet;
-    });
-  };
-
-  const renderReplies = (replyList: any[], level: number = 0) => {
-    if (!replyList || replyList.length === 0) return null;
-
-    return (
-      <div className={`space-y-3 ${level > 0 ? 'ml-6' : ''}`}>
-        {replyList.map((reply) => {
-          const hasReplies = reply.replies && reply.replies.length > 0;
-          const isExpanded = expandedReplies.has(reply.id);
-          
-          return (
-            <div key={reply.id} id={`reply-${reply.id}`} className="relative">
-              {/* Reply content */}
-              <PostDetail post={reply} isOnPostPage={false} />
-              
-              {/* Show nested replies if expanded */}
-              {hasReplies && isExpanded && (
-                <div className="mt-3">
-                  {renderReplies(reply.replies, level + 1)}
-                </div>
-              )}
-              
-              {/* Expand/collapse button for replies with nested replies */}
-              {hasReplies && (
-                <button
-                  onClick={() => toggleReplyExpansion(reply.id)}
-                  className="mt-2 text-xs text-[var(--accent)] hover:text-[var(--accent)]/80 transition-colors flex items-center gap-1"
-                >
-                  {isExpanded ? (
-                    <>
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-                        <path d="M18 15l-6-6-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                      Hide {reply.replies.length} {reply.replies.length === 1 ? 'reply' : 'replies'}
-                    </>
-                  ) : (
-                    <>
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-                        <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                      Show {reply.replies.length} {reply.replies.length === 1 ? 'reply' : 'replies'}
-                    </>
-                  )}
-                </button>
-              )}
-            </div>
-          );
-        })}
-      </div>
-    );
-  };
-
   return (
     <main className="mx-auto max-w-2xl px-4 py-6">
-      {/* Always show the original post at the top */}
-      <div className="mb-6">
-        <PostDetail post={post} isOnPostPage={true} />
-      </div>
+      {/* Original post */}
+      <PostDetail post={post} isOnPostPage={true} />
 
       {/* Reply form */}
       {currentUserId && currentUserProfile && (
-        <div className="mb-6">
+        <div className="mt-3">
           <CreatePost 
             replyToId={post.id}
             placeholder="Post your reply..."
@@ -127,14 +62,29 @@ export function PostPageContent({ post, replies, currentUserId, currentUserProfi
 
       {/* All replies */}
       {replies.length > 0 && (
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-[var(--accent)]/60"></div>
-            Replies ({replies.length})
-          </h3>
-          
-          {renderReplies(replies)}
-        </div>
+        <section className="mt-6">
+          <div className="flex items-center justify-between gap-3 mb-3">
+            <h3 className="text-sm font-semibold text-white/80 tracking-wide">
+              Replies <span className="text-white/40 font-medium">({replies.length})</span>
+            </h3>
+            <div className="h-px flex-1 bg-gradient-to-r from-white/10 via-white/5 to-transparent" />
+          </div>
+
+          {/* Thread rail + replies */}
+          <div className="relative">
+            <div
+              aria-hidden="true"
+              className="absolute left-4 top-0 bottom-0 w-px bg-gradient-to-b from-white/15 via-white/10 to-transparent"
+            />
+            <div className="space-y-0">
+              {replies.map((reply) => (
+                <div key={reply.id} id={`reply-${reply.id}`} className="relative pl-4">
+                  <PostDetail post={reply} isOnPostPage={false} />
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
       )}
     </main>
   );

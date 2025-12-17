@@ -18,7 +18,7 @@ export default function GlobalError({
   return (
     <html>
       <body className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-gray-800/50 backdrop-blur-lg border border-gray-700/50 rounded-2xl p-8 text-center shadow-2xl">
+        <div className="max-w-md w-full bg-gray-800/50 border border-gray-700/50 rounded-2xl p-8 text-center shadow-2xl">
           <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-[var(--color-accent)]/20 flex items-center justify-center">
             <svg
               className="w-8 h-8 text-[var(--color-accent)]"

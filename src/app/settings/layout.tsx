@@ -11,7 +11,7 @@ export default function SettingsLayout({ children }: { children: ReactNode }) {
         <aside className="md:sticky md:top-24 md:h-fit">
           <div className="relative animate-slide-up">
             {/* Glow effect */}
-            <div className="absolute -inset-1 bg-gradient-to-b from-[var(--accent)]/20 via-transparent to-[var(--accent-2)]/20 rounded-3xl blur-xl opacity-50" />
+            <div className="absolute -inset-1 bg-gradient-to-b from-[var(--accent)]/20 via-transparent to-[var(--accent-2)]/20 rounded-3xl opacity-50" />
             
             {/* Navigation card */}
             <div className="relative bg-[#0d0d12] rounded-2xl p-6 border border-white/10">

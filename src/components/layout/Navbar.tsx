@@ -146,7 +146,7 @@ export const Navbar = memo(function Navbar() {
       className={cn(
         "sticky top-0 z-40 w-full transition-all duration-200",
         scrolled 
-          ? "bg-[#0a0a0f]/95 backdrop-blur-sm border-b border-white/10" 
+          ? "bg-[rgba(12,14,20,0.96)] border-b border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.35)]" 
           : "bg-transparent border-b border-transparent"
       )}
     >

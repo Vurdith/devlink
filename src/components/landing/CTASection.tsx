@@ -31,7 +31,7 @@ export function CTASection({ isLoggedIn }: { isLoggedIn: boolean }) {
 
             {/* Right action card */}
             <div className="relative">
-              <div className="absolute -inset-3 rounded-[2rem] blur-2xl opacity-40"
+              <div className="absolute -inset-3 rounded-[2rem] opacity-40"
                    style={{ background: "linear-gradient(135deg, rgba(var(--color-accent-rgb),0.25), rgba(var(--color-accent-2-rgb),0.18), transparent)" }} />
               <div className="relative rounded-[2rem] bg-white/[0.03] border border-white/10 p-6">
                 <div className="text-sm text-white/70">{isLoggedIn ? "Welcome back" : "Start in minutes"}</div>

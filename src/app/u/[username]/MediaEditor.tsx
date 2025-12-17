@@ -83,7 +83,7 @@ export function AvatarEditOverlay({ editable }: { editable: boolean }) {
       <button
         type="button"
         onClick={() => inputRef.current?.click()}
-        className="absolute inset-0 rounded-full bg-black/0 hover:bg-black/30 transition flex items-center justify-center opacity-0 group-hover:opacity-100 backdrop-blur-[1.5px]"
+        className="absolute inset-0 rounded-full bg-black/0 hover:bg-black/30 transition flex items-center justify-center opacity-0 group-hover:opacity-100"
         aria-label="Change avatar"
       >
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" className={saving ? "animate-pulse" : ""}>
@@ -143,7 +143,7 @@ export function BannerEditOverlay({ editable }: { editable: boolean }) {
       <button
         type="button"
         onClick={() => inputRef.current?.click()}
-        className="absolute inset-0 bg-black/0 hover:bg-black/30 transition flex items-center justify-center opacity-0 group-hover:opacity-100 backdrop-blur-[2px] z-10 cursor-pointer pointer-events-none group-hover:pointer-events-auto"
+        className="absolute inset-0 bg-black/0 hover:bg-black/30 transition flex items-center justify-center opacity-0 group-hover:opacity-100 z-10 cursor-pointer pointer-events-none group-hover:pointer-events-auto"
         aria-label="Change banner"
       >
         <svg width="26" height="26" viewBox="0 0 24 24" fill="none" className={saving ? "animate-pulse" : ""}>

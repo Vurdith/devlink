@@ -61,7 +61,7 @@ export const CreatePoll = memo(function CreatePoll({ onSubmit, onCancel }: Creat
   const canSubmit = question.trim() && validOptions && !isSubmitting;
 
   return (
-    <div className="bg-gradient-to-br from-black/60 via-black/40 to-[var(--accent)]/10 border border-[var(--accent)]/30 rounded-xl p-6 backdrop-blur-sm shadow-2xl animate-slide-up">
+    <div className="bg-gradient-to-br from-black/60 via-black/40 to-[var(--accent)]/10 border border-[var(--accent)]/30 rounded-xl p-6 shadow-2xl animate-slide-up">
       <div className="flex items-center gap-3 mb-6">
         <div className="p-2 bg-[var(--accent)]/20 rounded-lg">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-[var(--accent)]">

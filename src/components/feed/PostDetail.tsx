@@ -473,7 +473,7 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
           media={mediaItems}
           isSlideshow={post.isSlideshow}
           alt={`${post.user.name || post.user.username}'s post`}
-          className="border border-white/5"
+          className="border border-white/10"
         />
       </div>
     );
@@ -524,7 +524,7 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
   }, [post.id, post.user.name, post.user.username, post.content]);
 
   return (
-    <div className="bg-[#0d0d12] border border-white/5 rounded-xl sm:rounded-2xl p-3 sm:p-6 mb-3 sm:mb-6">
+    <div className="relative overflow-hidden glass glass-hover noise-overlay border border-white/10 rounded-xl sm:rounded-2xl p-3 sm:p-6 mb-3 sm:mb-6">
       {/* Header */}
       <div className="flex items-start space-x-2 sm:space-x-3 mb-3 sm:mb-4">
         <ProfileTooltip user={post.user as any} currentUserId={session?.user?.id}>
@@ -574,9 +574,9 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
                 <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
               </svg>
             )}
-            <span className="text-gray-400 text-xs sm:text-sm">@{post.user.username}</span>
-            <span className="text-gray-400 text-xs sm:text-sm hidden min-[400px]:inline">•</span>
-            <TimeAgo date={post.createdAt} className="text-gray-400 text-xs sm:text-sm hidden min-[400px]:inline" />
+            <span className="text-[var(--muted-foreground)] text-xs sm:text-sm">@{post.user.username}</span>
+            <span className="text-[var(--muted-foreground)] text-xs sm:text-sm hidden min-[400px]:inline">•</span>
+            <TimeAgo date={post.createdAt} className="text-[var(--muted-foreground)] text-xs sm:text-sm hidden min-[400px]:inline" />
             {post.updatedAt > post.createdAt && <span className="text-[var(--muted-foreground)] text-xs sm:text-sm hidden sm:inline">• Edited</span>}
             {post.isPinned && showPinnedTag && <span className="text-[var(--muted-foreground)] text-xs sm:text-sm hidden sm:inline">• Pinned</span>}
           </div>
@@ -595,7 +595,7 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
           </button>
 
           {showActionsMenu && (
-            <div className="absolute right-0 top-full mt-2 w-48 bg-[#0d0d12] rounded-xl shadow-xl border border-white/10 z-50">
+            <div className="absolute right-0 top-full mt-2 w-48 relative overflow-hidden glass noise-overlay rounded-xl shadow-xl border border-white/10 z-50">
               <div className="py-1">
                 {isOwnPost && (
                   <>
@@ -754,7 +754,7 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
       {/* Delete Confirmation Modal */}
       {showDeleteConfirm && (
         <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center" onClick={() => setShowDeleteConfirm(false)}>
-          <div className="relative bg-[#0d0d12] border border-white/10 rounded-xl p-6 w-[min(92vw,480px)] mx-4" onClick={(e) => e.stopPropagation()}>
+          <div className="relative overflow-hidden glass noise-overlay border border-white/10 rounded-xl p-6 w-[min(92vw,480px)] mx-4" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 bg-[var(--color-accent)]/20 rounded-full flex items-center justify-center">
                 <svg className="w-5 h-5 text-[var(--color-accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">

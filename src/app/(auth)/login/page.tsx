@@ -72,8 +72,17 @@ function LoginForm() {
     <main className="min-h-screen flex items-center justify-center px-4 py-16 -m-6">
       {/* Background decorations - CSS only */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 -left-32 w-96 h-96 bg-[var(--accent)] rounded-full blur-[128px] opacity-20 animate-float" />
-        <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-[var(--accent-2)] rounded-full blur-[128px] opacity-20 animate-float" style={{ animationDelay: '-2s' }} />
+        <div
+          className="absolute top-1/4 -left-32 w-96 h-96 rounded-full opacity-60 animate-float"
+          style={{ background: "radial-gradient(circle, rgba(var(--color-accent-rgb),0.22) 0%, transparent 70%)" }}
+        />
+        <div
+          className="absolute bottom-1/4 -right-32 w-96 h-96 rounded-full opacity-55 animate-float"
+          style={{
+            background: "radial-gradient(circle, rgba(var(--color-accent-2-rgb),0.18) 0%, transparent 70%)",
+            animationDelay: "-2s",
+          }}
+        />
       </div>
 
       <div className="relative w-full max-w-md animate-fade-in">
@@ -98,7 +107,7 @@ function LoginForm() {
         </div>
 
         {/* Form card */}
-        <div className="bg-[#0d0d12] rounded-2xl p-8 border border-white/10 animate-slide-up" style={{ animationDelay: '0.1s' }}>
+        <div className="relative overflow-hidden glass noise-overlay rounded-2xl p-8 border border-white/10 animate-slide-up" style={{ animationDelay: '0.1s' }}>
           <form onSubmit={onSubmit} className="space-y-5">
             {/* Email field */}
             <div>
@@ -253,8 +262,14 @@ function LoginSkeleton() {
   return (
     <main className="min-h-screen flex items-center justify-center px-4 py-16 -m-6">
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 -left-32 w-96 h-96 bg-[var(--accent)] rounded-full blur-[128px] opacity-20" />
-        <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-[var(--accent-2)] rounded-full blur-[128px] opacity-20" />
+        <div
+          className="absolute top-1/4 -left-32 w-96 h-96 rounded-full opacity-60"
+          style={{ background: "radial-gradient(circle, rgba(var(--color-accent-rgb),0.22) 0%, transparent 70%)" }}
+        />
+        <div
+          className="absolute bottom-1/4 -right-32 w-96 h-96 rounded-full opacity-55"
+          style={{ background: "radial-gradient(circle, rgba(var(--color-accent-2-rgb),0.18) 0%, transparent 70%)" }}
+        />
       </div>
       <div className="relative w-full max-w-md">
         <div className="text-center mb-8">
@@ -262,7 +277,7 @@ function LoginSkeleton() {
           <div className="h-8 w-48 mx-auto mb-2 rounded-lg bg-white/10 animate-pulse" />
           <div className="h-4 w-56 mx-auto rounded bg-white/10 animate-pulse" />
         </div>
-        <div className="bg-[#0d0d12] rounded-2xl p-8 border border-white/10">
+        <div className="relative overflow-hidden glass noise-overlay rounded-2xl p-8 border border-white/10">
           <div className="space-y-5">
             <div className="h-12 rounded-xl bg-white/5 animate-pulse" />
             <div className="h-12 rounded-xl bg-white/5 animate-pulse" />

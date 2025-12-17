@@ -22,7 +22,7 @@ function DiscoverSkeleton() {
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
         {[...Array(6)].map((_, i) => (
-          <div key={i} className="bg-[#0d0d12] border border-white/10 rounded-xl sm:rounded-2xl overflow-hidden animate-pulse">
+          <div key={i} className="relative overflow-hidden glass noise-overlay border border-white/10 rounded-xl sm:rounded-2xl overflow-hidden animate-pulse">
             <div className="h-16 sm:h-20 bg-white/5" />
             <div className="p-3 sm:p-6">
               <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">

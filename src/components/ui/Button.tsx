@@ -45,15 +45,14 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       secondary: cn(
         "bg-white/5 text-white",
         "border border-white/20",
-        "hover:bg-white/10 hover:border-white/30",
-        "backdrop-blur-sm"
+        "hover:bg-white/10 hover:border-white/30"
       ),
       ghost: cn(
         "bg-transparent text-[var(--muted-foreground)]",
         "hover:bg-white/10 hover:text-white"
       ),
       glass: cn(
-        "backdrop-blur-md bg-white/5 text-white",
+        "bg-white/5 text-white",
         "border border-white/15",
         "hover:bg-white/10 hover:border-white/25"
       ),

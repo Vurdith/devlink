@@ -562,7 +562,7 @@ export function PortfolioItemDisplay({
             </div>
 
             {/* Bottom Control Bar */}
-            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center justify-center gap-3 px-5 py-3 bg-black/60 backdrop-blur-md text-white text-sm rounded-2xl border border-white/10 shadow-xl">
+            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center justify-center gap-3 px-5 py-3 bg-black/60 text-white text-sm rounded-2xl border border-white/10 shadow-xl">
               {/* Previous Button */}
               {mediaUrls.length > 1 && (
                 <button

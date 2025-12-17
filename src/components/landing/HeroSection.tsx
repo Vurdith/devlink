@@ -13,11 +13,11 @@ export function HeroSection({ isLoggedIn }: { isLoggedIn: boolean }) {
       <div className="absolute inset-0 gradient-bg" />
       <div className="absolute inset-0 grid-pattern opacity-60" />
       <div
-        className="absolute -top-40 -left-40 w-[520px] h-[520px] rounded-full blur-3xl orb opacity-70"
+        className="absolute -top-40 -left-40 w-[520px] h-[520px] rounded-full orb opacity-70"
         style={{ background: "radial-gradient(circle, rgba(var(--color-accent-rgb),0.22) 0%, transparent 70%)" }}
       />
       <div
-        className="absolute -bottom-48 -right-48 w-[640px] h-[640px] rounded-full blur-3xl orb-delayed opacity-60"
+        className="absolute -bottom-48 -right-48 w-[640px] h-[640px] rounded-full orb-delayed opacity-60"
         style={{ background: "radial-gradient(circle, rgba(var(--color-accent-2-rgb),0.18) 0%, transparent 70%)" }}
       />
 
@@ -27,7 +27,7 @@ export function HeroSection({ isLoggedIn }: { isLoggedIn: boolean }) {
           <div className="animate-fade-in">
             <div className="flex items-center gap-3 mb-6">
               <div className="relative">
-                <div className="absolute -inset-2 rounded-2xl blur-xl opacity-50" style={{ background: "radial-gradient(circle, rgba(var(--color-accent-rgb),0.35), transparent 70%)" }} />
+                <div className="absolute -inset-2 rounded-2xl opacity-50" style={{ background: "radial-gradient(circle, rgba(var(--color-accent-rgb),0.35), transparent 70%)" }} />
                 <Image
                   src={logoPath}
                   alt="DevLink"
@@ -73,7 +73,7 @@ export function HeroSection({ isLoggedIn }: { isLoggedIn: boolean }) {
           {/* Right: “product” preview – handcrafted mock */}
           <div className="animate-fade-in" style={{ animationDelay: "0.08s" }}>
             <div className="relative">
-              <div className="absolute -inset-4 rounded-[2rem] blur-2xl opacity-40" style={{ background: "linear-gradient(135deg, rgba(var(--color-accent-rgb),0.25), rgba(var(--color-accent-2-rgb),0.18), transparent)" }} />
+              <div className="absolute -inset-4 rounded-[2rem] opacity-40" style={{ background: "linear-gradient(135deg, rgba(var(--color-accent-rgb),0.25), rgba(var(--color-accent-2-rgb),0.18), transparent)" }} />
 
               <div className="relative glass rounded-[2rem] border border-white/10 overflow-hidden noise-overlay">
                 <div

@@ -23,6 +23,26 @@
   
   --color-accent-3: #e879f9;
   --color-accent-3-glow: rgba(232, 121, 249, 0.3);
+
+  /*
+   * Compatibility aliases
+   * Some components use legacy variable names like --accent/--background/--card.
+   * Keep these as aliases so the UI stays consistent without hard-coded colors.
+   */
+  --background: var(--color-background);
+  --foreground: var(--color-foreground);
+  --muted: var(--color-muted);
+  --muted-foreground: var(--color-muted-foreground);
+  --card: var(--color-card);
+  --card-foreground: var(--color-card-foreground);
+
+  --accent: var(--color-accent);
+  --accent-hover: var(--color-accent-hover);
+  --accent-glow: var(--color-accent-glow);
+  --accent-2: var(--color-accent-2);
+  --accent-2-glow: var(--color-accent-2-glow);
+  --accent-3: var(--color-accent-3);
+  --accent-3-glow: var(--color-accent-3-glow);
   
   /* RGB values for rgba() usage in animations */
   --color-accent-rgb: 168, 85, 247;
@@ -408,7 +428,6 @@ input:focus, textarea:focus, select:focus {
 /* Modal backdrop */
 .modal-backdrop {
   background: rgba(5, 5, 8, 0.8);
-  backdrop-filter: blur(8px);
 }
 
 /* Stagger animation for lists */
@@ -969,7 +988,7 @@ input:focus, textarea:focus, select:focus {
        (update: slow),
        (pointer: coarse) and (max-width: 480px) {
   
-  /* Remove expensive backdrop-blur */
+  /* Remove expensive backdrop filter */
   .glass {
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;

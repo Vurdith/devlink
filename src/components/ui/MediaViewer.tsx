@@ -186,7 +186,7 @@ export function MediaViewer({
             preload="metadata"
           />
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="bg-black/60 rounded-full p-3 backdrop-blur-sm">
+            <div className="bg-black/60 rounded-full p-3">
               <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
               </svg>
@@ -237,7 +237,7 @@ export function MediaViewer({
           {/* Navigation Arrows */}
           <button
             onClick={(e) => { e.stopPropagation(); goToPrevious(); }}
-            className="absolute left-3 top-1/2 -translate-y-1/2 p-2.5 bg-black/70 hover:bg-black/90 text-white rounded-full transition-all opacity-0 group-hover:opacity-100 backdrop-blur-sm"
+            className="absolute left-3 top-1/2 -translate-y-1/2 p-2.5 bg-black/70 hover:bg-black/90 text-white rounded-full transition-all opacity-0 group-hover:opacity-100"
             title="Previous"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -246,7 +246,7 @@ export function MediaViewer({
           </button>
           <button
             onClick={(e) => { e.stopPropagation(); goToNext(); }}
-            className="absolute right-3 top-1/2 -translate-y-1/2 p-2.5 bg-black/70 hover:bg-black/90 text-white rounded-full transition-all opacity-0 group-hover:opacity-100 backdrop-blur-sm"
+            className="absolute right-3 top-1/2 -translate-y-1/2 p-2.5 bg-black/70 hover:bg-black/90 text-white rounded-full transition-all opacity-0 group-hover:opacity-100"
             title="Next"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -255,7 +255,7 @@ export function MediaViewer({
           </button>
           
           {/* Slide Indicators */}
-          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 bg-black/50 backdrop-blur-sm px-3 py-1.5 rounded-full">
+          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 bg-black/50 px-3 py-1.5 rounded-full">
             {media.map((_, idx) => (
               <button
                 key={idx}
@@ -290,7 +290,7 @@ export function MediaViewer({
                 preload="metadata"
               />
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <div className="bg-black/60 rounded-full p-4 backdrop-blur-sm">
+                <div className="bg-black/60 rounded-full p-4">
                   <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
                   </svg>
@@ -328,7 +328,7 @@ export function MediaViewer({
           <div key={item.id || index} className="relative">
             <GridMediaItem item={item} index={index} />
             {index === 3 && count > 4 && (
-              <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-[2px] rounded-xl">
+              <div className="absolute inset-0 bg-black/60 flex items-center justify-center rounded-xl">
                 <span className="text-white text-2xl font-bold">+{count - 4}</span>
               </div>
             )}
@@ -409,7 +409,7 @@ export function MediaViewer({
           </div>
 
           {/* Bottom Control Bar */}
-          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center justify-center gap-3 px-5 py-3 bg-black/60 backdrop-blur-md text-white text-sm rounded-2xl border border-white/10 shadow-xl">
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center justify-center gap-3 px-5 py-3 bg-black/60 text-white text-sm rounded-2xl border border-white/10 shadow-xl">
             {/* Previous Button */}
             {media.length > 1 && (
               <button

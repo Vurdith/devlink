@@ -142,10 +142,18 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
         />
         
         {/* Main profile card */}
-        <div className="relative bg-[#0a0a0f] border border-white/10 border-t-0 rounded-b-xl sm:rounded-b-2xl px-4 sm:px-8 pb-4 sm:pb-8 shadow-xl shadow-black/20">
+        <div className="relative overflow-hidden glass noise-overlay border border-white/10 border-t-0 rounded-b-xl sm:rounded-b-2xl px-4 sm:px-8 pb-4 sm:pb-8 shadow-xl shadow-black/20">
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 pointer-events-none opacity-70"
+            style={{
+              background:
+                "radial-gradient(900px 260px at 20% 0%, rgba(var(--color-accent-rgb),0.14), transparent 62%), radial-gradient(700px 260px at 90% 10%, rgba(var(--color-accent-2-rgb),0.10), transparent 60%)",
+            }}
+          />
           
           {/* Avatar and Follow button row */}
-          <div className="flex justify-between items-start">
+          <div className="relative flex justify-between items-start">
             {/* Avatar - Client component for instant updates */}
             <ProfileAvatar 
               initialAvatarUrl={user.profile?.avatarUrl}

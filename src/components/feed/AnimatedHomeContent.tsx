@@ -3,6 +3,7 @@ import { memo, useState, useEffect, useCallback } from "react";
 import { CreatePost } from "./CreatePost";
 import { PostFeed } from "./PostFeed";
 import { ThemeLogoImg } from "@/components/ui/ThemeLogo";
+import { cn } from "@/lib/cn";
 
 interface UserProfile {
   id: string;
@@ -88,6 +89,30 @@ const features = [
   { icon: "briefcase", title: "Clients", desc: "Find talent", color: "green" },
   { icon: "bell", title: "Influencers", desc: "Promote projects", color: "red" }
 ];
+
+const FEATURE_STYLES: Record<
+  string,
+  { panel: string; icon: string; titleHover: string; shadowHover: string }
+> = {
+  blue: {
+    panel: "bg-blue-500/10 border border-blue-400/20 hover:border-blue-400/35",
+    icon: "text-blue-300 bg-blue-500/15 border border-blue-400/25",
+    titleHover: "group-hover/card:text-blue-200",
+    shadowHover: "group-hover/card:shadow-lg group-hover/card:shadow-blue-500/20",
+  },
+  green: {
+    panel: "bg-emerald-500/10 border border-emerald-400/20 hover:border-emerald-400/35",
+    icon: "text-emerald-300 bg-emerald-500/15 border border-emerald-400/25",
+    titleHover: "group-hover/card:text-emerald-200",
+    shadowHover: "group-hover/card:shadow-lg group-hover/card:shadow-emerald-500/20",
+  },
+  red: {
+    panel: "bg-rose-500/10 border border-rose-400/20 hover:border-rose-400/35",
+    icon: "text-rose-300 bg-rose-500/15 border border-rose-400/25",
+    titleHover: "group-hover/card:text-rose-200",
+    shadowHover: "group-hover/card:shadow-lg group-hover/card:shadow-rose-500/20",
+  },
+};
 
 export const AnimatedHomeContent = memo(function AnimatedHomeContent({ 
   session, 
@@ -198,7 +223,15 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
     <>
       {!session && (
         <div className="pt-20 pb-16 text-center">
-          <div className="bg-[#0d0d12] rounded-3xl p-12 max-w-6xl mx-auto border border-white/10 hover:border-[var(--color-accent)]/30 transition-all duration-300 relative overflow-hidden group">
+          <div className="glass noise-overlay rounded-3xl p-10 sm:p-12 max-w-6xl mx-auto border border-white/10 hover:border-[var(--color-accent)]/30 transition-all duration-300 relative overflow-hidden group">
+            <div
+              aria-hidden="true"
+              className="absolute inset-0 pointer-events-none opacity-70"
+              style={{
+                background:
+                  "radial-gradient(1100px 380px at 25% 0%, rgba(var(--color-accent-rgb),0.16), transparent 62%), radial-gradient(900px 360px at 92% 10%, rgba(var(--color-accent-2-rgb),0.12), transparent 60%)",
+              }}
+            />
             <div className="relative">
               <div className="flex items-center justify-center gap-4 mb-8 animate-slide-down">
                 <ThemeLogoImg
@@ -217,17 +250,22 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
                 Join thousands of developers, clients, and influencers building the future of Roblox
               </p>
               
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-                {features.map((item, index) => (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-8">
+                {features.map((item, index) => {
+                  const style = FEATURE_STYLES[item.color] ?? FEATURE_STYLES.blue;
+                  return (
                   <div 
                     key={item.title}
-                    className="text-center group/card animate-slide-up lift-hover cursor-default"
+                    className={cn("text-center group/card animate-slide-up cursor-default rounded-2xl p-6 transition-all duration-300", style.panel, style.shadowHover)}
                     style={{ animationDelay: `${0.3 + index * 0.1}s` }}
                   >
                     <div 
-                      className={`w-20 h-20 bg-gradient-to-br from-${item.color}-500/20 to-${item.color}-600/20 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover/card:scale-110 group-hover/card:shadow-lg group-hover/card:shadow-${item.color}-500/20 transition-all duration-300 border border-${item.color}-500/30`}
+                      className={cn(
+                        "w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover/card:scale-110 transition-all duration-300",
+                        style.icon
+                      )}
                     >
-                      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" className={`text-${item.color}-400`}>
+                      <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
                         {item.icon === "monitor" && (
                           <>
                             <rect x="2" y="3" width="20" height="14" rx="2" ry="2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -249,10 +287,10 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
                         )}
                       </svg>
                     </div>
-                    <div className="text-2xl font-semibold mb-3 text-white group-hover/card:text-[var(--color-accent)] transition-colors">{item.title}</div>
-                    <div className="text-gray-400 group-hover/card:text-gray-300 transition-colors">{item.desc}</div>
+                    <div className={cn("text-2xl font-semibold mb-3 text-white transition-colors", style.titleHover)}>{item.title}</div>
+                    <div className="text-white/60 group-hover/card:text-white/75 transition-colors">{item.desc}</div>
                   </div>
-                ))}
+                )})}
               </div>
             </div>
           </div>
@@ -264,9 +302,9 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
         <div className="mb-12 animate-slide-up" style={{ animationDelay: "0.1s" }}>
           <div className="relative group">
             {/* Animated glow background */}
-            <div className="absolute -inset-1 bg-gradient-to-r from-[var(--color-accent)]/20 via-cyan-500/20 to-[var(--color-accent)]/20 rounded-3xl blur-xl opacity-50 group-hover:opacity-75 transition-opacity duration-500 animate-glow-pulse"></div>
+            <div className="absolute -inset-1 bg-gradient-to-r from-[var(--color-accent)]/20 via-cyan-500/20 to-[var(--color-accent)]/20 rounded-3xl opacity-50 group-hover:opacity-75 transition-opacity duration-500 animate-glow-pulse"></div>
             
-            <div className="relative bg-[#0d0d12] rounded-2xl p-6 border border-[var(--color-accent)]/30 group-hover:border-[var(--color-accent)]/50 transition-all duration-300 shadow-2xl overflow-hidden">
+            <div className="relative glass noise-overlay rounded-2xl p-6 border border-[var(--color-accent)]/24 group-hover:border-[var(--color-accent)]/45 transition-all duration-300 shadow-2xl overflow-hidden">
               {/* Subtle shimmer effect */}
               <div className="absolute inset-0 shimmer-hover" />
               

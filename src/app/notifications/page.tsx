@@ -279,7 +279,7 @@ export default function NotificationsPage() {
 
   return (
     <div className="max-w-3xl mx-auto">
-      <div className="sticky top-0 z-20 -mx-4 px-4 pt-1 pb-3 mb-2 bg-[var(--color-background)]/80 backdrop-blur supports-[backdrop-filter]:bg-[var(--color-background)]/60 border-b border-white/10">
+      <div className="sticky top-0 z-20 -mx-4 px-4 pt-1 pb-3 mb-2 bg-[var(--color-background)]/90 border-b border-white/10">
         <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 grid place-items-center text-white/80">
@@ -454,7 +454,7 @@ export default function NotificationsPage() {
                           </div>
                         ))}
                       </div>
-                      <span className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full border border-white/10 bg-black/40 backdrop-blur grid place-items-center text-white/80 shadow-sm">
+                      <span className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full border border-white/10 bg-black/40 grid place-items-center text-white/80 shadow-sm">
                         <TypeIcon type={n.type} />
                       </span>
                     </div>

@@ -237,9 +237,24 @@ export default function RegisterPage() {
     <main className="min-h-screen flex items-center justify-center px-4 py-16 -m-6">
       {/* Background decorations - CSS only */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 -left-32 w-96 h-96 bg-[var(--accent)] rounded-full blur-[128px] opacity-20 animate-float" />
-        <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-[var(--accent-2)] rounded-full blur-[128px] opacity-20 animate-float" style={{ animationDelay: '-2s' }} />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[var(--accent-3)] rounded-full blur-[200px] opacity-10 animate-float" style={{ animationDelay: '-1s' }} />
+        <div
+          className="absolute top-1/4 -left-32 w-96 h-96 rounded-full opacity-60 animate-float"
+          style={{ background: "radial-gradient(circle, rgba(var(--color-accent-rgb),0.22) 0%, transparent 70%)" }}
+        />
+        <div
+          className="absolute bottom-1/4 -right-32 w-96 h-96 rounded-full opacity-55 animate-float"
+          style={{
+            background: "radial-gradient(circle, rgba(var(--color-accent-2-rgb),0.18) 0%, transparent 70%)",
+            animationDelay: "-2s",
+          }}
+        />
+        <div
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full opacity-35 animate-float"
+          style={{
+            background: "radial-gradient(circle, rgba(var(--color-accent-3-rgb),0.12) 0%, transparent 70%)",
+            animationDelay: "-1s",
+          }}
+        />
       </div>
 
       <div className="relative w-full max-w-md animate-fade-in">
@@ -264,7 +279,7 @@ export default function RegisterPage() {
         </div>
 
         {/* Form card */}
-        <div className="bg-[#0d0d12] rounded-2xl p-8 border border-white/10 animate-slide-up" style={{ animationDelay: '0.1s' }}>
+        <div className="relative overflow-hidden glass noise-overlay rounded-2xl p-8 border border-white/10 animate-slide-up" style={{ animationDelay: '0.1s' }}>
           <form onSubmit={onSubmit} className="space-y-5">
             {/* Username field */}
             <div>

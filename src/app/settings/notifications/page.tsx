@@ -140,7 +140,7 @@ export default function NotificationSettings() {
       {/* Push Notifications - Coming Soon */}
       <div className="relative overflow-hidden glass rounded-2xl p-6 border border-white/10 animate-slide-up noise-overlay" style={{ animationDelay: '0.1s' }}>
         {/* Coming Soon Overlay */}
-        <div className="absolute inset-0 bg-[var(--background)]/60 backdrop-blur-sm flex items-center justify-center z-10">
+        <div className="absolute inset-0 bg-[var(--background)]/80 flex items-center justify-center z-10">
           <div className="text-center">
             <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center mx-auto mb-3">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-[var(--muted-foreground)]">

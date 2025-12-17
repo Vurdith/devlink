@@ -127,7 +127,7 @@ export const Sidebar = memo(function Sidebar() {
     <aside 
       role="navigation" 
       aria-label="Main sidebar navigation"
-      className="hidden md:flex fixed left-0 top-0 h-full w-72 z-40 flex-col bg-[#0a0a0f] border-r border-white/5"
+      className="hidden md:flex fixed left-0 top-0 h-full w-72 z-40 flex-col glass noise-overlay border-0 border-r border-white/10"
     >
       <div className="relative flex flex-col h-full">
         {/* Logo Section */}
@@ -193,7 +193,15 @@ export const Sidebar = memo(function Sidebar() {
 
         {/* Bottom section */}
         <div className="p-4 border-t border-[rgba(var(--color-accent-rgb),0.1)]">
-          <div className="rounded-xl p-4 text-center space-y-2 bg-[rgba(var(--color-accent-rgb),0.05)] border border-[rgba(var(--color-accent-rgb),0.2)]">
+          <div className="relative overflow-hidden rounded-xl p-4 text-center space-y-2 bg-white/[0.03] border border-white/10">
+            <div
+              aria-hidden="true"
+              className="absolute inset-0 pointer-events-none opacity-70"
+              style={{
+                background:
+                  "radial-gradient(600px 160px at 25% 0%, rgba(var(--color-accent-rgb),0.18), transparent 62%), radial-gradient(520px 160px at 90% 20%, rgba(var(--color-accent-2-rgb),0.12), transparent 60%)",
+              }}
+            />
             <p className="text-xs font-medium text-[var(--color-accent)]">
               Connect • Create • Grow
             </p>
