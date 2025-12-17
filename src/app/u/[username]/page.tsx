@@ -140,9 +140,17 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
           initialBannerUrl={user.profile?.bannerUrl}
           isOwnProfile={isOwnProfile}
         />
+
+        {/* Avatar (overlaps banner + card without clipping) */}
+        <div className="absolute left-4 sm:left-8 top-36 sm:top-64 -translate-y-1/2 z-20">
+          <ProfileAvatar 
+            initialAvatarUrl={user.profile?.avatarUrl}
+            isOwnProfile={isOwnProfile}
+          />
+        </div>
         
         {/* Main profile card */}
-        <div className="relative overflow-hidden glass noise-overlay border border-white/10 border-t-0 rounded-b-xl sm:rounded-b-2xl px-4 sm:px-8 pb-4 sm:pb-8 shadow-xl shadow-black/20">
+        <div className="relative z-10 glass border border-white/10 border-t-0 rounded-b-xl sm:rounded-b-2xl px-4 sm:px-8 pt-12 sm:pt-16 pb-4 sm:pb-8 shadow-xl shadow-black/20">
           <div
             aria-hidden="true"
             className="absolute inset-0 pointer-events-none opacity-70"
@@ -152,17 +160,10 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
             }}
           />
           
-          {/* Avatar and Follow button row */}
-          <div className="relative flex justify-between items-start">
-            {/* Avatar - Client component for instant updates */}
-            <ProfileAvatar 
-              initialAvatarUrl={user.profile?.avatarUrl}
-              isOwnProfile={isOwnProfile}
-            />
-            
-            {/* Follow button - top right */}
+          {/* Follow button - top right */}
+          <div className="relative flex justify-end items-start">
             {!isOwnProfile && (
-              <div className="mt-3">
+              <div className="mt-1 sm:mt-2">
                 <FollowButton targetUserId={user.id} initialFollowing={initialFollowing} />
               </div>
             )}

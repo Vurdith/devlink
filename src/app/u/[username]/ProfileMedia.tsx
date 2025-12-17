@@ -47,7 +47,7 @@ export function ProfileBanner({ initialBannerUrl, isOwnProfile }: ProfileBannerP
   const isBlob = bannerUrl?.startsWith('blob:');
 
   return (
-    <div className="relative h-36 sm:h-64 w-full group">
+    <div className="relative z-0 h-36 sm:h-64 w-full group">
       {bannerUrl ? (
         // Use regular img for blob URLs (instant local preview), next/image for remote URLs
         isBlob ? (
@@ -80,7 +80,7 @@ export function ProfileAvatar({ initialAvatarUrl, isOwnProfile }: ProfileAvatarP
   const avatarUrl = updatedAvatarUrl !== undefined ? updatedAvatarUrl : initialAvatarUrl;
 
   return (
-    <div className="relative -mt-12 sm:-mt-16 z-20">
+    <div className="relative z-20">
       <div className="relative w-20 h-20 sm:w-28 sm:h-28 group">
         {/* Subtle glow behind avatar */}
         <div className="absolute -inset-1 bg-gradient-to-br from-white/10 via-[rgba(var(--color-accent-rgb),0.18)] to-[rgba(var(--color-accent-2-rgb),0.14)] rounded-full opacity-60" />

@@ -377,15 +377,30 @@ export default function ProfileHubPage() {
   }
 
   return (
-    <main className="mx-auto max-w-4xl px-4 py-8">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-white">Profile Hub</h1>
-        <p className="text-[var(--muted-foreground)] mt-1">Manage your profile, skills, and services</p>
-      </div>
+    <main className="relative overflow-hidden px-4 py-10">
+      {/* Background */}
+      <div className="absolute inset-0 gradient-bg" />
+      <div className="absolute inset-0 grid-pattern opacity-50" />
+
+      <div className="relative mx-auto max-w-4xl">
+        {/* Header */}
+        <div className="mb-8">
+          <div className="inline-flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 grid place-items-center text-white/80">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 20h9" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                <path d="M16.5 3.5 20.5 7.5 8 20H4v-4L16.5 3.5Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-white font-[var(--font-space-grotesk)]">Profile Hub</h1>
+              <p className="text-[var(--muted-foreground)] mt-0.5">Manage your profile, skills, and services</p>
+            </div>
+          </div>
+        </div>
 
       {/* Section Tabs - Profile Page Style */}
-      <div className="flex gap-2 mb-6 overflow-x-auto bg-black/40 rounded-xl p-2 border border-[rgba(var(--color-accent-rgb),0.2)]">
+      <div className="relative overflow-hidden glass noise-overlay rounded-2xl border border-white/10 p-2 flex gap-2 mb-6 overflow-x-auto">
         <button
           onClick={() => setActiveSection("profile")}
           className={cn(
@@ -420,7 +435,16 @@ export default function ProfileHubPage() {
       {activeSection === "profile" && (
         <div className="space-y-6">
           {/* Basic Info Card */}
-          <div className="p-6 rounded-xl bg-[#0d0d12] border border-[var(--color-accent)]/20">
+          <div className="relative overflow-hidden glass noise-overlay border border-white/10 rounded-2xl p-6">
+            <div
+              aria-hidden="true"
+              className="absolute inset-0 pointer-events-none opacity-65"
+              style={{
+                background:
+                  "radial-gradient(900px 260px at 20% 0%, rgba(var(--color-accent-rgb),0.12), transparent 62%), radial-gradient(700px 260px at 90% 10%, rgba(var(--color-accent-2-rgb),0.10), transparent 60%)",
+              }}
+            />
+            <div className="relative">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-blue-500/25">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-white">
@@ -470,10 +494,20 @@ export default function ProfileHubPage() {
                 </div>
               </div>
             </div>
+            </div>
           </div>
 
           {/* Profile Type Card - Settings Style */}
-          <div className="p-6 rounded-xl bg-[#0d0d12] border border-[var(--color-accent)]/20">
+          <div className="relative overflow-hidden glass noise-overlay border border-white/10 rounded-2xl p-6">
+            <div
+              aria-hidden="true"
+              className="absolute inset-0 pointer-events-none opacity-55"
+              style={{
+                background:
+                  "radial-gradient(900px 260px at 18% 0%, rgba(var(--color-accent-rgb),0.10), transparent 62%), radial-gradient(700px 260px at 92% 10%, rgba(var(--color-accent-2-rgb),0.10), transparent 60%)",
+              }}
+            />
+            <div className="relative">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--color-accent)] to-[var(--color-accent-hover)] flex items-center justify-center shadow-lg shadow-[var(--color-accent)]/25">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-white">
@@ -532,6 +566,7 @@ export default function ProfileHubPage() {
                 );
               })}
             </div>
+            </div>
           </div>
 
           <Button onClick={handleSaveProfile} disabled={isSaving} className="w-full">
@@ -544,7 +579,16 @@ export default function ProfileHubPage() {
       {activeSection === "skills" && (
         <div className="space-y-6">
           {/* Your Skills */}
-          <div className="p-6 rounded-xl bg-[#0d0d12] border border-[var(--color-accent)]/20">
+          <div className="relative overflow-hidden glass noise-overlay border border-white/10 rounded-2xl p-6">
+            <div
+              aria-hidden="true"
+              className="absolute inset-0 pointer-events-none opacity-55"
+              style={{
+                background:
+                  "radial-gradient(900px 260px at 20% 0%, rgba(var(--color-accent-rgb),0.10), transparent 62%), radial-gradient(700px 260px at 90% 10%, rgba(var(--color-accent-2-rgb),0.10), transparent 60%)",
+              }}
+            />
+            <div className="relative">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-yellow-500 flex items-center justify-center shadow-lg shadow-amber-500/25">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-white">
@@ -664,9 +708,19 @@ export default function ProfileHubPage() {
               </div>
             )}
           </div>
+          </div>
 
           {/* Add Skills */}
-          <div className="p-6 rounded-xl bg-[#0d0d12] border border-[var(--color-accent)]/20">
+          <div className="relative overflow-hidden glass noise-overlay border border-white/10 rounded-2xl p-6">
+            <div
+              aria-hidden="true"
+              className="absolute inset-0 pointer-events-none opacity-55"
+              style={{
+                background:
+                  "radial-gradient(900px 260px at 20% 0%, rgba(var(--color-accent-rgb),0.10), transparent 62%), radial-gradient(700px 260px at 90% 10%, rgba(var(--color-accent-2-rgb),0.10), transparent 60%)",
+              }}
+            />
+            <div className="relative">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--color-accent)] to-[var(--color-accent-hover)] flex items-center justify-center shadow-lg shadow-[var(--color-accent)]/25">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-white">
@@ -730,6 +784,7 @@ export default function ProfileHubPage() {
               </p>
             )}
           </div>
+          </div>
         </div>
       )}
 
@@ -737,7 +792,7 @@ export default function ProfileHubPage() {
       {editingSkill && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/80" onClick={() => setEditingSkill(null)} />
-          <div className="relative w-full max-w-lg bg-[#0a0a0f] rounded-2xl border border-white/10 p-6">
+          <div className="relative overflow-hidden w-full max-w-lg glass noise-overlay rounded-2xl border border-white/10 p-6">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-lg font-semibold text-white">Edit {editingSkill.skill.name}</h3>
               <button onClick={() => setEditingSkill(null)} className="p-2 rounded-lg hover:bg-white/10 text-white/60">
@@ -889,6 +944,7 @@ export default function ProfileHubPage() {
           </div>
         </div>
       )}
+      </div>
     </main>
   );
 }
