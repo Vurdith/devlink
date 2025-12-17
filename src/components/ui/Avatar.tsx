@@ -36,7 +36,7 @@ export const Avatar = memo(function Avatar({ src, alt = "", size, className, pri
           <img 
             src={src} 
             alt={alt} 
-            className="absolute inset-0 w-full h-full object-cover"
+            className="absolute inset-0 w-full h-full object-cover object-center"
           />
         ) : (
           <Image 
@@ -44,7 +44,7 @@ export const Avatar = memo(function Avatar({ src, alt = "", size, className, pri
             alt={alt} 
             fill 
             sizes={size ? `${size}px` : "(max-width: 640px) 48px, 64px"} 
-            className="object-cover"
+            className="object-cover object-center"
             loading={priority ? "eager" : "lazy"}
             priority={priority}
             quality={75}

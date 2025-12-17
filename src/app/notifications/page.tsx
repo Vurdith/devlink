@@ -487,14 +487,28 @@ export default function NotificationsPage() {
                         </div>
                       </div>
 
-                      {n.post?.content ? (
+                      {/* Post / reply preview */}
+                      {n.type === "REPLY" && (n.sourcePost?.content || n.post?.content) ? (
+                        <div className="mt-3 rounded-xl border border-white/10 bg-black/20 p-3 text-sm text-white/65">
+                          {n.sourcePost?.content ? (
+                            <div className="whitespace-pre-wrap break-words">
+                              <div className="text-[11px] uppercase tracking-wide text-white/45 mb-1">Original</div>
+                              {n.sourcePost.content}
+                            </div>
+                          ) : null}
+
+                          {n.post?.content ? (
+                            <div className={["mt-3 pl-3 border-l border-white/10"].join(" ")}>
+                              <div className="whitespace-pre-wrap break-words">
+                                <div className="text-[11px] uppercase tracking-wide text-white/45 mb-1">Reply</div>
+                                {n.post.content}
+                              </div>
+                            </div>
+                          ) : null}
+                        </div>
+                      ) : n.post?.content ? (
                         <div className="mt-3 rounded-xl border border-white/10 bg-black/20 p-3 text-sm text-white/65 whitespace-pre-wrap break-words">
                           {n.post.content}
-                        </div>
-                      ) : null}
-                      {n.sourcePost?.content && n.type === "REPLY" ? (
-                        <div className="mt-3 rounded-xl border border-white/10 bg-black/20 p-3 text-sm text-white/65 whitespace-pre-wrap break-words">
-                          Reply: {n.sourcePost.content}
                         </div>
                       ) : null}
                     </div>
