@@ -70,71 +70,72 @@ const features = [
 
 export function FeaturesSection() {
   return (
-    <section className="relative py-32 px-4">
-      {/* Section header */}
-      <div className="text-center mb-20 animate-fade-in">
-        <span className="inline-block px-4 py-2 rounded-full text-sm font-medium bg-[var(--color-accent)]/10 text-[var(--color-accent)] border border-[var(--color-accent)]/20 mb-6">
-          Platform Features
-        </span>
-        
-        <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 font-[var(--font-space-grotesk)]">
-          <span className="text-white">Everything You Need to</span>
-          <br />
-          <span className="gradient-text">Succeed</span>
-        </h2>
-        
-        <p className="text-lg md:text-xl text-[var(--muted-foreground)] max-w-2xl mx-auto">
-          From showcasing your work to finding your next big project, DevLink has all the tools you need.
-        </p>
-      </div>
+    <section className="relative px-4 py-20 md:py-28">
+      <div className="max-w-6xl mx-auto">
+        <div className="grid gap-10 lg:grid-cols-[0.95fr_1.05fr] items-start">
+          {/* Narrative header (left) */}
+          <div className="animate-fade-in">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.04] border border-white/10 text-xs text-white/70">
+              <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-accent)]" />
+              What you get
+            </div>
+            <h2 className="mt-4 text-3xl sm:text-4xl md:text-5xl font-bold font-[var(--font-space-grotesk)] tracking-tight">
+              <span className="text-white">A profile that</span>{" "}
+              <span className="gradient-text">speaks for itself</span>
+            </h2>
+            <p className="mt-4 text-base sm:text-lg text-white/70 leading-relaxed max-w-xl">
+              DevLink is designed around signal—work samples, reputation, and clarity—so the right people can find you fast.
+            </p>
 
-      {/* Features grid */}
-      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {features.map((feature, index) => (
-          <div
-            key={feature.title}
-            className="group relative animate-fade-in"
-            style={{ animationDelay: `${index * 0.1}s` }}
-          >
-            <div 
-              className="relative p-8 rounded-3xl bg-[#0d0d12] border border-white/10 overflow-hidden h-full transition-all duration-300 hover:bg-white/[0.08] hover:-translate-y-1"
-              style={{
-                boxShadow: `0 0 0 1px rgba(255,255,255,0.05)`
-              }}
-            >
-              {/* Gradient background on hover */}
-              <div
-                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                style={{
-                  background: `radial-gradient(circle at 50% 0%, ${feature.glow} 0%, transparent 70%)`
-                }}
-              />
-              
-              {/* Icon */}
-              <div className={`relative inline-flex p-4 rounded-2xl bg-gradient-to-br ${feature.color} mb-6`}>
-                <div className="text-white">
-                  {feature.icon}
+            <div className="mt-8 space-y-3">
+              {[
+                { k: "Signal first", v: "Show proof of work, not buzzwords." },
+                { k: "Built for teams", v: "Find specialists and ship together." },
+                { k: "Trust layer", v: "Verified profiles + reviews to reduce risk." },
+              ].map((x) => (
+                <div key={x.k} className="flex items-start gap-3">
+                  <div className="mt-1 w-2.5 h-2.5 rounded-full bg-[rgba(var(--color-accent-rgb),0.45)]" />
+                  <div>
+                    <div className="text-sm font-semibold text-white/85">{x.k}</div>
+                    <div className="text-sm text-white/60">{x.v}</div>
+                  </div>
                 </div>
-              </div>
-              
-              {/* Content */}
-              <h3 className="relative text-xl font-semibold text-white mb-3 font-[var(--font-space-grotesk)]">
-                {feature.title}
-              </h3>
-              
-              <p className="relative text-[var(--muted-foreground)] leading-relaxed">
-                {feature.description}
-              </p>
-
-              {/* Arrow indicator */}
-              <div className="absolute bottom-8 right-8 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300">
-                <svg className="w-6 h-6 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                </svg>
-              </div>
+              ))}
             </div>
           </div>
-        ))}
+
+          {/* Feature cards (right) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {features.map((feature, index) => (
+              <div
+                key={feature.title}
+                className="group relative animate-fade-in"
+                style={{ animationDelay: `${index * 0.06}s` }}
+              >
+                <div className="relative overflow-hidden rounded-3xl glass glass-hover border border-white/10 p-6 h-full noise-overlay">
+                  <div
+                    aria-hidden="true"
+                    className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+                    style={{
+                      background: `radial-gradient(900px 240px at 30% 0%, ${feature.glow} 0%, transparent 65%)`,
+                    }}
+                  />
+
+                  <div className={`relative inline-flex p-3 rounded-2xl bg-gradient-to-br ${feature.color} mb-4 shadow-lg`}>
+                    <div className="text-white">{feature.icon}</div>
+                  </div>
+
+                  <h3 className="relative text-lg font-semibold text-white mb-2 font-[var(--font-space-grotesk)]">
+                    {feature.title}
+                  </h3>
+                  <p className="relative text-sm text-white/65 leading-relaxed">
+                    {feature.description}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </section>
   );

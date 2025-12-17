@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, type CSSProperties, type ReactNode } from "react";
 import { Button } from "@/components/ui/Button";
 import { useSession, signOut } from "next-auth/react";
 import { useToastContext } from "@/components/providers/ToastProvider";
@@ -15,6 +15,68 @@ interface PasswordData {
 interface EmailData {
   newEmail: string;
   password: string;
+}
+
+function SecurityPanel({
+  accent,
+  title,
+  description,
+  icon,
+  children,
+  className,
+  style,
+}: {
+  accent: "cyan" | "emerald" | "amber" | "red";
+  title: string;
+  description?: string;
+  icon: ReactNode;
+  children: ReactNode;
+  className?: string;
+  style?: CSSProperties;
+}) {
+  const accents: Record<typeof accent, { glow: string; border: string; iconBg: string }> = {
+    cyan: {
+      glow: "radial-gradient(900px 260px at 18% 0%, rgba(34,211,238,0.14), transparent 60%), radial-gradient(800px 240px at 92% 0%, rgba(59,130,246,0.10), transparent 60%)",
+      border: "border-white/10",
+      iconBg: "from-cyan-500 to-blue-500 shadow-cyan-500/20",
+    },
+    emerald: {
+      glow: "radial-gradient(900px 260px at 18% 0%, rgba(16,185,129,0.14), transparent 60%), radial-gradient(800px 240px at 92% 0%, rgba(34,197,94,0.10), transparent 60%)",
+      border: "border-white/10",
+      iconBg: "from-emerald-500 to-green-500 shadow-emerald-500/20",
+    },
+    amber: {
+      glow: "radial-gradient(900px 260px at 18% 0%, rgba(245,158,11,0.14), transparent 60%), radial-gradient(800px 240px at 92% 0%, rgba(249,115,22,0.10), transparent 60%)",
+      border: "border-white/10",
+      iconBg: "from-amber-500 to-orange-500 shadow-amber-500/20",
+    },
+    red: {
+      glow: "radial-gradient(900px 260px at 18% 0%, rgba(239,68,68,0.14), transparent 60%), radial-gradient(800px 240px at 92% 0%, rgba(244,63,94,0.10), transparent 60%)",
+      border: "border-red-500/30",
+      iconBg: "from-red-500 to-rose-600 shadow-red-500/25",
+    },
+  };
+
+  const a = accents[accent];
+
+  return (
+    <div
+      className={cn("relative overflow-hidden glass glass-hover rounded-2xl p-6 border noise-overlay", a.border, className)}
+      style={style}
+    >
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 opacity-60" style={{ background: a.glow }} />
+      <div className="relative flex items-start gap-3 mb-6">
+        <div className={cn("w-10 h-10 rounded-xl bg-gradient-to-br flex items-center justify-center shadow-lg", a.iconBg)}>
+          <div className="text-white">{icon}</div>
+        </div>
+        <div className="min-w-0">
+          <h2 className="text-lg font-semibold text-white">{title}</h2>
+          {description ? <p className="text-sm text-[var(--muted-foreground)]">{description}</p> : null}
+        </div>
+      </div>
+      <div className="relative">{children}</div>
+    </div>
+  );
 }
 
 export default function SecuritySettings() {
@@ -237,6 +299,8 @@ export default function SecuritySettings() {
   const passwordStrength = getPasswordStrength(passwordData.newPassword);
   const strengthLabels = ["Very Weak", "Weak", "Fair", "Good", "Strong"];
   const strengthColors = ["bg-[var(--color-accent)]", "bg-orange-500", "bg-yellow-500", "bg-lime-500", "bg-emerald-500"];
+  const inputBase =
+    "w-full h-11 px-4 rounded-xl bg-white/[0.04] border border-white/10 text-white placeholder-[var(--muted-foreground)] focus:border-[var(--accent)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)] transition-all";
 
   return (
     <div className="space-y-6">
@@ -252,39 +316,42 @@ export default function SecuritySettings() {
 
       {/* Password Section Loading Skeleton */}
       {hasPassword === null && (
-        <div className="bg-[#0d0d12] rounded-2xl p-6 border border-white/10 animate-pulse">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-xl bg-white/10" />
-            <div>
-              <div className="h-5 w-32 bg-white/10 rounded mb-2" />
-              <div className="h-4 w-48 bg-white/10 rounded" />
-            </div>
-          </div>
+        <SecurityPanel
+          accent="cyan"
+          title="Loading security settings…"
+          description="Fetching your authentication details."
+          icon={
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <path d="M12 2l8 4v6c0 5-3.4 9.4-8 10-4.6-.6-8-5-8-10V6l8-4z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+              <path d="M9 12l2 2 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          }
+          className="animate-pulse"
+        >
           <div className="space-y-4">
             <div className="h-11 bg-white/5 rounded-xl" />
             <div className="h-11 bg-white/5 rounded-xl" />
             <div className="h-11 bg-white/10 rounded-xl w-32" />
           </div>
-        </div>
+        </SecurityPanel>
       )}
 
       {/* Set Password Section - for OAuth users without a password */}
       {hasPassword === false && (
-        <div className="bg-[#0d0d12] rounded-2xl p-6 border border-white/10 animate-slide-up" style={{ animationDelay: '0.05s' }}>
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center shadow-lg shadow-emerald-500/20">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-white">
-                <path d="M12 2L2 7l10 5 10-5-10-5z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M2 17l10 5 10-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M2 12l10 5 10-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </div>
-            <div>
-              <h2 className="text-lg font-semibold text-white">Set a Password</h2>
-              <p className="text-sm text-[var(--muted-foreground)]">Add a password to log in with email</p>
-            </div>
-          </div>
-          
+        <SecurityPanel
+          accent="emerald"
+          title="Set a password"
+          description="Add email/password login alongside OAuth."
+          icon={
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <path d="M12 2L2 7l10 5 10-5-10-5z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M2 17l10 5 10-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M2 12l10 5 10-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          }
+          className="animate-slide-up"
+          style={{ animationDelay: '0.05s' } as any}
+        >
           <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4 mb-6">
             <div className="flex items-start gap-3">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-blue-400 mt-0.5 flex-shrink-0">
@@ -302,7 +369,7 @@ export default function SecuritySettings() {
               <label className="block text-sm font-medium text-white mb-2">New Password</label>
               <input
                 type="password"
-                className="w-full h-11 px-4 rounded-xl bg-white/5 border border-white/10 text-white placeholder-[var(--muted-foreground)] focus:border-[var(--accent)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)] transition-all"
+                className={inputBase}
                 placeholder="Enter a secure password"
                 value={newPasswordData.password}
                 onChange={(e) => setNewPasswordData(prev => ({ ...prev, password: e.target.value }))}
@@ -336,7 +403,7 @@ export default function SecuritySettings() {
               <input
                 type="password"
                 className={cn(
-                  "w-full h-11 px-4 rounded-xl bg-white/5 border text-white placeholder-[var(--muted-foreground)] focus:outline-none focus:ring-1 transition-all",
+                  "w-full h-11 px-4 rounded-xl bg-white/[0.04] border text-white placeholder-[var(--muted-foreground)] focus:outline-none focus:ring-1 transition-all",
                   newPasswordData.confirmPassword && newPasswordData.password !== newPasswordData.confirmPassword
                     ? "border-[var(--color-accent)]/50 focus:border-[var(--color-accent)] focus:ring-[var(--color-accent)]"
                     : "border-white/10 focus:border-[var(--accent)] focus:ring-[var(--accent)]"
@@ -371,32 +438,31 @@ export default function SecuritySettings() {
               Set Password
             </Button>
           </form>
-        </div>
+        </SecurityPanel>
       )}
 
       {/* Change Password Section */}
       {hasPassword && (
-        <div className="bg-[#0d0d12] rounded-2xl p-6 border border-white/10 animate-slide-up" style={{ animationDelay: '0.05s' }}>
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-blue-500/20">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-white">
-                <rect x="3" y="11" width="18" height="11" rx="2" stroke="currentColor" strokeWidth="2"/>
-                <circle cx="12" cy="16" r="1" fill="currentColor"/>
-                <path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="currentColor" strokeWidth="2"/>
-              </svg>
-            </div>
-            <div>
-              <h2 className="text-lg font-semibold text-white">Change Password</h2>
-              <p className="text-sm text-[var(--muted-foreground)]">Update your account password</p>
-            </div>
-          </div>
-
+        <SecurityPanel
+          accent="cyan"
+          title="Change password"
+          description="Keep your account secure with a strong password."
+          icon={
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <rect x="3" y="11" width="18" height="11" rx="2" stroke="currentColor" strokeWidth="2" />
+              <circle cx="12" cy="16" r="1" fill="currentColor" />
+              <path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="currentColor" strokeWidth="2" />
+            </svg>
+          }
+          className="animate-slide-up"
+          style={{ animationDelay: "0.05s" }}
+        >
           <form onSubmit={handlePasswordChange} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-white mb-2">Current Password</label>
               <input
                 type="password"
-                className="w-full h-11 px-4 rounded-xl bg-white/5 border border-white/10 text-white placeholder-[var(--muted-foreground)] focus:border-[var(--accent)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)] transition-all"
+                className={inputBase}
                 value={passwordData.currentPassword}
                 onChange={(e) => setPasswordData(prev => ({ ...prev, currentPassword: e.target.value }))}
                 autoComplete="off"
@@ -408,7 +474,7 @@ export default function SecuritySettings() {
               <label className="block text-sm font-medium text-white mb-2">New Password</label>
               <input
                 type="password"
-                className="w-full h-11 px-4 rounded-xl bg-white/5 border border-white/10 text-white placeholder-[var(--muted-foreground)] focus:border-[var(--accent)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)] transition-all"
+                className={inputBase}
                 value={passwordData.newPassword}
                 onChange={(e) => setPasswordData(prev => ({ ...prev, newPassword: e.target.value }))}
                 autoComplete="off"
@@ -439,7 +505,7 @@ export default function SecuritySettings() {
               <input
                 type="password"
                 className={cn(
-                  "w-full h-11 px-4 rounded-xl bg-white/5 border text-white placeholder-[var(--muted-foreground)] focus:outline-none focus:ring-1 transition-all",
+                  "w-full h-11 px-4 rounded-xl bg-white/[0.04] border text-white placeholder-[var(--muted-foreground)] focus:outline-none focus:ring-1 transition-all",
                   passwordData.confirmPassword && passwordData.newPassword !== passwordData.confirmPassword
                     ? "border-[var(--color-accent)]/50 focus:border-[var(--color-accent)] focus:ring-[var(--color-accent)]"
                     : "border-white/10 focus:border-[var(--accent)] focus:ring-[var(--accent)]"
@@ -470,23 +536,28 @@ export default function SecuritySettings() {
               Update Password
             </Button>
           </form>
-        </div>
+        </SecurityPanel>
       )}
 
       {/* Reset Password Section */}
-      <div className="bg-[#0d0d12] rounded-2xl p-6 border border-white/10 animate-slide-up" style={{ animationDelay: '0.1s' }}>
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-lg shadow-amber-500/20">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-white">
-              <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </div>
-          <div>
-            <h2 className="text-lg font-semibold text-white">Reset via Email</h2>
-            <p className="text-sm text-[var(--muted-foreground)]">Send a password reset link</p>
-          </div>
-        </div>
-
+      <SecurityPanel
+        accent="amber"
+        title="Reset via email"
+        description="Send yourself a secure password reset link."
+        icon={
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path
+              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        }
+        className="animate-slide-up"
+        style={{ animationDelay: "0.1s" }}
+      >
         <div className="space-y-4">
           <p className="text-sm text-[var(--muted-foreground)]">
             Forgot your password? We'll send a secure reset link to your email address.
@@ -505,27 +576,30 @@ export default function SecuritySettings() {
             Send Reset Email
           </Button>
         </div>
-      </div>
+      </SecurityPanel>
 
       {/* Change Email Section */}
-      <div className="bg-[#0d0d12] rounded-2xl p-6 border border-white/10 animate-slide-up" style={{ animationDelay: '0.15s' }}>
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-green-500 flex items-center justify-center shadow-lg shadow-emerald-500/20">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-white">
-              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" stroke="currentColor" strokeWidth="2"/>
-              <polyline points="22,6 12,13 2,6" stroke="currentColor" strokeWidth="2"/>
-            </svg>
-          </div>
-          <div>
-            <h2 className="text-lg font-semibold text-white">Change Email</h2>
-            <p className="text-sm text-[var(--muted-foreground)]">Update your email address</p>
-          </div>
-        </div>
-
+      <SecurityPanel
+        accent="emerald"
+        title="Change email"
+        description="Update where you receive security and account emails."
+        icon={
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path
+              d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"
+              stroke="currentColor"
+              strokeWidth="2"
+            />
+            <polyline points="22,6 12,13 2,6" stroke="currentColor" strokeWidth="2" />
+          </svg>
+        }
+        className="animate-slide-up"
+        style={{ animationDelay: "0.15s" }}
+      >
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-white mb-2">Current Email</label>
-            <div className="w-full h-11 px-4 rounded-xl bg-white/5 border border-white/10 text-[var(--muted-foreground)] flex items-center">
+            <div className="w-full h-11 px-4 rounded-xl bg-white/[0.04] border border-white/10 text-[var(--muted-foreground)] flex items-center">
               {session?.user?.email || "Loading..."}
             </div>
           </div>
@@ -535,7 +609,7 @@ export default function SecuritySettings() {
               <label className="block text-sm font-medium text-white mb-2">New Email Address</label>
               <input
                 type="email"
-                className="w-full h-11 px-4 rounded-xl bg-white/5 border border-white/10 text-white placeholder-[var(--muted-foreground)] focus:border-[var(--accent)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)] transition-all"
+                className={inputBase}
                 placeholder="Enter new email"
                 value={emailData.newEmail}
                 onChange={(e) => setEmailData(prev => ({ ...prev, newEmail: e.target.value }))}
@@ -548,7 +622,7 @@ export default function SecuritySettings() {
               <label className="block text-sm font-medium text-white mb-2">Confirm Password</label>
               <input
                 type="password"
-                className="w-full h-11 px-4 rounded-xl bg-white/5 border border-white/10 text-white placeholder-[var(--muted-foreground)] focus:border-[var(--accent)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)] transition-all"
+                className={inputBase}
                 placeholder="Enter your password"
                 value={emailData.password}
                 onChange={(e) => setEmailData(prev => ({ ...prev, password: e.target.value }))}
@@ -571,22 +645,27 @@ export default function SecuritySettings() {
             A verification email will be sent to your new address
           </p>
         </div>
-      </div>
+      </SecurityPanel>
 
       {/* Danger Zone - Account Deletion */}
-      <div className="bg-[#0d0d12] rounded-2xl p-6 border border-red-500/30 animate-slide-up" style={{ animationDelay: '0.2s' }}>
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center shadow-lg shadow-red-500/20">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-white">
-              <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </div>
-          <div>
-            <h2 className="text-lg font-semibold text-red-500">Danger Zone</h2>
-            <p className="text-sm text-red-500/70">Permanently delete your account</p>
-          </div>
-        </div>
-
+      <SecurityPanel
+        accent="red"
+        title="Danger zone"
+        description="Permanently delete your account and all associated data."
+        icon={
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        }
+        className="animate-slide-up"
+        style={{ animationDelay: "0.2s" }}
+      >
         {!showDeleteConfirm ? (
           <div className="space-y-4">
             <p className="text-sm text-[var(--muted-foreground)]">
@@ -733,7 +812,7 @@ export default function SecuritySettings() {
             </div>
           </div>
         )}
-      </div>
+      </SecurityPanel>
     </div>
   );
 }

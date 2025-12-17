@@ -177,7 +177,7 @@ export default function AccountLinking() {
             <div
               key={provider.id}
               className={cn(
-                "flex items-center justify-between p-4 rounded-xl border transition-all animate-slide-up overflow-hidden",
+                "relative flex items-center justify-between p-4 rounded-xl border transition-all animate-slide-up overflow-hidden",
                 linked 
                   ? "bg-[rgba(var(--color-accent-rgb),0.10)] border-[rgba(var(--color-accent-rgb),0.25)]"
                   : "bg-white/[0.03] border-white/10 hover:bg-white/[0.06] hover:border-white/20"
@@ -194,7 +194,7 @@ export default function AccountLinking() {
                   }}
                 />
               ) : null}
-              <div className="flex items-center gap-4">
+              <div className="relative flex items-center gap-4">
                 {/* Provider Icon */}
                 <div className={cn("w-10 h-10 rounded-lg flex items-center justify-center", provider.bgColor)}>
                   {provider.icon}

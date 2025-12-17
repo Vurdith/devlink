@@ -49,127 +49,138 @@ function AnimatedCounter({ value, duration = 2 }: { value: number; duration?: nu
 }
 
 export function StatsSection({ totalUsers, totalPosts, totalStudios }: StatsSectionProps) {
-  const stats = [
-    {
-      value: totalUsers,
-      label: "Active Members",
-      sublabel: "Growing daily",
-      icon: (
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-        </svg>
-      ),
-      color: "from-[var(--color-accent)] to-[var(--color-accent)]",
-      textColor: "text-[var(--color-accent)]",
-      glowColor: "rgba(var(--color-accent-rgb), 0.2)",
-    },
-    {
-      value: totalPosts,
-      label: "Community Posts",
-      sublabel: "Shared by creators",
-      icon: (
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
-        </svg>
-      ),
-      color: "from-cyan-500 to-blue-500",
-      textColor: "text-cyan-400",
-      glowColor: "rgba(34, 211, 238, 0.2)",
-    },
-    {
-      value: totalStudios,
-      label: "Studios",
-      sublabel: "Building games",
-      icon: (
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-        </svg>
-      ),
-      color: "from-pink-500 to-rose-500",
-      textColor: "text-pink-400",
-      glowColor: "rgba(244, 114, 182, 0.2)",
-    },
-  ];
-
   return (
-    <section className="relative py-32 px-4 overflow-hidden">
-      {/* Background effects */}
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[var(--color-accent)]/5 to-transparent" />
-      
+    <section className="relative px-4 py-20 md:py-28 overflow-hidden">
       <div className="max-w-6xl mx-auto">
-        {/* Section header */}
-        <div className="text-center mb-16 animate-fade-in">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4 font-[var(--font-space-grotesk)]">
-            <span className="text-white">Join a </span>
-            <span className="gradient-text">Thriving Community</span>
-          </h2>
-          <p className="text-lg text-[var(--muted-foreground)]">
-            Be part of something bigger. Connect with thousands of Roblox creators.
-          </p>
-        </div>
-
-        {/* Stats grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {stats.map((stat, index) => (
-            <div
-              key={stat.label}
-              className="relative group animate-fade-in"
-              style={{ animationDelay: `${index * 0.15}s` }}
-            >
-              <div className="relative p-8 rounded-3xl bg-[#0d0d12] border border-white/10 overflow-hidden text-center transition-transform duration-300 hover:-translate-y-1">
-                {/* Glow effect */}
-                <div 
-                  className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                  style={{
-                    background: `radial-gradient(circle at 50% 100%, ${stat.glowColor} 0%, transparent 70%)`
-                  }}
-                />
-
-                {/* Icon */}
-                <div className={`inline-flex p-3 rounded-xl bg-gradient-to-br ${stat.color} mb-4 transition-transform duration-200 hover:scale-110 hover:rotate-3`}>
-                  <span className="text-white">{stat.icon}</span>
-                </div>
-
-                {/* Number */}
-                <div className={`text-5xl md:text-6xl font-bold ${stat.textColor} mb-2 font-[var(--font-space-grotesk)]`}>
-                  <AnimatedCounter value={stat.value} />
-                  <span className="text-3xl">+</span>
-                </div>
-
-                {/* Label */}
-                <div className="text-xl font-semibold text-white mb-1">
-                  {stat.label}
-                </div>
-                <div className="text-sm text-[var(--muted-foreground)]">
-                  {stat.sublabel}
-                </div>
-              </div>
-
-              {/* Decorative elements */}
-              <div 
-                className="absolute -bottom-2 -right-2 w-24 h-24 opacity-20 rounded-full blur-2xl"
-                style={{ background: `linear-gradient(135deg, ${stat.glowColor.replace('0.2', '1')}, transparent)` }}
-              />
+        <div className="grid gap-10 lg:grid-cols-[1.05fr_0.95fr] items-start">
+          {/* Left: message */}
+          <div className="animate-fade-in">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.04] border border-white/10 text-xs text-white/70">
+              <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-accent)]" />
+              Momentum
             </div>
-          ))}
-        </div>
+            <h2 className="mt-4 text-3xl sm:text-4xl md:text-5xl font-bold font-[var(--font-space-grotesk)] tracking-tight">
+              <span className="text-white">A community that</span>{" "}
+              <span className="gradient-text">actually ships</span>
+            </h2>
+            <p className="mt-4 text-base sm:text-lg text-white/70 leading-relaxed max-w-xl">
+              A feed for progress, profiles for proof, and connections that turn into real projects.
+            </p>
 
-        {/* Additional info */}
-        <div className="mt-16 text-center animate-fade-in" style={{ animationDelay: "0.6s" }}>
-          <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-[#0d0d12] border border-white/10">
-            <div className="flex -space-x-2">
-              {[1, 2, 3, 4, 5].map((i) => (
-                <div 
-                  key={i} 
-                  className="w-8 h-8 rounded-full bg-gradient-to-br from-[var(--color-accent)] to-pink-500 border-2 border-[var(--background)] flex items-center justify-center text-xs font-bold text-white"
+            {/* Metric strip */}
+            <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {[
+                {
+                  label: "Members",
+                  value: totalUsers,
+                  tint: "rgba(var(--color-accent-rgb),0.16)",
+                  icon: (
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 21v-1a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v1" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M23 21v-1a4 4 0 0 0-3-3.87" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 3.13a4 4 0 0 1 0 7.75" />
+                    </svg>
+                  ),
+                },
+                {
+                  label: "Posts",
+                  value: totalPosts,
+                  tint: "rgba(34,211,238,0.14)",
+                  icon: (
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h8M8 11h8M8 15h6" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 21h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-6l-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2Z" />
+                    </svg>
+                  ),
+                },
+                {
+                  label: "Studios",
+                  value: totalStudios,
+                  tint: "rgba(244,114,182,0.14)",
+                  icon: (
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 21h18" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 21V7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v14" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 9h.01M9 13h.01M9 17h.01M15 9h.01M15 13h.01M15 17h.01" />
+                    </svg>
+                  ),
+                },
+              ].map((s, i) => (
+                <div
+                  key={s.label}
+                  className="relative overflow-hidden rounded-2xl glass border border-white/10 p-4 animate-fade-in noise-overlay"
+                  style={{ animationDelay: `${0.06 + i * 0.05}s` }}
                 >
-                  {String.fromCharCode(65 + i - 1)}
+                  <div
+                    aria-hidden="true"
+                    className="absolute inset-0 pointer-events-none opacity-60"
+                    style={{ background: `radial-gradient(520px 160px at 30% 0%, ${s.tint}, transparent 60%)` }}
+                  />
+                  <div className="relative flex items-center justify-between">
+                    <div className="text-white/60 text-xs">{s.label}</div>
+                    <div className="text-white/55">{s.icon}</div>
+                  </div>
+                  <div className="relative mt-2 font-[var(--font-space-grotesk)] text-3xl font-bold text-white">
+                    <AnimatedCounter value={s.value} />
+                  </div>
                 </div>
               ))}
             </div>
-            <span className="text-[var(--muted-foreground)]">
-              Join <span className="text-white font-semibold">{totalUsers}+</span> developers today
-            </span>
+          </div>
+
+          {/* Right: lightweight “activity” panel */}
+          <div className="animate-fade-in" style={{ animationDelay: "0.08s" }}>
+            <div className="relative overflow-hidden rounded-[2rem] glass border border-white/10 noise-overlay">
+              <div
+                aria-hidden="true"
+                className="absolute inset-0 pointer-events-none opacity-60"
+                style={{
+                  background:
+                    "radial-gradient(900px 260px at 30% 0%, rgba(var(--color-accent-rgb),0.14), transparent 60%), radial-gradient(800px 260px at 90% 15%, rgba(var(--color-accent-2-rgb),0.10), transparent 62%)",
+                }}
+              />
+              <div className="relative p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <div className="text-white font-semibold">This week</div>
+                    <div className="text-sm text-white/55">New posts & collaborations</div>
+                  </div>
+                  <div className="text-xs text-white/45">Live</div>
+                </div>
+
+                <div className="grid grid-cols-12 gap-2 items-end">
+                  {[6, 8, 5, 10, 12, 9, 14, 11, 8, 13, 9, 15].map((h, idx) => (
+                    <div
+                      key={idx}
+                      className="col-span-1 rounded-lg bg-white/[0.04] border border-white/10 overflow-hidden"
+                      style={{ height: 120 }}
+                    >
+                      <div
+                        className="w-full rounded-lg"
+                        style={{
+                          height: `${h * 6}px`,
+                          marginTop: `${120 - h * 6}px`,
+                          background:
+                            idx % 3 === 0
+                              ? "linear-gradient(180deg, rgba(var(--color-accent-rgb),0.75), rgba(var(--color-accent-rgb),0.15))"
+                              : idx % 3 === 1
+                                ? "linear-gradient(180deg, rgba(var(--color-accent-2-rgb),0.65), rgba(var(--color-accent-2-rgb),0.12))"
+                                : "linear-gradient(180deg, rgba(244,114,182,0.60), rgba(244,114,182,0.12))",
+                        }}
+                      />
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-6 flex items-center justify-between text-xs text-white/45">
+                  <span>Mon</span>
+                  <span>Wed</span>
+                  <span>Fri</span>
+                  <span>Sun</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

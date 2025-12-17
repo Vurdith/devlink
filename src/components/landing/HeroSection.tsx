@@ -4,181 +4,187 @@ import Link from "next/link";
 import Image from "next/image";
 import { useTheme } from "@/components/providers/ThemeProvider";
 
-// Floating geometric shapes with gradient colors
-const floatingShapes = [
-  { type: "hexagon", x: "10%", y: "20%", color: "from-[var(--color-accent)] to-[var(--color-accent-hover)]", size: 40, delay: "0s" },
-  { type: "circle", x: "85%", y: "15%", color: "from-cyan-400 to-blue-500", size: 32, delay: "0.5s" },
-  { type: "diamond", x: "75%", y: "70%", color: "from-pink-500 to-rose-500", size: 36, delay: "1s" },
-  { type: "square", x: "15%", y: "75%", color: "from-amber-400 to-orange-500", size: 34, delay: "1.5s" },
-  { type: "circle", x: "90%", y: "45%", color: "from-emerald-400 to-green-500", size: 28, delay: "2s" },
-  { type: "hexagon", x: "5%", y: "50%", color: "from-[var(--color-accent)] to-[var(--color-accent)]", size: 24, delay: "2.5s" },
-];
-
-function FloatingShape({ type, color, size }: { type: string; color: string; size: number }) {
-  const baseClass = `bg-gradient-to-br ${color} opacity-40`;
-  
-  switch (type) {
-    case "hexagon":
-      return (
-        <div className={baseClass} style={{ clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)", width: size, height: size }} />
-      );
-    case "circle":
-      return <div className={`${baseClass} rounded-full`} style={{ width: size, height: size }} />;
-    case "diamond":
-      return <div className={`${baseClass} rotate-45`} style={{ width: size * 0.7, height: size * 0.7 }} />;
-    case "square":
-      return <div className={`${baseClass} rounded-lg`} style={{ width: size, height: size }} />;
-    default:
-      return <div className={`${baseClass} rounded-full`} style={{ width: size, height: size }} />;
-  }
-}
-
 export function HeroSection() {
   const { logoPath } = useTheme();
   
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden px-4 py-20">
-      {/* CSS Animations */}
-      <style jsx>{`
-        @keyframes float {
-          0%, 100% { transform: translateY(0) rotate(0deg); }
-          50% { transform: translateY(-15px) rotate(5deg); }
-        }
-        @keyframes pulse-glow {
-          0%, 100% { filter: drop-shadow(0 0 20px rgba(var(--color-accent-rgb), 0.5)); }
-          50% { filter: drop-shadow(0 0 40px rgba(var(--color-accent-rgb), 0.8)); }
-        }
-        @keyframes bounce-arrow {
-          0%, 100% { transform: translateX(0); }
-          50% { transform: translateX(5px); }
-        }
-        @keyframes scroll-indicator {
-          0%, 100% { transform: translateY(0); opacity: 1; }
-          50% { transform: translateY(4px); opacity: 0.3; }
-        }
-        .float-animation {
-          animation: float 4s ease-in-out infinite;
-        }
-        .pulse-glow-animation {
-          animation: pulse-glow 3s ease-in-out infinite;
-        }
-        .arrow-animation {
-          animation: bounce-arrow 1.5s ease-in-out infinite;
-        }
-        .scroll-animation {
-          animation: scroll-indicator 2s ease-in-out infinite;
-        }
-      `}</style>
+    <section className="relative overflow-hidden px-4 pt-24 pb-16 md:pt-28 md:pb-24">
+      {/* Background – curated, not “template-y” */}
+      <div className="absolute inset-0 gradient-bg" />
+      <div className="absolute inset-0 grid-pattern opacity-60" />
+      <div
+        className="absolute -top-40 -left-40 w-[520px] h-[520px] rounded-full blur-3xl orb opacity-70"
+        style={{ background: "radial-gradient(circle, rgba(var(--color-accent-rgb),0.22) 0%, transparent 70%)" }}
+      />
+      <div
+        className="absolute -bottom-48 -right-48 w-[640px] h-[640px] rounded-full blur-3xl orb-delayed opacity-60"
+        style={{ background: "radial-gradient(circle, rgba(var(--color-accent-2-rgb),0.18) 0%, transparent 70%)" }}
+      />
 
-      {/* Floating geometric shapes - CSS only */}
-      {floatingShapes.map((shape, i) => (
-        <div
-          key={i}
-          className="absolute select-none pointer-events-none float-animation blur-[1px] opacity-0 animate-fade-in"
-          style={{ 
-            left: shape.x, 
-            top: shape.y,
-            animationDelay: shape.delay,
-            animationDuration: `${4 + i * 0.5}s`,
-          }}
-        >
-          <FloatingShape type={shape.type} color={shape.color} size={shape.size} />
-        </div>
-      ))}
+      <div className="relative max-w-6xl mx-auto">
+        <div className="grid gap-10 lg:gap-16 lg:grid-cols-[1.05fr_0.95fr] items-center">
+          {/* Left: copy */}
+          <div className="animate-fade-in">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="relative">
+                <div className="absolute -inset-2 rounded-2xl blur-xl opacity-50" style={{ background: "radial-gradient(circle, rgba(var(--color-accent-rgb),0.35), transparent 70%)" }} />
+                <Image
+                  src={logoPath}
+                  alt="DevLink"
+                  width={96}
+                  height={96}
+                  className="relative w-14 h-14 md:w-16 md:h-16 object-contain"
+                  priority
+                />
+              </div>
+              <div className="text-left">
+                <div className="text-sm text-white/60">DevLink</div>
+                <div className="text-xs text-white/40">Roblox developer network</div>
+              </div>
+            </div>
 
-      {/* Main content */}
-      <div className="relative z-10 max-w-6xl mx-auto text-center">
-        {/* Logo */}
-        <div className="mb-8 animate-fade-in flex justify-center">
-          <Image
-            src={logoPath}
-            alt="DevLink"
-            width={200}
-            height={200}
-            className="w-auto h-24 md:h-32 mx-auto pulse-glow-animation object-contain"
-            priority
-          />
-        </div>
+            <h1 className="font-[var(--font-space-grotesk)] font-bold tracking-tight text-white text-4xl sm:text-5xl md:text-6xl leading-[1.02]">
+              Build credibility.
+              <br />
+              <span className="gradient-text">Find collaborators.</span>
+              <br />
+              Ship better games.
+            </h1>
 
-        {/* Headline */}
-        <h1
-          className="text-5xl md:text-7xl lg:text-8xl font-bold mb-6 font-[var(--font-space-grotesk)] animate-fade-in"
-          style={{ animationDelay: "0.2s" }}
-        >
-          <span className="gradient-text">Where Roblox</span>
-          <br />
-          <span className="text-white">Creators Unite</span>
-        </h1>
+            <p className="mt-5 text-base sm:text-lg text-white/70 leading-relaxed max-w-xl">
+              DevLink is where Roblox developers, studios, and clients connect with proof—portfolios, verified profiles, and
+              a community feed built for shipping.
+            </p>
 
-        {/* Subheadline */}
-        <p
-          className="text-lg md:text-xl lg:text-2xl text-[var(--muted-foreground)] max-w-3xl mx-auto mb-10 leading-relaxed animate-fade-in"
-          style={{ animationDelay: "0.4s" }}
-        >
-          The premier professional network for <span className="text-[var(--color-accent)] font-semibold">developers</span>, 
-          <span className="text-cyan-400 font-semibold"> clients</span>, 
-          <span className="text-pink-400 font-semibold"> studios</span>, and 
-          <span className="text-white font-semibold"> influencers</span> in the Roblox ecosystem.
-        </p>
+            <div className="mt-8 flex flex-col sm:flex-row gap-3 sm:items-center">
+              <Link href="/register" className="inline-flex">
+                <button className="btn-gradient btn-press px-6 py-3 rounded-2xl font-semibold text-white shadow-lg shadow-[var(--color-accent)]/25">
+                  Create your profile
+                </button>
+              </Link>
+              <Link href="/discover" className="inline-flex">
+                <button className="px-6 py-3 rounded-2xl font-semibold text-white/90 border border-white/15 bg-white/[0.03] hover:bg-white/[0.06] hover:border-white/25">
+                  Browse talent
+                </button>
+              </Link>
+              <div className="text-xs text-white/45 sm:ml-2">Free to join • No credit card</div>
+            </div>
 
-        {/* CTA Buttons */}
-        <div
-          className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-fade-in"
-          style={{ animationDelay: "0.6s" }}
-        >
-          <Link href="/register">
-            <button className="group relative px-8 py-4 bg-gradient-to-r from-[var(--color-accent)] to-[var(--color-accent-hover)] rounded-2xl font-semibold text-lg text-white overflow-hidden hover:from-[var(--color-accent-hover)] hover:to-[var(--color-accent-hover)] transition-all duration-200 hover:scale-105 active:scale-95 shadow-lg shadow-[var(--color-accent)]/30">
-              <span className="relative z-10 flex items-center gap-2">
-                Get Started Free
-                <svg 
-                  className="w-5 h-5 arrow-animation" 
-                  fill="none" 
-                  stroke="currentColor" 
-                  viewBox="0 0 24 24"
+            <div className="mt-10 flex flex-wrap gap-2">
+              {[
+                "Portfolios that look premium",
+                "Verified profiles",
+                "Reviews + reputation",
+                "Fast community feed",
+              ].map((t) => (
+                <span
+                  key={t}
+                  className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.04] border border-white/10 text-xs text-white/65"
                 >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                </svg>
-              </span>
-            </button>
-          </Link>
-          
-          <Link href="/home">
-            <button className="px-8 py-4 bg-[#0d0d12] rounded-2xl font-semibold text-lg text-white border border-white/20 hover:border-[var(--color-accent)]/50 hover:bg-white/5 transition-all duration-200 hover:scale-105 active:scale-95">
-              Explore Feed
-            </button>
-          </Link>
+                  <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-accent)]" />
+                  {t}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* Right: “product” preview – handcrafted mock */}
+          <div className="animate-fade-in" style={{ animationDelay: "0.08s" }}>
+            <div className="relative">
+              <div className="absolute -inset-4 rounded-[2rem] blur-2xl opacity-40" style={{ background: "linear-gradient(135deg, rgba(var(--color-accent-rgb),0.25), rgba(var(--color-accent-2-rgb),0.18), transparent)" }} />
+
+              <div className="relative glass rounded-[2rem] border border-white/10 overflow-hidden noise-overlay">
+                <div
+                  aria-hidden="true"
+                  className="absolute inset-0 opacity-60 pointer-events-none"
+                  style={{
+                    background:
+                      "radial-gradient(900px 260px at 30% 0%, rgba(var(--color-accent-rgb),0.14), transparent 60%), radial-gradient(800px 260px at 90% 10%, rgba(var(--color-accent-2-rgb),0.10), transparent 62%)",
+                  }}
+                />
+
+                {/* Top bar */}
+                <div className="relative px-5 pt-5 pb-4 border-b border-white/10 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2.5 h-2.5 rounded-full bg-white/10" />
+                    <div className="w-2.5 h-2.5 rounded-full bg-white/10" />
+                    <div className="w-2.5 h-2.5 rounded-full bg-white/10" />
+                  </div>
+                  <div className="text-xs text-white/45">Live preview</div>
+                </div>
+
+                {/* Content */}
+                <div className="relative p-5 space-y-4">
+                  {/* Profile card */}
+                  <div className="rounded-2xl bg-white/[0.03] border border-white/10 p-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-11 h-11 rounded-full bg-gradient-to-br from-[var(--color-accent)] to-[var(--color-accent-2)]" />
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <div className="font-semibold text-white truncate">Reece Leneveu</div>
+                          <span className="px-2 py-0.5 rounded-full text-[11px] bg-[rgba(var(--color-accent-rgb),0.14)] border border-[rgba(var(--color-accent-rgb),0.22)] text-white/80">
+                            Verified
+                          </span>
+                        </div>
+                        <div className="text-xs text-white/50 truncate">Scripter • UI engineer • Studio collaborator</div>
+                      </div>
+                    </div>
+                    <div className="mt-3 flex gap-2">
+                      <div className="flex-1 h-9 rounded-xl bg-white/[0.04] border border-white/10" />
+                      <div className="w-10 h-9 rounded-xl bg-white/[0.04] border border-white/10" />
+                    </div>
+                  </div>
+
+                  {/* Feed snippet */}
+                  <div className="rounded-2xl bg-white/[0.03] border border-white/10 p-4">
+                    <div className="flex items-start gap-3">
+                      <div className="w-10 h-10 rounded-full bg-white/10" />
+                      <div className="min-w-0 flex-1">
+                        <div className="text-sm text-white/85">
+                          <span className="font-semibold">New portfolio drop:</span>{" "}
+                          <span className="text-white/70">
+                            movement system + camera polish for an obby prototype. Looking for a builder.
+                          </span>
+                        </div>
+                        <div className="mt-3 flex items-center gap-4 text-xs text-white/45">
+                          <span>2h</span>
+                          <span className="w-1 h-1 rounded-full bg-white/20" />
+                          <span>12 likes</span>
+                          <span className="w-1 h-1 rounded-full bg-white/20" />
+                          <span>3 replies</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Small metrics row */}
+                  <div className="grid grid-cols-3 gap-3">
+                    {[
+                      { label: "Followers", val: "1.2k" },
+                      { label: "Projects", val: "18" },
+                      { label: "Reviews", val: "4.9" },
+                    ].map((x) => (
+                      <div key={x.label} className="rounded-2xl bg-white/[0.03] border border-white/10 p-3 text-center">
+                        <div className="text-white font-semibold">{x.val}</div>
+                        <div className="text-[11px] text-white/45">{x.label}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-4 text-center text-xs text-white/40">
+                Built for creators who care about craft.
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* Trust badges */}
-        <div
-          className="mt-16 flex flex-wrap justify-center items-center gap-6 text-sm text-[var(--muted-foreground)] animate-fade-in"
-          style={{ animationDelay: "0.8s" }}
-        >
-          <div className="flex items-center gap-2">
-            <svg className="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-            </svg>
-            <span>Free to join</span>
+        {/* Scroll cue */}
+        <div className="mt-14 flex justify-center">
+          <div className="w-6 h-10 border border-white/15 rounded-full flex justify-center bg-white/[0.02]">
+            <div className="w-1.5 h-3 bg-white/35 rounded-full mt-2 animate-bounce" />
           </div>
-          <div className="flex items-center gap-2">
-            <svg className="w-5 h-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
-            </svg>
-            <span>Secure platform</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <svg className="w-5 h-5 text-[var(--color-accent)]" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-            </svg>
-            <span>Trusted by creators</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Scroll indicator */}
-      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
-        <div className="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center">
-          <div className="w-1.5 h-3 bg-white/50 rounded-full mt-2 scroll-animation" />
         </div>
       </div>
     </section>

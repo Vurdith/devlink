@@ -3,101 +3,84 @@ import Link from "next/link";
 
 export function CTASection() {
   return (
-    <section className="relative py-32 px-4 overflow-hidden">
-      {/* Background gradient - CSS only */}
-      <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[var(--color-accent)]/10 to-transparent" />
-        <div 
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full animate-pulse"
-          style={{
-            background: "radial-gradient(circle, rgba(var(--color-accent-rgb), 0.15) 0%, transparent 70%)",
-          }}
-        />
-      </div>
-
-      <div className="relative max-w-5xl mx-auto">
-        <div className="relative rounded-[2rem] overflow-hidden animate-fade-in">
-          {/* Card background */}
-          <div className="absolute inset-0 bg-[#0d0d12]/95" />
-          
-          {/* Gradient border effect */}
-          <div className="absolute inset-0 rounded-[2rem] border border-white/10" />
-          <div 
-            className="absolute inset-[1px] rounded-[calc(2rem-1px)]"
+    <section className="relative px-4 py-20 md:py-28 overflow-hidden">
+      <div className="max-w-6xl mx-auto">
+        <div className="relative overflow-hidden rounded-[2rem] glass border border-white/10 noise-overlay">
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 pointer-events-none opacity-65"
             style={{
-              background: "linear-gradient(135deg, rgba(var(--color-accent-rgb), 0.1) 0%, transparent 50%, rgba(var(--color-accent-rgb), 0.1) 100%)",
+              background:
+                "radial-gradient(1100px 320px at 25% 0%, rgba(var(--color-accent-rgb),0.18), transparent 60%), radial-gradient(900px 320px at 92% 5%, rgba(var(--color-accent-2-rgb),0.13), transparent 62%)",
             }}
           />
 
-          <div className="relative px-8 py-16 md:px-16 md:py-20 text-center">
-            {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--color-accent)]/20 border border-[var(--color-accent)]/30 mb-8">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--color-accent)] opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--color-accent)]"></span>
-              </span>
-              <span className="text-sm font-medium text-[var(--color-accent)]">Start building your presence today</span>
-            </div>
+          <div className="relative p-8 md:p-12 grid gap-8 lg:grid-cols-[1.2fr_0.8fr] items-center">
+            {/* Left copy */}
+            <div>
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.04] border border-white/10 text-xs text-white/70">
+                <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-accent)]" />
+                Ready when you are
+              </div>
 
-            {/* Headline */}
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 font-[var(--font-space-grotesk)]">
-              <span className="text-white">Ready to </span>
-              <span className="gradient-text">Level Up</span>
-              <span className="text-white">?</span>
-            </h2>
+              <h2 className="mt-4 text-3xl sm:text-4xl md:text-5xl font-bold font-[var(--font-space-grotesk)] tracking-tight">
+                <span className="text-white">Make your work</span>{" "}
+                <span className="gradient-text">impossible to ignore</span>
+              </h2>
 
-            {/* Description */}
-            <p className="text-lg md:text-xl text-[var(--muted-foreground)] max-w-2xl mx-auto mb-10">
-              Join DevLink today and connect with thousands of Roblox developers, clients, and studios. 
-              Your next big opportunity is just a click away.
-            </p>
+              <p className="mt-4 text-base sm:text-lg text-white/70 leading-relaxed max-w-xl">
+                Create a DevLink profile, showcase projects, collect reviews, and connect with studios and clients that value quality.
+              </p>
 
-            {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <Link href="/register">
-                <button className="group relative px-10 py-5 rounded-2xl font-semibold text-lg overflow-hidden bg-gradient-to-r from-[var(--color-accent-hover)] to-[var(--color-accent)] hover:from-[var(--color-accent-hover)] hover:to-[var(--color-accent-hover)] transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg shadow-[var(--color-accent)]/30 hover:shadow-[var(--color-accent)]/50">
-                  <span className="relative z-10 flex items-center gap-2 text-white">
-                    Create Free Account
-                    <svg 
-                      className="w-5 h-5 group-hover:translate-x-1 transition-transform" 
-                      fill="none" 
-                      stroke="currentColor" 
-                      viewBox="0 0 24 24"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                    </svg>
+              <div className="mt-6 flex flex-wrap gap-2">
+                {["Free to join", "Portfolio hosting", "Verified + reviews", "Built for shipping"].map((t) => (
+                  <span
+                    key={t}
+                    className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.04] border border-white/10 text-xs text-white/65"
+                  >
+                    <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-accent)]" />
+                    {t}
                   </span>
-                </button>
-              </Link>
-              
-              <Link href="/discover">
-                <button className="px-10 py-5 rounded-2xl font-semibold text-lg text-white border border-white/20 hover:border-[var(--color-accent)]/50 hover:bg-white/5 transition-all duration-300 hover:scale-105 active:scale-95">
-                  Discover Developers
-                </button>
-              </Link>
+                ))}
+              </div>
             </div>
 
-            {/* Features list */}
-            <div className="mt-12 flex flex-wrap justify-center gap-6 text-sm text-[var(--muted-foreground)]">
-              {[
-                "No credit card required",
-                "Free portfolio hosting",
-                "Instant access",
-                "Community support",
-              ].map((feature, i) => (
-                <div key={i} className="flex items-center gap-2">
-                  <svg className="w-4 h-4 text-green-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
-                  <span>{feature}</span>
+            {/* Right action card */}
+            <div className="relative">
+              <div className="absolute -inset-3 rounded-[2rem] blur-2xl opacity-40"
+                   style={{ background: "linear-gradient(135deg, rgba(var(--color-accent-rgb),0.25), rgba(var(--color-accent-2-rgb),0.18), transparent)" }} />
+              <div className="relative rounded-[2rem] bg-white/[0.03] border border-white/10 p-6">
+                <div className="text-sm text-white/70">Start in minutes</div>
+                <div className="mt-1 text-xl font-semibold text-white">Create your profile</div>
+                <div className="mt-4 flex flex-col gap-3">
+                  <Link href="/register">
+                    <button className="w-full btn-gradient btn-press px-5 py-3 rounded-2xl font-semibold text-white shadow-lg shadow-[var(--color-accent)]/25">
+                      Create free account
+                    </button>
+                  </Link>
+                  <Link href="/discover">
+                    <button className="w-full px-5 py-3 rounded-2xl font-semibold text-white/90 border border-white/15 bg-white/[0.03] hover:bg-white/[0.06] hover:border-white/25">
+                      Discover developers
+                    </button>
+                  </Link>
                 </div>
-              ))}
+
+                <div className="mt-5 pt-5 border-t border-white/10 grid grid-cols-2 gap-3 text-xs text-white/55">
+                  <div className="rounded-xl bg-white/[0.03] border border-white/10 p-3">
+                    <div className="text-white/75 font-semibold">No credit card</div>
+                    <div className="mt-1">Just build.</div>
+                  </div>
+                  <div className="rounded-xl bg-white/[0.03] border border-white/10 p-3">
+                    <div className="text-white/75 font-semibold">Fast onboarding</div>
+                    <div className="mt-1">Ship your profile.</div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Footer */}
-        <div className="mt-16 text-center text-[var(--muted-foreground)] text-sm">
+        <div className="mt-10 text-center text-[var(--muted-foreground)] text-sm">
           <p className="mb-4">Built for the Roblox community</p>
           <div className="flex justify-center gap-6">
             <Link href="/home" className="hover:text-white transition-colors">Home</Link>
