@@ -75,7 +75,64 @@ export async function GET(req: Request) {
     const sliced = hasMore ? items.slice(0, limit) : items;
     const nextCursor = hasMore ? sliced[sliced.length - 1]?.id ?? null : null;
 
-    return NextResponse.json({ notifications: sliced, nextCursor });
+    // Merge legacy duplicates for stacked types (LIKE/REPOST) so they appear as one, like X.
+    // This is display-only: it doesn't mutate DB, but it does return `groupIds` so the UI
+    // can mark-read all underlying notifications at once.
+    const merged: any[] = [];
+    const groups = new Map<string, any>();
+
+    for (const n of sliced as any[]) {
+      const isStackable = (n.type === "LIKE" || n.type === "REPOST") && !!n.postId;
+      if (!isStackable) {
+        merged.push(n);
+        continue;
+      }
+
+      const key = `${n.type}:${n.postId}`;
+      const existing = groups.get(key);
+
+      const actorList = Array.isArray(n.actors)
+        ? n.actors
+            .map((x: any) => x?.actor)
+            .filter(Boolean)
+            .map((a: any) => ({ actor: a, createdAt: n.createdAt }))
+        : [];
+
+      // legacy fallback
+      if ((!n.actors || n.actors.length === 0) && n.actor) {
+        actorList.push({ actor: n.actor, createdAt: n.createdAt });
+      }
+
+      if (!existing) {
+        const base = { ...n };
+        base.groupIds = [n.id];
+        base.actors = actorList;
+        groups.set(key, base);
+        merged.push(base);
+        continue;
+      }
+
+      // Merge: keep newest createdAt/id for sort position
+      existing.groupIds = Array.from(new Set([...(existing.groupIds || []), n.id]));
+      existing.readAt = existing.readAt === null || n.readAt === null ? null : existing.readAt;
+
+      if (new Date(n.createdAt).getTime() > new Date(existing.createdAt).getTime()) {
+        existing.createdAt = n.createdAt;
+        existing.actor = n.actor; // fallback
+      }
+
+      // Merge actors unique by actorId
+      const byId = new Map<string, any>();
+      const combined = [...(existing.actors || []), ...actorList];
+      for (const x of combined) {
+        const id = x?.actor?.id;
+        if (!id) continue;
+        if (!byId.has(id)) byId.set(id, x);
+      }
+      existing.actors = Array.from(byId.values()).slice(0, 10);
+    }
+
+    return NextResponse.json({ notifications: merged, nextCursor });
   } catch (e) {
     console.error("Notifications GET error:", e);
     const payload = explainNotificationDbError(e);

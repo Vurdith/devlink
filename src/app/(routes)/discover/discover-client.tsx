@@ -5,6 +5,7 @@ import { PROFILE_TYPE_CONFIG } from "@/lib/profile-types";
 import Link from "next/link";
 import Image from "next/image";
 import { FollowButton } from "@/components/ui/FollowButton";
+import { ProfileTooltip } from "@/components/ui/ProfileTooltip";
 
 type ProfileType = "all" | "DEVELOPER" | "CLIENT" | "INFLUENCER" | "STUDIO" | "INVESTOR";
 
@@ -248,38 +249,42 @@ export function DiscoverClient({
                   
                   <div className="p-3 sm:p-6">
                     {/* Avatar */}
-                    <Link href={`/u/${user.username}`} className="block -mt-10 sm:-mt-14 mb-3 sm:mb-4 w-fit">
-                      <div className="relative">
-                        {user.profile?.avatarUrl ? (
-                          <Image
-                            src={user.profile.avatarUrl}
-                            alt={user.username}
-                            width={64}
-                            height={64}
-                            className="w-12 h-12 sm:w-16 sm:h-16 rounded-full object-cover border-3 sm:border-4 border-[var(--background)]"
-                          />
-                        ) : (
-                          <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-[var(--color-accent)] to-pink-500 flex items-center justify-center text-white text-lg sm:text-xl font-bold border-3 sm:border-4 border-[var(--background)]">
-                            {user.username.charAt(0).toUpperCase()}
-                          </div>
-                        )}
-                        {user.profile?.verified && (
-                          <div className="absolute -bottom-0.5 -right-0.5 sm:-bottom-1 sm:-right-1 w-5 h-5 sm:w-6 sm:h-6 bg-blue-500 rounded-full flex items-center justify-center border-2 border-[var(--background)]">
-                            <svg className="w-2.5 h-2.5 sm:w-3 sm:h-3" viewBox="0 0 24 24" fill="white">
-                              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
-                            </svg>
-                          </div>
-                        )}
-                      </div>
-                    </Link>
+                    <ProfileTooltip user={user} currentUserId={currentUserId}>
+                      <Link href={`/u/${user.username}`} className="block -mt-10 sm:-mt-14 mb-3 sm:mb-4 w-fit">
+                        <div className="relative">
+                          {user.profile?.avatarUrl ? (
+                            <Image
+                              src={user.profile.avatarUrl}
+                              alt={user.username}
+                              width={64}
+                              height={64}
+                              className="w-12 h-12 sm:w-16 sm:h-16 rounded-full object-cover border-3 sm:border-4 border-[var(--background)]"
+                            />
+                          ) : (
+                            <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-[var(--color-accent)] to-pink-500 flex items-center justify-center text-white text-lg sm:text-xl font-bold border-3 sm:border-4 border-[var(--background)]">
+                              {user.username.charAt(0).toUpperCase()}
+                            </div>
+                          )}
+                          {user.profile?.verified && (
+                            <div className="absolute -bottom-0.5 -right-0.5 sm:-bottom-1 sm:-right-1 w-5 h-5 sm:w-6 sm:h-6 bg-blue-500 rounded-full flex items-center justify-center border-2 border-[var(--background)]">
+                              <svg className="w-2.5 h-2.5 sm:w-3 sm:h-3" viewBox="0 0 24 24" fill="white">
+                                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                              </svg>
+                            </div>
+                          )}
+                        </div>
+                      </Link>
+                    </ProfileTooltip>
                     
                     {/* Name & Username */}
-                    <Link href={`/u/${user.username}`}>
-                      <h3 className="font-semibold text-sm sm:text-base text-white truncate hover:underline">
-                        {user.name || user.username}
-                      </h3>
-                      <p className="text-xs sm:text-sm text-[var(--muted-foreground)] mb-1.5 sm:mb-2">@{user.username}</p>
-                    </Link>
+                    <ProfileTooltip user={user} currentUserId={currentUserId}>
+                      <Link href={`/u/${user.username}`}>
+                        <h3 className="font-semibold text-sm sm:text-base text-white truncate hover:underline">
+                          {user.name || user.username}
+                        </h3>
+                        <p className="text-xs sm:text-sm text-[var(--muted-foreground)] mb-1.5 sm:mb-2">@{user.username}</p>
+                      </Link>
+                    </ProfileTooltip>
                     
                     {/* Profile Type Badge */}
                     <div className={`inline-flex items-center gap-1 sm:gap-1.5 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md sm:rounded-lg text-[10px] sm:text-xs font-medium ${config.bgColor} ${config.color} mb-2 sm:mb-3`}>

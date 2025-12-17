@@ -42,12 +42,12 @@ interface ProfileTooltipProps {
     name: string | null;
     profile: {
       avatarUrl: string | null;
-      bannerUrl: string | null;
-      bio: string | null;
-      profileType: string;
-      verified: boolean;
-      website: string | null;
-      location: string | null;
+      bannerUrl?: string | null;
+      bio?: string | null;
+      profileType?: string | null;
+      verified?: boolean;
+      website?: string | null;
+      location?: string | null;
     } | null;
     _count?: {
       followers: number;
@@ -71,11 +71,14 @@ export const ProfileTooltip = memo(function ProfileTooltip({
   position = "bottom",
   delay = 400 
 }: ProfileTooltipProps) {
+  const [userData, setUserData] = useState(user);
   const [isVisible, setIsVisible] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [isFollowing, setIsFollowing] = useState(false);
   const [isLoadingFollow, setIsLoadingFollow] = useState(false);
   const [hasFetchedFollow, setHasFetchedFollow] = useState(false);
+  const [isLoadingProfile, setIsLoadingProfile] = useState(false);
+  const [hasFetchedProfile, setHasFetchedProfile] = useState(false);
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0, placement: position });
   const [mounted, setMounted] = useState(false);
   
@@ -87,6 +90,14 @@ export const ProfileTooltip = memo(function ProfileTooltip({
   const isHoveringTrigger = useRef(false);
 
   useEffect(() => {
+    setUserData(user);
+    setHasFetchedProfile(false);
+    setIsLoadingProfile(false);
+    setHasFetchedFollow(false);
+    setIsLoadingFollow(false);
+  }, [user.id, user.username]);
+
+  useEffect(() => {
     setMounted(true);
     return () => {
       if (showTimeoutRef.current) clearTimeout(showTimeoutRef.current);
@@ -94,12 +105,51 @@ export const ProfileTooltip = memo(function ProfileTooltip({
     };
   }, []);
 
+  // Lazy fetch full profile data (banner/bio/counts/etc.) only when the tooltip is about to show.
+  useEffect(() => {
+    if (!isAnimating || hasFetchedProfile || isLoadingProfile) return;
+
+    // If the caller already provided a rich profile (from /api/user/[username]), skip fetching.
+    const profile = userData.profile;
+    const hasRichProfile =
+      !!profile &&
+      (profile.bannerUrl !== undefined ||
+        profile.bio !== undefined ||
+        profile.website !== undefined ||
+        profile.location !== undefined) &&
+      userData._count != null;
+
+    if (hasRichProfile) {
+      setHasFetchedProfile(true);
+      return;
+    }
+
+    const controller = new AbortController();
+    setIsLoadingProfile(true);
+    fetch(`/api/user/${encodeURIComponent(userData.username)}`, { cache: "no-store", signal: controller.signal })
+      .then(async (res) => {
+        if (!res.ok) return null;
+        return (await res.json().catch(() => null)) as any;
+      })
+      .then((data) => {
+        const next = data?.user;
+        if (next?.id && next?.username) setUserData(next);
+      })
+      .catch(() => {})
+      .finally(() => {
+        setIsLoadingProfile(false);
+        setHasFetchedProfile(true);
+      });
+
+    return () => controller.abort();
+  }, [isAnimating, hasFetchedProfile, isLoadingProfile, userData.username, userData.profile, userData._count]);
+
   // Lazy fetch follow status only when tooltip becomes visible
   useEffect(() => {
-    if (!isVisible || hasFetchedFollow || !currentUserId || currentUserId === user.id) return;
+    if (!isVisible || hasFetchedFollow || !currentUserId || currentUserId === userData.id) return;
     
     // Check cache first
-    const cached = followStatusCache.get(user.id);
+    const cached = followStatusCache.get(userData.id);
     if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
       setIsFollowing(cached.following);
       setHasFetchedFollow(true);
@@ -107,18 +157,18 @@ export const ProfileTooltip = memo(function ProfileTooltip({
     }
 
     setIsLoadingFollow(true);
-    fetch(`/api/follow/check?targetUserId=${user.id}`)
+    fetch(`/api/follow/check?targetUserId=${userData.id}`)
       .then(res => res.json())
       .then(data => {
         setIsFollowing(data.following);
-        followStatusCache.set(user.id, { following: data.following, timestamp: Date.now() });
+        followStatusCache.set(userData.id, { following: data.following, timestamp: Date.now() });
       })
       .catch(() => setIsFollowing(false))
       .finally(() => {
         setIsLoadingFollow(false);
         setHasFetchedFollow(true);
       });
-  }, [isVisible, hasFetchedFollow, currentUserId, user.id]);
+  }, [isVisible, hasFetchedFollow, currentUserId, userData.id]);
 
   // Calculate optimal tooltip position - fixed positioning (viewport-relative)
   const calculatePosition = useCallback(() => {
@@ -243,10 +293,10 @@ export const ProfileTooltip = memo(function ProfileTooltip({
 
   const handleFollowToggle = (following: boolean) => {
     setIsFollowing(following);
-    followStatusCache.set(user.id, { following, timestamp: Date.now() });
+    followStatusCache.set(userData.id, { following, timestamp: Date.now() });
   };
 
-  const profileType = user.profile?.profileType;
+  const profileType = userData.profile?.profileType ?? null;
   const profileConfig = profileType ? getProfileTypeConfig(profileType) : null;
   
   // Use pre-computed lookups instead of recreating functions on every render
@@ -302,10 +352,10 @@ export const ProfileTooltip = memo(function ProfileTooltip({
           
           {/* Banner or gradient */}
           <div className="relative h-20 overflow-hidden">
-            {user.profile?.bannerUrl ? (
+            {userData.profile?.bannerUrl ? (
               <>
                 <Image 
-                  src={user.profile?.bannerUrl} 
+                  src={userData.profile?.bannerUrl} 
                   alt="" 
                   fill 
                   className="object-cover"
@@ -336,7 +386,7 @@ export const ProfileTooltip = memo(function ProfileTooltip({
             {/* Avatar with ring */}
             <div className="flex items-end gap-3 mb-3">
               <button
-                onClick={(e) => { e.stopPropagation(); window.location.href = `/u/${user.username}`; }}
+                onClick={(e) => { e.stopPropagation(); window.location.href = `/u/${userData.username}`; }}
                 className="relative group"
               >
                 <div className={cn(
@@ -349,20 +399,20 @@ export const ProfileTooltip = memo(function ProfileTooltip({
                   "bg-gradient-to-br from-[#0d1117] to-[#080b10]",
                   "ring-2 ring-[#0a0e14]"
                 )}>
-                  <Avatar src={user.profile?.avatarUrl} size={56} />
+                  <Avatar src={userData.profile?.avatarUrl} size={56} />
                 </div>
               </button>
               
               {/* Name and username inline with avatar */}
               <div className="flex-1 min-w-0 pb-1">
                 <button
-                  onClick={(e) => { e.stopPropagation(); window.location.href = `/u/${user.username}`; }}
+                  onClick={(e) => { e.stopPropagation(); window.location.href = `/u/${userData.username}`; }}
                   className="group flex items-center gap-1.5"
                 >
                   <span className="font-semibold text-white group-hover:text-[var(--color-accent)] transition-colors truncate">
-                    {user.name || user.username}
+                    {userData.name || userData.username}
                   </span>
-                  {user.profile?.verified && (
+                  {userData.profile?.verified && (
                     <div className="flex-shrink-0 relative">
                       <div className="absolute inset-0 bg-blue-400/50 blur-md rounded-full" />
                       <svg className="relative w-4 h-4 text-blue-400" viewBox="0 0 24 24" fill="currentColor">
@@ -371,7 +421,7 @@ export const ProfileTooltip = memo(function ProfileTooltip({
                     </div>
                   )}
                 </button>
-                <div className="text-sm text-[var(--muted-foreground)]">@{user.username}</div>
+                <div className="text-sm text-[var(--muted-foreground)]">@{userData.username}</div>
               </div>
             </div>
             
@@ -390,27 +440,27 @@ export const ProfileTooltip = memo(function ProfileTooltip({
             )}
             
             {/* Bio */}
-            {user.profile?.bio && (
+            {userData.profile?.bio && (
               <p className="text-sm text-[var(--muted-foreground)] line-clamp-2 mb-3 leading-relaxed">
-                {user.profile?.bio}
+                {userData.profile?.bio}
               </p>
             )}
             
             {/* Location and Website */}
-            {(user.profile?.location || user.profile?.website) && (
+            {(userData.profile?.location || userData.profile?.website) && (
               <div className="flex flex-wrap gap-x-4 gap-y-1.5 mb-4 text-xs text-[var(--muted-foreground)]">
-                {user.profile?.location && (
+                {userData.profile?.location && (
                   <div className="flex items-center gap-1.5">
                     <svg className="w-3.5 h-3.5 text-[var(--muted-foreground)]/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
-                    <span className="truncate max-w-[120px]">{user.profile?.location}</span>
+                    <span className="truncate max-w-[120px]">{userData.profile?.location}</span>
                   </div>
                 )}
-                {user.profile?.website && (
+                {userData.profile?.website && (
                   <a
-                    href={user.profile?.website?.startsWith('http') ? user.profile.website : `https://${user.profile?.website}`}
+                    href={userData.profile?.website?.startsWith('http') ? userData.profile.website : `https://${userData.profile?.website}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-1.5 text-[var(--color-accent)] hover:text-[var(--color-accent)] transition-colors"
@@ -419,30 +469,30 @@ export const ProfileTooltip = memo(function ProfileTooltip({
                     <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                     </svg>
-                    <span className="truncate max-w-[100px]">{user.profile?.website?.replace(/^https?:\/\//, '').replace(/\/$/, '')}</span>
+                    <span className="truncate max-w-[100px]">{userData.profile?.website?.replace(/^https?:\/\//, '').replace(/\/$/, '')}</span>
                   </a>
                 )}
               </div>
             )}
             
             {/* Stats */}
-            {user._count && (user._count.followers != null || user._count.following != null) && (
+            {userData._count && (userData._count.followers != null || userData._count.following != null) && (
               <div className="flex gap-4 mb-4">
                 <button
-                  onClick={(e) => { e.stopPropagation(); window.location.href = `/u/${user.username}/followers`; }}
+                  onClick={(e) => { e.stopPropagation(); window.location.href = `/u/${userData.username}/followers`; }}
                   className="group flex items-center gap-1.5 text-sm hover:text-[var(--color-accent)] transition-colors"
                 >
                   <span className="font-bold text-white group-hover:text-[var(--color-accent)] transition-colors">
-                    {formatCount(user._count.followers)}
+                    {formatCount(userData._count.followers)}
                   </span>
                   <span className="text-[var(--muted-foreground)] text-xs">followers</span>
                 </button>
                 <button
-                  onClick={(e) => { e.stopPropagation(); window.location.href = `/u/${user.username}/following`; }}
+                  onClick={(e) => { e.stopPropagation(); window.location.href = `/u/${userData.username}/following`; }}
                   className="group flex items-center gap-1.5 text-sm hover:text-[var(--color-accent)] transition-colors"
                 >
                   <span className="font-bold text-white group-hover:text-[var(--color-accent)] transition-colors">
-                    {formatCount(user._count.following)}
+                    {formatCount(userData._count.following)}
                   </span>
                   <span className="text-[var(--muted-foreground)] text-xs">following</span>
                 </button>
@@ -450,7 +500,7 @@ export const ProfileTooltip = memo(function ProfileTooltip({
             )}
             
             {/* Follow Button */}
-            {currentUserId && currentUserId !== user.id && (
+            {currentUserId && currentUserId !== userData.id && (
               <div className="relative">
                 {isLoadingFollow ? (
                   <div className="h-10 rounded-xl bg-white/5 animate-pulse flex items-center justify-center">
@@ -458,7 +508,7 @@ export const ProfileTooltip = memo(function ProfileTooltip({
                   </div>
                 ) : (
                   <FollowButton
-                    targetUserId={user.id}
+                    targetUserId={userData.id}
                     initialFollowing={isFollowing}
                     onToggle={handleFollowToggle}
                   />

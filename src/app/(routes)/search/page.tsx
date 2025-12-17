@@ -5,6 +5,8 @@ import { Avatar } from "@/components/ui/Avatar";
 import { FollowButton } from "@/components/ui/FollowButton";
 import { useSearchParams } from "next/navigation";
 import { getProfileTypeConfig, ProfileTypeIcon } from "@/lib/profile-types";
+import { ProfileTooltip } from "@/components/ui/ProfileTooltip";
+import { useSession } from "next-auth/react";
 
 type SearchType = "all" | "profiles" | "hashtags" | "projects";
 
@@ -40,6 +42,8 @@ function SearchContent() {
   const searchParams = useSearchParams();
   const query = searchParams.get("q")?.trim() || "";
   const type = (searchParams.get("type") as SearchType) || "all";
+  const { data: session } = useSession();
+  const currentUserId = (session?.user as any)?.id as string | undefined;
   
   const [selectedType, setSelectedType] = useState<SearchType>(type);
   const [users, setUsers] = useState<UserSearchResult[]>([]);
@@ -202,15 +206,29 @@ function SearchContent() {
                 {users.map((user) => (
                   <div key={user.id} className="group relative bg-[#0d0d12] border border-white/10 rounded-[var(--radius)] p-3 flex items-center gap-3">
                     <div className="absolute inset-0 rounded-[var(--radius)] pointer-events-none transition-colors group-hover:bg-white/10" />
-                    <Link href={`/u/${user.username}`} className="absolute inset-0 z-10" aria-label={`View @${user.username}`}>
-                      <span className="sr-only">View @{user.username}</span>
-                    </Link>
-                    <div className="pointer-events-none">
-                      <Avatar src={user.avatarUrl ?? undefined} size={40} />
-                    </div>
-                    <div className="min-w-0 flex-1 relative z-10 pointer-events-none">
-                      <div className="text-sm flex items-center gap-2">
-                        <span className="font-medium truncate">{user.name ?? user.username}</span>
+                    <ProfileTooltip
+                      user={{
+                        id: user.id,
+                        username: user.username,
+                        name: user.name,
+                        profile: {
+                          avatarUrl: user.avatarUrl,
+                          verified: user.verified,
+                          profileType: user.profileType,
+                          bio: user.bio,
+                        },
+                      }}
+                      currentUserId={currentUserId}
+                    >
+                      <Link
+                        href={`/u/${user.username}`}
+                        className="flex items-center gap-3 min-w-0 flex-1 relative z-10"
+                        aria-label={`View @${user.username}`}
+                      >
+                        <Avatar src={user.avatarUrl ?? undefined} size={40} />
+                        <div className="min-w-0">
+                          <div className="text-sm flex items-center gap-2">
+                            <span className="font-medium truncate">{user.name ?? user.username}</span>
                         {user.verified && (
                           <svg width="14" height="14" viewBox="0 0 24 24" className="text-[var(--accent)]">
                             <path d="M12 3l2.39 2.39L17 6l-.61 2.61L19 12l-2.61.61L15 17l-2.61-.61L12 21l-2.39-2.39L7 17l.61-2.39L5 12l2.61-.61L7 6l2.39-.61L12 3z" fill="currentColor"/>
@@ -223,9 +241,11 @@ function SearchContent() {
                           </span>
                         )}
                       </div>
-                      <div className="text-xs text-[var(--muted-foreground)] truncate">@{user.username}</div>
-                      {user.bio && <div className="mt-0.5 text-xs text-[var(--muted-foreground)] truncate">{user.bio}</div>}
-                    </div>
+                          <div className="text-xs text-[var(--muted-foreground)] truncate">@{user.username}</div>
+                          {user.bio && <div className="mt-0.5 text-xs text-[var(--muted-foreground)] truncate">{user.bio}</div>}
+                        </div>
+                      </Link>
+                    </ProfileTooltip>
                     <div className="relative z-20 pointer-events-auto">
                       <FollowButton targetUserId={user.id} initialFollowing={user.isFollowing} compact />
                     </div>

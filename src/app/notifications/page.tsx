@@ -1,15 +1,18 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { Avatar } from "@/components/ui/Avatar";
-import { formatDistanceToNowStrict } from "date-fns";
+import { ProfileTooltip } from "@/components/ui/ProfileTooltip";
+import { format, formatDistanceToNowStrict, isToday, isYesterday } from "date-fns";
+import { useSession } from "next-auth/react";
 
 type NotificationType = "LIKE" | "REPOST" | "REPLY" | "FOLLOW" | "MENTION";
 
 type NotificationItem = {
   id: string;
+  groupIds?: string[];
   type: NotificationType;
   createdAt: string;
   readAt: string | null;
@@ -148,6 +151,9 @@ function stackedLabel(n: NotificationItem) {
 }
 
 export default function NotificationsPage() {
+  const router = useRouter();
+  const { data: session } = useSession();
+  const currentUserId = (session?.user as any)?.id as string | undefined;
   const [items, setItems] = useState<NotificationItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [marking, setMarking] = useState(false);
@@ -159,6 +165,27 @@ export default function NotificationsPage() {
 
   const unreadIds = useMemo(() => items.filter((i) => !i.readAt).map((i) => i.id), [items]);
   const visible = useMemo(() => (tab === "unread" ? items.filter((i) => !i.readAt) : items), [items, tab]);
+
+  const groupedVisible = useMemo(() => {
+    type Row = { kind: "header"; label: string; key: string } | { kind: "item"; n: NotificationItem; key: string };
+    const rows: Row[] = [];
+    let lastKey = "";
+    for (const n of visible) {
+      const d = new Date(n.createdAt);
+      const dayKey = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+      if (dayKey !== lastKey) {
+        lastKey = dayKey;
+        const label = isToday(d)
+          ? "Today"
+          : isYesterday(d)
+            ? "Yesterday"
+            : format(d, d.getFullYear() === new Date().getFullYear() ? "MMM d" : "MMM d, yyyy");
+        rows.push({ kind: "header", label, key: `h:${dayKey}` });
+      }
+      rows.push({ kind: "item", n, key: `n:${n.id}` });
+    }
+    return rows;
+  }, [visible]);
 
   const fetchFirstPage = async () => {
     setLoading(true);
@@ -332,42 +359,87 @@ export default function NotificationsPage() {
           </div>
         ) : (
           <>
-            {visible.map((n) => {
+            {groupedVisible.map((row) => {
+              if (row.kind === "header") {
+                return (
+                  <div key={row.key} className="pt-3 pb-1">
+                    <div className="text-xs font-semibold text-white/50 tracking-wide uppercase">{row.label}</div>
+                  </div>
+                );
+              }
+
+              const n = row.n;
               const who = stackedLabel(n);
               const primary = who.who;
-              const href =
-                n.post?.id ? `/p/${n.post.id}` : n.type === "FOLLOW" ? `/u/${n.actor.username}` : "#";
+              const href = n.post?.id ? `/p/${n.post.id}` : n.type === "FOLLOW" ? `/u/${n.actor.username}` : "#";
               const when = safeDistance(n.createdAt);
               const a = stackedActors(n);
-              const avatarUrl = a[0]?.profile?.avatarUrl || null;
               const verified = !!a[0]?.profile?.verified;
               const avatarStack = a.slice(0, 3).map((x) => ({
                 id: x.id,
+                username: x.username,
                 name: x.name || x.username,
                 avatarUrl: x.profile?.avatarUrl || null,
                 verified: !!x.profile?.verified,
+                profileType: x.profile?.profileType || null,
               }));
+              const markIds = Array.isArray(n.groupIds) && n.groupIds.length ? n.groupIds : [n.id];
+
+              const go = () => {
+                if (!n.readAt) void markRead(markIds);
+                if (href !== "#") router.push(href);
+              };
 
               return (
-                <Link
-                  key={n.id}
-                  href={href}
-                  onClick={() => {
-                    if (!n.readAt) void markRead([n.id]);
+                <div
+                  key={row.key}
+                  role="button"
+                  tabIndex={0}
+                  onClick={go}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      go();
+                    }
                   }}
                   className={[
-                    "block rounded-2xl border p-4 transition-colors",
+                    "group rounded-2xl border p-4 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-rgb),0.45)]",
                     n.readAt
                       ? "border-white/10 bg-white/5 hover:bg-white/7"
                       : "border-[rgba(var(--color-accent-rgb),0.30)] bg-[rgba(var(--color-accent-rgb),0.10)] hover:bg-[rgba(var(--color-accent-rgb),0.14)]",
                   ].join(" ")}
+                  aria-label="Notification"
                 >
                   <div className="flex items-start gap-3">
-                    <div className="relative">
+                    <div className="relative flex-shrink-0">
                       <div className="flex -space-x-3">
                         {avatarStack.map((av) => (
                           <div key={av.id} className="ring-2 ring-[var(--color-background)] rounded-full">
-                            <Avatar size={40} src={av.avatarUrl} alt={av.name} />
+                            <ProfileTooltip
+                              user={{
+                                id: av.id,
+                                username: av.username,
+                                name: av.name,
+                                profile: {
+                                  avatarUrl: av.avatarUrl,
+                                  profileType: av.profileType,
+                                  verified: av.verified,
+                                },
+                              }}
+                              currentUserId={currentUserId}
+                            >
+                              <div
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  if (!n.readAt) void markRead(markIds);
+                                  router.push(`/u/${av.username}`);
+                                }}
+                                className="rounded-full"
+                                aria-label={`Open profile for ${av.name}`}
+                              >
+                                <Avatar size={40} src={av.avatarUrl} alt={av.name} />
+                              </div>
+                            </ProfileTooltip>
                           </div>
                         ))}
                       </div>
@@ -390,8 +462,27 @@ export default function NotificationsPage() {
                         </div>
                         <div className="flex items-center gap-2 flex-shrink-0">
                           <div className="text-[11px] text-white/45 tabular-nums">{when}</div>
+                          {!n.readAt ? <span className="w-2.5 h-2.5 rounded-full bg-[var(--color-accent)]" /> : null}
                           {!n.readAt ? (
-                            <span className="w-2.5 h-2.5 rounded-full bg-[var(--color-accent)]" />
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                void markRead(markIds);
+                              }}
+                              className="opacity-0 group-hover:opacity-100 transition-opacity rounded-lg p-1.5 hover:bg-white/10 text-white/65 hover:text-white"
+                              aria-label="Mark as read"
+                            >
+                              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                <path
+                                  d="M20 6L9 17l-5-5"
+                                  stroke="currentColor"
+                                  strokeWidth="2.2"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                />
+                              </svg>
+                            </button>
                           ) : null}
                         </div>
                       </div>
@@ -408,7 +499,7 @@ export default function NotificationsPage() {
                       ) : null}
                     </div>
                   </div>
-                </Link>
+                </div>
               );
             })}
 

@@ -4,9 +4,11 @@ import { useEffect, useRef, useState, memo } from "react";
 import { useRouter } from "next/navigation";
 import { Avatar } from "@/components/ui/Avatar";
 import { FollowButton } from "@/components/ui/FollowButton";
+import { ProfileTooltip } from "@/components/ui/ProfileTooltip";
 import Link from "next/link";
 import { cn } from "@/lib/cn";
 import { getProfileTypeConfig, ProfileTypeIcon } from "@/lib/profile-types";
+import { useSession } from "next-auth/react";
 
 interface UserSearchResult {
   id: string;
@@ -37,6 +39,8 @@ interface ProjectSearchResult {
 }
 
 export const NavbarSearch = memo(function NavbarSearch() {
+  const { data: session } = useSession();
+  const currentUserId = (session?.user as any)?.id as string | undefined;
   const [value, setValue] = useState("");
   const [suggestions, setSuggestions] = useState<UserSearchResult[]>([]);
   const [hashtagSuggestions, setHashtagSuggestions] = useState<HashtagSearchResult[]>([]);
@@ -282,7 +286,23 @@ export const NavbarSearch = memo(function NavbarSearch() {
                   onClick={() => setOpen(false)}
                   className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/5 transition-colors group"
                 >
-                  <Avatar src={user.avatarUrl ?? undefined} size={40} />
+                  <ProfileTooltip
+                    user={{
+                      id: user.id,
+                      username: user.username,
+                      name: user.name,
+                      profile: {
+                        avatarUrl: user.avatarUrl,
+                        profileType: user.profileType,
+                        verified: user.verified,
+                      },
+                    }}
+                    currentUserId={currentUserId}
+                  >
+                    <div className="flex-shrink-0" onClick={(e) => e.preventDefault()}>
+                      <Avatar src={user.avatarUrl ?? undefined} size={40} />
+                    </div>
+                  </ProfileTooltip>
                   <div className="flex-1 min-w-0">
                     <div className="text-sm font-semibold text-white flex items-center gap-1.5">
                       <span className="truncate">{user.name ?? user.username}</span>
