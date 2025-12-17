@@ -150,6 +150,11 @@ function stackedLabel(n: NotificationItem) {
   return { who: `${first}, ${second}`, rest: `and ${remaining} others` };
 }
 
+function compactPreviewText(s: string) {
+  // Notifications should read like X: compact, single-paragraph snippets.
+  return s.replace(/\s+/g, " ").trim();
+}
+
 export default function NotificationsPage() {
   const router = useRouter();
   const { data: session } = useSession();
@@ -487,28 +492,26 @@ export default function NotificationsPage() {
                         </div>
                       </div>
 
-                      {/* Post / reply preview */}
+                      {/* Post / reply preview (X-style: compact snippets, threaded for replies) */}
                       {n.type === "REPLY" && (n.sourcePost?.content || n.post?.content) ? (
-                        <div className="mt-3 rounded-xl border border-white/10 bg-black/20 p-3 text-sm text-white/65">
+                        <div className="mt-2 text-sm text-white/60">
                           {n.sourcePost?.content ? (
-                            <div className="whitespace-pre-wrap break-words">
-                              <div className="text-[11px] uppercase tracking-wide text-white/45 mb-1">Original</div>
-                              {n.sourcePost.content}
+                            <div className="line-clamp-3 break-words">
+                              {compactPreviewText(n.sourcePost.content)}
                             </div>
                           ) : null}
 
                           {n.post?.content ? (
-                            <div className={["mt-3 pl-3 border-l border-white/10"].join(" ")}>
-                              <div className="whitespace-pre-wrap break-words">
-                                <div className="text-[11px] uppercase tracking-wide text-white/45 mb-1">Reply</div>
-                                {n.post.content}
+                            <div className="mt-2 pl-3 border-l border-white/10">
+                              <div className="line-clamp-3 break-words text-white/70">
+                                {compactPreviewText(n.post.content)}
                               </div>
                             </div>
                           ) : null}
                         </div>
                       ) : n.post?.content ? (
-                        <div className="mt-3 rounded-xl border border-white/10 bg-black/20 p-3 text-sm text-white/65 whitespace-pre-wrap break-words">
-                          {n.post.content}
+                        <div className="mt-2 text-sm text-white/60 line-clamp-2 break-words">
+                          {compactPreviewText(n.post.content)}
                         </div>
                       ) : null}
                     </div>

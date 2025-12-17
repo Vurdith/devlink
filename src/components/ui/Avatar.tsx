@@ -44,7 +44,8 @@ export const Avatar = memo(function Avatar({ src, alt = "", size, className, pri
             alt={alt} 
             fill 
             sizes={size ? `${size}px` : "(max-width: 640px) 48px, 64px"} 
-            className="object-cover object-center"
+            className="w-full h-full object-cover object-center"
+            style={{ objectFit: "cover", objectPosition: "center" }}
             loading={priority ? "eager" : "lazy"}
             priority={priority}
             quality={75}
