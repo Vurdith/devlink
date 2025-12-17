@@ -279,22 +279,18 @@ export default function NotificationsPage() {
 
   return (
     <div className="max-w-3xl mx-auto">
-      <div className="flex items-center justify-between mb-4">
+      <div className="sticky top-0 z-20 -mx-4 px-4 pt-1 pb-3 mb-2 bg-[var(--color-background)]/80 backdrop-blur supports-[backdrop-filter]:bg-[var(--color-background)]/60 border-b border-white/10">
+        <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 grid place-items-center text-white/80">
             <BellIcon />
           </div>
           <div>
             <div className="text-xl font-bold text-white font-[var(--font-space-grotesk)]">Notifications</div>
-            <div className="text-sm text-[var(--muted-foreground)]">
-              {unreadIds.length} unread
-            </div>
+            <div className="text-sm text-[var(--muted-foreground)]">{unreadIds.length} unread</div>
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Button size="sm" variant="ghost" onClick={fetchFirstPage} disabled={loading || loadingMore}>
-            Refresh
-          </Button>
           <Button size="sm" variant="ghost" onClick={markAllRead} disabled={marking || unreadIds.length === 0}>
             Mark all read
           </Button>
@@ -302,12 +298,12 @@ export default function NotificationsPage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-2 mb-4">
+        <div className="flex items-center gap-2 mt-3">
         <button
           type="button"
           onClick={() => setTab("all")}
           className={[
-            "px-3 py-1.5 rounded-xl text-xs font-semibold border transition-colors",
+            "px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors",
             tab === "all"
               ? "bg-white/10 border-white/15 text-white"
               : "bg-transparent border-white/10 text-white/55 hover:bg-white/5 hover:text-white/80",
@@ -319,7 +315,7 @@ export default function NotificationsPage() {
           type="button"
           onClick={() => setTab("unread")}
           className={[
-            "px-3 py-1.5 rounded-xl text-xs font-semibold border transition-colors",
+            "px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors",
             tab === "unread"
               ? "bg-[rgba(var(--color-accent-rgb),0.12)] border-[rgba(var(--color-accent-rgb),0.30)] text-white"
               : "bg-transparent border-white/10 text-white/55 hover:bg-white/5 hover:text-white/80",
@@ -327,6 +323,7 @@ export default function NotificationsPage() {
         >
           Unread
         </button>
+      </div>
       </div>
 
       <div className="space-y-2">
@@ -367,8 +364,8 @@ export default function NotificationsPage() {
             {groupedVisible.map((row) => {
               if (row.kind === "header") {
                 return (
-                  <div key={row.key} className="pt-3 pb-1">
-                    <div className="text-xs font-semibold text-white/50 tracking-wide uppercase">{row.label}</div>
+                  <div key={row.key} className="pt-4 pb-2">
+                    <div className="text-xs font-semibold text-white/45 tracking-wide uppercase">{row.label}</div>
                   </div>
                 );
               }
@@ -408,13 +405,19 @@ export default function NotificationsPage() {
                     }
                   }}
                   className={[
-                    "group rounded-2xl border p-4 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-rgb),0.45)]",
+                    "group relative rounded-2xl border p-4 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-rgb),0.45)]",
                     n.readAt
-                      ? "border-white/10 bg-white/5 hover:bg-white/7"
-                      : "border-[rgba(var(--color-accent-rgb),0.30)] bg-[rgba(var(--color-accent-rgb),0.10)] hover:bg-[rgba(var(--color-accent-rgb),0.14)]",
+                      ? "border-white/10 bg-white/5 hover:bg-white/7 hover:border-white/15"
+                      : "border-[rgba(var(--color-accent-rgb),0.30)] bg-[rgba(var(--color-accent-rgb),0.10)] hover:bg-[rgba(var(--color-accent-rgb),0.14)] hover:border-[rgba(var(--color-accent-rgb),0.45)]",
                   ].join(" ")}
                   aria-label="Notification"
                 >
+                  {!n.readAt ? (
+                    <span
+                      aria-hidden="true"
+                      className="absolute left-0 top-3 bottom-3 w-[3px] rounded-full bg-[var(--color-accent)]"
+                    />
+                  ) : null}
                   <div className="flex items-start gap-3">
                     <div className="relative flex-shrink-0">
                       <div className="flex -space-x-3">
@@ -448,7 +451,7 @@ export default function NotificationsPage() {
                           </div>
                         ))}
                       </div>
-                      <span className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full border border-white/10 bg-[var(--color-card)] grid place-items-center text-white/80">
+                      <span className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full border border-white/10 bg-[var(--color-card)] grid place-items-center text-white/80 shadow-sm">
                         <TypeIcon type={n.type} />
                       </span>
                     </div>
@@ -467,7 +470,6 @@ export default function NotificationsPage() {
                         </div>
                         <div className="flex items-center gap-2 flex-shrink-0">
                           <div className="text-[11px] text-white/45 tabular-nums">{when}</div>
-                          {!n.readAt ? <span className="w-2.5 h-2.5 rounded-full bg-[var(--color-accent)]" /> : null}
                           {!n.readAt ? (
                             <button
                               type="button"
