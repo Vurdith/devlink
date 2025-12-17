@@ -18,11 +18,6 @@ export function CTASection() {
           <div className="relative p-8 md:p-12 grid gap-8 lg:grid-cols-[1.2fr_0.8fr] items-center">
             {/* Left copy */}
             <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.04] border border-white/10 text-xs text-white/70">
-                <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-accent)]" />
-                Ready when you are
-              </div>
-
               <h2 className="mt-4 text-3xl sm:text-4xl md:text-5xl font-bold font-[var(--font-space-grotesk)] tracking-tight">
                 <span className="text-white">Make your work</span>{" "}
                 <span className="gradient-text">impossible to ignore</span>
@@ -32,17 +27,6 @@ export function CTASection() {
                 Create a DevLink profile, showcase projects, collect reviews, and connect with studios and clients that value quality.
               </p>
 
-              <div className="mt-6 flex flex-wrap gap-2">
-                {["Free to join", "Portfolio hosting", "Verified + reviews", "Built for shipping"].map((t) => (
-                  <span
-                    key={t}
-                    className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.04] border border-white/10 text-xs text-white/65"
-                  >
-                    <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-accent)]" />
-                    {t}
-                  </span>
-                ))}
-              </div>
             </div>
 
             {/* Right action card */}
@@ -67,24 +51,16 @@ export function CTASection() {
 
                 <div className="mt-5 pt-5 border-t border-white/10 grid grid-cols-2 gap-3 text-xs text-white/55">
                   <div className="rounded-xl bg-white/[0.03] border border-white/10 p-3">
-                    <div className="text-white/75 font-semibold">No credit card</div>
-                    <div className="mt-1">Just build.</div>
+                    <div className="text-white/75 font-semibold">Free account</div>
+                    <div className="mt-1">Get started quickly.</div>
                   </div>
                   <div className="rounded-xl bg-white/[0.03] border border-white/10 p-3">
-                    <div className="text-white/75 font-semibold">Fast onboarding</div>
-                    <div className="mt-1">Ship your profile.</div>
+                    <div className="text-white/75 font-semibold">Simple setup</div>
+                    <div className="mt-1">Add work, links, and reviews.</div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-
-        <div className="mt-10 text-center text-[var(--muted-foreground)] text-sm">
-          <p className="mb-4">Built for the Roblox community</p>
-          <div className="flex justify-center gap-6">
-            <Link href="/home" className="hover:text-white transition-colors">Home</Link>
-            <Link href="/discover" className="hover:text-white transition-colors">Discover</Link>
           </div>
         </div>
       </div>

@@ -55,10 +55,6 @@ export function StatsSection({ totalUsers, totalPosts, totalStudios }: StatsSect
         <div className="grid gap-10 lg:grid-cols-[1.05fr_0.95fr] items-start">
           {/* Left: message */}
           <div className="animate-fade-in">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.04] border border-white/10 text-xs text-white/70">
-              <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-accent)]" />
-              Momentum
-            </div>
             <h2 className="mt-4 text-3xl sm:text-4xl md:text-5xl font-bold font-[var(--font-space-grotesk)] tracking-tight">
               <span className="text-white">A community that</span>{" "}
               <span className="gradient-text">actually ships</span>
@@ -146,7 +142,7 @@ export function StatsSection({ totalUsers, totalPosts, totalStudios }: StatsSect
                     <div className="text-white font-semibold">This week</div>
                     <div className="text-sm text-white/55">New posts & collaborations</div>
                   </div>
-                  <div className="text-xs text-white/45">Live</div>
+                  <div className="text-xs text-white/45">Weekly</div>
                 </div>
 
                 <div className="grid grid-cols-12 gap-2 items-end">

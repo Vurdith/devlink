@@ -52,8 +52,8 @@ export function HeroSection() {
             </h1>
 
             <p className="mt-5 text-base sm:text-lg text-white/70 leading-relaxed max-w-xl">
-              DevLink is where Roblox developers, studios, and clients connect with proof—portfolios, verified profiles, and
-              a community feed built for shipping.
+              DevLink helps Roblox developers, studios, and clients connect with proof: portfolios, verified profiles, and a
+              community feed focused on real work.
             </p>
 
             <div className="mt-8 flex flex-col sm:flex-row gap-3 sm:items-center">
@@ -67,24 +67,6 @@ export function HeroSection() {
                   Browse talent
                 </button>
               </Link>
-              <div className="text-xs text-white/45 sm:ml-2">Free to join • No credit card</div>
-            </div>
-
-            <div className="mt-10 flex flex-wrap gap-2">
-              {[
-                "Portfolios that look premium",
-                "Verified profiles",
-                "Reviews + reputation",
-                "Fast community feed",
-              ].map((t) => (
-                <span
-                  key={t}
-                  className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.04] border border-white/10 text-xs text-white/65"
-                >
-                  <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-accent)]" />
-                  {t}
-                </span>
-              ))}
             </div>
           </div>
 
@@ -110,7 +92,7 @@ export function HeroSection() {
                     <div className="w-2.5 h-2.5 rounded-full bg-white/10" />
                     <div className="w-2.5 h-2.5 rounded-full bg-white/10" />
                   </div>
-                  <div className="text-xs text-white/45">Live preview</div>
+                  <div className="text-xs text-white/45">Preview</div>
                 </div>
 
                 {/* Content */}
@@ -174,7 +156,7 @@ export function HeroSection() {
               </div>
 
               <div className="mt-4 text-center text-xs text-white/40">
-                Built for creators who care about craft.
+                A quick look at the product.
               </div>
             </div>
           </div>

@@ -75,32 +75,16 @@ export function FeaturesSection() {
         <div className="grid gap-10 lg:grid-cols-[0.95fr_1.05fr] items-start">
           {/* Narrative header (left) */}
           <div className="animate-fade-in">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.04] border border-white/10 text-xs text-white/70">
-              <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-accent)]" />
-              What you get
-            </div>
             <h2 className="mt-4 text-3xl sm:text-4xl md:text-5xl font-bold font-[var(--font-space-grotesk)] tracking-tight">
               <span className="text-white">A profile that</span>{" "}
               <span className="gradient-text">speaks for itself</span>
             </h2>
             <p className="mt-4 text-base sm:text-lg text-white/70 leading-relaxed max-w-xl">
-              DevLink is designed around signal—work samples, reputation, and clarity—so the right people can find you fast.
+              DevLink is designed around signal: work samples, reputation, and clarity, so the right people can find you fast.
             </p>
 
-            <div className="mt-8 space-y-3">
-              {[
-                { k: "Signal first", v: "Show proof of work, not buzzwords." },
-                { k: "Built for teams", v: "Find specialists and ship together." },
-                { k: "Trust layer", v: "Verified profiles + reviews to reduce risk." },
-              ].map((x) => (
-                <div key={x.k} className="flex items-start gap-3">
-                  <div className="mt-1 w-2.5 h-2.5 rounded-full bg-[rgba(var(--color-accent-rgb),0.45)]" />
-                  <div>
-                    <div className="text-sm font-semibold text-white/85">{x.k}</div>
-                    <div className="text-sm text-white/60">{x.v}</div>
-                  </div>
-                </div>
-              ))}
+            <div className="mt-6 text-sm text-white/60 max-w-xl">
+              Built to make it easy to show your work and connect with the right people.
             </div>
           </div>
 
