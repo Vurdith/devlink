@@ -405,24 +405,27 @@ export default function NotificationsPage() {
                     }
                   }}
                   className={[
-                    "group relative rounded-2xl border p-4 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-rgb),0.45)]",
+                    "group relative rounded-2xl p-4 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-rgb),0.45)]",
                     n.readAt
-                      ? "border-white/10 bg-white/5 hover:bg-white/7 hover:border-white/15"
-                      : "border-[rgba(var(--color-accent-rgb),0.30)] bg-[rgba(var(--color-accent-rgb),0.10)] hover:bg-[rgba(var(--color-accent-rgb),0.14)] hover:border-[rgba(var(--color-accent-rgb),0.45)]",
+                      ? "glass glass-hover"
+                      : "glass glass-hover border-[rgba(var(--color-accent-rgb),0.30)] bg-[rgba(var(--color-accent-rgb),0.08)]",
                   ].join(" ")}
                   aria-label="Notification"
                 >
                   {!n.readAt ? (
                     <span
                       aria-hidden="true"
-                      className="absolute left-0 top-3 bottom-3 w-[3px] rounded-full bg-[var(--color-accent)]"
+                      className="absolute left-0 top-3 bottom-3 w-[3px] rounded-full bg-gradient-to-b from-[var(--color-accent)] via-[var(--color-accent-2)] to-[var(--color-accent-3)]"
                     />
                   ) : null}
                   <div className="flex items-start gap-3">
                     <div className="relative flex-shrink-0">
-                      <div className="flex -space-x-3">
+                      <div className="flex items-center -space-x-3">
                         {avatarStack.map((av) => (
-                          <div key={av.id} className="ring-2 ring-[var(--color-background)] rounded-full">
+                          <div
+                            key={av.id}
+                            className="ring-2 ring-[var(--color-background)] rounded-full w-10 h-10 overflow-hidden flex items-center justify-center"
+                          >
                             <ProfileTooltip
                               user={{
                                 id: av.id,
@@ -442,16 +445,16 @@ export default function NotificationsPage() {
                                   if (!n.readAt) void markRead(markIds);
                                   router.push(`/u/${av.username}`);
                                 }}
-                                className="rounded-full"
+                                className="block w-full h-full leading-none"
                                 aria-label={`Open profile for ${av.name}`}
                               >
-                                <Avatar size={40} src={av.avatarUrl} alt={av.name} />
+                                <Avatar src={av.avatarUrl} alt={av.name} className="w-full h-full border-0" />
                               </div>
                             </ProfileTooltip>
                           </div>
                         ))}
                       </div>
-                      <span className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full border border-white/10 bg-[var(--color-card)] grid place-items-center text-white/80 shadow-sm">
+                      <span className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full border border-white/10 bg-black/40 backdrop-blur grid place-items-center text-white/80 shadow-sm">
                         <TypeIcon type={n.type} />
                       </span>
                     </div>
@@ -496,7 +499,7 @@ export default function NotificationsPage() {
 
                       {/* Post / reply preview (X-style: compact snippets, threaded for replies) */}
                       {n.type === "REPLY" && (n.sourcePost?.content || n.post?.content) ? (
-                        <div className="mt-2 text-sm text-white/60">
+                        <div className="mt-2 rounded-xl bg-white/[0.03] border border-white/10 px-3 py-2 text-sm text-white/60">
                           {n.sourcePost?.content ? (
                             <div className="line-clamp-3 break-words">
                               {compactPreviewText(n.sourcePost.content)}
@@ -512,7 +515,7 @@ export default function NotificationsPage() {
                           ) : null}
                         </div>
                       ) : n.post?.content ? (
-                        <div className="mt-2 text-sm text-white/60 line-clamp-2 break-words">
+                        <div className="mt-2 rounded-xl bg-white/[0.03] border border-white/10 px-3 py-2 text-sm text-white/60 line-clamp-2 break-words">
                           {compactPreviewText(n.post.content)}
                         </div>
                       ) : null}
