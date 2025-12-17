@@ -445,7 +445,7 @@ export default function NotificationsPage() {
                                   if (!n.readAt) void markRead(markIds);
                                   router.push(`/u/${av.username}`);
                                 }}
-                                className="block w-full h-full leading-none"
+                                className="block w-10 h-10 leading-none"
                                 aria-label={`Open profile for ${av.name}`}
                               >
                                 <Avatar src={av.avatarUrl} alt={av.name} className="w-full h-full border-0" />
