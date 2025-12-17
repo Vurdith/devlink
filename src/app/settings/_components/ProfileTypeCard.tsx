@@ -130,7 +130,15 @@ export function ProfileTypeCard() {
   }
 
   return (
-    <div className="bg-[#0d0d12] rounded-2xl p-6 border border-[var(--color-accent)]/20">
+    <div className="relative overflow-hidden glass glass-hover rounded-2xl p-6 border border-[var(--color-accent)]/20 noise-overlay">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 opacity-60"
+        style={{
+          background:
+            "radial-gradient(900px 240px at 20% 0%, rgba(var(--color-accent-rgb),0.16), transparent 55%), radial-gradient(800px 240px at 95% 0%, rgba(var(--color-accent-2-rgb),0.12), transparent 60%)",
+        }}
+      />
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--color-accent)] to-[var(--color-accent-hover)] flex items-center justify-center shadow-lg shadow-[var(--color-accent)]/25">
@@ -167,13 +175,23 @@ export function ProfileTypeCard() {
                 type="button"
                 onClick={() => setType(profileType.value)}
                 className={cn(
-                  "relative p-4 rounded-xl border text-left transition-all group animate-slide-up active:scale-98",
+                  "relative overflow-hidden p-4 rounded-xl border text-left transition-all group animate-slide-up active:scale-98",
                   isActive 
                     ? `${profileType.bgColor} ${profileType.borderColor}` 
-                    : "bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20"
+                    : "bg-white/[0.03] border-white/10 hover:bg-white/[0.06] hover:border-white/20"
                 )}
                 style={{ animationDelay: `${index * 0.03}s` }}
               >
+                {!isActive ? (
+                  <div
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-0 opacity-60"
+                    style={{
+                      background:
+                        "radial-gradient(520px 160px at 30% 0%, rgba(255,255,255,0.06), transparent 60%)",
+                    }}
+                  />
+                ) : null}
                 {/* Selection indicator */}
                 <div className={cn(
                   "absolute top-3 right-3 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all",

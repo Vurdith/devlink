@@ -177,13 +177,23 @@ export default function AccountLinking() {
             <div
               key={provider.id}
               className={cn(
-                "flex items-center justify-between p-4 rounded-xl border transition-all animate-slide-up",
+                "flex items-center justify-between p-4 rounded-xl border transition-all animate-slide-up overflow-hidden",
                 linked 
-                  ? "bg-[var(--color-accent)]/10 border-[var(--color-accent)]/30" 
-                  : "bg-white/5 border-white/10 hover:bg-[var(--color-accent)]/5 hover:border-[var(--color-accent)]/20"
+                  ? "bg-[rgba(var(--color-accent-rgb),0.10)] border-[rgba(var(--color-accent-rgb),0.25)]"
+                  : "bg-white/[0.03] border-white/10 hover:bg-white/[0.06] hover:border-white/20"
               )}
               style={{ animationDelay: `${index * 0.05}s` }}
             >
+              {!linked ? (
+                <div
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-0 opacity-50"
+                  style={{
+                    background:
+                      "radial-gradient(600px 160px at 30% 0%, rgba(255,255,255,0.06), transparent 60%)",
+                  }}
+                />
+              ) : null}
               <div className="flex items-center gap-4">
                 {/* Provider Icon */}
                 <div className={cn("w-10 h-10 rounded-lg flex items-center justify-center", provider.bgColor)}>

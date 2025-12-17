@@ -87,7 +87,18 @@ export default function NotificationSettings() {
       </div>
 
       {/* Email Notifications */}
-      <div className="bg-[#0d0d12] rounded-2xl p-6 border border-white/10 animate-slide-up" style={{ animationDelay: '0.05s' }}>
+      <div
+        className="relative overflow-hidden glass glass-hover rounded-2xl p-6 border border-white/10 animate-slide-up noise-overlay"
+        style={{ animationDelay: '0.05s' }}
+      >
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 opacity-60"
+          style={{
+            background:
+              "radial-gradient(900px 240px at 15% 0%, rgba(var(--color-accent-rgb),0.16), transparent 55%), radial-gradient(800px 240px at 95% 0%, rgba(var(--color-accent-2-rgb),0.12), transparent 60%)",
+          }}
+        />
         <div className="flex items-center gap-3 mb-6">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--color-accent)] to-[var(--color-accent-hover)] flex items-center justify-center shadow-lg shadow-[var(--color-accent)]/20">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-white">
@@ -105,7 +116,12 @@ export default function NotificationSettings() {
           {settings.map((setting, index) => (
             <div
               key={setting.id}
-              className="flex items-center justify-between p-4 rounded-xl hover:bg-white/5 transition-colors animate-slide-up"
+              className={cn(
+                "flex items-center justify-between p-4 rounded-xl border transition-all animate-slide-up",
+                setting.enabled
+                  ? "bg-[rgba(var(--color-accent-rgb),0.10)] border-[rgba(var(--color-accent-rgb),0.22)]"
+                  : "bg-white/[0.03] border-white/10 hover:bg-white/[0.05] hover:border-white/15"
+              )}
               style={{ animationDelay: `${0.05 + index * 0.03}s` }}
             >
               <div className="flex-1 min-w-0 pr-4">
@@ -122,7 +138,7 @@ export default function NotificationSettings() {
       </div>
 
       {/* Push Notifications - Coming Soon */}
-      <div className="bg-[#0d0d12] rounded-2xl p-6 border border-white/10 relative overflow-hidden animate-slide-up" style={{ animationDelay: '0.1s' }}>
+      <div className="relative overflow-hidden glass rounded-2xl p-6 border border-white/10 animate-slide-up noise-overlay" style={{ animationDelay: '0.1s' }}>
         {/* Coming Soon Overlay */}
         <div className="absolute inset-0 bg-[var(--background)]/60 backdrop-blur-sm flex items-center justify-center z-10">
           <div className="text-center">
