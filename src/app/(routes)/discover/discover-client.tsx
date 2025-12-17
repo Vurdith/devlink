@@ -170,17 +170,27 @@ export function DiscoverClient({
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
-      <div className="mb-4 sm:mb-8">
-        <h1 className="text-2xl sm:text-3xl font-bold mb-2 sm:mb-4">Discover</h1>
-        <p className="text-sm sm:text-base text-[var(--muted-foreground)]">
-          Find developers, clients, studios, influencers, and investors in the Roblox community.
-        </p>
+    <div className="max-w-6xl mx-auto space-y-4 sm:space-y-6">
+      {/* Header */}
+      <div className="relative overflow-hidden glass-soft rounded-2xl border border-white/10 p-4 sm:p-6">
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 pointer-events-none opacity-55"
+          style={{
+            background:
+              "radial-gradient(900px 260px at 20% 0%, rgba(var(--color-accent-rgb),0.10), transparent 62%), radial-gradient(700px 260px at 90% 10%, rgba(var(--color-accent-2-rgb),0.08), transparent 60%)",
+          }}
+        />
+        <div className="relative">
+          <h1 className="text-2xl sm:text-3xl font-bold text-white font-[var(--font-space-grotesk)]">Discover</h1>
+          <p className="mt-1 text-sm sm:text-base text-[var(--muted-foreground)]">
+            Find developers, clients, studios, influencers, and investors in the Roblox community.
+          </p>
+        </div>
       </div>
       
       {/* Filter Tabs */}
-      <div className="mb-4 sm:mb-8 -mx-3 sm:mx-0 px-3 sm:px-0">
-        <div className="relative overflow-hidden glass noise-overlay rounded-2xl border border-white/10 p-2 flex gap-1.5 sm:gap-2 overflow-x-auto pb-2 sm:pb-0 sm:flex-wrap">
+      <div className="relative overflow-hidden glass-soft rounded-2xl border border-white/10 p-2 flex gap-1.5 sm:gap-2 overflow-x-auto pb-2 sm:pb-0 sm:flex-wrap">
           {filters.map((filter) => (
             <button
               key={filter.value}
@@ -199,14 +209,13 @@ export function DiscoverClient({
               <span className="font-medium text-xs sm:text-sm">{filter.label}</span>
             </button>
           ))}
-        </div>
       </div>
       
       {/* Users Grid */}
       {loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           {[...Array(6)].map((_, i) => (
-            <div key={i} className="relative overflow-hidden glass noise-overlay border border-white/10 rounded-xl sm:rounded-2xl overflow-hidden animate-pulse">
+            <div key={i} className="relative overflow-hidden glass-soft border border-white/10 rounded-xl sm:rounded-2xl overflow-hidden animate-pulse">
               <div className="h-16 sm:h-20 bg-white/5" />
               <div className="p-3 sm:p-6">
                 <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
@@ -230,7 +239,7 @@ export function DiscoverClient({
               return (
                 <div 
                   key={user.id} 
-                  className="relative overflow-hidden glass glass-hover noise-overlay rounded-xl sm:rounded-2xl overflow-hidden transition-all duration-200 border border-white/10 hover:border-white/20"
+                  className="relative overflow-hidden glass glass-hover rounded-xl sm:rounded-2xl overflow-hidden transition-all duration-200 border border-white/10 hover:border-white/20"
                 >
                   {/* Banner */}
                   <Link href={`/u/${user.username}`} className="block">

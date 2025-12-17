@@ -10,19 +10,19 @@ export const revalidate = 60;
 // Loading skeleton shown during streaming
 function DiscoverSkeleton() {
   return (
-    <div className="max-w-6xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
-      <div className="mb-4 sm:mb-8">
-        <div className="h-8 w-48 bg-white/10 rounded animate-pulse mb-4" />
-        <div className="h-5 w-96 bg-white/10 rounded animate-pulse" />
+    <div className="max-w-6xl mx-auto space-y-4 sm:space-y-6">
+      <div className="relative overflow-hidden glass-soft rounded-2xl border border-white/10 p-4 sm:p-6">
+        <div className="h-8 w-48 bg-white/10 rounded animate-pulse mb-3" />
+        <div className="h-5 w-96 max-w-full bg-white/10 rounded animate-pulse" />
       </div>
-      <div className="flex gap-2 mb-8 overflow-x-auto pb-2">
+      <div className="relative overflow-hidden glass-soft rounded-2xl border border-white/10 p-2 flex gap-2 overflow-x-auto pb-2">
         {[...Array(6)].map((_, i) => (
           <div key={i} className="h-10 w-28 bg-white/10 rounded-xl animate-pulse flex-shrink-0" />
         ))}
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
         {[...Array(6)].map((_, i) => (
-          <div key={i} className="relative overflow-hidden glass noise-overlay border border-white/10 rounded-xl sm:rounded-2xl overflow-hidden animate-pulse">
+          <div key={i} className="relative overflow-hidden glass-soft border border-white/10 rounded-xl sm:rounded-2xl overflow-hidden animate-pulse">
             <div className="h-16 sm:h-20 bg-white/5" />
             <div className="p-3 sm:p-6">
               <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">

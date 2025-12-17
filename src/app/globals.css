@@ -124,6 +124,12 @@ body {
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
 }
 
+.glass-soft {
+  background: rgba(12, 14, 20, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28);
+}
+
 .glass-hover {
   transition: background 0.15s ease, border-color 0.15s ease;
 }

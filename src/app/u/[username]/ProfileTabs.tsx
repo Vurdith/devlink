@@ -560,7 +560,7 @@ export function ProfileTabs({ username, currentUserId, userId, skills = [], prof
     const originalAuthor = originalPost.user;
 
     return (
-      <div key={reply.id} className="relative overflow-hidden glass glass-hover noise-overlay rounded-2xl border border-white/10 overflow-hidden transition-colors">
+      <div key={reply.id} className="relative overflow-hidden glass glass-hover rounded-2xl border border-white/10 overflow-hidden transition-colors">
         {/* Original post preview - compact thread header */}
         <button
           onClick={() => window.location.href = `/p/${originalPost.id}`}
@@ -640,7 +640,7 @@ export function ProfileTabs({ username, currentUserId, userId, skills = [], prof
     <div className="mt-4 sm:mt-8">
       {/* Tab Navigation - Horizontal scroll container */}
       <div 
-        className="flex gap-1 sm:gap-2 mb-4 sm:mb-6 overflow-x-auto glass noise-overlay rounded-xl sm:rounded-2xl p-1.5 sm:p-3 border border-white/10"
+        className="flex gap-1 sm:gap-2 mb-4 sm:mb-6 overflow-x-auto glass rounded-xl sm:rounded-2xl p-1.5 sm:p-3 border border-white/10"
         style={{ 
           WebkitOverflowScrolling: 'touch',
           scrollbarWidth: 'none',
@@ -674,7 +674,7 @@ export function ProfileTabs({ username, currentUserId, userId, skills = [], prof
           <div className="space-y-4 animate-pulse">
             {/* Post skeleton */}
             {[1, 2, 3].map((i) => (
-              <div key={i} className="relative overflow-hidden glass noise-overlay rounded-xl border border-white/10 p-4">
+              <div key={i} className="relative overflow-hidden glass rounded-xl border border-white/10 p-4">
                 <div className="flex items-start gap-3">
                   <div className="w-10 h-10 rounded-full bg-white/10" />
                   <div className="flex-1 space-y-2">
@@ -775,7 +775,7 @@ export function ProfileTabs({ username, currentUserId, userId, skills = [], prof
           <>
             {/* Portfolio Header with Add Button */}
             {isOwner && (
-              <div className="relative overflow-hidden mb-8 p-5 rounded-2xl glass noise-overlay border border-[rgba(var(--color-accent-rgb),0.22)]">
+              <div className="relative overflow-hidden mb-8 p-5 rounded-2xl glass border border-[rgba(var(--color-accent-rgb),0.22)]">
                 <div
                   aria-hidden="true"
                   className="absolute inset-0 pointer-events-none opacity-65"

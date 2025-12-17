@@ -377,10 +377,10 @@ export default function ProfileHubPage() {
   }
 
   return (
-    <main className="relative overflow-hidden px-4 py-10">
-      {/* Background */}
-      <div className="absolute inset-0 gradient-bg" />
-      <div className="absolute inset-0 grid-pattern opacity-50" />
+    <main className="relative px-4 py-10">
+      {/* Background (full-height, no scroll cutoff) */}
+      <div className="fixed inset-0 -z-10 pointer-events-none gradient-bg" />
+      <div className="fixed inset-0 -z-10 pointer-events-none grid-pattern opacity-40" />
 
       <div className="relative mx-auto max-w-4xl">
         {/* Header */}
@@ -400,7 +400,7 @@ export default function ProfileHubPage() {
         </div>
 
       {/* Section Tabs - Profile Page Style */}
-      <div className="relative overflow-hidden glass noise-overlay rounded-2xl border border-white/10 p-2 flex gap-2 mb-6 overflow-x-auto">
+      <div className="relative overflow-hidden glass-soft rounded-2xl border border-white/10 p-2 flex gap-2 mb-6 overflow-x-auto">
         <button
           onClick={() => setActiveSection("profile")}
           className={cn(
@@ -435,7 +435,7 @@ export default function ProfileHubPage() {
       {activeSection === "profile" && (
         <div className="space-y-6">
           {/* Basic Info Card */}
-          <div className="relative overflow-hidden glass noise-overlay border border-white/10 rounded-2xl p-6">
+          <div className="relative overflow-hidden glass-soft border border-white/10 rounded-2xl p-6">
             <div
               aria-hidden="true"
               className="absolute inset-0 pointer-events-none opacity-65"
@@ -498,7 +498,7 @@ export default function ProfileHubPage() {
           </div>
 
           {/* Profile Type Card - Settings Style */}
-          <div className="relative overflow-hidden glass noise-overlay border border-white/10 rounded-2xl p-6">
+          <div className="relative overflow-hidden glass-soft border border-white/10 rounded-2xl p-6">
             <div
               aria-hidden="true"
               className="absolute inset-0 pointer-events-none opacity-55"
@@ -579,7 +579,7 @@ export default function ProfileHubPage() {
       {activeSection === "skills" && (
         <div className="space-y-6">
           {/* Your Skills */}
-          <div className="relative overflow-hidden glass noise-overlay border border-white/10 rounded-2xl p-6">
+          <div className="relative overflow-hidden glass-soft border border-white/10 rounded-2xl p-6">
             <div
               aria-hidden="true"
               className="absolute inset-0 pointer-events-none opacity-55"
@@ -711,7 +711,7 @@ export default function ProfileHubPage() {
           </div>
 
           {/* Add Skills */}
-          <div className="relative overflow-hidden glass noise-overlay border border-white/10 rounded-2xl p-6">
+          <div className="relative overflow-hidden glass-soft border border-white/10 rounded-2xl p-6">
             <div
               aria-hidden="true"
               className="absolute inset-0 pointer-events-none opacity-55"
@@ -792,7 +792,7 @@ export default function ProfileHubPage() {
       {editingSkill && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/80" onClick={() => setEditingSkill(null)} />
-          <div className="relative overflow-hidden w-full max-w-lg glass noise-overlay rounded-2xl border border-white/10 p-6">
+          <div className="relative overflow-hidden w-full max-w-lg glass-soft rounded-2xl border border-white/10 p-6">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-lg font-semibold text-white">Edit {editingSkill.skill.name}</h3>
               <button onClick={() => setEditingSkill(null)} className="p-2 rounded-lg hover:bg-white/10 text-white/60">
