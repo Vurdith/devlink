@@ -479,10 +479,10 @@ export async function GET(request: NextRequest) {
     const savedPostIds = new Set(userSaves.map(s => s.postId));
     const votedOptionIds = new Set(userPollVotes.map(v => v.optionId));
 
-    const transformedPosts = posts.map((post: any) => {
+    const transformedPosts = posts.map((post) => {
       const viewCount = viewCountMap.get(post.id) || 0;
       
-      let transformedPost: any = {
+      const transformedPost = {
         ...post,
         views: viewCount,
         isLiked: likedPostIds.has(post.id),
@@ -495,16 +495,19 @@ export async function GET(request: NextRequest) {
       };
       
       if (post.poll) {
-        const totalVotes = post.poll.options.reduce((sum: number, opt: any) => sum + opt._count.votes, 0);
-        transformedPost.poll = {
-          ...post.poll,
-          totalVotes,
-          options: post.poll.options.map((opt: any) => ({
-            id: opt.id,
-            text: opt.text,
-            votes: opt._count.votes,
-            isSelected: votedOptionIds.has(opt.id)
-          }))
+        const totalVotes = post.poll.options.reduce((sum: number, opt) => sum + opt._count.votes, 0);
+        return {
+          ...transformedPost,
+          poll: {
+            ...post.poll,
+            totalVotes,
+            options: post.poll.options.map((opt) => ({
+              id: opt.id,
+              text: opt.text,
+              votes: opt._count.votes,
+              isSelected: votedOptionIds.has(opt.id)
+            }))
+          }
         };
       }
       

@@ -4,6 +4,10 @@ import { authOptions } from "@/server/auth-options";
 import { prisma } from "@/server/db";
 
 function explainNotificationDbError(e: any) {
+  if (process.env.NODE_ENV !== "development") {
+    return { error: "Failed to load notifications" };
+  }
+
   const msg = typeof e?.message === "string" ? e.message : "";
   const code = e?.code;
 

@@ -169,24 +169,23 @@ export function MediaViewer({
     setShowModal(true);
   }, []);
 
-  // Grid media item - NO cropping, natural aspect ratio
   const GridMediaItem = ({ item, index }: { 
     item: MediaItem; 
     index: number; 
   }) => (
     <div
-      className="relative cursor-pointer group"
+      className="relative cursor-pointer group overflow-hidden rounded-xl bg-black/20"
       onClick={() => openModal(index)}
     >
       {item.type === "video" ? (
         <>
           <video
             src={item.url}
-            className="w-full h-auto rounded-xl"
+            className="w-full h-auto rounded-xl transition-transform duration-700 group-hover:scale-105"
             preload="metadata"
           />
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="bg-black/60 rounded-full p-3">
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div className="bg-black/60 rounded-full p-3 transform transition-transform duration-300 group-hover:scale-110">
               <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
               </svg>
@@ -197,11 +196,11 @@ export function MediaViewer({
         <img
           src={item.url}
           alt={`${alt} - ${index + 1}`}
-          className="w-full h-auto rounded-xl"
+          className="w-full h-auto rounded-xl transition-transform duration-700 group-hover:scale-105"
           loading="lazy"
         />
       )}
-      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-150 rounded-xl" />
+      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300 rounded-xl pointer-events-none" />
     </div>
   );
 
@@ -285,12 +284,12 @@ export function MediaViewer({
             <>
               <video
                 src={item.url}
-                className="w-full h-full object-contain"
+                className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105"
                 style={{ maxHeight: '400px' }}
                 preload="metadata"
               />
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <div className="bg-black/60 rounded-full p-4">
+                <div className="bg-black/60 rounded-full p-4 transform transition-transform duration-300 group-hover:scale-110">
                   <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
                   </svg>
@@ -301,7 +300,7 @@ export function MediaViewer({
             <img
               src={item.url}
               alt={`${alt} - 1`}
-              className="w-full h-full object-contain"
+              className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105"
               style={{ maxHeight: '400px' }}
               loading="lazy"
             />

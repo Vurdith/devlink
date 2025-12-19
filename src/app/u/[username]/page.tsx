@@ -1,6 +1,5 @@
 import { prisma } from "@/server/db";
 import { notFound } from "next/navigation";
-import { Badge } from "@/components/ui/Badge";
 import { FollowButton } from "@/components/ui/FollowButton";
 import Link from "next/link";
 import { getServerSession } from "next-auth";
@@ -111,64 +110,21 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
     
   const rating = user.avgRating ? user.avgRating.toFixed(1) : "—";
 
-  const getProfileTypeColors = (type: string) => {
-    switch (type) {
-      case "DEVELOPER":
-        return "border-blue-400/50 bg-blue-500/15 text-blue-300";
-      case "CLIENT":
-        return "border-emerald-400/50 bg-emerald-500/15 text-emerald-300";
-      case "STUDIO":
-        return "border-violet-400/50 bg-violet-500/15 text-violet-300";
-      case "INFLUENCER":
-        return "border-pink-400/50 bg-pink-500/15 text-pink-300";
-      case "INVESTOR":
-        return "border-amber-400/50 bg-amber-500/15 text-amber-300";
-      case "GUEST":
-        return "border-gray-400/50 bg-gray-500/15 text-gray-300";
-      default:
-        return "border-[var(--color-accent)]/50 bg-[var(--color-accent)]/15 text-[var(--color-accent)]";
-    }
-  };
-
   const isOwnProfile = session?.user?.email === user.email;
+  const profileType = user.profile?.profileType ?? null;
+  const profileTypeConfig = profileType ? getProfileTypeConfig(profileType) : null;
 
   return (
     <main className="mx-auto max-w-5xl px-2 sm:px-4 py-4 sm:py-10">
-      <section className="relative overflow-hidden rounded-xl sm:rounded-2xl">
-        {/* Banner - Client component for instant updates */}
+      <section className="relative overflow-hidden glass-soft rounded-xl sm:rounded-2xl border border-white/10">
+        {/* Banner */}
         <ProfileBanner 
           initialBannerUrl={user.profile?.bannerUrl}
           isOwnProfile={isOwnProfile}
         />
-
-        {/* Avatar (overlaps banner + card without clipping) */}
-        <div className="absolute left-4 sm:left-8 top-36 sm:top-64 -translate-y-1/2 z-20">
-          <ProfileAvatar 
-            initialAvatarUrl={user.profile?.avatarUrl}
-            isOwnProfile={isOwnProfile}
-          />
-        </div>
         
-        {/* Main profile card */}
-        <div className="relative z-10 glass border border-white/10 border-t-0 rounded-b-xl sm:rounded-b-2xl px-4 sm:px-8 pt-12 sm:pt-16 pb-4 sm:pb-8 shadow-xl shadow-black/20">
-          <div
-            aria-hidden="true"
-            className="absolute inset-0 pointer-events-none opacity-70"
-            style={{
-              background:
-                "radial-gradient(900px 260px at 20% 0%, rgba(var(--color-accent-rgb),0.14), transparent 62%), radial-gradient(700px 260px at 90% 10%, rgba(var(--color-accent-2-rgb),0.10), transparent 60%)",
-            }}
-          />
-          
-          {/* Follow button - top right */}
-          <div className="relative flex justify-end items-start">
-            {!isOwnProfile && (
-              <div className="mt-1 sm:mt-2">
-                <FollowButton targetUserId={user.id} initialFollowing={initialFollowing} />
-              </div>
-            )}
-          </div>
-          
+        {/* Content (Discover-card style) */}
+        <div className="relative p-4 sm:p-6">
           <AboutEditor
             initialBio={user.profile?.bio}
             initialLocation={user.profile?.location}
@@ -177,72 +133,79 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
             username={user.username}
             editable={isOwnProfile}
           />
-          
-          {/* Name & Verification */}
-          <div className="mt-4">
-            <div className="flex items-center gap-2">
-              <h1 className="text-xl sm:text-2xl font-bold text-white">
-                {user.name ?? user.username}
-              </h1>
-              {user.profile?.verified && (
-                <span className="inline-flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-gradient-to-br from-[var(--color-accent)] to-[var(--color-accent-hover)] flex-shrink-0">
-                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" className="text-white sm:w-3 sm:h-3">
-                    <path d="M20 6L9 17l-5-5" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                </span>
+
+          {/* Identity row */}
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3 min-w-0">
+              <ProfileAvatar
+                initialAvatarUrl={user.profile?.avatarUrl}
+                isOwnProfile={isOwnProfile}
+              />
+
+              <div className="min-w-0 flex items-center">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <h1 className="text-lg sm:text-xl font-semibold text-white truncate">
+                      {user.name ?? user.username}
+                    </h1>
+                    {user.profile?.verified && (
+                      <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-blue-500/25 border border-blue-400/40 flex-shrink-0">
+                        <svg className="w-3 h-3 text-blue-300" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                          <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                        </svg>
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-sm text-[var(--muted-foreground)] truncate">@{user.username}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex-shrink-0">
+              {!isOwnProfile && (
+                <FollowButton targetUserId={user.id} initialFollowing={initialFollowing} />
               )}
             </div>
-            <p className="text-sm text-[var(--muted-foreground)]">@{user.username}</p>
           </div>
-          
-          {/* Profile Type */}
-          {user.profile?.profileType && (
-            <div className="mt-2">
-              <Badge className={`gap-1 text-[10px] px-2 py-0.5 ${getProfileTypeColors(user.profile.profileType)}`}>
-                <ProfileTypeIcon profileType={user.profile.profileType} size={10} />
-                {getProfileTypeConfig(user.profile.profileType).label}
-              </Badge>
+
+          {/* Profile type + divider (Discover style) */}
+          {profileTypeConfig && profileType && (
+            <div className="mt-4 flex items-center gap-2">
+              <span
+                className={`inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] font-medium border border-white/10 ${profileTypeConfig.bgColor} ${profileTypeConfig.color}`}
+              >
+                <ProfileTypeIcon profileType={profileType} size={12} />
+                {profileTypeConfig.label}
+              </span>
+              <div className="h-px flex-1 bg-white/5" />
             </div>
           )}
-          
+
           {/* Bio */}
           {user.profile?.bio && (
-            <p className="mt-4 text-sm text-[var(--muted-foreground)] whitespace-pre-wrap leading-relaxed border-l-2 border-[var(--color-accent)]/30 pl-3">
+            <p className="mt-4 text-sm text-[var(--muted-foreground)] whitespace-pre-wrap leading-relaxed">
               {user.profile.bio}
             </p>
           )}
-          
-          {/* Stats Pills */}
-          <div className="mt-4 flex flex-wrap items-center gap-2">
-            <Link 
-              href={`/u/${user.username}/followers`} 
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-colors"
-            >
-              <svg className="w-3.5 h-3.5 text-[var(--color-accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
-              <span className="text-white font-semibold">{user?._count?.followers ?? 0}</span>
-              <span className="text-white/60">followers</span>
-            </Link>
-            <Link 
-              href={`/u/${user.username}/following`} 
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-colors"
-            >
-              <svg className="w-3.5 h-3.5 text-[var(--color-accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
-              </svg>
-              <span className="text-white font-semibold">{user?._count?.following ?? 0}</span>
-              <span className="text-white/60">following</span>
-            </Link>
-            {rating !== "—" && (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-amber-500/10 border border-amber-500/30">
-                <svg className="w-3.5 h-3.5 text-amber-400" fill="currentColor" viewBox="0 0 24 24">
-                  <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/>
-                </svg>
-                <span className="text-amber-400 font-semibold">{rating}</span>
-                <span className="text-amber-400/60">rating</span>
-              </span>
-            )}
+
+          {/* Stats (Discover footer vibe) */}
+          <div className="mt-5 pt-4 border-t border-white/10 flex items-center justify-between gap-3 text-xs text-[var(--muted-foreground)]">
+            <div className="flex items-center gap-4">
+              <Link href={`/u/${user.username}/followers`} className="hover:text-white transition-colors">
+                <span className="font-semibold text-white tabular-nums">{user?._count?.followers ?? 0}</span>{" "}
+                followers
+              </Link>
+              <Link href={`/u/${user.username}/following`} className="hover:text-white transition-colors">
+                <span className="font-semibold text-white tabular-nums">{user?._count?.following ?? 0}</span>{" "}
+                following
+              </Link>
+              {rating !== "—" && (
+                <span className="hidden sm:inline-flex items-center gap-1.5">
+                  <span className="font-semibold text-amber-300 tabular-nums">{rating}</span>
+                  <span className="text-amber-300/70">rating</span>
+                </span>
+              )}
+            </div>
           </div>
           
           {/* Client-side live updates */}

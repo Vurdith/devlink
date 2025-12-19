@@ -127,7 +127,7 @@ export const Sidebar = memo(function Sidebar() {
     <aside 
       role="navigation" 
       aria-label="Main sidebar navigation"
-      className="hidden md:flex fixed left-0 top-0 h-full w-72 z-40 flex-col glass noise-overlay border-0 border-r border-white/10"
+      className="hidden md:flex fixed left-0 top-0 h-full w-72 z-40 flex-col glass border-0 border-r border-white/10"
     >
       <div className="relative flex flex-col h-full">
         {/* Logo Section */}

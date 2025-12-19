@@ -54,14 +54,14 @@ export function ProfileBanner({ initialBannerUrl, isOwnProfile }: ProfileBannerP
           <img 
             src={bannerUrl} 
             alt="Banner" 
-            className="absolute inset-0 w-full h-full object-cover"
+            className="absolute inset-0 w-full h-full object-cover object-center"
           />
         ) : (
           <Image 
             src={bannerUrl} 
             alt="Banner" 
             fill 
-            className="object-cover" 
+            className="object-cover object-center" 
             priority 
             key={bannerUrl}
           />

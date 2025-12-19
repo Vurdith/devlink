@@ -23,15 +23,30 @@ function DiscoverSkeleton() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
         {[...Array(6)].map((_, i) => (
           <div key={i} className="relative overflow-hidden glass-soft border border-white/10 rounded-xl sm:rounded-2xl overflow-hidden animate-pulse">
-            <div className="h-16 sm:h-20 bg-white/5" />
-            <div className="p-3 sm:p-6">
-              <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
-                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-white/10 -mt-10 sm:-mt-12 border-3 sm:border-4 border-[var(--background)]" />
+            <div className="h-24 sm:h-28 w-full bg-white/5" />
+            <div className="p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-12 h-12 rounded-full bg-white/10 border-4 border-[var(--background)]" />
+                  <div className="min-w-0">
+                    <div className="h-4 w-32 bg-white/10 rounded mb-2" />
+                    <div className="h-3 w-24 bg-white/10 rounded" />
+                  </div>
+                </div>
+                <div className="h-8 w-20 bg-white/10 rounded-xl" />
               </div>
-              <div className="h-4 sm:h-5 w-28 sm:w-32 bg-white/10 rounded mb-2" />
-              <div className="h-3 sm:h-4 w-20 sm:w-24 bg-white/10 rounded mb-3" />
-              <div className="h-5 sm:h-6 w-20 sm:w-24 bg-white/10 rounded mb-3" />
-              <div className="h-3 sm:h-4 w-full bg-white/10 rounded" />
+              <div className="mt-3 flex items-center gap-2">
+                <div className="h-6 w-24 bg-white/10 rounded-lg" />
+                <div className="h-px flex-1 bg-white/5" />
+              </div>
+              <div className="mt-3 space-y-2">
+                <div className="h-3 w-full bg-white/10 rounded" />
+                <div className="h-3 w-4/5 bg-white/10 rounded" />
+              </div>
+              <div className="mt-4 pt-3 border-t border-white/10 flex items-center gap-4">
+                <div className="h-3 w-28 bg-white/10 rounded" />
+                <div className="h-3 w-28 bg-white/10 rounded" />
+              </div>
             </div>
           </div>
         ))}

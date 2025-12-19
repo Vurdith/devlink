@@ -302,21 +302,23 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
         <div className="mb-12 animate-slide-up" style={{ animationDelay: "0.1s" }}>
           <div className="relative group">
             {/* Animated glow background */}
-            <div className="absolute -inset-1 bg-gradient-to-r from-[var(--color-accent)]/20 via-cyan-500/20 to-[var(--color-accent)]/20 rounded-3xl opacity-50 group-hover:opacity-75 transition-opacity duration-500 animate-glow-pulse"></div>
+            <div className="absolute -inset-1 bg-gradient-to-r from-[var(--color-accent)]/10 via-cyan-500/10 to-[var(--color-accent)]/10 rounded-3xl opacity-30 group-hover:opacity-50 transition-opacity duration-500 animate-glow-pulse"></div>
             
-            <div className="relative glass noise-overlay rounded-2xl p-6 border border-[var(--color-accent)]/24 group-hover:border-[var(--color-accent)]/45 transition-all duration-300 shadow-2xl overflow-hidden">
+            <div className="relative glass-soft rounded-2xl p-6 border border-white/10 group-hover:border-white/20 transition-all duration-300 shadow-2xl overflow-hidden">
               {/* Subtle shimmer effect */}
-              <div className="absolute inset-0 shimmer-hover" />
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
+                <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out bg-gradient-to-r from-transparent via-white/5 to-transparent skew-x-12" />
+              </div>
               
               <div className="relative flex items-center gap-4 mb-6">
-                <div className="w-10 h-10 bg-gradient-to-br from-[var(--color-accent)]/30 to-cyan-500/30 rounded-xl flex items-center justify-center border border-[var(--color-accent)]/30 shadow-lg shadow-[var(--color-accent)]/20">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-[var(--color-accent)]">
-                    <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <div className="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center border border-white/10 shadow-lg group-hover:border-[var(--color-accent)]/30 transition-colors">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-[var(--color-accent)] group-hover:scale-110 transition-transform">
+                    <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                 </div>
                 <div>
-                  <h2 className="text-xl font-semibold text-white">Create Post</h2>
-                  <p className="text-xs text-[var(--muted-foreground)]">Share with the community</p>
+                  <h2 className="text-xl font-bold text-white tracking-tight">Create Post</h2>
+                  <p className="text-xs text-[var(--muted-foreground)] opacity-70">Share with the community</p>
                 </div>
               </div>
               

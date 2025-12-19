@@ -309,7 +309,7 @@ export const BaseModal = memo(function BaseModal({
         tabIndex={-1}
         className={cn(
           "relative w-full max-h-[85vh] flex flex-col rounded-2xl overflow-hidden",
-          "bg-[#0d0d12] border border-[var(--color-accent)]/20",
+          "glass-soft border border-white/10",
           "shadow-2xl shadow-black/50",
           "animate-pop-in",
           sizeClasses[size],

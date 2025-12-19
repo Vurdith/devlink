@@ -170,9 +170,9 @@ export function DiscoverClient({
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-4 sm:space-y-6">
-      {/* Header */}
-      <div className="relative overflow-hidden glass-soft rounded-2xl border border-white/10 p-4 sm:p-6">
+    <div className="max-w-6xl mx-auto">
+      {/* Header + Filters (single cohesive panel) */}
+      <div className="relative overflow-hidden glass-soft rounded-2xl border border-white/10">
         <div
           aria-hidden="true"
           className="absolute inset-0 pointer-events-none opacity-55"
@@ -181,42 +181,44 @@ export function DiscoverClient({
               "radial-gradient(900px 260px at 20% 0%, rgba(var(--color-accent-rgb),0.10), transparent 62%), radial-gradient(700px 260px at 90% 10%, rgba(var(--color-accent-2-rgb),0.08), transparent 60%)",
           }}
         />
-        <div className="relative">
+        <div className="relative p-4 sm:p-6">
           <h1 className="text-2xl sm:text-3xl font-bold text-white font-[var(--font-space-grotesk)]">Discover</h1>
           <p className="mt-1 text-sm sm:text-base text-[var(--muted-foreground)]">
             Find developers, clients, studios, influencers, and investors in the Roblox community.
           </p>
+
+          <div className="mt-4 sm:mt-5 h-px w-full bg-gradient-to-r from-white/10 via-white/5 to-transparent" />
+
+          <div className="mt-3 sm:mt-4 flex gap-1.5 sm:gap-2 overflow-x-auto pb-2 sm:pb-0 sm:flex-wrap">
+            {filters.map((filter) => (
+              <button
+                key={filter.value}
+                onClick={() => handleFilterChange(filter.value)}
+                className={`flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-2 sm:py-2.5 rounded-lg sm:rounded-xl transition-all duration-200 flex-shrink-0 ${
+                  selectedFilter === filter.value
+                    ? `${filter.bgColor} ${filter.color} border border-current/30 shadow-lg`
+                    : "bg-white/[0.03] text-[var(--muted-foreground)] hover:bg-white/[0.06] hover:text-white border border-white/10"
+                }`}
+              >
+                <div className={`p-1 sm:p-1.5 rounded-md sm:rounded-lg ${selectedFilter === filter.value ? "bg-current/20" : "bg-white/10"}`}>
+                  <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4" viewBox="0 0 24 24" fill="currentColor">
+                    <path d={filter.icon} />
+                  </svg>
+                </div>
+                <span className="font-medium text-xs sm:text-sm">{filter.label}</span>
+              </button>
+            ))}
+          </div>
         </div>
       </div>
       
-      {/* Filter Tabs */}
-      <div className="relative overflow-hidden glass-soft rounded-2xl border border-white/10 p-2 flex gap-1.5 sm:gap-2 overflow-x-auto pb-2 sm:pb-0 sm:flex-wrap">
-          {filters.map((filter) => (
-            <button
-              key={filter.value}
-              onClick={() => handleFilterChange(filter.value)}
-              className={`flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-2 sm:py-2.5 rounded-lg sm:rounded-xl transition-all duration-200 flex-shrink-0 ${
-                selectedFilter === filter.value
-                  ? `${filter.bgColor} ${filter.color} border border-current/30 shadow-lg`
-                  : "bg-white/[0.03] text-[var(--muted-foreground)] hover:bg-white/[0.06] hover:text-white border border-white/10"
-              }`}
-            >
-              <div className={`p-1 sm:p-1.5 rounded-md sm:rounded-lg ${selectedFilter === filter.value ? "bg-current/20" : "bg-white/10"}`}>
-                <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4" viewBox="0 0 24 24" fill="currentColor">
-                  <path d={filter.icon} />
-                </svg>
-              </div>
-              <span className="font-medium text-xs sm:text-sm">{filter.label}</span>
-            </button>
-          ))}
-      </div>
-      
       {/* Users Grid */}
+      <div className="mt-4 sm:mt-6">
       {loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           {[...Array(6)].map((_, i) => (
             <div key={i} className="relative overflow-hidden glass-soft border border-white/10 rounded-xl sm:rounded-2xl overflow-hidden animate-pulse">
-              <div className="h-16 sm:h-20 bg-white/5" />
+              <div className="h-24 sm:h-28 bg-white/5" />
               <div className="p-3 sm:p-6">
                 <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
                   <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-white/10 -mt-10 sm:-mt-12 border-3 sm:border-4 border-[var(--background)]" />
@@ -239,99 +241,59 @@ export function DiscoverClient({
               return (
                 <div 
                   key={user.id} 
-                  className="relative overflow-hidden glass glass-hover rounded-xl sm:rounded-2xl overflow-hidden transition-all duration-200 border border-white/10 hover:border-white/20"
+                  className="relative overflow-hidden glass-soft rounded-xl sm:rounded-2xl transition-all duration-200 border border-white/10 hover:border-white/20 flex flex-col h-[340px] sm:h-[390px]"
                 >
                   {/* Banner */}
                   <Link href={`/u/${user.username}`} className="block">
-                    <div className="h-16 sm:h-20 w-full bg-gradient-to-br from-[var(--color-accent-hover)]/30 to-slate-900/50 relative">
+                    <div className="relative h-24 sm:h-28 w-full bg-gradient-to-br from-[rgba(var(--color-accent-rgb),0.18)] via-black/20 to-black/40">
                       {user.profile?.bannerUrl && (
                         <Image
                           src={user.profile.bannerUrl}
                           alt=""
-                          width={400}
-                          height={80}
-                          className="w-full h-full object-cover absolute inset-0"
+                          fill
+                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                          className="object-cover object-center"
                         />
                       )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
                     </div>
                   </Link>
-                  
-                  <div className="p-3 sm:p-6">
-                    {/* Avatar */}
-                    <ProfileTooltip user={user} currentUserId={currentUserId}>
-                      <Link href={`/u/${user.username}`} className="block -mt-10 sm:-mt-14 mb-3 sm:mb-4 w-fit">
-                        <div className="relative">
-                          {user.profile?.avatarUrl ? (
-                            <Image
-                              src={user.profile.avatarUrl}
-                              alt={user.username}
-                              width={64}
-                              height={64}
-                              className="w-12 h-12 sm:w-16 sm:h-16 rounded-full object-cover border-3 sm:border-4 border-[var(--background)]"
-                            />
-                          ) : (
-                            <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-[var(--color-accent)] to-pink-500 flex items-center justify-center text-white text-lg sm:text-xl font-bold border-3 sm:border-4 border-[var(--background)]">
-                              {user.username.charAt(0).toUpperCase()}
-                            </div>
-                          )}
-                          {user.profile?.verified && (
-                            <div className="absolute -bottom-0.5 -right-0.5 sm:-bottom-1 sm:-right-1 w-5 h-5 sm:w-6 sm:h-6 bg-blue-500 rounded-full flex items-center justify-center border-2 border-[var(--background)]">
-                              <svg className="w-2.5 h-2.5 sm:w-3 sm:h-3" viewBox="0 0 24 24" fill="white">
-                                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
-                              </svg>
-                            </div>
-                          )}
-                        </div>
-                      </Link>
-                    </ProfileTooltip>
-                    
-                    {/* Name & Username */}
-                    <ProfileTooltip user={user} currentUserId={currentUserId}>
-                      <Link href={`/u/${user.username}`}>
-                        <h3 className="font-semibold text-sm sm:text-base text-white truncate hover:underline">
-                          {user.name || user.username}
-                        </h3>
-                        <p className="text-xs sm:text-sm text-[var(--muted-foreground)] mb-1.5 sm:mb-2">@{user.username}</p>
-                      </Link>
-                    </ProfileTooltip>
-                    
-                    {/* Profile Type Badge */}
-                    <div className={`inline-flex items-center gap-1 sm:gap-1.5 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md sm:rounded-lg text-[10px] sm:text-xs font-medium ${config.bgColor} ${config.color} mb-2 sm:mb-3`}>
-                      <svg className="w-2.5 h-2.5 sm:w-3 sm:h-3" viewBox="0 0 24 24" fill="currentColor">
-                        <path d={config.icon} />
-                      </svg>
-                      {config.label}
-                    </div>
-                    
-                    {/* Bio */}
-                    {user.profile?.bio ? (
-                      <p className="text-xs sm:text-sm text-[var(--muted-foreground)] line-clamp-2 mb-3 sm:mb-4">
-                        {user.profile.bio}
-                      </p>
-                    ) : (
-                      <p className="text-xs sm:text-sm text-[var(--muted-foreground)]/50 italic mb-3 sm:mb-4">
-                        No bio yet
-                      </p>
-                    )}
-                    
-                    {/* Stats + Follow Button */}
-                    <div className="flex items-center justify-between pt-3 sm:pt-4 border-t border-white/10 min-h-[40px]">
-                      <div className="flex items-center gap-3 sm:gap-4 text-xs sm:text-sm">
-                        <Link 
-                          href={`/u/${user.username}/followers`}
-                          className="text-[var(--muted-foreground)] hover:text-white transition-colors"
-                        >
-                          <span className="font-semibold text-white tabular-nums">{user._count.followers}</span> followers
+
+                  <div className="p-4 flex-1 flex flex-col min-h-0">
+                    <div className="flex items-start justify-between gap-3">
+                      <ProfileTooltip user={user} currentUserId={currentUserId}>
+                        <Link href={`/u/${user.username}`} className="flex items-center gap-3 min-w-0">
+                          <div className="relative flex-shrink-0">
+                            {user.profile?.avatarUrl ? (
+                              <Image
+                                src={user.profile.avatarUrl}
+                                alt={user.username}
+                                width={48}
+                                height={48}
+                                className="w-11 h-11 sm:w-12 sm:h-12 rounded-full object-cover border-4 border-[var(--background)]"
+                              />
+                            ) : (
+                              <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-[var(--color-accent)] to-pink-500 flex items-center justify-center text-white text-lg font-bold border-4 border-[var(--background)]">
+                                {user.username.charAt(0).toUpperCase()}
+                              </div>
+                            )}
+                            {user.profile?.verified && (
+                              <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-blue-500 rounded-full grid place-items-center border-2 border-[var(--background)]">
+                                <svg className="w-3 h-3" viewBox="0 0 24 24" fill="white" aria-hidden="true">
+                                  <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                                </svg>
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="min-w-0">
+                            <div className="font-semibold text-white truncate">{user.name || user.username}</div>
+                            <div className="text-xs text-[var(--muted-foreground)] truncate">@{user.username}</div>
+                          </div>
                         </Link>
-                        <Link 
-                          href={`/u/${user.username}/following`}
-                          className="text-[var(--muted-foreground)] hover:text-white transition-colors"
-                        >
-                          <span className="font-semibold text-white tabular-nums">{user._count.following}</span> following
-                        </Link>
-                      </div>
-                      
-                      <div className="flex-shrink-0">
+                      </ProfileTooltip>
+
+                      <div className="flex-shrink-0 pt-0.5">
                         {!isCurrentUser && currentUserId ? (
                           <FollowButton 
                             targetUserId={user.id}
@@ -340,9 +302,41 @@ export function DiscoverClient({
                             onToggle={(following) => handleFollowToggle(user.id, following)}
                           />
                         ) : (
-                          <div className="w-[72px] sm:w-[80px]" />
+                          <div className="w-[72px]" />
                         )}
                       </div>
+                    </div>
+
+                    <div className="mt-3 flex items-center gap-2">
+                      <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] font-medium border border-white/10 ${config.bgColor} ${config.color}`}>
+                        <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                          <path d={config.icon} />
+                        </svg>
+                        {config.label}
+                      </span>
+                      <div className="h-px flex-1 bg-white/5" />
+                    </div>
+
+                    <p className="mt-4 mb-4 text-sm text-[var(--muted-foreground)] leading-relaxed line-clamp-3 min-h-[60px]">
+                      {user.profile?.bio || "No bio yet"}
+                    </p>
+
+                    <div className="mt-auto pt-4 border-t border-white/5 flex items-center justify-between text-xs text-[var(--muted-foreground)]">
+                      <div className="flex items-center gap-4">
+                        <Link href={`/u/${user.username}/followers`} className="hover:text-white transition-colors">
+                          <span className="font-semibold text-white tabular-nums">{user._count.followers}</span>{" "}
+                          followers
+                        </Link>
+                        <Link href={`/u/${user.username}/following`} className="hover:text-white transition-colors">
+                          <span className="font-semibold text-white tabular-nums">{user._count.following}</span>{" "}
+                          following
+                        </Link>
+                      </div>
+                      <Link href={`/u/${user.username}`} className="text-white/40 hover:text-white/70 transition-colors" aria-label={`Open ${user.username}`}>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                          <path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      </Link>
                     </div>
                   </div>
                 </div>
@@ -381,6 +375,7 @@ export function DiscoverClient({
           </p>
         </div>
       )}
+      </div>
     </div>
   );
 }

@@ -560,7 +560,7 @@ export function ProfileTabs({ username, currentUserId, userId, skills = [], prof
     const originalAuthor = originalPost.user;
 
     return (
-      <div key={reply.id} className="relative overflow-hidden glass glass-hover rounded-2xl border border-white/10 overflow-hidden transition-colors">
+      <div key={reply.id} className="relative overflow-hidden glass-soft glass-hover rounded-2xl border border-white/10 overflow-hidden transition-colors">
         {/* Original post preview - compact thread header */}
         <button
           onClick={() => window.location.href = `/p/${originalPost.id}`}
@@ -640,7 +640,7 @@ export function ProfileTabs({ username, currentUserId, userId, skills = [], prof
     <div className="mt-4 sm:mt-8">
       {/* Tab Navigation - Horizontal scroll container */}
       <div 
-        className="flex gap-1 sm:gap-2 mb-4 sm:mb-6 overflow-x-auto glass rounded-xl sm:rounded-2xl p-1.5 sm:p-3 border border-white/10"
+        className="flex gap-1 sm:gap-2 mb-4 sm:mb-6 overflow-x-auto glass-soft rounded-xl sm:rounded-2xl p-1.5 sm:p-3 border border-white/10"
         style={{ 
           WebkitOverflowScrolling: 'touch',
           scrollbarWidth: 'none',
@@ -674,7 +674,7 @@ export function ProfileTabs({ username, currentUserId, userId, skills = [], prof
           <div className="space-y-4 animate-pulse">
             {/* Post skeleton */}
             {[1, 2, 3].map((i) => (
-              <div key={i} className="relative overflow-hidden glass rounded-xl border border-white/10 p-4">
+              <div key={i} className="relative overflow-hidden glass-soft rounded-xl border border-white/10 p-4">
                 <div className="flex items-start gap-3">
                   <div className="w-10 h-10 rounded-full bg-white/10" />
                   <div className="flex-1 space-y-2">
@@ -775,13 +775,13 @@ export function ProfileTabs({ username, currentUserId, userId, skills = [], prof
           <>
             {/* Portfolio Header with Add Button */}
             {isOwner && (
-              <div className="relative overflow-hidden mb-8 p-5 rounded-2xl glass border border-[rgba(var(--color-accent-rgb),0.22)]">
+              <div className="relative overflow-hidden mb-8 p-5 rounded-2xl glass-soft border border-white/10">
                 <div
                   aria-hidden="true"
-                  className="absolute inset-0 pointer-events-none opacity-65"
+                  className="absolute inset-0 pointer-events-none opacity-55"
                   style={{
                     background:
-                      "radial-gradient(900px 260px at 20% 0%, rgba(var(--color-accent-rgb),0.18), transparent 62%), radial-gradient(700px 260px at 90% 10%, rgba(var(--color-accent-2-rgb),0.12), transparent 60%)",
+                      "radial-gradient(900px 260px at 20% 0%, rgba(var(--color-accent-rgb),0.12), transparent 62%), radial-gradient(700px 260px at 90% 10%, rgba(var(--color-accent-2-rgb),0.08), transparent 60%)",
                   }}
                 />
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -820,7 +820,7 @@ export function ProfileTabs({ username, currentUserId, userId, skills = [], prof
 
             {/* Portfolio Items */}
             {portfolioItems.length > 0 ? (
-              <div className="space-y-6">
+              <div className="grid grid-cols-1 gap-6">
                 {portfolioItems.map((item) => (
                   <PortfolioItemDisplay 
                     key={item.id}

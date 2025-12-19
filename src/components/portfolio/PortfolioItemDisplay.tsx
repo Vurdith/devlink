@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/Button";
+import { ConfirmModal } from "@/components/ui/BaseModal";
 
 interface PortfolioItem {
   id: string;
@@ -263,25 +263,33 @@ export function PortfolioItemDisplay({
   const currentMediaUrl = mediaUrls[currentMediaIndex];
 
   return (
-    <div className="group relative bg-[#0d0d12] rounded-[var(--radius)] border border-[var(--color-accent)]/20 overflow-hidden hover:border-[var(--color-accent)]/40 transition-all">
+    <div className="group relative glass-soft rounded-2xl border border-white/10 overflow-hidden hover:border-white/20 transition-all duration-300">
       {/* Media Gallery */}
       {mediaUrls.length > 0 && (
-        <div className="w-full h-[28rem] bg-gradient-to-br from-[var(--color-accent)]/10 to-blue-500/10 overflow-hidden flex items-center justify-center relative group">
+        <div className="w-full h-72 sm:h-[32rem] bg-gradient-to-br from-white/5 to-transparent overflow-hidden flex items-center justify-center relative group/media">
           {/* Current Media */}
           <div 
-            className="w-full h-full flex items-center justify-center bg-[var(--muted)]/20 cursor-pointer hover:bg-[var(--muted)]/30 transition-colors"
+            className="w-full h-full flex items-center justify-center cursor-pointer relative"
             onClick={() => setShowMediaModal(true)}
-            title="Click to expand"
           >
             <img
               src={currentMediaUrl}
               alt={`${item.title} - media ${currentMediaIndex + 1}`}
-              className="w-full h-full object-contain pointer-events-none"
+              className="w-full h-full object-cover transition-transform duration-700 group-hover/media:scale-105"
               onError={(e) => {
                 const img = e.target as HTMLImageElement;
                 img.style.display = "none";
               }}
             />
+            
+            {/* Cinematic Overlay on Hover */}
+            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/media:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+              <div className="p-3 rounded-full bg-white/10 backdrop-blur-md border border-white/20 transform scale-90 group-hover/media:scale-100 transition-transform duration-300">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-white">
+                  <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+            </div>
           </div>
 
           {/* Navigation Arrows */}
@@ -289,48 +297,36 @@ export function PortfolioItemDisplay({
             <>
               {/* Previous Button */}
               <button
-                onClick={goToPrevious}
-                className="absolute left-2 top-1/2 -translate-y-1/2 p-2 bg-black/50 hover:bg-black/70 text-white rounded-full transition-all opacity-0 group-hover:opacity-100"
+                onClick={(e) => { e.stopPropagation(); goToPrevious(); }}
+                className="absolute left-4 top-1/2 -translate-y-1/2 p-2.5 bg-black/40 hover:bg-black/60 text-white rounded-full transition-all opacity-0 group-hover/media:opacity-100 border border-white/10 backdrop-blur-sm z-10"
                 title="Previous"
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                  <path
-                    d="M15 18l-6-6 6-6"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
+                  <path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </button>
 
               {/* Next Button */}
               <button
-                onClick={goToNext}
-                className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-black/50 hover:bg-black/70 text-white rounded-full transition-all opacity-0 group-hover:opacity-100"
+                onClick={(e) => { e.stopPropagation(); goToNext(); }}
+                className="absolute right-4 top-1/2 -translate-y-1/2 p-2.5 bg-black/40 hover:bg-black/60 text-white rounded-full transition-all opacity-0 group-hover/media:opacity-100 border border-white/10 backdrop-blur-sm z-10"
                 title="Next"
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                  <path
-                    d="M9 18l6-6-6-6"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
+                  <path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </button>
 
               {/* Slide Indicators */}
-              <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
                 {mediaUrls.map((_, idx) => (
                   <button
                     key={idx}
-                    onClick={() => setCurrentMediaIndex(idx)}
-                    className={`w-2 h-2 rounded-full transition-all ${
+                    onClick={(e) => { e.stopPropagation(); setCurrentMediaIndex(idx); }}
+                    className={`h-1.5 rounded-full transition-all duration-300 ${
                       idx === currentMediaIndex
-                        ? "bg-white w-6"
-                        : "bg-white/50 hover:bg-white/75"
+                        ? "bg-white w-8"
+                        : "bg-white/30 hover:bg-white/50 w-1.5"
                     }`}
                     title={`Go to media ${idx + 1}`}
                   />
@@ -342,64 +338,42 @@ export function PortfolioItemDisplay({
       )}
 
       {/* Content */}
-      <div className="p-6">
+      <div className="p-5 sm:p-8">
         {/* Header */}
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex-1">
-            <h3 className="text-lg font-semibold text-[var(--foreground)] mb-2">
-              {item.title}
-            </h3>
-            {item.category && (
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium bg-[var(--accent)]/20 text-[var(--accent)] rounded-full mb-2">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" className="flex-shrink-0">
-                  <path
-                    d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-                {capitalizeCategory(item.category)}
-              </span>
-            )}
+        <div className="flex items-start justify-between gap-4 mb-6">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-3 flex-wrap mb-2">
+              <h3 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+                {item.title}
+              </h3>
+              {item.category && (
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider bg-[rgba(var(--color-accent-rgb),0.1)] text-[var(--color-accent)] border border-[rgba(var(--color-accent-rgb),0.2)] rounded-lg">
+                  {capitalizeCategory(item.category)}
+                </span>
+              )}
+            </div>
           </div>
 
           {/* Owner Actions */}
           {isOwner && (
-            <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="flex gap-2 shrink-0">
               <button
                 onClick={() => onEdit(item)}
-                className="p-2.5 text-[var(--muted-foreground)] rounded-lg border border-transparent transition-all duration-200 hover:bg-[var(--accent)]/30 hover:text-[var(--accent)] hover:scale-110 hover:border-[var(--accent)] hover:shadow-[0_0_12px_rgba(168,85,247,0.4)] active:scale-95"
+                className="p-2 text-white/40 rounded-xl hover:bg-white/5 hover:text-white transition-all border border-transparent hover:border-white/10"
                 title="Edit"
               >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                  <path
-                    d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                  />
-                  <path
-                    d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                  />
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
                 </svg>
               </button>
               <button
                 onClick={() => setShowDeleteConfirm(true)}
-                className="p-2.5 text-[var(--muted-foreground)] rounded-lg transition-all duration-200 hover:bg-[var(--color-accent)]/20 hover:text-[var(--color-accent)] hover:scale-110 hover:shadow-lg hover:shadow-[var(--color-accent)]/20 active:scale-95"
+                className="p-2 text-white/40 rounded-xl hover:bg-red-500/10 hover:text-red-400 transition-all border border-transparent hover:border-red-500/20"
                 title="Delete"
               >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                  <path
-                    d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6h16zM10 11v6M14 11v6"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                  />
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M10 11v6M14 11v6" />
                 </svg>
               </button>
             </div>
@@ -408,85 +382,79 @@ export function PortfolioItemDisplay({
 
         {/* Description */}
         {item.description && (
-          <p className="text-sm text-[var(--muted-foreground)] mb-5 line-clamp-3">
+          <p className="text-sm sm:text-base text-[var(--muted-foreground)] mb-6 leading-relaxed max-w-3xl">
             {item.description}
           </p>
         )}
 
-        {/* Tags */}
-        {tags.length > 0 && (
-          <div className="flex flex-wrap gap-2 mb-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 pt-6 border-t border-white/10 mt-6">
+          <div className="flex flex-wrap gap-2">
+            {/* Tags */}
             {tags.map((tag) => (
               <button
                 key={tag}
                 onClick={() => router.push(`/hashtag/${tag}`)}
-                className="px-3 py-1.5 text-xs font-medium bg-[var(--muted)]/30 text-[var(--muted-foreground)] rounded-full border border-[var(--border)] cursor-pointer transition-all duration-200 hover:bg-[var(--accent)]/25 hover:text-[var(--accent)] hover:border-[var(--accent)]/60 hover:scale-105 hover:shadow-md hover:shadow-[var(--accent)]/15 active:scale-95"
+                className="px-3 py-1.5 text-[11px] font-medium bg-white/[0.03] text-white/50 rounded-lg border border-white/5 hover:bg-white/[0.06] hover:text-white hover:border-white/10 transition-all"
               >
                 #{tag}
               </button>
             ))}
-          </div>
-        )}
-
-        {/* Linked Skills */}
-        {linkedSkills && linkedSkills.length > 0 && (
-          <div className="flex flex-wrap gap-2 mb-5">
-            {linkedSkills.map((s) => (
+            
+            {/* Linked Skills */}
+            {linkedSkills?.map((s) => (
               <span
                 key={s.id}
-                className="px-3 py-1.5 text-xs font-medium bg-white/5 text-white/60 rounded-full border border-white/10"
-                title={s.category}
+                className="px-3 py-1.5 text-[11px] font-medium bg-[rgba(var(--color-accent-rgb),0.05)] text-[var(--color-accent)] rounded-lg border border-[rgba(var(--color-accent-rgb),0.1)]"
               >
                 {s.name}
               </span>
             ))}
           </div>
-        )}
 
-        {/* Links */}
-        {links.length > 0 && (
-          <div className="flex flex-wrap gap-2 mb-4">
-            {links.map((link, idx) => {
-              let displayText = "View";
-              if (
-                link.includes("github")
-              ) {
-                displayText = "GitHub";
-              } else if (link.includes("demo")) {
-                displayText = "Demo";
-              } else if (link.includes("live")) {
-                displayText = "Live";
-              }
-              return (
-                <a
-                  key={idx}
-                  href={link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-[var(--accent)]/20 text-[var(--accent)] rounded-full hover:bg-[var(--accent)]/30 transition-colors"
-                >
-                  {displayText}
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-                    <path
-                      d="M7 17L17 7M17 7H7m10 0v10"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                    />
+          {/* Links */}
+          {links.length > 0 && (
+            <div className="flex items-center gap-3 shrink-0">
+              {links.map((link, idx) => {
+                let displayText = "View Project";
+                let Icon = (
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
                   </svg>
-                </a>
-              );
-            })}
-          </div>
-        )}
+                );
+
+                if (link.toLowerCase().includes("github")) {
+                  displayText = "GitHub";
+                  Icon = (
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 4.338 9.63 10.334 10.811.601.11.821-.258.821-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.44-1.305.806-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222 0 1.606-.015 2.896-.015 3.286 0 .322.218.694.825.576 10.001-1.186 14.336-5.51 14.336-10.81 0-6.627-5.374-12-12-12z" />
+                    </svg>
+                  );
+                }
+
+                return (
+                  <a
+                    key={idx}
+                    href={link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 px-4 py-2 text-sm font-bold bg-white text-black rounded-xl hover:bg-white/90 transition-all active:scale-95"
+                  >
+                    {Icon}
+                    {displayText}
+                  </a>
+                );
+              })}
+            </div>
+          )}
+        </div>
 
         {/* Privacy Status */}
         {!item.isPublic && (
-          <div className="text-xs text-[var(--muted-foreground)] flex items-center gap-1 mb-3">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+          <div className="mt-4 text-[10px] uppercase tracking-widest text-white/30 flex items-center gap-1.5">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
               <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/>
             </svg>
-            Private
+            Private Item
           </div>
         )}
       </div>
@@ -693,73 +661,15 @@ export function PortfolioItemDisplay({
       )}
 
       {/* Delete Confirmation Modal */}
-      {showDeleteConfirm && (
-        <div 
-          className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 animate-in fade-in duration-200"
-          style={{ contain: 'layout style paint' }}
-          onClick={() => setShowDeleteConfirm(false)}
-        >
-          <div 
-            className="bg-[var(--card)] border border-[var(--color-accent)]/30 rounded-2xl p-6 max-w-sm w-full mx-4 shadow-2xl shadow-[var(--color-accent)]/10 animate-in zoom-in-95 duration-200"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Warning Icon */}
-            <div className="flex justify-center mb-4">
-              <div className="w-16 h-16 rounded-full bg-[var(--color-accent)]/15 flex items-center justify-center">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" className="text-[var(--color-accent)]">
-                  <path
-                    d="M12 9v4M12 17h.01"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                  />
-                  <path
-                    d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </div>
-            </div>
-
-            {/* Title */}
-            <h3 className="text-xl font-semibold text-center mb-2 text-[var(--foreground)]">
-              Delete Portfolio Item?
-            </h3>
-
-            {/* Description */}
-            <p className="text-[var(--muted-foreground)] mb-6 text-sm text-center leading-relaxed">
-              This action cannot be undone. The portfolio item{" "}
-              <span className="font-medium text-[var(--foreground)]">"{item.title}"</span>{" "}
-              will be permanently deleted.
-            </p>
-
-            {/* Actions */}
-            <div className="flex gap-3">
-              <Button
-                variant="ghost"
-                onClick={() => setShowDeleteConfirm(false)}
-                className="flex-1"
-                size="sm"
-              >
-                Cancel
-              </Button>
-              <Button
-                variant="destructive"
-                onClick={handleDelete}
-                disabled={isDeleting}
-                isLoading={isDeleting}
-                className="flex-1"
-                size="sm"
-              >
-                Delete
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ConfirmModal
+        isOpen={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        onConfirm={handleDelete}
+        title="Delete Portfolio Item?"
+        message={`This action cannot be undone. The portfolio item "${item.title}" will be permanently deleted.`}
+        confirmText="Delete"
+        isLoading={isDeleting}
+      />
     </div>
   );
 }

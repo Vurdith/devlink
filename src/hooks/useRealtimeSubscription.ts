@@ -6,14 +6,14 @@ import type { RealtimeChannel } from "@supabase/supabase-js";
 
 type PostgresChangeEvent = "INSERT" | "UPDATE" | "DELETE" | "*";
 
-interface UseRealtimeOptions {
+interface UseRealtimeOptions<T = any> {
   table: string;
   schema?: string;
   event?: PostgresChangeEvent;
   filter?: string;
-  onInsert?: (payload: any) => void;
-  onUpdate?: (payload: { old: any; new: any }) => void;
-  onDelete?: (payload: any) => void;
+  onInsert?: (payload: T) => void;
+  onUpdate?: (payload: { old: T; new: T }) => void;
+  onDelete?: (payload: T) => void;
   onChange?: (payload: any) => void;
   enabled?: boolean;
 }
@@ -31,7 +31,7 @@ interface UseRealtimeOptions {
  *   },
  * });
  */
-export function useRealtimeSubscription({
+export function useRealtimeSubscription<T = any>({
   table,
   schema = "public",
   event = "*",
@@ -41,7 +41,7 @@ export function useRealtimeSubscription({
   onDelete,
   onChange,
   enabled = true,
-}: UseRealtimeOptions) {
+}: UseRealtimeOptions<T>) {
   const channelRef = useRef<RealtimeChannel | null>(null);
 
   useEffect(() => {
@@ -54,20 +54,17 @@ export function useRealtimeSubscription({
     const channel = supabase.channel(channelName);
     
     // Build the subscription config
-    const subscriptionConfig: any = {
+    const subscriptionConfig = {
       event,
       schema,
       table,
+      filter: filter || undefined
     };
     
-    if (filter) {
-      subscriptionConfig.filter = filter;
-    }
-
     channel
       .on(
-        "postgres_changes" as any,
-        subscriptionConfig,
+        "postgres_changes",
+        subscriptionConfig as any,
         (payload: any) => {
           // Call general onChange handler
           onChange?.(payload);
@@ -75,13 +72,13 @@ export function useRealtimeSubscription({
           // Call specific handlers based on event type
           switch (payload.eventType) {
             case "INSERT":
-              onInsert?.(payload.new);
+              onInsert?.(payload.new as T);
               break;
             case "UPDATE":
-              onUpdate?.({ old: payload.old, new: payload.new });
+              onUpdate?.({ old: payload.old as T, new: payload.new as T });
               break;
             case "DELETE":
-              onDelete?.(payload.old);
+              onDelete?.(payload.old as T);
               break;
           }
         }

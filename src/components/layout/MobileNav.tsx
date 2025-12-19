@@ -188,7 +188,7 @@ export const MobileNav = memo(function MobileNav() {
       {/* Slide-out Menu - Exact same styling as desktop Sidebar */}
       <div
         className={cn(
-          "md:hidden fixed top-0 left-0 h-full w-72 z-50 transform transition-transform duration-300 ease-out glass noise-overlay border-0 border-r border-white/10",
+          "md:hidden fixed top-0 left-0 h-full w-72 z-50 transform transition-transform duration-300 ease-out glass border-0 border-r border-white/10",
           isOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >

@@ -78,6 +78,16 @@ export interface Post {
   score?: number;
 }
 
+/**
+ * Post with additional metadata (likes, reposts, saves, views)
+ */
+export interface PostWithMetadata extends Post {
+  isLiked: boolean;
+  isReposted: boolean;
+  isSaved: boolean;
+  views: number;
+}
+
 export interface PostMedia {
   id: string;
   postId: string;

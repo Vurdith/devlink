@@ -214,37 +214,30 @@ export const CreatePost = memo(function CreatePost({
   if (!isOpen) {
     return (
       <div 
-        className="create-post-collapsed glass noise-overlay rounded-2xl p-4 mb-6 border border-white/10 cursor-pointer group relative overflow-hidden"
+        className="create-post-collapsed glass-soft rounded-2xl p-4 mb-6 border border-white/10 cursor-pointer group relative overflow-hidden transition-all duration-300 hover:border-white/20 hover:shadow-xl"
         onClick={() => setIsOpen(true)}
       >
         {/* Shimmer effect - covers entire cell on hover */}
-        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none overflow-hidden rounded-2xl">
-          <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out bg-gradient-to-r from-transparent via-white/10 to-transparent skew-x-12" />
-        </div>
-        
-        {/* Animated gradient border on hover */}
-        <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-          <div className="absolute inset-0 rounded-2xl gradient-border-animated p-[1px]">
-            <div className="w-full h-full rounded-2xl bg-[#0a0d12]" />
-          </div>
+        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none overflow-hidden rounded-2xl">
+          <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out bg-gradient-to-r from-transparent via-white/5 to-transparent skew-x-12" />
         </div>
         
         {/* Glow effect on hover */}
-        <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-[var(--color-accent)]/0 via-[rgba(var(--color-accent-rgb),0.05)] to-[rgba(var(--color-accent-rgb),0)] opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+        <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-[var(--color-accent)]/0 via-[rgba(var(--color-accent-rgb),0.03)] to-[rgba(var(--color-accent-rgb),0)] opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
         
         <div className="relative z-10 flex items-center gap-4">
           <div className="scale-hover">
-            <Avatar src={currentUserProfile.avatarUrl} size={44} />
+            <Avatar src={currentUserProfile.avatarUrl} size={44} className="border border-white/10 shadow-lg" />
           </div>
           <div className="flex-1">
-            <div className="text-sm font-semibold text-white mb-1 group-hover:text-[var(--color-accent)] transition-colors">
+            <div className="text-sm font-bold text-white mb-1 group-hover:text-[var(--color-accent)] transition-colors tracking-tight">
               {replyToId ? "Reply to this post" : "Create a new post"}
             </div>
-            <div className="text-sm text-[var(--muted-foreground)] opacity-70 group-hover:opacity-100 transition-opacity">
+            <div className="text-sm text-[var(--muted-foreground)] opacity-70 group-hover:opacity-100 transition-opacity leading-relaxed">
               {placeholder}
             </div>
           </div>
-          <button className="icon-btn p-3 rounded-xl text-[var(--color-accent)] group-hover:text-[var(--color-accent)] transition-colors">
+          <button className="icon-btn p-3 rounded-xl text-[var(--color-accent)] group-hover:bg-[var(--color-accent)]/10 transition-all">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" className="rotate-hover">
               <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
@@ -257,10 +250,10 @@ export const CreatePost = memo(function CreatePost({
   // Expanded state - with slide animations
   return (
     <>
-      <div className="create-post-expanded glass noise-overlay rounded-2xl p-5 mb-6 border border-[rgba(var(--color-accent-rgb),0.28)] relative overflow-hidden">
+      <div className="create-post-expanded glass-soft rounded-2xl p-5 mb-6 border border-[rgba(var(--color-accent-rgb),0.2)] relative overflow-hidden shadow-2xl animate-fade-in">
         <form onSubmit={handleSubmit} className="relative space-y-4">
           {/* Icon Buttons Row - with stagger animation */}
-          <div className="flex items-center gap-2 p-2 bg-black/30 rounded-xl border border-white/10 stagger-in">
+          <div className="flex items-center gap-2 p-2 bg-black/40 rounded-xl border border-white/5 stagger-in shadow-inner">
             <ActionButton onClick={() => fileInputRef.current?.click()} title="Add Media" shortcut="⌘I" badge={formData.mediaUrls.length || undefined} delay={1}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M21 19V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2z" stroke="currentColor" strokeWidth="2"/><circle cx="8.5" cy="8.5" r="1.5" stroke="currentColor" strokeWidth="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" stroke="currentColor" strokeWidth="2"/></svg>
             </ActionButton>
@@ -369,16 +362,16 @@ export const CreatePost = memo(function CreatePost({
               id="post-content"
               value={formData.content}
               onChange={(e) => setFormData(prev => ({ ...prev, content: e.target.value }))}
-              className="w-full px-4 py-3 bg-black/30 border border-white/10 rounded-xl focus:border-[var(--color-accent)] outline-none transition-all resize-none text-white placeholder:text-gray-500"
+              className="w-full px-4 py-3 bg-black/40 border border-white/10 rounded-xl focus:border-[var(--color-accent)] outline-none transition-all resize-none text-white placeholder:text-gray-500 shadow-inner leading-relaxed"
               rows={4}
               placeholder={replyToId ? "Write your reply..." : "What's on your mind? Share updates, ideas, or projects..."}
               aria-describedby="post-hint post-count"
             />
             <div className="flex items-center justify-between mt-2">
-              <span id="post-hint" className="text-xs text-[var(--muted-foreground)]">
+              <span id="post-hint" className="text-xs text-[var(--muted-foreground)] opacity-60">
                 Use @username to mention • #tag for topics
               </span>
-              <span id="post-count" className={cn("text-xs transition-colors", formData.content.length > 280 ? "text-[var(--color-accent)]" : "text-[var(--muted-foreground)]")} aria-live="polite">
+              <span id="post-count" className={cn("text-xs font-bold transition-colors", formData.content.length > 280 ? "text-[var(--color-accent)]" : "text-[var(--muted-foreground)] opacity-60")} aria-live="polite">
                 {formData.content.length}/500
               </span>
             </div>
@@ -497,19 +490,19 @@ export const CreatePost = memo(function CreatePost({
           )}
 
           {/* Submit Buttons */}
-          <div className="flex justify-end gap-3 pt-2">
+          <div className="flex justify-end items-center gap-3 pt-4 border-t border-white/5">
             <button
               type="button"
               onClick={() => setIsOpen(false)}
               disabled={isSubmitting}
-              className="btn-press px-5 py-2.5 rounded-xl text-sm font-medium text-gray-400 hover:text-white hover:bg-white/10 transition-colors"
+              className="px-5 py-2.5 rounded-xl text-sm font-bold text-[var(--muted-foreground)] hover:text-white transition-colors"
             >
               Cancel
             </button>
             <Button 
               type="submit" 
               disabled={isSubmitting || (!formData.content && !pollData)}
-              className="min-w-[100px]"
+              className="min-w-[120px] shadow-lg shadow-[var(--color-accent)]/20"
             >
               {isSubmitting ? (
                 <span className="flex items-center gap-2">
@@ -568,7 +561,7 @@ function ActionButton({
   const tooltipContent = showTooltip && mounted && createPortal(
     <div 
       className={cn(
-        "fixed pointer-events-none transition-all duration-200 z-[9999]",
+        "fixed pointer-events-none transition-all duration-300 z-[9999]",
         showTooltip ? "opacity-100 scale-100" : "opacity-0 scale-95"
       )}
       style={{
@@ -577,19 +570,19 @@ function ActionButton({
         transform: 'translate(-50%, -100%)'
       }}
     >
-      <div className="relative px-3 py-1.5 bg-[#1a1a2e] border border-[rgba(var(--color-accent-rgb),0.3)] rounded-lg shadow-xl shadow-black/50">
+      <div className="relative px-3 py-1.5 glass-soft border border-[var(--color-accent)]/30 rounded-lg shadow-2xl backdrop-blur-md">
         <div className="flex items-center gap-2 whitespace-nowrap">
-          <span className="text-xs font-medium text-white">{title}</span>
+          <span className="text-xs font-bold text-white tracking-tight">{title}</span>
           {shortcut && (
-            <kbd className="px-1.5 py-0.5 text-[10px] font-medium text-[var(--color-accent)] bg-[rgba(var(--color-accent-rgb),0.2)] border border-[rgba(var(--color-accent-rgb),0.3)] rounded">
+            <kbd className="px-1.5 py-0.5 text-[10px] font-bold text-[var(--color-accent)] bg-[var(--color-accent)]/10 border border-[var(--color-accent)]/20 rounded-md">
               {shortcut}
             </kbd>
           )}
         </div>
         {/* Arrow */}
         <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-px">
-          <div className="border-4 border-transparent border-t-[rgba(var(--color-accent-rgb),0.3)]" />
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 -mt-[1px] border-4 border-transparent border-t-[#1a1a2e]" />
+          <div className="border-4 border-transparent border-t-[var(--color-accent)]/30" />
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 -mt-[1px] border-4 border-transparent border-t-[#0c0e14]" />
         </div>
       </div>
     </div>,

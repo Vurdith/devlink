@@ -275,28 +275,28 @@ export const ReplyModal = memo(function ReplyModal({
       {/* Character count with progress ring */}
       <div className="flex items-center gap-3">
         <div className={cn(
-          "text-sm font-medium",
+          "text-xs font-bold tabular-nums",
           content.length > 450 
             ? "text-amber-400" 
             : content.length > 480 
               ? "text-[var(--color-accent)]" 
-              : "text-[var(--muted-foreground)]"
+              : "text-[var(--muted-foreground)] opacity-60"
         )}>
           {content.length}/500
         </div>
         
         {/* Progress ring */}
         <Tooltip content={`${500 - content.length} characters remaining`}>
-          <div className="relative w-6 h-6">
-            <svg className="w-6 h-6 -rotate-90" viewBox="0 0 24 24">
+          <div className="relative w-5 h-5">
+            <svg className="w-5 h-5 -rotate-90" viewBox="0 0 24 24">
               <circle 
                 cx="12" 
                 cy="12" 
                 r="10" 
                 fill="none" 
                 stroke="currentColor" 
-                strokeWidth="2" 
-                className="text-white/10"
+                strokeWidth="2.5" 
+                className="text-white/5"
               />
               <circle 
                 cx="12" 
@@ -304,10 +304,10 @@ export const ReplyModal = memo(function ReplyModal({
                 r="10" 
                 fill="none" 
                 stroke="currentColor" 
-                strokeWidth="2" 
+                strokeWidth="2.5" 
                 strokeDasharray={`${(content.length / 500) * 62.83} 62.83`}
                 className={cn(
-                  "transition-all",
+                  "transition-all duration-500",
                   content.length > 480 ? "text-[var(--color-accent)]" : content.length > 450 ? "text-amber-400" : "text-[var(--color-accent)]"
                 )}
               />
@@ -330,77 +330,77 @@ export const ReplyModal = memo(function ReplyModal({
       {/* Original post preview */}
       <div className="flex gap-3 mb-4">
         <div className="flex flex-col items-center">
-          <div className="w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0 rounded-full overflow-hidden border-2 border-white/20">
-            {post.user.profile?.avatarUrl ? (
-              <Image
-                src={post.user.profile.avatarUrl}
-                alt={post.user.username}
-                width={48}
-                height={48}
-                className="w-full h-full object-cover"
-                loading="lazy"
-              />
-            ) : (
-              <div className="w-full h-full bg-gradient-to-br from-[var(--color-accent)] to-pink-500 flex items-center justify-center text-white text-sm font-semibold">
-                {(post.user.name || post.user.username).charAt(0).toUpperCase()}
-              </div>
-            )}
-          </div>
-          {/* Connection line */}
-          <div className="w-0.5 flex-1 bg-gradient-to-b from-[var(--color-accent)]/50 to-transparent mt-2 mb-2 min-h-[20px]" />
-        </div>
-        
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
-            <span className="font-semibold text-white text-sm truncate">
-              {post.user.name || post.user.username}
-            </span>
-            {post.user.profile?.verified && (
-              <svg className="w-4 h-4 text-[var(--color-accent)] flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-              </svg>
-            )}
-            <span className="text-[var(--muted-foreground)] text-sm">@{post.user.username}</span>
-            <span className="text-[var(--muted-foreground)] text-sm">·</span>
-            <TimeAgo date={post.createdAt} className="text-[var(--muted-foreground)] text-sm" />
-          </div>
-          <p className="text-white/80 text-sm whitespace-pre-wrap break-words line-clamp-3">
-            {post.content}
-          </p>
-          <p className="text-[var(--muted-foreground)] text-sm mt-2">
-            Replying to <span className="text-[var(--color-accent)]">@{post.user.username}</span>
-          </p>
-        </div>
-      </div>
-      
-      {/* Reply input area */}
-      <div className="flex gap-3">
-        <div className="w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0 rounded-full overflow-hidden border-2 border-[var(--color-accent)]/30">
-          {currentUserProfile?.avatarUrl ? (
+        <div className="w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0 rounded-full overflow-hidden border border-white/10 shadow-lg">
+          {post.user.profile?.avatarUrl ? (
             <Image
-              src={currentUserProfile.avatarUrl}
-              alt={currentUserProfile.username}
+              src={post.user.profile.avatarUrl}
+              alt={post.user.username}
               width={48}
               height={48}
               className="w-full h-full object-cover"
               loading="lazy"
             />
           ) : (
-            <div className="w-full h-full bg-gradient-to-br from-[var(--color-accent)] to-cyan-500 flex items-center justify-center text-white text-sm font-semibold">
-              {(currentUserProfile?.name || currentUserProfile?.username || "U").charAt(0).toUpperCase()}
+            <div className="w-full h-full bg-gradient-to-br from-[var(--color-accent)] to-pink-500 flex items-center justify-center text-white text-sm font-bold">
+              {(post.user.name || post.user.username).charAt(0).toUpperCase()}
             </div>
           )}
         </div>
-        
-        <div className="flex-1 min-w-0">
-          <textarea
-            ref={textareaRef}
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            placeholder="Post your reply..."
-            className="w-full bg-transparent text-white text-base placeholder:text-[var(--muted-foreground)] resize-none outline-none min-h-[80px]"
-            maxLength={500}
+        {/* Connection line */}
+        <div className="w-px flex-1 bg-gradient-to-b from-white/10 to-transparent mt-2 mb-2 min-h-[20px]" />
+      </div>
+      
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2 mb-1">
+          <span className="font-bold text-white text-sm truncate tracking-tight">
+            {post.user.name || post.user.username}
+          </span>
+          {post.user.profile?.verified && (
+            <svg className="w-3.5 h-3.5 text-blue-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+            </svg>
+          )}
+          <span className="text-[var(--muted-foreground)] text-sm">@{post.user.username}</span>
+          <span className="text-[var(--muted-foreground)] text-sm opacity-50">·</span>
+          <TimeAgo date={post.createdAt} className="text-[var(--muted-foreground)] text-sm" />
+        </div>
+        <p className="text-white/70 text-sm whitespace-pre-wrap break-words line-clamp-3 leading-relaxed">
+          {post.content}
+        </p>
+        <p className="text-[var(--muted-foreground)] text-xs mt-3 flex items-center gap-1.5">
+          Replying to <span className="text-[var(--color-accent)] font-bold">@{post.user.username}</span>
+        </p>
+      </div>
+    </div>
+    
+    {/* Reply input area */}
+    <div className="flex gap-3">
+      <div className="w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0 rounded-full overflow-hidden border border-white/10 shadow-lg">
+        {currentUserProfile?.avatarUrl ? (
+          <Image
+            src={currentUserProfile.avatarUrl}
+            alt={currentUserProfile.username}
+            width={48}
+            height={48}
+            className="w-full h-full object-cover"
+            loading="lazy"
           />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-[var(--color-accent)] to-cyan-500 flex items-center justify-center text-white text-sm font-bold">
+            {(currentUserProfile?.name || currentUserProfile?.username || "U").charAt(0).toUpperCase()}
+          </div>
+        )}
+      </div>
+      
+      <div className="flex-1 min-w-0">
+        <textarea
+          ref={textareaRef}
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+          placeholder="Post your reply..."
+          className="w-full bg-transparent text-white text-base sm:text-lg placeholder:text-[var(--muted-foreground)]/50 resize-none outline-none min-h-[120px] leading-relaxed"
+          maxLength={500}
+        />
           
           {/* Conditional panels */}
           {showEmojiPicker && (

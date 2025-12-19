@@ -216,7 +216,7 @@ export const NavbarSearch = memo(function NavbarSearch() {
           id="search-results"
           role="listbox"
           aria-label="Search results"
-          className="absolute left-0 mt-2 w-full relative overflow-hidden glass noise-overlay rounded-2xl p-2 shadow-2xl border border-white/10 z-50 max-h-[70vh] overflow-y-auto animate-fade-in"
+          className="absolute left-0 mt-2 w-full relative overflow-hidden glass rounded-2xl p-2 shadow-2xl border border-white/10 z-50 max-h-[70vh] overflow-y-auto animate-fade-in"
         >
           {loading && (
             <div className="flex items-center justify-center py-8">

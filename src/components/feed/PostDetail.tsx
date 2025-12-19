@@ -524,13 +524,13 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
   }, [post.id, post.user.name, post.user.username, post.content]);
 
   return (
-    <div className="relative overflow-hidden glass glass-hover noise-overlay border border-white/10 rounded-xl sm:rounded-2xl p-3 sm:p-6 mb-3 sm:mb-6">
+    <div className="relative overflow-hidden glass-soft border border-white/10 rounded-xl sm:rounded-2xl p-3 sm:p-6 mb-3 sm:mb-6 hover:border-white/20 transition-all duration-300">
       {/* Header */}
       <div className="flex items-start space-x-2 sm:space-x-3 mb-3 sm:mb-4">
         <ProfileTooltip user={post.user as any} currentUserId={session?.user?.id}>
           <button
             onClick={navigateToProfile}
-            className="relative group cursor-pointer flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12"
+            className="relative cursor-pointer flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12"
           >
             {!avatarError && displayAvatarUrl ? (
               // Use regular img for blob URLs (instant local preview), next/image for remote URLs
@@ -538,7 +538,7 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
                 <img
                   src={displayAvatarUrl}
                   alt={post.user.name || post.user.username}
-                  className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover border-2 border-white/20 group-hover:opacity-80 transition-opacity"
+                  className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover border border-white/10 hover:border-white/30 transition-all duration-300"
                 />
               ) : (
                 <Image
@@ -546,14 +546,14 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
                   alt={post.user.name || post.user.username}
                   width={48}
                   height={48}
-                  className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover border-2 border-white/20 group-hover:opacity-80 transition-opacity"
+                  className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover border border-white/10 hover:border-white/30 transition-all duration-300"
                   loading="lazy"
                   referrerPolicy="no-referrer"
                   onError={() => setAvatarError(true)}
                 />
               )
             ) : (
-              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-white/20 bg-gradient-to-br from-[var(--color-accent)] to-pink-500 flex items-center justify-center group-hover:opacity-80 transition-opacity">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border border-white/10 bg-gradient-to-br from-[var(--color-accent)] to-pink-500 flex items-center justify-center hover:opacity-90 transition-opacity">
                 <span className="text-white font-semibold text-xs sm:text-sm">
                   {getInitials(post.user.name, post.user.username)}
                 </span>
@@ -565,7 +565,7 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
         <div className="flex-1 min-w-0">
           <div className="flex items-center space-x-1 sm:space-x-2 flex-wrap">
             <ProfileTooltip user={post.user as any} currentUserId={session?.user?.id}>
-              <a href={`/u/${post.user.username}`} className="font-semibold text-sm sm:text-base text-white hover:underline truncate">
+              <a href={`/u/${post.user.username}`} className="font-bold text-sm sm:text-base text-white hover:underline truncate tracking-tight">
                 {post.user.name || post.user.username}
               </a>
             </ProfileTooltip>
@@ -575,43 +575,43 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
               </svg>
             )}
             <span className="text-[var(--muted-foreground)] text-xs sm:text-sm">@{post.user.username}</span>
-            <span className="text-[var(--muted-foreground)] text-xs sm:text-sm hidden min-[400px]:inline">•</span>
+            <span className="text-[var(--muted-foreground)] text-xs sm:text-sm hidden min-[400px]:inline opacity-50">•</span>
             <TimeAgo date={post.createdAt} className="text-[var(--muted-foreground)] text-xs sm:text-sm hidden min-[400px]:inline" />
-            {post.updatedAt > post.createdAt && <span className="text-[var(--muted-foreground)] text-xs sm:text-sm hidden sm:inline">• Edited</span>}
-            {post.isPinned && showPinnedTag && <span className="text-[var(--muted-foreground)] text-xs sm:text-sm hidden sm:inline">• Pinned</span>}
+            {post.updatedAt > post.createdAt && <span className="text-[var(--muted-foreground)] text-xs sm:text-sm hidden sm:inline opacity-50">• Edited</span>}
+            {post.isPinned && showPinnedTag && <span className="text-[var(--muted-foreground)] text-xs sm:text-sm hidden sm:inline opacity-50">• Pinned</span>}
           </div>
           {/* Content directly under username */}
           <div className="mt-1">
-            <ContentRenderer content={post.content} className="text-sm sm:text-base text-[var(--foreground)] whitespace-pre-wrap break-words" currentUserId={session?.user?.id} />
+            <ContentRenderer content={post.content} className="text-sm sm:text-base text-[var(--foreground)] whitespace-pre-wrap break-words leading-relaxed" currentUserId={session?.user?.id} />
           </div>
         </div>
 
         {/* Actions Menu */}
         <div className="relative" ref={actionsMenuRef}>
-          <button onClick={() => setShowActionsMenu(!showActionsMenu)} className="p-2 rounded-full hover:bg-white/10 transition-colors">
-            <svg className="w-5 h-5 text-[var(--muted-foreground)]" fill="currentColor" viewBox="0 0 20 20">
+          <button onClick={() => setShowActionsMenu(!showActionsMenu)} className="p-2 rounded-xl hover:bg-white/5 transition-colors border border-transparent hover:border-white/10 group">
+            <svg className="w-5 h-5 text-[var(--muted-foreground)] group-hover:text-white transition-colors" fill="currentColor" viewBox="0 0 20 20">
               <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
             </svg>
           </button>
 
           {showActionsMenu && (
-            <div className="absolute right-0 top-full mt-2 w-48 relative overflow-hidden glass noise-overlay rounded-xl shadow-xl border border-white/10 z-50">
+            <div className="absolute right-0 top-full mt-2 w-48 overflow-hidden glass-soft rounded-xl shadow-2xl border border-white/10 z-50 animate-pop-in">
               <div className="py-1">
                 {isOwnPost && (
                   <>
-                    <button onClick={handlePin} className="w-full text-left px-4 py-2 text-sm text-[var(--foreground)] hover:bg-white/10 transition-colors flex items-center space-x-3">
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <button onClick={handlePin} className="w-full text-left px-4 py-2.5 text-sm text-[var(--foreground)] hover:bg-white/5 transition-colors flex items-center space-x-3">
+                      <svg className="w-4 h-4 text-[var(--muted-foreground)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
                       </svg>
                       <span>{post.isPinned ? 'Unpin' : 'Pin'}</span>
                     </button>
-                    <a href={`/p/${post.id}/analytics`} className="w-full text-left px-4 py-2 text-sm text-[var(--foreground)] hover:bg-white/10 transition-colors flex items-center space-x-3">
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <a href={`/p/${post.id}/analytics`} className="w-full text-left px-4 py-2.5 text-sm text-[var(--foreground)] hover:bg-white/5 transition-colors flex items-center space-x-3">
+                      <svg className="w-4 h-4 text-[var(--muted-foreground)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                       </svg>
                       <span>Analytics</span>
                     </a>
-                    <button onClick={() => { setShowActionsMenu(false); setShowDeleteConfirm(true); }} className="w-full text-left px-4 py-2 text-sm text-[var(--color-accent)] hover:bg-[var(--color-accent)]/10 transition-colors flex items-center space-x-3">
+                    <button onClick={() => { setShowActionsMenu(false); setShowDeleteConfirm(true); }} className="w-full text-left px-4 py-2.5 text-sm text-red-400 hover:bg-red-500/10 transition-colors flex items-center space-x-3">
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                       </svg>
@@ -619,7 +619,7 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
                     </button>
                   </>
                 )}
-                <button className="w-full text-left px-4 py-2 text-sm text-[var(--color-accent)] hover:bg-[var(--color-accent)]/10 transition-colors flex items-center space-x-3">
+                <button className="w-full text-left px-4 py-2.5 text-sm text-amber-400/80 hover:bg-amber-500/10 transition-colors flex items-center space-x-3">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 19.5c-.77.833.192 2.5 1.732 2.5z" />
                   </svg>
@@ -655,7 +655,7 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
       )}
 
       {/* Action Buttons - Single row with equal spacing */}
-      <div className="grid grid-cols-7 gap-0 mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-white/10">
+      <div className="flex items-center justify-between mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-white/5">
         {/* Reply - Opens modal like X.com */}
         {!isOnPostPage ? (
           <EngagementButton
@@ -665,11 +665,11 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
             count={post.replies?.length || 0}
             ariaLabel="Reply to this post"
           >
-            <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </EngagementButton>
-        ) : <div />}
+        ) : <div className="w-10" />}
 
         {/* Repost */}
         <EngagementButton
@@ -681,8 +681,8 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
           disabled={isUpdating}
           ariaLabel={isReposted ? "Undo repost" : "Repost"}
         >
-          <svg className={cn("w-[18px] h-[18px] transition-transform", isReposted && "rotate-180")} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={cn("transition-transform duration-500", isReposted && "rotate-180")}>
+            <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </EngagementButton>
 
@@ -696,16 +696,16 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
           disabled={isUpdating}
           ariaLabel={isLiked ? "Unlike" : "Like"}
         >
-          <svg className="w-[18px] h-[18px]" fill={isLiked ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+          <svg width="18" height="18" viewBox="0 0 24 24" fill={isLiked ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" className={cn(isLiked && "animate-like")}>
+            <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </EngagementButton>
 
         {/* Views */}
         <EngagementButton isActive={false} activeColor="gray" count={post.views} ariaLabel="View count">
-          <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </EngagementButton>
 
@@ -713,11 +713,12 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
         <EngagementButton
           onClick={handleShare}
           isActive={false}
-          activeColor="red"
+          activeColor="gray"
           label="Share"
+          ariaLabel="Share post"
         >
-          <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </EngagementButton>
 
@@ -727,27 +728,28 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
           isActive={isSaved}
           activeColor="yellow"
           label="Save"
-          showExplosion
           disabled={isUpdating}
+          ariaLabel={isSaved ? "Unsave" : "Save"}
         >
-          <svg className="w-[18px] h-[18px]" fill={isSaved ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+          <svg width="18" height="18" viewBox="0 0 24 24" fill={isSaved ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2">
+            <path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </EngagementButton>
 
         {/* Go to Post */}
-        {!isOnPostPage ? (
+        {!isOnPostPage && (
           <EngagementButton
             onClick={navigateToPost}
             isActive={false}
             activeColor="gray"
             label="Open"
+            ariaLabel="Open post"
           >
-            <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </EngagementButton>
-        ) : <div />}
+        )}
       </div>
 
 
@@ -827,12 +829,13 @@ function EngagementButton({
     green: { active: 'text-green-500', hover: 'hover:text-green-500 hover:bg-green-500/10', particle: 'bg-green-500' },
     blue: { active: 'text-blue-500', hover: 'hover:text-blue-500 hover:bg-blue-500/10', particle: 'bg-blue-500' },
     yellow: { active: 'text-yellow-500', hover: 'hover:text-yellow-500 hover:bg-yellow-500/10', particle: 'bg-yellow-500' },
-    gray: { active: 'text-gray-400', hover: 'hover:text-gray-300 hover:bg-white/5', particle: 'bg-gray-400' },
+    gray: { active: 'text-[var(--muted-foreground)]', hover: 'hover:text-white hover:bg-white/5', particle: 'bg-gray-400' },
   };
   
   const colors = colorClasses[activeColor];
   
-  const handleClick = () => {
+  const handleClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
     if (disabled) return;
     
     // Trigger explosion
@@ -852,30 +855,34 @@ function EngagementButton({
       aria-label={ariaLabel || label}
       aria-pressed={isActive}
       className={cn(
-        "relative flex items-center justify-center gap-1 p-2 rounded-full transition-colors",
-        disabled ? "opacity-60 cursor-not-allowed" : cn(colors.hover, "active:scale-95"),
-        isActive ? colors.active : "text-[var(--muted-foreground)]"
+        "group flex items-center gap-2 p-2 rounded-xl transition-all duration-200 active:scale-90",
+        isActive ? colors.active : "text-[var(--muted-foreground)]",
+        colors.hover,
+        disabled && "opacity-50 cursor-not-allowed"
       )}
     >
-      {/* Explosion particles */}
-      {particles.map((id, i) => (
-        <span
-          key={id}
-          className={cn("absolute w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full pointer-events-none", colors.particle)}
-          style={{ animation: `particle-${i % 6} 0.5s ease-out forwards` }}
-        />
-      ))}
-      
-      <span className={cn("relative transition-transform", !disabled && "active:scale-125")}>
+      <div className="relative flex items-center justify-center">
         {children}
-      </span>
-      {count !== undefined && (
-        <span className={cn("text-[11px] font-medium tabular-nums", isActive && colors.active)}>
-          {count}
+        
+        {/* Particle explosion */}
+        {particles.map((p, i) => (
+          <div
+            key={p}
+            className={cn(
+              "absolute w-1 h-1 rounded-full pointer-events-none",
+              colors.particle
+            )}
+            style={{
+              animation: `particle-${i % 6} 0.5s ease-out forwards`,
+            }}
+          />
+        ))}
+      </div>
+      
+      {(count !== undefined || label) && (
+        <span className="text-xs font-bold tabular-nums tracking-tight">
+          {label || (count! > 0 ? count : "")}
         </span>
-      )}
-      {label && (
-        <span className="text-xs hidden sm:inline">{label}</span>
       )}
     </button>
   );
