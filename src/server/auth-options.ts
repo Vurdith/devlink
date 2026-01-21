@@ -8,8 +8,9 @@ import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { prisma } from "@/server/db";
 import { compare } from "bcryptjs";
 
-// Track new OAuth signups for redirect
-const newOAuthSignups = new Set<string>();
+function normalizeEmail(email: string) {
+  return email.trim().toLowerCase();
+}
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -28,7 +29,10 @@ export const authOptions: NextAuthOptions = {
       },
       authorize: async (credentials) => {
         if (!credentials?.email || !credentials?.password) return null;
-        const user = await prisma.user.findUnique({ where: { email: credentials.email } });
+        const email = normalizeEmail(credentials.email);
+        const user = await prisma.user.findFirst({
+          where: { email: { equals: email, mode: "insensitive" } },
+        });
         if (!user || !user.password) return null;
         const ok = await compare(credentials.password, user.password);
         if (!ok) return null;
@@ -62,11 +66,12 @@ export const authOptions: NextAuthOptions = {
       
       if (account?.provider && profile && user.email) {
         try {
+          const email = normalizeEmail(user.email);
           // Use a transaction for atomicity
           await prisma.$transaction(async (tx) => {
             // Check if user exists by email
-            const existingUser = await tx.user.findUnique({
-              where: { email: user.email! },
+            const existingUser = await tx.user.findFirst({
+              where: { email: { equals: email, mode: "insensitive" } },
               include: { accounts: true }
             });
 
@@ -114,7 +119,7 @@ export const authOptions: NextAuthOptions = {
                 return sanitized;
               };
 
-              const baseUsername = sanitizeUsername(user.name, user.email!);
+              const baseUsername = sanitizeUsername(user.name, email);
               let username = baseUsername;
               let counter = 1;
               const maxAttempts = 100; // Prevent infinite loop
@@ -139,7 +144,7 @@ export const authOptions: NextAuthOptions = {
 
               const newUser = await tx.user.create({
                 data: {
-                  email: user.email!,
+                  email,
                   username,
                   name: user.name,
                   image: user.image,
@@ -174,13 +179,6 @@ export const authOptions: NextAuthOptions = {
                 }
               });
 
-              // Mark this as a new OAuth signup so we can redirect to set password
-              newOAuthSignups.add(user.email!);
-              
-              // Auto-cleanup after 5 minutes to prevent memory leaks
-              setTimeout(() => {
-                newOAuthSignups.delete(user.email!);
-              }, 5 * 60 * 1000);
             }
           });
           
@@ -200,24 +198,19 @@ export const authOptions: NextAuthOptions = {
       // First sign-in: populate token from user object and DB
       if (user) {
         token.id = (user as { id: string }).id;
-        
-        // Check if this is a new OAuth signup
-        if (user.email && newOAuthSignups.has(user.email)) {
-          token.needsPassword = true;
-          newOAuthSignups.delete(user.email);
-        }
-        
-        // Fetch username from DB on first sign-in only
+
+        // Fetch username/password from DB on first sign-in only
         try {
           const dbUser = await prisma.user.findUnique({ 
             where: { id: token.id as string }, 
             select: { username: true, password: true } 
           });
           if (dbUser?.username) token.username = dbUser.username;
-          if (dbUser?.password) token.needsPassword = false;
+          token.needsPassword = !dbUser?.password;
         } catch (e) {
           // Use fallback from user object
           token.username = (user as { name?: string }).name || "";
+          token.needsPassword = false;
         }
       }
       
@@ -229,8 +222,7 @@ export const authOptions: NextAuthOptions = {
             select: { username: true, password: true } 
           });
           if (dbUser?.username) token.username = dbUser.username;
-          if (dbUser?.password) token.needsPassword = false;
-          else token.needsPassword = true;
+          token.needsPassword = !dbUser?.password;
         } catch (e) {
           // Keep existing token values on error
         }

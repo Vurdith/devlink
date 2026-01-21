@@ -53,6 +53,17 @@ const navItems = [
       </svg>
     ),
     useAccent: true
+  },
+  { 
+    href: "/settings/messaging", 
+    label: "Messaging", 
+    description: "Message requests & privacy",
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+        <path d="M21 15a4 4 0 0 1-4 4H7l-4 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+    ),
+    useAccent: true
   }
 ];
 

@@ -323,6 +323,62 @@ export function validatePollData(pollData: unknown): ValidationResult {
   };
 }
 
+export function validateJobTitle(title: string): ValidationResult {
+  const errors: string[] = [];
+  if (!title || title.trim().length === 0) {
+    errors.push("Job title is required");
+  } else if (title.length < 3) {
+    errors.push("Job title must be at least 3 characters");
+  } else if (title.length > 120) {
+    errors.push("Job title must be less than 120 characters");
+  }
+  return { isValid: errors.length === 0, errors };
+}
+
+export function validateJobDescription(description: string): ValidationResult {
+  const errors: string[] = [];
+  if (!description || description.trim().length === 0) {
+    errors.push("Job description is required");
+  } else if (description.length < 20) {
+    errors.push("Job description must be at least 20 characters");
+  } else if (description.length > 5000) {
+    errors.push("Job description must be less than 5000 characters");
+  }
+  return { isValid: errors.length === 0, errors };
+}
+
+export function validateMessageContent(content: string): ValidationResult {
+  const errors: string[] = [];
+  if (!content || content.trim().length === 0) {
+    errors.push("Message cannot be empty");
+  } else if (content.length > 2000) {
+    errors.push("Message must be less than 2000 characters");
+  }
+  return { isValid: errors.length === 0, errors };
+}
+
+export function validateEscrowAmount(amount: number): ValidationResult {
+  const errors: string[] = [];
+  if (typeof amount !== "number" || Number.isNaN(amount)) {
+    errors.push("Amount must be a number");
+  } else if (amount <= 0) {
+    errors.push("Amount must be greater than zero");
+  } else if (amount > 100000000) {
+    errors.push("Amount is too large");
+  }
+  return { isValid: errors.length === 0, errors };
+}
+
+export function validateCurrency(currency: string): ValidationResult {
+  const errors: string[] = [];
+  if (!currency || currency.trim().length === 0) {
+    errors.push("Currency is required");
+  } else if (!/^[A-Z]{3}$/.test(currency.trim().toUpperCase())) {
+    errors.push("Currency must be a 3-letter code");
+  }
+  return { isValid: errors.length === 0, errors };
+}
+
 /**
  * Sanitize and validate input
  */

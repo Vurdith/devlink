@@ -65,7 +65,8 @@ function VerifiedBadge() {
 }
 
 function TypeIcon({ type }: { type: NotificationType }) {
-  const common = "w-4 h-4";
+  const common = "w-[18px] h-[18px]";
+  const small = "w-[16px] h-[16px]";
   switch (type) {
     case "LIKE":
       return (
@@ -73,7 +74,7 @@ function TypeIcon({ type }: { type: NotificationType }) {
           <path
             d="M12 21s-7-4.4-9.5-8.6C.8 9.3 2.6 6 6 6c1.9 0 3.1 1 4 2.1C10.9 7 12.1 6 14 6c3.4 0 5.2 3.3 3.5 6.4C19 16.6 12 21 12 21Z"
             stroke="currentColor"
-            strokeWidth="2"
+            strokeWidth="2.4"
             strokeLinejoin="round"
           />
         </svg>
@@ -81,21 +82,21 @@ function TypeIcon({ type }: { type: NotificationType }) {
     case "REPOST":
       return (
         <svg className={common} viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path d="M7 7h11v5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-          <path d="M18 12l-2-2m2 2l2-2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-          <path d="M17 17H6v-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-          <path d="M6 12l-2 2m2-2l2 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+          <path d="M7 7h11v5" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
+          <path d="M18 12l-2-2m2 2l2-2" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
+          <path d="M17 17H6v-5" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
+          <path d="M6 12l-2 2m2-2l2 2" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
         </svg>
       );
     case "REPLY":
       return (
         <svg className={common} viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path d="M10 9V5l-7 7 7 7v-4c7 0 10 2 11 6-1-8-4-12-11-12Z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+          <path d="M10 9V5l-7 7 7 7v-4c7 0 10 2 11 6-1-8-4-12-11-12Z" stroke="currentColor" strokeWidth="2.4" strokeLinejoin="round" />
         </svg>
       );
     case "FOLLOW":
       return (
-        <svg className={common} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <svg className={small} viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
           <path d="M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" stroke="currentColor" strokeWidth="2" />
           <path d="M19 8v6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
@@ -105,10 +106,25 @@ function TypeIcon({ type }: { type: NotificationType }) {
     case "MENTION":
       return (
         <svg className={common} viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path d="M16 8a4 4 0 1 0 0 8c1.7 0 3.1-1.2 3.6-2.8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-          <path d="M20 12v-1a8 8 0 1 0 2.3 5.7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+          <path d="M16 8a4 4 0 1 0 0 8c1.7 0 3.1-1.2 3.6-2.8" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
+          <path d="M20 12v-1a8 8 0 1 0 2.3 5.7" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
         </svg>
       );
+  }
+}
+
+function typeBadgeClasses(type: NotificationType) {
+  switch (type) {
+    case "LIKE":
+      return "text-rose-300 border-rose-400/50";
+    case "REPOST":
+      return "text-emerald-300 border-emerald-400/50";
+    case "REPLY":
+      return "text-blue-300 border-blue-400/50";
+    case "FOLLOW":
+      return "text-violet-300 border-violet-400/50";
+    case "MENTION":
+      return "text-amber-300 border-amber-400/50";
   }
 }
 
@@ -172,25 +188,47 @@ export default function NotificationsPage() {
   const visible = useMemo(() => (tab === "unread" ? items.filter((i) => !i.readAt) : items), [items, tab]);
 
   const groupedVisible = useMemo(() => {
-    type Row = { kind: "header"; label: string; key: string } | { kind: "item"; n: NotificationItem; key: string };
+    type Row =
+      | { kind: "header"; label: string; key: string }
+      | { kind: "section"; label: string; key: string }
+      | { kind: "item"; n: NotificationItem; key: string };
     const rows: Row[] = [];
-    let lastKey = "";
-    for (const n of visible) {
-      const d = new Date(n.createdAt);
-      const dayKey = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
-      if (dayKey !== lastKey) {
-        lastKey = dayKey;
-        const label = isToday(d)
-          ? "Today"
-          : isYesterday(d)
-            ? "Yesterday"
-            : format(d, d.getFullYear() === new Date().getFullYear() ? "MMM d" : "MMM d, yyyy");
-        rows.push({ kind: "header", label, key: `h:${dayKey}` });
+
+    const pushByDay = (list: NotificationItem[], prefix: string) => {
+      let lastKey = "";
+      for (const n of list) {
+        const d = new Date(n.createdAt);
+        const dayKey = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+        if (dayKey !== lastKey) {
+          lastKey = dayKey;
+          const label = isToday(d)
+            ? "Today"
+            : isYesterday(d)
+              ? "Yesterday"
+              : format(d, d.getFullYear() === new Date().getFullYear() ? "MMM d" : "MMM d, yyyy");
+          rows.push({ kind: "header", label, key: `${prefix}:h:${dayKey}` });
+        }
+        rows.push({ kind: "item", n, key: `${prefix}:n:${n.id}` });
       }
-      rows.push({ kind: "item", n, key: `n:${n.id}` });
+    };
+
+    if (tab === "all") {
+      const unread = visible.filter((n) => !n.readAt);
+      const read = visible.filter((n) => n.readAt);
+      if (unread.length) {
+        rows.push({ kind: "section", label: "Unread", key: "section:unread" });
+        pushByDay(unread, "u");
+      }
+      if (read.length) {
+        rows.push({ kind: "section", label: "Earlier", key: "section:read" });
+        pushByDay(read, "r");
+      }
+      return rows;
     }
+
+    pushByDay(visible, "all");
     return rows;
-  }, [visible]);
+  }, [visible, tab]);
 
   const fetchFirstPage = async () => {
     setLoading(true);
@@ -279,51 +317,53 @@ export default function NotificationsPage() {
 
   return (
     <div className="max-w-3xl mx-auto">
-      <div className="sticky top-0 z-20 -mx-4 px-4 pt-1 pb-3 mb-2 bg-[var(--color-background)]/90 border-b border-white/10">
-        <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 grid place-items-center text-white/80">
-            <BellIcon />
+      <div className="sticky top-0 z-20 -mx-4 px-4 pt-2 pb-3 mb-4">
+        <div className="glass-soft border border-white/10 rounded-2xl p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 grid place-items-center text-white/80">
+                <BellIcon />
+              </div>
+              <div>
+                <div className="text-xl font-bold text-white font-[var(--font-space-grotesk)]">Notifications</div>
+                <div className="text-sm text-[var(--muted-foreground)]">{unreadIds.length} unread</div>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button size="sm" variant="ghost" onClick={markAllRead} disabled={marking || unreadIds.length === 0}>
+                Mark all read
+              </Button>
+            </div>
           </div>
-          <div>
-            <div className="text-xl font-bold text-white font-[var(--font-space-grotesk)]">Notifications</div>
-            <div className="text-sm text-[var(--muted-foreground)]">{unreadIds.length} unread</div>
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button size="sm" variant="ghost" onClick={markAllRead} disabled={marking || unreadIds.length === 0}>
-            Mark all read
-          </Button>
-        </div>
-      </div>
 
-      {/* Tabs */}
-        <div className="flex items-center gap-2 mt-3">
-        <button
-          type="button"
-          onClick={() => setTab("all")}
-          className={[
-            "px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors",
-            tab === "all"
-              ? "bg-white/10 border-white/15 text-white"
-              : "bg-transparent border-white/10 text-white/55 hover:bg-white/5 hover:text-white/80",
-          ].join(" ")}
-        >
-          All
-        </button>
-        <button
-          type="button"
-          onClick={() => setTab("unread")}
-          className={[
-            "px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors",
-            tab === "unread"
-              ? "bg-[rgba(var(--color-accent-rgb),0.12)] border-[rgba(var(--color-accent-rgb),0.30)] text-white"
-              : "bg-transparent border-white/10 text-white/55 hover:bg-white/5 hover:text-white/80",
-          ].join(" ")}
-        >
-          Unread
-        </button>
-      </div>
+          {/* Tabs */}
+          <div className="flex items-center gap-2 mt-3">
+            <button
+              type="button"
+              onClick={() => setTab("all")}
+              className={[
+                "px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors",
+                tab === "all"
+                  ? "bg-white/10 border-white/15 text-white"
+                  : "bg-transparent border-white/10 text-white/55 hover:bg-white/5 hover:text-white/80",
+              ].join(" ")}
+            >
+              All
+            </button>
+            <button
+              type="button"
+              onClick={() => setTab("unread")}
+              className={[
+                "px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors",
+                tab === "unread"
+                  ? "bg-[rgba(var(--color-accent-rgb),0.12)] border-[rgba(var(--color-accent-rgb),0.30)] text-white"
+                  : "bg-transparent border-white/10 text-white/55 hover:bg-white/5 hover:text-white/80",
+              ].join(" ")}
+            >
+              Unread
+            </button>
+          </div>
+        </div>
       </div>
 
       <div className="space-y-2">
@@ -361,7 +401,18 @@ export default function NotificationsPage() {
           </div>
         ) : (
           <>
-            {groupedVisible.map((row) => {
+            {groupedVisible.map((row, index) => {
+              if (row.kind === "section") {
+                return (
+                  <div key={row.key} className="pt-6 pb-2">
+                    <div className="inline-flex items-center gap-2 text-xs font-semibold text-white/70 tracking-wide uppercase">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-accent)]" />
+                      {row.label}
+                    </div>
+                  </div>
+                );
+              }
+
               if (row.kind === "header") {
                 return (
                   <div key={row.key} className="pt-4 pb-2">
@@ -386,6 +437,8 @@ export default function NotificationsPage() {
                 profileType: x.profile?.profileType || null,
               }));
               const markIds = Array.isArray(n.groupIds) && n.groupIds.length ? n.groupIds : [n.id];
+              const prevIsItem = groupedVisible[index - 1]?.kind === "item";
+              const nextIsItem = groupedVisible[index + 1]?.kind === "item";
 
               const go = () => {
                 if (!n.readAt) void markRead(markIds);
@@ -405,26 +458,43 @@ export default function NotificationsPage() {
                     }
                   }}
                   className={[
-                    "group relative rounded-2xl p-4 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-rgb),0.45)]",
+                    "group relative rounded-2xl p-4 transition-all outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-rgb),0.45)] border border-white/10 hover:border-white/20",
                     n.readAt
-                      ? "glass glass-hover"
-                      : "glass glass-hover border-[rgba(var(--color-accent-rgb),0.30)] bg-[rgba(var(--color-accent-rgb),0.08)]",
+                      ? "glass-soft"
+                      : "glass-soft bg-[rgba(var(--color-accent-rgb),0.10)] border-[rgba(var(--color-accent-rgb),0.35)] shadow-[0_0_35px_rgba(var(--color-accent-rgb),0.18)]",
                   ].join(" ")}
                   aria-label="Notification"
                 >
                   {!n.readAt ? (
-                    <span
-                      aria-hidden="true"
-                      className="absolute left-0 top-3 bottom-3 w-[3px] rounded-full bg-gradient-to-b from-[var(--color-accent)] via-[var(--color-accent-2)] to-[var(--color-accent-3)]"
-                    />
+                    <>
+                      <span
+                        aria-hidden="true"
+                        className="absolute left-0 top-3 bottom-3 w-[3px] rounded-full bg-gradient-to-b from-[var(--color-accent)] via-[var(--color-accent-2)] to-[var(--color-accent-3)]"
+                      />
+                      <span
+                        aria-hidden="true"
+                        className="absolute inset-0 rounded-2xl border border-[rgba(var(--color-accent-rgb),0.45)] pointer-events-none"
+                      />
+                    </>
                   ) : null}
                   <div className="flex items-start gap-3">
                     <div className="relative flex-shrink-0">
+                      <span
+                        aria-hidden="true"
+                        className="absolute left-1/2 w-px bg-white/10"
+                        style={{
+                          top: prevIsItem ? "-10px" : "38px",
+                          bottom: nextIsItem ? "-10px" : "38px",
+                        }}
+                      />
                       <div className="flex items-center -space-x-3">
-                        {avatarStack.map((av) => (
+                        {avatarStack.map((av, idx) => (
                           <div
                             key={av.id}
-                            className="ring-2 ring-[var(--color-background)] rounded-full w-10 h-10 overflow-hidden flex items-center justify-center"
+                            className={[
+                              "rounded-full overflow-hidden flex items-center justify-center ring-2 ring-[var(--color-background)]",
+                              idx === 0 ? "w-10 h-10" : "w-9 h-9",
+                            ].join(" ")}
                           >
                             <ProfileTooltip
                               user={{
@@ -454,9 +524,11 @@ export default function NotificationsPage() {
                           </div>
                         ))}
                       </div>
-                      <span className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full border border-white/10 bg-black/40 grid place-items-center text-white/80 shadow-sm">
-                        <TypeIcon type={n.type} />
-                      </span>
+                      {a.length > 1 ? (
+                        <span className="absolute -top-2 -right-2 rounded-full bg-white/10 border border-white/15 px-1.5 py-0.5 text-[10px] font-semibold text-white/80">
+                          +{a.length - 1}
+                        </span>
+                      ) : null}
                     </div>
 
                     <div className="min-w-0 flex-1">
@@ -472,6 +544,15 @@ export default function NotificationsPage() {
                           </div>
                         </div>
                         <div className="flex items-center gap-2 flex-shrink-0">
+                          <span
+                            className={[
+                              "w-7 h-7 rounded-full border bg-white/5 flex items-center justify-center",
+                              typeBadgeClasses(n.type),
+                            ].join(" ")}
+                            aria-hidden="true"
+                          >
+                            <TypeIcon type={n.type} />
+                          </span>
                           <div className="text-[11px] text-white/45 tabular-nums">{when}</div>
                           {!n.readAt ? (
                             <button
@@ -499,7 +580,9 @@ export default function NotificationsPage() {
 
                       {/* Post / reply preview (X-style: compact snippets, threaded for replies) */}
                       {n.type === "REPLY" && (n.sourcePost?.content || n.post?.content) ? (
-                        <div className="mt-2 rounded-xl bg-white/[0.03] border border-white/10 px-3 py-2 text-sm text-white/60">
+                        <div className="mt-2 relative rounded-xl bg-white/[0.03] border border-white/10 px-3 py-2 pl-5 text-sm text-white/60">
+                          <span className="absolute left-2 top-2 bottom-2 w-px bg-white/10" aria-hidden="true" />
+                          <span className="absolute left-1.5 top-2 w-2 h-2 rounded-full bg-white/25" aria-hidden="true" />
                           {n.sourcePost?.content ? (
                             <div className="line-clamp-3 break-words">
                               {compactPreviewText(n.sourcePost.content)}

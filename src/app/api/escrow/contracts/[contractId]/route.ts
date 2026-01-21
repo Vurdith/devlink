@@ -1,0 +1,88 @@
+import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/server/auth-options";
+import { prisma } from "@/server/db";
+
+export async function GET(
+  req: Request,
+  { params }: { params: Promise<{ contractId: string }> }
+) {
+  const session = await getServerSession(authOptions);
+  const userId = (session?.user as any)?.id as string | undefined;
+
+  if (!userId) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const { contractId } = await params;
+  const contract = await prisma.escrowContract.findUnique({
+    where: { id: contractId },
+    include: {
+      client: { include: { profile: true } },
+      developer: { include: { profile: true } },
+      milestone: true,
+      job: true,
+    },
+  });
+
+  if (!contract) {
+    return NextResponse.json({ error: "Contract not found" }, { status: 404 });
+  }
+
+  if (contract.clientId !== userId && contract.developerId !== userId) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  const response = NextResponse.json(contract);
+  response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+  return response;
+}
+
+export async function PATCH(
+  req: Request,
+  { params }: { params: Promise<{ contractId: string }> }
+) {
+  const session = await getServerSession(authOptions);
+  const userId = (session?.user as any)?.id as string | undefined;
+
+  if (!userId) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const { contractId } = await params;
+  const contract = await prisma.escrowContract.findUnique({ where: { id: contractId } });
+  if (!contract) {
+    return NextResponse.json({ error: "Contract not found" }, { status: 404 });
+  }
+
+  if (contract.clientId !== userId && contract.developerId !== userId) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  const body = await req.json();
+  const status = body?.status as string | undefined;
+
+  if (status && !["PENDING", "FUNDED", "SUBMITTED", "RELEASED", "CANCELLED"].includes(status)) {
+    return NextResponse.json({ error: "Invalid status" }, { status: 400 });
+  }
+
+  // Only client can cancel pending contracts
+  if (status === "CANCELLED" && contract.clientId !== userId) {
+    return NextResponse.json({ error: "Only the client can cancel" }, { status: 403 });
+  }
+
+  const updated = await prisma.escrowContract.update({
+    where: { id: contractId },
+    data: status ? { status } : {},
+    include: {
+      client: { include: { profile: true } },
+      developer: { include: { profile: true } },
+      milestone: true,
+      job: true,
+    },
+  });
+
+  const response = NextResponse.json(updated);
+  response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+  return response;
+}

@@ -40,6 +40,19 @@ model User {
   notificationsReceived Notification[] @relation("UserNotifications")
   notificationsSent     Notification[] @relation("ActorNotifications")
   notificationActorLinks NotificationActor[]
+  jobsPosted      Job[]
+  jobApplications JobApplication[]
+  conversationsCreated Conversation[] @relation("ConversationCreator")
+  conversationMembers ConversationMember[] @relation("ConversationMembers")
+  messagesSent    Message[] @relation("MessageSender")
+  conversationInvitesSent ConversationInvite[] @relation("ConversationInviter")
+  conversationInvitesReceived ConversationInvite[] @relation("ConversationInvitee")
+  escrowAsClient  EscrowContract[] @relation("EscrowClient")
+  escrowAsDeveloper EscrowContract[] @relation("EscrowDeveloper")
+  verificationRequests VerificationRequest[]
+  messagingSettings UserMessagingSettings?
+  messageRequestsSent MessageRequest[] @relation("MessageRequestSender")
+  messageRequestsReceived MessageRequest[] @relation("MessageRequestRecipient")
 
   // Index for discover page sorting
   @@index([createdAt])
@@ -51,6 +64,70 @@ enum NotificationType {
   REPLY
   FOLLOW
   MENTION
+}
+
+enum JobStatus {
+  OPEN
+  CLOSED
+}
+
+enum ApplicationStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+}
+
+enum VerificationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum VerificationType {
+  EMAIL
+  ID
+  PORTFOLIO
+}
+
+enum EscrowStatus {
+  PENDING
+  FUNDED
+  SUBMITTED
+  RELEASED
+  CANCELLED
+}
+
+enum EscrowMilestoneStatus {
+  PENDING
+  SUBMITTED
+  RELEASED
+  CANCELLED
+}
+
+enum MessagePermission {
+  EVERYONE
+  FOLLOWERS
+  FOLLOWING
+  MUTUALS
+  NONE
+}
+
+enum MessageRequestStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+}
+
+enum ConversationRole {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
+enum ConversationInviteStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
 }
 
 model Notification {
@@ -302,6 +379,206 @@ model Review {
 
   @@index([reviewerId])
   @@index([reviewedId])
+}
+
+model Job {
+  id          String     @id @default(cuid())
+  userId      String
+  title       String
+  description String
+  budgetMin   Int?
+  budgetMax   Int?
+  currency    String     @default("USD")
+  skills      String?
+  location    String?
+  status      JobStatus  @default(OPEN)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  user         User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  applications JobApplication[]
+  escrowContracts EscrowContract[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model JobApplication {
+  id          String            @id @default(cuid())
+  jobId       String
+  applicantId String
+  status      ApplicationStatus @default(PENDING)
+  message     String?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  job       Job  @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  applicant User @relation(fields: [applicantId], references: [id], onDelete: Cascade)
+
+  @@unique([jobId, applicantId])
+  @@index([jobId])
+  @@index([applicantId])
+}
+
+model Conversation {
+  id            String    @id @default(cuid())
+  title         String?
+  isGroup       Boolean   @default(false)
+  createdById   String?
+  lastMessageAt DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  createdBy User? @relation("ConversationCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  members   ConversationMember[]
+  messages  Message[]
+  invites   ConversationInvite[]
+
+  @@index([createdById])
+  @@index([lastMessageAt])
+}
+
+model ConversationMember {
+  id             String            @id @default(cuid())
+  conversationId String
+  userId         String
+  role           ConversationRole  @default(MEMBER)
+  joinedAt       DateTime          @default(now())
+  createdAt      DateTime          @default(now())
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  user         User         @relation("ConversationMembers", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([conversationId, userId])
+  @@index([conversationId])
+  @@index([userId])
+}
+
+model ConversationInvite {
+  id             String                  @id @default(cuid())
+  conversationId String
+  inviterId      String
+  inviteeId      String
+  status         ConversationInviteStatus @default(PENDING)
+  createdAt      DateTime                @default(now())
+  updatedAt      DateTime                @updatedAt
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  inviter      User         @relation("ConversationInviter", fields: [inviterId], references: [id], onDelete: Cascade)
+  invitee      User         @relation("ConversationInvitee", fields: [inviteeId], references: [id], onDelete: Cascade)
+
+  @@unique([conversationId, inviteeId])
+  @@index([inviteeId, status])
+  @@index([inviterId, status])
+}
+
+model Message {
+  id             String   @id @default(cuid())
+  conversationId String
+  senderId       String
+  content        String?
+  createdAt      DateTime @default(now())
+
+  conversation Conversation      @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender       User              @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
+  attachments  MessageAttachment[]
+
+  @@index([conversationId, createdAt])
+  @@index([senderId])
+}
+
+model MessageAttachment {
+  id        String   @id @default(cuid())
+  messageId String
+  url       String
+  mimeType  String
+  fileName  String
+  size      Int
+  createdAt DateTime @default(now())
+
+  message Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@index([messageId])
+}
+
+model EscrowContract {
+  id          String       @id @default(cuid())
+  clientId    String
+  developerId String
+  jobId       String?
+  amount      Int
+  currency    String       @default("USD")
+  status      EscrowStatus @default(PENDING)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  client     User       @relation("EscrowClient", fields: [clientId], references: [id], onDelete: Cascade)
+  developer  User       @relation("EscrowDeveloper", fields: [developerId], references: [id], onDelete: Cascade)
+  job        Job?       @relation(fields: [jobId], references: [id], onDelete: SetNull)
+  milestone  EscrowMilestone?
+
+  @@index([clientId])
+  @@index([developerId])
+  @@index([status])
+  @@index([jobId])
+}
+
+model EscrowMilestone {
+  id          String               @id @default(cuid())
+  contractId  String               @unique
+  title       String
+  amount      Int
+  status      EscrowMilestoneStatus @default(PENDING)
+  submittedAt DateTime?
+  releasedAt  DateTime?
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+
+  contract EscrowContract @relation(fields: [contractId], references: [id], onDelete: Cascade)
+}
+
+model VerificationRequest {
+  id          String             @id @default(cuid())
+  userId      String
+  type        VerificationType
+  status      VerificationStatus @default(PENDING)
+  documentUrl String?
+  notes       String?
+  reviewedAt  DateTime?
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+}
+
+model UserMessagingSettings {
+  id        String            @id @default(cuid())
+  userId    String            @unique
+  allowFrom MessagePermission @default(EVERYONE)
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model MessageRequest {
+  id           String               @id @default(cuid())
+  senderId     String
+  recipientId  String
+  status       MessageRequestStatus @default(PENDING)
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+
+  sender    User @relation("MessageRequestSender", fields: [senderId], references: [id], onDelete: Cascade)
+  recipient User @relation("MessageRequestRecipient", fields: [recipientId], references: [id], onDelete: Cascade)
+
+  @@unique([senderId, recipientId])
+  @@index([recipientId, status])
+  @@index([senderId, status])
 }
 
 model Report {

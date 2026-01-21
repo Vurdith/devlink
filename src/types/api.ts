@@ -186,6 +186,118 @@ export interface Review {
   reviewed: User;
 }
 
+export interface Job {
+  id: string;
+  userId: string;
+  title: string;
+  description: string;
+  budgetMin: number | null;
+  budgetMax: number | null;
+  currency: string;
+  skills: string | null;
+  location: string | null;
+  status: "OPEN" | "CLOSED";
+  createdAt: Date;
+  updatedAt: Date;
+  user: User;
+  _count?: {
+    applications: number;
+  };
+}
+
+export interface JobApplication {
+  id: string;
+  jobId: string;
+  applicantId: string;
+  status: "PENDING" | "ACCEPTED" | "DECLINED";
+  message: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+  job?: Job;
+  applicant?: User;
+}
+
+export interface MessageThread {
+  id: string;
+  userAId: string;
+  userBId: string;
+  lastMessageAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+  userA: User;
+  userB: User;
+  messages?: Message[];
+}
+
+export interface Message {
+  id: string;
+  threadId: string;
+  senderId: string;
+  content: string;
+  attachmentUrl: string | null;
+  attachmentType: string | null;
+  createdAt: Date;
+}
+
+export interface EscrowContract {
+  id: string;
+  clientId: string;
+  developerId: string;
+  jobId: string | null;
+  amount: number;
+  currency: string;
+  status: "PENDING" | "FUNDED" | "SUBMITTED" | "RELEASED" | "CANCELLED";
+  createdAt: Date;
+  updatedAt: Date;
+  client: User;
+  developer: User;
+  milestone?: EscrowMilestone;
+  job?: Job;
+}
+
+export interface EscrowMilestone {
+  id: string;
+  contractId: string;
+  title: string;
+  amount: number;
+  status: "PENDING" | "SUBMITTED" | "RELEASED" | "CANCELLED";
+  submittedAt: Date | null;
+  releasedAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface VerificationRequest {
+  id: string;
+  userId: string;
+  type: "EMAIL" | "ID" | "PORTFOLIO";
+  status: "PENDING" | "APPROVED" | "REJECTED";
+  documentUrl: string | null;
+  notes: string | null;
+  reviewedAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface MessagingSettings {
+  id: string;
+  userId: string;
+  allowFrom: "EVERYONE" | "FOLLOWERS" | "FOLLOWING" | "MUTUALS" | "NONE";
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface MessageRequest {
+  id: string;
+  senderId: string;
+  recipientId: string;
+  status: "PENDING" | "ACCEPTED" | "DECLINED";
+  createdAt: Date;
+  updatedAt: Date;
+  sender: User;
+  recipient: User;
+}
+
 // Report types
 export interface Report {
   id: string;
