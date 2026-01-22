@@ -7,6 +7,7 @@ import { useSession } from "next-auth/react";
 import { cn } from "@/lib/cn";
 import { safeJson } from "@/lib/safe-json";
 import { Avatar } from "@/components/ui/Avatar";
+import { useMessagesRealtime } from "@/hooks/useMessagesRealtime";
 import type { MessageRequest, MessageThread } from "@/types/api";
 
 type UserSearchResult = {
@@ -38,6 +39,16 @@ export function MessagesSidebar() {
   const [activeTab, setActiveTab] = useState<"inbox" | "requests">("inbox");
   const currentUserName = session?.user?.name || session?.user?.email || "You";
   const currentUserAvatar = (session?.user as any)?.image as string | undefined;
+
+  useMessagesRealtime(undefined, (newMessage) => {
+    setThreads((prev) => {
+      const index = prev.findIndex((t) => t.id === newMessage.conversationId);
+      if (index === -1) return prev;
+      const thread = { ...prev[index], lastMessageAt: newMessage.createdAt };
+      const rest = prev.filter((_, i) => i !== index);
+      return [thread, ...rest];
+    });
+  });
 
   const requestCount = incomingRequests.length;
   const filteredThreads = useMemo(() => {
@@ -79,13 +90,14 @@ export function MessagesSidebar() {
   const lastActiveLabel = (date?: Date | string | null) => {
     if (!date) return "No activity";
     const ts = typeof date === "string" ? new Date(date) : date;
-    const diffMins = Math.max(1, Math.floor((Date.now() - ts.getTime()) / 60000));
+    const diffMins = Math.max(0, Math.floor((Date.now() - ts.getTime()) / 60000));
+    if (diffMins < 1) return "just now";
     if (diffMins < 5) return "Active now";
-    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffMins < 60) return `${diffMins}m`;
     const diffHours = Math.floor(diffMins / 60);
-    if (diffHours < 24) return `${diffHours}h ago`;
+    if (diffHours < 24) return `${diffHours}h`;
     const diffDays = Math.floor(diffHours / 24);
-    return `${diffDays}d ago`;
+    return `${diffDays}d`;
   };
 
   useEffect(() => {

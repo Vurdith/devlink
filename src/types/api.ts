@@ -232,6 +232,7 @@ export interface MessageThread {
 export interface Message {
   id: string;
   threadId: string;
+  conversationId?: string;
   senderId: string;
   content: string;
   attachmentUrl: string | null;

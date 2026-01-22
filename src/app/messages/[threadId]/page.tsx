@@ -7,7 +7,10 @@ import { useSession } from "next-auth/react";
 import { cn } from "@/lib/cn";
 import { safeJson } from "@/lib/safe-json";
 import { Avatar } from "@/components/ui/Avatar";
-import type { MessageThread } from "@/types/api";
+import type { MessageThread, Message } from "@/types/api";
+import { useMessagesRealtime } from "@/hooks/useMessagesRealtime";
+import { useTypingIndicator } from "@/hooks/useTypingIndicator";
+import { useChatScroll } from "@/hooks/useChatScroll";
 
 export default function MessageThreadPage() {
   const params = useParams<{ threadId: string }>();
@@ -20,6 +23,27 @@ export default function MessageThreadPage() {
   const [content, setContent] = useState("");
   const [attachments, setAttachments] = useState<File[]>([]);
   const [isDragging, setIsDragging] = useState(false);
+
+  const scrollRef = useChatScroll(thread?.messages?.length);
+
+  const currentUser = useMemo(() => {
+    if (!session?.user || !userId) return null;
+    return { id: userId, username: (session.user as any).username || session.user.name || "user" };
+  }, [session, userId]);
+
+  const { typingUsers, setTyping } = useTypingIndicator(params.threadId, currentUser);
+
+  useMessagesRealtime(params.threadId, (newMessage) => {
+    setThread((prev) => {
+      if (!prev) return prev;
+      const exists = prev.messages?.some((m) => m.id === newMessage.id);
+      if (exists) return prev;
+      return {
+        ...prev,
+        messages: [...(prev.messages || []), { ...newMessage, threadId: prev.id } as any],
+      };
+    });
+  });
 
   useEffect(() => {
     if (!userId) return;
@@ -44,6 +68,14 @@ export default function MessageThreadPage() {
     return thread.userAId === userId ? thread.userB : thread.userA;
   }, [thread, userId]);
 
+  const sharedMedia = useMemo(() => {
+    if (!thread?.messages) return [];
+    return thread.messages
+      .filter((m) => m.attachmentUrl && m.attachmentType?.startsWith("image/"))
+      .map((m) => ({ id: m.id, url: m.attachmentUrl! }))
+      .slice(0, 6);
+  }, [thread?.messages]);
+
   const formattedMessages = useMemo(() => {
     if (!thread?.messages) return [];
     return thread.messages.map((message, index) => {
@@ -53,7 +85,15 @@ export default function MessageThreadPage() {
       const showDate =
         !previousDate ||
         previousDate.toDateString() !== currentDate.toDateString();
-      return { ...message, showDate };
+
+      // Message grouping logic: same sender and within 5 minutes
+      const isFirstInGroup =
+        !previous ||
+        previous.senderId !== message.senderId ||
+        showDate ||
+        currentDate.getTime() - new Date(previous.createdAt).getTime() > 5 * 60 * 1000;
+
+      return { ...message, showDate, isFirstInGroup };
     });
   }, [thread?.messages]);
 
@@ -67,11 +107,24 @@ export default function MessageThreadPage() {
 
   const handleFiles = (files: FileList | null) => {
     if (!files) return;
-    setAttachments((prev) => [...prev, ...Array.from(files)]);
+    const newFiles = Array.from(files);
+    setAttachments((prev) => [...prev, ...newFiles]);
   };
 
   const removeAttachment = (index: number) => {
     setAttachments((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  };
+
+  const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setContent(e.target.value);
+    setTyping(e.target.value.length > 0);
   };
 
   async function sendMessage() {
@@ -156,8 +209,9 @@ export default function MessageThreadPage() {
         </div>
 
         <div
+          ref={scrollRef}
           className={cn(
-            "glass-soft border border-white/10 rounded-2xl p-5 min-h-[320px] transition-colors",
+            "glass-soft border border-white/10 rounded-2xl p-5 min-h-[320px] max-h-[600px] overflow-y-auto transition-colors scrollbar-hide",
             isDragging && "border-[rgba(var(--color-accent-rgb),0.5)] bg-[rgba(var(--color-accent-rgb),0.08)]"
           )}
           onDragEnter={() => setIsDragging(true)}
@@ -179,30 +233,61 @@ export default function MessageThreadPage() {
               formattedMessages.map((message) => {
                 const isMine = message.senderId === userId;
                 return (
-                  <div key={message.id} className="space-y-2">
+                  <div key={message.id} className={cn("space-y-1", message.isFirstInGroup && "mt-4")}>
                     {message.showDate && (
-                      <div className="flex items-center justify-center">
-                        <span className="text-[10px] uppercase tracking-[0.2em] text-white/30">
+                      <div className="flex items-center justify-center py-4">
+                        <span className="text-[10px] uppercase tracking-[0.2em] text-white/30 bg-white/5 px-3 py-1 rounded-full border border-white/5">
                           {formatDay(new Date(message.createdAt))}
                         </span>
                       </div>
                     )}
-                    <div
-                      className={cn(
-                        "max-w-[80%] rounded-2xl px-3 py-2 text-sm shadow-sm",
-                        isMine
-                          ? "ml-auto bg-[var(--color-accent)] text-black"
-                          : "bg-white/10 text-white"
+                    
+                    <div className={cn(
+                      "flex items-end gap-2",
+                      isMine ? "flex-row-reverse" : "flex-row"
+                    )}>
+                      {!isMine && (
+                        <div className="w-8 h-8 flex-shrink-0">
+                          {message.isFirstInGroup && (
+                            <Avatar size={32} src={otherUser?.profile?.avatarUrl || undefined} />
+                          )}
+                        </div>
                       )}
-                    >
-                      {message.content}
-                      <div className={cn("mt-1 text-[10px]", isMine ? "text-black/60" : "text-white/40")}>
-                        {formatTime(new Date(message.createdAt))}
+                      
+                      <div
+                        className={cn(
+                          "max-w-[75%] rounded-2xl px-3.5 py-2 text-sm shadow-sm",
+                          isMine
+                            ? "bg-[var(--color-accent)] text-black rounded-tr-none"
+                            : "bg-white/10 text-white rounded-tl-none",
+                          !message.isFirstInGroup && (isMine ? "rounded-tr-2xl" : "rounded-tl-2xl")
+                        )}
+                      >
+                        {message.content}
+                        {message.isFirstInGroup && (
+                          <div className={cn("mt-1 text-[9px] font-medium opacity-50")}>
+                            {formatTime(new Date(message.createdAt))}
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
                 );
               })
+            )}
+            {typingUsers.length > 0 && (
+              <div className="flex items-center gap-2 mt-4 animate-pulse">
+                <div className="flex gap-1">
+                  <span className="w-1 h-1 rounded-full bg-white/40" />
+                  <span className="w-1 h-1 rounded-full bg-white/40" />
+                  <span className="w-1 h-1 rounded-full bg-white/40" />
+                </div>
+                <span className="text-[10px] text-white/40">
+                  {typingUsers.length === 1
+                    ? `${typingUsers[0].username} is typing...`
+                    : "Several people are typing..."}
+                </span>
+              </div>
             )}
           </div>
         </div>
@@ -251,23 +336,32 @@ export default function MessageThreadPage() {
             )}
 
             <div className="flex gap-3">
-            <textarea
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              placeholder="Write a message..."
-              className="flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white min-h-[80px]"
-            />
-            <button
-              onClick={sendMessage}
-              disabled={sending}
-              className={cn(
-                "px-4 py-2 h-fit rounded-xl text-sm font-semibold bg-[var(--color-accent)] text-black",
-                sending && "opacity-60 cursor-not-allowed"
-              )}
-            >
-              {sending ? "Sending..." : "Send"}
-            </button>
-          </div>
+              <textarea
+                value={content}
+                onChange={handleContentChange}
+                onKeyDown={handleKeyDown}
+                onBlur={() => setTyping(false)}
+                placeholder="Write a message..."
+                className="flex-1 bg-white/5 border border-white/10 rounded-xl px-3.5 py-2.5 text-sm text-white min-h-[44px] max-h-[200px] resize-none focus:outline-none focus:border-[var(--color-accent)]/50 transition-colors"
+                style={{ height: content ? "auto" : "44px" }}
+                ref={(el) => {
+                  if (el) {
+                    el.style.height = "auto";
+                    el.style.height = `${el.scrollHeight}px`;
+                  }
+                }}
+              />
+              <button
+                onClick={sendMessage}
+                disabled={sending || (!content.trim() && attachments.length === 0)}
+                className={cn(
+                  "px-5 py-2.5 h-[44px] rounded-xl text-sm font-bold bg-[var(--color-accent)] text-black transition-all hover:scale-[1.02] active:scale-[0.98]",
+                  (sending || (!content.trim() && attachments.length === 0)) && "opacity-50 cursor-not-allowed grayscale"
+                )}
+              >
+                {sending ? "..." : "Send"}
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -312,9 +406,19 @@ export default function MessageThreadPage() {
 
           <div className="glass-soft border border-white/10 rounded-2xl p-4">
             <div className="text-sm font-semibold text-white mb-3">Shared</div>
-            <div className="text-xs text-[var(--muted-foreground)]">
-              Shared files and media will appear here.
-            </div>
+            {sharedMedia.length > 0 ? (
+              <div className="grid grid-cols-3 gap-2">
+                {sharedMedia.map((media) => (
+                  <div key={media.id} className="aspect-square rounded-lg bg-white/5 border border-white/10 overflow-hidden group cursor-pointer">
+                    <img src={media.url} alt="" className="w-full h-full object-cover transition-transform group-hover:scale-110" />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-[10px] text-[var(--muted-foreground)]">
+                Shared images will appear here.
+              </div>
+            )}
           </div>
         </div>
       </aside>

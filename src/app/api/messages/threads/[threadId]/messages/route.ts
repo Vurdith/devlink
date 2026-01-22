@@ -50,10 +50,16 @@ export async function POST(
     },
   });
 
-  await prisma.conversation.update({
-    where: { id: threadId },
-    data: { lastMessageAt: message.createdAt },
-  });
+  await prisma.$transaction([
+    prisma.conversation.update({
+      where: { id: threadId },
+      data: { lastMessageAt: message.createdAt },
+    }),
+    prisma.conversationMember.update({
+      where: { conversationId_userId: { conversationId: threadId, userId } },
+      data: { lastReadAt: message.createdAt },
+    }),
+  ]);
 
   const response = NextResponse.json(
     { ...message, threadId, content: message.content ?? "" },

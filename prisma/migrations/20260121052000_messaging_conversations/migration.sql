@@ -21,6 +21,7 @@ CREATE TABLE "ConversationMember" (
     "userId" TEXT NOT NULL,
     "role" "ConversationRole" NOT NULL DEFAULT 'MEMBER',
     "joinedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "lastReadAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "ConversationMember_pkey" PRIMARY KEY ("id")
