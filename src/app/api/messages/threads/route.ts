@@ -14,16 +14,40 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const threads = await prisma.messageThread.findMany({
+  const conversations = await prisma.conversation.findMany({
     where: {
-      OR: [{ userAId: userId }, { userBId: userId }],
+      isGroup: false,
+      members: {
+        some: { userId },
+      },
     },
     include: {
-      userA: { include: { profile: true } },
-      userB: { include: { profile: true } },
+      members: { include: { user: { include: { profile: true } } } },
       messages: { orderBy: { createdAt: "desc" }, take: 1 },
     },
     orderBy: { lastMessageAt: "desc" },
+  });
+
+  const threads = conversations.map((conversation) => {
+    const members = conversation.members.map((member) => member.user).filter(Boolean);
+    const sortedMembers = [...members].sort((a, b) => a.id.localeCompare(b.id));
+    const userA = sortedMembers[0] || members[0];
+    const userB = sortedMembers[1] || members[1] || userA;
+    return {
+      id: conversation.id,
+      userAId: userA?.id || "",
+      userBId: userB?.id || "",
+      lastMessageAt: conversation.lastMessageAt,
+      createdAt: conversation.createdAt,
+      updatedAt: conversation.updatedAt,
+      userA,
+      userB,
+      messages: conversation.messages?.map((message) => ({
+        ...message,
+        threadId: conversation.id,
+        content: message.content ?? "",
+      })),
+    };
   });
 
   const response = NextResponse.json(threads);
@@ -92,22 +116,52 @@ export async function POST(req: Request) {
       return response;
     }
 
-    if (!(prisma as any).messageThread) {
-      return NextResponse.json(
-        { error: "Messaging tables are not initialized. Run prisma generate/migrate." },
-        { status: 500 }
-      );
-    }
-
-    const thread = await prisma.messageThread.upsert({
-      where: { userAId_userBId: { userAId, userBId } },
-      update: {},
-      create: { userAId, userBId },
+    const existing = await prisma.conversation.findFirst({
+      where: {
+        isGroup: false,
+        AND: [
+          { members: { some: { userId } } },
+          { members: { some: { userId: otherUser.id } } },
+          { members: { every: { userId: { in: [userId, otherUser.id] } } } },
+        ],
+      },
       include: {
-        userA: { include: { profile: true } },
-        userB: { include: { profile: true } },
+        members: { include: { user: { include: { profile: true } } } },
       },
     });
+
+    const conversation =
+      existing ??
+      (await prisma.conversation.create({
+        data: {
+          isGroup: false,
+          createdById: userId,
+          members: {
+            create: [
+              { userId: userAId, role: userAId === userId ? "OWNER" : "MEMBER" },
+              { userId: userBId, role: userBId === userId ? "OWNER" : "MEMBER" },
+            ],
+          },
+        },
+        include: {
+          members: { include: { user: { include: { profile: true } } } },
+        },
+      }));
+
+    const members = conversation.members.map((member) => member.user).filter(Boolean);
+    const sortedMembers = [...members].sort((a, b) => a.id.localeCompare(b.id));
+    const userA = sortedMembers[0] || members[0];
+    const userB = sortedMembers[1] || members[1] || userA;
+    const thread = {
+      id: conversation.id,
+      userAId: userA?.id || "",
+      userBId: userB?.id || "",
+      lastMessageAt: conversation.lastMessageAt,
+      createdAt: conversation.createdAt,
+      updatedAt: conversation.updatedAt,
+      userA,
+      userB,
+    };
 
     const response = NextResponse.json({ type: "thread", thread }, { status: 201 });
     response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");

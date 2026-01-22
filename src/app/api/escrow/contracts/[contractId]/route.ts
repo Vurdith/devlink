@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
+import { EscrowStatus } from "@prisma/client";
 import { authOptions } from "@/server/auth-options";
 import { prisma } from "@/server/db";
 
@@ -60,20 +61,21 @@ export async function PATCH(
   }
 
   const body = await req.json();
-  const status = body?.status as string | undefined;
+  const status = typeof body?.status === "string" ? body.status : undefined;
+  const nextStatus = status as EscrowStatus | undefined;
 
-  if (status && !["PENDING", "FUNDED", "SUBMITTED", "RELEASED", "CANCELLED"].includes(status)) {
+  if (nextStatus && !Object.values(EscrowStatus).includes(nextStatus)) {
     return NextResponse.json({ error: "Invalid status" }, { status: 400 });
   }
 
   // Only client can cancel pending contracts
-  if (status === "CANCELLED" && contract.clientId !== userId) {
+  if (nextStatus === "CANCELLED" && contract.clientId !== userId) {
     return NextResponse.json({ error: "Only the client can cancel" }, { status: 403 });
   }
 
   const updated = await prisma.escrowContract.update({
     where: { id: contractId },
-    data: status ? { status } : {},
+    data: nextStatus ? { status: nextStatus } : {},
     include: {
       client: { include: { profile: true } },
       developer: { include: { profile: true } },

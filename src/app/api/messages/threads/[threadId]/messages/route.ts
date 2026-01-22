@@ -22,19 +22,20 @@ export async function POST(
   }
 
   const { threadId } = await params;
-  const thread = await prisma.messageThread.findUnique({ where: { id: threadId } });
-  if (!thread) {
+  const conversation = await prisma.conversation.findUnique({
+    where: { id: threadId },
+    include: { members: true },
+  });
+  if (!conversation) {
     return NextResponse.json({ error: "Thread not found" }, { status: 404 });
   }
 
-  if (thread.userAId !== userId && thread.userBId !== userId) {
+  if (!conversation.members.some((member) => member.userId === userId)) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   const body = await req.json();
   const content = typeof body?.content === "string" ? body.content : "";
-  const attachmentUrl = typeof body?.attachmentUrl === "string" ? body.attachmentUrl : null;
-  const attachmentType = typeof body?.attachmentType === "string" ? body.attachmentType : null;
 
   const validation = validateMessageContent(content || "");
   if (!validation.isValid) {
@@ -43,20 +44,21 @@ export async function POST(
 
   const message = await prisma.message.create({
     data: {
-      threadId,
+      conversationId: threadId,
       senderId: userId,
-      content: content.trim(),
-      attachmentUrl,
-      attachmentType,
+      content: content.trim() || null,
     },
   });
 
-  await prisma.messageThread.update({
+  await prisma.conversation.update({
     where: { id: threadId },
     data: { lastMessageAt: message.createdAt },
   });
 
-  const response = NextResponse.json(message, { status: 201 });
+  const response = NextResponse.json(
+    { ...message, threadId, content: message.content ?? "" },
+    { status: 201 }
+  );
   response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
   return response;
 }

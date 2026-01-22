@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
+import { MessagePermission } from "@prisma/client";
 import { authOptions } from "@/server/auth-options";
 import { prisma } from "@/server/db";
 
-const allowedValues = ["EVERYONE", "FOLLOWERS", "FOLLOWING", "MUTUALS", "NONE"];
+const allowedValues = Object.values(MessagePermission);
 
 export async function GET() {
   try {
@@ -43,16 +44,17 @@ export async function PUT(req: Request) {
       return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
     }
 
-    const allowFrom = body?.allowFrom as string | undefined;
+    const allowFrom = typeof body?.allowFrom === "string" ? body.allowFrom : undefined;
+    const nextAllowFrom = allowFrom as MessagePermission | undefined;
 
-    if (!allowFrom || !allowedValues.includes(allowFrom)) {
+    if (!nextAllowFrom || !allowedValues.includes(nextAllowFrom)) {
       return NextResponse.json({ error: "Invalid allowFrom value" }, { status: 400 });
     }
 
     const settings = await prisma.userMessagingSettings.upsert({
       where: { userId },
-      create: { userId, allowFrom },
-      update: { allowFrom },
+      create: { userId, allowFrom: nextAllowFrom },
+      update: { allowFrom: nextAllowFrom },
     });
 
     const response = NextResponse.json(settings);
