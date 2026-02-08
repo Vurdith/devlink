@@ -58,11 +58,11 @@ export async function getAuthSession() {
       secret: process.env.NEXTAUTH_SECRET!,
     });
 
-    if (!token) return null;
+    if (!token || !token.id) return null;
 
     return {
       user: {
-        id: token.id as string | undefined,
+        id: token.id as string,
         email: token.email as string | undefined,
         name: token.name as string | undefined,
         username: token.username as string | undefined,
