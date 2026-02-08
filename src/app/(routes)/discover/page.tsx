@@ -1,6 +1,5 @@
 import { Suspense } from "react";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/server/auth-options";
+import { getAuthSession } from "@/server/auth";
 import { fetchDiscoverUsers, getFollowingStatus } from "@/server/discover/fetch-discover-users";
 import { DiscoverClient } from "./discover-client";
 
@@ -59,7 +58,7 @@ function DiscoverSkeleton() {
 async function DiscoverContent() {
   // Fetch data in parallel
   const [session, initialData] = await Promise.all([
-    getServerSession(authOptions),
+    getAuthSession(),
     fetchDiscoverUsers("all"),
   ]);
 

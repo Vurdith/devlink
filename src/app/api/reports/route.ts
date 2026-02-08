@@ -1,13 +1,12 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/server/auth-options";
+import { getAuthSession } from "@/server/auth";
 import { prisma } from "@/server/db";
 import { NextResponse } from "next/server";
 import { validateId } from "@/lib/validation";
 
 // Create a new report
 export async function POST(req: Request) {
-  const session = await getServerSession(authOptions);
-  const currentUserId = (session?.user as any)?.id as string | undefined;
+  const session = await getAuthSession();
+  const currentUserId = session?.user?.id;
   
   if (!currentUserId) {
     return new NextResponse(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { 'Content-Type': 'application/json' } });
@@ -117,8 +116,8 @@ export async function POST(req: Request) {
 
 // Get reports (admin only)
 export async function GET(req: Request) {
-  const session = await getServerSession(authOptions);
-  const currentUserId = (session?.user as any)?.id as string | undefined;
+  const session = await getAuthSession();
+  const currentUserId = session?.user?.id;
   
   if (!currentUserId) {
     return new NextResponse("Unauthorized", { status: 401 });

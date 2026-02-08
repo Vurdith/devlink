@@ -1,13 +1,12 @@
 import { notFound } from "next/navigation";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/server/auth-options";
+import { getAuthSession } from "@/server/auth";
 import { prisma } from "@/server/db";
 import { PostPageContent } from "./PostPageContent";
 import { getUniqueViewCounts } from "@/lib/view-utils";
 
 export default async function PostPage({ params }: { params: Promise<{ postId: string }> }) {
   const { postId } = await params;
-  const session = await getServerSession(authOptions);
+  const session = await getAuthSession();
   const currentUserId = (session?.user as any)?.id;
 
   // Fetch post with OPTIMIZED includes - use _count instead of full arrays

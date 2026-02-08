@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/server/auth-options";
+import { getAuthSession } from "@/server/auth";
 import { prisma } from "@/server/db";
 
 function explainNotificationDbError(e: any) {
@@ -29,8 +28,8 @@ function explainNotificationDbError(e: any) {
 
 export async function GET(req: Request) {
   try {
-    const session = await getServerSession(authOptions);
-    const userId = (session?.user as any)?.id as string | undefined;
+    const session = await getAuthSession();
+    const userId = session?.user?.id;
     if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const url = new URL(req.url);

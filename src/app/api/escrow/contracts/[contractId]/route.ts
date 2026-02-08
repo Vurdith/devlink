@@ -1,15 +1,14 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
 import { EscrowStatus } from "@prisma/client";
-import { authOptions } from "@/server/auth-options";
+import { getAuthSession } from "@/server/auth";
 import { prisma } from "@/server/db";
 
 export async function GET(
   req: Request,
   { params }: { params: Promise<{ contractId: string }> }
 ) {
-  const session = await getServerSession(authOptions);
-  const userId = (session?.user as any)?.id as string | undefined;
+  const session = await getAuthSession();
+  const userId = session?.user?.id;
 
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -43,8 +42,8 @@ export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ contractId: string }> }
 ) {
-  const session = await getServerSession(authOptions);
-  const userId = (session?.user as any)?.id as string | undefined;
+  const session = await getAuthSession();
+  const userId = session?.user?.id;
 
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

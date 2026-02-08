@@ -1,10 +1,9 @@
 import { redirect } from "next/navigation";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/server/auth-options";
+import { getAuthSession } from "@/server/auth";
 import { prisma } from "@/server/db";
 
 export default async function MePage() {
-  const session = await getServerSession(authOptions);
+  const session = await getAuthSession();
   if (!session?.user?.email) redirect("/login");
   const user = await prisma.user.findUnique({ where: { email: session.user.email } });
   if (!user) redirect("/login");

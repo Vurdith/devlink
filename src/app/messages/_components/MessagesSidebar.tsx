@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
@@ -8,38 +8,24 @@ import { cn } from "@/lib/cn";
 import { safeJson } from "@/lib/safe-json";
 import { Avatar } from "@/components/ui/Avatar";
 import { useMessagesRealtime } from "@/hooks/useMessagesRealtime";
+import { NewMessageModal } from "./NewMessageModal";
 import type { MessageRequest, MessageThread } from "@/types/api";
-
-type UserSearchResult = {
-  id: string;
-  username: string;
-  name: string | null;
-  avatarUrl: string | null;
-  verified: boolean;
-  profileType: string | null;
-  bio: string | null;
-  isFollowing: boolean;
-  isYou: boolean;
-};
 
 export function MessagesSidebar() {
   const { data: session } = useSession();
   const pathname = usePathname();
   const userId = (session?.user as any)?.id as string | undefined;
-  const isThreadRoute = pathname.startsWith("/messages/");
+  const isThreadRoute = /^\/messages\/[^/]+/.test(pathname);
 
   const [threads, setThreads] = useState<MessageThread[]>([]);
   const [incomingRequests, setIncomingRequests] = useState<MessageRequest[]>([]);
   const [outgoingRequests, setOutgoingRequests] = useState<MessageRequest[]>([]);
   const [loading, setLoading] = useState(true);
-  const [creating, setCreating] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState<UserSearchResult[]>([]);
-  const [searching, setSearching] = useState(false);
   const [activeTab, setActiveTab] = useState<"inbox" | "requests">("inbox");
-  const currentUserName = session?.user?.name || session?.user?.email || "You";
-  const currentUserAvatar = (session?.user as any)?.image as string | undefined;
+  const [showNewMessage, setShowNewMessage] = useState(false);
 
+  // Realtime: bump thread to top on new message
   useMessagesRealtime(undefined, (newMessage) => {
     setThreads((prev) => {
       const index = prev.findIndex((t) => t.id === newMessage.conversationId);
@@ -51,6 +37,7 @@ export function MessagesSidebar() {
   });
 
   const requestCount = incomingRequests.length;
+
   const filteredThreads = useMemo(() => {
     if (!searchQuery.trim()) return threads;
     return threads.filter((thread) => {
@@ -60,46 +47,20 @@ export function MessagesSidebar() {
     });
   }, [threads, searchQuery, userId]);
 
-  const { recentThreads, olderThreads } = useMemo(() => {
-    const now = Date.now();
-    const recent: MessageThread[] = [];
-    const older: MessageThread[] = [];
-    filteredThreads.forEach((thread) => {
-      const ts = thread.lastMessageAt ? new Date(thread.lastMessageAt).getTime() : 0;
-      if (ts && now - ts < 7 * 24 * 60 * 60 * 1000) {
-        recent.push(thread);
-      } else {
-        older.push(thread);
-      }
-    });
-    return { recentThreads: recent, olderThreads: older };
-  }, [filteredThreads]);
-
-  const presenceFor = (seed: string) => {
-    let hash = 0;
-    for (let i = 0; i < seed.length; i += 1) {
-      hash = (hash << 5) - hash + seed.charCodeAt(i);
-      hash |= 0;
-    }
-    const score = Math.abs(hash) % 100;
-    if (score < 25) return { label: "Online", tone: "bg-emerald-400" };
-    if (score < 55) return { label: "Away", tone: "bg-amber-400" };
-    return { label: "Offline", tone: "bg-white/30" };
-  };
-
-  const lastActiveLabel = (date?: Date | string | null) => {
-    if (!date) return "No activity";
+  const lastActiveLabel = useCallback((date?: Date | string | null) => {
+    if (!date) return "";
     const ts = typeof date === "string" ? new Date(date) : date;
     const diffMins = Math.max(0, Math.floor((Date.now() - ts.getTime()) / 60000));
-    if (diffMins < 1) return "just now";
-    if (diffMins < 5) return "Active now";
+    if (diffMins < 1) return "now";
     if (diffMins < 60) return `${diffMins}m`;
     const diffHours = Math.floor(diffMins / 60);
     if (diffHours < 24) return `${diffHours}h`;
     const diffDays = Math.floor(diffHours / 24);
-    return `${diffDays}d`;
-  };
+    if (diffDays < 7) return `${diffDays}d`;
+    return ts.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+  }, []);
 
+  // Load threads and requests
   useEffect(() => {
     if (!userId) {
       setLoading(false);
@@ -108,16 +69,18 @@ export function MessagesSidebar() {
     let isMounted = true;
     async function load() {
       setLoading(true);
-      const res = await fetch("/api/messages/threads");
-      const data = await safeJson<MessageThread[]>(res);
-      const [incomingRes, outgoingRes] = await Promise.all([
+      const [threadsRes, incomingRes, outgoingRes] = await Promise.all([
+        fetch("/api/messages/threads"),
         fetch("/api/messages/requests?type=incoming"),
         fetch("/api/messages/requests?type=outgoing"),
       ]);
-      const incomingData = await safeJson<MessageRequest[]>(incomingRes);
-      const outgoingData = await safeJson<MessageRequest[]>(outgoingRes);
+      const [threadsData, incomingData, outgoingData] = await Promise.all([
+        safeJson<MessageThread[]>(threadsRes),
+        safeJson<MessageRequest[]>(incomingRes),
+        safeJson<MessageRequest[]>(outgoingRes),
+      ]);
       if (isMounted) {
-        setThreads(data || []);
+        setThreads(threadsData || []);
         setIncomingRequests(incomingData || []);
         setOutgoingRequests(outgoingData || []);
         setLoading(false);
@@ -128,52 +91,6 @@ export function MessagesSidebar() {
       isMounted = false;
     };
   }, [userId]);
-
-  useEffect(() => {
-    if (!searchQuery.trim()) {
-      setSearchResults([]);
-      return;
-    }
-    let active = true;
-    const timeout = setTimeout(async () => {
-      setSearching(true);
-      const res = await fetch(`/api/search/users?q=${encodeURIComponent(searchQuery.trim())}`);
-      const data = await safeJson<{ users: UserSearchResult[] }>(res);
-      if (active) {
-        setSearchResults(data?.users || []);
-        setSearching(false);
-      }
-    }, 250);
-    return () => {
-      active = false;
-      clearTimeout(timeout);
-    };
-  }, [searchQuery]);
-
-  async function startThread({ otherUserId, otherUsername }: { otherUserId?: string; otherUsername?: string }) {
-    if (!otherUserId && !otherUsername) return;
-    setCreating(true);
-    const res = await fetch("/api/messages/threads", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ otherUserId, username: otherUsername }),
-    });
-    const data = await safeJson<{ type?: string; thread?: MessageThread; request?: MessageRequest; error?: string }>(res);
-    if (res.ok && data?.type === "thread" && data.thread) {
-      setThreads((prev) => {
-        const exists = prev.some((t) => t.id === data.thread!.id);
-        return exists ? prev : [data.thread!, ...prev];
-      });
-      setSearchQuery("");
-    } else if (res.ok && data?.type === "request" && data.request) {
-      setOutgoingRequests((prev) => [data.request!, ...prev]);
-      setSearchQuery("");
-      alert("Message request sent.");
-    } else {
-      alert(data?.error || "Unable to start thread");
-    }
-    setCreating(false);
-  }
 
   async function handleRequest(requestId: string, status: "ACCEPTED" | "DECLINED") {
     const res = await fetch(`/api/messages/requests/${requestId}`, {
@@ -186,7 +103,6 @@ export function MessagesSidebar() {
       alert(data?.error || "Unable to update request");
       return;
     }
-
     setIncomingRequests((prev) => prev.filter((req) => req.id !== requestId));
     if (status === "ACCEPTED" && data?.thread) {
       setThreads((prev) => {
@@ -196,254 +112,280 @@ export function MessagesSidebar() {
     }
   }
 
-  return (
-    <aside
-      className={cn(
-        "space-y-4",
-        isThreadRoute ? "hidden lg:block" : "block"
-      )}
-    >
-      {!userId ? (
-        <div className="glass-soft border border-white/10 rounded-2xl p-4 text-sm text-[var(--muted-foreground)]">
+  function handleThreadCreated(thread: MessageThread) {
+    setThreads((prev) => {
+      const exists = prev.some((t) => t.id === thread.id);
+      return exists ? prev : [thread, ...prev];
+    });
+  }
+
+  function handleRequestSent(request: MessageRequest) {
+    setOutgoingRequests((prev) => [request, ...prev]);
+  }
+
+  if (!userId) {
+    return (
+      <aside className="w-full md:w-[380px] lg:w-[420px] flex-shrink-0 border-r border-white/[0.06] flex flex-col h-full bg-black/20">
+        <div className="flex items-center justify-center h-full text-sm text-[var(--muted-foreground)]">
           Sign in to view messages.
         </div>
-      ) : (
-        <>
-          <div className="glass-soft border border-white/10 rounded-2xl p-4">
-            <div className="flex items-center gap-3">
-              <Avatar size={42} src={currentUserAvatar} />
-              <div>
-                <div className="text-sm font-semibold text-white">{currentUserName}</div>
-                <div className="text-[10px] text-[var(--muted-foreground)]">Messaging hub</div>
-              </div>
-            </div>
-          </div>
+      </aside>
+    );
+  }
 
-          <div className="glass-soft border border-white/10 rounded-2xl p-4">
-            <div className="flex items-center justify-between mb-3">
-              <div>
-                <div className="text-sm font-semibold text-white">Inbox</div>
-                <div className="text-[10px] text-[var(--muted-foreground)]">Your conversations</div>
-              </div>
-              {requestCount > 0 && (
-                <div className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[rgba(var(--color-accent-rgb),0.18)] text-[var(--color-accent)] border border-[rgba(var(--color-accent-rgb),0.35)]">
-                  {requestCount} request{requestCount > 1 ? "s" : ""}
-                </div>
-              )}
-            </div>
-
-            <div className="flex items-center gap-2 mb-3">
-              <button
-                type="button"
-                onClick={() => setActiveTab("inbox")}
-                className={cn(
-                  "flex-1 rounded-lg px-2.5 py-1.5 text-[11px] font-semibold transition-all",
-                  activeTab === "inbox"
-                    ? "bg-[rgba(var(--color-accent-rgb),0.2)] text-white border border-[rgba(var(--color-accent-rgb),0.35)]"
-                    : "bg-white/5 text-[var(--muted-foreground)] border border-white/10 hover:text-white"
-                )}
-              >
-                Threads
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveTab("requests")}
-                className={cn(
-                  "flex-1 rounded-lg px-2.5 py-1.5 text-[11px] font-semibold transition-all",
-                  activeTab === "requests"
-                    ? "bg-[rgba(var(--color-accent-rgb),0.2)] text-white border border-[rgba(var(--color-accent-rgb),0.35)]"
-                    : "bg-white/5 text-[var(--muted-foreground)] border border-white/10 hover:text-white"
-                )}
-              >
-                Requests
-              </button>
-            </div>
-
-            <div className="relative mb-3">
-              <input
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search username"
-                className="w-full bg-white/5 border border-white/10 rounded-xl pl-9 pr-3 py-2 text-xs text-white"
-              />
-              <svg
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40"
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                aria-hidden="true"
-              >
-                <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2" />
-                <path d="M20 20l-3.5-3.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-              </svg>
-            </div>
-
-            <button
-              onClick={() => startThread({ otherUsername: searchQuery.trim() })}
-              disabled={creating || !searchQuery.trim()}
-              className={cn(
-                "w-full mb-3 px-3 py-2 rounded-xl text-xs font-semibold bg-[var(--color-accent)] text-black",
-                (creating || !searchQuery.trim()) && "opacity-60 cursor-not-allowed"
-              )}
+  return (
+    <>
+      <aside
+        className={cn(
+          "w-full md:w-[380px] lg:w-[420px] flex-shrink-0 border-r border-white/[0.06] flex flex-col h-full bg-black/20",
+          isThreadRoute && "hidden md:flex"
+        )}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between px-4 h-[53px] border-b border-white/[0.06] flex-shrink-0">
+          <h1 className="text-xl font-bold text-white">Messages</h1>
+          <div className="flex items-center gap-1">
+            <Link
+              href="/settings/messaging"
+              className="w-9 h-9 rounded-full flex items-center justify-center text-white/60 hover:bg-white/[0.08] transition-colors"
+              title="Message settings"
             >
-              {creating ? "Starting..." : "New message"}
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.5" />
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </Link>
+            <button
+              onClick={() => setShowNewMessage(true)}
+              className="w-9 h-9 rounded-full flex items-center justify-center text-white/60 hover:bg-white/[0.08] transition-colors"
+              title="New message"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                <path d="M4 20h4L18.5 9.5a2.121 2.121 0 0 0-3-3L5 17v3z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M13.5 6.5l3 3" stroke="currentColor" strokeWidth="1.5" />
+              </svg>
             </button>
+          </div>
+        </div>
 
-            {activeTab === "requests" ? (
-              <div className="grid gap-2">
-                {incomingRequests.length === 0 ? (
-                  <div className="text-xs text-[var(--muted-foreground)]">No requests right now.</div>
-                ) : (
-                  incomingRequests.map((request) => (
-                    <div key={request.id} className="flex items-center justify-between gap-2 text-xs text-white/80">
-                      <span>{request.sender?.username || "User"}</span>
-                      <div className="flex gap-1.5">
+        {/* Search */}
+        <div className="px-4 py-2 flex-shrink-0">
+          <div className="relative">
+            <svg
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30 pointer-events-none"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+            >
+              <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2" />
+              <path d="M20 20l-3.5-3.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+            </svg>
+            <input
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search Direct Messages"
+              className="w-full bg-white/[0.04] border border-white/[0.08] rounded-full pl-10 pr-4 py-2.5 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[var(--color-accent)]/40 focus:bg-white/[0.06] transition-all"
+            />
+          </div>
+        </div>
+
+        {/* Tabs */}
+        <div className="flex border-b border-white/[0.06] flex-shrink-0">
+          <button
+            onClick={() => setActiveTab("inbox")}
+            className={cn(
+              "flex-1 py-3 text-sm font-semibold text-center transition-colors relative",
+              activeTab === "inbox"
+                ? "text-white"
+                : "text-white/40 hover:text-white/60 hover:bg-white/[0.03]"
+            )}
+          >
+            Inbox
+            {activeTab === "inbox" && (
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-14 h-[3px] rounded-full bg-[var(--color-accent)]" />
+            )}
+          </button>
+          <button
+            onClick={() => setActiveTab("requests")}
+            className={cn(
+              "flex-1 py-3 text-sm font-semibold text-center transition-colors relative",
+              activeTab === "requests"
+                ? "text-white"
+                : "text-white/40 hover:text-white/60 hover:bg-white/[0.03]"
+            )}
+          >
+            Requests
+            {requestCount > 0 && (
+              <span className="ml-1.5 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-[var(--color-accent)] text-[10px] font-bold text-black">
+                {requestCount}
+              </span>
+            )}
+            {activeTab === "requests" && (
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-14 h-[3px] rounded-full bg-[var(--color-accent)]" />
+            )}
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto scrollbar-hide">
+          {activeTab === "requests" ? (
+            <div className="py-2">
+              {incomingRequests.length === 0 && outgoingRequests.length === 0 ? (
+                <div className="px-4 py-8 text-center">
+                  <div className="text-white/30 text-sm">No message requests</div>
+                  <p className="text-white/20 text-xs mt-1">When someone sends you a message request, it will appear here.</p>
+                </div>
+              ) : (
+                <>
+                  {incomingRequests.map((request) => (
+                    <div
+                      key={request.id}
+                      className="flex items-center gap-3 px-4 py-3 hover:bg-white/[0.03] transition-colors"
+                    >
+                      <Avatar size={48} src={request.sender?.profile?.avatarUrl || request.sender?.image || undefined} />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-bold text-white truncate">
+                            {request.sender?.name || request.sender?.username}
+                          </span>
+                          <span className="text-sm text-white/40 truncate">
+                            @{request.sender?.username}
+                          </span>
+                        </div>
+                        <div className="text-xs text-white/40 mt-0.5">Wants to send you a message</div>
+                      </div>
+                      <div className="flex items-center gap-1.5 flex-shrink-0">
                         <button
                           onClick={() => handleRequest(request.id, "ACCEPTED")}
-                          className="px-2 py-1 rounded-lg text-[10px] font-semibold bg-[var(--color-accent)] text-black"
+                          className="px-3.5 py-1.5 rounded-full text-xs font-bold bg-white text-black hover:bg-white/90 transition-colors"
                         >
                           Accept
                         </button>
                         <button
                           onClick={() => handleRequest(request.id, "DECLINED")}
-                          className="px-2 py-1 rounded-lg text-[10px] font-semibold bg-white/10 text-white"
+                          className="px-3.5 py-1.5 rounded-full text-xs font-bold border border-white/20 text-white hover:bg-white/10 transition-colors"
                         >
                           Decline
                         </button>
                       </div>
                     </div>
-                  ))
-                )}
-
-                {outgoingRequests.length > 0 && (
-                  <div className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-[10px] text-[var(--muted-foreground)]">
-                    Waiting on {outgoingRequests.length} pending request{outgoingRequests.length > 1 ? "s" : ""}.
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="grid gap-2">
-                {searching && (
-                  <div className="text-xs text-[var(--muted-foreground)]">Searching...</div>
-                )}
-                {!searching && searchQuery.trim() && searchResults.length === 0 && (
-                  <div className="text-xs text-[var(--muted-foreground)]">No users found.</div>
-                )}
-                {searchResults.map((user) => (
-                  <button
-                    key={user.id}
-                    onClick={() => startThread({ otherUserId: user.id })}
-                    className="flex items-center justify-between gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-2.5 py-2 text-left hover:bg-white/[0.05]"
-                  >
-                    <div className="flex items-center gap-2">
-                      <Avatar size={30} src={user.avatarUrl || undefined} />
-                      <div>
-                        <div className="text-xs font-semibold text-white">@{user.username}</div>
-                        <div className="text-[10px] text-[var(--muted-foreground)]">{user.name || user.profileType || "Developer"}</div>
-                      </div>
+                  ))}
+                  {outgoingRequests.length > 0 && (
+                    <div className="px-4 py-3">
+                      <div className="text-xs text-white/30 mb-2 font-semibold uppercase tracking-wider">Sent</div>
+                      {outgoingRequests.map((request) => (
+                        <div
+                          key={request.id}
+                          className="flex items-center gap-3 py-2 text-white/40"
+                        >
+                          <Avatar size={36} src={request.recipient?.profile?.avatarUrl || request.recipient?.image || undefined} />
+                          <div className="flex-1 min-w-0">
+                            <span className="text-sm text-white/60 truncate">
+                              @{request.recipient?.username}
+                            </span>
+                          </div>
+                          <span className="text-[11px] text-white/30">Pending</span>
+                        </div>
+                      ))}
                     </div>
-                    <span className="text-[10px] text-white/60">Start</span>
+                  )}
+                </>
+              )}
+            </div>
+          ) : loading ? (
+            <div className="flex flex-col gap-2 p-4">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="flex items-center gap-3 p-3 animate-pulse">
+                  <div className="w-12 h-12 rounded-full bg-white/[0.06]" />
+                  <div className="flex-1 space-y-2">
+                    <div className="h-3 w-24 rounded bg-white/[0.06]" />
+                    <div className="h-2.5 w-40 rounded bg-white/[0.04]" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : filteredThreads.length === 0 ? (
+            <div className="px-8 py-12 text-center">
+              {searchQuery.trim() ? (
+                <>
+                  <div className="text-white/40 text-sm font-semibold">No results</div>
+                  <p className="text-white/20 text-xs mt-1">
+                    Try searching for a different name or username.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <div className="text-2xl font-bold text-white mb-1">Welcome to your inbox!</div>
+                  <p className="text-white/40 text-sm leading-relaxed">
+                    Drop a line, share posts and more with private conversations between you and others on DevLink.
+                  </p>
+                  <button
+                    onClick={() => setShowNewMessage(true)}
+                    className="mt-6 px-6 py-3 rounded-full text-sm font-bold bg-[var(--color-accent)] text-black hover:opacity-90 transition-opacity"
+                  >
+                    Write a message
                   </button>
-                ))}
-              </div>
-            )}
-          </div>
+                </>
+              )}
+            </div>
+          ) : (
+            <div>
+              {filteredThreads.map((thread) => {
+                const other = thread.userAId === userId ? thread.userB : thread.userA;
+                const isActive = pathname === `/messages/${thread.id}`;
+                const lastMsg = thread.messages?.[thread.messages.length - 1];
+                const lastMsgPreview = lastMsg
+                  ? lastMsg.senderId === userId
+                    ? `You: ${lastMsg.content}`
+                    : lastMsg.content
+                  : "No messages yet";
 
-          <div className="glass-soft border border-white/10 rounded-2xl p-4">
-            <h2 className="text-sm font-semibold text-white mb-3">Threads</h2>
-            {loading ? (
-              <div className="text-xs text-[var(--muted-foreground)]">Loading threads...</div>
-            ) : filteredThreads.length === 0 ? (
-              <div className="text-xs text-[var(--muted-foreground)]">No conversations yet.</div>
-            ) : (
-              <div className="grid gap-2">
-                {recentThreads.length > 0 && (
-                  <div className="text-[10px] uppercase tracking-[0.2em] text-white/40 px-1">Recent</div>
-                )}
-                {recentThreads.map((thread) => {
-                  const other = thread.userAId === userId ? thread.userB : thread.userA;
-                  const presence = presenceFor(other?.username || "user");
-                  const isActive = pathname === `/messages/${thread.id}`;
-                  const unread = thread.lastMessageAt
-                    ? Date.now() - new Date(thread.lastMessageAt).getTime() < 6 * 60 * 60 * 1000
-                    : false;
-                  return (
-                    <Link
-                      key={thread.id}
-                      href={`/messages/${thread.id}`}
-                      className={cn(
-                        "flex items-center gap-2 rounded-xl border px-2.5 py-2 transition-colors",
-                        isActive
-                          ? "border-[rgba(var(--color-accent-rgb),0.4)] bg-[rgba(var(--color-accent-rgb),0.12)]"
-                          : "border-white/10 bg-white/[0.03] hover:bg-white/[0.05]"
-                      )}
-                    >
-                      <div className="relative">
-                        <Avatar size={30} src={other?.profile?.avatarUrl || undefined} />
-                        <span className={cn("absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full border border-[#0b0f14]", presence.tone)} />
+                return (
+                  <Link
+                    key={thread.id}
+                    href={`/messages/${thread.id}`}
+                    className={cn(
+                      "flex items-start gap-3 px-4 py-3 transition-colors border-r-2",
+                      isActive
+                        ? "bg-white/[0.06] border-r-[var(--color-accent)]"
+                        : "border-r-transparent hover:bg-white/[0.03]"
+                    )}
+                  >
+                    <Avatar size={48} src={other?.profile?.avatarUrl || undefined} />
+                    <div className="flex-1 min-w-0 py-0.5">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <span className="text-[15px] font-bold text-white truncate">
+                            {other?.name || other?.username || "User"}
+                          </span>
+                          <span className="text-[15px] text-white/40 truncate">
+                            @{other?.username || "user"}
+                          </span>
+                        </div>
+                        <span className="text-xs text-white/30 flex-shrink-0">
+                          {lastActiveLabel(thread.lastMessageAt)}
+                        </span>
                       </div>
-                      <div className="min-w-0 flex-1">
-                        <div className="text-xs font-semibold text-white truncate flex items-center gap-1.5">
-                          {other?.username || "Conversation"}
-                          {unread && <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-accent)]" />}
-                        </div>
-                        <div className="text-[10px] text-[var(--muted-foreground)] truncate">
-                          {thread.messages?.[0]?.content || "No messages yet"}
-                        </div>
-                        <div className="text-[9px] text-white/40">
-                          {presence.label} • {lastActiveLabel(thread.lastMessageAt)}
-                        </div>
-                      </div>
-                    </Link>
-                  );
-                })}
+                      <p className="text-sm text-white/40 truncate mt-0.5 leading-snug">
+                        {lastMsgPreview}
+                      </p>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </aside>
 
-                {olderThreads.length > 0 && (
-                  <div className="text-[10px] uppercase tracking-[0.2em] text-white/40 px-1 pt-2">Earlier</div>
-                )}
-                {olderThreads.map((thread) => {
-                  const other = thread.userAId === userId ? thread.userB : thread.userA;
-                  const presence = presenceFor(other?.username || "user");
-                  const isActive = pathname === `/messages/${thread.id}`;
-                  const unread = thread.lastMessageAt
-                    ? Date.now() - new Date(thread.lastMessageAt).getTime() < 6 * 60 * 60 * 1000
-                    : false;
-                  return (
-                    <Link
-                      key={thread.id}
-                      href={`/messages/${thread.id}`}
-                      className={cn(
-                        "flex items-center gap-2 rounded-xl border px-2.5 py-2 transition-colors",
-                        isActive
-                          ? "border-[rgba(var(--color-accent-rgb),0.4)] bg-[rgba(var(--color-accent-rgb),0.12)]"
-                          : "border-white/10 bg-white/[0.03] hover:bg-white/[0.05]"
-                      )}
-                    >
-                      <div className="relative">
-                        <Avatar size={30} src={other?.profile?.avatarUrl || undefined} />
-                        <span className={cn("absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full border border-[#0b0f14]", presence.tone)} />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <div className="text-xs font-semibold text-white truncate flex items-center gap-1.5">
-                          {other?.username || "Conversation"}
-                          {unread && <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-accent)]" />}
-                        </div>
-                        <div className="text-[10px] text-[var(--muted-foreground)] truncate">
-                          {thread.messages?.[0]?.content || "No messages yet"}
-                        </div>
-                        <div className="text-[9px] text-white/40">
-                          {presence.label} • {lastActiveLabel(thread.lastMessageAt)}
-                        </div>
-                      </div>
-                    </Link>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        </>
+      {showNewMessage && (
+        <NewMessageModal
+          onClose={() => setShowNewMessage(false)}
+          onThreadCreated={handleThreadCreated}
+          onRequestSent={handleRequestSent}
+        />
       )}
-    </aside>
+    </>
   );
 }

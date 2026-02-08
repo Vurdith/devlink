@@ -1,46 +1,52 @@
+"use client";
+
+import { useState } from "react";
+import { useSession } from "next-auth/react";
+import Link from "next/link";
+import { NewMessageModal } from "./_components/NewMessageModal";
+
 export default function MessagesPage() {
+  const { data: session } = useSession();
+  const isLoggedIn = !!(session?.user as any)?.id;
+  const [showNewMessage, setShowNewMessage] = useState(false);
+
   return (
-    <div className="hidden lg:block space-y-6">
-      <div className="glass-soft border border-white/10 rounded-2xl p-6">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <div className="text-lg font-semibold text-white">Select a conversation</div>
-            <p className="text-sm text-[var(--muted-foreground)] mt-2">
-              Choose a thread from the left rail or start a new message.
-            </p>
-          </div>
-          <div className="text-[10px] text-white/50 uppercase tracking-[0.2em]">Messaging</div>
+    <>
+      <div className="hidden md:flex flex-col items-center justify-center h-full">
+        <div className="max-w-[340px] text-center px-8">
+          <h2 className="text-[31px] font-extrabold text-white leading-tight">
+            {isLoggedIn ? "Select a message" : "Your messages"}
+          </h2>
+          <p className="text-[15px] text-white/40 mt-2 leading-relaxed">
+            {isLoggedIn
+              ? "Choose from your existing conversations, start a new one, or just keep swimming."
+              : "Sign in to send and receive private messages with other developers on DevLink."}
+          </p>
+          {isLoggedIn ? (
+            <button
+              onClick={() => setShowNewMessage(true)}
+              className="mt-7 px-8 py-3.5 rounded-full text-[15px] font-bold bg-[var(--color-accent)] text-black hover:opacity-90 transition-opacity"
+            >
+              New message
+            </button>
+          ) : (
+            <Link
+              href="/login"
+              className="mt-7 inline-block px-8 py-3.5 rounded-full text-[15px] font-bold bg-[var(--color-accent)] text-black hover:opacity-90 transition-opacity"
+            >
+              Log in
+            </Link>
+          )}
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        <div className="glass-soft border border-white/10 rounded-2xl p-5">
-          <div className="flex items-center gap-2 text-sm font-semibold text-white mb-2">
-            <span className="w-7 h-7 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </span>
-            Start fast
-          </div>
-          <p className="text-xs text-[var(--muted-foreground)]">
-            Use the search box to find developers and send a message or request.
-          </p>
-        </div>
-        <div className="glass-soft border border-white/10 rounded-2xl p-5">
-          <div className="flex items-center gap-2 text-sm font-semibold text-white mb-2">
-            <span className="w-7 h-7 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                <path d="M21 15a4 4 0 0 1-4 4H7l-4 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </span>
-            Requests
-          </div>
-          <p className="text-xs text-[var(--muted-foreground)]">
-            Accept or decline new requests to keep your inbox clean.
-          </p>
-        </div>
-      </div>
-    </div>
+      {showNewMessage && (
+        <NewMessageModal
+          onClose={() => setShowNewMessage(false)}
+          onThreadCreated={() => setShowNewMessage(false)}
+          onRequestSent={() => setShowNewMessage(false)}
+        />
+      )}
+    </>
   );
 }

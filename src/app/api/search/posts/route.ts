@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/server/db";
 import { responseCache } from "@/lib/cache";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/server/auth-options";
+import { getAuthSession } from "@/server/auth";
 import { getUniqueViewCounts } from "@/lib/view-utils";
 
 const SEARCH_CACHE_TTL = 60; // Cache for 1 minute
@@ -16,7 +15,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ posts: [] });
     }
 
-    const session = await getServerSession(authOptions);
+    const session = await getAuthSession();
     const currentUserId = (session?.user as any)?.id;
 
     // Cache key includes user ID for personalized engagement flags

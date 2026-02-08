@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/server/db";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/server/auth-options";
+import { getAuthSession } from "@/server/auth";
 import { getUniqueViewCounts } from "@/lib/view-utils";
 
 // NO server-side caching for engagement tabs - they change frequently and caching causes sync issues
@@ -12,7 +11,7 @@ export async function GET(
 ) {
   try {
     const { userId } = await params;
-    const session = await getServerSession(authOptions);
+    const session = await getAuthSession();
     const currentUserId = (session?.user as any)?.id;
     
     const { searchParams } = new URL(request.url);

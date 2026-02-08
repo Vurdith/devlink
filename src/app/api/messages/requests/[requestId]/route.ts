@@ -1,15 +1,14 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
 import { MessageRequestStatus } from "@prisma/client";
-import { authOptions } from "@/server/auth-options";
+import { getAuthSession } from "@/server/auth";
 import { prisma } from "@/server/db";
 
 export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ requestId: string }> }
 ) {
-  const session = await getServerSession(authOptions);
-  const userId = (session?.user as any)?.id as string | undefined;
+  const session = await getAuthSession();
+  const userId = session?.user?.id;
 
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -51,20 +50,37 @@ export async function PATCH(
 
   if (nextStatus === "ACCEPTED") {
     const [userAId, userBId] = [request.senderId, request.recipientId].sort();
-    const existing = await prisma.conversation.findFirst({
-      where: {
-        isGroup: false,
-        AND: [
-          { members: { some: { userId: request.senderId } } },
-          { members: { some: { userId: request.recipientId } } },
-          { members: { every: { userId: { in: [request.senderId, request.recipientId] } } } },
-        ],
-      },
-      include: {
-        members: { include: { user: { include: { profile: true } } } },
-        messages: { orderBy: { createdAt: "desc" }, take: 1 },
-      },
+    // Find existing 1-on-1 conversation between the two users
+    // Query ConversationMember directly to avoid Prisma v7 relation filter issues
+    const senderConversations = await prisma.conversationMember.findMany({
+      where: { userId: request.senderId },
+      select: { conversationId: true },
     });
+    const senderConvIds = senderConversations.map((m) => m.conversationId);
+
+    let existing = null;
+    if (senderConvIds.length > 0) {
+      const recipientMembership = await prisma.conversationMember.findFirst({
+        where: {
+          userId: request.recipientId,
+          conversationId: { in: senderConvIds },
+        },
+        select: { conversationId: true },
+      });
+
+      if (recipientMembership) {
+        existing = await prisma.conversation.findFirst({
+          where: {
+            id: recipientMembership.conversationId,
+            isGroup: false,
+          },
+          include: {
+            members: { include: { user: { include: { profile: true } } } },
+            messages: { orderBy: { createdAt: "desc" }, take: 1 },
+          },
+        });
+      }
+    }
 
     const conversation =
       existing ??

@@ -2,8 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/server/db";
 import { getUniqueViewCounts } from "@/lib/view-utils";
 import { responseCache } from "@/lib/cache";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/server/auth-options";
+import { getAuthSession } from "@/server/auth";
 
 const HASHTAG_CACHE_TTL = 60; // Cache for 60 seconds
 
@@ -18,8 +17,8 @@ export async function GET(
     const limit = Math.min(parseInt(searchParams.get("limit") || "20"), 50);
     const skip = (page - 1) * limit;
     
-    const session = await getServerSession(authOptions);
-    const currentUserId = (session?.user as any)?.id;
+    const session = await getAuthSession();
+    const currentUserId = session?.user?.id;
 
     // Cache key includes user ID for personalized engagement flags
     const cacheKey = `hashtag:${hashtag.toLowerCase()}:${page}:${limit}:${currentUserId || 'anon'}`;

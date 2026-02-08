@@ -3,13 +3,12 @@ import Link from "next/link";
 import { Avatar } from "@/components/ui/Avatar";
 import { FollowButton } from "@/components/ui/FollowButton";
 import { ProfileTooltip } from "@/components/ui/ProfileTooltip";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/server/auth-options";
+import { getAuthSession } from "@/server/auth";
 import { getProfileTypeConfig, ProfileTypeIcon } from "@/lib/profile-types";
 
 export default async function FollowersPage({ params }: { params: Promise<{ username: string }> }) {
-  const session = await getServerSession(authOptions);
-  const currentUserId = (session?.user as any)?.id as string | undefined;
+  const session = await getAuthSession();
+  const currentUserId = session?.user?.id;
   const { username } = await params;
   const user = await prisma.user.findUnique({ where: { username }, select: { id: true, username: true } });
   if (!user) return null;

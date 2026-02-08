@@ -1,30 +1,36 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/server/auth-options";
+import { getAuthSession } from "@/server/auth";
 import { prisma } from "@/server/db";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { canSendMessage } from "@/server/messages/permissions";
 
 export async function GET() {
-  const session = await getServerSession(authOptions);
-  const userId = (session?.user as any)?.id as string | undefined;
+  const session = await getAuthSession();
+  const userId = session?.user?.id;
 
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const conversations = await prisma.conversation.findMany({
-    where: {
-      members: { some: { userId } },
-    },
-    include: {
-      members: {
-        include: { user: { include: { profile: true } } },
-      },
-      messages: { orderBy: { createdAt: "desc" }, take: 1 },
-    },
-    orderBy: { lastMessageAt: "desc" },
+  // Query ConversationMember directly to avoid Prisma v7 relation filter issues
+  const memberships = await prisma.conversationMember.findMany({
+    where: { userId },
+    select: { conversationId: true },
   });
+  const conversationIds = memberships.map((m) => m.conversationId);
+
+  const conversations = conversationIds.length > 0
+    ? await prisma.conversation.findMany({
+        where: { id: { in: conversationIds } },
+        include: {
+          members: {
+            include: { user: { include: { profile: true } } },
+          },
+          messages: { orderBy: { createdAt: "desc" }, take: 1 },
+        },
+        orderBy: { lastMessageAt: "desc" },
+      })
+    : [];
 
   const response = NextResponse.json(conversations);
   response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
@@ -32,8 +38,8 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  const session = await getServerSession(authOptions);
-  const userId = (session?.user as any)?.id as string | undefined;
+  const session = await getAuthSession();
+  const userId = session?.user?.id;
 
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

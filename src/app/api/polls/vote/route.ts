@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/server/db";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/server/auth-options";
+import { getAuthSession } from "@/server/auth";
 
 // Simple in-memory rate limiting for poll votes
 const voteRateLimitMap = new Map<string, { count: number; resetTime: number }>();
@@ -26,8 +25,8 @@ function checkVoteRateLimit(userId: string, limit: number = 5, windowMs: number 
 export async function POST(req: Request) {
   try {
     
-    const session = await getServerSession(authOptions);
-    const currentUserId = (session?.user as any)?.id as string | undefined;
+    const session = await getAuthSession();
+    const currentUserId = session?.user?.id;
     
     
     if (!currentUserId) {

@@ -1,12 +1,11 @@
 import { prisma } from "@/server/db";
 import { notFound } from "next/navigation";
 import { PostFeed } from "@/components/feed/PostFeed";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/server/auth-options";
+import { getAuthSession } from "@/server/auth";
 import { getUniqueViewCounts } from "@/lib/view-utils";
 
 export default async function HashtagPage(props: { params: Promise<{ hashtag: string }> }) {
-  const session = await getServerSession(authOptions);
+  const session = await getAuthSession();
   const { hashtag } = await props.params;
   const currentUserId = (session?.user as any)?.id;
 

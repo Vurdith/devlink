@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/server/auth-options";
+import { getAuthSession } from "@/server/auth";
 import { prisma } from "@/server/db";
 import { parseContent } from "@/lib/content-parser";
 import { CreatePostRequest, PostsResponse, ApiResponse } from "@/types/api";
@@ -11,7 +10,7 @@ import { createNotification } from "@/server/notifications";
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getAuthSession();
     if (!session?.user?.username) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -352,8 +351,8 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    const currentUserId = (session?.user as any)?.id as string | undefined;
+    const session = await getAuthSession();
+    const currentUserId = session?.user?.id;
     
     const { searchParams } = new URL(request.url);
     const page = Math.max(1, parseInt(searchParams.get("page") || "1"));

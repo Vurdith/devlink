@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/server/db";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/server/auth-options";
+import { getAuthSession } from "@/server/auth";
 import { getUniqueViewCounts } from "@/lib/view-utils";
 
 export async function POST(
@@ -10,7 +9,7 @@ export async function POST(
 ) {
   try {
     const { postId } = await params;
-    const session = await getServerSession(authOptions);
+    const session = await getAuthSession();
     
     // Get user IP address for anonymous tracking
     const forwarded = request.headers.get("x-forwarded-for");

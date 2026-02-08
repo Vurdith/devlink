@@ -2,8 +2,7 @@ import { prisma } from "@/server/db";
 import { notFound } from "next/navigation";
 import { FollowButton } from "@/components/ui/FollowButton";
 import Link from "next/link";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/server/auth-options";
+import { getAuthSession } from "@/server/auth";
 import { AboutEditor } from "./AboutEditor";
 import { ProfileTabs } from "./ProfileTabs";
 import { ProfileBanner, ProfileAvatar } from "./ProfileMedia";
@@ -92,13 +91,13 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
   
   // Fetch session and profile data in parallel
   const [session, user] = await Promise.all([
-    getServerSession(authOptions),
+    getAuthSession(),
     getProfileData(username)
   ]);
 
   if (!user) notFound();
   
-  const currentUserId = (session?.user as any)?.id as string | undefined;
+  const currentUserId = session?.user?.id;
   
   // Fetch following status only if logged in (separate fast query)
   const initialFollowing = currentUserId

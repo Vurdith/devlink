@@ -1,6 +1,5 @@
 import { prisma } from "@/server/db";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/server/auth-options";
+import { getAuthSession } from "@/server/auth";
 import { NextRequest, NextResponse } from "next/server";
 import { responseCache } from "@/lib/cache";
 
@@ -9,7 +8,7 @@ const CACHE_TTL = 60; // Cache for 60 seconds
 
 export async function GET(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getAuthSession();
     const { searchParams } = new URL(req.url);
     const profileType = searchParams.get("type") || "all";
     const cursor = searchParams.get("cursor") || ""; // For pagination

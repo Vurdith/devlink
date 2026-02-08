@@ -1,13 +1,12 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/server/auth-options";
+import { getAuthSession } from "@/server/auth";
 import { uploadFile } from "@/lib/storage";
 import { checkRateLimit } from "@/lib/rate-limit";
 
 export async function POST(req: Request) {
   try {
     // Authentication check - REQUIRED for uploads
-    const session = await getServerSession(authOptions);
+    const session = await getAuthSession();
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

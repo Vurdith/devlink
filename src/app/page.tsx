@@ -1,11 +1,10 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/server/auth-options";
+import { getAuthSession } from "@/server/auth";
 import { HeroSection } from "@/components/landing/HeroSection";
 import { FeaturesSection } from "@/components/landing/FeaturesSection";
 import { CTASection } from "@/components/landing/CTASection";
 
 export default async function RootPage() {
-  const session = await getServerSession(authOptions);
+  const session = await getAuthSession();
   const isLoggedIn = !!session?.user;
 
   return (

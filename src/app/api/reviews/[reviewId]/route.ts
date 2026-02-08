@@ -1,5 +1,4 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/server/auth-options";
+import { getAuthSession } from "@/server/auth";
 import { prisma } from "@/server/db";
 import { NextResponse } from "next/server";
 
@@ -8,8 +7,8 @@ export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ reviewId: string }> }
 ) {
-  const session = await getServerSession(authOptions);
-  const currentUserId = (session?.user as any)?.id as string | undefined;
+  const session = await getAuthSession();
+  const currentUserId = session?.user?.id;
   
   if (!currentUserId) {
     return new NextResponse("Unauthorized", { status: 401 });
@@ -71,8 +70,8 @@ export async function DELETE(
   req: Request,
   { params }: { params: Promise<{ reviewId: string }> }
 ) {
-  const session = await getServerSession(authOptions);
-  const currentUserId = (session?.user as any)?.id as string | undefined;
+  const session = await getAuthSession();
+  const currentUserId = session?.user?.id;
   
   if (!currentUserId) {
     return new NextResponse("Unauthorized", { status: 401 });

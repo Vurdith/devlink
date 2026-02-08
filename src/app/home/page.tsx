@@ -1,6 +1,5 @@
-import { getServerSession } from "next-auth";
+import { getAuthSession } from "@/server/auth";
 import { redirect } from "next/navigation";
-import { authOptions } from "@/server/auth-options";
 import { prisma } from "@/server/db";
 import { AnimatedHomeContent } from "@/components/feed/AnimatedHomeContent";
 import { fetchHomeFeedPosts } from "@/server/feed/fetch-home-feed";
@@ -14,7 +13,7 @@ export default async function HomePage() {
   
   // Fetch session and posts in parallel (first batch)
   const [session, posts] = await Promise.all([
-    getServerSession(authOptions),
+    getAuthSession(),
     fetchHomeFeedPosts(30)
   ]);
 
