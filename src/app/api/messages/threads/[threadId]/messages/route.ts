@@ -33,6 +33,30 @@ export async function POST(
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
+  // Check if this is a pending message request — sender limited to 1 message
+  const otherMember = conversation.members.find((m) => m.userId !== userId);
+  if (otherMember) {
+    const pendingRequest = await prisma.messageRequest.findFirst({
+      where: {
+        senderId: userId,
+        recipientId: otherMember.userId,
+        status: "PENDING",
+      },
+    });
+
+    if (pendingRequest) {
+      const existingMessages = await prisma.message.count({
+        where: { conversationId: threadId, senderId: userId },
+      });
+      if (existingMessages >= 1) {
+        return NextResponse.json(
+          { error: "You can only send 1 message until your request is accepted" },
+          { status: 403 }
+        );
+      }
+    }
+  }
+
   const body = await req.json();
   const content = typeof body?.content === "string" ? body.content : "";
 

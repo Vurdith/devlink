@@ -28,7 +28,7 @@ export default function MessagingSettingsPage() {
       const data = await safeJson<MessagingSettings & { error?: string }>(res);
       if (isMounted) {
         if (res.ok) {
-          setSettings((data || { allowFrom: "EVERYONE" }) as MessagingSettings);
+          setSettings((data || { allowFrom: "FOLLOWING" }) as MessagingSettings);
           setError(null);
         } else {
           setError(data?.error || "Unable to load messaging settings");

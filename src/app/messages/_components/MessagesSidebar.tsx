@@ -310,7 +310,7 @@ export function MessagesSidebar() {
           >
             Requests
             {requestCount > 0 && (
-              <span className="ml-1.5 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-[var(--color-accent)] text-[10px] font-bold text-black">
+              <span className="ml-1.5 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-gradient-to-r from-[var(--color-accent)] to-[var(--color-accent-hover)] text-[10px] font-bold text-white">
                 {requestCount}
               </span>
             )}
@@ -323,66 +323,59 @@ export function MessagesSidebar() {
         {/* Content */}
         <div className="flex-1 overflow-y-auto scrollbar-hide">
           {activeTab === "requests" ? (
-            <div className="py-2">
-              {incomingRequests.length === 0 && outgoingRequests.length === 0 ? (
+            <div className="divide-y divide-white/[0.06]">
+              {incomingRequests.length === 0 ? (
                 <div className="px-4 py-8 text-center">
                   <div className="text-white/30 text-sm">No message requests</div>
                   <p className="text-white/20 text-xs mt-1">When someone sends you a message request, it will appear here.</p>
                 </div>
               ) : (
                 <>
-                  {incomingRequests.map((request) => (
-                    <div
-                      key={request.id}
-                      className="flex items-center gap-3 px-4 py-3 hover:bg-white/[0.03] transition-colors"
-                    >
-                      <Avatar size={48} src={request.sender?.profile?.avatarUrl || request.sender?.image || undefined} />
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-bold text-white truncate">
-                            {request.sender?.name || request.sender?.username}
-                          </span>
-                          <span className="text-sm text-white/40 truncate">
-                            @{request.sender?.username}
-                          </span>
-                        </div>
-                        <div className="text-xs text-white/40 mt-0.5">Wants to send you a message</div>
-                      </div>
-                      <div className="flex items-center gap-1.5 flex-shrink-0">
-                        <button
-                          onClick={() => handleRequest(request.id, "ACCEPTED")}
-                          className="px-3.5 py-1.5 rounded-full text-xs font-bold bg-white text-black hover:bg-white/90 transition-colors"
-                        >
-                          Accept
-                        </button>
-                        <button
-                          onClick={() => handleRequest(request.id, "DECLINED")}
-                          className="px-3.5 py-1.5 rounded-full text-xs font-bold border border-white/20 text-white hover:bg-white/10 transition-colors"
-                        >
-                          Decline
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                  {outgoingRequests.length > 0 && (
-                    <div className="px-4 py-3">
-                      <div className="text-xs text-white/30 mb-2 font-semibold uppercase tracking-wider">Sent</div>
-                      {outgoingRequests.map((request) => (
-                        <div
-                          key={request.id}
-                          className="flex items-center gap-3 py-2 text-white/40"
-                        >
-                          <Avatar size={36} src={request.recipient?.profile?.avatarUrl || request.recipient?.image || undefined} />
+                  {incomingRequests.map((request: any) => {
+                    const msgPreview = request.lastMessage?.content || "Sent you a message request";
+                    return (
+                      <div key={request.id} className="px-4 py-3 hover:bg-white/[0.03] transition-colors">
+                        <div className="flex items-start gap-3">
+                          <Avatar size={48} src={request.sender?.profile?.avatarUrl || request.sender?.image || undefined} />
                           <div className="flex-1 min-w-0">
-                            <span className="text-sm text-white/60 truncate">
-                              @{request.recipient?.username}
-                            </span>
+                            <div className="flex items-center gap-2">
+                              <span className="text-[15px] font-bold text-white truncate">
+                                {request.sender?.name || request.sender?.username}
+                              </span>
+                              <span className="text-[15px] text-white/40 truncate">
+                                @{request.sender?.username}
+                              </span>
+                            </div>
+                            <p className="text-sm text-white/40 truncate mt-0.5 leading-snug">
+                              {msgPreview}
+                            </p>
+                            <div className="flex items-center gap-2 mt-2">
+                              <button
+                                onClick={() => handleRequest(request.id, "ACCEPTED")}
+                                className="px-4 py-1.5 rounded-full text-xs font-bold bg-gradient-to-r from-[var(--color-accent)] to-[var(--color-accent-hover)] text-white hover:opacity-90 transition-opacity shadow-lg shadow-[rgba(var(--color-accent-rgb),0.2)]"
+                              >
+                                Accept
+                              </button>
+                              <button
+                                onClick={() => handleRequest(request.id, "DECLINED")}
+                                className="px-4 py-1.5 rounded-full text-xs font-bold border border-white/20 text-white hover:bg-white/10 transition-colors"
+                              >
+                                Decline
+                              </button>
+                              {request.conversationId && (
+                                <Link
+                                  href={`/messages/${request.conversationId}`}
+                                  className="px-3 py-1.5 rounded-full text-xs font-medium text-white/50 hover:text-white/70 hover:bg-white/[0.06] transition-colors ml-auto"
+                                >
+                                  View
+                                </Link>
+                              )}
+                            </div>
                           </div>
-                          <span className="text-[11px] text-white/30">Pending</span>
                         </div>
-                      ))}
-                    </div>
-                  )}
+                      </div>
+                    );
+                  })}
                 </>
               )}
             </div>
@@ -415,7 +408,7 @@ export function MessagesSidebar() {
                   </p>
                   <button
                     onClick={() => setShowNewMessage(true)}
-                    className="mt-6 px-6 py-3 rounded-full text-sm font-bold bg-[var(--color-accent)] text-black hover:opacity-90 transition-opacity"
+                    className="mt-6 px-6 py-3 rounded-full text-sm font-bold bg-gradient-to-r from-[var(--color-accent)] to-[var(--color-accent-hover)] text-white hover:opacity-90 transition-opacity shadow-lg shadow-[rgba(var(--color-accent-rgb),0.2)]"
                   >
                     Write a message
                   </button>

@@ -18,7 +18,8 @@ export async function GET() {
       where: { userId },
     });
 
-    const response = NextResponse.json(settings || { userId, allowFrom: "EVERYONE" });
+    // Default matches canSendMessage() — FOLLOWING
+    const response = NextResponse.json(settings || { userId, allowFrom: "FOLLOWING" });
     response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
     return response;
   } catch (error) {

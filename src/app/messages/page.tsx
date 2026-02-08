@@ -25,14 +25,14 @@ export default function MessagesPage() {
           {isLoggedIn ? (
             <button
               onClick={() => setShowNewMessage(true)}
-              className="mt-7 px-8 py-3.5 rounded-full text-[15px] font-bold bg-[var(--color-accent)] text-black hover:opacity-90 transition-opacity"
+              className="mt-7 px-8 py-3.5 rounded-full text-[15px] font-bold bg-gradient-to-r from-[var(--color-accent)] to-[var(--color-accent-hover)] text-white hover:opacity-90 transition-opacity shadow-lg shadow-[rgba(var(--color-accent-rgb),0.2)]"
             >
               New message
             </button>
           ) : (
             <Link
               href="/login"
-              className="mt-7 inline-block px-8 py-3.5 rounded-full text-[15px] font-bold bg-[var(--color-accent)] text-black hover:opacity-90 transition-opacity"
+              className="mt-7 inline-block px-8 py-3.5 rounded-full text-[15px] font-bold bg-gradient-to-r from-[var(--color-accent)] to-[var(--color-accent-hover)] text-white hover:opacity-90 transition-opacity shadow-lg shadow-[rgba(var(--color-accent-rgb),0.2)]"
             >
               Log in
             </Link>

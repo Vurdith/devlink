@@ -202,6 +202,8 @@ export default function MessageThreadPage() {
   const [sending, setSending] = useState(false);
   const [content, setContent] = useState("");
   const [showProfilePreview, setShowProfilePreview] = useState(false);
+  const [pendingRequest, setPendingRequest] = useState(false); // sender has a pending request
+  const [hasSentRequestMsg, setHasSentRequestMsg] = useState(false); // already sent 1 message
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const scrollRef = useChatScroll(thread?.messages?.length);
@@ -230,10 +232,30 @@ export default function MessageThreadPage() {
     let isMounted = true;
     async function load() {
       setLoading(true);
-      const res = await fetch(`/api/messages/threads/${params.threadId}`);
-      const data = await safeJson<MessageThread>(res);
+      const [threadRes, outgoingRes] = await Promise.all([
+        fetch(`/api/messages/threads/${params.threadId}`),
+        fetch("/api/messages/requests?type=outgoing"),
+      ]);
+      const data = await safeJson<MessageThread>(threadRes);
+      const outgoing = await safeJson<any[]>(outgoingRes);
+
       if (isMounted) {
         setThread(data || null);
+
+        // Check if there's a pending request from this user to the other user
+        if (data && outgoing) {
+          const otherUserId = data.userAId === userId ? data.userBId : data.userAId;
+          const isPending = outgoing.some(
+            (r: any) => r.recipientId === otherUserId && r.status === "PENDING"
+          );
+          setPendingRequest(isPending);
+
+          if (isPending && data.messages) {
+            const sentCount = data.messages.filter((m: any) => m.senderId === userId).length;
+            setHasSentRequestMsg(sentCount >= 1);
+          }
+        }
+
         setLoading(false);
       }
     }
@@ -333,12 +355,13 @@ export default function MessageThreadPage() {
       setThread((prev) =>
         prev ? { ...prev, messages: [...(prev.messages || []), data as any] } : prev
       );
+      if (pendingRequest) setHasSentRequestMsg(true);
     } else {
       setContent(messageContent); // Restore on failure
       alert(data?.error || "Failed to send message");
     }
     setSending(false);
-  }, [content, params.threadId, setTyping]);
+  }, [content, params.threadId, setTyping, pendingRequest]);
 
   if (!userId) {
     return (
@@ -475,7 +498,7 @@ export default function MessageThreadPage() {
                         className={cn(
                           "px-4 py-2.5 text-[15px] leading-snug break-words",
                           isMine
-                            ? "bg-[var(--color-accent)] text-black"
+                            ? "bg-gradient-to-r from-[var(--color-accent)] to-[var(--color-accent-hover)] text-white"
                             : "bg-white/[0.08] text-white",
                           // Bubble shape based on position in group
                           isMine ? cn(
@@ -529,40 +552,62 @@ export default function MessageThreadPage() {
 
       {/* Input area */}
       <div className="flex-shrink-0 border-t border-white/[0.06] px-4 py-3">
+        {/* Pending request notice — shown after 1 message sent */}
+        {pendingRequest && hasSentRequestMsg && (
+          <div className="mb-2 px-3 py-2 rounded-xl bg-white/[0.04] border border-white/[0.06] text-center">
+            <p className="text-[13px] text-white/40">
+              Your message request has been sent. You can send more messages once{" "}
+              <span className="text-white/60 font-medium">{otherUser?.name || otherUser?.username}</span>{" "}
+              accepts your request.
+            </p>
+          </div>
+        )}
+
+        {/* Pending request hint — shown before first message */}
+        {pendingRequest && !hasSentRequestMsg && (
+          <div className="mb-2 px-3 py-2 rounded-xl bg-[rgba(var(--color-accent-rgb),0.06)] border border-[rgba(var(--color-accent-rgb),0.12)] text-center">
+            <p className="text-[13px] text-white/50">
+              Send a message to introduce yourself. {otherUser?.name || otherUser?.username} will see it as a request.
+            </p>
+          </div>
+        )}
+
         <div className="flex items-end gap-2">
           {/* Action buttons */}
-          <div className="flex items-center gap-0.5 pb-1.5">
-            <button
-              className="w-9 h-9 rounded-full flex items-center justify-center text-[var(--color-accent)] hover:bg-[rgba(var(--color-accent-rgb),0.1)] transition-colors"
-              title="Attach media"
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" strokeWidth="1.5" />
-                <circle cx="8.5" cy="8.5" r="1.5" fill="currentColor" />
-                <path d="M21 15l-5-5L5 21" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </button>
-            <button
-              className="w-9 h-9 rounded-full flex items-center justify-center text-[var(--color-accent)] hover:bg-[rgba(var(--color-accent-rgb),0.1)] transition-colors"
-              title="GIF"
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                <rect x="2" y="4" width="20" height="16" rx="2" stroke="currentColor" strokeWidth="1.5" />
-                <text x="12" y="15" textAnchor="middle" fill="currentColor" fontSize="8" fontWeight="bold">GIF</text>
-              </svg>
-            </button>
-            <button
-              className="w-9 h-9 rounded-full flex items-center justify-center text-[var(--color-accent)] hover:bg-[rgba(var(--color-accent-rgb),0.1)] transition-colors"
-              title="Emoji"
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.5" />
-                <path d="M8 14s1.5 2 4 2 4-2 4-2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                <circle cx="9" cy="10" r="1" fill="currentColor" />
-                <circle cx="15" cy="10" r="1" fill="currentColor" />
-              </svg>
-            </button>
-          </div>
+          {!(pendingRequest && hasSentRequestMsg) && (
+            <div className="flex items-center gap-0.5 pb-1.5">
+              <button
+                className="w-9 h-9 rounded-full flex items-center justify-center text-[var(--color-accent)] hover:bg-[rgba(var(--color-accent-rgb),0.1)] transition-colors"
+                title="Attach media"
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" strokeWidth="1.5" />
+                  <circle cx="8.5" cy="8.5" r="1.5" fill="currentColor" />
+                  <path d="M21 15l-5-5L5 21" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </button>
+              <button
+                className="w-9 h-9 rounded-full flex items-center justify-center text-[var(--color-accent)] hover:bg-[rgba(var(--color-accent-rgb),0.1)] transition-colors"
+                title="GIF"
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <rect x="2" y="4" width="20" height="16" rx="2" stroke="currentColor" strokeWidth="1.5" />
+                  <text x="12" y="15" textAnchor="middle" fill="currentColor" fontSize="8" fontWeight="bold">GIF</text>
+                </svg>
+              </button>
+              <button
+                className="w-9 h-9 rounded-full flex items-center justify-center text-[var(--color-accent)] hover:bg-[rgba(var(--color-accent-rgb),0.1)] transition-colors"
+                title="Emoji"
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.5" />
+                  <path d="M8 14s1.5 2 4 2 4-2 4-2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                  <circle cx="9" cy="10" r="1" fill="currentColor" />
+                  <circle cx="15" cy="10" r="1" fill="currentColor" />
+                </svg>
+              </button>
+            </div>
+          )}
 
           {/* Text input */}
           <div className="flex-1 relative">
@@ -572,32 +617,38 @@ export default function MessageThreadPage() {
               onChange={handleContentChange}
               onKeyDown={handleKeyDown}
               onBlur={() => setTyping(false)}
-              placeholder="Start a new message"
+              placeholder={pendingRequest && !hasSentRequestMsg ? "Write your message request..." : "Start a new message"}
               rows={1}
-              className="w-full bg-white/[0.04] border border-white/[0.1] rounded-2xl px-4 py-2.5 text-[15px] text-white placeholder:text-white/30 resize-none focus:outline-none focus:border-[var(--color-accent)]/40 transition-colors min-h-[42px] max-h-[150px] scrollbar-hide leading-snug"
+              disabled={pendingRequest && hasSentRequestMsg}
+              className={cn(
+                "w-full bg-white/[0.04] border border-white/[0.1] rounded-2xl px-4 py-2.5 text-[15px] text-white placeholder:text-white/30 resize-none focus:outline-none focus:border-[var(--color-accent)]/40 transition-colors min-h-[42px] max-h-[150px] scrollbar-hide leading-snug",
+                pendingRequest && hasSentRequestMsg && "opacity-40 cursor-not-allowed"
+              )}
             />
           </div>
 
           {/* Send button */}
-          <button
-            onClick={sendMessage}
-            disabled={sending || !content.trim()}
-            className={cn(
-              "w-9 h-9 rounded-full flex items-center justify-center transition-colors flex-shrink-0 mb-0.5",
-              content.trim()
-                ? "text-[var(--color-accent)] hover:bg-[rgba(var(--color-accent-rgb),0.1)]"
-                : "text-white/20 cursor-not-allowed"
-            )}
-            title="Send"
-          >
-            {sending ? (
-              <div className="w-4 h-4 border-2 border-white/20 border-t-[var(--color-accent)] rounded-full animate-spin" />
-            ) : (
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
-              </svg>
-            )}
-          </button>
+          {!(pendingRequest && hasSentRequestMsg) && (
+            <button
+              onClick={sendMessage}
+              disabled={sending || !content.trim()}
+              className={cn(
+                "w-9 h-9 rounded-full flex items-center justify-center transition-colors flex-shrink-0 mb-0.5",
+                content.trim()
+                  ? "text-[var(--color-accent)] hover:bg-[rgba(var(--color-accent-rgb),0.1)]"
+                  : "text-white/20 cursor-not-allowed"
+              )}
+              title="Send"
+            >
+              {sending ? (
+                <div className="w-4 h-4 border-2 border-white/20 border-t-[var(--color-accent)] rounded-full animate-spin" />
+              ) : (
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+                </svg>
+              )}
+            </button>
+          )}
         </div>
       </div>
     </div>

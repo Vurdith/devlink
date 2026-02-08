@@ -61,13 +61,10 @@ export function NewMessageModal({ onClose, onThreadCreated, onRequestSent }: New
       body: JSON.stringify({ otherUserId: user.id }),
     });
     const data = await safeJson<{ type?: string; thread?: MessageThread; request?: MessageRequest; error?: string }>(res);
-    if (res.ok && data?.type === "thread" && data.thread) {
+    if (res.ok && data?.thread) {
       onThreadCreated(data.thread);
       onClose();
       router.push(`/messages/${data.thread.id}`);
-    } else if (res.ok && data?.type === "request" && data.request) {
-      onRequestSent(data.request);
-      onClose();
     } else {
       alert(data?.error || "Unable to start conversation");
     }

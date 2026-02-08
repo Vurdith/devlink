@@ -49,16 +49,15 @@ export async function PATCH(
   });
 
   if (nextStatus === "ACCEPTED") {
-    const [userAId, userBId] = [request.senderId, request.recipientId].sort();
-    // Find existing 1-on-1 conversation between the two users
-    // Query ConversationMember directly to avoid Prisma v7 relation filter issues
+    // Conversation already exists (created when sender initiated)
+    // Just find it and return as a thread
     const senderConversations = await prisma.conversationMember.findMany({
       where: { userId: request.senderId },
       select: { conversationId: true },
     });
     const senderConvIds = senderConversations.map((m) => m.conversationId);
 
-    let existing = null;
+    let conversation = null;
     if (senderConvIds.length > 0) {
       const recipientMembership = await prisma.conversationMember.findFirst({
         where: {
@@ -69,11 +68,8 @@ export async function PATCH(
       });
 
       if (recipientMembership) {
-        existing = await prisma.conversation.findFirst({
-          where: {
-            id: recipientMembership.conversationId,
-            isGroup: false,
-          },
+        conversation = await prisma.conversation.findFirst({
+          where: { id: recipientMembership.conversationId, isGroup: false },
           include: {
             members: { include: { user: { include: { profile: true } } } },
             messages: { orderBy: { createdAt: "desc" }, take: 1 },
@@ -82,24 +78,11 @@ export async function PATCH(
       }
     }
 
-    const conversation =
-      existing ??
-      (await prisma.conversation.create({
-        data: {
-          isGroup: false,
-          createdById: request.recipientId,
-          members: {
-            create: [
-              { userId: userAId, role: userAId === request.recipientId ? "OWNER" : "MEMBER" },
-              { userId: userBId, role: userBId === request.recipientId ? "OWNER" : "MEMBER" },
-            ],
-          },
-        },
-        include: {
-          members: { include: { user: { include: { profile: true } } } },
-          messages: { orderBy: { createdAt: "desc" }, take: 1 },
-        },
-      }));
+    if (!conversation) {
+      const response = NextResponse.json({ request: updated });
+      response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+      return response;
+    }
 
     const members = conversation.members.map((member) => member.user).filter(Boolean);
     const sortedMembers = [...members].sort((a, b) => a.id.localeCompare(b.id));

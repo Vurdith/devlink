@@ -20,7 +20,14 @@ export async function GET() {
   });
   const myConvIds = memberships.map((m) => m.conversationId);
 
-  const conversations = myConvIds.length > 0
+  // Find pending requests where user is the RECIPIENT — exclude those from inbox
+  const pendingIncoming = await prisma.messageRequest.findMany({
+    where: { recipientId: userId, status: "PENDING" },
+    select: { senderId: true },
+  });
+  const pendingSenderIds = new Set(pendingIncoming.map((r) => r.senderId));
+
+  let conversations = myConvIds.length > 0
     ? await prisma.conversation.findMany({
         where: {
           id: { in: myConvIds },
@@ -33,6 +40,14 @@ export async function GET() {
         orderBy: { lastMessageAt: "desc" },
       })
     : [];
+
+  // Filter out conversations that are pending requests TO this user
+  if (pendingSenderIds.size > 0) {
+    conversations = conversations.filter((conv) => {
+      const otherMember = conv.members.find((m) => m.userId !== userId);
+      return !otherMember || !pendingSenderIds.has(otherMember.userId);
+    });
+  }
 
   const threads = conversations.map((conversation) => {
     const members = conversation.members.map((member) => member.user).filter(Boolean);
@@ -100,30 +115,7 @@ export async function POST(req: Request) {
     const allowed = await canSendMessage({ senderId: userId, recipientId: otherUser.id });
     const [userAId, userBId] = [userId, otherUser.id].sort();
 
-    if (!allowed) {
-      if (!(prisma as any).messageRequest) {
-        return NextResponse.json(
-          { error: "Messaging tables are not initialized. Run prisma generate/migrate." },
-          { status: 500 }
-        );
-      }
-      const request = await prisma.messageRequest.upsert({
-        where: { senderId_recipientId: { senderId: userId, recipientId: otherUser.id } },
-        update: { status: "PENDING" },
-        create: { senderId: userId, recipientId: otherUser.id, status: "PENDING" },
-        include: {
-          sender: { include: { profile: true } },
-          recipient: { include: { profile: true } },
-        },
-      });
-
-      const response = NextResponse.json({ type: "request", request }, { status: 201 });
-      response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
-      return response;
-    }
-
-    // Find existing 1-on-1 conversation between the two users
-    // Query ConversationMember directly to avoid Prisma v7 relation filter issues
+    // Always find or create a conversation — even for requests
     const sharedConversations = await prisma.conversationMember.findMany({
       where: { userId },
       select: { conversationId: true },
@@ -171,6 +163,16 @@ export async function POST(req: Request) {
         },
       }));
 
+    // If not allowed to DM directly, create/update a pending MessageRequest
+    let request = null;
+    if (!allowed) {
+      request = await prisma.messageRequest.upsert({
+        where: { senderId_recipientId: { senderId: userId, recipientId: otherUser.id } },
+        update: { status: "PENDING" },
+        create: { senderId: userId, recipientId: otherUser.id, status: "PENDING" },
+      });
+    }
+
     const members = conversation.members.map((member) => member.user).filter(Boolean);
     const sortedMembers = [...members].sort((a, b) => a.id.localeCompare(b.id));
     const userA = sortedMembers[0] || members[0];
@@ -186,7 +188,10 @@ export async function POST(req: Request) {
       userB,
     };
 
-    const response = NextResponse.json({ type: "thread", thread }, { status: 201 });
+    const response = NextResponse.json(
+      { type: request ? "request_thread" : "thread", thread, isRequest: !!request },
+      { status: 201 }
+    );
     response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
     return response;
   } catch (error) {
