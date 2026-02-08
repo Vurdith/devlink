@@ -17,7 +17,9 @@ export async function canSendMessage({
     where: { userId: recipientId },
   });
 
-  const allowFrom = settings?.allowFrom || "EVERYONE";
+  // Default to FOLLOWING — only people the recipient follows can DM directly.
+  // Everyone else goes through message requests (matching X.com behaviour).
+  const allowFrom = settings?.allowFrom || "FOLLOWING";
   if (allowFrom === "EVERYONE") return true;
   if (allowFrom === "NONE") return false;
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, useCallback } from "react";
+import { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
@@ -9,7 +9,15 @@ import { safeJson } from "@/lib/safe-json";
 import { Avatar } from "@/components/ui/Avatar";
 import { useMessagesRealtime } from "@/hooks/useMessagesRealtime";
 import { NewMessageModal } from "./NewMessageModal";
-import type { MessageRequest, MessageThread } from "@/types/api";
+import type { MessageRequest, MessageThread, MessagingSettings } from "@/types/api";
+
+const DM_PERMISSION_OPTIONS = [
+  { value: "EVERYONE", label: "Everyone", desc: "Anyone can message you directly" },
+  { value: "FOLLOWERS", label: "Followers", desc: "Only your followers" },
+  { value: "FOLLOWING", label: "People I follow", desc: "Only people you follow" },
+  { value: "MUTUALS", label: "Mutuals only", desc: "Only mutual follows" },
+  { value: "NONE", label: "No one", desc: "All messages become requests" },
+] as const;
 
 export function MessagesSidebar() {
   const { data: session } = useSession();
@@ -24,6 +32,12 @@ export function MessagesSidebar() {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState<"inbox" | "requests">("inbox");
   const [showNewMessage, setShowNewMessage] = useState(false);
+
+  // Inline settings dropdown
+  const [showSettings, setShowSettings] = useState(false);
+  const [msgSettings, setMsgSettings] = useState<MessagingSettings | null>(null);
+  const [savingSettings, setSavingSettings] = useState(false);
+  const settingsRef = useRef<HTMLDivElement>(null);
 
   // Realtime: bump thread to top on new message
   useMessagesRealtime(undefined, (newMessage) => {
@@ -123,6 +137,42 @@ export function MessagesSidebar() {
     setOutgoingRequests((prev) => [request, ...prev]);
   }
 
+  // Load messaging settings when dropdown opens
+  useEffect(() => {
+    if (!showSettings || !userId || msgSettings) return;
+    let active = true;
+    (async () => {
+      const res = await fetch("/api/settings/messaging");
+      const data = await safeJson<MessagingSettings & { error?: string }>(res);
+      if (active && res.ok) setMsgSettings((data || { allowFrom: "FOLLOWING" }) as MessagingSettings);
+    })();
+    return () => { active = false; };
+  }, [showSettings, userId, msgSettings]);
+
+  // Close settings on outside click
+  useEffect(() => {
+    if (!showSettings) return;
+    function handleClick(e: MouseEvent) {
+      if (settingsRef.current && !settingsRef.current.contains(e.target as Node)) {
+        setShowSettings(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [showSettings]);
+
+  async function updateMsgSetting(allowFrom: string) {
+    setSavingSettings(true);
+    const res = await fetch("/api/settings/messaging", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ allowFrom }),
+    });
+    const data = await safeJson<MessagingSettings & { error?: string }>(res);
+    if (res.ok && data) setMsgSettings(data);
+    setSavingSettings(false);
+  }
+
   if (!userId) {
     return (
       <aside className="w-full md:w-[380px] lg:w-[420px] flex-shrink-0 border-r border-white/[0.06] flex flex-col h-full bg-black/20">
@@ -144,17 +194,22 @@ export function MessagesSidebar() {
         {/* Header */}
         <div className="flex items-center justify-between px-4 h-[53px] border-b border-white/[0.06] flex-shrink-0">
           <h1 className="text-xl font-bold text-white">Messages</h1>
-          <div className="flex items-center gap-1">
-            <Link
-              href="/settings/messaging"
-              className="w-9 h-9 rounded-full flex items-center justify-center text-white/60 hover:bg-white/[0.08] transition-colors"
+          <div className="flex items-center gap-1 relative" ref={settingsRef}>
+            <button
+              onClick={() => setShowSettings((v) => !v)}
+              className={cn(
+                "w-9 h-9 rounded-full flex items-center justify-center transition-colors",
+                showSettings
+                  ? "text-[var(--color-accent)] bg-[rgba(var(--color-accent-rgb),0.1)]"
+                  : "text-white/60 hover:bg-white/[0.08]"
+              )}
               title="Message settings"
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                 <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.5" />
                 <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
-            </Link>
+            </button>
             <button
               onClick={() => setShowNewMessage(true)}
               className="w-9 h-9 rounded-full flex items-center justify-center text-white/60 hover:bg-white/[0.08] transition-colors"
@@ -165,6 +220,44 @@ export function MessagesSidebar() {
                 <path d="M13.5 6.5l3 3" stroke="currentColor" strokeWidth="1.5" />
               </svg>
             </button>
+
+            {/* Settings dropdown */}
+            {showSettings && (
+              <div className="absolute top-full right-0 mt-1 w-72 bg-[#1a1d24] border border-white/[0.1] rounded-xl shadow-2xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-1 duration-150">
+                <div className="px-4 py-3 border-b border-white/[0.06]">
+                  <h3 className="text-sm font-bold text-white">Who can message you</h3>
+                  <p className="text-[11px] text-white/40 mt-0.5">Others will send a request instead</p>
+                </div>
+                <div className="py-1">
+                  {DM_PERMISSION_OPTIONS.map((opt) => {
+                    const isActive = (msgSettings?.allowFrom || "FOLLOWING") === opt.value;
+                    return (
+                      <button
+                        key={opt.value}
+                        onClick={() => updateMsgSetting(opt.value)}
+                        disabled={savingSettings}
+                        className={cn(
+                          "w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors",
+                          isActive ? "bg-white/[0.05]" : "hover:bg-white/[0.03]",
+                          savingSettings && "opacity-50"
+                        )}
+                      >
+                        <div className={cn(
+                          "w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0",
+                          isActive ? "border-[var(--color-accent)]" : "border-white/20"
+                        )}>
+                          {isActive && <div className="w-2 h-2 rounded-full bg-[var(--color-accent)]" />}
+                        </div>
+                        <div className="min-w-0">
+                          <div className={cn("text-sm", isActive ? "text-white font-semibold" : "text-white/70")}>{opt.label}</div>
+                          <div className="text-[11px] text-white/30">{opt.desc}</div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -330,7 +423,7 @@ export function MessagesSidebar() {
               )}
             </div>
           ) : (
-            <div>
+            <div className="divide-y divide-white/[0.06]">
               {filteredThreads.map((thread) => {
                 const other = thread.userAId === userId ? thread.userB : thread.userA;
                 const isActive = pathname === `/messages/${thread.id}`;

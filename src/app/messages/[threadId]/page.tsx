@@ -12,6 +12,187 @@ import { useMessagesRealtime } from "@/hooks/useMessagesRealtime";
 import { useTypingIndicator } from "@/hooks/useTypingIndicator";
 import { useChatScroll } from "@/hooks/useChatScroll";
 
+/* ── Profile Preview Card (X.com-style popup) ── */
+function ProfilePreviewCard({
+  user,
+  onClose,
+}: {
+  user: {
+    id?: string;
+    username?: string | null;
+    name?: string | null;
+    image?: string | null;
+    createdAt?: string | Date | null;
+    profile?: {
+      avatarUrl?: string | null;
+      bannerUrl?: string | null;
+      bio?: string | null;
+      verified?: boolean;
+      location?: string | null;
+      website?: string | null;
+    };
+    _count?: { followers?: number; following?: number };
+  };
+  onClose: () => void;
+}) {
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (cardRef.current && !cardRef.current.contains(e.target as Node)) onClose();
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [onClose]);
+
+  useEffect(() => {
+    function handleKey(e: KeyboardEvent) {
+      if (e.key === "Escape") onClose();
+    }
+    document.addEventListener("keydown", handleKey);
+    return () => document.removeEventListener("keydown", handleKey);
+  }, [onClose]);
+
+  const avatarSrc = user.profile?.avatarUrl || user.image || undefined;
+  const bannerSrc = user.profile?.bannerUrl || undefined;
+  const followerCount = user._count?.followers;
+  const followingCount = user._count?.following;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      {/* Backdrop */}
+      <div className="absolute inset-0 bg-black/60" onClick={onClose} />
+
+      {/* Card */}
+      <div
+        ref={cardRef}
+        className="relative w-full max-w-[360px] rounded-2xl overflow-hidden shadow-xl border border-white/[0.08]"
+        style={{ background: "linear-gradient(180deg, #1c1f26 0%, #15171c 100%)" }}
+      >
+        {/* Close button */}
+        <button
+          onClick={onClose}
+          className="absolute top-3 right-3 z-10 w-8 h-8 rounded-full bg-black/60 backdrop-blur-sm flex items-center justify-center text-white/70 hover:text-white hover:bg-black/80 transition-colors"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+            <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+          </svg>
+        </button>
+
+        {/* Banner */}
+        <div className="h-28 relative overflow-hidden">
+          {bannerSrc ? (
+            <img src={bannerSrc} alt="" className="w-full h-full object-cover" />
+          ) : (
+            <div
+              className="w-full h-full"
+              style={{
+                background: "linear-gradient(135deg, rgba(var(--color-accent-rgb),0.3) 0%, rgba(var(--color-accent-rgb),0.05) 50%, rgba(var(--color-accent-2-rgb,99,102,241),0.15) 100%)",
+              }}
+            />
+          )}
+          {/* Banner fade to card background */}
+          <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-[#1c1f26] to-transparent" />
+        </div>
+
+        {/* Avatar — overlapping the banner */}
+        <div className="-mt-14 px-5 relative z-10">
+          <div className="w-[84px] h-[84px] rounded-full border-[3px] border-[#1c1f26] overflow-hidden shadow-lg">
+            <Avatar size={84} src={avatarSrc} />
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="px-5 pt-3 pb-5">
+          {/* Name row */}
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <div className="flex items-center gap-1">
+                <h3 className="text-[18px] font-extrabold text-white truncate leading-tight">
+                  {user.name || user.username}
+                </h3>
+                {user.profile?.verified && (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="var(--color-accent)" className="flex-shrink-0 mt-0.5">
+                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                )}
+              </div>
+              <div className="text-[13px] text-white/40 leading-tight mt-0.5">@{user.username}</div>
+            </div>
+          </div>
+
+          {/* Bio */}
+          {user.profile?.bio && (
+            <p className="text-[14px] text-white/70 mt-3 leading-[1.45] line-clamp-3">
+              {user.profile.bio}
+            </p>
+          )}
+
+          {/* Location / Joined */}
+          <div className="flex items-center gap-3 mt-3 flex-wrap">
+            {user.profile?.location && (
+              <div className="flex items-center gap-1 text-[12px] text-white/35">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" className="flex-shrink-0">
+                  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" stroke="currentColor" strokeWidth="2" />
+                  <circle cx="12" cy="9" r="2.5" stroke="currentColor" strokeWidth="2" />
+                </svg>
+                <span>{user.profile.location}</span>
+              </div>
+            )}
+            {user.createdAt && (
+              <div className="flex items-center gap-1 text-[12px] text-white/35">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" className="flex-shrink-0">
+                  <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" strokeWidth="2" />
+                  <path d="M16 2v4M8 2v4M3 10h18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                </svg>
+                <span>Joined {new Date(user.createdAt).toLocaleDateString(undefined, { month: "short", year: "numeric" })}</span>
+              </div>
+            )}
+          </div>
+
+          {/* Follower counts */}
+          {(followerCount !== undefined || followingCount !== undefined) && (
+            <div className="flex items-center gap-4 mt-3">
+              {followingCount !== undefined && (
+                <Link
+                  href={`/u/${user.username}/following`}
+                  onClick={onClose}
+                  className="text-[13px] hover:underline"
+                >
+                  <span className="font-bold text-white">{followingCount.toLocaleString()}</span>{" "}
+                  <span className="text-white/40">Following</span>
+                </Link>
+              )}
+              {followerCount !== undefined && (
+                <Link
+                  href={`/u/${user.username}/followers`}
+                  onClick={onClose}
+                  className="text-[13px] hover:underline"
+                >
+                  <span className="font-bold text-white">{followerCount.toLocaleString()}</span>{" "}
+                  <span className="text-white/40">{followerCount === 1 ? "Follower" : "Followers"}</span>
+                </Link>
+              )}
+            </div>
+          )}
+
+          {/* View profile CTA */}
+          <Link
+            href={`/u/${user.username || ""}`}
+            onClick={onClose}
+            className="mt-4 flex items-center justify-center gap-2 w-full py-2.5 rounded-full text-[14px] font-bold border border-white/[0.15] text-white hover:bg-white/[0.06] transition-colors"
+          >
+            View full profile
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="opacity-50">
+              <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function MessageThreadPage() {
   const params = useParams<{ threadId: string }>();
   const { data: session } = useSession();
@@ -20,6 +201,7 @@ export default function MessageThreadPage() {
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [content, setContent] = useState("");
+  const [showProfilePreview, setShowProfilePreview] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const scrollRef = useChatScroll(thread?.messages?.length);
@@ -200,37 +382,36 @@ export default function MessageThreadPage() {
             <path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </Link>
-        <div className="flex items-center gap-2.5 flex-1 min-w-0">
+        <button
+          onClick={() => setShowProfilePreview(true)}
+          className="flex items-center gap-2.5 flex-1 min-w-0 hover:opacity-80 transition-opacity"
+        >
           <Avatar size={32} src={otherUser?.profile?.avatarUrl || undefined} />
-          <div className="min-w-0">
-            <h1 className="text-base font-bold text-white truncate leading-tight">
+          <div className="min-w-0 text-left">
+            <h1 className="text-[15px] font-bold text-white truncate leading-tight">
               {otherUser?.name || otherUser?.username || "Conversation"}
             </h1>
           </div>
-        </div>
-        <div className="flex items-center gap-1">
-          <Link
-            href={`/u/${otherUser?.username || ""}`}
+        </button>
+        <div className="flex items-center gap-0.5">
+          <button
+            onClick={() => setShowProfilePreview(true)}
             className="w-9 h-9 rounded-full flex items-center justify-center text-white/50 hover:bg-white/[0.08] transition-colors"
             title="View profile"
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-              <circle cx="12" cy="8" r="4" stroke="currentColor" strokeWidth="1.5" />
-              <path d="M20 21a8 8 0 1 0-16 0" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-            </svg>
-          </Link>
-          <button
-            className="w-9 h-9 rounded-full flex items-center justify-center text-white/50 hover:bg-white/[0.08] transition-colors"
-            title="More options"
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-              <circle cx="12" cy="5" r="1.5" fill="currentColor" />
               <circle cx="12" cy="12" r="1.5" fill="currentColor" />
+              <circle cx="12" cy="5" r="1.5" fill="currentColor" />
               <circle cx="12" cy="19" r="1.5" fill="currentColor" />
             </svg>
           </button>
         </div>
       </div>
+
+      {/* Profile preview modal */}
+      {showProfilePreview && otherUser && (
+        <ProfilePreviewCard user={otherUser} onClose={() => setShowProfilePreview(false)} />
+      )}
 
       {/* Messages area */}
       <div
@@ -239,11 +420,13 @@ export default function MessageThreadPage() {
       >
         {/* User profile card at top of conversation */}
         <div className="flex flex-col items-center py-6 mb-4">
-          <Avatar size={64} src={otherUser?.profile?.avatarUrl || undefined} />
+          <Link href={`/u/${otherUser?.username || ""}`}>
+            <Avatar size={64} src={otherUser?.profile?.avatarUrl || undefined} />
+          </Link>
           <div className="mt-2 text-center">
-            <div className="text-lg font-bold text-white">
+            <Link href={`/u/${otherUser?.username || ""}`} className="text-lg font-bold text-white hover:underline">
               {otherUser?.name || otherUser?.username}
-            </div>
+            </Link>
             <div className="text-sm text-white/40">@{otherUser?.username}</div>
           </div>
           {otherUser?.profile?.bio && (
@@ -254,12 +437,6 @@ export default function MessageThreadPage() {
           <div className="flex items-center gap-2 mt-3 text-xs text-white/30">
             <span>Joined {otherUser?.createdAt ? new Date(otherUser.createdAt).toLocaleDateString(undefined, { month: "long", year: "numeric" }) : "DevLink"}</span>
           </div>
-          <Link
-            href={`/u/${otherUser?.username || ""}`}
-            className="mt-3 text-sm text-[var(--color-accent)] hover:underline"
-          >
-            View profile
-          </Link>
         </div>
 
         {/* Messages */}
