@@ -1,20 +1,68 @@
 "use client";
 
-import { useEffect, useMemo, useState, useRef, useCallback } from "react";
+import { useEffect, useMemo, useState, useRef, useCallback, lazy, Suspense } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
+import Image from "next/image";
 import { cn } from "@/lib/cn";
 import { safeJson } from "@/lib/safe-json";
 import { Avatar } from "@/components/ui/Avatar";
+import { FollowButton } from "@/components/ui/FollowButton";
+import { getProfileTypeConfig, ProfileTypeIcon } from "@/lib/profile-types";
 import type { MessageThread, Message } from "@/types/api";
 import { useMessagesRealtime } from "@/hooks/useMessagesRealtime";
 import { useTypingIndicator } from "@/hooks/useTypingIndicator";
 import { useChatScroll } from "@/hooks/useChatScroll";
 
-/* ── Profile Preview Card (X.com-style popup) ── */
+/* ── Lazy-loaded heavy components ── */
+const EmojiPicker = lazy(() => import("emoji-picker-react"));
+
+/* ── Helpers ── */
+function isMediaUrl(text: string): boolean {
+  const t = text.trim();
+  if (!t.startsWith("http")) return false;
+  return (
+    /\.(jpg|jpeg|png|gif|webp|svg|mp4|avif)(\?.*)?$/i.test(t) ||
+    t.includes("media.tenor.com") ||
+    t.includes("media.giphy.com") ||
+    t.includes("giphy.com/media") ||
+    t.includes("cdn.devlink")
+  );
+}
+
+/* ── Profile type style constants (matching ProfileTooltip) ── */
+const PROFILE_GRADIENTS: Record<string, string> = {
+  DEVELOPER: "from-blue-500/20 via-blue-400/10 to-cyan-500/20",
+  CLIENT: "from-emerald-500/20 via-green-400/10 to-teal-500/20",
+  STUDIO: "from-purple-500/20 via-fuchsia-400/10 to-indigo-500/20",
+  INFLUENCER: "from-rose-500/20 via-pink-400/10 to-[var(--color-accent)]/20",
+  INVESTOR: "from-amber-500/20 via-yellow-400/10 to-orange-500/20",
+  DEFAULT: "from-slate-500/20 via-gray-400/10 to-zinc-500/20",
+};
+
+const PROFILE_BORDERS: Record<string, string> = {
+  DEVELOPER: "border-blue-500/40 shadow-blue-500/20",
+  CLIENT: "border-emerald-500/40 shadow-emerald-500/20",
+  STUDIO: "border-purple-500/40 shadow-purple-500/20",
+  INFLUENCER: "border-rose-500/40 shadow-rose-500/20",
+  INVESTOR: "border-amber-500/40 shadow-amber-500/20",
+  DEFAULT: "border-white/20 shadow-white/10",
+};
+
+const BADGE_CLASSES: Record<string, string> = {
+  DEVELOPER: "bg-blue-500/15 text-blue-300 border-blue-500/30 shadow-blue-500/20",
+  CLIENT: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30 shadow-emerald-500/20",
+  STUDIO: "bg-purple-500/15 text-purple-300 border-purple-500/30 shadow-purple-500/20",
+  INFLUENCER: "bg-rose-500/15 text-rose-300 border-rose-500/30 shadow-rose-500/20",
+  INVESTOR: "bg-amber-500/15 text-amber-300 border-amber-500/30 shadow-amber-500/20",
+  DEFAULT: "bg-slate-500/15 text-slate-300 border-slate-500/30 shadow-slate-500/20",
+};
+
+/* ── Profile Preview Card (matching ProfileTooltip design) ── */
 function ProfilePreviewCard({
   user,
+  currentUserId,
   onClose,
 }: {
   user: {
@@ -30,13 +78,47 @@ function ProfilePreviewCard({
       verified?: boolean;
       location?: string | null;
       website?: string | null;
+      profileType?: string | null;
     };
     _count?: { followers?: number; following?: number };
   };
+  currentUserId?: string;
   onClose: () => void;
 }) {
   const cardRef = useRef<HTMLDivElement>(null);
+  const [fullUser, setFullUser] = useState(user);
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [isLoadingFollow, setIsLoadingFollow] = useState(false);
 
+  // Fetch full profile data on mount
+  useEffect(() => {
+    if (!user.username) return;
+    const controller = new AbortController();
+    fetch(`/api/user/${encodeURIComponent(user.username)}`, { cache: "no-store", signal: controller.signal })
+      .then(async (res) => {
+        if (!res.ok) return null;
+        return (await res.json().catch(() => null)) as any;
+      })
+      .then((data) => {
+        const next = data?.user;
+        if (next?.id && next?.username) setFullUser(next);
+      })
+      .catch(() => {});
+    return () => controller.abort();
+  }, [user.username]);
+
+  // Fetch follow status
+  useEffect(() => {
+    if (!currentUserId || !fullUser.id || currentUserId === fullUser.id) return;
+    setIsLoadingFollow(true);
+    fetch(`/api/follow/check?targetUserId=${fullUser.id}`)
+      .then((res) => res.json())
+      .then((data) => setIsFollowing(data.following))
+      .catch(() => setIsFollowing(false))
+      .finally(() => setIsLoadingFollow(false));
+  }, [currentUserId, fullUser.id]);
+
+  // Close on outside click
   useEffect(() => {
     function handleClick(e: MouseEvent) {
       if (cardRef.current && !cardRef.current.contains(e.target as Node)) onClose();
@@ -45,6 +127,7 @@ function ProfilePreviewCard({
     return () => document.removeEventListener("mousedown", handleClick);
   }, [onClose]);
 
+  // Close on Escape
   useEffect(() => {
     function handleKey(e: KeyboardEvent) {
       if (e.key === "Escape") onClose();
@@ -53,140 +136,214 @@ function ProfilePreviewCard({
     return () => document.removeEventListener("keydown", handleKey);
   }, [onClose]);
 
-  const avatarSrc = user.profile?.avatarUrl || user.image || undefined;
-  const bannerSrc = user.profile?.bannerUrl || undefined;
-  const followerCount = user._count?.followers;
-  const followingCount = user._count?.following;
+  const profileType = fullUser.profile?.profileType ?? null;
+  const profileConfig = profileType ? getProfileTypeConfig(profileType) : null;
+  const profileGradient = PROFILE_GRADIENTS[profileType || "DEFAULT"] || PROFILE_GRADIENTS.DEFAULT;
+  const profileBorderColor = PROFILE_BORDERS[profileType || "DEFAULT"] || PROFILE_BORDERS.DEFAULT;
+  const badgeClasses = BADGE_CLASSES[profileType || "DEFAULT"] || BADGE_CLASSES.DEFAULT;
+
+  const formatCount = (count: number | undefined | null) => {
+    if (count == null) return "0";
+    if (count >= 1000000) return `${(count / 1000000).toFixed(1)}M`;
+    if (count >= 1000) return `${(count / 1000).toFixed(1)}K`;
+    return count.toString();
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop */}
       <div className="absolute inset-0 bg-black/60" onClick={onClose} />
 
-      {/* Card */}
+      {/* Card — matches ProfileTooltip layout */}
       <div
         ref={cardRef}
-        className="relative w-full max-w-[360px] rounded-2xl overflow-hidden shadow-xl border border-white/[0.08]"
-        style={{ background: "linear-gradient(180deg, #1c1f26 0%, #15171c 100%)" }}
+        className={cn(
+          "relative w-80 rounded-2xl overflow-hidden",
+          "bg-[#0d1117]",
+          "border",
+          profileBorderColor,
+          "shadow-2xl shadow-black/60"
+        )}
       >
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 z-10 w-8 h-8 rounded-full bg-black/60 backdrop-blur-sm flex items-center justify-center text-white/70 hover:text-white hover:bg-black/80 transition-colors"
+          className="absolute top-2 right-2 z-20 w-7 h-7 rounded-full bg-black/60 backdrop-blur-sm flex items-center justify-center text-white/70 hover:text-white hover:bg-black/80 transition-colors"
         >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
             <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
           </svg>
         </button>
 
-        {/* Banner */}
-        <div className="h-28 relative overflow-hidden">
-          {bannerSrc ? (
-            <img src={bannerSrc} alt="" className="w-full h-full object-cover" />
-          ) : (
-            <div
-              className="w-full h-full"
-              style={{
-                background: "linear-gradient(135deg, rgba(var(--color-accent-rgb),0.3) 0%, rgba(var(--color-accent-rgb),0.05) 50%, rgba(var(--color-accent-2-rgb,99,102,241),0.15) 100%)",
-              }}
-            />
-          )}
-          {/* Banner fade to card background */}
-          <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-[#1c1f26] to-transparent" />
-        </div>
+        {/* Gradient overlay at top */}
+        <div className={cn(
+          "absolute inset-x-0 top-0 h-32 opacity-40 z-0",
+          `bg-gradient-to-b ${profileGradient} to-transparent`
+        )} />
 
-        {/* Avatar — overlapping the banner */}
-        <div className="-mt-14 px-5 relative z-10">
-          <div className="w-[84px] h-[84px] rounded-full border-[3px] border-[#1c1f26] overflow-hidden shadow-lg">
-            <Avatar size={84} src={avatarSrc} />
-          </div>
+        {/* Banner or gradient */}
+        <div className="relative h-20 overflow-hidden">
+          {fullUser.profile?.bannerUrl ? (
+            <>
+              <Image
+                src={fullUser.profile.bannerUrl}
+                alt=""
+                fill
+                className="object-cover object-center"
+                loading="lazy"
+              />
+              <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#0d1117]" />
+            </>
+          ) : (
+            <div className={cn(
+              "absolute inset-0",
+              `bg-gradient-to-br ${profileGradient}`,
+              "opacity-60"
+            )}>
+              <div
+                className="absolute inset-0 opacity-30"
+                style={{
+                  backgroundImage: `radial-gradient(circle at 20% 50%, rgba(255,255,255,0.15) 1px, transparent 1px)`,
+                  backgroundSize: '24px 24px'
+                }}
+              />
+            </div>
+          )}
         </div>
 
         {/* Content */}
-        <div className="px-5 pt-3 pb-5">
-          {/* Name row */}
-          <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0">
-              <div className="flex items-center gap-1">
-                <h3 className="text-[18px] font-extrabold text-white truncate leading-tight">
-                  {user.name || user.username}
-                </h3>
-                {user.profile?.verified && (
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="var(--color-accent)" className="flex-shrink-0 mt-0.5">
-                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                )}
+        <div className="relative px-4 pb-4 -mt-8">
+          {/* Avatar with ring + name inline */}
+          <div className="flex items-end gap-3 mb-3">
+            <button
+              onClick={(e) => { e.stopPropagation(); window.location.href = `/u/${fullUser.username}`; }}
+              className="relative group"
+            >
+              <div className={cn(
+                "absolute -inset-1 rounded-full opacity-0 group-hover:opacity-100",
+                "transition-opacity duration-300",
+                `bg-gradient-to-br ${profileGradient.replace('/20', '/40')}`
+              )} />
+              <div className={cn(
+                "relative rounded-full p-0.5",
+                "bg-gradient-to-br from-[#0d1117] to-[#080b10]",
+                "ring-2 ring-[#0d1117]"
+              )}>
+                <Avatar src={fullUser.profile?.avatarUrl || fullUser.image || undefined} size={56} />
               </div>
-              <div className="text-[13px] text-white/40 leading-tight mt-0.5">@{user.username}</div>
+            </button>
+
+            <div className="flex-1 min-w-0 pb-1">
+              <button
+                onClick={(e) => { e.stopPropagation(); window.location.href = `/u/${fullUser.username}`; }}
+                className="group flex items-center gap-1.5"
+              >
+                <span className="font-semibold text-white group-hover:text-[var(--color-accent)] transition-colors truncate">
+                  {fullUser.name || fullUser.username}
+                </span>
+                {fullUser.profile?.verified && (
+                  <div className="flex-shrink-0 relative">
+                    <div className="absolute inset-0 bg-blue-400/50 rounded-full" />
+                    <svg className="relative w-4 h-4 text-blue-400" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                  </div>
+                )}
+              </button>
+              <div className="text-sm text-[var(--muted-foreground)]">@{fullUser.username}</div>
             </div>
           </div>
 
+          {/* Profile type badge */}
+          {profileConfig && profileType && (
+            <div className="mb-3">
+              <span className={cn(
+                "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full",
+                "text-xs font-medium border shadow-sm",
+                badgeClasses
+              )}>
+                <ProfileTypeIcon profileType={profileType} size={12} />
+                {profileConfig.label}
+              </span>
+            </div>
+          )}
+
           {/* Bio */}
-          {user.profile?.bio && (
-            <p className="text-[14px] text-white/70 mt-3 leading-[1.45] line-clamp-3">
-              {user.profile.bio}
+          {fullUser.profile?.bio && (
+            <p className="text-sm text-[var(--muted-foreground)] line-clamp-2 mb-3 leading-relaxed">
+              {fullUser.profile.bio}
             </p>
           )}
 
-          {/* Location / Joined */}
-          <div className="flex items-center gap-3 mt-3 flex-wrap">
-            {user.profile?.location && (
-              <div className="flex items-center gap-1 text-[12px] text-white/35">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" className="flex-shrink-0">
-                  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" stroke="currentColor" strokeWidth="2" />
-                  <circle cx="12" cy="9" r="2.5" stroke="currentColor" strokeWidth="2" />
-                </svg>
-                <span>{user.profile.location}</span>
-              </div>
-            )}
-            {user.createdAt && (
-              <div className="flex items-center gap-1 text-[12px] text-white/35">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" className="flex-shrink-0">
-                  <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" strokeWidth="2" />
-                  <path d="M16 2v4M8 2v4M3 10h18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                </svg>
-                <span>Joined {new Date(user.createdAt).toLocaleDateString(undefined, { month: "short", year: "numeric" })}</span>
-              </div>
-            )}
-          </div>
-
-          {/* Follower counts */}
-          {(followerCount !== undefined || followingCount !== undefined) && (
-            <div className="flex items-center gap-4 mt-3">
-              {followingCount !== undefined && (
-                <Link
-                  href={`/u/${user.username}/following`}
-                  onClick={onClose}
-                  className="text-[13px] hover:underline"
-                >
-                  <span className="font-bold text-white">{followingCount.toLocaleString()}</span>{" "}
-                  <span className="text-white/40">Following</span>
-                </Link>
+          {/* Location and Website */}
+          {(fullUser.profile?.location || fullUser.profile?.website) && (
+            <div className="flex flex-wrap gap-x-4 gap-y-1.5 mb-4 text-xs text-[var(--muted-foreground)]">
+              {fullUser.profile?.location && (
+                <div className="flex items-center gap-1.5">
+                  <svg className="w-3.5 h-3.5 text-[var(--muted-foreground)]/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                  <span className="truncate max-w-[120px]">{fullUser.profile.location}</span>
+                </div>
               )}
-              {followerCount !== undefined && (
-                <Link
-                  href={`/u/${user.username}/followers`}
-                  onClick={onClose}
-                  className="text-[13px] hover:underline"
+              {fullUser.profile?.website && (
+                <a
+                  href={fullUser.profile.website.startsWith('http') ? fullUser.profile.website : `https://${fullUser.profile.website}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1.5 text-[var(--color-accent)] hover:text-[var(--color-accent)] transition-colors"
+                  onClick={(e) => e.stopPropagation()}
                 >
-                  <span className="font-bold text-white">{followerCount.toLocaleString()}</span>{" "}
-                  <span className="text-white/40">{followerCount === 1 ? "Follower" : "Followers"}</span>
-                </Link>
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                  <span className="truncate max-w-[100px]">{fullUser.profile.website.replace(/^https?:\/\//, '').replace(/\/$/, '')}</span>
+                </a>
               )}
             </div>
           )}
 
-          {/* View profile CTA */}
-          <Link
-            href={`/u/${user.username || ""}`}
-            onClick={onClose}
-            className="mt-4 flex items-center justify-center gap-2 w-full py-2.5 rounded-full text-[14px] font-bold border border-white/[0.15] text-white hover:bg-white/[0.06] transition-colors"
-          >
-            View full profile
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="opacity-50">
-              <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </Link>
+          {/* Stats */}
+          {fullUser._count && (fullUser._count.followers != null || fullUser._count.following != null) && (
+            <div className="flex gap-4 mb-4">
+              <button
+                onClick={(e) => { e.stopPropagation(); window.location.href = `/u/${fullUser.username}/followers`; }}
+                className="group flex items-center gap-1.5 text-sm hover:text-[var(--color-accent)] transition-colors"
+              >
+                <span className="font-bold text-white group-hover:text-[var(--color-accent)] transition-colors">
+                  {formatCount(fullUser._count.followers)}
+                </span>
+                <span className="text-[var(--muted-foreground)] text-xs">followers</span>
+              </button>
+              <button
+                onClick={(e) => { e.stopPropagation(); window.location.href = `/u/${fullUser.username}/following`; }}
+                className="group flex items-center gap-1.5 text-sm hover:text-[var(--color-accent)] transition-colors"
+              >
+                <span className="font-bold text-white group-hover:text-[var(--color-accent)] transition-colors">
+                  {formatCount(fullUser._count.following)}
+                </span>
+                <span className="text-[var(--muted-foreground)] text-xs">following</span>
+              </button>
+            </div>
+          )}
+
+          {/* Follow Button */}
+          {currentUserId && fullUser.id && currentUserId !== fullUser.id && (
+            <div className="relative">
+              {isLoadingFollow ? (
+                <div className="h-10 rounded-xl bg-white/5 animate-pulse flex items-center justify-center">
+                  <div className="w-4 h-4 border-2 border-[var(--color-accent)]/30 border-r-[var(--color-accent)] rounded-full animate-spin" />
+                </div>
+              ) : (
+                <FollowButton
+                  targetUserId={fullUser.id}
+                  initialFollowing={isFollowing}
+                  onToggle={(following) => setIsFollowing(following)}
+                />
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -204,7 +361,12 @@ export default function MessageThreadPage() {
   const [showProfilePreview, setShowProfilePreview] = useState(false);
   const [pendingRequest, setPendingRequest] = useState(false); // sender has a pending request
   const [hasSentRequestMsg, setHasSentRequestMsg] = useState(false); // already sent 1 message
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const imageInputRef = useRef<HTMLInputElement>(null);
+  const gifInputRef = useRef<HTMLInputElement>(null);
+  const emojiPickerRef = useRef<HTMLDivElement>(null);
 
   const scrollRef = useChatScroll(thread?.messages?.length);
 
@@ -363,6 +525,80 @@ export default function MessageThreadPage() {
     setSending(false);
   }, [content, params.threadId, setTyping, pendingRequest]);
 
+  /* Send a media URL (image/GIF) as a message */
+  const sendMediaMessage = useCallback(async (mediaUrl: string) => {
+    setSending(true);
+    const res = await fetch(`/api/messages/threads/${params.threadId}/messages`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ content: mediaUrl }),
+    });
+    const data = await safeJson<any>(res);
+    if (res.ok && data) {
+      setThread((prev) =>
+        prev ? { ...prev, messages: [...(prev.messages || []), data as any] } : prev
+      );
+      if (pendingRequest) setHasSentRequestMsg(true);
+    } else {
+      alert(data?.error || "Failed to send");
+    }
+    setSending(false);
+  }, [params.threadId, pendingRequest]);
+
+  /* Emoji handler */
+  const addEmoji = useCallback((emoji: any) => {
+    const char = emoji?.emoji || "";
+    if (char) {
+      setContent((prev) => prev + char);
+      textareaRef.current?.focus();
+    }
+  }, []);
+
+  /* Image upload handler */
+  const handleImageSelect = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/") && !file.type.startsWith("video/")) {
+      alert("Please select an image or video file");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      alert("File must be less than 5MB");
+      return;
+    }
+    setUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const res = await fetch("/api/upload", { method: "POST", body: fd });
+      if (res.ok) {
+        const data = await res.json();
+        await sendMediaMessage(data.url);
+      } else {
+        const err = await res.json().catch(() => null);
+        alert(err?.error || "Upload failed");
+      }
+    } catch {
+      alert("Upload failed");
+    } finally {
+      setUploading(false);
+      if (imageInputRef.current) imageInputRef.current.value = "";
+      if (gifInputRef.current) gifInputRef.current.value = "";
+    }
+  }, [sendMediaMessage]);
+
+  /* Close emoji picker on outside click */
+  useEffect(() => {
+    if (!showEmojiPicker) return;
+    function handleClickOutside(e: MouseEvent) {
+      if (emojiPickerRef.current && !emojiPickerRef.current.contains(e.target as Node)) {
+        setShowEmojiPicker(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [showEmojiPicker]);
+
   if (!userId) {
     return (
       <div className="flex items-center justify-center h-full text-sm text-white/40">
@@ -433,7 +669,7 @@ export default function MessageThreadPage() {
 
       {/* Profile preview modal */}
       {showProfilePreview && otherUser && (
-        <ProfilePreviewCard user={otherUser} onClose={() => setShowProfilePreview(false)} />
+        <ProfilePreviewCard user={otherUser} currentUserId={userId} onClose={() => setShowProfilePreview(false)} />
       )}
 
       {/* Messages area */}
@@ -496,7 +732,9 @@ export default function MessageThreadPage() {
                     <div className="flex flex-col">
                       <div
                         className={cn(
-                          "px-4 py-2.5 text-[15px] leading-snug break-words",
+                          isMediaUrl(message.content)
+                            ? "p-1 overflow-hidden"
+                            : "px-4 py-2.5 text-[15px] leading-snug break-words",
                           isMine
                             ? "bg-gradient-to-r from-[var(--color-accent)] to-[var(--color-accent-hover)] text-white"
                             : "bg-white/[0.08] text-white",
@@ -514,7 +752,16 @@ export default function MessageThreadPage() {
                           ),
                         )}
                       >
-                        {message.content}
+                        {isMediaUrl(message.content) ? (
+                          <img
+                            src={message.content.trim()}
+                            alt=""
+                            className="rounded-lg max-w-full max-h-64 object-contain"
+                            loading="lazy"
+                          />
+                        ) : (
+                          message.content
+                        )}
                       </div>
 
                       {/* Timestamp on last message in group */}
@@ -550,8 +797,40 @@ export default function MessageThreadPage() {
         </div>
       </div>
 
+      {/* Emoji picker panel */}
+      {showEmojiPicker && (
+        <div ref={emojiPickerRef} className="flex-shrink-0 border-t border-white/[0.06] px-4 py-2">
+          <Suspense fallback={<div className="h-[350px] flex items-center justify-center"><div className="w-5 h-5 border-2 border-white/20 border-t-[var(--color-accent)] rounded-full animate-spin" /></div>}>
+            <EmojiPicker
+              onEmojiClick={addEmoji}
+              searchDisabled
+              skinTonesDisabled
+              lazyLoadEmojis
+              width="100%"
+              height={350}
+            />
+          </Suspense>
+        </div>
+      )}
+
       {/* Input area */}
       <div className="flex-shrink-0 border-t border-white/[0.06] px-4 py-3">
+        {/* Hidden file inputs for uploads */}
+        <input
+          ref={imageInputRef}
+          type="file"
+          accept="image/*,video/*"
+          className="hidden"
+          onChange={handleImageSelect}
+        />
+        <input
+          ref={gifInputRef}
+          type="file"
+          accept="image/gif"
+          className="hidden"
+          onChange={handleImageSelect}
+        />
+
         {/* Pending request notice — shown after 1 message sent */}
         {pendingRequest && hasSentRequestMsg && (
           <div className="mb-2 px-3 py-2 rounded-xl bg-white/[0.04] border border-white/[0.06] text-center">
@@ -572,12 +851,25 @@ export default function MessageThreadPage() {
           </div>
         )}
 
-        <div className="flex items-end gap-2">
+        {/* Upload progress indicator */}
+        {uploading && (
+          <div className="mb-2 flex items-center gap-2 px-3 py-2 rounded-xl bg-white/[0.04] border border-white/[0.06]">
+            <div className="w-4 h-4 border-2 border-white/20 border-t-[var(--color-accent)] rounded-full animate-spin" />
+            <span className="text-[13px] text-white/50">Uploading...</span>
+          </div>
+        )}
+
+        <div className="flex items-center gap-2">
           {/* Action buttons */}
           {!(pendingRequest && hasSentRequestMsg) && (
-            <div className="flex items-center gap-0.5 pb-1.5">
+            <div className="flex items-center gap-0.5">
               <button
-                className="w-9 h-9 rounded-full flex items-center justify-center text-[var(--color-accent)] hover:bg-[rgba(var(--color-accent-rgb),0.1)] transition-colors"
+                onClick={() => imageInputRef.current?.click()}
+                disabled={uploading}
+                className={cn(
+                  "w-9 h-9 rounded-full flex items-center justify-center text-[var(--color-accent)] hover:bg-[rgba(var(--color-accent-rgb),0.1)] transition-colors",
+                  uploading && "opacity-40 cursor-not-allowed"
+                )}
                 title="Attach media"
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -587,8 +879,13 @@ export default function MessageThreadPage() {
                 </svg>
               </button>
               <button
-                className="w-9 h-9 rounded-full flex items-center justify-center text-[var(--color-accent)] hover:bg-[rgba(var(--color-accent-rgb),0.1)] transition-colors"
-                title="GIF"
+                onClick={() => gifInputRef.current?.click()}
+                disabled={uploading}
+                className={cn(
+                  "w-9 h-9 rounded-full flex items-center justify-center text-[var(--color-accent)] hover:bg-[rgba(var(--color-accent-rgb),0.1)] transition-colors",
+                  uploading && "opacity-40 cursor-not-allowed"
+                )}
+                title="Upload GIF"
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                   <rect x="2" y="4" width="20" height="16" rx="2" stroke="currentColor" strokeWidth="1.5" />
@@ -596,7 +893,13 @@ export default function MessageThreadPage() {
                 </svg>
               </button>
               <button
-                className="w-9 h-9 rounded-full flex items-center justify-center text-[var(--color-accent)] hover:bg-[rgba(var(--color-accent-rgb),0.1)] transition-colors"
+                onClick={() => setShowEmojiPicker((v) => !v)}
+                className={cn(
+                  "w-9 h-9 rounded-full flex items-center justify-center transition-colors",
+                  showEmojiPicker
+                    ? "text-[var(--color-accent)] bg-[rgba(var(--color-accent-rgb),0.15)]"
+                    : "text-[var(--color-accent)] hover:bg-[rgba(var(--color-accent-rgb),0.1)]"
+                )}
                 title="Emoji"
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -633,7 +936,7 @@ export default function MessageThreadPage() {
               onClick={sendMessage}
               disabled={sending || !content.trim()}
               className={cn(
-                "w-9 h-9 rounded-full flex items-center justify-center transition-colors flex-shrink-0 mb-0.5",
+                "w-9 h-9 rounded-full flex items-center justify-center transition-colors flex-shrink-0",
                 content.trim()
                   ? "text-[var(--color-accent)] hover:bg-[rgba(var(--color-accent-rgb),0.1)]"
                   : "text-white/20 cursor-not-allowed"
