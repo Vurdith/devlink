@@ -9,7 +9,7 @@ import type { Job, JobApplication } from "@/types/api";
 
 export default function JobsPage() {
   const { data: session } = useSession();
-  const userId = (session?.user as any)?.id as string | undefined;
+  const userId = session?.user?.id;
   const [jobs, setJobs] = useState<Job[]>([]);
   const [myJobs, setMyJobs] = useState<Job[]>([]);
   const [myApplications, setMyApplications] = useState<JobApplication[]>([]);
@@ -195,7 +195,7 @@ export default function JobsPage() {
               disabled={submitting}
               className={cn(
                 "ml-auto px-4 py-2 rounded-xl text-sm font-semibold transition-all",
-                "bg-[var(--color-accent)] text-black hover:brightness-110",
+                "bg-[var(--color-accent)] text-white hover:brightness-110",
                 submitting && "opacity-60 cursor-not-allowed"
               )}
             >

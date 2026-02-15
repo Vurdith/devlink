@@ -6,7 +6,7 @@ import type { RealtimeChannel } from "@supabase/supabase-js";
 
 interface RealtimeContextType {
   isConnected: boolean;
-  subscribe: (channel: string, callback: (payload: any) => void) => () => void;
+  subscribe: (channel: string, callback: (payload: unknown) => void) => () => void;
 }
 
 const RealtimeContext = createContext<RealtimeContextType>({
@@ -40,13 +40,13 @@ export function RealtimeProvider({ children }: RealtimeProviderProps) {
     const channel = supabase
       .channel("global:profiles")
       .on(
-        "postgres_changes" as any,
+        "postgres_changes",
         {
           event: "UPDATE",
           schema: "public",
           table: "Profile",
         },
-        (payload: any) => {
+        (payload: { new?: { userId?: string }; old?: unknown }) => {
           if (process.env.NODE_ENV === "development") {
             console.log("[Realtime] Profile updated:", payload.new?.userId);
           }
@@ -78,7 +78,7 @@ export function RealtimeProvider({ children }: RealtimeProviderProps) {
   }, []);
 
   // Subscribe to a custom broadcast channel
-  const subscribe = useCallback((channelName: string, callback: (payload: any) => void) => {
+  const subscribe = useCallback((channelName: string, callback: (payload: unknown) => void) => {
     if (!isRealtimeAvailable() || !supabase) {
       return () => {};
     }
@@ -107,7 +107,7 @@ export function RealtimeProvider({ children }: RealtimeProviderProps) {
  */
 export function useProfileRealtimeListener(
   userId: string | undefined,
-  onUpdate: (profile: any) => void
+  onUpdate: (profile: Record<string, unknown>) => void
 ) {
   useEffect(() => {
     if (!userId || typeof window === "undefined") return;

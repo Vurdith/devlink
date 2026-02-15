@@ -10,9 +10,8 @@ import { ContentRenderer } from "@/components/ui/ContentRenderer";
 import { ProfileTooltip } from "@/components/ui/ProfileTooltip";
 import { getProfileTypeConfig, ProfileTypeIcon } from "@/lib/profile-types";
 import { cn } from "@/lib/cn";
-import { MediaViewer } from "@/components/ui/MediaViewer";
-
 // Lazy load heavy components - only loaded when needed
+const MediaViewer = lazy(() => import("@/components/ui/MediaViewer").then(m => ({ default: m.MediaViewer })));
 const PollDisplay = lazy(() => import("@/components/ui/PollDisplay").then(m => ({ default: m.PollDisplay })));
 const ReplyModal = lazy(() => import("./ReplyModal").then(m => ({ default: m.ReplyModal })));
 
@@ -38,7 +37,7 @@ interface Poll {
   question: string;
   options: PollOption[];
   isMultiple: boolean;
-  expiresAt: Date;
+  expiresAt: Date | null;
   totalVotes: number;
 }
 
@@ -89,6 +88,15 @@ interface Post {
   views: number;
   isPinned: boolean;
   savedBy?: Engagement[];
+  // Pre-computed engagement flags from server
+  isLiked?: boolean;
+  isReposted?: boolean;
+  isSaved?: boolean;
+  _count?: {
+    likes: number;
+    reposts: number;
+    replies?: number;
+  };
   replyTo?: {
     id: string;
     user: {
@@ -146,13 +154,12 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
       return { isLiked: false, isReposted: false, isSaved: false, likeCount: 0, repostCount: 0 };
     }
     const userId = session.user.id;
-    const postAny = post as any;
     return {
-      isLiked: postAny.isLiked ?? post.likes?.some(like => like.userId === userId) ?? false,
-      isReposted: postAny.isReposted ?? post.reposts?.some(repost => repost.userId === userId) ?? false,
-      isSaved: postAny.isSaved ?? post.savedBy?.some(saved => saved.userId === userId) ?? false,
-      likeCount: postAny._count?.likes ?? post.likes?.length ?? 0,
-      repostCount: postAny._count?.reposts ?? post.reposts?.length ?? 0,
+      isLiked: post.isLiked ?? post.likes?.some(like => like.userId === userId) ?? false,
+      isReposted: post.isReposted ?? post.reposts?.some(repost => repost.userId === userId) ?? false,
+      isSaved: post.isSaved ?? post.savedBy?.some(saved => saved.userId === userId) ?? false,
+      likeCount: post._count?.likes ?? post.likes?.length ?? 0,
+      repostCount: post._count?.reposts ?? post.reposts?.length ?? 0,
     };
   }, [session?.user?.id, post]);
 
@@ -469,12 +476,14 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
     if (mediaItems.length === 0) return null;
     return (
       <div className="mt-4">
-        <MediaViewer
-          media={mediaItems}
-          isSlideshow={post.isSlideshow}
-          alt={`${post.user.name || post.user.username}'s post`}
-          className="border border-white/10"
-        />
+        <Suspense fallback={<div className="h-48 bg-white/5 rounded-xl animate-pulse" />}>
+          <MediaViewer
+            media={mediaItems}
+            isSlideshow={post.isSlideshow}
+            alt={`${post.user.name || post.user.username}'s post`}
+            className="border border-white/10"
+          />
+        </Suspense>
       </div>
     );
   };
@@ -527,7 +536,7 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
     <div className="relative overflow-hidden glass-soft border border-white/10 rounded-xl sm:rounded-2xl p-3 sm:p-6 mb-3 sm:mb-6 hover:border-white/20 transition-all duration-300">
       {/* Header */}
       <div className="flex items-start space-x-2 sm:space-x-3 mb-3 sm:mb-4">
-        <ProfileTooltip user={post.user as any} currentUserId={session?.user?.id}>
+        <ProfileTooltip user={post.user} currentUserId={session?.user?.id}>
           <button
             onClick={navigateToProfile}
             className="relative cursor-pointer flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12"
@@ -564,7 +573,7 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
         
         <div className="flex-1 min-w-0">
           <div className="flex items-center space-x-1 sm:space-x-2 flex-wrap">
-            <ProfileTooltip user={post.user as any} currentUserId={session?.user?.id}>
+            <ProfileTooltip user={post.user} currentUserId={session?.user?.id}>
               <a href={`/u/${post.user.username}`} className="font-bold text-sm sm:text-base text-white hover:underline truncate tracking-tight">
                 {post.user.name || post.user.username}
               </a>
@@ -788,9 +797,9 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
             onClose={closeReplyModal}
             post={post}
             currentUserProfile={session?.user ? {
-              avatarUrl: (session.user as any).image || null,
+              avatarUrl: session.user.image || null,
               name: session.user.name || null,
-              username: (session.user as any).username || session.user.email?.split('@')[0] || 'user'
+              username: session.user.username || session.user.email?.split('@')[0] || 'user'
             } : null}
             onReplyPosted={handleReplyPosted}
           />

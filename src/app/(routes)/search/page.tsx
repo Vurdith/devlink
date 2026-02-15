@@ -43,7 +43,7 @@ function SearchContent() {
   const query = searchParams.get("q")?.trim() || "";
   const type = (searchParams.get("type") as SearchType) || "all";
   const { data: session } = useSession();
-  const currentUserId = (session?.user as any)?.id as string | undefined;
+  const currentUserId = session?.user?.id;
   
   const [selectedType, setSelectedType] = useState<SearchType>(type);
   const [users, setUsers] = useState<UserSearchResult[]>([]);

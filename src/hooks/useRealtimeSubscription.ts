@@ -6,7 +6,7 @@ import type { RealtimeChannel } from "@supabase/supabase-js";
 
 type PostgresChangeEvent = "INSERT" | "UPDATE" | "DELETE" | "*";
 
-interface UseRealtimeOptions<T = any> {
+interface UseRealtimeOptions<T = Record<string, unknown>> {
   table: string;
   schema?: string;
   event?: PostgresChangeEvent;
@@ -14,7 +14,7 @@ interface UseRealtimeOptions<T = any> {
   onInsert?: (payload: T) => void;
   onUpdate?: (payload: { old: T; new: T }) => void;
   onDelete?: (payload: T) => void;
-  onChange?: (payload: any) => void;
+  onChange?: (payload: { eventType: string; new: T; old: T }) => void;
   enabled?: boolean;
 }
 
@@ -31,7 +31,7 @@ interface UseRealtimeOptions<T = any> {
  *   },
  * });
  */
-export function useRealtimeSubscription<T = any>({
+export function useRealtimeSubscription<T = Record<string, unknown>>({
   table,
   schema = "public",
   event = "*",
@@ -43,6 +43,19 @@ export function useRealtimeSubscription<T = any>({
   enabled = true,
 }: UseRealtimeOptions<T>) {
   const channelRef = useRef<RealtimeChannel | null>(null);
+
+  // Store callbacks in refs to avoid subscription churn
+  const onInsertRef = useRef(onInsert);
+  const onUpdateRef = useRef(onUpdate);
+  const onDeleteRef = useRef(onDelete);
+  const onChangeRef = useRef(onChange);
+
+  useEffect(() => {
+    onInsertRef.current = onInsert;
+    onUpdateRef.current = onUpdate;
+    onDeleteRef.current = onDelete;
+    onChangeRef.current = onChange;
+  });
 
   useEffect(() => {
     if (!enabled || !isRealtimeAvailable() || !supabase) {
@@ -63,22 +76,23 @@ export function useRealtimeSubscription<T = any>({
     
     channel
       .on(
+        // @ts-expect-error Supabase overload types don't match at compile time
         "postgres_changes",
-        subscriptionConfig as any,
-        (payload: any) => {
+        subscriptionConfig,
+        (payload: { eventType: string; new: T; old: T }) => {
           // Call general onChange handler
-          onChange?.(payload);
+          onChangeRef.current?.(payload);
 
           // Call specific handlers based on event type
           switch (payload.eventType) {
             case "INSERT":
-              onInsert?.(payload.new as T);
+              onInsertRef.current?.(payload.new as T);
               break;
             case "UPDATE":
-              onUpdate?.({ old: payload.old as T, new: payload.new as T });
+              onUpdateRef.current?.({ old: payload.old as T, new: payload.new as T });
               break;
             case "DELETE":
-              onDelete?.(payload.old as T);
+              onDeleteRef.current?.(payload.old as T);
               break;
           }
         }
@@ -101,7 +115,7 @@ export function useRealtimeSubscription<T = any>({
         channelRef.current = null;
       }
     };
-  }, [table, schema, event, filter, enabled, onInsert, onUpdate, onDelete, onChange]);
+  }, [table, schema, event, filter, enabled]);
 
   return channelRef.current;
 }
@@ -111,7 +125,7 @@ export function useRealtimeSubscription<T = any>({
  */
 export function useProfileRealtime(
   userId: string | undefined,
-  onProfileUpdate: (profile: any) => void
+  onProfileUpdate: (profile: Record<string, unknown>) => void
 ) {
   useRealtimeSubscription({
     table: "Profile",
@@ -128,8 +142,8 @@ export function useProfileRealtime(
  * Hook for subscribing to new posts in a feed
  */
 export function usePostsRealtime(
-  onNewPost: (post: any) => void,
-  onPostUpdate?: (post: any) => void,
+  onNewPost: (post: Record<string, unknown>) => void,
+  onPostUpdate?: (post: Record<string, unknown>) => void,
   onPostDelete?: (postId: string) => void
 ) {
   useRealtimeSubscription({
@@ -137,7 +151,7 @@ export function usePostsRealtime(
     event: "*",
     onInsert: onNewPost,
     onUpdate: onPostUpdate ? ({ new: post }) => onPostUpdate(post) : undefined,
-    onDelete: onPostDelete ? (post) => onPostDelete(post.id) : undefined,
+    onDelete: onPostDelete ? (post) => onPostDelete((post as { id: string }).id) : undefined,
   });
 }
 
@@ -153,8 +167,8 @@ export function usePostLikesRealtime(
     filter: `postId=eq.${postId}`,
     event: "*",
     enabled: !!postId,
-    onInsert: (like: any) => onLikeChange(1, like.userId),
-    onDelete: (like: any) => onLikeChange(-1, like.userId),
+    onInsert: (like) => onLikeChange(1, (like as { userId: string }).userId),
+    onDelete: (like) => onLikeChange(-1, (like as { userId: string }).userId),
   });
 }
 
@@ -170,7 +184,7 @@ export function useFollowersRealtime(
     filter: userId ? `followingId=eq.${userId}` : undefined,
     event: "*",
     enabled: !!userId,
-    onInsert: (follow: any) => onFollowerChange(1, follow.followerId),
-    onDelete: (follow: any) => onFollowerChange(-1, follow.followerId),
+    onInsert: (follow) => onFollowerChange(1, (follow as { followerId: string }).followerId),
+    onDelete: (follow) => onFollowerChange(-1, (follow as { followerId: string }).followerId),
   });
 }

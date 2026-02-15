@@ -90,8 +90,8 @@ export default function AccountLinking() {
 
       const { authUrl } = await response.json();
       window.location.href = authUrl;
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unknown error");
     } finally {
       setLoading(null);
     }
@@ -115,8 +115,8 @@ export default function AccountLinking() {
 
       await fetchLinkedAccounts();
       await update();
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unknown error");
     } finally {
       setLoading(null);
     }

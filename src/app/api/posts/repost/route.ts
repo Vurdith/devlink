@@ -12,7 +12,7 @@ export async function POST(req: Request) {
 
   try {
     const { postId } = await req.json();
-    const userId = (session.user as any).id;
+    const userId = session.user.id;
 
     if (!postId) {
       return NextResponse.json({ error: "Post ID is required" }, { status: 400 });

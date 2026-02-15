@@ -37,7 +37,7 @@ export type EngagementAction =
   | { type: 'SET_PENDING_STATE'; payload: EngagementState['pendingState'] }
   | { type: 'SET_DELETE_CONFIRM'; payload: boolean }
   | { type: 'SET_EXPLOSION'; payload: { type: 'like' | 'repost' | 'save'; value: boolean } }
-  | { type: 'INIT_FROM_POST'; payload: { likes?: any[]; reposts?: any[]; savedBy?: any[]; userId: string } }
+  | { type: 'INIT_FROM_POST'; payload: { likes?: { userId: string }[]; reposts?: { userId: string }[]; savedBy?: { userId: string }[]; userId: string } }
   | { type: 'RESET' };
 
 const initialState: EngagementState = {
@@ -115,7 +115,7 @@ export function usePostEngagement() {
       setDeleteConfirm: (confirm: boolean) => dispatch({ type: 'SET_DELETE_CONFIRM', payload: confirm }),
       setExplosion: (type: 'like' | 'repost' | 'save', value: boolean) =>
         dispatch({ type: 'SET_EXPLOSION', payload: { type, value } }),
-      initFromPost: (likes: any[], reposts: any[], savedBy: any[], userId: string) =>
+      initFromPost: (likes: { userId: string }[], reposts: { userId: string }[], savedBy: { userId: string }[], userId: string) =>
         dispatch({ type: 'INIT_FROM_POST', payload: { likes, reposts, savedBy, userId } }),
       reset: () => dispatch({ type: 'RESET' }),
     }),

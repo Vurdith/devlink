@@ -45,7 +45,7 @@ export async function fetchDiscoverUsers(
   }
 
   // Build where clause
-  const where: any = {};
+  const where: { profile?: { profileType: string } } = {};
   if (profileType && profileType !== "all") {
     where.profile = { profileType };
   }

@@ -26,7 +26,7 @@ export async function POST(
       return NextResponse.json({ error: "Post not found" }, { status: 404 });
     }
 
-    if (existingPost.userId !== (session.user as any).id) {
+    if (existingPost.userId !== session.user.id) {
       return NextResponse.json({ error: "You can only pin your own posts" }, { status: 403 });
     }
 
@@ -39,7 +39,7 @@ export async function POST(
       // Check if user already has 3 pinned posts
       const pinnedCount = await prisma.post.count({
         where: {
-          userId: (session.user as any).id,
+          userId: session.user.id,
           isPinned: true,
           replyToId: null // Only count original posts, not replies
         }

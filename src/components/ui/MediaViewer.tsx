@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { createPortal } from "react-dom";
+import Image from "next/image";
 
 interface MediaItem {
   id?: string;
@@ -88,7 +89,7 @@ export function MediaViewer({
     
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [showModal, zoomLevel, imageDimensions, containerDimensions]);
+  }, [showModal, zoomLevel, imageDimensions, containerDimensions, goToPrevious, goToNext]);
 
   // Calculate pan boundaries
   const clampPanPosition = useCallback((x: number, y: number, zoom: number = zoomLevel) => {
@@ -156,13 +157,13 @@ export function MediaViewer({
     handleZoomChange(newZoom);
   }, [zoomLevel, handleZoomChange]);
 
-  const goToPrevious = useCallback(() => {
+  function goToPrevious() {
     setCurrentIndex((prev) => (prev === 0 ? media.length - 1 : prev - 1));
-  }, [media.length]);
+  }
 
-  const goToNext = useCallback(() => {
+  function goToNext() {
     setCurrentIndex((prev) => (prev === media.length - 1 ? 0 : prev + 1));
-  }, [media.length]);
+  }
 
   const openModal = useCallback((index: number) => {
     setCurrentIndex(index);
@@ -193,12 +194,16 @@ export function MediaViewer({
           </div>
         </>
       ) : (
-        <img
-          src={item.url}
-          alt={`${alt} - ${index + 1}`}
-          className="w-full h-auto rounded-xl transition-transform duration-700 group-hover:scale-105"
-          loading="lazy"
-        />
+        <div className="relative w-full aspect-video">
+          <Image
+            src={item.url}
+            alt={`${alt} - ${index + 1}`}
+            fill
+            sizes="(max-width: 768px) 50vw, 300px"
+            className="rounded-xl transition-transform duration-700 group-hover:scale-105 object-cover"
+            unoptimized
+          />
+        </div>
       )}
       <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300 rounded-xl pointer-events-none" />
     </div>
@@ -224,13 +229,16 @@ export function MediaViewer({
               preload="metadata"
             />
           ) : (
-            <img
-              src={currentMedia.url}
-              alt={`${alt} - ${currentIndex + 1}`}
-              className="w-full h-full object-contain"
-              style={{ maxHeight: '400px' }}
-              loading="lazy"
-            />
+            <div className="relative w-full" style={{ height: '400px' }}>
+              <Image
+                src={currentMedia.url}
+                alt={`${alt} - ${currentIndex + 1}`}
+                fill
+                sizes="100vw"
+                className="object-contain"
+                unoptimized
+              />
+            </div>
           )}
           
           {/* Navigation Arrows */}
@@ -297,13 +305,16 @@ export function MediaViewer({
               </div>
             </>
           ) : (
-            <img
-              src={item.url}
-              alt={`${alt} - 1`}
-              className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105"
-              style={{ maxHeight: '400px' }}
-              loading="lazy"
-            />
+            <div className="relative w-full" style={{ height: '400px' }}>
+              <Image
+                src={item.url}
+                alt={`${alt} - 1`}
+                fill
+                sizes="100vw"
+                className="object-contain transition-transform duration-700 group-hover:scale-105"
+                unoptimized
+              />
+            </div>
           )}
           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-150 pointer-events-none rounded-2xl" />
         </div>
@@ -384,10 +395,14 @@ export function MediaViewer({
                   autoPlay
                 />
               ) : (
-                <img
+                <Image
                   src={currentMedia.url}
                   alt={`${alt} - ${currentIndex + 1}`}
-                  className="max-w-[90vw] max-h-[75vh] object-contain select-none block"
+                  width={0}
+                  height={0}
+                  sizes="90vw"
+                  unoptimized
+                  className="max-w-[90vw] max-h-[75vh] object-contain select-none block w-auto h-auto"
                   style={{ 
                     transform: `scale(${zoomLevel}) translate(${panPosition.x / zoomLevel}px, ${panPosition.y / zoomLevel}px)`,
                     transformOrigin: 'center center',

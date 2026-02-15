@@ -18,8 +18,8 @@ export default async function HomePage() {
   ]);
 
   // Redirect new OAuth users to set password
-  if ((session?.user as any)?.needsPassword) {
-    const userId = (session?.user as any)?.id;
+  if (session?.user?.needsPassword) {
+    const userId = session?.user?.id;
     if (userId) {
       const user = await prisma.user.findUnique({
         where: { id: userId },
@@ -31,7 +31,7 @@ export default async function HomePage() {
     }
   }
 
-  const currentUserId = (session?.user as any)?.id;
+  const currentUserId = session?.user?.id;
   const username = session?.user?.username;
   
   // Early return for no posts - skip all the processing
@@ -53,9 +53,9 @@ export default async function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <AnimatedHomeContent 
             session={session}
-            currentUserProfile={currentUserProfile as any}
-            postsWithViewCounts={[]}
-          />
+          currentUserProfile={currentUserProfile}
+          postsWithViewCounts={[]}
+        />
         </div>
       </div>
     );
@@ -145,8 +145,8 @@ export default async function HomePage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <AnimatedHomeContent 
           session={session}
-          currentUserProfile={currentUserProfile as any}
-          postsWithViewCounts={postsWithViewCounts as any}
+          currentUserProfile={currentUserProfile}
+          postsWithViewCounts={postsWithViewCounts}
         />
       </div>
     </div>

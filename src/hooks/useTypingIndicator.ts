@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback, useRef } from "react";
 import { supabase, isRealtimeAvailable } from "@/lib/supabase/client";
+import type { RealtimeChannel } from "@supabase/supabase-js";
 
 interface TypingUser {
   id: string;
@@ -16,7 +17,7 @@ export function useTypingIndicator(
   currentUser: { id: string; username: string } | null
 ) {
   const [typingUsers, setTypingUsers] = useState<TypingUser[]>([]);
-  const channelRef = useRef<any>(null);
+  const channelRef = useRef<RealtimeChannel | null>(null);
   const timeoutsRef = useRef<Record<string, NodeJS.Timeout>>({});
 
   useEffect(() => {
@@ -31,7 +32,7 @@ export function useTypingIndicator(
     });
 
     channel
-      .on("broadcast", { event: "typing" }, (payload: any) => {
+      .on("broadcast", { event: "typing" }, (payload: { payload: { userId: string; username: string; isTyping: boolean } }) => {
         const { userId, username, isTyping } = payload.payload;
 
         if (isTyping) {

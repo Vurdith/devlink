@@ -5,7 +5,8 @@
 /**
  * Debounce function with leading edge option.
  */
-export function debounce<T extends (...args: any[]) => any>(
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function debounce<T extends (...args: any[]) => unknown>(
   fn: T,
   delay: number,
   options: { leading?: boolean } = {}
@@ -37,7 +38,8 @@ export function debounce<T extends (...args: any[]) => any>(
 /**
  * Throttle function using requestAnimationFrame for smooth animations.
  */
-export function rafThrottle<T extends (...args: any[]) => any>(
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function rafThrottle<T extends (...args: any[]) => unknown>(
   fn: T
 ): (...args: Parameters<T>) => void {
   let rafId: number | null = null;
@@ -64,7 +66,7 @@ export function runOnIdle(fn: () => void, timeout = 2000): void {
   if (typeof window === "undefined") return;
 
   if ("requestIdleCallback" in window) {
-    (window as any).requestIdleCallback(fn, { timeout });
+    (window as unknown as { requestIdleCallback: (fn: () => void, opts: { timeout: number }) => void }).requestIdleCallback(fn, { timeout });
   } else {
     setTimeout(fn, 100);
   }

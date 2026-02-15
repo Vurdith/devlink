@@ -31,8 +31,26 @@ export default async function AnalyticsPage({ params }: AnalyticsPageParams) {
     if (!fetched) {
       notFound();
     }
-    feedPosts = [...feedPosts, fetched as any];
-    targetPost = fetched as any;
+    // fetchPostForRanking returns a raw Prisma post; cast to feed format
+    const enriched = {
+      ...fetched,
+      likes: [] as { id: string; userId: string }[],
+      reposts: [] as { id: string; userId: string }[],
+      savedBy: [] as { id: string; userId: string }[],
+      hashtags: [] as string[],
+      replies: [] as null[],
+      views: 0,
+      poll: fetched.poll ? {
+        ...fetched.poll,
+        options: fetched.poll.options.map(opt => ({
+          id: opt.id,
+          text: opt.text,
+          votes: Array(opt._count.votes).fill({ id: '' }) as { id: string }[],
+        }))
+      } : null,
+    };
+    feedPosts = [...feedPosts, enriched];
+    targetPost = enriched;
   }
 
   const rankablePosts = feedPosts.map(buildRankablePost);

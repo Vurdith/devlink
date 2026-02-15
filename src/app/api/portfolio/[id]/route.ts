@@ -40,7 +40,7 @@ export async function PUT(
     // Validate skillIds if provided
     let validatedSkillIds: string[] | undefined = undefined;
     if (typeof skillIds !== "undefined") {
-      if (!Array.isArray(skillIds) || !skillIds.every((sid: any) => typeof sid === "string")) {
+      if (!Array.isArray(skillIds) || !skillIds.every((sid: unknown) => typeof sid === "string")) {
         return NextResponse.json({ error: "skillIds must be an array of strings" }, { status: 400 });
       }
       const unique = Array.from(new Set(skillIds.map((s: string) => s.trim()).filter(Boolean)));

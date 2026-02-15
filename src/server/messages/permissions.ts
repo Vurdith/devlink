@@ -9,7 +9,7 @@ export async function canSendMessage({
 }): Promise<boolean> {
   if (senderId === recipientId) return false;
 
-  if (!(prisma as any).userMessagingSettings) {
+  if (!("userMessagingSettings" in prisma)) {
     throw new Error("Prisma client missing messaging models. Run prisma generate/migrate.");
   }
 

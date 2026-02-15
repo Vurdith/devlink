@@ -80,7 +80,7 @@ export function useBatchIntersection(
     };
 
     if ("requestIdleCallback" in window) {
-      (window as any).requestIdleCallback(setup, { timeout: 1000 });
+      (window as unknown as { requestIdleCallback: (fn: () => void, opts: { timeout: number }) => void }).requestIdleCallback(setup, { timeout: 1000 });
     } else {
       setTimeout(setup, 100);
     }

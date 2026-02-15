@@ -7,7 +7,7 @@ import { getUniqueViewCounts } from "@/lib/view-utils";
 export default async function HashtagPage(props: { params: Promise<{ hashtag: string }> }) {
   const session = await getAuthSession();
   const { hashtag } = await props.params;
-  const currentUserId = (session?.user as any)?.id;
+  const currentUserId = session?.user?.id;
 
   // Find the hashtag directly from database
   const hashtagRecord = await prisma.hashtag.findUnique({
@@ -169,7 +169,7 @@ export default async function HashtagPage(props: { params: Promise<{ hashtag: st
         {/* Posts Feed */}
         {finalPosts.length > 0 ? (
           <PostFeed 
-            posts={finalPosts as any} 
+            posts={finalPosts} 
             currentUserId={currentUserProfile?.id}
             hidePinnedIndicator={true}
           />

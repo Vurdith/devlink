@@ -44,7 +44,7 @@ interface Post {
       isSelected?: boolean;
     }>;
     isMultiple: boolean;
-    expiresAt: Date;
+    expiresAt: Date | null;
     totalVotes: number;
   };
   likes?: Array<{ id: string; userId: string }>;

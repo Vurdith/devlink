@@ -16,13 +16,13 @@ export async function GET(request: NextRequest) {
     }
 
     const session = await getAuthSession();
-    const currentUserId = (session?.user as any)?.id;
+    const currentUserId = session?.user?.id;
 
     // Cache key includes user ID for personalized engagement flags
     const cacheKey = `search:posts:${q.toLowerCase()}:${currentUserId || 'anon'}`;
     
     // Try cache first
-    const cached = await responseCache.get<any[]>(cacheKey);
+    const cached = await responseCache.get<unknown[]>(cacheKey);
     if (cached) {
       const response = NextResponse.json({ posts: cached });
       response.headers.set("X-Cache", "HIT");
@@ -108,16 +108,16 @@ export async function GET(request: NextRequest) {
     const savedPostIds = new Set(userSaves.map(s => s.postId));
 
     // Transform posts with proper engagement flags
-    const transformedPosts = posts.map((post: any) => {
+    const transformedPosts = posts.map((post) => {
       const poll = post.poll
         ? {
             ...post.poll,
-            options: post.poll.options.map((opt: any) => ({
+            options: post.poll.options.map((opt) => ({
               id: opt.id,
               text: opt.text,
               votes: opt._count.votes,
             })),
-            totalVotes: post.poll.options.reduce((sum: number, opt: any) => sum + opt._count.votes, 0),
+            totalVotes: post.poll.options.reduce((sum: number, opt) => sum + opt._count.votes, 0),
           }
         : null;
 

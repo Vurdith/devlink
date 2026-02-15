@@ -350,7 +350,7 @@ export default function SecuritySettings() {
             </svg>
           }
           className="animate-slide-up"
-          style={{ animationDelay: '0.05s' } as any}
+          style={{ animationDelay: '0.05s' } as React.CSSProperties}
         >
           <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4 mb-6">
             <div className="flex items-start gap-3">

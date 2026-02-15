@@ -43,7 +43,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Post not found" }, { status: 404 });
     }
 
-    if (existingPost.userId !== (session.user as any).id) {
+    if (existingPost.userId !== session.user.id) {
       return NextResponse.json({ error: "You can only delete your own posts" }, { status: 403 });
     }
 

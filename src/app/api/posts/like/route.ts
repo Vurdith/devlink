@@ -12,7 +12,7 @@ export async function POST(req: Request) {
 
   try {
     const { postId } = await req.json();
-    const userId = (session.user as any).id;
+    const userId = session.user.id;
 
     if (!postId) {
       return NextResponse.json({ error: "Post ID is required" }, { status: 400 });
@@ -71,9 +71,10 @@ export async function POST(req: Request) {
           postId,
         });
       }
-    } catch (dbError: any) {
+    } catch (dbError) {
       // Handle case where post doesn't exist (FK constraint)
-      if (dbError.code === 'P2003' || dbError.code === 'P2025') {
+      const prismaError = dbError as { code?: string };
+      if (prismaError.code === 'P2003' || prismaError.code === 'P2025') {
         return NextResponse.json({ error: "Post not found" }, { status: 404 });
       }
       throw dbError;

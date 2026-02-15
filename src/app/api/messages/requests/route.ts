@@ -10,7 +10,7 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  if (!(prisma as any).messageRequest) {
+  if (!("messageRequest" in prisma)) {
     return NextResponse.json(
       { error: "Messaging tables are not initialized. Run prisma generate/migrate." },
       { status: 500 }

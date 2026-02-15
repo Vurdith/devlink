@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { prisma } from "@/server/db";
 import { notFound } from "next/navigation";
 import { FollowButton } from "@/components/ui/FollowButton";
@@ -13,11 +14,28 @@ import type { ExperienceLevel, AvailabilityStatus } from "@/lib/skills";
 // Cache page for 60 seconds - engagement state is fetched client-side
 export const revalidate = 60;
 
+export async function generateMetadata({ params }: { params: Promise<{ username: string }> }): Promise<Metadata> {
+  const { username } = await params;
+  const user = await prisma.user.findUnique({
+    where: { username },
+    select: { name: true, username: true, profile: { select: { bio: true, avatarUrl: true } } },
+  });
+  if (!user) return { title: "User Not Found — DevLink" };
+  const title = `${user.name || user.username} (@${user.username}) — DevLink`;
+  const description = user.profile?.bio?.slice(0, 160) || `Check out ${user.username}'s profile on DevLink.`;
+  return {
+    title,
+    description,
+    openGraph: { title, description, images: user.profile?.avatarUrl ? [user.profile.avatarUrl] : [], type: "profile" },
+    twitter: { card: "summary", title, description },
+  };
+}
+
 // Cache profile data for faster repeat loads
 async function getProfileData(username: string) {
   const cacheKey = `profile:page:${username.toLowerCase()}`;
   
-  const cached = await responseCache.get<any>(cacheKey);
+  const cached = await responseCache.get<Awaited<ReturnType<typeof prisma.user.findUnique>> & { avgRating: number | null }>(cacheKey);
   if (cached) return cached;
   
   // Single query with rating aggregate using raw SQL for efficiency
@@ -38,6 +56,9 @@ async function getProfileData(username: string) {
           website: true,
           location: true,
           currency: true,
+          availability: true,
+          hourlyRate: true,
+          responseTime: true,
         }
       },
       skills: {
@@ -96,6 +117,9 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
   ]);
 
   if (!user) notFound();
+  if (!("profile" in user) || !("skills" in user) || !("_count" in user) || !("avgRating" in user)) {
+    notFound();
+  }
   
   const currentUserId = session?.user?.id;
   

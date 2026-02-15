@@ -14,7 +14,7 @@ const verificationTypes = [
 
 export default function VerificationPage() {
   const { data: session } = useSession();
-  const userId = (session?.user as any)?.id as string | undefined;
+  const userId = session?.user?.id;
   const [requests, setRequests] = useState<VerificationRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -122,7 +122,7 @@ export default function VerificationPage() {
               onClick={submitRequest}
               disabled={submitting}
               className={cn(
-                "mt-4 px-4 py-2 rounded-xl text-sm font-semibold bg-[var(--color-accent)] text-black",
+                "mt-4 px-4 py-2 rounded-xl text-sm font-semibold bg-[var(--color-accent)] text-white",
                 submitting && "opacity-60 cursor-not-allowed"
               )}
             >

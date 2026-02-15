@@ -74,11 +74,36 @@ const feedPostSelect = {
   },
 };
 
+export type FeedPost = Awaited<ReturnType<typeof _transformFeedPosts>>[number];
+
+function _transformFeedPosts(
+  posts: Awaited<ReturnType<typeof prisma.post.findMany<{ where: { replyToId: null }; select: typeof feedPostSelect }>>>,
+  viewCountMap: Map<string, number>
+) {
+  return posts.map(post => ({
+    ...post,
+    likes: [] as { id: string; userId: string }[],
+    reposts: [] as { id: string; userId: string }[],
+    savedBy: [] as { id: string; userId: string }[],
+    hashtags: [] as string[],
+    replies: Array(post._count?.replies || 0).fill(null) as null[],
+    views: viewCountMap.get(post.id) || 0,
+    poll: post.poll ? {
+      ...post.poll,
+      options: post.poll.options.map(opt => ({
+        id: opt.id,
+        text: opt.text,
+        votes: Array(opt._count.votes).fill({ id: '' }) as { id: string }[],
+      }))
+    } : null
+  }));
+}
+
 export async function fetchHomeFeedPosts(limit = 30) {
   const cacheKey = `feed:home:${limit}`;
   
   // Try cache first - this is the fast path
-  const cached = await responseCache.get<any[]>(cacheKey);
+  const cached = await responseCache.get<FeedPost[]>(cacheKey);
   if (cached) {
     return cached;
   }
@@ -99,23 +124,7 @@ export async function fetchHomeFeedPosts(limit = 30) {
   const viewCountMap = await getUniqueViewCounts(postIds);
 
   // Transform to expected format
-  const result = posts.map(post => ({
-    ...post,
-    likes: [],
-    reposts: [],
-    savedBy: [],
-    hashtags: [],
-    replies: Array(post._count?.replies || 0).fill(null),
-    views: viewCountMap.get(post.id) || 0, // Unique user view count - consistent with all other pages
-    poll: post.poll ? {
-      ...post.poll,
-      options: post.poll.options.map(opt => ({
-        id: opt.id,
-        text: opt.text,
-        votes: Array(opt._count.votes).fill({ id: '' }),
-      }))
-    } : null
-  }));
+  const result = _transformFeedPosts(posts, viewCountMap);
   
   // Cache the result
   await responseCache.set(cacheKey, result, FEED_CACHE_TTL);

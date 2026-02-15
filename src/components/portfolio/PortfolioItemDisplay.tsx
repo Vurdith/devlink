@@ -4,19 +4,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { ConfirmModal } from "@/components/ui/BaseModal";
-
-interface PortfolioItem {
-  id: string;
-  title: string;
-  description?: string;
-  category?: string;
-  links?: string;
-  mediaUrls?: string;
-  tags?: string;
-  skills?: Array<{ skill?: { id: string; name: string; category: string; icon?: string | null } }>;
-  isPublic: boolean;
-  createdAt: string;
-}
+import type { PortfolioItem } from "@/types/api";
 
 interface PortfolioItemDisplayProps {
   item: PortfolioItem;
@@ -225,13 +213,13 @@ export function PortfolioItemDisplay({
   };
 
   // Parse comma-separated URLs
-  const parseUrls = (urlString?: string): string[] => {
+  const parseUrls = (urlString?: string | null): string[] => {
     if (!urlString) return [];
     return urlString.split(",").map((url) => url.trim()).filter(Boolean);
   };
 
   // Parse tags
-  const parseTags = (tagString?: string): string[] => {
+  const parseTags = (tagString?: string | null): string[] => {
     if (!tagString) return [];
     return tagString.split(",").map((tag) => tag.trim()).filter(Boolean);
   };

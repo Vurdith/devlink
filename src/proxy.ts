@@ -1,14 +1,58 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
+const SITE_LOCK_COOKIE = "devlink_site_lock";
+const SITE_LOCK_ROUTE = "/site-lock";
+const SITE_LOCK_API_ROUTE = "/api/site-lock";
+
+function isSiteLockEnabled() {
+  return process.env.SITE_LOCK_ENABLED === "true";
+}
+
+function isSiteLockPublicPath(pathname: string) {
+  return pathname === SITE_LOCK_ROUTE || pathname.startsWith(SITE_LOCK_API_ROUTE);
+}
+
 /**
  * Global proxy for security headers and basic protection
  * Runs on all routes except static files
  * (Renamed from middleware to proxy in Next.js 16)
  */
 export function proxy(req: NextRequest) {
+  if (isSiteLockEnabled()) {
+    const expectedPassword = process.env.SITE_LOCK_PASSWORD;
+    if (expectedPassword) {
+      const { pathname, search } = req.nextUrl;
+      if (!isSiteLockPublicPath(pathname)) {
+        const grantedCookie = req.cookies.get(SITE_LOCK_COOKIE)?.value;
+        if (grantedCookie !== expectedPassword) {
+          const lockUrl = req.nextUrl.clone();
+          lockUrl.pathname = SITE_LOCK_ROUTE;
+          lockUrl.searchParams.set("next", `${pathname}${search}`);
+          return NextResponse.redirect(lockUrl);
+        }
+      }
+    }
+  }
+
   const response = NextResponse.next();
   
+  // Dynamic CORS origin checking
+  const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'https://devlink.ink').split(',');
+  const origin = req.headers.get('origin');
+  
+  if (process.env.NODE_ENV === 'development') {
+    // Allow all origins in development for tunnel testing
+    response.headers.set('Access-Control-Allow-Origin', origin || '*');
+  } else {
+    // In production, only allow whitelisted origins
+    const corsOrigin = origin && allowedOrigins.includes(origin) ? origin : allowedOrigins[0];
+    response.headers.set('Access-Control-Allow-Origin', corsOrigin);
+  }
+  response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  response.headers.set('Access-Control-Allow-Credentials', 'true');
+
   // Security headers
   response.headers.set('X-Frame-Options', 'DENY');
   response.headers.set('X-Content-Type-Options', 'nosniff');

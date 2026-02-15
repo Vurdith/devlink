@@ -20,7 +20,13 @@ export function useDevicePerformance() {
     let isBatterySaver = false;
 
     // Check device memory (Chrome/Edge only)
-    const nav = navigator as any;
+    const nav = navigator as Navigator & {
+      deviceMemory?: number;
+      connection?: { effectiveType?: string; saveData?: boolean };
+      mozConnection?: { effectiveType?: string; saveData?: boolean };
+      webkitConnection?: { effectiveType?: string; saveData?: boolean };
+      getBattery?: () => Promise<{ charging: boolean; level: number; addEventListener: (event: string, handler: () => void) => void; removeEventListener: (event: string, handler: () => void) => void }>;
+    };
     if (nav.deviceMemory && nav.deviceMemory < 4) {
       isLowEnd = true;
     }
@@ -34,7 +40,7 @@ export function useDevicePerformance() {
     const connection = nav.connection || nav.mozConnection || nav.webkitConnection;
     if (connection) {
       const slowTypes = ["slow-2g", "2g"];
-      if (slowTypes.includes(connection.effectiveType)) {
+      if (slowTypes.includes(connection.effectiveType ?? "")) {
         isLowEnd = true;
       }
       
@@ -58,8 +64,8 @@ export function useDevicePerformance() {
     }
 
     // Battery API (where supported)
-    if ("getBattery" in navigator) {
-      (navigator as any).getBattery().then((battery: any) => {
+    if (nav.getBattery) {
+      nav.getBattery().then((battery) => {
         const checkBattery = () => {
           // Enable battery saver when charging is low and not plugged in
           if (!battery.charging && battery.level < 0.2) {

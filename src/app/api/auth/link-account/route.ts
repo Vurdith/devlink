@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import crypto from "crypto";
 import { getAuthSession } from "@/server/auth";
 import { prisma } from "@/server/db";
 
@@ -28,8 +29,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Account already linked" }, { status: 400 });
     }
 
-    // Generate a state parameter for OAuth flow
-    const state = `${session.user.id}:${provider}:${Date.now()}`;
+    // Generate a cryptographically secure state parameter for OAuth flow
+    const stateToken = crypto.randomBytes(16).toString("hex");
+    const state = `${session.user.id}:${provider}:${stateToken}`;
     
     // Store the state in a temporary way (you might want to use Redis or a database table for this)
     // For now, we'll use a simple approach with the OAuth URL

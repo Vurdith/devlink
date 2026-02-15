@@ -58,7 +58,7 @@ export const CreatePost = memo(function CreatePost({
 
   if (!currentUserProfile) return null;
 
-  const addEmoji = useCallback((emoji: any) => {
+  const addEmoji = useCallback((emoji: { emoji?: string }) => {
     const char = emoji?.emoji || "";
     if (char) setFormData(prev => ({ ...prev, content: prev.content + char }));
   }, []);

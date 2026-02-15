@@ -12,7 +12,7 @@ export async function GET(
   try {
     const { userId } = await params;
     const session = await getAuthSession();
-    const currentUserId = (session?.user as any)?.id;
+    const currentUserId = session?.user?.id;
     
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page') || '1');
@@ -93,7 +93,7 @@ export async function GET(
     const repostedSet = new Set(userReposts.map(r => r.postId));
     const savedSet = new Set(userSaves.map(s => s.postId));
 
-    const transformedPosts = repliedPosts.map((post: any) => ({
+    const transformedPosts = repliedPosts.map((post) => ({
       ...post,
       views: viewCountMap.get(post.id) || 0,
       isLiked: likedSet.has(post.id),

@@ -126,13 +126,20 @@ export async function POST(req: Request) {
 
 export async function GET(req: Request) {
   try {
+    const session = await getAuthSession();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const { searchParams } = new URL(req.url);
     const pollId = searchParams.get("pollId");
-    const userId = searchParams.get("userId");
 
-    if (!pollId || !userId) {
-      return NextResponse.json({ error: "Poll ID and user ID required" }, { status: 400 });
+    if (!pollId) {
+      return NextResponse.json({ error: "Poll ID is required" }, { status: 400 });
     }
+
+    // Always use the authenticated user's ID instead of query param
+    const userId = session.user.id;
 
     // Get user's votes for this poll
     const votes = await prisma.pollVote.findMany({

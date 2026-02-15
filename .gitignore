@@ -41,3 +41,6 @@ yarn-error.log*
 next-env.d.ts
 
 /src/generated/prisma
+prisma/dev.db# User uploads (served from CDN in production)
+/public/uploads/*
+!/public/uploads/.gitkeep

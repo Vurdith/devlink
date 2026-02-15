@@ -6,6 +6,7 @@ import { PortfolioEditor } from "@/components/portfolio/PortfolioEditor";
 import { PortfolioItemDisplay } from "@/components/portfolio/PortfolioItemDisplay";
 import { Button } from "@/components/ui/Button";
 import { useToast } from "@/hooks/useToast";
+import type { PortfolioItem } from "@/types/api";
 import { SkillsDisplay, AvailabilityBadge } from "@/components/ui/SkillsDisplay";
 import { 
   EXPERIENCE_LEVELS,
@@ -159,21 +160,71 @@ function ExpandableSkillCard({
   );
 }
 
+// Client-side feed post type for tab data
+interface TabPost {
+  id: string;
+  content: string;
+  createdAt: Date;
+  updatedAt: Date;
+  userId: string;
+  user: {
+    id: string;
+    username: string;
+    name: string | null;
+    profile: {
+      avatarUrl: string | null;
+      bannerUrl: string | null;
+      profileType: string;
+      verified: boolean;
+      bio: string | null;
+      website: string | null;
+      location: string | null;
+    } | null;
+    _count?: { followers: number; following: number };
+  };
+  media: Array<{ id: string; mediaUrl: string; mediaType: string; order: number }>;
+  isSlideshow: boolean;
+  isPinned: boolean;
+  views: number;
+  likes?: Array<{ id: string; userId: string }>;
+  reposts?: Array<{ id: string; userId: string }>;
+  savedBy?: Array<{ id: string; userId: string }>;
+  replies?: Array<{ id: string }>;
+  isLiked?: boolean;
+  isReposted?: boolean;
+  isSaved?: boolean;
+  poll?: {
+    id: string;
+    question: string;
+    options: Array<{ id: string; text: string; votes: number; isSelected?: boolean }>;
+    isMultiple: boolean;
+    expiresAt: Date;
+    totalVotes: number;
+  };
+  replyTo?: {
+    id: string;
+    content: string;
+    media?: Array<{ id: string; mediaUrl?: string; mediaType?: string; order?: number }>;
+    user: { username: string; name: string | null; image?: string | null };
+  };
+  _count?: { likes: number; reposts: number; replies: number };
+}
+
 // Client-side cache for tab data (persists during session)
 // NOTE: Engagement tabs (liked, reposts, saved) skip cache for real-time accuracy
-const tabDataCache = new Map<string, { data: any[]; timestamp: number }>();
+const tabDataCache = new Map<string, { data: TabPost[]; timestamp: number }>();
 const CACHE_TTL = 30000; // 30 seconds client-side cache
-const ENGAGEMENT_TABS = ['liked', 'reposts', 'saved'] as const;
+const ENGAGEMENT_TABS: readonly TabType[] = ['liked', 'reposts', 'saved'];
 
 export function ProfileTabs({ username, currentUserId, userId, skills = [], profileData = {} }: ProfileTabsProps) {
   // Default to "about" if there's content, otherwise "posts"
   const hasAboutContent = skills.length > 0 || profileData.location || profileData.website;
   const [activeTab, setActiveTab] = useState<TabType>(hasAboutContent ? "about" : "posts");
-  const [posts, setPosts] = useState<any[]>([]);
-  const [portfolioItems, setPortfolioItems] = useState<any[]>([]);
+  const [posts, setPosts] = useState<TabPost[]>([]);
+  const [portfolioItems, setPortfolioItems] = useState<PortfolioItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [showPortfolioEditor, setShowPortfolioEditor] = useState(false);
-  const [editingItem, setEditingItem] = useState<any>(null);
+  const [editingItem, setEditingItem] = useState<PortfolioItem | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -264,7 +315,7 @@ export function ProfileTabs({ username, currentUserId, userId, skills = [], prof
     const cacheKey = `${userId}:${tabType}:${page}`;
     
     // Skip cache for engagement tabs (liked, reposts, saved) - they need real-time accuracy
-    const isEngagementTab = ENGAGEMENT_TABS.includes(tabType as any);
+    const isEngagementTab = ENGAGEMENT_TABS.includes(tabType);
     
     // Check client-side cache first (unless forcing refresh, appending, or engagement tab)
     if (!forceRefresh && !append && !isEngagementTab) {
@@ -328,10 +379,10 @@ export function ProfileTabs({ username, currentUserId, userId, skills = [], prof
       
       if (response.ok) {
         const data = await response.json();
-        let newPosts: any[] = [];
+        let newPosts: TabPost[] = [];
         
         if (tabType === "saved") {
-          newPosts = data.savedPosts?.map((saved: any) => saved.post) || [];
+          newPosts = data.savedPosts?.map((saved: { post: TabPost }) => saved.post) || [];
         } else {
           newPosts = data.posts || data;
         }
@@ -382,7 +433,8 @@ export function ProfileTabs({ username, currentUserId, userId, skills = [], prof
     }
   };
 
-  const handlePostUpdate = useCallback(async (updatedPost: any) => {
+  const handlePostUpdate = useCallback((updatedPostInput: unknown) => {
+    const updatedPost = updatedPostInput as TabPost;
     // Invalidate relevant caches when engagement changes
     const invalidateCacheFor = (tab: TabType) => {
       const cacheKey = `${userId}:${tab}:1`;
@@ -393,9 +445,9 @@ export function ProfileTabs({ username, currentUserId, userId, skills = [], prof
     setPosts(prevPosts => {
       // Check if post should be added to current tab (for when you like/repost/save on feed, then navigate to profile)
       const shouldBeInTab = 
-        (activeTab === "liked" && updatedPost.likes?.some((like: any) => like.userId === currentUserId)) ||
-        (activeTab === "reposts" && updatedPost.reposts?.some((repost: any) => repost.userId === currentUserId)) ||
-        (activeTab === "saved" && updatedPost.savedBy?.some((saved: any) => saved.userId === currentUserId));
+        (activeTab === "liked" && updatedPost.likes?.some((like) => like.userId === currentUserId)) ||
+        (activeTab === "reposts" && updatedPost.reposts?.some((repost) => repost.userId === currentUserId)) ||
+        (activeTab === "saved" && updatedPost.savedBy?.some((saved) => saved.userId === currentUserId));
       
       const postExists = prevPosts.some(post => post.id === updatedPost.id);
       
@@ -407,7 +459,7 @@ export function ProfileTabs({ username, currentUserId, userId, skills = [], prof
       
       // If we're on the "liked" tab and the post is no longer liked, remove it
       if (activeTab === "liked") {
-        const isStillLiked = updatedPost.likes?.some((like: any) => like.userId === currentUserId);
+        const isStillLiked = updatedPost.likes?.some((like) => like.userId === currentUserId);
         if (!isStillLiked && currentUserId) {
           invalidateCacheFor("liked");
           return prevPosts.filter(post => post.id !== updatedPost.id);
@@ -415,7 +467,7 @@ export function ProfileTabs({ username, currentUserId, userId, skills = [], prof
       }
       // If we're on the "reposts" tab and the post is no longer reposted, remove it
       if (activeTab === "reposts") {
-        const isStillReposted = updatedPost.reposts?.some((repost: any) => repost.userId === currentUserId);
+        const isStillReposted = updatedPost.reposts?.some((repost) => repost.userId === currentUserId);
         if (!isStillReposted && currentUserId) {
           invalidateCacheFor("reposts");
           return prevPosts.filter(post => post.id !== updatedPost.id);
@@ -423,7 +475,7 @@ export function ProfileTabs({ username, currentUserId, userId, skills = [], prof
       }
       // If we're on the "saved" tab and the post is no longer saved, remove it
       if (activeTab === "saved") {
-        const isStillSaved = updatedPost.savedBy?.some((saved: any) => saved.userId === currentUserId);
+        const isStillSaved = updatedPost.savedBy?.some((saved) => saved.userId === currentUserId);
         if (!isStillSaved && currentUserId) {
           invalidateCacheFor("saved");
           return prevPosts.filter(post => post.id !== updatedPost.id);
@@ -532,7 +584,7 @@ export function ProfileTabs({ username, currentUserId, userId, skills = [], prof
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, [activeTab, fetchPosts, userId]);
 
-  const handleSavePortfolioItem = (newItem: any) => {
+  const handleSavePortfolioItem = (newItem: PortfolioItem) => {
     if (editingItem) {
       setPortfolioItems(portfolioItems.map(item => item.id === newItem.id ? newItem : item));
       setEditingItem(null);
@@ -547,17 +599,18 @@ export function ProfileTabs({ username, currentUserId, userId, skills = [], prof
     toast({ title: "Success", description: "Portfolio item deleted" });
   };
 
-  const handleEditPortfolioItem = (item: any) => {
+  const handleEditPortfolioItem = (item: PortfolioItem) => {
     setEditingItem(item);
     setShowPortfolioEditor(true);
   };
 
   // Render reply with preview of original post - Twitter-like thread view
-  const renderReplyWithPreview = (reply: any) => {
+  const renderReplyWithPreview = (reply: TabPost) => {
     if (!reply.replyTo) return null;
 
     const originalPost = reply.replyTo;
     const originalAuthor = originalPost.user;
+    const originalMediaCount = originalPost.media?.length ?? 0;
 
     return (
       <div key={reply.id} className="relative overflow-hidden glass-soft glass-hover rounded-2xl border border-white/10 overflow-hidden transition-colors">
@@ -582,21 +635,21 @@ export function ProfileTabs({ username, currentUserId, userId, skills = [], prof
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
                 <span className="text-sm font-medium text-white/90 group-hover:text-white truncate">
-                  {originalAuthor?.displayName || originalAuthor?.username || 'Unknown'}
+                  {originalAuthor?.name || originalAuthor?.username || 'Unknown'}
                 </span>
                 <span className="text-xs text-white/40">@{originalAuthor?.username || 'unknown'}</span>
               </div>
               <p className="text-sm text-white/60 line-clamp-2 leading-relaxed">
                 {originalPost.content}
               </p>
-              {originalPost.media?.length > 0 && (
+              {originalMediaCount > 0 && (
                 <div className="flex items-center gap-1.5 mt-2 text-xs text-white/40">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
                     <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" strokeWidth="2"/>
                     <circle cx="8.5" cy="8.5" r="1.5" fill="currentColor"/>
                     <path d="M21 15l-5-5L5 21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
-                  <span>{originalPost.media.length} {originalPost.media.length === 1 ? 'image' : 'images'}</span>
+                  <span>{originalMediaCount} {originalMediaCount === 1 ? 'image' : 'images'}</span>
                 </div>
               )}
             </div>
@@ -930,11 +983,6 @@ export function ProfileTabs({ username, currentUserId, userId, skills = [], prof
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
                 </svg>
               )}
-              {(activeTab as any) === "reviews" && (
-                <svg className="w-12 h-12" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                </svg>
-              )}
             </div>
             <p className="text-lg font-medium mb-2">
               No {activeTab} yet
@@ -945,7 +993,6 @@ export function ProfileTabs({ username, currentUserId, userId, skills = [], prof
               {activeTab === "reposts" && "When you repost something, it will appear here."}
               {activeTab === "liked" && "Posts you like will appear here."}
               {activeTab === "saved" && "Posts you save will appear here."}
-              {(activeTab as any) === "reviews" && "Reviews from other users will appear here."}
             </p>
           </div>
         )}

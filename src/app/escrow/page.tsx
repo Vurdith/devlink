@@ -8,7 +8,7 @@ import type { EscrowContract } from "@/types/api";
 
 export default function EscrowPage() {
   const { data: session } = useSession();
-  const userId = (session?.user as any)?.id as string | undefined;
+  const userId = session?.user?.id;
   const [contracts, setContracts] = useState<EscrowContract[]>([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
@@ -146,7 +146,7 @@ export default function EscrowPage() {
               onClick={createContract}
               disabled={creating}
               className={cn(
-                "mt-4 px-4 py-2 rounded-xl text-sm font-semibold bg-[var(--color-accent)] text-black",
+                "mt-4 px-4 py-2 rounded-xl text-sm font-semibold bg-[var(--color-accent)] text-white",
                 creating && "opacity-60 cursor-not-allowed"
               )}
             >
@@ -202,7 +202,7 @@ export default function EscrowPage() {
                       {isClient && milestoneStatus === "SUBMITTED" && (
                         <button
                           onClick={() => releaseMilestone(contract.id)}
-                          className="px-3 py-2 rounded-xl text-xs font-semibold bg-[var(--color-accent)] text-black"
+                          className="px-3 py-2 rounded-xl text-xs font-semibold bg-[var(--color-accent)] text-white"
                         >
                           Release funds
                         </button>

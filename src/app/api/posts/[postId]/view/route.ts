@@ -64,9 +64,10 @@ export async function POST(
           viewedAt: now,
         },
       });
-    } catch (error: any) {
+    } catch (error) {
       // If it's a unique constraint error, update the existing record
-      if (error.code === 'P2002') {
+      const prismaError = error as { code?: string };
+      if (prismaError.code === 'P2002') {
         await prisma.postView.updateMany({
           where: {
             postId,

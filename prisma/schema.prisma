@@ -186,6 +186,7 @@ model Account {
   user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
+  @@index([userId])
 }
 
 model Session {
@@ -595,8 +596,8 @@ model Report {
   resolvedAt   DateTime?
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
-  post         Post?     @relation(fields: [postId], references: [id])
-  targetUser   User?     @relation("Reported", fields: [targetUserId], references: [id])
+  post         Post?     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  targetUser   User?     @relation("Reported", fields: [targetUserId], references: [id], onDelete: Cascade)
   reporter     User      @relation("Reporter", fields: [reporterId], references: [id], onDelete: Cascade)
 
   @@index([reporterId])
@@ -672,6 +673,8 @@ model PostMention {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([postId, userId])
+  @@index([userId])
+  @@index([postId])
 }
 
 model PasswordResetToken {
@@ -681,6 +684,9 @@ model PasswordResetToken {
   expires    DateTime
   createdAt  DateTime @default(now())
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
 }
 
 model EmailChangeToken {
@@ -691,6 +697,9 @@ model EmailChangeToken {
   expires    DateTime
   createdAt  DateTime @default(now())
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
 }
 
 // ============================================

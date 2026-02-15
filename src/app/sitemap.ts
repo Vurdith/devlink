@@ -44,20 +44,41 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Dynamic user profiles (verified users or users with posts)
   try {
-    const users = await prisma.user.findMany({
-      where: {
-        OR: [
-          { profile: { verified: true } },
-          { posts: { some: {} } },
-        ],
-      },
-      select: {
-        username: true,
-        updatedAt: true,
-      },
-      take: 1000, // Limit to prevent massive sitemaps
-      orderBy: { updatedAt: 'desc' },
-    });
+    const [users, posts, jobs] = await Promise.all([
+      prisma.user.findMany({
+        where: {
+          OR: [
+            { profile: { verified: true } },
+            { posts: { some: {} } },
+          ],
+        },
+        select: {
+          username: true,
+          updatedAt: true,
+        },
+        take: 1000,
+        orderBy: { updatedAt: 'desc' },
+      }),
+
+      // Published top-level posts (not replies, not scheduled)
+      prisma.post.findMany({
+        where: {
+          replyToId: null,
+          isScheduled: false,
+        },
+        select: { id: true, updatedAt: true },
+        orderBy: { createdAt: 'desc' },
+        take: 5000,
+      }),
+
+      // Active job listings
+      prisma.job.findMany({
+        where: { status: 'OPEN' },
+        select: { id: true, updatedAt: true },
+        orderBy: { createdAt: 'desc' },
+        take: 1000,
+      }),
+    ]);
 
     const userPages: MetadataRoute.Sitemap = users.map((user) => ({
       url: `${baseUrl}/u/${user.username}`,
@@ -66,7 +87,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.7,
     }));
 
-    return [...staticPages, ...userPages];
+    const postUrls: MetadataRoute.Sitemap = posts.map((post) => ({
+      url: `${baseUrl}/p/${post.id}`,
+      lastModified: post.updatedAt,
+      changeFrequency: 'weekly' as const,
+      priority: 0.6,
+    }));
+
+    const jobUrls: MetadataRoute.Sitemap = jobs.map((job) => ({
+      url: `${baseUrl}/jobs/${job.id}`,
+      lastModified: job.updatedAt,
+      changeFrequency: 'daily' as const,
+      priority: 0.7,
+    }));
+
+    return [...staticPages, ...userPages, ...postUrls, ...jobUrls];
   } catch (error) {
     console.error('Error generating sitemap:', error);
     // Return static pages only if database query fails

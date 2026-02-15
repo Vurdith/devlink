@@ -10,9 +10,9 @@ import { cn } from "@/lib/cn";
 
 export const Navbar = memo(function Navbar() {
   const { data: session } = useSession();
-  const username = (session?.user as any)?.username as string | undefined;
-  const googleImage = (session?.user as any)?.image as string | undefined;
-  const sessionName = (session?.user as any)?.name as string | undefined;
+  const username = session?.user?.username;
+  const googleImage = session?.user?.image ?? undefined;
+  const sessionName = session?.user?.name ?? undefined;
   const [avatarUrl, setAvatarUrl] = useState<string | undefined>(googleImage);
   const [displayName, setDisplayName] = useState<string | undefined>(sessionName);
   const [profileType, setProfileType] = useState<string | undefined>();
@@ -175,7 +175,7 @@ export const Navbar = memo(function Navbar() {
                 </svg>
                 {unread > 0 ? (
                   <span
-                    className="absolute -top-0.5 -right-0.5 min-w-5 h-5 px-1 rounded-full bg-[var(--color-accent)] text-[10px] font-bold text-black flex items-center justify-center"
+                    className="absolute -top-0.5 -right-0.5 min-w-5 h-5 px-1 rounded-full bg-[var(--color-accent)] text-[10px] font-bold text-white flex items-center justify-center"
                     aria-label={`${unread} unread notifications`}
                   >
                     {unread > 99 ? "99+" : unread}

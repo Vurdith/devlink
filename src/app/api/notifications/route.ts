@@ -2,13 +2,14 @@ import { NextResponse } from "next/server";
 import { getAuthSession } from "@/server/auth";
 import { prisma } from "@/server/db";
 
-function explainNotificationDbError(e: any) {
+function explainNotificationDbError(e: unknown) {
   if (process.env.NODE_ENV !== "development") {
     return { error: "Failed to load notifications" };
   }
 
-  const msg = typeof e?.message === "string" ? e.message : "";
-  const code = e?.code;
+  const err = e as { message?: string; code?: string } | null;
+  const msg = typeof err?.message === "string" ? err.message : "";
+  const code = err?.code;
 
   // Prisma codes for missing table/enum can vary; Postgres missing relation is 42P01.
   const looksLikeMissingTable =
@@ -81,24 +82,35 @@ export async function GET(req: Request) {
     // Merge legacy duplicates for stacked types (LIKE/REPOST) so they appear as one, like X.
     // This is display-only: it doesn't mutate DB, but it does return `groupIds` so the UI
     // can mark-read all underlying notifications at once.
-    const merged: any[] = [];
-    const groups = new Map<string, any>();
+    // Use Record-based type for the merged rows since we add groupIds/actors dynamically
+    type NotificationRow = Record<string, unknown> & {
+      id: string;
+      type: string;
+      postId: string | null;
+      createdAt: Date;
+      readAt: Date | null;
+      groupIds?: string[];
+      actors: Array<{ actor: unknown; createdAt: Date }>;
+      actor: unknown;
+    };
+    const merged: NotificationRow[] = [];
+    const groups = new Map<string, NotificationRow>();
 
-    for (const n of sliced as any[]) {
+    for (const n of sliced) {
       const isStackable = (n.type === "LIKE" || n.type === "REPOST") && !!n.postId;
       if (!isStackable) {
-        merged.push(n);
+        merged.push({ ...n } as unknown as NotificationRow);
         continue;
       }
 
       const key = `${n.type}:${n.postId}`;
       const existing = groups.get(key);
 
-      const actorList = Array.isArray(n.actors)
+      const actorList: Array<{ actor: unknown; createdAt: Date }> = Array.isArray(n.actors)
         ? n.actors
-            .map((x: any) => x?.actor)
+            .map((x) => x?.actor)
             .filter(Boolean)
-            .map((a: any) => ({ actor: a, createdAt: n.createdAt }))
+            .map((a) => ({ actor: a, createdAt: n.createdAt }))
         : [];
 
       // legacy fallback
@@ -107,7 +119,7 @@ export async function GET(req: Request) {
       }
 
       if (!existing) {
-        const base = { ...n };
+        const base: NotificationRow = { ...n } as unknown as NotificationRow;
         base.groupIds = [n.id];
         base.actors = actorList;
         groups.set(key, base);
@@ -125,10 +137,10 @@ export async function GET(req: Request) {
       }
 
       // Merge actors unique by actorId
-      const byId = new Map<string, any>();
+      const byId = new Map<string, { actor: unknown; createdAt: Date }>();
       const combined = [...(existing.actors || []), ...actorList];
       for (const x of combined) {
-        const id = x?.actor?.id;
+        const id = (x?.actor as { id?: string })?.id;
         if (!id) continue;
         if (!byId.has(id)) byId.set(id, x);
       }
@@ -141,9 +153,10 @@ export async function GET(req: Request) {
     const payload = explainNotificationDbError(e);
     // Add extra debug info in dev to speed up setup.
     if (process.env.NODE_ENV !== "production") {
-      (payload as any).debug = {
-        code: (e as any)?.code,
-        message: (e as any)?.message,
+      const err = e as { code?: string; message?: string } | null;
+      (payload as Record<string, unknown>).debug = {
+        code: err?.code,
+        message: err?.message,
       };
     }
     return NextResponse.json(payload, { status: 500 });

@@ -42,7 +42,7 @@ interface Post {
       bio: string | null;
       website: string | null;
       location: string | null;
-    };
+    } | null;
     _count?: {
       followers: number;
       following: number;
@@ -65,12 +65,12 @@ interface Post {
       isSelected?: boolean;
     }>;
     isMultiple: boolean;
-    expiresAt: Date;
+    expiresAt: Date | null;
     totalVotes: number;
   };
-  likes: Array<{ id: string; userId: string }>;
-  reposts: Array<{ id: string; userId: string }>;
-  replies: Array<{ id: string }>;
+  likes?: Array<{ id: string; userId: string }>;
+  reposts?: Array<{ id: string; userId: string }>;
+  replies?: Array<{ id: string } | null>;
   views: number;
   isPinned: boolean;
   isLiked?: boolean;
@@ -212,7 +212,8 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
   }, []);
   
   // Handle post updates from child components
-  const handlePostUpdate = useCallback((updatedPost: any) => {
+  const handlePostUpdate = useCallback((updatedPostInput: unknown) => {
+    const updatedPost = updatedPostInput as Post;
     setLastLocalUpdate(Date.now());
     setFeedPosts(prevPosts => prevPosts.map(p => 
       p.id === updatedPost.id ? { ...p, ...updatedPost } : p

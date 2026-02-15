@@ -324,8 +324,8 @@ export default function ProfileHubPage() {
       setUserSkills(prev => [...prev, { ...userSkill, skill: newSkill }]);
       setSkillSearch("");
       toast({ title: "Added!", description: `"${skillName}" created and added to your skills`, variant: "success" });
-    } catch (error: any) {
-      toast({ title: "Error", description: error.message || "Failed to create custom skill", variant: "destructive" });
+    } catch (error) {
+      toast({ title: "Error", description: error instanceof Error ? error.message : "Failed to create custom skill", variant: "destructive" });
     }
   };
 

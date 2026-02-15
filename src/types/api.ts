@@ -292,6 +292,8 @@ export interface MessageRequest {
   id: string;
   senderId: string;
   recipientId: string;
+  conversationId?: string | null;
+  lastMessage?: Pick<Message, "id" | "senderId" | "content" | "createdAt"> | null;
   status: "PENDING" | "ACCEPTED" | "DECLINED";
   createdAt: Date;
   updatedAt: Date;
@@ -400,7 +402,7 @@ export interface UploadResponse {
 export interface ErrorResponse {
   error: string;
   code?: string;
-  details?: any;
+  details?: Record<string, unknown>;
 }
 
 // Request types
@@ -446,14 +448,14 @@ export type ApiMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
 export interface ApiRequest {
   method: ApiMethod;
   url: string;
-  body?: any;
+  body?: unknown;
   headers?: Record<string, string>;
 }
 
 export interface ApiError extends Error {
   status?: number;
   code?: string;
-  details?: any;
+  details?: Record<string, unknown>;
 }
 
 

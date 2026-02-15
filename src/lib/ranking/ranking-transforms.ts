@@ -13,10 +13,10 @@ export interface FeedPostForRanking {
     };
   };
   // Partial arrays (sampled)
-  likes?: Array<{ userId: string | null }>;
-  reposts?: Array<{ userId: string | null }>;
-  savedBy?: Array<{ userId: string | null }>;
-  replies?: Array<{ user?: { id?: string | null } }>;
+  likes?: Array<{ userId: string | null } | null>;
+  reposts?: Array<{ userId: string | null } | null>;
+  savedBy?: Array<{ userId: string | null } | null>;
+  replies?: Array<{ user?: { id?: string | null } } | null>;
   
   // Total counts
   _count?: {
@@ -99,7 +99,7 @@ function estimateUniqueEngagers(
   const uniqueUsersInSample = new Set<string>();
   let sampleSize = 0;
 
-  const processSample = (arr: Array<any> | undefined, getUserId: (item: any) => string | null | undefined) => {
+  const processSample = (arr: Array<Record<string, unknown>> | undefined, getUserId: (item: Record<string, unknown>) => string | null | undefined) => {
     if (!arr) return;
     arr.forEach(item => {
       if (!item) return; // Skip null/undefined items (placeholder arrays)
@@ -111,10 +111,10 @@ function estimateUniqueEngagers(
     });
   };
 
-  processSample(post.likes, l => l.userId);
-  processSample(post.reposts, r => r.userId);
-  processSample(post.savedBy, s => s.userId);
-  processSample(post.replies, r => r.user?.id);
+  processSample(post.likes as Record<string, unknown>[] | undefined, l => l.userId as string | null | undefined);
+  processSample(post.reposts as Record<string, unknown>[] | undefined, r => r.userId as string | null | undefined);
+  processSample(post.savedBy as Record<string, unknown>[] | undefined, s => s.userId as string | null | undefined);
+  processSample(post.replies as Record<string, unknown>[] | undefined, r => (r.user as { id?: string } | undefined)?.id);
 
   // 2. Calculate total raw interactions
   const totalInteractions = totalCounts.likes + totalCounts.replies + totalCounts.reposts + totalCounts.saves;

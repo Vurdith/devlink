@@ -36,7 +36,7 @@ export function PerformanceProvider({ children }: PerformanceProviderProps) {
 
     // Use requestIdleCallback if available, otherwise setTimeout
     if ("requestIdleCallback" in window) {
-      (window as any).requestIdleCallback(prefetchRoutes, { timeout: 3000 });
+      (window as unknown as { requestIdleCallback: (fn: () => void, opts: { timeout: number }) => void }).requestIdleCallback(prefetchRoutes, { timeout: 3000 });
     } else {
       setTimeout(prefetchRoutes, 2000);
     }

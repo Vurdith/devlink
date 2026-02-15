@@ -1,13 +1,43 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getAuthSession } from "@/server/auth";
 import { prisma } from "@/server/db";
 import { PostPageContent } from "./PostPageContent";
 import { getUniqueViewCounts } from "@/lib/view-utils";
 
+export async function generateMetadata({ params }: { params: Promise<{ postId: string }> }): Promise<Metadata> {
+  const { postId } = await params;
+  const post = await prisma.post.findUnique({
+    where: { id: postId },
+    select: {
+      content: true,
+      user: {
+        select: { name: true, username: true, profile: { select: { avatarUrl: true } } },
+      },
+    },
+  });
+  if (!post) return { title: "Post Not Found — DevLink" };
+  const authorName = post.user.name || post.user.username;
+  const contentPreview = post.content?.slice(0, 160) || "";
+  const title = `${authorName} on DevLink: "${contentPreview.slice(0, 60)}${contentPreview.length > 60 ? "…" : ""}"`;
+  const description = contentPreview || `A post by ${authorName} on DevLink.`;
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      images: post.user.profile?.avatarUrl ? [post.user.profile.avatarUrl] : [],
+      type: "article",
+    },
+    twitter: { card: "summary", title, description },
+  };
+}
+
 export default async function PostPage({ params }: { params: Promise<{ postId: string }> }) {
   const { postId } = await params;
   const session = await getAuthSession();
-  const currentUserId = (session?.user as any)?.id;
+  const currentUserId = session?.user?.id;
 
   // Fetch post with OPTIMIZED includes - use _count instead of full arrays
   const post = await prisma.post.findUnique({
@@ -186,9 +216,10 @@ export default async function PostPage({ params }: { params: Promise<{ postId: s
     isReposted: repostedPostIds.has(post.id),
     isSaved: savedPostIds.has(post.id),
     // Empty arrays for compatibility
-    likes: [],
-    reposts: [],
-    savedBy: [],
+    likes: [] as { id: string; userId: string }[],
+    reposts: [] as { id: string; userId: string }[],
+    savedBy: [] as { id: string; userId: string }[],
+    replyTo: post.replyTo ?? undefined,
     poll: post.poll ? {
       ...post.poll,
       totalVotes: post.poll.options.reduce((sum, opt) => sum + opt._count.votes, 0),
@@ -198,20 +229,34 @@ export default async function PostPage({ params }: { params: Promise<{ postId: s
         votes: opt._count.votes,
         isSelected: votedOptionIds.has(opt.id)
       }))
-    } : null
+    } : undefined
   };
 
   // Transform replies
   const transformedReplies = post.replies.map(reply => ({
     ...reply,
+    isPinned: false,
+    isSlideshow: false,
+    user: {
+      ...reply.user,
+      profile: reply.user.profile ? {
+        avatarUrl: reply.user.profile.avatarUrl,
+        bannerUrl: null,
+        profileType: reply.user.profile.profileType,
+        verified: reply.user.profile.verified,
+        bio: null,
+        website: null,
+        location: null,
+      } : null,
+    },
     views: viewCountMap.get(reply.id) || 0,
     isLiked: likedPostIds.has(reply.id),
     isReposted: repostedPostIds.has(reply.id),
     isSaved: savedPostIds.has(reply.id),
-    likes: [],
-    reposts: [],
-    savedBy: [],
-    replies: Array(reply._count.replies).fill(null)
+    likes: [] as { id: string; userId: string }[],
+    reposts: [] as { id: string; userId: string }[],
+    savedBy: [] as { id: string; userId: string }[],
+    replies: Array(reply._count.replies).fill({ id: "", userId: "" }) as { id: string; userId: string }[]
   }));
 
   const userProfileData = currentUserProfile ? {

@@ -22,7 +22,7 @@ const DM_PERMISSION_OPTIONS = [
 export function MessagesSidebar() {
   const { data: session } = useSession();
   const pathname = usePathname();
-  const userId = (session?.user as any)?.id as string | undefined;
+  const userId = session?.user?.id;
   const isThreadRoute = /^\/messages\/[^/]+/.test(pathname);
 
   const [threads, setThreads] = useState<MessageThread[]>([]);
@@ -331,7 +331,7 @@ export function MessagesSidebar() {
                 </div>
               ) : (
                 <>
-                  {incomingRequests.map((request: any) => {
+                  {incomingRequests.map((request) => {
                     const msgPreview = request.lastMessage?.content || "Sent you a message request";
                     return (
                       <div key={request.id} className="px-4 py-3 hover:bg-white/[0.03] transition-colors">

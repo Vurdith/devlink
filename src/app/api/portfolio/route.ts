@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
     // Validate skillIds if provided
     let validatedSkillIds: string[] | undefined = undefined;
     if (typeof skillIds !== "undefined") {
-      if (!Array.isArray(skillIds) || !skillIds.every((id: any) => typeof id === "string")) {
+      if (!Array.isArray(skillIds) || !skillIds.every((id: unknown) => typeof id === "string")) {
         return NextResponse.json({ error: "skillIds must be an array of strings" }, { status: 400 });
       }
       const unique = Array.from(new Set(skillIds.map((s: string) => s.trim()).filter(Boolean)));
@@ -166,7 +166,7 @@ export async function GET(request: NextRequest) {
     const cacheKey = `portfolio:${userId}:${page}:${limit}`;
     
     // Try cache first
-    const cached = await responseCache.get<any>(cacheKey);
+    const cached = await responseCache.get<{ portfolioItems: unknown[] }>(cacheKey);
     if (cached) {
       const response = NextResponse.json(cached);
       response.headers.set("X-Cache", "HIT");

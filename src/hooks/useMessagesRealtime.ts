@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef } from "react";
 import { supabase, isRealtimeAvailable } from "@/lib/supabase/client";
 import type { Message } from "@/types/api";
 
@@ -11,6 +11,13 @@ export function useMessagesRealtime(
   conversationId: string | undefined,
   onNewMessage: (message: Message) => void
 ) {
+  // Store callback in ref to avoid subscription churn
+  const onNewMessageRef = useRef(onNewMessage);
+
+  useEffect(() => {
+    onNewMessageRef.current = onNewMessage;
+  });
+
   useEffect(() => {
     if (!conversationId || !isRealtimeAvailable() || !supabase) {
       return;
@@ -27,7 +34,7 @@ export function useMessagesRealtime(
           filter: `conversationId=eq.${conversationId}`,
         },
         (payload) => {
-          onNewMessage(payload.new as Message);
+          onNewMessageRef.current(payload.new as Message);
         }
       )
       .subscribe();
@@ -35,5 +42,5 @@ export function useMessagesRealtime(
     return () => {
       if (supabase) supabase.removeChannel(channel);
     };
-  }, [conversationId, onNewMessage]);
+  }, [conversationId]);
 }

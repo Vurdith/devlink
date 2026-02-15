@@ -50,7 +50,7 @@ function BellIcon() {
 
 function VerifiedBadge() {
   return (
-    <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-[var(--color-accent)] text-black">
+    <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-[var(--color-accent)] text-white">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true">
         <path
           d="M20 6L9 17l-5-5"
@@ -174,7 +174,7 @@ function compactPreviewText(s: string) {
 export default function NotificationsPage() {
   const router = useRouter();
   const { data: session } = useSession();
-  const currentUserId = (session?.user as any)?.id as string | undefined;
+  const currentUserId = session?.user?.id;
   const [items, setItems] = useState<NotificationItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [marking, setMarking] = useState(false);
@@ -237,16 +237,18 @@ export default function NotificationsPage() {
       const res = await fetch("/api/notifications?limit=40", { cache: "no-store" });
       const data = await safeJson(res);
       if (!res.ok) {
-        const msg = (data as any)?.error || `Failed to load notifications (${res.status})`;
+        const json = data as { error?: string; notifications?: NotificationItem[]; nextCursor?: string };
+        const msg = json?.error || `Failed to load notifications (${res.status})`;
         setError(String(msg));
         setItems([]);
         setCursor(null);
         setHasMore(false);
         return;
       }
-      const list = Array.isArray((data as any)?.notifications) ? (data as any).notifications : [];
+      const json = data as { notifications?: NotificationItem[]; nextCursor?: string };
+      const list = Array.isArray(json?.notifications) ? json.notifications : [];
       setItems(list);
-      const next = (data as any)?.nextCursor ?? null;
+      const next = json?.nextCursor ?? null;
       setCursor(typeof next === "string" ? next : null);
       setHasMore(!!next);
     } finally {
@@ -261,9 +263,10 @@ export default function NotificationsPage() {
       const res = await fetch(`/api/notifications?limit=40&cursor=${encodeURIComponent(cursor)}`, { cache: "no-store" });
       const data = await safeJson(res);
       if (!res.ok) return;
-      const list = Array.isArray((data as any)?.notifications) ? (data as any).notifications : [];
+      const json = data as { notifications?: NotificationItem[]; nextCursor?: string };
+      const list = Array.isArray(json?.notifications) ? json.notifications : [];
       setItems((prev) => [...prev, ...list]);
-      const next = (data as any)?.nextCursor ?? null;
+      const next = json?.nextCursor ?? null;
       setCursor(typeof next === "string" ? next : null);
       setHasMore(!!next);
     } finally {

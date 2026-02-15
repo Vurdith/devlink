@@ -3,12 +3,13 @@
 import { useState, useCallback, memo, useRef, useEffect } from "react";
 import { BaseModal, ModalInput, ModalTextarea, Tooltip } from "@/components/ui/BaseModal";
 import { Button } from "@/components/ui/Button";
+import type { PortfolioItem } from "@/types/api";
 
 interface PortfolioEditorProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (item: any) => void;
-  existingItem?: any;
+  onSave: (item: PortfolioItem) => void;
+  existingItem?: PortfolioItem | null;
   userId: string;
   userSkills?: Array<{
     skillId: string;
@@ -124,8 +125,8 @@ export function PortfolioEditor({
     return Array.from(
       new Set(
         skills
-          .map((s: any) => s?.skill?.id ?? s?.skillId)
-          .filter((id: any) => typeof id === "string")
+          .map((s) => s?.skill?.id ?? (s as { skillId?: string })?.skillId)
+          .filter((id): id is string => typeof id === "string")
       )
     );
   });
@@ -142,7 +143,7 @@ export function PortfolioEditor({
   const newLinkRef = useRef<HTMLInputElement>(null);
   const newTagRef = useRef<HTMLInputElement>(null);
 
-  const parseListField = useCallback((value: any): string[] => {
+  const parseListField = useCallback((value: unknown): string[] => {
     if (!value || typeof value !== "string") return [];
     const raw = value.trim();
     if (!raw) return [];
@@ -163,12 +164,12 @@ export function PortfolioEditor({
       .filter(Boolean);
   }, []);
 
-  const extractSkillIds = useCallback((item: any): string[] => {
+  const extractSkillIds = useCallback((item: PortfolioItem | null | undefined): string[] => {
     const skills = item?.skills;
     if (!Array.isArray(skills)) return [];
     const ids = skills
-      .map((s: any) => s?.skill?.id ?? s?.skillId ?? s?.skill?.skillId)
-      .filter((id: any) => typeof id === "string");
+      .map((s) => s?.skill?.id ?? (s as { skillId?: string })?.skillId)
+      .filter((id): id is string => typeof id === "string");
     return Array.from(new Set(ids));
   }, []);
 

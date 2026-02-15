@@ -78,7 +78,7 @@ async function handleProfileUpdate(req: Request) {
     create: { userId: user.id },
   });
 
-  const data: Record<string, any> = {};
+  const data: Record<string, string | number | null | undefined> = {};
   if (typeof avatarUrl === "string") data.avatarUrl = avatarUrl;
   if (typeof bannerUrl === "string") data.bannerUrl = bannerUrl;
   if (typeof bio === "string") data.bio = bio.slice(0, 500); // Allow longer bio

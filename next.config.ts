@@ -25,6 +25,8 @@ const nextConfig: NextConfig = {
   },
   // Turbopack optimizations (moved from experimental.turbo)
   turbopack: {
+    // Keep Turbopack scoped to this project directory.
+    root: process.cwd(),
     rules: {
       '*.svg': {
         loaders: ['@svgr/webpack'],
@@ -121,6 +123,20 @@ const nextConfig: NextConfig = {
       ? process.env.ALLOWED_ORIGINS || 'https://devlink.ink'
       : '*'; // Allow all in development for tunnel testing
 
+    // Comprehensive Content Security Policy (defense-in-depth, mirrors src/proxy.ts)
+    const csp = [
+      "default-src 'self'",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.devlink.ink",
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+      "font-src 'self' https://fonts.gstatic.com",
+      "img-src 'self' data: blob: https: http://localhost:*",
+      "media-src 'self' blob: https: http://localhost:*",
+      "connect-src 'self' https://*.supabase.co https://cdn.devlink.ink wss://*.supabase.co https://*.sentry.io",
+      "frame-ancestors 'self'",
+      "base-uri 'self'",
+      "form-action 'self'",
+    ].join('; ');
+
     return [
       {
         source: '/(.*)',
@@ -145,6 +161,22 @@ const nextConfig: NextConfig = {
           {
             key: 'X-Content-Type-Options',
             value: 'nosniff',
+          },
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY',
+          },
+          {
+            key: 'Content-Security-Policy',
+            value: csp,
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'strict-origin-when-cross-origin',
+          },
+          {
+            key: 'Permissions-Policy',
+            value: 'camera=(), microphone=(), geolocation=()',
           },
         ],
       },

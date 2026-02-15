@@ -5,6 +5,13 @@ import { responseCache } from "@/lib/cache";
 
 const SEARCH_CACHE_TTL = 120; // Cache search results for 2 minutes
 
+type SearchUser = {
+  id: string;
+  username: string;
+  name: string | null;
+  profile: { avatarUrl: string | null; verified: boolean; profileType: string | null; bio: string | null } | null;
+};
+
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const q = (searchParams.get("q") || "").trim();
@@ -15,7 +22,7 @@ export async function GET(req: Request) {
   const cacheKey = `search:users:${term.toLowerCase()}`;
   
   // Try cache first for the base user data
-  let users = await responseCache.get<any[]>(cacheKey);
+  let users = await responseCache.get<SearchUser[]>(cacheKey);
   
   if (!users) {
     users = await prisma.user.findMany({

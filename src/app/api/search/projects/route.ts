@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
 
     // For now, return empty array since projects aren't implemented yet
     // This provides the framework for future project search functionality
-    const projects: any[] = [];
+    const projects: unknown[] = [];
 
     return NextResponse.json({ projects });
   } catch (error) {

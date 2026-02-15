@@ -26,15 +26,21 @@ export async function PUT(
       return NextResponse.json({ error: "Post not found" }, { status: 404 });
     }
 
-    if (existingPost.userId !== (session.user as any).id) {
+    if (existingPost.userId !== session.user.id) {
       return NextResponse.json({ error: "You can only edit your own posts" }, { status: 403 });
     }
+
+    // Sanitize content - simple removal of script tags and dangerous handlers
+    const sanitizedContent = content.trim()
+      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+      .replace(/javascript:/gi, '')
+      .replace(/ on\w+=/gi, '');
 
     // Update the post content
     const updatedPost = await prisma.post.update({
       where: { id: postId },
       data: {
-        content: content.trim(),
+        content: sanitizedContent,
         updatedAt: new Date()
       },
       include: {

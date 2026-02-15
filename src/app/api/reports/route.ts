@@ -9,7 +9,7 @@ export async function POST(req: Request) {
   const currentUserId = session?.user?.id;
   
   if (!currentUserId) {
-    return new NextResponse(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { 'Content-Type': 'application/json' } });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   try {
@@ -75,7 +75,7 @@ export async function POST(req: Request) {
     });
 
     if (recentReport) {
-      return new NextResponse("You have already reported this recently. Please wait before submitting another report.", { status: 429 });
+      return NextResponse.json({ error: "You have already reported this recently. Please wait before submitting another report." }, { status: 429 });
     }
 
     // Create the report
@@ -110,7 +110,7 @@ export async function POST(req: Request) {
     return NextResponse.json(report);
   } catch (error) {
     console.error("Error creating report:", error);
-    return new NextResponse("Internal server error", { status: 500 });
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
 
@@ -120,7 +120,7 @@ export async function GET(req: Request) {
   const currentUserId = session?.user?.id;
   
   if (!currentUserId) {
-    return new NextResponse("Unauthorized", { status: 401 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   // Check if user is admin (you can implement your own admin logic here)
@@ -130,7 +130,7 @@ export async function GET(req: Request) {
   });
 
   if (user?.role !== "ADMIN") {
-    return new NextResponse("Forbidden", { status: 403 });
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   try {
@@ -141,7 +141,7 @@ export async function GET(req: Request) {
     const limit = parseInt(searchParams.get("limit") || "20");
     const offset = (page - 1) * limit;
 
-    const where: any = {};
+    const where: { status?: string; reportType?: string } = {};
     if (status) where.status = status;
     if (reportType) where.reportType = reportType;
 
@@ -182,6 +182,6 @@ export async function GET(req: Request) {
     });
   } catch (error) {
     console.error("Error fetching reports:", error);
-    return new NextResponse("Internal server error", { status: 500 });
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

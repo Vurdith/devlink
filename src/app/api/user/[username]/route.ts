@@ -14,7 +14,7 @@ export async function GET(
     const cacheKey = `user:profile:${username.toLowerCase()}`;
     
     // Try cache first
-    const cached = await responseCache.get<{ user: any }>(cacheKey);
+    const cached = await responseCache.get<{ user: Record<string, unknown> }>(cacheKey);
     if (cached) {
       return NextResponse.json(cached, {
         headers: { "X-Cache": "HIT" }

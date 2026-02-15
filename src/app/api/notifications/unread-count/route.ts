@@ -2,9 +2,10 @@ import { NextResponse } from "next/server";
 import { getAuthSession } from "@/server/auth";
 import { prisma } from "@/server/db";
 
-function explainNotificationDbError(e: any) {
-  const msg = typeof e?.message === "string" ? e.message : "";
-  const code = e?.code;
+function explainNotificationDbError(e: unknown) {
+  const err = e as { message?: string; code?: string } | null;
+  const msg = typeof err?.message === "string" ? err.message : "";
+  const code = err?.code;
   const looksLikeMissingTable =
     code === "P2021" ||
     msg.includes("does not exist") ||
@@ -34,9 +35,10 @@ export async function GET() {
     console.error("Unread count error:", e);
     const payload = explainNotificationDbError(e);
     if (process.env.NODE_ENV !== "production") {
-      (payload as any).debug = {
-        code: (e as any)?.code,
-        message: (e as any)?.message,
+      const err = e as { code?: string; message?: string } | null;
+      (payload as Record<string, unknown>).debug = {
+        code: err?.code,
+        message: err?.message,
       };
     }
     return NextResponse.json(payload, { status: 500 });

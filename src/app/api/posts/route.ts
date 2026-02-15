@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthSession } from "@/server/auth";
 import { prisma } from "@/server/db";
+import type { Prisma } from "@prisma/client";
 import { parseContent } from "@/lib/content-parser";
 import { CreatePostRequest, PostsResponse, ApiResponse } from "@/types/api";
 import { RATE_LIMITS, CONTENT_LIMITS, COLLECTION_LIMITS, HTTP_STATUS } from "@/lib/constants";
@@ -17,7 +18,7 @@ export async function POST(request: NextRequest) {
 
     // Rate limiting: 10 posts per minute per user
     // Uses Redis if configured, falls back to memory
-    const userId = (session.user as any).id;
+    const userId = session.user.id;
     const rateLimit = await checkRateLimit(`post_create:${userId}`, 10, 60);
     
     if (!rateLimit.success) {
@@ -330,17 +331,18 @@ export async function POST(request: NextRequest) {
     });
 
     // Attach parsed embedUrls for response if present
-    let responsePost: any = postWithMedia || post;
-    if (responsePost.embedUrls && typeof responsePost.embedUrls === 'string') {
-      try { responsePost.embedUrls = JSON.parse(responsePost.embedUrls); } catch {}
+    const responsePost = postWithMedia || post;
+    let parsedEmbedUrls = responsePost.embedUrls;
+    if (parsedEmbedUrls && typeof parsedEmbedUrls === 'string') {
+      try { parsedEmbedUrls = JSON.parse(parsedEmbedUrls); } catch { /* keep original */ }
     }
 
-    const response: any = { post: responsePost };
-    if (isScheduled && scheduledFor) {
-      response.message = `Post scheduled for ${scheduledFor.toLocaleString()}`;
-    } else {
-      response.message = "Post created successfully!";
-    }
+    const response: { post: typeof responsePost & { embedUrls?: unknown }; message: string } = {
+      post: { ...responsePost, embedUrls: parsedEmbedUrls },
+      message: isScheduled && scheduledFor
+        ? `Post scheduled for ${scheduledFor.toLocaleString()}`
+        : "Post created successfully!",
+    };
 
     return NextResponse.json(response);
   } catch (error) {
@@ -364,14 +366,14 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Invalid user ID format" }, { status: 400 });
     }
 
-    const where: any = { replyToId: null };
-    where.OR = [
-      { isScheduled: false },
-      { isScheduled: true, scheduledFor: { lte: new Date() } }
-    ];
-    if (filterUserId) {
-      where.userId = filterUserId;
-    }
+    const where: Prisma.PostWhereInput = {
+      replyToId: null,
+      OR: [
+        { isScheduled: false },
+        { isScheduled: true, scheduledFor: { lte: new Date() } }
+      ],
+      ...(filterUserId ? { userId: filterUserId } : {}),
+    };
 
     // OPTIMIZED: Minimal includes, separate queries for user-specific data
     const posts = await prisma.post.findMany({

@@ -40,7 +40,7 @@ interface ProjectSearchResult {
 
 export const NavbarSearch = memo(function NavbarSearch() {
   const { data: session } = useSession();
-  const currentUserId = (session?.user as any)?.id as string | undefined;
+  const currentUserId = session?.user?.id;
   const [value, setValue] = useState("");
   const [suggestions, setSuggestions] = useState<UserSearchResult[]>([]);
   const [hashtagSuggestions, setHashtagSuggestions] = useState<HashtagSearchResult[]>([]);
@@ -105,8 +105,8 @@ export const NavbarSearch = memo(function NavbarSearch() {
 
         await Promise.all(promises);
         setOpen(true);
-      } catch (error: any) {
-        if (error.name !== 'AbortError') {
+      } catch (error) {
+        if (error instanceof Error && error.name !== 'AbortError') {
           setSuggestions([]);
           setHashtagSuggestions([]);
           setProjectSuggestions([]);

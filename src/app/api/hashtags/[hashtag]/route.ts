@@ -24,7 +24,7 @@ export async function GET(
     const cacheKey = `hashtag:${hashtag.toLowerCase()}:${page}:${limit}:${currentUserId || 'anon'}`;
     
     // Try cache first
-    const cached = await responseCache.get<any>(cacheKey);
+    const cached = await responseCache.get<Record<string, unknown>>(cacheKey);
     if (cached) {
       const response = NextResponse.json(cached);
       response.headers.set("X-Cache", "HIT");
@@ -119,16 +119,16 @@ export async function GET(
     const repostedPostIds = new Set(userReposts.map(r => r.postId));
     const savedPostIds = new Set(userSaves.map(s => s.postId));
 
-    const finalPosts = posts.map((post: any) => {
+    const finalPosts = posts.map((post) => {
       const poll = post.poll
         ? {
             ...post.poll,
-            options: post.poll.options.map((option: any) => ({
+            options: post.poll.options.map((option) => ({
               id: option.id,
               text: option.text,
               votes: option._count.votes,
             })),
-            totalVotes: post.poll.options.reduce((sum: number, option: any) => sum + option._count.votes, 0),
+            totalVotes: post.poll.options.reduce((sum: number, option) => sum + option._count.votes, 0),
           }
         : null;
 

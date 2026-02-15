@@ -1,3 +1,7 @@
+// W6: "use client" is needed here because logoPath depends on useTheme() which reads
+// the theme from localStorage (client state). To make this a server component, the theme
+// resolution would need to move to cookies/middleware so the server can determine the logo.
+// This is a known optimization opportunity for a future refactor.
 "use client";
 
 import Link from "next/link";

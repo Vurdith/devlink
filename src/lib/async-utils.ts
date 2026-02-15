@@ -118,7 +118,8 @@ export async function asyncWrapper<T>(
 /**
  * Create a debounced async function
  */
-export function createDebouncedAsync<T extends any[], R>(
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function createDebouncedAsync<T extends unknown[], R>(
   fn: (...args: T) => Promise<R>,
   delay: number = TIME_CONSTRAINTS.API_CALL_DEBOUNCE_MS
 ): {

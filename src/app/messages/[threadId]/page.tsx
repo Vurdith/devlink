@@ -10,7 +10,7 @@ import { safeJson } from "@/lib/safe-json";
 import { Avatar } from "@/components/ui/Avatar";
 import { FollowButton } from "@/components/ui/FollowButton";
 import { getProfileTypeConfig, ProfileTypeIcon } from "@/lib/profile-types";
-import type { MessageThread, Message } from "@/types/api";
+import type { MessageThread, Message, MessageRequest } from "@/types/api";
 import { useMessagesRealtime } from "@/hooks/useMessagesRealtime";
 import { useTypingIndicator } from "@/hooks/useTypingIndicator";
 import { useChatScroll } from "@/hooks/useChatScroll";
@@ -97,7 +97,7 @@ function ProfilePreviewCard({
     fetch(`/api/user/${encodeURIComponent(user.username)}`, { cache: "no-store", signal: controller.signal })
       .then(async (res) => {
         if (!res.ok) return null;
-        return (await res.json().catch(() => null)) as any;
+        return (await res.json().catch(() => null)) as { user?: { id: string; username: string } } | null;
       })
       .then((data) => {
         const next = data?.user;
@@ -353,7 +353,7 @@ function ProfilePreviewCard({
 export default function MessageThreadPage() {
   const params = useParams<{ threadId: string }>();
   const { data: session } = useSession();
-  const userId = (session?.user as any)?.id as string | undefined;
+  const userId = session?.user?.id;
   const [thread, setThread] = useState<MessageThread | null>(null);
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
@@ -372,7 +372,7 @@ export default function MessageThreadPage() {
 
   const currentUser = useMemo(() => {
     if (!session?.user || !userId) return null;
-    return { id: userId, username: (session.user as any).username || session.user.name || "user" };
+    return { id: userId, username: session.user.username || session.user.name || "user" };
   }, [session, userId]);
 
   const { typingUsers, setTyping } = useTypingIndicator(params.threadId, currentUser);
@@ -384,7 +384,7 @@ export default function MessageThreadPage() {
       if (exists) return prev;
       return {
         ...prev,
-        messages: [...(prev.messages || []), { ...newMessage, threadId: prev.id } as any],
+        messages: [...(prev.messages || []), { ...newMessage, threadId: prev.id } as Message],
       };
     });
   });
@@ -399,7 +399,7 @@ export default function MessageThreadPage() {
         fetch("/api/messages/requests?type=outgoing"),
       ]);
       const data = await safeJson<MessageThread>(threadRes);
-      const outgoing = await safeJson<any[]>(outgoingRes);
+      const outgoing = await safeJson<MessageRequest[]>(outgoingRes);
 
       if (isMounted) {
         setThread(data || null);
@@ -408,12 +408,12 @@ export default function MessageThreadPage() {
         if (data && outgoing) {
           const otherUserId = data.userAId === userId ? data.userBId : data.userAId;
           const isPending = outgoing.some(
-            (r: any) => r.recipientId === otherUserId && r.status === "PENDING"
+            (r) => r.recipientId === otherUserId && r.status === "PENDING"
           );
           setPendingRequest(isPending);
 
           if (isPending && data.messages) {
-            const sentCount = data.messages.filter((m: any) => m.senderId === userId).length;
+            const sentCount = data.messages.filter((m) => m.senderId === userId).length;
             setHasSentRequestMsg(sentCount >= 1);
           }
         }
@@ -512,10 +512,10 @@ export default function MessageThreadPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ content: messageContent }),
     });
-    const data = await safeJson<{ id: string; content: string; senderId: string; error?: string }>(res);
+    const data = await safeJson<Message & { error?: string }>(res);
     if (res.ok && data) {
       setThread((prev) =>
-        prev ? { ...prev, messages: [...(prev.messages || []), data as any] } : prev
+        prev ? { ...prev, messages: [...(prev.messages || []), data] } : prev
       );
       if (pendingRequest) setHasSentRequestMsg(true);
     } else {
@@ -533,10 +533,10 @@ export default function MessageThreadPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ content: mediaUrl }),
     });
-    const data = await safeJson<any>(res);
+    const data = await safeJson<Message & { error?: string }>(res);
     if (res.ok && data) {
       setThread((prev) =>
-        prev ? { ...prev, messages: [...(prev.messages || []), data as any] } : prev
+        prev ? { ...prev, messages: [...(prev.messages || []), data] } : prev
       );
       if (pendingRequest) setHasSentRequestMsg(true);
     } else {
@@ -546,7 +546,7 @@ export default function MessageThreadPage() {
   }, [params.threadId, pendingRequest]);
 
   /* Emoji handler */
-  const addEmoji = useCallback((emoji: any) => {
+  const addEmoji = useCallback((emoji: { emoji?: string }) => {
     const char = emoji?.emoji || "";
     if (char) {
       setContent((prev) => prev + char);
@@ -753,12 +753,16 @@ export default function MessageThreadPage() {
                         )}
                       >
                         {isMediaUrl(message.content) ? (
-                          <img
-                            src={message.content.trim()}
-                            alt=""
-                            className="rounded-lg max-w-full max-h-64 object-contain"
-                            loading="lazy"
-                          />
+                          <div className="relative w-full max-w-xs aspect-video overflow-hidden rounded-lg">
+                            <Image
+                              src={message.content.trim()}
+                              alt=""
+                              fill
+                              className="object-contain"
+                              sizes="320px"
+                              unoptimized
+                            />
+                          </div>
                         ) : (
                           message.content
                         )}

@@ -78,7 +78,7 @@ export async function POST(req: Request) {
     return NextResponse.json(review);
   } catch (error) {
     console.error("Error creating review:", error);
-    return new NextResponse("Internal server error", { status: 500 });
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
 
@@ -90,7 +90,7 @@ export async function GET(req: Request) {
   const sentiment = searchParams.get("sentiment"); // "positive" | "neutral" | "negative" | null
 
   if (!targetUserId && !reviewerId) {
-    return new NextResponse("Missing targetUserId or reviewerId", { status: 400 });
+    return NextResponse.json({ error: "Missing targetUserId or reviewerId" }, { status: 400 });
   }
 
   try {
@@ -155,6 +155,6 @@ export async function GET(req: Request) {
     return NextResponse.json(reviews);
   } catch (error) {
     console.error("Error fetching reviews:", error);
-    return new NextResponse("Internal server error", { status: 500 });
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

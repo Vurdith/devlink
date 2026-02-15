@@ -96,7 +96,7 @@ export const ReplyModal = memo(function ReplyModal({
     }
   }, [isOpen]);
 
-  const addEmoji = useCallback((emoji: any) => {
+  const addEmoji = useCallback((emoji: { emoji?: string }) => {
     const char = emoji?.emoji || "";
     if (char) setContent(prev => prev + char);
   }, []);

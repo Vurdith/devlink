@@ -44,12 +44,12 @@ interface Post {
       isSelected?: boolean;
     }>;
     isMultiple: boolean;
-    expiresAt: Date;
+    expiresAt: Date | null;
     totalVotes: number;
   };
   likes?: Array<{ id: string; userId: string }>;
   reposts?: Array<{ id: string; userId: string }>;
-  replies?: Array<any>;
+  replies?: Array<unknown>;
   views: number;
   isLiked?: boolean;
   isReposted?: boolean;

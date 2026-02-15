@@ -222,7 +222,7 @@ export async function GET(request: NextRequest) {
     // Transform posts (no async needed now - all data is pre-fetched)
     const postsWithViewCounts = savedPosts.map((savedPost) => {
       const viewCount = viewsMap.get(savedPost.post.id) || 0;
-      const post = savedPost.post as any;
+      const post = savedPost.post;
       
       // Transform to expected format with proper engagement flags
       const transformedPost = {
@@ -233,17 +233,17 @@ export async function GET(request: NextRequest) {
         isReposted: repostedPostIds.has(post.id),
         isSaved: true, // Always true since these are saved posts
         // Keep counts for display
-        likes: [],
-        reposts: [],
-        savedBy: [],
-        replies: Array(post._count?.replies || 0).fill(null),
+        likes: [] as { id: string; userId: string }[],
+        reposts: [] as { id: string; userId: string }[],
+        savedBy: [] as { id: string; userId: string }[],
+        replies: Array(post._count?.replies || 0).fill(null) as null[],
         poll: post.poll ? {
           id: post.poll.id,
           question: post.poll.question,
           isMultiple: post.poll.isMultiple,
           expiresAt: post.poll.expiresAt,
-          totalVotes: post.poll.options.reduce((sum: number, opt: any) => sum + (opt._count?.votes || 0), 0),
-          options: post.poll.options.map((opt: any) => ({
+          totalVotes: post.poll.options.reduce((sum: number, opt) => sum + (opt._count?.votes || 0), 0),
+          options: post.poll.options.map((opt) => ({
             id: opt.id,
             text: opt.text,
             votes: opt._count?.votes || 0,

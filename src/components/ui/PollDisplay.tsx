@@ -16,7 +16,7 @@ interface PollDisplayProps {
     id: string;
     question: string;
     options: PollOption[];
-    expiresAt?: Date;
+    expiresAt?: Date | null;
     isMultiple: boolean;
     totalVotes: number;
   };

@@ -9,7 +9,7 @@ import type { Job, JobApplication } from "@/types/api";
 export default function JobDetailPage() {
   const params = useParams<{ jobId: string }>();
   const { data: session } = useSession();
-  const userId = (session?.user as any)?.id as string | undefined;
+  const userId = session?.user?.id;
   const [job, setJob] = useState<Job | null>(null);
   const [applications, setApplications] = useState<JobApplication[]>([]);
   const [loading, setLoading] = useState(true);
@@ -113,7 +113,7 @@ export default function JobDetailPage() {
         {!isOwner && userId && (
           <button
             onClick={apply}
-            className="mt-5 px-4 py-2 rounded-xl text-sm font-semibold bg-[var(--color-accent)] text-black hover:brightness-110"
+            className="mt-5 px-4 py-2 rounded-xl text-sm font-semibold bg-[var(--color-accent)] text-white hover:brightness-110"
           >
             Apply to this job
           </button>
@@ -140,7 +140,7 @@ export default function JobDetailPage() {
                     <div className="flex gap-2 mt-3">
                       <button
                         onClick={() => updateApplicationStatus(app.id, "ACCEPTED")}
-                        className="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-[var(--color-accent)] text-black"
+                        className="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-[var(--color-accent)] text-white"
                       >
                         Accept
                       </button>

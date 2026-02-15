@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useSession, signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { useTheme } from "@/components/providers/ThemeProvider";
 
 export default function CompleteSignupPage() {
@@ -132,7 +133,7 @@ export default function CompleteSignupPage() {
         {/* Header */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-block mb-6">
-            <img src={logoPath} alt="DevLink" className="h-12 mx-auto" />
+            <Image src={logoPath} alt="DevLink" width={48} height={48} className="h-12 w-auto mx-auto" />
           </Link>
           <h1 className="text-3xl font-bold text-white mb-2">Complete Your Account</h1>
           <p className="text-[var(--muted-foreground)]">

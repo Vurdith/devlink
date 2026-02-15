@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
     const cacheKey = `search:hashtags:${searchTerm.toLowerCase()}`;
     
     // Try cache first
-    const cached = await responseCache.get<any[]>(cacheKey);
+    const cached = await responseCache.get<unknown[]>(cacheKey);
     if (cached) {
       return NextResponse.json({ hashtags: cached });
     }

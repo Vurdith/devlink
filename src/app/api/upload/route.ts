@@ -35,6 +35,17 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "File size must be less than 5MB" }, { status: 400 });
     }
 
+    // Server-side magic byte validation to prevent spoofed MIME types
+    const { fileTypeFromBuffer } = await import('file-type');
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const detectedType = await fileTypeFromBuffer(new Uint8Array(buffer));
+    const ALLOWED_MIMES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml', 'video/mp4', 'video/webm'];
+    // Only block when detectedType exists AND is not in the allowlist
+    // (SVG files won't be detected by file-type since they're XML-based)
+    if (detectedType && !ALLOWED_MIMES.includes(detectedType.mime)) {
+      return NextResponse.json({ error: "Invalid file type detected" }, { status: 400 });
+    }
+
     // Use the abstracted upload function (S3 or Local)
     const { url } = await uploadFile(file);
 

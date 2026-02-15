@@ -129,7 +129,7 @@ export const ProfileTooltip = memo(function ProfileTooltip({
     fetch(`/api/user/${encodeURIComponent(userData.username)}`, { cache: "no-store", signal: controller.signal })
       .then(async (res) => {
         if (!res.ok) return null;
-        return (await res.json().catch(() => null)) as any;
+        return (await res.json().catch(() => null)) as { user?: ProfileTooltipProps["user"] } | null;
       })
       .then((data) => {
         const next = data?.user;

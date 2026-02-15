@@ -7,7 +7,7 @@ import { NewMessageModal } from "./_components/NewMessageModal";
 
 export default function MessagesPage() {
   const { data: session } = useSession();
-  const isLoggedIn = !!(session?.user as any)?.id;
+  const isLoggedIn = !!session?.user?.id;
   const [showNewMessage, setShowNewMessage] = useState(false);
 
   return (

@@ -1,4 +1,5 @@
 import { prisma } from "@/server/db";
+import type { Prisma } from "@prisma/client";
 
 export type NotificationCreateInput = {
   recipientId: string;
@@ -7,21 +8,24 @@ export type NotificationCreateInput = {
   postId?: string | null;
   sourcePostId?: string | null;
   dedupeKey?: string | null;
-  metadata?: any;
+  metadata?: Prisma.InputJsonValue;
 };
 
-export async function createNotification(input: NotificationCreateInput) {
-  // In dev, Next can hot-reload without re-generating Prisma Client.
-  // If the running Prisma Client doesn't have the Notification delegate yet,
-  // we just no-op so engagement actions don't break.
-  const notificationDelegate = (prisma as any)?.notification as
-    | {
-        upsert: Function;
-        create: Function;
-      }
-    | undefined;
+/**
+ * In dev, Next can hot-reload without re-generating Prisma Client.
+ * If the running Prisma Client doesn't have the Notification delegate yet,
+ * we just no-op so engagement actions don't break.
+ */
+function hasNotificationModel(): boolean {
+  return "notification" in prisma;
+}
 
-  if (!notificationDelegate) return;
+function hasNotificationActorModel(): boolean {
+  return "notificationActor" in prisma;
+}
+
+export async function createNotification(input: NotificationCreateInput) {
+  if (!hasNotificationModel()) return;
 
   const {
     recipientId,
@@ -39,7 +43,7 @@ export async function createNotification(input: NotificationCreateInput) {
   try {
     // De-dupe when a dedupeKey is provided (likes/reposts/follows/mentions).
     if (dedupeKey) {
-      await (notificationDelegate as any).upsert({
+      await prisma.notification.upsert({
         where: { dedupeKey },
         update: {
           readAt: null, // bump back to unread if it already existed
@@ -49,7 +53,7 @@ export async function createNotification(input: NotificationCreateInput) {
         create: {
           userId: recipientId,
           actorId,
-          type: type as any,
+          type,
           postId,
           sourcePostId,
           dedupeKey,
@@ -59,11 +63,11 @@ export async function createNotification(input: NotificationCreateInput) {
       return;
     }
 
-    await (notificationDelegate as any).create({
+    await prisma.notification.create({
       data: {
         userId: recipientId,
         actorId,
-        type: type as any,
+        type,
         postId,
         sourcePostId,
         metadata: metadata ?? undefined,
@@ -83,14 +87,7 @@ type StackedNotificationInput = {
 };
 
 export async function upsertStackedNotification(input: StackedNotificationInput) {
-  const notificationDelegate = (prisma as any)?.notification as
-    | { upsert: Function; findUnique: Function }
-    | undefined;
-  const notificationActorDelegate = (prisma as any)?.notificationActor as
-    | { createMany: Function; deleteMany: Function; count: Function }
-    | undefined;
-
-  if (!notificationDelegate || !notificationActorDelegate) return;
+  if (!hasNotificationModel() || !hasNotificationActorModel()) return;
 
   const { recipientId, actorId, type, postId } = input;
   if (!recipientId || !actorId || !postId) return;
@@ -99,7 +96,7 @@ export async function upsertStackedNotification(input: StackedNotificationInput)
   const dedupeKey = `n:${recipientId}:${type.toLowerCase()}:${postId}`; // group per post
 
   try {
-    const n = await (notificationDelegate as any).upsert({
+    const n = await prisma.notification.upsert({
       where: { dedupeKey },
       update: {
         actorId, // last actor (for fallback)
@@ -116,7 +113,7 @@ export async function upsertStackedNotification(input: StackedNotificationInput)
       select: { id: true },
     });
 
-    await (notificationActorDelegate as any).createMany({
+    await prisma.notificationActor.createMany({
       data: [{ notificationId: n.id, actorId }],
       skipDuplicates: true,
     });
@@ -126,14 +123,7 @@ export async function upsertStackedNotification(input: StackedNotificationInput)
 }
 
 export async function removeActorFromStackedNotification(input: StackedNotificationInput) {
-  const notificationDelegate = (prisma as any)?.notification as
-    | { findUnique: Function; delete: Function }
-    | undefined;
-  const notificationActorDelegate = (prisma as any)?.notificationActor as
-    | { deleteMany: Function; count: Function }
-    | undefined;
-
-  if (!notificationDelegate || !notificationActorDelegate) return;
+  if (!hasNotificationModel() || !hasNotificationActorModel()) return;
 
   const { recipientId, actorId, type, postId } = input;
   if (!recipientId || !actorId || !postId) return;
@@ -141,26 +131,24 @@ export async function removeActorFromStackedNotification(input: StackedNotificat
   const dedupeKey = `n:${recipientId}:${type.toLowerCase()}:${postId}`;
 
   try {
-    const n = await (notificationDelegate as any).findUnique({
+    const n = await prisma.notification.findUnique({
       where: { dedupeKey },
       select: { id: true },
     });
     if (!n?.id) return;
 
-    await (notificationActorDelegate as any).deleteMany({
+    await prisma.notificationActor.deleteMany({
       where: { notificationId: n.id, actorId },
     });
 
-    const remaining = await (notificationActorDelegate as any).count({
+    const remaining = await prisma.notificationActor.count({
       where: { notificationId: n.id },
     });
 
     if (remaining === 0) {
-      await (notificationDelegate as any).delete({ where: { id: n.id } });
+      await prisma.notification.delete({ where: { id: n.id } });
     }
   } catch (e) {
     console.error("removeActorFromStackedNotification failed:", e);
   }
 }
-
-

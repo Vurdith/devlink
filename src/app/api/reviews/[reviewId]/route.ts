@@ -11,7 +11,7 @@ export async function PATCH(
   const currentUserId = session?.user?.id;
   
   if (!currentUserId) {
-    return new NextResponse("Unauthorized", { status: 401 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   try {
@@ -20,7 +20,7 @@ export async function PATCH(
     const { rating, text } = body;
 
     if (!rating || rating < 1 || rating > 5) {
-      return new NextResponse("Invalid rating", { status: 400 });
+      return NextResponse.json({ error: "Invalid rating" }, { status: 400 });
     }
 
     // Check if the review exists and belongs to the current user
@@ -29,11 +29,11 @@ export async function PATCH(
     });
 
     if (!existingReview) {
-      return new NextResponse("Review not found", { status: 404 });
+      return NextResponse.json({ error: "Review not found" }, { status: 404 });
     }
 
     if (existingReview.reviewerId !== currentUserId) {
-      return new NextResponse("Unauthorized", { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     // Update the review
@@ -61,7 +61,7 @@ export async function PATCH(
     return NextResponse.json(updatedReview);
   } catch (error) {
     console.error("Error updating review:", error);
-    return new NextResponse("Internal server error", { status: 500 });
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
 
@@ -74,7 +74,7 @@ export async function DELETE(
   const currentUserId = session?.user?.id;
   
   if (!currentUserId) {
-    return new NextResponse("Unauthorized", { status: 401 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   try {
@@ -86,11 +86,11 @@ export async function DELETE(
     });
 
     if (!existingReview) {
-      return new NextResponse("Review not found", { status: 404 });
+      return NextResponse.json({ error: "Review not found" }, { status: 404 });
     }
 
     if (existingReview.reviewerId !== currentUserId) {
-      return new NextResponse("Unauthorized", { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     // Delete the review
@@ -101,6 +101,6 @@ export async function DELETE(
     return new NextResponse(null, { status: 204 });
   } catch (error) {
     console.error("Error deleting review:", error);
-    return new NextResponse("Internal server error", { status: 500 });
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

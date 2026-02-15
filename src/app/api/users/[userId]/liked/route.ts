@@ -12,7 +12,7 @@ export async function GET(
   try {
     const { userId } = await params;
     const session = await getAuthSession();
-    const currentUserId = (session?.user as any)?.id;
+    const currentUserId = session?.user?.id;
     
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page') || '1');
@@ -88,15 +88,15 @@ export async function GET(
     const repostedSet = new Set(userReposts.map(r => r.postId));
     const savedSet = new Set(userSaves.map(s => s.postId));
 
-    const transformedPosts = likedPosts.map((post: any) => {
+    const transformedPosts = likedPosts.map((post) => {
       const poll = post.poll ? {
         ...post.poll,
-        options: post.poll.options.map((opt: any) => ({
+        options: post.poll.options.map((opt) => ({
           id: opt.id,
           text: opt.text,
           votes: opt._count.votes,
         })),
-        totalVotes: post.poll.options.reduce((sum: number, opt: any) => sum + opt._count.votes, 0),
+        totalVotes: post.poll.options.reduce((sum: number, opt) => sum + opt._count.votes, 0),
       } : null;
 
       return {

@@ -2,6 +2,7 @@ import { prisma } from "@/server/db";
 import { getAuthSession } from "@/server/auth";
 import { NextRequest, NextResponse } from "next/server";
 import { responseCache } from "@/lib/cache";
+import type { Prisma } from "@prisma/client";
 
 const PAGE_SIZE = 24; // 24 = nice grid (divisible by 2, 3, 4)
 const CACHE_TTL = 60; // Cache for 60 seconds
@@ -17,8 +18,16 @@ export async function GET(req: NextRequest) {
     const cacheKey = `discover:${profileType}:${cursor}`;
     
     // Try to get from cache first
+    type DiscoverUser = {
+      id: string;
+      username: string;
+      name: string | null;
+      profile: { avatarUrl: string | null; bannerUrl: string | null; profileType: string | null; verified: boolean; bio: string | null } | null;
+      _count: { followers: number; following: number };
+      isFollowing: boolean;
+    };
     const cached = await responseCache.get<{
-      users: any[];
+      users: DiscoverUser[];
       nextCursor: string | null;
       hasMore: boolean;
     }>(cacheKey);
@@ -44,7 +53,7 @@ export async function GET(req: NextRequest) {
     }
     
     // Build the where clause
-    const where: any = {};
+    const where: Prisma.UserWhereInput = {};
     
     if (profileType && profileType !== "all") {
       where.profile = {
