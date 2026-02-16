@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { deriveDeviceFingerprint } from "@/lib/security/fingerprint";
 
 const SITE_LOCK_COOKIE = "devlink_site_lock";
 const SITE_LOCK_ROUTE = "/site-lock";
@@ -77,7 +78,9 @@ export function proxy(req: NextRequest) {
 
   // Add request ID for debugging/tracing
   const requestId = crypto.randomUUID();
+  const fingerprint = deriveDeviceFingerprint(req);
   response.headers.set('X-Request-ID', requestId);
+  response.headers.set("X-Device-Fingerprint", fingerprint);
 
   return response;
 }

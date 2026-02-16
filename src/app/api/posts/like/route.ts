@@ -3,6 +3,7 @@ import { prisma } from "@/server/db";
 import { getAuthSession } from "@/server/auth";
 import { responseCache } from "@/lib/cache";
 import { removeActorFromStackedNotification, upsertStackedNotification } from "@/server/notifications";
+import { publishEvent } from "@/lib/events/bus";
 
 export async function POST(req: Request) {
   const session = await getAuthSession();
@@ -69,6 +70,12 @@ export async function POST(req: Request) {
           actorId: userId,
           type: "LIKE",
           postId,
+        });
+        void publishEvent("post.liked", {
+          postId,
+          actorId: userId,
+          recipientId: post.userId,
+          createdAt: new Date().toISOString(),
         });
       }
     } catch (dbError) {

@@ -297,3 +297,45 @@ class ResponseCache {
 }
 
 export const responseCache = new ResponseCache();
+
+export const cacheNamespaces = {
+  query: "query",
+  object: "object",
+  feed: "feed",
+  session: "session",
+} as const;
+
+export function namespacedCacheKey(
+  namespace: keyof typeof cacheNamespaces,
+  key: string
+) {
+  return `${cacheNamespaces[namespace]}:${key}`;
+}
+
+export async function getOrSetQueryCache<T>(
+  key: string,
+  fetcher: () => Promise<T>,
+  ttlSeconds = 60
+) {
+  return responseCache.getOrSet<T>(namespacedCacheKey("query", key), fetcher, ttlSeconds);
+}
+
+export async function getOrSetObjectCache<T>(
+  key: string,
+  fetcher: () => Promise<T>,
+  ttlSeconds = 300
+) {
+  return responseCache.getOrSet<T>(namespacedCacheKey("object", key), fetcher, ttlSeconds);
+}
+
+export async function getOrSetFeedCache<T>(
+  key: string,
+  fetcher: () => Promise<T>,
+  ttlSeconds = 30
+) {
+  return responseCache.getOrSet<T>(namespacedCacheKey("feed", key), fetcher, ttlSeconds);
+}
+
+export async function setSessionCache<T>(key: string, value: T, ttlSeconds = 60 * 15) {
+  return responseCache.set(namespacedCacheKey("session", key), value, ttlSeconds);
+}

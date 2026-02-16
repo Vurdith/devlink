@@ -8,6 +8,9 @@ import { RATE_LIMITS, CONTENT_LIMITS, COLLECTION_LIMITS, HTTP_STATUS } from "@/l
 import { checkRateLimit } from "@/lib/rate-limit";
 import { getUniqueViewCounts } from "@/lib/view-utils";
 import { createNotification } from "@/server/notifications";
+import { evaluatePostingAnomaly } from "@/lib/security/anomaly-detection";
+import { deriveDeviceFingerprint } from "@/lib/security/fingerprint";
+import { indexSearchDocumentWithRust } from "@/server/services/hotpath-client";
 
 export async function POST(request: NextRequest) {
   try {
@@ -26,6 +29,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ 
         error: `Rate limit exceeded. Please wait until ${resetTime} before posting again.` 
       }, { status: 429 });
+    }
+
+    const anomaly = await evaluatePostingAnomaly({ actorId: userId });
+    if (anomaly.suspicious) {
+      const fingerprint = deriveDeviceFingerprint(request);
+      console.warn("[Security] Suspicious posting behavior detected", {
+        userId,
+        fingerprint,
+        reasons: anomaly.reasons,
+        score: anomaly.score,
+      });
     }
 
     const body = await request.json();
@@ -302,6 +316,13 @@ export async function POST(request: NextRequest) {
 
     // Wait for all auxiliary data to be created
     await Promise.all(promises);
+
+    if (!isScheduled) {
+      await indexSearchDocumentWithRust({
+        entity: "post",
+        entityId: post.id,
+      });
+    }
 
     // Fetch the fully hydrated post for response
     const postWithMedia = await prisma.post.findUnique({

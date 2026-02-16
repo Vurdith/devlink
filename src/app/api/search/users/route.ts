@@ -1,4 +1,5 @@
 import { prisma } from "@/server/db";
+import { prismaRead } from "@/server/db-read";
 import { NextResponse } from "next/server";
 import { getAuthSession } from "@/server/auth";
 import { responseCache } from "@/lib/cache";
@@ -25,7 +26,7 @@ export async function GET(req: Request) {
   let users = await responseCache.get<SearchUser[]>(cacheKey);
   
   if (!users) {
-    users = await prisma.user.findMany({
+    users = await prismaRead.user.findMany({
       where: {
         OR: [
           { username: { contains: term } },

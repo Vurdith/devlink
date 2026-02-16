@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/server/db";
+import { prismaRead } from "@/server/db-read";
 import { responseCache } from "@/lib/cache";
 import { getAuthSession } from "@/server/auth";
 import { getUniqueViewCounts } from "@/lib/view-utils";
+import { searchPostsIndex } from "@/server/search";
 
 const SEARCH_CACHE_TTL = 60; // Cache for 1 minute
 
@@ -29,14 +31,21 @@ export async function GET(request: NextRequest) {
       return response;
     }
 
-    // Search for posts that contain the search term in content
-    const posts = await prisma.post.findMany({
+    // Use search index when configured; fallback to Prisma filtering.
+    const indexedPostIds = await searchPostsIndex(q, 20);
+
+    // Search for posts by indexed IDs or direct content fallback.
+    const posts = await prismaRead.post.findMany({
       where: {
         replyToId: null, // Only main posts, not replies
-        content: {
-          contains: q,
-          mode: 'insensitive' // Case-insensitive search
-        }
+        ...(indexedPostIds.length > 0
+          ? { id: { in: indexedPostIds } }
+          : {
+              content: {
+                contains: q,
+                mode: "insensitive",
+              },
+            }),
       },
       select: {
         id: true,
@@ -80,8 +89,8 @@ export async function GET(request: NextRequest) {
       },
       take: 20,
       orderBy: {
-        createdAt: 'desc'
-      }
+        createdAt: "desc",
+      },
     });
 
     const postIds = posts.map(p => p.id);

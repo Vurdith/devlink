@@ -1,4 +1,5 @@
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { writeFile, mkdir } from "fs/promises";
 import path from "path";
 import { randomUUID } from "crypto";
@@ -70,6 +71,37 @@ export async function uploadFile(file: File): Promise<UploadResult> {
   return { 
     url: `/uploads/${filename}`,
     key: filename
+  };
+}
+
+export async function createSignedUploadUrl(params: {
+  filename: string;
+  contentType: string;
+  expiresInSeconds?: number;
+}) {
+  if (!s3Client) {
+    throw new Error("Signed URLs require S3-compatible storage configuration.");
+  }
+
+  const ext = (params.filename.split(".").pop() || "bin").toLowerCase();
+  const key = `uploads/${randomUUID()}.${ext}`;
+  const command = new PutObjectCommand({
+    Bucket: BUCKET_NAME,
+    Key: key,
+    ContentType: params.contentType,
+    ACL: "public-read",
+  });
+  const expiresIn = Math.max(60, Math.min(params.expiresInSeconds ?? 600, 3600));
+  const uploadUrl = await getSignedUrl(s3Client, command, { expiresIn });
+  const publicUrl = PUBLIC_URL_BASE
+    ? `${PUBLIC_URL_BASE}/${key}`
+    : `${process.env.S3_ENDPOINT}/${BUCKET_NAME}/${key}`;
+
+  return {
+    uploadUrl,
+    key,
+    publicUrl,
+    expiresIn,
   };
 }
 

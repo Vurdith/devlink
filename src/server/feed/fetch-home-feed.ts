@@ -1,5 +1,6 @@
 import { prisma } from "@/server/db";
-import { responseCache } from "@/lib/cache";
+import { prismaRead } from "@/server/db-read";
+import { getOrSetFeedCache } from "@/lib/cache";
 import { getUniqueViewCounts } from "@/lib/view-utils";
 
 const FEED_CACHE_TTL = 30; // Cache feed for 30 seconds - invalidated on engagement actions
@@ -101,39 +102,30 @@ function _transformFeedPosts(
 
 export async function fetchHomeFeedPosts(limit = 30) {
   const cacheKey = `feed:home:${limit}`;
-  
-  // Try cache first - this is the fast path
-  const cached = await responseCache.get<FeedPost[]>(cacheKey);
-  if (cached) {
-    return cached;
-  }
-  
-  // Fetch posts
-  const posts = await prisma.post.findMany({
-    where: { 
-      replyToId: null,
-      isScheduled: false,
-    },
-    select: feedPostSelect,
-    orderBy: { createdAt: "desc" },
-    take: limit,
-  });
 
-  // Get unique view counts (consistent with all other pages)
-  const postIds = posts.map(post => post.id);
-  const viewCountMap = await getUniqueViewCounts(postIds);
+  return getOrSetFeedCache(cacheKey, async () => {
+    // Fetch posts
+    const posts = await prismaRead.post.findMany({
+      where: {
+        replyToId: null,
+        isScheduled: false,
+      },
+      select: feedPostSelect,
+      orderBy: { createdAt: "desc" },
+      take: limit,
+    });
 
-  // Transform to expected format
-  const result = _transformFeedPosts(posts, viewCountMap);
-  
-  // Cache the result
-  await responseCache.set(cacheKey, result, FEED_CACHE_TTL);
-  
-  return result;
+    // Get unique view counts (consistent with all other pages)
+    const postIds = posts.map((post) => post.id);
+    const viewCountMap = await getUniqueViewCounts(postIds);
+
+    // Transform to expected format
+    return _transformFeedPosts(posts, viewCountMap);
+  }, FEED_CACHE_TTL);
 }
 
 export async function fetchPostForRanking(postId: string) {
-  return prisma.post.findUnique({
+  return prismaRead.post.findUnique({
     where: { id: postId },
     select: feedPostSelect,
   });

@@ -4,6 +4,10 @@
 export async function register() {
   if (process.env.NEXT_RUNTIME === "nodejs") {
     await import("../sentry.server.config");
+    const { initializeOpenTelemetry } = await import("@/lib/monitoring/otel");
+    const { registerEventConsumers } = await import("@/server/events/consumers");
+    await initializeOpenTelemetry();
+    registerEventConsumers();
   }
 
   if (process.env.NEXT_RUNTIME === "edge") {

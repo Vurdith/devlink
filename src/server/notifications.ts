@@ -1,5 +1,7 @@
 import { prisma } from "@/server/db";
 import type { Prisma } from "@prisma/client";
+import { publishEvent } from "@/lib/events/bus";
+import { fanoutNotificationWithRust } from "@/server/services/hotpath-client";
 
 export type NotificationCreateInput = {
   recipientId: string;
@@ -43,7 +45,7 @@ export async function createNotification(input: NotificationCreateInput) {
   try {
     // De-dupe when a dedupeKey is provided (likes/reposts/follows/mentions).
     if (dedupeKey) {
-      await prisma.notification.upsert({
+      const notification = await prisma.notification.upsert({
         where: { dedupeKey },
         update: {
           readAt: null, // bump back to unread if it already existed
@@ -59,11 +61,27 @@ export async function createNotification(input: NotificationCreateInput) {
           dedupeKey,
           metadata: metadata ?? undefined,
         },
+        select: { id: true },
+      });
+      await publishEvent("notification.created", {
+        notificationId: notification.id,
+        recipientId,
+        actorId,
+        type,
+        postId,
+        sourcePostId,
+        createdAt: new Date().toISOString(),
+      });
+      await fanoutNotificationWithRust({
+        notificationId: notification.id,
+        recipientId,
+        actorId,
+        kind: type,
       });
       return;
     }
 
-    await prisma.notification.create({
+    const notification = await prisma.notification.create({
       data: {
         userId: recipientId,
         actorId,
@@ -72,6 +90,22 @@ export async function createNotification(input: NotificationCreateInput) {
         sourcePostId,
         metadata: metadata ?? undefined,
       },
+      select: { id: true },
+    });
+    await publishEvent("notification.created", {
+      notificationId: notification.id,
+      recipientId,
+      actorId,
+      type,
+      postId,
+      sourcePostId,
+      createdAt: new Date().toISOString(),
+    });
+    await fanoutNotificationWithRust({
+      notificationId: notification.id,
+      recipientId,
+      actorId,
+      kind: type,
     });
   } catch (e) {
     // Never fail the parent action if notification write fails.
@@ -116,6 +150,22 @@ export async function upsertStackedNotification(input: StackedNotificationInput)
     await prisma.notificationActor.createMany({
       data: [{ notificationId: n.id, actorId }],
       skipDuplicates: true,
+    });
+
+    await publishEvent("notification.created", {
+      notificationId: n.id,
+      recipientId,
+      actorId,
+      type,
+      postId,
+      sourcePostId: null,
+      createdAt: new Date().toISOString(),
+    });
+    await fanoutNotificationWithRust({
+      notificationId: n.id,
+      recipientId,
+      actorId,
+      kind: type,
     });
   } catch (e) {
     console.error("upsertStackedNotification failed:", e);

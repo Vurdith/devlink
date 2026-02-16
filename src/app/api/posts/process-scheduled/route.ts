@@ -1,54 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/server/db";
-
-// Simple function to process scheduled posts
-async function processScheduledPosts() {
-  const now = new Date();
-  if (process.env.NODE_ENV === 'development') {
-    console.log(`🕐 processScheduledPosts called at: ${now}`);
-  }
-  
-  // Find posts that are scheduled and their time has come
-  const scheduledPosts = await prisma.post.findMany({
-    where: {
-      isScheduled: true,
-      scheduledFor: {
-        lte: now // scheduledFor is less than or equal to now
-      }
-    }
-  });
-  
-  if (process.env.NODE_ENV === 'development') {
-    console.log(`📅 Found ${scheduledPosts.length} scheduled posts ready to publish`);
-    scheduledPosts.forEach(post => {
-      if (post.scheduledFor) {
-        console.log(`  - Post ID: ${post.id}, scheduled for: ${post.scheduledFor}, time diff: ${(now.getTime() - post.scheduledFor.getTime()) / 1000}s`);
-      }
-    });
-  }
-  
-  if (scheduledPosts.length === 0) {
-    return 0;
-  }
-  
-  // Update each scheduled post to be published
-  const updatePromises = scheduledPosts.map(post => 
-    prisma.post.update({
-      where: { id: post.id },
-      data: {
-        isScheduled: false,
-        scheduledFor: null
-      }
-    })
-  );
-  
-  await Promise.all(updatePromises);
-  
-  if (process.env.NODE_ENV === 'development') {
-    console.log(`✅ Auto-published ${scheduledPosts.length} scheduled posts`);
-  }
-  return scheduledPosts.length;
-}
+import { enqueueJob, leaseDueJobs, requeueJob } from "@/lib/jobs/queue";
+import { processScheduledPosts } from "@/server/jobs/process-scheduled-posts";
+import { startServerSpan, captureTracingError } from "@/lib/monitoring/tracing";
 
 export async function POST(request: NextRequest) {
   const authHeader = request.headers.get('authorization');
@@ -57,15 +11,73 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const processed = await processScheduledPosts();
-    return NextResponse.json({ 
-      message: `Processed ${processed} scheduled posts`,
-      processed
+    const forceProcess = request.nextUrl.searchParams.get("forceProcess") === "1";
+    if (forceProcess) {
+      const processed = await startServerSpan("jobs.processScheduled.now", "jobs", () =>
+        processScheduledPosts()
+      );
+      return NextResponse.json({
+        message: `Processed ${processed} scheduled posts`,
+        processed,
+      });
+    }
+
+    const job = await enqueueJob("posts.processScheduled", {
+      triggeredAt: new Date().toISOString(),
+    });
+
+    return NextResponse.json({
+      message: "Scheduled post processing job enqueued",
+      jobId: job.id,
+      runAt: job.runAt,
     });
   } catch (error) {
-    console.error('❌ Error processing scheduled posts:', error);
+    captureTracingError(error, { route: "/api/posts/process-scheduled", method: "POST" });
+    console.error('❌ Error enqueuing scheduled posts:', error);
     return NextResponse.json(
-      { error: 'Failed to process scheduled posts' },
+      { error: 'Failed to enqueue scheduled post processing' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PATCH(request: NextRequest) {
+  const authHeader = request.headers.get("authorization");
+  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
+    const dueJobs = await leaseDueJobs(25);
+    let processedCount = 0;
+    let failedCount = 0;
+
+    for (const job of dueJobs) {
+      try {
+        if (job.type === "posts.processScheduled") {
+          processedCount += await processScheduledPosts();
+        }
+      } catch (error) {
+        failedCount += 1;
+        await requeueJob({ ...job, attempts: job.attempts + 1 }, 30);
+        captureTracingError(error, {
+          route: "/api/posts/process-scheduled",
+          method: "PATCH",
+          jobType: job.type,
+          jobId: job.id,
+        });
+      }
+    }
+
+    return NextResponse.json({
+      leasedJobs: dueJobs.length,
+      processedCount,
+      failedCount,
+    });
+  } catch (error) {
+    captureTracingError(error, { route: "/api/posts/process-scheduled", method: "PATCH" });
+    return NextResponse.json(
+      { error: "Failed to process queued jobs" },
       { status: 500 }
     );
   }

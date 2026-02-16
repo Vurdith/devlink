@@ -5,6 +5,7 @@ import { AnimatedHomeContent } from "@/components/feed/AnimatedHomeContent";
 import { fetchHomeFeedPosts } from "@/server/feed/fetch-home-feed";
 import { rankPosts, type RankablePost } from "@/lib/ranking/devlink-ranking";
 import { buildRankablePost } from "@/lib/ranking/ranking-transforms";
+import { rankFeedWithRust } from "@/server/services/hotpath-client";
 
 // Cache page for 30 seconds - engagement state is fetched client-side
 export const revalidate = 30;
@@ -108,7 +109,11 @@ export default async function HomePage() {
 
   // RANK POSTS
   const rankablePosts: RankablePost[] = posts.map(buildRankablePost);
-  const rankingResult = rankPosts(rankablePosts);
+  const localRankingResult = rankPosts(rankablePosts);
+  const rustRanking = await rankFeedWithRust({ postIds: localRankingResult.orderedPostIds });
+  const rankingResult = rustRanking?.orderedPostIds
+    ? { ...localRankingResult, orderedPostIds: rustRanking.orderedPostIds }
+    : localRankingResult;
   const postMap = new Map(posts.map(post => [post.id, post]));
   const rankedPosts = rankingResult.orderedPostIds.map(id => postMap.get(id)).filter(Boolean) as typeof posts;
 

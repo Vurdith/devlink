@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getAuthSession } from "@/server/auth";
 import { uploadFile } from "@/lib/storage";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { processMediaWithRust } from "@/server/services/hotpath-client";
 
 export async function POST(req: Request) {
   try {
@@ -48,6 +49,11 @@ export async function POST(req: Request) {
 
     // Use the abstracted upload function (S3 or Local)
     const { url } = await uploadFile(file);
+    await processMediaWithRust({
+      mediaId: crypto.randomUUID(),
+      mediaType: file.type.startsWith("video/") ? "video" : "image",
+      url,
+    });
 
     return NextResponse.json({ url });
   } catch (err) {

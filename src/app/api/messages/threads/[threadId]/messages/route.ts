@@ -3,6 +3,7 @@ import { getAuthSession } from "@/server/auth";
 import { prisma } from "@/server/db";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { validateMessageContent } from "@/lib/validation";
+import { publishEvent } from "@/lib/events/bus";
 
 export async function POST(
   req: Request,
@@ -83,6 +84,17 @@ export async function POST(
       data: { lastReadAt: message.createdAt },
     }),
   ]);
+
+  const recipientIds = conversation.members
+    .filter((member) => member.userId !== userId)
+    .map((member) => member.userId);
+  void publishEvent("message.sent", {
+    messageId: message.id,
+    threadId,
+    senderId: userId,
+    recipientIds,
+    createdAt: message.createdAt.toISOString(),
+  });
 
   const response = NextResponse.json(
     { ...message, threadId, content: message.content ?? "" },

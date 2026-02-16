@@ -1,5 +1,6 @@
 import { Redis } from "@upstash/redis";
 import RedisIO from "ioredis";
+import { checkRateLimitWithRust } from "@/server/services/hotpath-client";
 
 // Support both Upstash (HTTP) and standard Redis (TCP)
 // Priority: UPSTASH_REDIS_REST_URL -> REDIS_URL -> In-Memory
@@ -38,6 +39,21 @@ export async function checkRateLimit(
   windowSeconds: number = 60
 ): Promise<RateLimitResult> {
   const key = `ratelimit:${identifier}`;
+
+  // 0. Optional Rust edge rate limiter (feature-flagged)
+  const rustResult = await checkRateLimitWithRust({
+    key,
+    limit,
+    windowSeconds,
+  });
+  if (rustResult) {
+    return {
+      success: rustResult.success,
+      limit: rustResult.limit,
+      remaining: rustResult.remaining,
+      reset: Date.now() + windowSeconds * 1000,
+    };
+  }
   
   // 1. Upstash Redis (HTTP)
   if (upstashClient) {
