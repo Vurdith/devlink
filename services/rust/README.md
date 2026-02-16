@@ -20,11 +20,7 @@ cargo run
 
 The service listens on `0.0.0.0:8088`.
 
-Set these env vars in the Next.js app to enable integration:
+Set these env vars in the Next.js app:
 
 - `RUST_HOTPATH_SERVICE_URL=http://localhost:8088`
-- `USE_RUST_FEED_RANKER=true`
-- `USE_RUST_NOTIFICATION_FANOUT=true`
-- `USE_RUST_SEARCH_INDEXER=true`
-- `USE_RUST_MEDIA_PIPELINE=true`
-- `USE_RUST_RATE_LIMITER=true`
+- `NEXT_PUBLIC_RUST_REALTIME_URL=ws://localhost:8090/ws`

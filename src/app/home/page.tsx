@@ -3,8 +3,6 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/server/db";
 import { AnimatedHomeContent } from "@/components/feed/AnimatedHomeContent";
 import { fetchHomeFeedPosts } from "@/server/feed/fetch-home-feed";
-import { rankPosts, type RankablePost } from "@/lib/ranking/devlink-ranking";
-import { buildRankablePost } from "@/lib/ranking/ranking-transforms";
 import { rankFeedWithRust } from "@/server/services/hotpath-client";
 
 // Cache page for 30 seconds - engagement state is fetched client-side
@@ -107,15 +105,11 @@ export default async function HomePage() {
     userVotesMap.get(vote.pollId)!.push(vote.optionId);
   });
 
-  // RANK POSTS
-  const rankablePosts: RankablePost[] = posts.map(buildRankablePost);
-  const localRankingResult = rankPosts(rankablePosts);
-  const rustRanking = await rankFeedWithRust({ postIds: localRankingResult.orderedPostIds });
-  const rankingResult = rustRanking?.orderedPostIds
-    ? { ...localRankingResult, orderedPostIds: rustRanking.orderedPostIds }
-    : localRankingResult;
+  // RANK POSTS using the Rust hotpath service.
+  const rustRanking = await rankFeedWithRust({ postIds });
+  const orderedPostIds = rustRanking?.orderedPostIds ?? postIds;
   const postMap = new Map(posts.map(post => [post.id, post]));
-  const rankedPosts = rankingResult.orderedPostIds.map(id => postMap.get(id)).filter(Boolean) as typeof posts;
+  const rankedPosts = orderedPostIds.map(id => postMap.get(id)).filter(Boolean) as typeof posts;
 
   // Transform posts with engagement data
   const postsWithViewCounts = rankedPosts.map(post => {

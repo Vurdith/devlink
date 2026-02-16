@@ -1,8 +1,6 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from "react";
-import { supabase, isRealtimeAvailable } from "@/lib/supabase/client";
-import type { RealtimeChannel } from "@supabase/supabase-js";
 import { useSession } from "next-auth/react";
 import { connectRustRealtime } from "@/lib/realtime/rust-realtime-client";
 
@@ -25,86 +23,36 @@ interface RealtimeProviderProps {
 }
 
 /**
- * Provider that manages Supabase Realtime connections.
- * Handles automatic reconnection and provides subscription utilities.
+ * Provider that manages Rust Realtime connections and presence heartbeats.
  */
 export function RealtimeProvider({ children }: RealtimeProviderProps) {
   const { data: session } = useSession();
   const [isConnected, setIsConnected] = useState(false);
-  const [profileChannel, setProfileChannel] = useState<RealtimeChannel | null>(null);
 
-  // Track connection status and subscribe to profile changes
+  // Track connection status and subscribe to realtime events.
   useEffect(() => {
-    if (process.env.NEXT_PUBLIC_REALTIME_PROVIDER === "rust") {
-      const connection = connectRustRealtime({
-        userId: session?.user?.id,
-        onStatus: (status) => setIsConnected(status === "connected"),
-        onEvent: (event) => {
-          if (typeof window === "undefined") return;
-          if (event.type === "presence") {
-            window.dispatchEvent(
-              new CustomEvent("devlink:presence-updated", { detail: event.payload })
-            );
-          }
-          if (event.type === "message_receipt") {
-            window.dispatchEvent(
-              new CustomEvent("devlink:message-receipt", { detail: event.payload })
-            );
-          }
-          if (event.type === "profile_update") {
-            window.dispatchEvent(
-              new CustomEvent("devlink:profile-updated", { detail: event.payload })
-            );
-          }
-        },
-      });
+    const connection = connectRustRealtime({
+      userId: session?.user?.id,
+      onStatus: (status) => setIsConnected(status === "connected"),
+      onEvent: (event) => {
+        if (typeof window === "undefined") return;
+        if (event.type === "presence") {
+          window.dispatchEvent(new CustomEvent("devlink:presence-updated", { detail: event.payload }));
+        }
+        if (event.type === "message_receipt") {
+          window.dispatchEvent(new CustomEvent("devlink:message-receipt", { detail: event.payload }));
+        }
+        if (event.type === "profile_update") {
+          window.dispatchEvent(new CustomEvent("devlink:profile-updated", { detail: event.payload }));
+        }
+      },
+    });
 
-      return () => connection?.close();
+    if (!connection) {
+      setIsConnected(false);
     }
 
-    if (!isRealtimeAvailable() || !supabase) {
-      return;
-    }
-
-    // Subscribe to global profile changes
-    const channel = supabase
-      .channel("global:profiles")
-      .on(
-        "postgres_changes",
-        {
-          event: "UPDATE",
-          schema: "public",
-          table: "Profile",
-        },
-        (payload: { new?: { userId?: string }; old?: unknown }) => {
-          if (process.env.NODE_ENV === "development") {
-            console.log("[Realtime] Profile updated:", payload.new?.userId);
-          }
-          
-          // Dispatch custom event for components to listen
-          if (typeof window !== "undefined" && payload.new) {
-            window.dispatchEvent(
-              new CustomEvent("devlink:profile-updated", {
-                detail: { userId: payload.new.userId, profile: payload.new },
-              })
-            );
-          }
-        }
-      )
-      .subscribe((status) => {
-        setIsConnected(status === "SUBSCRIBED");
-        if (process.env.NODE_ENV === "development") {
-          console.log("[Realtime] Connection status:", status);
-        }
-      });
-
-    setProfileChannel(channel);
-
-    return () => {
-      if (channel && supabase) {
-        supabase.removeChannel(channel);
-      }
-    };
+    return () => connection?.close();
   }, [session?.user?.id]);
 
   useEffect(() => {
@@ -141,22 +89,11 @@ export function RealtimeProvider({ children }: RealtimeProviderProps) {
     };
   }, [session?.user?.id]);
 
-  // Subscribe to a custom broadcast channel
+  // Reserved for typed channel subscriptions.
   const subscribe = useCallback((channelName: string, callback: (payload: unknown) => void) => {
-    if (!isRealtimeAvailable() || !supabase) {
-      return () => {};
-    }
-
-    const channel = supabase
-      .channel(channelName)
-      .on("broadcast", { event: "update" }, callback)
-      .subscribe();
-
-    return () => {
-      if (supabase) {
-        supabase.removeChannel(channel);
-      }
-    };
+    void channelName;
+    void callback;
+    return () => {};
   }, []);
 
   return (

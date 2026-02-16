@@ -8,13 +8,16 @@ type RankFeedResponse = {
 
 const HOTPATH_BASE_URL = process.env.RUST_HOTPATH_SERVICE_URL;
 
-export async function rankFeedWithRust(input: RankFeedRequest): Promise<RankFeedResponse | null> {
-  if (!HOTPATH_BASE_URL || process.env.USE_RUST_FEED_RANKER !== "true") {
-    return null;
+function getHotpathBaseUrl() {
+  if (!HOTPATH_BASE_URL) {
+    throw new Error("RUST_HOTPATH_SERVICE_URL is required for hotpath integration.");
   }
+  return HOTPATH_BASE_URL;
+}
 
+export async function rankFeedWithRust(input: RankFeedRequest): Promise<RankFeedResponse | null> {
   try {
-    const response = await fetch(`${HOTPATH_BASE_URL}/rank-feed`, {
+    const response = await fetch(`${getHotpathBaseUrl()}/rank-feed`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ post_ids: input.postIds }),
@@ -36,12 +39,8 @@ export async function fanoutNotificationWithRust(input: {
   actorId: string;
   kind: string;
 }) {
-  if (!HOTPATH_BASE_URL || process.env.USE_RUST_NOTIFICATION_FANOUT !== "true") {
-    return false;
-  }
-
   try {
-    const response = await fetch(`${HOTPATH_BASE_URL}/fanout-notification`, {
+    const response = await fetch(`${getHotpathBaseUrl()}/fanout-notification`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -63,12 +62,8 @@ export async function indexSearchDocumentWithRust(input: {
   entity: "post" | "user" | "portfolio";
   entityId: string;
 }) {
-  if (!HOTPATH_BASE_URL || process.env.USE_RUST_SEARCH_INDEXER !== "true") {
-    return false;
-  }
-
   try {
-    const response = await fetch(`${HOTPATH_BASE_URL}/index-search`, {
+    const response = await fetch(`${getHotpathBaseUrl()}/index-search`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -89,12 +84,8 @@ export async function processMediaWithRust(input: {
   mediaType: "image" | "video";
   url: string;
 }) {
-  if (!HOTPATH_BASE_URL || process.env.USE_RUST_MEDIA_PIPELINE !== "true") {
-    return false;
-  }
-
   try {
-    const response = await fetch(`${HOTPATH_BASE_URL}/process-media`, {
+    const response = await fetch(`${getHotpathBaseUrl()}/process-media`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -116,12 +107,8 @@ export async function checkRateLimitWithRust(input: {
   limit: number;
   windowSeconds: number;
 }): Promise<{ success: boolean; limit: number; remaining: number } | null> {
-  if (!HOTPATH_BASE_URL || process.env.USE_RUST_RATE_LIMITER !== "true") {
-    return null;
-  }
-
   try {
-    const response = await fetch(`${HOTPATH_BASE_URL}/rate-limit`, {
+    const response = await fetch(`${getHotpathBaseUrl()}/rate-limit`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

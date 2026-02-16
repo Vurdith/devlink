@@ -40,7 +40,7 @@ export async function checkRateLimit(
 ): Promise<RateLimitResult> {
   const key = `ratelimit:${identifier}`;
 
-  // 0. Optional Rust edge rate limiter (feature-flagged)
+  // 0. Rust edge rate limiter (primary path)
   const rustResult = await checkRateLimitWithRust({
     key,
     limit,
