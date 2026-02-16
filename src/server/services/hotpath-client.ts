@@ -1,5 +1,9 @@
 type RankFeedRequest = {
-  postIds: string[];
+  candidates: Array<{
+    postId: string;
+    score: number;
+    createdAt?: string;
+  }>;
 };
 
 type RankFeedResponse = {
@@ -20,7 +24,13 @@ export async function rankFeedWithRust(input: RankFeedRequest): Promise<RankFeed
     const response = await fetch(`${getHotpathBaseUrl()}/rank-feed`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ post_ids: input.postIds }),
+      body: JSON.stringify({
+        candidates: input.candidates.map((candidate) => ({
+          post_id: candidate.postId,
+          score: candidate.score,
+          created_at: candidate.createdAt,
+        })),
+      }),
       cache: "no-store",
     });
     if (!response.ok) return null;

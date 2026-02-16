@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/server/db";
 import { AnimatedHomeContent } from "@/components/feed/AnimatedHomeContent";
 import { fetchHomeFeedPosts } from "@/server/feed/fetch-home-feed";
-import { rankFeedWithRust } from "@/server/services/hotpath-client";
+import { rankHomeFeedPosts } from "@/server/feed/rank-home-feed";
 
 // Cache page for 30 seconds - engagement state is fetched client-side
 export const revalidate = 30;
@@ -105,11 +105,8 @@ export default async function HomePage() {
     userVotesMap.get(vote.pollId)!.push(vote.optionId);
   });
 
-  // RANK POSTS using the Rust hotpath service.
-  const rustRanking = await rankFeedWithRust({ postIds });
-  const orderedPostIds = rustRanking?.orderedPostIds ?? postIds;
-  const postMap = new Map(posts.map(post => [post.id, post]));
-  const rankedPosts = orderedPostIds.map(id => postMap.get(id)).filter(Boolean) as typeof posts;
+  // Rank the feed through the feed-ranking orchestration path.
+  const rankedPosts = await rankHomeFeedPosts(posts);
 
   // Transform posts with engagement data
   const postsWithViewCounts = rankedPosts.map(post => {

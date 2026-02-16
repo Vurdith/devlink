@@ -5,7 +5,7 @@ This directory contains the initial Rust extraction for heavy backend paths.
 ## Services
 
 - `hotpath-service`: unified service with endpoints for:
-  - feed ranking (`/rank-feed`)
+  - feed ranking (`/rank-feed`) from candidate scores + recency
   - notification fan-out (`/fanout-notification`)
   - search indexing trigger (`/index-search`)
   - media pipeline trigger (`/process-media`)

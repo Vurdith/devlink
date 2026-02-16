@@ -1,10 +1,18 @@
 use axum::{extract::Json, routing::{get, post}, Router};
 use serde::{Deserialize, Serialize};
 use std::net::SocketAddr;
+use std::cmp::Ordering;
+
+#[derive(Debug, Deserialize)]
+struct RankFeedCandidate {
+    post_id: String,
+    score: f64,
+    created_at: Option<String>,
+}
 
 #[derive(Debug, Deserialize)]
 struct RankFeedRequest {
-    post_ids: Vec<String>,
+    candidates: Vec<RankFeedCandidate>,
 }
 
 #[derive(Debug, Serialize)]
@@ -57,9 +65,21 @@ async fn health() -> &'static str {
 }
 
 async fn rank_feed(Json(request): Json<RankFeedRequest>) -> Json<RankFeedResponse> {
-    // Placeholder ranking: newest-first ordering should happen upstream for now.
+    let mut candidates = request.candidates;
+    candidates.sort_by(|a, b| {
+        b.score
+            .partial_cmp(&a.score)
+            .unwrap_or(Ordering::Equal)
+            .then_with(|| {
+                let b_time = b.created_at.as_deref().unwrap_or("");
+                let a_time = a.created_at.as_deref().unwrap_or("");
+                b_time.cmp(a_time)
+            })
+            .then_with(|| a.post_id.cmp(&b.post_id))
+    });
+
     Json(RankFeedResponse {
-        ordered_post_ids: request.post_ids,
+        ordered_post_ids: candidates.into_iter().map(|candidate| candidate.post_id).collect(),
     })
 }
 
