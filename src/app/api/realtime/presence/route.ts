@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthSession } from "@/server/auth";
-import { responseCache } from "@/lib/cache";
+import { responseCache } from "@/server/cache";
 
 function keyFor(userId: string) {
   return `presence:user:${userId}`;
@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
   });
 }
 
-export async function PUT(_request: NextRequest) {
+export async function PUT() {
   const session = await getAuthSession();
   const userId = session?.user?.id;
   if (!userId) {
@@ -45,8 +45,8 @@ export async function PUT(_request: NextRequest) {
   return NextResponse.json({ ok: true });
 }
 
-export async function POST(request: NextRequest) {
-  return PUT(request);
+export async function POST() {
+  return PUT();
 }
 
 export async function DELETE() {

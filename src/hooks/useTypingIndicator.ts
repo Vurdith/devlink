@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback, useRef } from "react";
-import { supabase, isRealtimeAvailable } from "@/lib/supabase/client";
+import { supabase, isRealtimeAvailable } from "@/server/supabase/client";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 
 interface TypingUser {
@@ -63,7 +63,8 @@ export function useTypingIndicator(
 
     return () => {
       if (supabase) supabase.removeChannel(channel);
-      Object.values(timeoutsRef.current).forEach(clearTimeout);
+      const timeouts = timeoutsRef.current;
+      Object.values(timeouts).forEach(clearTimeout);
     };
   }, [conversationId, currentUser]);
 

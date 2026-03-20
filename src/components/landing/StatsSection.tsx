@@ -17,12 +17,13 @@ function AnimatedCounter({ value, duration = 2 }: { value: number; duration?: nu
     const element = ref.current;
     if (!element || hasAnimated) return;
 
+    let frameId: number;
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting && !hasAnimated) {
           setHasAnimated(true);
           let startTime: number;
-          let animationFrame: number;
 
           const animate = (timestamp: number) => {
             if (!startTime) startTime = timestamp;
@@ -31,18 +32,21 @@ function AnimatedCounter({ value, duration = 2 }: { value: number; duration?: nu
             setCount(Math.floor(easeOutQuart * value));
 
             if (progress < 1) {
-              animationFrame = requestAnimationFrame(animate);
+              frameId = requestAnimationFrame(animate);
             }
           };
 
-          animationFrame = requestAnimationFrame(animate);
+          frameId = requestAnimationFrame(animate);
         }
       },
       { threshold: 0.1 }
     );
 
     observer.observe(element);
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      if (frameId) cancelAnimationFrame(frameId);
+    };
   }, [value, duration, hasAnimated]);
 
   return <span ref={ref}>{count.toLocaleString()}</span>;

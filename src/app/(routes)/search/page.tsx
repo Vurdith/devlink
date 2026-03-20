@@ -4,8 +4,8 @@ import Link from "next/link";
 import { Avatar } from "@/components/ui/Avatar";
 import { FollowButton } from "@/components/ui/FollowButton";
 import { useSearchParams } from "next/navigation";
-import { getProfileTypeConfig, ProfileTypeIcon } from "@/lib/profile-types";
-import { ProfileTooltip } from "@/components/ui/ProfileTooltip";
+import { getProfileTypeConfig, ProfileTypeIcon } from "@/types/profile";
+import { ProfileTooltip } from "@/components/profile/ProfileTooltip";
 import { useSession } from "next-auth/react";
 
 type SearchType = "all" | "profiles" | "hashtags" | "projects";
@@ -50,7 +50,6 @@ function SearchContent() {
   const [hashtags, setHashtags] = useState<HashtagResult[]>([]);
   const [projects, setProjects] = useState<ProjectResult[]>([]);
   const [loading, setLoading] = useState(!!query);
-  const [followingIds, setFollowingIds] = useState<Set<string>>(new Set());
 
   // Real API calls for search functionality
   useEffect(() => {
@@ -228,7 +227,7 @@ function SearchContent() {
                         <Avatar src={user.avatarUrl ?? undefined} size={40} />
                         <div className="min-w-0">
                           <div className="text-sm flex items-center gap-2">
-                            <span className="font-medium truncate">{user.name ?? user.username}</span>
+                            <span className="font-medium text-white hover:underline truncate">{user.name ?? user.username}</span>
                         {user.verified && (
                           <svg width="14" height="14" viewBox="0 0 24 24" className="text-[var(--accent)]">
                             <path d="M12 3l2.39 2.39L17 6l-.61 2.61L19 12l-2.61.61L15 17l-2.61-.61L12 21l-2.39-2.39L7 17l.61-2.39L5 12l2.61-.61L7 6l2.39-.61L12 3z" fill="currentColor"/>
@@ -336,7 +335,7 @@ function SearchContent() {
 
           {query && totalResults === 0 && !loading && (
             <div className="text-center py-12 text-[var(--muted-foreground)]">
-              <p>No results found for "{query}"</p>
+              <p>No results found for &quot;{query}&quot;</p>
               <p className="text-sm mt-1">Try adjusting your search terms or filters.</p>
             </div>
           )}

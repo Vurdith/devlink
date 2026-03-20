@@ -1,6 +1,6 @@
 import { prisma } from "@/server/db";
 import { prismaRead } from "@/server/db-read";
-import { getOrSetFeedCache } from "@/lib/cache";
+import { getOrSetFeedCache } from "@/server/cache";
 import { getUniqueViewCounts } from "@/lib/view-utils";
 
 const FEED_CACHE_TTL = 30; // Cache feed for 30 seconds - invalidated on engagement actions

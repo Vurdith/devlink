@@ -8,7 +8,120 @@ import { cn } from "@/lib/cn";
 
 // Lazy load heavy components
 const EmojiPicker = lazy(() => import("emoji-picker-react"));
-const CreatePoll = lazy(() => import("@/components/ui/CreatePoll").then(m => ({ default: m.CreatePoll })));
+const CreatePoll = lazy(() => import("@/components/polls/CreatePoll").then(m => ({ default: m.CreatePoll })));
+
+// Loading placeholder - defined before use
+function LoadingPlaceholder({ height = "h-32" }: { height?: string }) {
+  return (
+    <div className={cn("flex items-center justify-center", height)}>
+      <div className="flex items-center gap-2">
+        <div className="typing-dot w-2 h-2 bg-[var(--color-accent)] rounded-full" />
+        <div className="typing-dot w-2 h-2 bg-[var(--color-accent)] rounded-full" />
+        <div className="typing-dot w-2 h-2 bg-[var(--color-accent)] rounded-full" />
+      </div>
+    </div>
+  );
+}
+
+// Action button with hover effects and custom tooltip - memoized and defined before use
+const ActionButton = memo(function ActionButton({ 
+  onClick, 
+  title, 
+  children, 
+  active, 
+  badge,
+  delay = 0,
+  shortcut
+}: { 
+  onClick: () => void; 
+  title: string; 
+  children: React.ReactNode; 
+  active?: boolean; 
+  badge?: number;
+  delay?: number;
+  shortcut?: string;
+}) {
+  const [showTooltip, setShowTooltip] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  
+  const handleMouseEnter = useCallback(() => {
+    if (buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      setTooltipPos({
+        x: rect.left + rect.width / 2,
+        y: rect.top - 8
+      });
+    }
+    setShowTooltip(true);
+  }, []);
+  
+  const handleMouseLeave = useCallback(() => {
+    setShowTooltip(false);
+  }, []);
+  
+  const tooltipContent = showTooltip && mounted && createPortal(
+    <div 
+      className={cn(
+        "fixed pointer-events-none transition-all duration-300 z-[9999]",
+        showTooltip ? "opacity-100 scale-100" : "opacity-0 scale-95"
+      )}
+      style={{
+        left: tooltipPos.x,
+        top: tooltipPos.y,
+        transform: 'translate(-50%, -100%)'
+      }}
+    >
+      <div className="relative px-3 py-1.5 glass-soft border border-[var(--color-accent)]/30 rounded-lg shadow-2xl backdrop-blur-md">
+        <div className="flex items-center gap-2 whitespace-nowrap">
+          <span className="text-xs font-bold text-white tracking-tight">{title}</span>
+          {shortcut && (
+            <kbd className="px-1.5 py-0.5 text-[10px] font-bold text-[var(--color-accent)] bg-[var(--color-accent)]/10 border border-[var(--color-accent)]/20 rounded-md">
+              {shortcut}
+            </kbd>
+          )}
+        </div>
+        <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-px">
+          <div className="border-4 border-transparent border-t-[var(--color-accent)]/30" />
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 -mt-[1px] border-4 border-transparent border-t-[#0c0e14]" />
+        </div>
+      </div>
+    </div>,
+    document.body
+  );
+  
+  return (
+    <div className="relative">
+      <button
+        ref={buttonRef}
+        type="button"
+        onClick={onClick}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        className={cn(
+          "icon-btn p-2.5 rounded-xl transition-all relative",
+          active 
+            ? "text-[var(--color-accent)] bg-[rgba(var(--color-accent-rgb),0.2)] shadow-lg shadow-[rgba(var(--color-accent-rgb),0.2)]" 
+            : "text-gray-400 hover:text-[var(--color-accent)] hover:bg-[rgba(var(--color-accent-rgb),0.1)]"
+        )}
+        style={{ animationDelay: `${delay * 0.05}s` }}
+      >
+        {children}
+        {badge !== undefined && badge > 0 && (
+          <span className="absolute -top-1 -right-1 bg-gradient-to-r from-[var(--color-accent)] to-pink-500 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-lg badge-animated">
+            {badge}
+          </span>
+        )}
+      </button>
+      {tooltipContent}
+    </div>
+  );
+});
 
 interface CreatePostProps {
   currentUserProfile?: {
@@ -34,7 +147,6 @@ export const CreatePost = memo(function CreatePost({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   const [uploadProgress, setUploadProgress] = useState<{[key: string]: number}>({});
-  const [showSlideshowPrompt, setShowSlideshowPrompt] = useState(false);
   const [isSlideshow, setIsSlideshow] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [showSchedule, setShowSchedule] = useState(false);
@@ -55,8 +167,6 @@ export const CreatePost = memo(function CreatePost({
     isMultiple: boolean;
   } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  if (!currentUserProfile) return null;
 
   const addEmoji = useCallback((emoji: { emoji?: string }) => {
     const char = emoji?.emoji || "";
@@ -120,14 +230,14 @@ export const CreatePost = memo(function CreatePost({
           setShowToast(true);
           setUploadedFiles(prev => prev.filter(f => f !== file));
         }
-      } catch (error) {
+      } catch {
         setToastMessage(`Upload failed for ${file.name}`);
         setToastType("error");
         setShowToast(true);
         setUploadedFiles(prev => prev.filter(f => f !== file));
       }
     }
-    if (fileArray.length > 1) setShowSlideshowPrompt(true);
+    if (fileArray.length > 1) setIsSlideshow(true);
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -201,7 +311,7 @@ export const CreatePost = memo(function CreatePost({
         setToastType("error");
         setShowToast(true);
       }
-    } catch (error) {
+    } catch {
       setToastMessage("Failed to create post.");
       setToastType("error");
       setShowToast(true);
@@ -211,6 +321,8 @@ export const CreatePost = memo(function CreatePost({
   };
 
   // Collapsed state - with hover animations
+  if (!currentUserProfile) return null;
+
   if (!isOpen) {
     return (
       <div 
@@ -519,113 +631,3 @@ export const CreatePost = memo(function CreatePost({
     </>
   );
 });
-
-// Action button with hover effects and custom tooltip
-function ActionButton({ 
-  onClick, 
-  title, 
-  children, 
-  active, 
-  badge,
-  delay = 0,
-  shortcut
-}: { 
-  onClick: () => void; 
-  title: string; 
-  children: React.ReactNode; 
-  active?: boolean; 
-  badge?: number;
-  delay?: number;
-  shortcut?: string;
-}) {
-  const [showTooltip, setShowTooltip] = useState(false);
-  const [mounted, setMounted] = useState(false);
-  const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
-  const buttonRef = useRef<HTMLButtonElement>(null);
-  
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-  
-  const handleMouseEnter = () => {
-    if (buttonRef.current) {
-      const rect = buttonRef.current.getBoundingClientRect();
-      setTooltipPos({
-        x: rect.left + rect.width / 2,
-        y: rect.top - 8
-      });
-    }
-    setShowTooltip(true);
-  };
-  
-  const tooltipContent = showTooltip && mounted && createPortal(
-    <div 
-      className={cn(
-        "fixed pointer-events-none transition-all duration-300 z-[9999]",
-        showTooltip ? "opacity-100 scale-100" : "opacity-0 scale-95"
-      )}
-      style={{
-        left: tooltipPos.x,
-        top: tooltipPos.y,
-        transform: 'translate(-50%, -100%)'
-      }}
-    >
-      <div className="relative px-3 py-1.5 glass-soft border border-[var(--color-accent)]/30 rounded-lg shadow-2xl backdrop-blur-md">
-        <div className="flex items-center gap-2 whitespace-nowrap">
-          <span className="text-xs font-bold text-white tracking-tight">{title}</span>
-          {shortcut && (
-            <kbd className="px-1.5 py-0.5 text-[10px] font-bold text-[var(--color-accent)] bg-[var(--color-accent)]/10 border border-[var(--color-accent)]/20 rounded-md">
-              {shortcut}
-            </kbd>
-          )}
-        </div>
-        {/* Arrow */}
-        <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-px">
-          <div className="border-4 border-transparent border-t-[var(--color-accent)]/30" />
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 -mt-[1px] border-4 border-transparent border-t-[#0c0e14]" />
-        </div>
-      </div>
-    </div>,
-    document.body
-  );
-  
-  return (
-    <div className="relative">
-      <button
-        ref={buttonRef}
-        type="button"
-        onClick={onClick}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={() => setShowTooltip(false)}
-        className={cn(
-          "icon-btn p-2.5 rounded-xl transition-all relative",
-          active 
-            ? "text-[var(--color-accent)] bg-[rgba(var(--color-accent-rgb),0.2)] shadow-lg shadow-[rgba(var(--color-accent-rgb),0.2)]" 
-            : "text-gray-400 hover:text-[var(--color-accent)] hover:bg-[rgba(var(--color-accent-rgb),0.1)]"
-        )}
-        style={{ animationDelay: `${delay * 0.05}s` }}
-      >
-        {children}
-        {badge !== undefined && badge > 0 && (
-          <span className="absolute -top-1 -right-1 bg-gradient-to-r from-[var(--color-accent)] to-pink-500 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-lg badge-animated">
-            {badge}
-          </span>
-        )}
-      </button>
-      {tooltipContent}
-    </div>
-  );
-}
-
-// Loading placeholder
-function LoadingPlaceholder({ height = "h-32" }: { height?: string }) {
-  return (
-    <div className={cn("flex items-center justify-center", height)}>
-      <div className="flex items-center gap-2">
-        <div className="typing-dot w-2 h-2 bg-[var(--color-accent)] rounded-full" />
-        <div className="typing-dot w-2 h-2 bg-[var(--color-accent)] rounded-full" />
-        <div className="typing-dot w-2 h-2 bg-[var(--color-accent)] rounded-full" />
-      </div>
-    </div>
-  );
-}

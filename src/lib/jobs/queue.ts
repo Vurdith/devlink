@@ -1,4 +1,4 @@
-import { responseCache } from "@/lib/cache";
+import { responseCache } from "@/server/cache";
 
 export type JobType =
   | "posts.processScheduled"

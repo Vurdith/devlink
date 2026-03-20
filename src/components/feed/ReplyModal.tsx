@@ -10,7 +10,7 @@ import { cn } from "@/lib/cn";
 
 // Lazy load heavy components
 const EmojiPicker = lazy(() => import('emoji-picker-react'));
-const CreatePoll = lazy(() => import('@/components/ui/CreatePoll').then(m => ({ default: m.CreatePoll })));
+const CreatePoll = lazy(() => import('@/components/polls/CreatePoll').then(m => ({ default: m.CreatePoll })));
 
 interface ReplyModalProps {
   isOpen: boolean;

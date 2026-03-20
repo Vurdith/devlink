@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAuthSession } from "@/server/auth";
-import { checkRateLimit } from "@/lib/rate-limit";
-import { createSignedUploadUrl } from "@/lib/storage";
+import { checkRateLimit } from "@/server/rate-limit";
+import { createSignedUploadUrl } from "@/server/storage";
 
 export async function POST(req: Request) {
   const session = await getAuthSession();

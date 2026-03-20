@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/server/db";
-import { responseCache } from "@/lib/cache";
+import { responseCache } from "@/server/cache";
 
 // Cache user profiles for 60 seconds to reduce DB load
 const USER_CACHE_TTL = 60;

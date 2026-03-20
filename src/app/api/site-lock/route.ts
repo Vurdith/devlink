@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createHash } from "crypto";
 
 const SITE_LOCK_COOKIE = "devlink_site_lock";
 const SITE_LOCK_ROUTE = "/site-lock";
@@ -9,6 +10,10 @@ function sanitizeNextPath(value: string | null): string {
   }
 
   return value;
+}
+
+function hashPassword(password: string): string {
+  return createHash("sha256").update(password).digest("hex");
 }
 
 export async function POST(request: NextRequest) {
@@ -33,7 +38,7 @@ export async function POST(request: NextRequest) {
   const response = NextResponse.redirect(redirectUrl);
   response.cookies.set({
     name: SITE_LOCK_COOKIE,
-    value: expectedPassword,
+    value: hashPassword(expectedPassword),
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",

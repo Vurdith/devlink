@@ -1,9 +1,24 @@
 "use client";
 
-import { useState, useRef, memo, useCallback } from "react";
+import { useState, memo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { fetchWithTimeout } from "@/lib/async-utils";
-import { ProfileTooltip } from "./ProfileTooltip";
+import { ProfileTooltip } from "../profile/ProfileTooltip";
+
+interface UserData {
+  id: string;
+  username: string;
+  name: string | null;
+  profile: {
+    avatarUrl: string | null;
+    bannerUrl?: string | null;
+    bio?: string | null;
+    profileType?: string | null;
+    verified?: boolean;
+    website?: string | null;
+    location?: string | null;
+  };
+}
 
 interface ContentRendererProps {
   content: string;
@@ -12,7 +27,7 @@ interface ContentRendererProps {
 }
 
 export const ContentRenderer = memo(function ContentRenderer({ content, className = "", currentUserId }: ContentRendererProps) {
-  const [mentionUsers, setMentionUsers] = useState<Map<string, any>>(new Map());
+  const [mentionUsers, setMentionUsers] = useState<Map<string, UserData>>(new Map());
   const router = useRouter();
 
   const fetchUserData = useCallback(async (username: string) => {
@@ -20,8 +35,8 @@ export const ContentRenderer = memo(function ContentRenderer({ content, classNam
     if (mentionUsers.has(username)) return;
     
     const result = await fetchWithTimeout(`/api/user/${username}`, { timeout: 5000 });
-    if (result.success && result.data?.user) {
-      setMentionUsers(prev => new Map(prev).set(username, result.data.user));
+    if (result.success && (result.data as { user?: UserData })?.user) {
+      setMentionUsers(prev => new Map(prev).set(username, (result.data as { user: UserData }).user));
     }
   }, [mentionUsers]);
 
@@ -109,7 +124,7 @@ export const ContentRenderer = memo(function ContentRenderer({ content, classNam
     }
 
     return parts;
-  }, [content, mentionUsers, currentUserId, fetchUserData]);
+  }, [content, mentionUsers, currentUserId, fetchUserData, router]);
 
   return (
     <div className={className}>

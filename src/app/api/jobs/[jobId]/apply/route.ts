@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAuthSession } from "@/server/auth";
 import { prisma } from "@/server/db";
-import { checkRateLimit } from "@/lib/rate-limit";
+import { checkRateLimit } from "@/server/rate-limit";
 import { validateMessageContent } from "@/lib/validation";
 
 export async function POST(
@@ -57,7 +57,7 @@ export async function POST(
     const response = NextResponse.json(application, { status: 201 });
     response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
     return response;
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: "You have already applied to this job" }, { status: 409 });
   }
 }

@@ -1,8 +1,15 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from "react";
-import { useSession } from "next-auth/react";
 import { connectRustRealtime } from "@/lib/realtime/rust-realtime-client";
+
+interface SessionUser {
+  id: string;
+}
+
+interface Session {
+  user?: SessionUser;
+}
 
 interface RealtimeContextType {
   isConnected: boolean;
@@ -20,13 +27,13 @@ export function useRealtime() {
 
 interface RealtimeProviderProps {
   children: ReactNode;
+  session?: Session | null;
 }
 
 /**
  * Provider that manages Rust Realtime connections and presence heartbeats.
  */
-export function RealtimeProvider({ children }: RealtimeProviderProps) {
-  const { data: session } = useSession();
+export function RealtimeProvider({ children, session }: RealtimeProviderProps) {
   const [isConnected, setIsConnected] = useState(false);
 
   // Track connection status and subscribe to realtime events.

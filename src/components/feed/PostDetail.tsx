@@ -1,29 +1,17 @@
 "use client";
 
 import { useState, useRef, useEffect, memo, useCallback, useMemo, lazy, Suspense } from "react";
-import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { TimeAgo } from "@/components/ui/TimeAgo";
 import { Button } from "@/components/ui/Button";
 import { ContentRenderer } from "@/components/ui/ContentRenderer";
-import { ProfileTooltip } from "@/components/ui/ProfileTooltip";
-import { getProfileTypeConfig, ProfileTypeIcon } from "@/lib/profile-types";
+import { ProfileTooltip } from "@/components/profile/ProfileTooltip";
 import { cn } from "@/lib/cn";
 // Lazy load heavy components - only loaded when needed
 const MediaViewer = lazy(() => import("@/components/ui/MediaViewer").then(m => ({ default: m.MediaViewer })));
-const PollDisplay = lazy(() => import("@/components/ui/PollDisplay").then(m => ({ default: m.PollDisplay })));
+const PollDisplay = lazy(() => import("@/components/polls/PollDisplay").then(m => ({ default: m.PollDisplay })));
 const ReplyModal = lazy(() => import("./ReplyModal").then(m => ({ default: m.ReplyModal })));
-
-// Pre-computed profile type styles for better performance
-const PROFILE_TYPE_CLASSES: Record<string, string> = {
-  DEVELOPER: "border-blue-500/40 bg-blue-500/10 text-blue-400",
-  CLIENT: "border-green-500/40 bg-green-500/10 text-green-400",
-  STUDIO: "border-[var(--color-accent)]/40 bg-[var(--color-accent)]/10 text-[var(--color-accent)]",
-  INFLUENCER: "border-[var(--color-accent)]/40 bg-[var(--color-accent)]/10 text-[var(--color-accent)]",
-  INVESTOR: "border-yellow-500/40 bg-yellow-500/10 text-yellow-400",
-  DEFAULT: "border-gray-500/40 bg-gray-500/10 text-gray-400",
-};
 
 interface PollOption {
   id: string;
@@ -110,6 +98,15 @@ interface PostDetailProps {
   onUpdate?: (updatedPost: Post) => void;
   isOnPostPage?: boolean;
   showPinnedTag?: boolean;
+  session?: {
+    user?: {
+      id: string;
+      name?: string | null;
+      email?: string | null;
+      image?: string | null;
+      username?: string;
+    };
+  } | null;
 }
 
 // Generate initials from name or username
@@ -124,8 +121,7 @@ function getInitials(name: string | null, username: string): string {
   return username.substring(0, 2).toUpperCase();
 }
 
-const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = false, showPinnedTag = false }: PostDetailProps) {
-  const { data: session } = useSession();
+export const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = false, showPinnedTag = false, session }: PostDetailProps) {
   const router = useRouter();
   const [avatarError, setAvatarError] = useState(false);
   // Track updated avatar for current user's posts (instant update when they change avatar)
@@ -149,17 +145,21 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
   const actionsMenuRef = useRef<HTMLDivElement>(null);
 
   // Compute engagement state from post data
+  // Counts are always visible, but user-specific states require authentication
   const engagementState = useMemo(() => {
+    const likeCount = post._count?.likes ?? post.likes?.length ?? 0;
+    const repostCount = post._count?.reposts ?? post.reposts?.length ?? 0;
+    
     if (!session?.user?.id) {
-      return { isLiked: false, isReposted: false, isSaved: false, likeCount: 0, repostCount: 0 };
+      return { isLiked: false, isReposted: false, isSaved: false, likeCount, repostCount };
     }
     const userId = session.user.id;
     return {
       isLiked: post.isLiked ?? post.likes?.some(like => like.userId === userId) ?? false,
       isReposted: post.isReposted ?? post.reposts?.some(repost => repost.userId === userId) ?? false,
       isSaved: post.isSaved ?? post.savedBy?.some(saved => saved.userId === userId) ?? false,
-      likeCount: post._count?.likes ?? post.likes?.length ?? 0,
-      repostCount: post._count?.reposts ?? post.reposts?.length ?? 0,
+      likeCount,
+      repostCount,
     };
   }, [session?.user?.id, post]);
 
@@ -255,7 +255,12 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
     : post.user.profile?.avatarUrl;
 
   const handleLike = useCallback(async () => {
-    if (!session?.user?.id || isUpdating) return;
+    const userId = session?.user?.id;
+    if (!userId) {
+      router.push(`/login?next=${encodeURIComponent(window.location.pathname)}`);
+      return;
+    }
+    if (isUpdating) return;
     const newLikedState = !isLiked;
     setIsUpdating(true);
     setIsLiked(newLikedState);
@@ -268,16 +273,12 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
         body: JSON.stringify({ postId: post.id }),
       });
 
-      if (!response.ok) throw new Error('Failed to like post');
       const data = await response.json();
-
-      if (data.liked !== undefined) {
+      if (response.ok && data.liked !== undefined) {
         setIsLiked(data.liked);
-        // Use the authoritative count from the server
         if (data.likeCount !== undefined) {
           setLikeCount(data.likeCount);
         } else if (data.liked !== newLikedState) {
-          // Fallback if server doesn't return count
           setLikeCount(prev => data.liked ? prev + 1 : Math.max(0, prev - 1));
         }
         setLastUpdateTime(Date.now());
@@ -286,11 +287,11 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
         if (onUpdate) {
           const updatedPost = { ...post };
           if (data.liked) {
-            if (!updatedPost.likes?.some(like => like.userId === session.user!.id)) {
-              updatedPost.likes = [...(updatedPost.likes || []), { id: Date.now().toString(), userId: session.user!.id }];
+            if (!updatedPost.likes?.some(like => like.userId === userId)) {
+              updatedPost.likes = [...(updatedPost.likes || []), { id: Date.now().toString(), userId }];
             }
           } else {
-            updatedPost.likes = (updatedPost.likes || []).filter(like => like.userId !== session.user!.id);
+            updatedPost.likes = (updatedPost.likes || []).filter(like => like.userId !== userId);
           }
           onUpdate(updatedPost);
         }
@@ -306,10 +307,15 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
     } finally {
       setIsUpdating(false);
     }
-  }, [session?.user?.id, isLiked, isUpdating, post, onUpdate]);
+  }, [session?.user?.id, isLiked, isUpdating, post, onUpdate, router]);
 
   const handleRepost = useCallback(async () => {
-    if (!session?.user?.id || isUpdating) return;
+    const userId = session?.user?.id;
+    if (!userId) {
+      router.push(`/login?next=${encodeURIComponent(window.location.pathname)}`);
+      return;
+    }
+    if (isUpdating) return;
     const newRepostedState = !isReposted;
     setIsUpdating(true);
     setIsReposted(newRepostedState);
@@ -325,11 +331,9 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
       const data = await response.json();
       if (response.ok && data.reposted !== undefined) {
         setIsReposted(data.reposted);
-        // Use the authoritative count from the server
         if (data.repostCount !== undefined) {
           setRepostCount(data.repostCount);
         } else if (data.reposted !== newRepostedState) {
-          // Fallback if server doesn't return count
           setRepostCount(prev => data.reposted ? prev + 1 : Math.max(0, prev - 1));
         }
         setLastUpdateTime(Date.now());
@@ -338,14 +342,13 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
         if (onUpdate) {
           const updatedPost = { ...post };
           if (data.reposted) {
-            updatedPost.reposts = [...(post.reposts || []), { id: Date.now().toString(), userId: session.user!.id }];
+            updatedPost.reposts = [...(post.reposts || []), { id: Date.now().toString(), userId }];
           } else {
-            updatedPost.reposts = (post.reposts || []).filter(repost => repost.userId !== session.user!.id);
+            updatedPost.reposts = (post.reposts || []).filter(repost => repost.userId !== userId);
           }
           onUpdate(updatedPost);
         }
         
-        // Dispatch event to notify other components (like ProfileTabs)
         window.dispatchEvent(new CustomEvent('postEngagementUpdate', {
           detail: { post, action: 'repost', reposted: data.reposted }
         }));
@@ -360,10 +363,15 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
     } finally {
       setIsUpdating(false);
     }
-  }, [session?.user?.id, isReposted, isUpdating, post, onUpdate]);
+  }, [session?.user?.id, isReposted, isUpdating, post, onUpdate, router]);
 
   const handleSave = useCallback(async () => {
-    if (!session?.user?.id || isUpdating) return;
+    const userId = session?.user?.id;
+    if (!userId) {
+      router.push(`/login?next=${encodeURIComponent(window.location.pathname)}`);
+      return;
+    }
+    if (isUpdating) return;
     const newSavedState = !isSaved;
     setIsUpdating(true);
     setIsSaved(newSavedState);
@@ -383,14 +391,13 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
         if (onUpdate) {
           const updatedPost = { ...post };
           if (data.saved) {
-            updatedPost.savedBy = [...(post.savedBy || []), { id: Date.now().toString(), userId: session.user!.id }];
+            updatedPost.savedBy = [...(post.savedBy || []), { id: Date.now().toString(), userId }];
           } else {
-            updatedPost.savedBy = (post.savedBy || []).filter(saved => saved.userId !== session.user!.id);
+            updatedPost.savedBy = (post.savedBy || []).filter(saved => saved.userId !== userId);
           }
           onUpdate(updatedPost);
         }
         
-        // Dispatch event to notify other components (like ProfileTabs)
         window.dispatchEvent(new CustomEvent('postEngagementUpdate', {
           detail: { post, action: 'save', saved: data.saved }
         }));
@@ -403,7 +410,7 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
     } finally {
       setIsUpdating(false);
     }
-  }, [session?.user?.id, isSaved, isUpdating, post, onUpdate]);
+  }, [session?.user?.id, isSaved, isUpdating, post, onUpdate, router]);
 
   const handlePin = async () => {
     if (!session?.user?.id || !isOwnPost) return;
@@ -423,12 +430,18 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
   };
 
   const handlePollVote = useCallback(async (optionIds: string[]) => {
-    if (!session?.user?.id || !post.poll?.id) return;
+    const userId = session?.user?.id;
+    const pollId = post.poll?.id;
+    if (!userId) {
+      router.push(`/login?next=${encodeURIComponent(window.location.pathname)}`);
+      return;
+    }
+    if (!pollId) return;
     try {
       const response = await fetch('/api/polls/vote', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pollId: post.poll.id, optionIds, userId: session.user.id }),
+        body: JSON.stringify({ pollId, optionIds, userId }),
       });
       if (response.ok) {
         // Use client-side refresh instead of full page reload
@@ -488,9 +501,6 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
     );
   };
 
-  // Use pre-computed lookup instead of recalculating on every render
-  const profileTypeClasses = PROFILE_TYPE_CLASSES[post.user.profile?.profileType || "DEFAULT"] || PROFILE_TYPE_CLASSES.DEFAULT;
-  
   // Memoized navigation handlers to prevent unnecessary re-renders
   const navigateToProfile = useCallback(() => {
     router.push(`/u/${post.user.username}`);
@@ -532,12 +542,24 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
     }
   }, [post.id, post.user.name, post.user.username, post.content]);
 
+  const handlePostClick = useCallback((e: React.MouseEvent) => {
+    // Don't navigate if we're already on the post page
+    if (isOnPostPage) return;
+    // Don't navigate if clicking on interactive elements
+    if ((e.target as HTMLElement).closest('a, button, [data-stop-propagation]')) return;
+    navigateToPost();
+  }, [isOnPostPage, navigateToPost]);
+
   return (
-    <div className="relative overflow-hidden glass-soft border border-white/10 rounded-xl sm:rounded-2xl p-3 sm:p-6 mb-3 sm:mb-6 hover:border-white/20 transition-all duration-300">
+    <article 
+      className="group relative overflow-hidden border border-white/10 rounded-xl sm:rounded-2xl p-3 sm:p-6 mb-3 sm:mb-6 bg-white/[0.01] hover:bg-white/[0.04] hover:border-white/20 transition-all duration-200"
+      onClick={handlePostClick}
+      style={{ cursor: isOnPostPage ? 'default' : 'pointer' }}
+    >
       {/* Header */}
       <div className="flex items-start space-x-2 sm:space-x-3 mb-3 sm:mb-4">
         <ProfileTooltip user={post.user} currentUserId={session?.user?.id}>
-          <button
+          <div
             onClick={navigateToProfile}
             className="relative cursor-pointer flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12"
           >
@@ -568,7 +590,7 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
                 </span>
               </div>
             )}
-          </button>
+          </div>
         </ProfileTooltip>
         
         <div className="flex-1 min-w-0">
@@ -597,30 +619,54 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
 
         {/* Actions Menu */}
         <div className="relative" ref={actionsMenuRef}>
-          <button onClick={() => setShowActionsMenu(!showActionsMenu)} className="p-2 rounded-xl hover:bg-white/5 transition-colors border border-transparent hover:border-white/10 group">
+          <button 
+            onClick={() => setShowActionsMenu(!showActionsMenu)} 
+            aria-expanded={showActionsMenu}
+            aria-haspopup="true"
+            aria-controls="post-actions-menu"
+            aria-label="Post actions"
+            className="p-2 rounded-xl hover:bg-white/5 transition-colors border border-transparent hover:border-white/10 group"
+          >
             <svg className="w-5 h-5 text-[var(--muted-foreground)] group-hover:text-white transition-colors" fill="currentColor" viewBox="0 0 20 20">
               <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
             </svg>
           </button>
 
           {showActionsMenu && (
-            <div className="absolute right-0 top-full mt-2 w-48 overflow-hidden glass-soft rounded-xl shadow-2xl border border-white/10 z-50 animate-pop-in">
+            <div 
+              id="post-actions-menu"
+              role="menu"
+              aria-orientation="vertical"
+              className="absolute right-0 top-full mt-2 w-48 overflow-hidden glass-soft rounded-xl shadow-2xl border border-white/10 z-50 animate-pop-in"
+            >
               <div className="py-1">
+                <a 
+                  href={`/p/${post.id}/analytics`} 
+                  role="menuitem"
+                  className="w-full text-left px-4 py-2.5 text-sm text-[var(--foreground)] hover:bg-white/5 transition-colors flex items-center space-x-3"
+                >
+                  <svg className="w-4 h-4 text-[var(--muted-foreground)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                  <span>Analytics</span>
+                </a>
                 {isOwnPost && (
                   <>
-                    <button onClick={handlePin} className="w-full text-left px-4 py-2.5 text-sm text-[var(--foreground)] hover:bg-white/5 transition-colors flex items-center space-x-3">
+                    <button 
+                      onClick={handlePin} 
+                      role="menuitem"
+                      className="w-full text-left px-4 py-2.5 text-sm text-[var(--foreground)] hover:bg-white/5 transition-colors flex items-center space-x-3"
+                    >
                       <svg className="w-4 h-4 text-[var(--muted-foreground)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
                       </svg>
                       <span>{post.isPinned ? 'Unpin' : 'Pin'}</span>
                     </button>
-                    <a href={`/p/${post.id}/analytics`} className="w-full text-left px-4 py-2.5 text-sm text-[var(--foreground)] hover:bg-white/5 transition-colors flex items-center space-x-3">
-                      <svg className="w-4 h-4 text-[var(--muted-foreground)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                      </svg>
-                      <span>Analytics</span>
-                    </a>
-                    <button onClick={() => { setShowActionsMenu(false); setShowDeleteConfirm(true); }} className="w-full text-left px-4 py-2.5 text-sm text-red-400 hover:bg-red-500/10 transition-colors flex items-center space-x-3">
+                    <button 
+                      onClick={() => { setShowActionsMenu(false); setShowDeleteConfirm(true); }} 
+                      role="menuitem"
+                      className="w-full text-left px-4 py-2.5 text-sm text-red-400 hover:bg-red-500/10 transition-colors flex items-center space-x-3"
+                    >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                       </svg>
@@ -628,7 +674,10 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
                     </button>
                   </>
                 )}
-                <button className="w-full text-left px-4 py-2.5 text-sm text-amber-400/80 hover:bg-amber-500/10 transition-colors flex items-center space-x-3">
+                <button 
+                  role="menuitem"
+                  className="w-full text-left px-4 py-2.5 text-sm text-amber-400/80 hover:bg-amber-500/10 transition-colors flex items-center space-x-3"
+                >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 19.5c-.77.833.192 2.5 1.732 2.5z" />
                   </svg>
@@ -663,22 +712,22 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
         </div>
       )}
 
-      {/* Action Buttons - Single row with equal spacing */}
-      <div className="flex items-center justify-between mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-white/5">
+      {/* Action Buttons - Grouped together */}
+      <div className="flex items-center gap-1 sm:gap-2 mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-white/5">
         {/* Reply - Opens modal like X.com */}
-        {!isOnPostPage ? (
+        {!isOnPostPage && (
           <EngagementButton
             onClick={openReplyModal}
-            isActive={(post.replies?.length || 0) > 0}
+            isActive={(post._count?.replies || post.replies?.length || 0) > 0}
             activeColor="blue"
-            count={post.replies?.length || 0}
+            count={post._count?.replies || post.replies?.length || 0}
             ariaLabel="Reply to this post"
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </EngagementButton>
-        ) : <div className="w-10" />}
+        )}
 
         {/* Repost */}
         <EngagementButton
@@ -744,21 +793,6 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
             <path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </EngagementButton>
-
-        {/* Go to Post */}
-        {!isOnPostPage && (
-          <EngagementButton
-            onClick={navigateToPost}
-            isActive={false}
-            activeColor="gray"
-            label="Open"
-            ariaLabel="Open post"
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </EngagementButton>
-        )}
       </div>
 
 
@@ -805,12 +839,12 @@ const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = fal
           />
         </Suspense>
       )}
-    </div>
+    </article>
   );
 });
 
 // Simple engagement button with explosion effect
-function EngagementButton({ 
+const EngagementButton = memo(function EngagementButton({ 
   onClick, 
   isActive, 
   activeColor, 
@@ -864,7 +898,7 @@ function EngagementButton({
       aria-label={ariaLabel || label}
       aria-pressed={isActive}
       className={cn(
-        "group flex items-center gap-2 p-2 rounded-xl transition-all duration-200 active:scale-90",
+        "group flex items-center gap-1.5 px-2 py-1.5 rounded-lg transition-all duration-200 active:scale-90",
         isActive ? colors.active : "text-[var(--muted-foreground)]",
         colors.hover,
         disabled && "opacity-50 cursor-not-allowed"
@@ -888,13 +922,21 @@ function EngagementButton({
         ))}
       </div>
       
-      {(count !== undefined || label) && (
-        <span className="text-xs font-bold tabular-nums tracking-tight">
-          {label || (count! > 0 ? count : "")}
+      {/* Show count if > 0, or label on desktop */}
+      {(count !== undefined && count > 0) && (
+        <span className="text-xs font-medium tabular-nums">
+          {count}
+        </span>
+      )}
+      
+      {/* Show label on desktop only */}
+      {label && (
+        <span className="text-xs font-medium hidden sm:inline">
+          {label}
         </span>
       )}
     </button>
   );
-}
+});
 
 export default PostDetail;

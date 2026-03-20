@@ -1,5 +1,5 @@
 import { prisma } from "@/server/db";
-import { responseCache } from "@/lib/cache";
+import { responseCache } from "@/server/cache";
 
 const PAGE_SIZE = 24;
 const CACHE_TTL = 120; // 2 minutes cache for faster loads

@@ -147,7 +147,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-import { responseCache } from "@/lib/cache";
+import { responseCache } from "@/server/cache";
 
 const PORTFOLIO_CACHE_TTL = 120; // 2 minutes
 

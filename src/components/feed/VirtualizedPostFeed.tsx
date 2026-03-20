@@ -48,8 +48,8 @@ interface Post {
     totalVotes: number;
   };
   likes?: Array<{ id: string; userId: string }>;
-  reposts?: Array<{ id: string; userId: string }>;
-  replies?: Array<any>;
+  reposts?: { id: string; userId: string }[];
+  replies?: Array<{ id: string; userId: string }>;
   views: number;
   isLiked?: boolean;
   isReposted?: boolean;
@@ -57,6 +57,11 @@ interface Post {
   isPinned: boolean;
   userVote?: {
     optionIds: string[];
+  };
+  _count?: {
+    likes: number;
+    reposts: number;
+    replies?: number;
   };
 }
 
@@ -66,9 +71,17 @@ interface VirtualizedPostFeedProps {
   hidePinnedIndicator?: boolean;
   isLoading?: boolean;
   onUpdate?: (updatedPost: Post) => void;
-  // For infinite scroll
   hasMore?: boolean;
   onLoadMore?: () => void;
+  session?: {
+    user?: {
+      id: string;
+      name?: string | null;
+      email?: string | null;
+      image?: string | null;
+      username?: string;
+    };
+  } | null;
 }
 
 // Estimated post height for virtual scrolling calculations
@@ -79,12 +92,22 @@ const VirtualPostItem = memo(function VirtualPostItem({
   post, 
   showPinnedTag, 
   onUpdate,
-  onVisible
+  onVisible,
+  session
 }: { 
   post: Post; 
   showPinnedTag: boolean; 
   onUpdate?: (updatedPost: Post) => void;
   onVisible?: () => void;
+  session?: {
+    user?: {
+      id: string;
+      name?: string | null;
+      email?: string | null;
+      image?: string | null;
+      username?: string;
+    };
+  } | null;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const [hasBeenVisible, setHasBeenVisible] = useState(false);
@@ -126,6 +149,7 @@ const VirtualPostItem = memo(function VirtualPostItem({
           post={post}
           showPinnedTag={showPinnedTag}
           onUpdate={onUpdate}
+          session={session}
         />
       ) : (
         // Placeholder with estimated height
@@ -152,13 +176,13 @@ const VirtualPostItem = memo(function VirtualPostItem({
     </article>
   );
 }, (prev, next) => {
-  // Check all fields that affect rendering, including engagement state
   return prev.post.id === next.post.id && 
          prev.post.updatedAt === next.post.updatedAt &&
          prev.post.isLiked === next.post.isLiked &&
          prev.post.isReposted === next.post.isReposted &&
          prev.post.isSaved === next.post.isSaved &&
-         prev.showPinnedTag === next.showPinnedTag;
+         prev.showPinnedTag === next.showPinnedTag &&
+         prev.session?.user?.id === next.session?.user?.id;
 });
 
 export const VirtualizedPostFeed = memo(function VirtualizedPostFeed({ 
@@ -167,7 +191,8 @@ export const VirtualizedPostFeed = memo(function VirtualizedPostFeed({
   isLoading = false, 
   onUpdate,
   hasMore = false,
-  onLoadMore
+  onLoadMore,
+  session
 }: VirtualizedPostFeedProps) {
   const loadMoreRef = useRef<HTMLDivElement>(null);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -225,6 +250,7 @@ export const VirtualizedPostFeed = memo(function VirtualizedPostFeed({
           post={post}
           showPinnedTag={!hidePinnedIndicator}
           onUpdate={handleUpdate}
+          session={session}
         />
       ))}
       

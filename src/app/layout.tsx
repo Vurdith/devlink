@@ -10,6 +10,7 @@ import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { ThemeFavicon } from "@/components/ui/ThemeFavicon";
 import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
 import { AnimatedBackground } from "@/components/ui/AnimatedBackground";
+import { getAuthSession } from "@/server/auth";
 
 const outfit = Outfit({
   variable: "--font-outfit",
@@ -100,11 +101,13 @@ export const viewport = {
   themeColor: "#0a0a0f",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await getAuthSession();
+
   return (
     <html lang="en" className="dark">
       <head>
@@ -113,12 +116,13 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://lh3.googleusercontent.com" />
         <link rel="dns-prefetch" href="https://avatars.githubusercontent.com" />
-        
+
         {/* Optimize resource loading */}
         <meta httpEquiv="x-dns-prefetch-control" content="on" />
-        
+
         {/* Early theme favicon sync - runs before React hydrates */}
-        <script dangerouslySetInnerHTML={{ __html: `
+        <script dangerouslySetInnerHTML={{
+          __html: `
           (function() {
             try {
               var theme = localStorage.getItem('devlink-theme');
@@ -144,15 +148,17 @@ export default function RootLayout({
           })();
         `}} />
       </head>
-      <body className={`${outfit.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable} antialiased min-h-screen`}>
+      <body
+        className={`${outfit.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable} antialiased bg-[#050508] text-foreground`}
+      >
         {/* Skip to main content link for accessibility */}
-        <a 
-          href="#main-content" 
+        <a
+          href="#main-content"
           className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:bg-[var(--color-accent)] focus:text-white focus:px-4 focus:py-2 focus:rounded-lg focus:outline-none"
         >
           Skip to main content
         </a>
-        
+
         {/* JSON-LD structured data */}
         <script
           type="application/ld+json"
@@ -171,28 +177,27 @@ export default function RootLayout({
             })
           }}
         />
-        
-        <SessionProvider>
-          <ThemeProvider>
+
+        <ThemeProvider>
           <ThemeFavicon />
           <ToastProvider>
-            <RealtimeProvider>
-            <PerformanceProvider>
-            <ErrorBoundary>
-              {/* Animated background */}
-              <AnimatedBackground />
-              
-              <AppShell>
-                <ErrorBoundary>
-                  {children}
-                </ErrorBoundary>
-              </AppShell>
-            </ErrorBoundary>
-            </PerformanceProvider>
-            </RealtimeProvider>
+            <SessionProvider session={session}>
+              <RealtimeProvider session={session}>
+                <PerformanceProvider>
+                  <ErrorBoundary>
+                    <AnimatedBackground />
+
+                    <AppShell session={session}>
+                      <ErrorBoundary>
+                        {children}
+                      </ErrorBoundary>
+                    </AppShell>
+                  </ErrorBoundary>
+                </PerformanceProvider>
+              </RealtimeProvider>
+            </SessionProvider>
           </ToastProvider>
-          </ThemeProvider>
-        </SessionProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

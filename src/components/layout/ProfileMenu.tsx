@@ -5,7 +5,7 @@ import Link from "next/link";
 import { signOut } from "next-auth/react";
 import { Avatar } from "@/components/ui/Avatar";
 import { cn } from "@/lib/cn";
-import { getProfileTypeConfig, ProfileTypeIcon } from "@/lib/profile-types";
+import { getProfileTypeConfig, ProfileTypeIcon } from "@/types/profile";
 
 interface ProfileMenuProps {
   username: string;

@@ -30,7 +30,10 @@ export async function GET() {
       where: { userId, readAt: null },
     });
 
-    return NextResponse.json({ unread: count });
+    return NextResponse.json(
+      { unread: count },
+      { headers: { "Cache-Control": "private, max-age=10" } }
+    );
   } catch (e) {
     console.error("Unread count error:", e);
     const payload = explainNotificationDbError(e);

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthSession } from "@/server/auth";
-import { deriveDeviceFingerprint } from "@/lib/security/fingerprint";
-import { evaluateAuthAnomaly } from "@/lib/security/anomaly-detection";
+import { deriveDeviceFingerprint } from "@/server/security/fingerprint";
+import { evaluateAuthAnomaly } from "@/server/security/anomaly-detection";
 
 export async function POST(request: NextRequest) {
   const session = await getAuthSession();

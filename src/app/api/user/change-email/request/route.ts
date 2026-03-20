@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { getAuthSession } from "@/server/auth";
 import { prisma } from "@/server/db";
 import { compare } from "bcryptjs";
-import { generateSecureToken, sendEmailChangeVerification } from "@/lib/email";
+import { generateSecureToken, sendEmailChangeVerification } from "@/server/email";
+import { checkRateLimit } from "@/server/rate-limit";
 
 export async function POST(request: NextRequest) {
   try {
@@ -10,6 +11,14 @@ export async function POST(request: NextRequest) {
     
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const rateLimit = await checkRateLimit(`email_change:${session.user.id}`, 3, 3600);
+    if (!rateLimit.success) {
+      return NextResponse.json(
+        { error: "Too many email change attempts. Please try again later." },
+        { status: 429 }
+      );
     }
 
     const body = await request.json();

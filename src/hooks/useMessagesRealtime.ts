@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { supabase, isRealtimeAvailable } from "@/lib/supabase/client";
+import { supabase, isRealtimeAvailable } from "@/server/supabase/client";
 import type { Message } from "@/types/api";
 
 /**

@@ -3,7 +3,7 @@
  * Consolidates complex engagement logic into a reducer for better performance
  */
 
-import { useReducer, useCallback, useMemo } from 'react';
+import { useReducer, useMemo } from 'react';
 
 export interface EngagementState {
   isSaved: boolean;

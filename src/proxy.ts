@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { deriveDeviceFingerprint } from "@/lib/security/fingerprint";
+import { deriveDeviceFingerprint } from "@/server/security/fingerprint";
+import { createHash } from "crypto";
 
 const SITE_LOCK_COOKIE = "devlink_site_lock";
 const SITE_LOCK_ROUTE = "/site-lock";
@@ -12,6 +13,10 @@ function isSiteLockEnabled() {
 
 function isSiteLockPublicPath(pathname: string) {
   return pathname === SITE_LOCK_ROUTE || pathname.startsWith(SITE_LOCK_API_ROUTE);
+}
+
+function hashPassword(password: string): string {
+  return createHash("sha256").update(password).digest("hex");
 }
 
 /**
@@ -26,7 +31,8 @@ export function proxy(req: NextRequest) {
       const { pathname, search } = req.nextUrl;
       if (!isSiteLockPublicPath(pathname)) {
         const grantedCookie = req.cookies.get(SITE_LOCK_COOKIE)?.value;
-        if (grantedCookie !== expectedPassword) {
+        const expectedHash = hashPassword(expectedPassword);
+        if (grantedCookie !== expectedHash) {
           const lockUrl = req.nextUrl.clone();
           lockUrl.pathname = SITE_LOCK_ROUTE;
           lockUrl.searchParams.set("next", `${pathname}${search}`);

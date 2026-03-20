@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/server/db";
 import { enqueueJob, leaseDueJobs, requeueJob } from "@/lib/jobs/queue";
 import { processScheduledPosts } from "@/server/jobs/process-scheduled-posts";
-import { startServerSpan, captureTracingError } from "@/lib/monitoring/tracing";
+import { startServerSpan, captureTracingError } from "@/server/monitoring/tracing";
 
 export async function POST(request: NextRequest) {
   const authHeader = request.headers.get('authorization');

@@ -3,19 +3,37 @@
 import { usePathname } from "next/navigation";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Navbar } from "@/components/layout/Navbar";
-import { MobileNav } from "@/components/layout/MobileNav";
+import { cn } from "@/lib/cn";
+import dynamic from "next/dynamic";
 
-export function AppShell({ children }: { children: React.ReactNode }) {
-  usePathname(); // keep hook for future route-based shell toggles
+const MobileNav = dynamic(
+  () => import("@/components/layout/MobileNav").then((m) => ({ default: m.MobileNav })),
+  { ssr: false }
+);
+
+interface AppShellProps {
+  children: React.ReactNode;
+  session: { user?: { id?: string; username?: string; name?: string; image?: string } } | null;
+}
+
+export function AppShell({ children, session }: AppShellProps) {
+  const pathname = usePathname();
+  const isLandingPage = pathname === "/";
 
   return (
     <>
-      <Sidebar />
-      <MobileNav />
-      <div className="md:ml-72 min-h-screen relative">
-        <Navbar />
-        <main id="main-content" className="min-h-screen relative isolate pb-20 md:pb-0" role="main">
-          <div className="relative z-10 p-4 md:p-6 pt-16 md:pt-6">
+      <Sidebar session={session} />
+      <MobileNav session={session} />
+
+      {/* Main Content Area */}
+      <div className={cn("w-full transition-all duration-300", !isLandingPage ? "md:pl-72" : "md:pl-72")}>
+        <Navbar session={session} />
+
+        <main id="main-content" className="relative isolate" role="main">
+          <div className={cn(
+            "mx-auto w-full relative z-10",
+            !isLandingPage ? "p-4 md:p-6 pt-16 md:pt-6" : "pt-0"
+          )}>
             {children}
           </div>
         </main>

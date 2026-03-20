@@ -70,21 +70,21 @@ export async function POST(req: Request) {
 
     // Use a transaction to ensure atomicity
     const result = await prisma.$transaction(async (tx) => {
-      // Check for existing user with same email or username
-      const existingByEmail = await tx.user.findUnique({ 
-        where: { email: sanitizedEmail },
-        select: { id: true }
-      });
+      const [existingByEmail, existingByUsername] = await Promise.all([
+        tx.user.findUnique({ 
+          where: { email: sanitizedEmail },
+          select: { id: true }
+        }),
+        tx.user.findUnique({ 
+          where: { username: sanitizedUsername },
+          select: { id: true }
+        })
+      ]);
       
       if (existingByEmail) {
         throw new Error("EMAIL_EXISTS");
       }
 
-      const existingByUsername = await tx.user.findUnique({ 
-        where: { username: sanitizedUsername },
-        select: { id: true }
-      });
-      
       if (existingByUsername) {
         throw new Error("USERNAME_EXISTS");
       }

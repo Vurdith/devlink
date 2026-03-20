@@ -1,5 +1,5 @@
 import { prisma } from "@/server/db";
-import { differenceInDays, eachDayOfInterval, format } from "date-fns";
+import { eachDayOfInterval, format } from "date-fns";
 
 export async function getPostAnalyticsTimeSeries(postId: string) {
   // 1. Fetch the post creation date

@@ -1,4 +1,4 @@
-import { subscribeEvent } from "@/lib/events/bus";
+import { subscribeEvent } from "@/server/events/bus";
 import { indexSearchDocumentWithRust } from "@/server/services/hotpath-client";
 
 let registered = false;

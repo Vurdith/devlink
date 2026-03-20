@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import { getAuthSession } from "@/server/auth";
 import { prisma } from "@/server/db";
-import { checkRateLimit } from "@/lib/rate-limit";
+import { checkRateLimit } from "@/server/rate-limit";
 import { validateMessageContent } from "@/lib/validation";
-import { publishEvent } from "@/lib/events/bus";
+import { publishEvent } from "@/server/events/bus";
 
 export async function POST(
   req: Request,

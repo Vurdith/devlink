@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/server/db";
-import { hash } from "bcryptjs";
+import { hash, compare } from "bcryptjs";
 
 export async function POST(request: NextRequest) {
   try {
@@ -66,8 +66,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if new password is different from current
-    const bcrypt = require('bcryptjs');
-    const isSamePassword = await bcrypt.compare(newPassword, resetToken.user.password);
+    
+    const isSamePassword = await compare(newPassword, resetToken.user.password);
     if (isSamePassword) {
       return NextResponse.json({ 
         error: "New password must be different from your current password" 

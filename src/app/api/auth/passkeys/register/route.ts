@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getAuthSession } from "@/server/auth";
-import { responseCache } from "@/lib/cache";
+import { responseCache } from "@/server/cache";
 
 function challengeKey(userId: string) {
   return `passkeys:challenge:registration:${userId}`;

@@ -70,11 +70,11 @@ const features = [
 
 export function FeaturesSection() {
   return (
-    <section className="relative px-4 py-20 md:py-28">
+    <section className="relative px-4 py-24 md:py-32">
       <div className="max-w-6xl mx-auto">
         <div className="grid gap-10 lg:grid-cols-[0.95fr_1.05fr] items-start">
           {/* Narrative header (left) */}
-          <div className="animate-fade-in">
+          <div className="animate-fade-in lg:sticky lg:top-32">
             <h2 className="mt-4 text-3xl sm:text-4xl md:text-5xl font-bold font-[var(--font-space-grotesk)] tracking-tight">
               <span className="text-white">A profile that</span>{" "}
               <span className="gradient-text">speaks for itself</span>
@@ -83,41 +83,87 @@ export function FeaturesSection() {
               DevLink is designed around signal: work samples, reputation, and clarity, so the right people can find you fast.
             </p>
 
-            <div className="mt-6 text-sm text-white/60 max-w-xl">
-              Built to make it easy to show your work and connect with the right people.
+            {/* CTA to fill blank space */}
+            <div className="mt-12 flex flex-col gap-8">
+              <div className="flex">
+                <a href="/register" className="group relative inline-flex items-center justify-center gap-2 rounded-xl px-8 py-4 text-sm font-semibold text-white transition-all duration-300 hover:scale-[1.02] active:scale-95 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20">
+                  <span>Start your profile</span>
+                  <svg className="w-4 h-4 opacity-70 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                  </svg>
+                </a>
+              </div>
             </div>
           </div>
 
-          {/* Feature cards (right) */}
+          {/* Feature cards (right) - Asymmetric Bento Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {features.map((feature, index) => (
-              <div
-                key={feature.title}
-                className="group relative animate-fade-in"
-                style={{ animationDelay: `${index * 0.06}s` }}
-              >
-                <div className="relative overflow-hidden rounded-3xl glass glass-hover border border-white/10 p-6 h-full noise-overlay">
-                  <div
-                    aria-hidden="true"
-                    className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
-                    style={{
-                      background: `radial-gradient(900px 240px at 30% 0%, ${feature.glow} 0%, transparent 65%)`,
-                    }}
-                  />
 
-                  <div className={`relative inline-flex p-3 rounded-2xl bg-gradient-to-br ${feature.color} mb-4 shadow-lg`}>
-                    <div className="text-white">{feature.icon}</div>
+            <div className="flex flex-col gap-4">
+              {/* Column 1 items (0, 2, 4) */}
+              {[features[0], features[2], features[4]].map((feature, index) => (
+                <div
+                  key={feature.title}
+                  className="group relative animate-fade-in transition-transform duration-500 hover:-translate-y-1"
+                  style={{ animationDelay: `${index * 0.1}s` }}
+                >
+                  {/* Give the middle item in this col slightly more height for masonry effect */}
+                  <div className={`relative overflow-hidden rounded-3xl glass glass-hover border border-white/10 p-6 noise-overlay ${index === 1 ? 'md:py-10' : ''}`}>
+                    <div
+                      aria-hidden="true"
+                      className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+                      style={{
+                        background: `radial-gradient(800px 300px at 50% 100%, ${feature.glow} 0%, transparent 70%)`,
+                      }}
+                    />
+
+                    <div className={`relative inline-flex p-3 rounded-2xl bg-gradient-to-br ${feature.color} mb-5 shadow-[0_0_15px_${feature.glow}]`}>
+                      <div className="text-white">{feature.icon}</div>
+                    </div>
+
+                    <h3 className="relative text-lg font-semibold text-white mb-2 font-[var(--font-space-grotesk)]">
+                      {feature.title}
+                    </h3>
+                    <p className="relative text-sm text-white/65 leading-relaxed">
+                      {feature.description}
+                    </p>
                   </div>
-
-                  <h3 className="relative text-lg font-semibold text-white mb-2 font-[var(--font-space-grotesk)]">
-                    {feature.title}
-                  </h3>
-                  <p className="relative text-sm text-white/65 leading-relaxed">
-                    {feature.description}
-                  </p>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
+
+            <div className="flex flex-col gap-4 sm:mt-12">
+              {/* Column 2 items (1, 3, 5) - Offset down for masonry look */}
+              {[features[1], features[3], features[5]].map((feature, index) => (
+                <div
+                  key={feature.title}
+                  className="group relative animate-fade-in transition-transform duration-500 hover:-translate-y-1"
+                  style={{ animationDelay: `${(index + 1) * 0.15}s` }}
+                >
+                  <div className={`relative overflow-hidden rounded-3xl glass glass-hover border border-white/10 p-6 noise-overlay ${index === 0 ? 'md:py-10' : ''}`}>
+                    <div
+                      aria-hidden="true"
+                      className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+                      style={{
+                        background: `radial-gradient(800px 300px at 50% 100%, ${feature.glow} 0%, transparent 70%)`,
+                      }}
+                    />
+
+                    <div className={`relative inline-flex p-3 rounded-2xl bg-gradient-to-br ${feature.color} mb-5 shadow-[0_0_15px_${feature.glow}]`}>
+                      <div className="text-white">{feature.icon}</div>
+                    </div>
+
+                    <h3 className="relative text-lg font-semibold text-white mb-2 font-[var(--font-space-grotesk)]">
+                      {feature.title}
+                    </h3>
+                    <p className="relative text-sm text-white/65 leading-relaxed">
+                      {feature.description}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
           </div>
         </div>
       </div>

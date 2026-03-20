@@ -52,7 +52,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
             
             <h2 className="text-2xl font-bold text-white mb-3 tracking-tight">Something went wrong</h2>
             <p className="text-[var(--muted-foreground)] mb-8 leading-relaxed">
-              We encountered an unexpected error. Don't worry, your data is safe. Please try refreshing the page.
+              We encountered an unexpected error. Don&apos;t worry, your data is safe. Please try refreshing the page.
             </p>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

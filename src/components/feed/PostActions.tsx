@@ -1,6 +1,5 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
-import { Button } from "@/components/ui/Button";
 import { Toast } from "@/components/ui/Toast";
 
 interface PostActionsProps {
@@ -62,7 +61,7 @@ export function PostActions({ post, currentUserId, onEdit, onDelete, onPinToggle
         setToastType("error");
         setShowToast(true);
       }
-    } catch (error) {
+    } catch {
       setToastMessage("Failed to delete post");
       setToastType("error");
       setShowToast(true);
@@ -90,7 +89,7 @@ export function PostActions({ post, currentUserId, onEdit, onDelete, onPinToggle
         setToastType("error");
         setShowToast(true);
       }
-    } catch (error) {
+    } catch {
       setToastMessage("Failed to pin post");
       setToastType("error");
       setShowToast(true);

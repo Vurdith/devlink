@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthSession } from "@/server/auth";
 import { prisma } from "@/server/db";
-import { responseCache } from "@/lib/cache";
+import { responseCache } from "@/server/cache";
 
 // PUT /api/users/me/availability - Update availability, rate, headline
 export async function PUT(request: NextRequest) {

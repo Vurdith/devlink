@@ -27,51 +27,92 @@ export async function GET(req: Request) {
 
   const requests = await prisma.messageRequest.findMany({
     where,
-    include: {
-      sender: { include: { profile: true } },
-      recipient: { include: { profile: true } },
+    select: {
+      id: true,
+      status: true,
+      createdAt: true,
+      updatedAt: true,
+      senderId: true,
+      recipientId: true,
+      sender: {
+        select: {
+          id: true,
+          username: true,
+          name: true,
+          profile: { select: { avatarUrl: true, verified: true } }
+        }
+      },
+      recipient: {
+        select: {
+          id: true,
+          username: true,
+          name: true,
+          profile: { select: { avatarUrl: true, verified: true } }
+        }
+      },
     },
     orderBy: { createdAt: "desc" },
   });
 
-  // For incoming requests, find the linked conversation and last message
-  if (type === "incoming") {
-    const enriched = await Promise.all(
-      requests.map(async (req) => {
-        // Find conversation between sender and recipient
-        const senderMemberships = await prisma.conversationMember.findMany({
-          where: { userId: req.senderId },
-          select: { conversationId: true },
-        });
-        const senderConvIds = senderMemberships.map((m) => m.conversationId);
+  if (type === "incoming" && requests.length > 0) {
+    const senderIds = [...new Set(requests.map(r => r.senderId))];
+    const recipientIds = [...new Set(requests.map(r => r.recipientId))];
+    const allUserIds = [...new Set([...senderIds, ...recipientIds])];
 
-        let conversation = null;
-        if (senderConvIds.length > 0) {
-          const recipientMembership = await prisma.conversationMember.findFirst({
-            where: {
-              userId: req.recipientId,
-              conversationId: { in: senderConvIds },
-            },
-            select: { conversationId: true },
-          });
-
-          if (recipientMembership) {
-            conversation = await prisma.conversation.findFirst({
-              where: { id: recipientMembership.conversationId, isGroup: false },
-              include: {
-                messages: { orderBy: { createdAt: "desc" }, take: 1 },
-              },
-            });
+    const [allMemberships, conversations] = await Promise.all([
+      prisma.conversationMember.findMany({
+        where: { userId: { in: allUserIds } },
+        select: { userId: true, conversationId: true }
+      }),
+      prisma.conversation.findMany({
+        where: { isGroup: false },
+        select: {
+          id: true,
+          members: { select: { userId: true } },
+          messages: {
+            orderBy: { createdAt: "desc" },
+            take: 1,
+            select: { id: true, content: true, createdAt: true, senderId: true }
           }
         }
-
-        return {
-          ...req,
-          conversationId: conversation?.id || null,
-          lastMessage: conversation?.messages?.[0] || null,
-        };
       })
-    );
+    ]);
+
+    const userConversationsMap = new Map<string, Set<string>>();
+    for (const m of allMemberships) {
+      if (!userConversationsMap.has(m.userId)) {
+        userConversationsMap.set(m.userId, new Set());
+      }
+      userConversationsMap.get(m.userId)!.add(m.conversationId);
+    }
+
+    const conversationMemberMap = new Map<string, { id: string; lastMessage: unknown }>();
+    for (const conv of conversations) {
+      const memberIds = conv.members.map(m => m.userId).sort().join(",");
+      conversationMemberMap.set(memberIds, { 
+        id: conv.id, 
+        lastMessage: conv.messages[0] || null 
+      });
+    }
+
+    const enriched = requests.map(req => {
+      const senderConvIds = userConversationsMap.get(req.senderId);
+      const recipientConvIds = userConversationsMap.get(req.recipientId);
+      
+      let conversationData: { id: string; lastMessage: unknown } | undefined;
+      
+      if (senderConvIds && recipientConvIds) {
+        const memberKey = [req.senderId, req.recipientId].sort().join(",");
+        conversationData = conversationMemberMap.get(memberKey);
+      }
+
+      return {
+        ...req,
+        conversationId: conversationData?.id || null,
+        lastMessage: conversationData?.lastMessage || null,
+      };
+    });
+
     const response = NextResponse.json(enriched);
     response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
     return response;

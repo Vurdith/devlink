@@ -7,55 +7,685 @@ datasource db {
 }
 
 model User {
-  id              String          @id @default(cuid())
-  email           String          @unique
-  username        String          @unique
-  name            String?
-  role            String          @default("DEVELOPER")
-  password        String?
-  emailVerified   DateTime?
-  image           String?
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
-  accounts        Account[]
-  sessions        Session[]
-  following       Follower[]      @relation("UserFollowers")
-  followers       Follower[]      @relation("UserFollowing")
-  pollVotes       PollVote[]
-  portfolioItems  PortfolioItem[]
-  posts           Post[]
-  likes           PostLike[]
-  reposts         PostRepost[]
-  views           PostView[]
-  profile         Profile?
-  reportsReceived Report[]        @relation("Reported")
-  reportsGiven    Report[]        @relation("Reporter")
-  reviewsReceived Review[]        @relation("Reviewed")
-  reviewsGiven    Review[]        @relation("Reviewer")
-  savedPosts      SavedPost[]
-  mentions        PostMention[]
-  passwordResetTokens PasswordResetToken[]
-  emailChangeTokens   EmailChangeToken[]
-  skills          UserSkill[]
-  notificationsReceived Notification[] @relation("UserNotifications")
-  notificationsSent     Notification[] @relation("ActorNotifications")
-  notificationActorLinks NotificationActor[]
-  jobsPosted      Job[]
-  jobApplications JobApplication[]
-  conversationsCreated Conversation[] @relation("ConversationCreator")
-  conversationMembers ConversationMember[] @relation("ConversationMembers")
-  messagesSent    Message[] @relation("MessageSender")
-  conversationInvitesSent ConversationInvite[] @relation("ConversationInviter")
-  conversationInvitesReceived ConversationInvite[] @relation("ConversationInvitee")
-  escrowAsClient  EscrowContract[] @relation("EscrowClient")
-  escrowAsDeveloper EscrowContract[] @relation("EscrowDeveloper")
-  verificationRequests VerificationRequest[]
-  messagingSettings UserMessagingSettings?
-  messageRequestsSent MessageRequest[] @relation("MessageRequestSender")
-  messageRequestsReceived MessageRequest[] @relation("MessageRequestRecipient")
+  id                          String                 @id @default(cuid())
+  email                       String                 @unique
+  username                    String                 @unique
+  name                        String?
+  role                        String                 @default("DEVELOPER")
+  password                    String?
+  emailVerified               DateTime?
+  image                       String?
+  createdAt                   DateTime               @default(now())
+  updatedAt                   DateTime               @updatedAt
+  lockedUntil                 DateTime?
+  loginAttempts               Int                    @default(0)
+  twoFactorEnabled            Boolean                @default(false)
+  twoFactorSecret             String?
+  accounts                    Account[]
+  auditLogs                   AuditLog[]
+  conversationsCreated        Conversation[]         @relation("ConversationCreator")
+  conversationInvitesReceived ConversationInvite[]   @relation("ConversationInvitee")
+  conversationInvitesSent     ConversationInvite[]   @relation("ConversationInviter")
+  conversationMembers         ConversationMember[]   @relation("ConversationMembers")
+  emailChangeTokens           EmailChangeToken[]
+  escrowAsClient              EscrowContract[]       @relation("EscrowClient")
+  escrowAsDeveloper           EscrowContract[]       @relation("EscrowDeveloper")
+  following                   Follower[]             @relation("UserFollowers")
+  followers                   Follower[]             @relation("UserFollowing")
+  jobsPosted                  Job[]
+  jobApplications             JobApplication[]
+  messagesSent                Message[]              @relation("MessageSender")
+  messageRequestsReceived     MessageRequest[]       @relation("MessageRequestRecipient")
+  messageRequestsSent         MessageRequest[]       @relation("MessageRequestSender")
+  notificationsSent           Notification[]         @relation("ActorNotifications")
+  notificationsReceived       Notification[]         @relation("UserNotifications")
+  notificationActorLinks      NotificationActor[]
+  passwordResetTokens         PasswordResetToken[]
+  pollVotes                   PollVote[]
+  portfolioItems              PortfolioItem[]
+  posts                       Post[]
+  likes                       PostLike[]
+  mentions                    PostMention[]
+  reposts                     PostRepost[]
+  views                       PostView[]
+  profile                     Profile?
+  reportsGiven                Report[]               @relation("Reporter")
+  reportsReceived             Report[]               @relation("Reported")
+  reviewsReceived             Review[]               @relation("Reviewed")
+  reviewsGiven                Review[]               @relation("Reviewer")
+  savedPosts                  SavedPost[]
+  sessions                    Session[]
+  messagingSettings           UserMessagingSettings?
+  skills                      UserSkill[]
+  verificationRequests        VerificationRequest[]
 
-  // Index for discover page sorting
   @@index([createdAt])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String
+  action    String
+  details   Json
+  ipAddress String?
+  userAgent String?
+  metadata  Json?
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+}
+
+model Notification {
+  id           String              @id @default(cuid())
+  userId       String
+  actorId      String
+  type         NotificationType
+  postId       String?
+  sourcePostId String?
+  dedupeKey    String?             @unique
+  metadata     Json?
+  readAt       DateTime?
+  createdAt    DateTime            @default(now())
+  actor        User                @relation("ActorNotifications", fields: [actorId], references: [id], onDelete: Cascade)
+  post         Post?               @relation(fields: [postId], references: [id], onDelete: Cascade)
+  sourcePost   Post?               @relation("NotificationSourcePost", fields: [sourcePostId], references: [id], onDelete: Cascade)
+  user         User                @relation("UserNotifications", fields: [userId], references: [id], onDelete: Cascade)
+  actors       NotificationActor[]
+
+  @@index([userId, readAt])
+  @@index([userId, createdAt])
+  @@index([actorId])
+  @@index([postId])
+  @@index([sourcePostId])
+}
+
+model NotificationActor {
+  id             String       @id @default(cuid())
+  notificationId String
+  actorId        String
+  createdAt      DateTime     @default(now())
+  actor          User         @relation(fields: [actorId], references: [id], onDelete: Cascade)
+  notification   Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+
+  @@unique([notificationId, actorId])
+  @@index([notificationId])
+  @@index([actorId])
+  @@index([createdAt])
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Profile {
+  id           String   @id @default(cuid())
+  userId       String   @unique
+  bio          String?
+  rates        String?
+  bannerUrl    String?
+  avatarUrl    String?
+  location     String?
+  website      String?
+  profileType  String   @default("DEVELOPER")
+  themeColor   String?
+  availability String?
+  verified     Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  currency     String?
+  headline     String?
+  hourlyRate   Int?
+  responseTime String?
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([verified])
+  @@index([profileType])
+  @@index([verified, profileType])
+}
+
+model Post {
+  id                  String         @id @default(cuid())
+  userId              String
+  content             String
+  isPinned            Boolean        @default(false)
+  isSlideshow         Boolean        @default(false)
+  isScheduled         Boolean        @default(false)
+  scheduledFor        DateTime?
+  location            String?
+  embedUrls           String?
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+  replyToId           String?
+  notificationsTarget Notification[]
+  notificationsSource Notification[] @relation("NotificationSourcePost")
+  poll                Poll?
+  replyTo             Post?          @relation("PostReplies", fields: [replyToId], references: [id])
+  replies             Post[]         @relation("PostReplies")
+  user                User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  hashtags            PostHashtag[]
+  likes               PostLike[]
+  media               PostMedia[]
+  mentions            PostMention[]
+  reposts             PostRepost[]
+  views               PostView[]
+  reports             Report[]
+  savedBy             SavedPost[]
+
+  @@index([userId])
+  @@index([createdAt])
+  @@index([replyToId])
+  @@index([replyToId, createdAt])
+  @@index([userId, isPinned, createdAt])
+}
+
+model PostMedia {
+  id        String   @id @default(cuid())
+  postId    String
+  mediaUrl  String
+  mediaType String
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([postId])
+}
+
+model PostLike {
+  id        String   @id @default(cuid())
+  postId    String
+  userId    String
+  createdAt DateTime @default(now())
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId])
+  @@index([userId])
+  @@index([postId])
+}
+
+model PostRepost {
+  id        String   @id @default(cuid())
+  postId    String
+  userId    String
+  createdAt DateTime @default(now())
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId])
+  @@index([userId])
+  @@index([postId])
+}
+
+model PostView {
+  id        String   @id @default(cuid())
+  postId    String
+  userId    String?
+  ipAddress String?
+  userAgent String?
+  viewedAt  DateTime @default(now())
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user      User?    @relation(fields: [userId], references: [id])
+
+  @@unique([postId, userId])
+  @@index([postId])
+  @@index([userId])
+  @@index([viewedAt])
+}
+
+model SavedPost {
+  id        String   @id @default(cuid())
+  userId    String
+  postId    String
+  createdAt DateTime @default(now())
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId])
+  @@index([userId])
+  @@index([postId])
+}
+
+model PortfolioItem {
+  id          String               @id @default(cuid())
+  userId      String
+  title       String
+  description String?
+  mediaUrls   String?
+  links       String?
+  category    String?
+  tags        String?
+  isPublic    Boolean              @default(true)
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+  user        User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  skills      PortfolioItemSkill[]
+
+  @@index([userId])
+  @@index([isPublic])
+}
+
+model Follower {
+  id          String   @id @default(cuid())
+  followerId  String
+  followingId String
+  createdAt   DateTime @default(now())
+  follower    User     @relation("UserFollowers", fields: [followerId], references: [id], onDelete: Cascade)
+  following   User     @relation("UserFollowing", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@unique([followerId, followingId])
+  @@index([followerId])
+  @@index([followingId])
+}
+
+model Review {
+  id         String   @id @default(cuid())
+  reviewerId String
+  reviewedId String
+  rating     Int
+  text       String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  reviewed   User     @relation("Reviewed", fields: [reviewedId], references: [id], onDelete: Cascade)
+  reviewer   User     @relation("Reviewer", fields: [reviewerId], references: [id], onDelete: Cascade)
+
+  @@index([reviewerId])
+  @@index([reviewedId])
+  @@index([reviewedId, createdAt])
+}
+
+model Job {
+  id              String           @id @default(cuid())
+  userId          String
+  title           String
+  description     String
+  budgetMin       Int?
+  budgetMax       Int?
+  currency        String           @default("USD")
+  skills          String?
+  location        String?
+  status          JobStatus        @default(OPEN)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  escrowContracts EscrowContract[]
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  applications    JobApplication[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+  @@index([status, createdAt])
+}
+
+model JobApplication {
+  id          String            @id @default(cuid())
+  jobId       String
+  applicantId String
+  status      ApplicationStatus @default(PENDING)
+  message     String?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  applicant   User              @relation(fields: [applicantId], references: [id], onDelete: Cascade)
+  job         Job               @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@unique([jobId, applicantId])
+  @@index([jobId])
+  @@index([applicantId])
+  @@index([status, createdAt])
+}
+
+model Conversation {
+  id            String               @id @default(cuid())
+  title         String?
+  isGroup       Boolean              @default(false)
+  createdById   String?
+  lastMessageAt DateTime?
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+  createdBy     User?                @relation("ConversationCreator", fields: [createdById], references: [id])
+  invites       ConversationInvite[]
+  members       ConversationMember[]
+  messages      Message[]
+
+  @@index([createdById])
+  @@index([lastMessageAt])
+  @@index([isGroup, lastMessageAt])
+}
+
+model ConversationMember {
+  id             String           @id @default(cuid())
+  conversationId String
+  userId         String
+  role           ConversationRole @default(MEMBER)
+  joinedAt       DateTime         @default(now())
+  createdAt      DateTime         @default(now())
+  lastReadAt     DateTime         @default(now())
+  conversation   Conversation     @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  user           User             @relation("ConversationMembers", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([conversationId, userId])
+  @@index([conversationId])
+  @@index([userId])
+}
+
+model ConversationInvite {
+  id             String                   @id @default(cuid())
+  conversationId String
+  inviterId      String
+  inviteeId      String
+  status         ConversationInviteStatus @default(PENDING)
+  createdAt      DateTime                 @default(now())
+  updatedAt      DateTime                 @updatedAt
+  conversation   Conversation             @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  invitee        User                     @relation("ConversationInvitee", fields: [inviteeId], references: [id], onDelete: Cascade)
+  inviter        User                     @relation("ConversationInviter", fields: [inviterId], references: [id], onDelete: Cascade)
+
+  @@unique([conversationId, inviteeId])
+  @@index([inviteeId, status])
+  @@index([inviterId, status])
+}
+
+model Message {
+  id             String              @id @default(cuid())
+  senderId       String
+  content        String?
+  createdAt      DateTime            @default(now())
+  conversationId String
+  conversation   Conversation        @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender         User                @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
+  attachments    MessageAttachment[]
+
+  @@index([conversationId, createdAt])
+  @@index([senderId])
+}
+
+model MessageAttachment {
+  id        String   @id @default(cuid())
+  messageId String
+  url       String
+  mimeType  String
+  fileName  String
+  size      Int
+  createdAt DateTime @default(now())
+  message   Message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@index([messageId])
+}
+
+model EscrowContract {
+  id          String           @id @default(cuid())
+  clientId    String
+  developerId String
+  jobId       String?
+  amount      Int
+  currency    String           @default("USD")
+  status      EscrowStatus     @default(PENDING)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  client      User             @relation("EscrowClient", fields: [clientId], references: [id], onDelete: Cascade)
+  developer   User             @relation("EscrowDeveloper", fields: [developerId], references: [id], onDelete: Cascade)
+  job         Job?             @relation(fields: [jobId], references: [id])
+  milestone   EscrowMilestone?
+
+  @@index([clientId])
+  @@index([developerId])
+  @@index([status])
+  @@index([jobId])
+}
+
+model EscrowMilestone {
+  id          String                @id @default(cuid())
+  contractId  String                @unique
+  title       String
+  amount      Int
+  status      EscrowMilestoneStatus @default(PENDING)
+  submittedAt DateTime?
+  releasedAt  DateTime?
+  createdAt   DateTime              @default(now())
+  updatedAt   DateTime              @updatedAt
+  contract    EscrowContract        @relation(fields: [contractId], references: [id], onDelete: Cascade)
+}
+
+model VerificationRequest {
+  id          String             @id @default(cuid())
+  userId      String
+  type        VerificationType
+  status      VerificationStatus @default(PENDING)
+  documentUrl String?
+  notes       String?
+  reviewedAt  DateTime?
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  user        User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+}
+
+model UserMessagingSettings {
+  id        String            @id @default(cuid())
+  userId    String            @unique
+  allowFrom MessagePermission @default(EVERYONE)
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+  user      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model MessageRequest {
+  id          String               @id @default(cuid())
+  senderId    String
+  recipientId String
+  status      MessageRequestStatus @default(PENDING)
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+  recipient   User                 @relation("MessageRequestRecipient", fields: [recipientId], references: [id], onDelete: Cascade)
+  sender      User                 @relation("MessageRequestSender", fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@unique([senderId, recipientId])
+  @@index([recipientId, status])
+  @@index([senderId, status])
+}
+
+model Report {
+  id           String    @id @default(cuid())
+  reporterId   String
+  targetUserId String?
+  postId       String?
+  reportType   String
+  description  String
+  evidence     String?
+  status       String    @default("PENDING")
+  adminNotes   String?
+  resolvedAt   DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  post         Post?     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  reporter     User      @relation("Reporter", fields: [reporterId], references: [id], onDelete: Cascade)
+  targetUser   User?     @relation("Reported", fields: [targetUserId], references: [id], onDelete: Cascade)
+
+  @@index([reporterId])
+  @@index([postId])
+  @@index([status])
+  @@index([status, createdAt])
+}
+
+model Poll {
+  id         String       @id @default(cuid())
+  postId     String       @unique
+  question   String
+  expiresAt  DateTime?
+  isMultiple Boolean      @default(false)
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+  post       Post         @relation(fields: [postId], references: [id], onDelete: Cascade)
+  options    PollOption[]
+  votes      PollVote[]
+}
+
+model PollOption {
+  id        String     @id @default(cuid())
+  pollId    String
+  text      String
+  createdAt DateTime   @default(now())
+  poll      Poll       @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  votes     PollVote[]
+}
+
+model PollVote {
+  id        String     @id @default(cuid())
+  pollId    String
+  optionId  String
+  userId    String
+  createdAt DateTime   @default(now())
+  option    PollOption @relation(fields: [optionId], references: [id], onDelete: Cascade)
+  poll      Poll       @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([pollId, userId, optionId])
+  @@index([pollId])
+  @@index([optionId])
+  @@index([userId])
+}
+
+model Hashtag {
+  id        String        @id @default(cuid())
+  name      String        @unique
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  posts     PostHashtag[]
+}
+
+model PostHashtag {
+  id        String   @id @default(cuid())
+  postId    String
+  hashtagId String
+  createdAt DateTime @default(now())
+  hashtag   Hashtag  @relation(fields: [hashtagId], references: [id], onDelete: Cascade)
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, hashtagId])
+  @@index([hashtagId])
+  @@index([postId])
+}
+
+model PostMention {
+  id        String   @id @default(cuid())
+  postId    String
+  userId    String
+  createdAt DateTime @default(now())
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId])
+  @@index([userId])
+  @@index([postId])
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expires   DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+}
+
+model EmailChangeToken {
+  id        String   @id @default(cuid())
+  userId    String
+  newEmail  String
+  token     String   @unique
+  expires   DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+}
+
+model Skill {
+  id             String               @id @default(cuid())
+  name           String               @unique
+  category       String
+  icon           String?
+  createdAt      DateTime             @default(now())
+  portfolioItems PortfolioItemSkill[]
+  users          UserSkill[]
+
+  @@index([category])
+}
+
+model PortfolioItemSkill {
+  id              String        @id @default(cuid())
+  portfolioItemId String
+  skillId         String
+  createdAt       DateTime      @default(now())
+  portfolioItem   PortfolioItem @relation(fields: [portfolioItemId], references: [id], onDelete: Cascade)
+  skill           Skill         @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@unique([portfolioItemId, skillId])
+  @@index([portfolioItemId])
+  @@index([skillId])
+}
+
+model UserSkill {
+  id                String   @id @default(cuid())
+  userId            String
+  skillId           String
+  experienceLevel   String   @default("INTERMEDIATE")
+  yearsOfExp        Int?
+  isPrimary         Boolean  @default(false)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  description       String?
+  headline          String?
+  rate              Int?
+  rateUnit          String?
+  skillAvailability String?
+  skill             Skill    @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, skillId])
+  @@index([userId])
+  @@index([skillId])
+  @@index([experienceLevel])
+  @@index([isPrimary])
 }
 
 enum NotificationType {
@@ -128,633 +758,4 @@ enum ConversationInviteStatus {
   PENDING
   ACCEPTED
   DECLINED
-}
-
-model Notification {
-  id           String           @id @default(cuid())
-  userId       String           // recipient
-  actorId      String           // who triggered it
-  type         NotificationType
-  postId       String?
-  sourcePostId String?          // e.g. reply post id
-  dedupeKey    String?          @unique
-  metadata     Json?
-  readAt       DateTime?
-  createdAt    DateTime         @default(now())
-
-  user         User             @relation("UserNotifications", fields: [userId], references: [id], onDelete: Cascade)
-  actor        User             @relation("ActorNotifications", fields: [actorId], references: [id], onDelete: Cascade)
-  post         Post?            @relation(fields: [postId], references: [id], onDelete: Cascade)
-  sourcePost   Post?            @relation("NotificationSourcePost", fields: [sourcePostId], references: [id], onDelete: Cascade)
-  actors       NotificationActor[]
-
-  @@index([userId, readAt])
-  @@index([userId, createdAt])
-  @@index([actorId])
-  @@index([postId])
-  @@index([sourcePostId])
-}
-
-model NotificationActor {
-  id             String        @id @default(cuid())
-  notificationId String
-  actorId        String
-  createdAt      DateTime      @default(now())
-
-  notification   Notification  @relation(fields: [notificationId], references: [id], onDelete: Cascade)
-  actor          User          @relation(fields: [actorId], references: [id], onDelete: Cascade)
-
-  @@unique([notificationId, actorId])
-  @@index([notificationId])
-  @@index([actorId])
-  @@index([createdAt])
-}
-
-model Account {
-  id                String  @id @default(cuid())
-  userId            String
-  type              String
-  provider          String
-  providerAccountId String
-  refresh_token     String?
-  access_token      String?
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String?
-  session_state     String?
-  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([provider, providerAccountId])
-  @@index([userId])
-}
-
-model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
-model VerificationToken {
-  identifier String
-  token      String   @unique
-  expires    DateTime
-
-  @@unique([identifier, token])
-}
-
-model Profile {
-  id             String   @id @default(cuid())
-  userId         String   @unique
-  bio            String?
-  rates          String?
-  bannerUrl      String?
-  avatarUrl      String?
-  location       String?
-  website        String?
-  profileType    String   @default("DEVELOPER")
-  themeColor     String?
-  availability   String?  // AVAILABLE, BUSY, NOT_AVAILABLE, OPEN_TO_OFFERS
-  verified       Boolean  @default(false)
-  hourlyRate     Int?     // Hourly rate in cents (e.g., 5000 = $50/hr)
-  currency       String?  // Currency code (USD, EUR, GBP, etc.)
-  headline       String?  // Short tagline like "Senior Lua Developer | 5+ Years Experience"
-  responseTime   String?  // WITHIN_HOURS, WITHIN_DAY, WITHIN_WEEK
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  // Indexes for discover page performance
-  @@index([verified])
-  @@index([profileType])
-  @@index([verified, profileType])
-}
-
-model Post {
-  id           String       @id @default(cuid())
-  userId       String
-  content      String
-  isPinned     Boolean      @default(false)
-  isSlideshow  Boolean      @default(false)
-  // Scheduling and enrichments
-  isScheduled  Boolean      @default(false)
-  scheduledFor DateTime?
-  location     String?
-  embedUrls    String?      // JSON string array of URLs
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
-  replyToId    String?
-  poll         Poll?
-  replyTo      Post?        @relation("PostReplies", fields: [replyToId], references: [id])
-  replies      Post[]       @relation("PostReplies")
-  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  likes        PostLike[]
-  reposts      PostRepost[]
-  views        PostView[]
-  reports      Report[]
-  savedBy      SavedPost[]
-  media        PostMedia[]
-  hashtags     PostHashtag[]
-  mentions     PostMention[]
-  notificationsTarget Notification[]
-  notificationsSource Notification[] @relation("NotificationSourcePost")
-
-  @@index([userId])
-  @@index([createdAt])
-  @@index([replyToId])
-  @@index([replyToId, createdAt]) // Compound index for feed queries
-  @@index([userId, isPinned, createdAt]) // User profile posts
-}
-
-model PostMedia {
-  id        String   @id @default(cuid())
-  postId    String
-  mediaUrl  String
-  mediaType String   // "image", "video", "gif"
-  order     Int      @default(0)
-  createdAt DateTime @default(now())
-  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
-
-  @@index([postId]) // Fast media lookup for posts
-}
-
-model PostLike {
-  id        String   @id @default(cuid())
-  postId    String
-  userId    String
-  createdAt DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
-
-  @@unique([postId, userId])
-  @@index([userId])
-  @@index([postId])
-}
-
-model PostRepost {
-  id        String   @id @default(cuid())
-  postId    String
-  userId    String
-  createdAt DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
-
-  @@unique([postId, userId])
-  @@index([userId])
-  @@index([postId])
-}
-
-model PostView {
-  id        String   @id @default(cuid())
-  postId    String
-  userId    String?
-  ipAddress String?
-  userAgent String?
-  viewedAt  DateTime @default(now())
-  user      User?    @relation(fields: [userId], references: [id])
-  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
-
-  @@unique([postId, userId])
-  @@index([postId])
-  @@index([userId])
-  @@index([viewedAt])
-}
-
-model SavedPost {
-  id        String   @id @default(cuid())
-  userId    String
-  postId    String
-  createdAt DateTime @default(now())
-  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, postId])
-  @@index([userId])
-  @@index([postId])
-}
-
-model PortfolioItem {
-  id          String   @id @default(cuid())
-  userId      String
-  title       String
-  description String?
-  mediaUrls   String?
-  links       String?
-  category    String?
-  tags        String?
-  skills      PortfolioItemSkill[]
-  isPublic    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@index([isPublic])
-}
-
-model Follower {
-  id          String   @id @default(cuid())
-  followerId  String
-  followingId String
-  createdAt   DateTime @default(now())
-  following   User     @relation("UserFollowing", fields: [followingId], references: [id], onDelete: Cascade)
-  follower    User     @relation("UserFollowers", fields: [followerId], references: [id], onDelete: Cascade)
-
-  @@unique([followerId, followingId])
-  @@index([followerId])
-  @@index([followingId])
-}
-
-model Review {
-  id         String   @id @default(cuid())
-  reviewerId String
-  reviewedId String
-  rating     Int
-  text       String?
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  reviewed   User     @relation("Reviewed", fields: [reviewedId], references: [id], onDelete: Cascade)
-  reviewer   User     @relation("Reviewer", fields: [reviewerId], references: [id], onDelete: Cascade)
-
-  @@index([reviewerId])
-  @@index([reviewedId])
-}
-
-model Job {
-  id          String     @id @default(cuid())
-  userId      String
-  title       String
-  description String
-  budgetMin   Int?
-  budgetMax   Int?
-  currency    String     @default("USD")
-  skills      String?
-  location    String?
-  status      JobStatus  @default(OPEN)
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-
-  user         User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  applications JobApplication[]
-  escrowContracts EscrowContract[]
-
-  @@index([userId])
-  @@index([status])
-  @@index([createdAt])
-}
-
-model JobApplication {
-  id          String            @id @default(cuid())
-  jobId       String
-  applicantId String
-  status      ApplicationStatus @default(PENDING)
-  message     String?
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
-
-  job       Job  @relation(fields: [jobId], references: [id], onDelete: Cascade)
-  applicant User @relation(fields: [applicantId], references: [id], onDelete: Cascade)
-
-  @@unique([jobId, applicantId])
-  @@index([jobId])
-  @@index([applicantId])
-}
-
-model Conversation {
-  id            String    @id @default(cuid())
-  title         String?
-  isGroup       Boolean   @default(false)
-  createdById   String?
-  lastMessageAt DateTime?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-
-  createdBy User? @relation("ConversationCreator", fields: [createdById], references: [id], onDelete: SetNull)
-  members   ConversationMember[]
-  messages  Message[]
-  invites   ConversationInvite[]
-
-  @@index([createdById])
-  @@index([lastMessageAt])
-}
-
-model ConversationMember {
-  id             String            @id @default(cuid())
-  conversationId String
-  userId         String
-  role           ConversationRole  @default(MEMBER)
-  joinedAt       DateTime          @default(now())
-  lastReadAt     DateTime          @default(now())
-  createdAt      DateTime          @default(now())
-
-  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
-  user         User         @relation("ConversationMembers", fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([conversationId, userId])
-  @@index([conversationId])
-  @@index([userId])
-}
-
-model ConversationInvite {
-  id             String                  @id @default(cuid())
-  conversationId String
-  inviterId      String
-  inviteeId      String
-  status         ConversationInviteStatus @default(PENDING)
-  createdAt      DateTime                @default(now())
-  updatedAt      DateTime                @updatedAt
-
-  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
-  inviter      User         @relation("ConversationInviter", fields: [inviterId], references: [id], onDelete: Cascade)
-  invitee      User         @relation("ConversationInvitee", fields: [inviteeId], references: [id], onDelete: Cascade)
-
-  @@unique([conversationId, inviteeId])
-  @@index([inviteeId, status])
-  @@index([inviterId, status])
-}
-
-model Message {
-  id             String   @id @default(cuid())
-  conversationId String
-  senderId       String
-  content        String?
-  createdAt      DateTime @default(now())
-
-  conversation Conversation      @relation(fields: [conversationId], references: [id], onDelete: Cascade)
-  sender       User              @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
-  attachments  MessageAttachment[]
-
-  @@index([conversationId, createdAt])
-  @@index([senderId])
-}
-
-model MessageAttachment {
-  id        String   @id @default(cuid())
-  messageId String
-  url       String
-  mimeType  String
-  fileName  String
-  size      Int
-  createdAt DateTime @default(now())
-
-  message Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
-
-  @@index([messageId])
-}
-
-model EscrowContract {
-  id          String       @id @default(cuid())
-  clientId    String
-  developerId String
-  jobId       String?
-  amount      Int
-  currency    String       @default("USD")
-  status      EscrowStatus @default(PENDING)
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-
-  client     User       @relation("EscrowClient", fields: [clientId], references: [id], onDelete: Cascade)
-  developer  User       @relation("EscrowDeveloper", fields: [developerId], references: [id], onDelete: Cascade)
-  job        Job?       @relation(fields: [jobId], references: [id], onDelete: SetNull)
-  milestone  EscrowMilestone?
-
-  @@index([clientId])
-  @@index([developerId])
-  @@index([status])
-  @@index([jobId])
-}
-
-model EscrowMilestone {
-  id          String               @id @default(cuid())
-  contractId  String               @unique
-  title       String
-  amount      Int
-  status      EscrowMilestoneStatus @default(PENDING)
-  submittedAt DateTime?
-  releasedAt  DateTime?
-  createdAt   DateTime             @default(now())
-  updatedAt   DateTime             @updatedAt
-
-  contract EscrowContract @relation(fields: [contractId], references: [id], onDelete: Cascade)
-}
-
-model VerificationRequest {
-  id          String             @id @default(cuid())
-  userId      String
-  type        VerificationType
-  status      VerificationStatus @default(PENDING)
-  documentUrl String?
-  notes       String?
-  reviewedAt  DateTime?
-  createdAt   DateTime           @default(now())
-  updatedAt   DateTime           @updatedAt
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@index([status])
-}
-
-model UserMessagingSettings {
-  id        String            @id @default(cuid())
-  userId    String            @unique
-  allowFrom MessagePermission @default(EVERYONE)
-  createdAt DateTime          @default(now())
-  updatedAt DateTime          @updatedAt
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
-model MessageRequest {
-  id           String               @id @default(cuid())
-  senderId     String
-  recipientId  String
-  status       MessageRequestStatus @default(PENDING)
-  createdAt    DateTime             @default(now())
-  updatedAt    DateTime             @updatedAt
-
-  sender    User @relation("MessageRequestSender", fields: [senderId], references: [id], onDelete: Cascade)
-  recipient User @relation("MessageRequestRecipient", fields: [recipientId], references: [id], onDelete: Cascade)
-
-  @@unique([senderId, recipientId])
-  @@index([recipientId, status])
-  @@index([senderId, status])
-}
-
-model Report {
-  id           String    @id @default(cuid())
-  reporterId   String
-  targetUserId String?
-  postId       String?
-  reportType   String
-  description  String
-  evidence     String?
-  status       String    @default("PENDING")
-  adminNotes   String?
-  resolvedAt   DateTime?
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-  post         Post?     @relation(fields: [postId], references: [id], onDelete: Cascade)
-  targetUser   User?     @relation("Reported", fields: [targetUserId], references: [id], onDelete: Cascade)
-  reporter     User      @relation("Reporter", fields: [reporterId], references: [id], onDelete: Cascade)
-
-  @@index([reporterId])
-  @@index([postId])
-  @@index([status])
-}
-
-model Poll {
-  id         String       @id @default(cuid())
-  postId     String       @unique
-  question   String
-  expiresAt  DateTime?
-  isMultiple Boolean      @default(false)
-  createdAt  DateTime     @default(now())
-  updatedAt  DateTime     @updatedAt
-  post       Post         @relation(fields: [postId], references: [id], onDelete: Cascade)
-  options    PollOption[]
-  votes      PollVote[]
-}
-
-model PollOption {
-  id        String     @id @default(cuid())
-  pollId    String
-  text      String
-  createdAt DateTime   @default(now())
-  poll      Poll       @relation(fields: [pollId], references: [id], onDelete: Cascade)
-  votes     PollVote[]
-}
-
-model PollVote {
-  id        String     @id @default(cuid())
-  pollId    String
-  optionId  String
-  userId    String
-  createdAt DateTime   @default(now())
-  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  option    PollOption @relation(fields: [optionId], references: [id], onDelete: Cascade)
-  poll      Poll       @relation(fields: [pollId], references: [id], onDelete: Cascade)
-
-  @@unique([pollId, userId, optionId])
-  @@index([pollId])
-  @@index([optionId])
-  @@index([userId])
-}
-
-model Hashtag {
-  id        String        @id @default(cuid())
-  name      String        @unique
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
-  posts     PostHashtag[]
-}
-
-model PostHashtag {
-  id        String   @id @default(cuid())
-  postId    String
-  hashtagId String
-  createdAt DateTime @default(now())
-  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
-  hashtag   Hashtag  @relation(fields: [hashtagId], references: [id], onDelete: Cascade)
-
-  @@unique([postId, hashtagId])
-  @@index([hashtagId]) // Fast hashtag page queries
-  @@index([postId])
-}
-
-model PostMention {
-  id        String   @id @default(cuid())
-  postId    String
-  userId    String
-  createdAt DateTime @default(now())
-  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([postId, userId])
-  @@index([userId])
-  @@index([postId])
-}
-
-model PasswordResetToken {
-  id         String   @id @default(cuid())
-  userId     String
-  token      String   @unique
-  expires    DateTime
-  createdAt  DateTime @default(now())
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@index([token])
-}
-
-model EmailChangeToken {
-  id         String   @id @default(cuid())
-  userId     String
-  newEmail   String
-  token      String   @unique
-  expires    DateTime
-  createdAt  DateTime @default(now())
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@index([token])
-}
-
-// ============================================
-// SKILLS & ROLES SYSTEM
-// ============================================
-
-model Skill {
-  id          String      @id @default(cuid())
-  name        String      @unique
-  category    String      // DEVELOPMENT, DESIGN, AUDIO, ANIMATION, BUILDING, MANAGEMENT, OTHER
-  icon        String?     // Icon identifier
-  createdAt   DateTime    @default(now())
-  users       UserSkill[]
-  portfolioItems PortfolioItemSkill[]
-
-  @@index([category])
-}
-
-model PortfolioItemSkill {
-  id              String        @id @default(cuid())
-  portfolioItemId String
-  skillId         String
-  createdAt       DateTime      @default(now())
-
-  portfolioItem PortfolioItem @relation(fields: [portfolioItemId], references: [id], onDelete: Cascade)
-  skill         Skill         @relation(fields: [skillId], references: [id], onDelete: Cascade)
-
-  @@unique([portfolioItemId, skillId])
-  @@index([portfolioItemId])
-  @@index([skillId])
-}
-
-model UserSkill {
-  id              String   @id @default(cuid())
-  userId          String
-  skillId         String
-  experienceLevel String   @default("INTERMEDIATE") // BEGINNER, INTERMEDIATE, ADVANCED, EXPERT
-  yearsOfExp      Int?     // Optional years of experience
-  isPrimary       Boolean  @default(false) // Is this a primary/main skill?
-  
-  // Per-skill service data
-  headline          String?  // Skill-specific headline e.g. "Senior Lua Developer"
-  rate              Int?     // Price in cents (e.g., 5000 = $50)
-  rateUnit          String?  // HOURLY, PER_FRAME, PER_MODEL, PER_PROJECT, PER_ASSET, NEGOTIABLE
-  skillAvailability String?  // Override availability: AVAILABLE, BUSY, NOT_AVAILABLE, OPEN_TO_OFFERS
-  description       String?  // Description of services for this skill
-  
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  skill           Skill    @relation(fields: [skillId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, skillId])
-  @@index([userId])
-  @@index([skillId])
-  @@index([experienceLevel])
-  @@index([isPrimary])
 }

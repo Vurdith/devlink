@@ -247,7 +247,7 @@ function LoginForm() {
 
         {/* Sign up link */}
         <p className="text-center mt-6 text-[var(--muted-foreground)] animate-fade-in" style={{ animationDelay: '0.2s' }}>
-          Don't have an account?{" "}
+          Don&apos;t have an account?{" "}
           <Link href="/register" className="text-[var(--accent)] hover:underline font-medium">
             Sign up
           </Link>

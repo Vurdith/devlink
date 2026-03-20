@@ -7,8 +7,8 @@
 
 import { NextResponse } from "next/server";
 import * as Sentry from "@sentry/nextjs";
-import { performanceBudgets } from "@/lib/monitoring/performance";
-import { metricsStore, resetMetrics } from "@/lib/monitoring/metrics";
+import { performanceBudgets } from "@/server/monitoring/performance";
+import { metricsStore, resetMetrics } from "@/server/monitoring/metrics";
 
 export async function GET() {
   const uptimeMs = Date.now() - metricsStore.startTime;

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAuthSession } from "@/server/auth";
 import { prisma } from "@/server/db";
-import { checkRateLimit } from "@/lib/rate-limit";
+import { checkRateLimit } from "@/server/rate-limit";
 import { canSendMessage } from "@/server/messages/permissions";
 
 export async function GET() {

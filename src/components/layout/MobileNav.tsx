@@ -3,116 +3,14 @@
 import { useState, useEffect, memo } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useSession } from "next-auth/react";
 import { cn } from "@/lib/cn";
 import { BackButton } from "@/components/ui/BackButton";
 import { ThemeLogoImg } from "@/components/ui/ThemeLogo";
+import { navigation, userNavigation, type NavItem } from "@/config/navigation";
 
-interface NavItem {
-  name: string;
-  href: string;
-  icon: React.ReactNode;
-  description: string;
-  requiresAuth?: boolean;
+interface MobileNavProps {
+  session?: { user?: { id?: string; username?: string; name?: string; image?: string } } | null;
 }
-
-const navigation: NavItem[] = [
-  {
-    name: "Home",
-    href: "/home",
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        <polyline points="9,22 9,12 15,12 15,22" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-      </svg>
-    ),
-    description: "Your personalized feed"
-  },
-  {
-    name: "Discover",
-    href: "/discover",
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
-        <polygon points="16.24,7.76 14.12,14.12 7.76,16.24 9.88,9.88" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-      </svg>
-    ),
-    description: "Find new creators"
-  },
-  {
-    name: "Jobs",
-    href: "/jobs",
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <rect x="3" y="7" width="18" height="13" rx="2" stroke="currentColor" strokeWidth="2"/>
-        <path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-      </svg>
-    ),
-    description: "Hire or get hired"
-  },
-  {
-    name: "Messages",
-    href: "/messages",
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <path d="M21 15a4 4 0 0 1-4 4H7l-4 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-      </svg>
-    ),
-    description: "Direct conversations",
-    requiresAuth: true
-  },
-  {
-    name: "Escrow",
-    href: "/escrow",
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <path d="M3 10h18M5 6h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-        <path d="M7 14h4" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-      </svg>
-    ),
-    description: "Milestone contracts",
-    requiresAuth: true
-  },
-  {
-    name: "Verification",
-    href: "/verification",
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <path d="M12 3l7 4v5c0 5-3.5 8-7 9-3.5-1-7-4-7-9V7l7-4z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M9 12l2 2 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-      </svg>
-    ),
-    description: "Build trust",
-    requiresAuth: true
-  },
-];
-
-const userNavigation: NavItem[] = [
-  {
-    name: "My Profile",
-    href: "/me",
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        <circle cx="12" cy="7" r="4" stroke="currentColor" strokeWidth="2"/>
-      </svg>
-    ),
-    description: "View your profile",
-    requiresAuth: true
-  },
-  {
-    name: "Settings",
-    href: "/settings",
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="2"/>
-        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-      </svg>
-    ),
-    description: "Account settings",
-    requiresAuth: true
-  },
-];
 
 // Memoized nav link component matching desktop Sidebar exactly
 const NavLink = memo(function NavLink({ item, isActive, onClick }: { item: NavItem; isActive: boolean; onClick?: () => void }) {
@@ -122,8 +20,8 @@ const NavLink = memo(function NavLink({ item, isActive, onClick }: { item: NavIt
       onClick={onClick}
       className={cn(
         "group relative flex items-center gap-3 px-4 py-3 rounded-xl transition-colors duration-150",
-        isActive 
-          ? "bg-[rgba(var(--color-accent-rgb),0.15)] text-white" 
+        isActive
+          ? "bg-[rgba(var(--color-accent-rgb),0.15)] text-white"
           : "text-[var(--muted-foreground)] hover:text-white hover:bg-[rgba(var(--color-accent-rgb),0.1)]"
       )}
       title={item.description}
@@ -132,20 +30,20 @@ const NavLink = memo(function NavLink({ item, isActive, onClick }: { item: NavIt
       {isActive && (
         <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-gradient-to-b from-[var(--color-accent)] to-[var(--color-accent-hover)] rounded-r-full" />
       )}
-      
+
       {/* Icon */}
       <div className={cn(
         "p-2 rounded-lg transition-colors duration-150",
-        isActive 
-          ? "bg-[rgba(var(--color-accent-rgb),0.2)] text-[var(--color-accent)]" 
+        isActive
+          ? "bg-[rgba(var(--color-accent-rgb),0.2)] text-[var(--color-accent)]"
           : "text-[var(--muted-foreground)] group-hover:text-[var(--color-accent)] group-hover:bg-[rgba(var(--color-accent-rgb),0.1)]"
       )}>
         {item.icon}
       </div>
-      
+
       {/* Text */}
       <span className="font-medium">{item.name}</span>
-      
+
       {/* Arrow */}
       <svg
         className={cn(
@@ -163,11 +61,10 @@ const NavLink = memo(function NavLink({ item, isActive, onClick }: { item: NavIt
   );
 });
 
-export const MobileNav = memo(function MobileNav() {
+export const MobileNav = memo(function MobileNav({ session }: MobileNavProps) {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
-  const { status } = useSession();
-  const isAuthenticated = status === "authenticated";
+  const isAuthenticated = !!session;
 
   // Close menu on route change
   useEffect(() => {
@@ -256,8 +153,8 @@ export const MobileNav = memo(function MobileNav() {
 
           {/* Back Button - matching Sidebar */}
           <div className="px-4 pt-4">
-            <BackButton 
-              className="w-full justify-start glass-hover rounded-xl text-[var(--muted-foreground)] hover:text-white border-0" 
+            <BackButton
+              className="w-full justify-start glass-hover rounded-xl text-[var(--muted-foreground)] hover:text-white border-0"
               onClick={() => setIsOpen(false)}
             />
           </div>
@@ -267,9 +164,9 @@ export const MobileNav = memo(function MobileNav() {
             {/* Primary nav */}
             <div className="space-y-1">
               {navigation.map((item) => (
-                <NavLink 
-                  key={item.name} 
-                  item={item} 
+                <NavLink
+                  key={item.name}
+                  item={item}
                   isActive={pathname === item.href}
                   onClick={() => setIsOpen(false)}
                 />
@@ -286,14 +183,14 @@ export const MobileNav = memo(function MobileNav() {
                     <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-rgb),0.2)] to-transparent" />
                   </div>
                 </div>
-                
+
                 <div className="space-y-1">
                   {userNavigation.map((item) => (
-                    <NavLink 
-                      key={item.name} 
-                      item={item} 
+                    <NavLink
+                      key={item.name}
+                      item={item}
                       isActive={
-                        pathname === item.href || 
+                        pathname === item.href ||
                         (item.href === "/me" && pathname.startsWith("/u/")) ||
                         (item.href === "/settings" && pathname.startsWith("/settings"))
                       }
@@ -314,7 +211,7 @@ export const MobileNav = memo(function MobileNav() {
                     <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-rgb),0.2)] to-transparent" />
                   </div>
                 </div>
-                
+
                 <div className="space-y-2">
                   <Link
                     href="/login"
@@ -322,7 +219,7 @@ export const MobileNav = memo(function MobileNav() {
                     className="flex items-center justify-center gap-2 w-full py-3 rounded-xl border border-white/20 text-white hover:bg-white/5 transition-colors"
                   >
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3" strokeLinecap="round" strokeLinejoin="round"/>
+                      <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                     Log in
                   </Link>
@@ -332,10 +229,10 @@ export const MobileNav = memo(function MobileNav() {
                     className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-gradient-to-r from-[var(--color-accent)] to-[var(--color-accent-hover)] text-white font-medium hover:from-[var(--color-accent-hover)] hover:to-[var(--color-accent-hover)] transition-all shadow-lg shadow-[rgba(var(--color-accent-rgb),0.2)]"
                   >
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" strokeLinecap="round" strokeLinejoin="round"/>
-                      <circle cx="8.5" cy="7" r="4" strokeLinecap="round" strokeLinejoin="round"/>
-                      <line x1="20" y1="8" x2="20" y2="14" strokeLinecap="round" strokeLinejoin="round"/>
-                      <line x1="23" y1="11" x2="17" y2="11" strokeLinecap="round" strokeLinejoin="round"/>
+                      <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" strokeLinecap="round" strokeLinejoin="round" />
+                      <circle cx="8.5" cy="7" r="4" strokeLinecap="round" strokeLinejoin="round" />
+                      <line x1="20" y1="8" x2="20" y2="14" strokeLinecap="round" strokeLinejoin="round" />
+                      <line x1="23" y1="11" x2="17" y2="11" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                     Sign up
                   </Link>
@@ -344,17 +241,6 @@ export const MobileNav = memo(function MobileNav() {
             )}
           </nav>
 
-          {/* Bottom section - matching Sidebar */}
-          <div className="p-4 border-t border-[rgba(var(--color-accent-rgb),0.1)]">
-            <div className="rounded-xl p-4 text-center space-y-2 bg-[rgba(var(--color-accent-rgb),0.05)] border border-[rgba(var(--color-accent-rgb),0.2)]">
-              <p className="text-xs font-medium text-[var(--color-accent)]">
-                Connect • Create • Grow
-              </p>
-              <p className="text-[10px] text-[var(--muted-foreground)]">
-                Powered by the Roblox Community
-              </p>
-            </div>
-          </div>
         </div>
       </div>
 
@@ -384,7 +270,7 @@ export const MobileNav = memo(function MobileNav() {
               </Link>
             );
           })}
-          
+
           {/* Profile/Login */}
           {isAuthenticated ? (
             <Link
@@ -401,8 +287,8 @@ export const MobileNav = memo(function MobileNav() {
                 (pathname.startsWith("/u/") || pathname === "/me") && "bg-[rgba(var(--color-accent-rgb),0.2)] scale-110"
               )}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <circle cx="12" cy="7" r="4" stroke="currentColor" strokeWidth="2"/>
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  <circle cx="12" cy="7" r="4" stroke="currentColor" strokeWidth="2" />
                 </svg>
               </div>
               <span className="text-[10px] font-medium">Profile</span>
@@ -414,7 +300,7 @@ export const MobileNav = memo(function MobileNav() {
             >
               <div className="p-1.5 rounded-lg">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                  <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </div>
               <span className="text-[10px] font-medium">Login</span>

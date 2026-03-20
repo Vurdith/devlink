@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { supabase, isRealtimeAvailable } from "@/lib/supabase/client";
+import { supabase, isRealtimeAvailable } from "@/server/supabase/client";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 
 type PostgresChangeEvent = "INSERT" | "UPDATE" | "DELETE" | "*";
@@ -117,7 +117,7 @@ export function useRealtimeSubscription<T = Record<string, unknown>>({
     };
   }, [table, schema, event, filter, enabled]);
 
-  return channelRef.current;
+  return;
 }
 
 /**

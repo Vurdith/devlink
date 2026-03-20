@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getAuthSession } from "@/server/auth";
-import { responseCache } from "@/lib/cache";
+import { responseCache } from "@/server/cache";
 import { randomBytes } from "crypto";
 
 function challengeKey(userId: string, kind: "registration" | "authentication") {

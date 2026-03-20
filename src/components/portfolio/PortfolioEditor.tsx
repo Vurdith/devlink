@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, memo, useRef, useEffect } from "react";
-import { BaseModal, ModalInput, ModalTextarea, Tooltip } from "@/components/ui/BaseModal";
+import { BaseModal, Tooltip } from "@/components/ui/BaseModal";
 import { Button } from "@/components/ui/Button";
 import type { PortfolioItem } from "@/types/api";
 
@@ -10,7 +10,7 @@ interface PortfolioEditorProps {
   onClose: () => void;
   onSave: (item: PortfolioItem) => void;
   existingItem?: PortfolioItem | null;
-  userId: string;
+  userId?: string;
   userSkills?: Array<{
     skillId: string;
     isPrimary?: boolean;
@@ -108,7 +108,6 @@ export function PortfolioEditor({
   onClose,
   onSave,
   existingItem,
-  userId,
   userSkills = [],
 }: PortfolioEditorProps) {
   // Use refs for main form fields to avoid re-renders on every keystroke
@@ -195,7 +194,7 @@ export function PortfolioEditor({
     setError("");
     setMediaInputMethod("url");
     setDragActive(false);
-  }, [isOpen, existingItem?.id, parseListField, extractSkillIds]);
+  }, [isOpen, existingItem, parseListField, extractSkillIds]);
 
   // Memoized callback functions to prevent re-creation on every render
   const handleDrag = useCallback((e: React.DragEvent) => {
@@ -444,7 +443,7 @@ export function PortfolioEditor({
               {mediaUrls.length > 0 && (
                 <div className="space-y-1.5 max-h-24 overflow-y-auto">
                   {mediaUrls.map((url: string, idx: number) => (
-                    <MediaUrlItem key={idx} url={url} idx={idx} onRemove={removeMediaUrl} />
+                    <MediaUrlItem key={url} url={url} idx={idx} onRemove={removeMediaUrl} />
                   ))}
                 </div>
               )}
@@ -475,7 +474,7 @@ export function PortfolioEditor({
               {mediaUrls.length > 0 && (
                 <div className="grid grid-cols-4 gap-2">
                   {mediaUrls.map((url: string, idx: number) => (
-                    <MediaPreview key={idx} url={url} idx={idx} onRemove={removeMediaUrl} />
+                    <MediaPreview key={url} url={url} idx={idx} onRemove={removeMediaUrl} />
                   ))}
                 </div>
               )}

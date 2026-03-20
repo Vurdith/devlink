@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { defineConfig, env } from "prisma/config";
+import { defineConfig } from "prisma/config";
 
 const datasourceUrl = process.env.DIRECT_URL || process.env.DATABASE_URL;
 if (!datasourceUrl) {

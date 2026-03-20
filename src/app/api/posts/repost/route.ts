@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/server/db";
 import { getAuthSession } from "@/server/auth";
-import { responseCache } from "@/lib/cache";
+import { responseCache } from "@/server/cache";
 import { removeActorFromStackedNotification, upsertStackedNotification } from "@/server/notifications";
 
 export async function POST(req: Request) {
@@ -72,13 +72,13 @@ export async function POST(req: Request) {
       }
     }
 
-    // Invalidate ALL relevant caches - MUST await
-    await Promise.all([
+    // Invalidate ALL relevant caches - non-blocking
+    void Promise.all([
       responseCache.invalidatePattern(/^feed:/),
       responseCache.invalidatePattern(new RegExp(`^user:${userId}:`)),
       responseCache.invalidatePattern(/^hashtag:/),
       responseCache.invalidatePattern(new RegExp(`^post:${postId}`))
-    ]);
+    ]).catch(() => {});
 
     // Get updated repost count
     const updatedPost = await prisma.post.findUnique({

@@ -69,17 +69,30 @@ interface Post {
     totalVotes: number;
   };
   likes?: Array<{ id: string; userId: string }>;
-  reposts?: Array<{ id: string; userId: string }>;
-  replies?: Array<{ id: string } | null>;
+  reposts?: { id: string; userId: string }[];
+  replies?: Array<{ id: string; userId: string }>;
   views: number;
   isPinned: boolean;
   isLiked?: boolean;
   isReposted?: boolean;
   isSaved?: boolean;
+  _count?: {
+    likes: number;
+    reposts: number;
+    replies?: number;
+  };
 }
 
 interface AnimatedHomeContentProps {
-  session: { user?: { id: string; email?: string } } | null;
+  session?: {
+    user?: {
+      id: string;
+      name?: string | null;
+      email?: string | null;
+      image?: string | null;
+      username?: string;
+    };
+  } | null;
   currentUserProfile: UserProfile | null;
   postsWithViewCounts: Post[];
 }
@@ -92,32 +105,32 @@ const features = [
 
 const FEATURE_STYLES: Record<
   string,
-  { panel: string; icon: string; titleHover: string; shadowHover: string }
+  { panel: string; icon: string; titleHover: string; glow: string }
 > = {
   blue: {
-    panel: "bg-blue-500/10 border border-blue-400/20 hover:border-blue-400/35",
-    icon: "text-blue-300 bg-blue-500/15 border border-blue-400/25",
-    titleHover: "group-hover/card:text-blue-200",
-    shadowHover: "group-hover/card:shadow-lg group-hover/card:shadow-blue-500/20",
+    panel: "glass-soft border-blue-400/20 hover:border-blue-400/40 hover:bg-blue-500/5",
+    icon: "text-blue-400 bg-blue-500/10 border border-blue-400/20 shadow-[0_0_15px_rgba(59,130,246,0.2)]",
+    titleHover: "group-hover/card:text-blue-300",
+    glow: "rgba(59, 130, 246, 0.4)",
   },
   green: {
-    panel: "bg-emerald-500/10 border border-emerald-400/20 hover:border-emerald-400/35",
-    icon: "text-emerald-300 bg-emerald-500/15 border border-emerald-400/25",
-    titleHover: "group-hover/card:text-emerald-200",
-    shadowHover: "group-hover/card:shadow-lg group-hover/card:shadow-emerald-500/20",
+    panel: "glass-soft border-emerald-400/20 hover:border-emerald-400/40 hover:bg-emerald-500/5",
+    icon: "text-emerald-400 bg-emerald-500/10 border border-emerald-400/20 shadow-[0_0_15px_rgba(16,185,129,0.2)]",
+    titleHover: "group-hover/card:text-emerald-300",
+    glow: "rgba(16, 185, 129, 0.4)",
   },
   red: {
-    panel: "bg-rose-500/10 border border-rose-400/20 hover:border-rose-400/35",
-    icon: "text-rose-300 bg-rose-500/15 border border-rose-400/25",
-    titleHover: "group-hover/card:text-rose-200",
-    shadowHover: "group-hover/card:shadow-lg group-hover/card:shadow-rose-500/20",
+    panel: "glass-soft border-rose-400/20 hover:border-rose-400/40 hover:bg-rose-500/5",
+    icon: "text-rose-400 bg-rose-500/10 border border-rose-400/20 shadow-[0_0_15px_rgba(244,63,94,0.2)]",
+    titleHover: "group-hover/card:text-rose-300",
+    glow: "rgba(244, 63, 94, 0.4)",
   },
 };
 
-export const AnimatedHomeContent = memo(function AnimatedHomeContent({ 
-  session, 
-  currentUserProfile, 
-  postsWithViewCounts 
+export const AnimatedHomeContent = memo(function AnimatedHomeContent({
+  session,
+  currentUserProfile,
+  postsWithViewCounts
 }: AnimatedHomeContentProps) {
   // Manage posts state locally so we can update on engagement changes
   const [feedPosts, setFeedPosts] = useState<Post[]>(postsWithViewCounts || []);
@@ -125,7 +138,7 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
   const [lastLocalUpdate, setLastLocalUpdate] = useState(0);
   // Track if we've fetched fresh engagement state
   const [engagementFetched, setEngagementFetched] = useState(false);
-  
+
   // Update posts when new data comes from server
   // BUT don't overwrite if we just made a local update (prevents reverting optimistic state)
   useEffect(() => {
@@ -136,12 +149,12 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
       setEngagementFetched(false); // Need to re-fetch engagement for new posts
     }
   }, [postsWithViewCounts, lastLocalUpdate]);
-  
+
   // Fetch fresh engagement state client-side after mount
   // This allows the page to be cached while still showing accurate engagement
   useEffect(() => {
     if (!session?.user?.id || engagementFetched || feedPosts.length === 0) return;
-    
+
     const fetchEngagement = async () => {
       try {
         const postIds = feedPosts.map(p => p.id);
@@ -150,17 +163,17 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ postIds })
         });
-        
+
         if (!response.ok) return;
-        
+
         const { engagement } = await response.json();
         if (!engagement) return;
-        
+
         // Update posts with fresh engagement state
         setFeedPosts(prevPosts => prevPosts.map(post => {
           const postEngagement = engagement[post.id];
           if (!postEngagement) return post;
-          
+
           return {
             ...post,
             isLiked: postEngagement.isLiked,
@@ -168,29 +181,29 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
             isSaved: postEngagement.isSaved
           };
         }));
-        
+
         setEngagementFetched(true);
       } catch (error) {
         console.error('Failed to fetch engagement:', error);
       }
     };
-    
+
     // Small delay to not block initial render
     const timeoutId = setTimeout(fetchEngagement, 100);
     return () => clearTimeout(timeoutId);
   }, [session?.user?.id, engagementFetched, feedPosts.length]);
-  
+
   // Listen for engagement updates and update posts immediately
   useEffect(() => {
     const handleEngagementUpdate = (event: CustomEvent) => {
       const { post, action, liked, reposted, saved } = event.detail;
-      
+
       // Mark that we're making a local update
       setLastLocalUpdate(Date.now());
-      
+
       setFeedPosts(prevPosts => prevPosts.map(p => {
         if (p.id !== post.id) return p;
-        
+
         // Update the specific engagement state
         const updates: Partial<Post> = {};
         if (action === 'like' && liked !== undefined) {
@@ -202,7 +215,7 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
         if (action === 'save' && saved !== undefined) {
           updates.isSaved = saved;
         }
-        
+
         return { ...p, ...updates } as Post;
       }));
     };
@@ -210,90 +223,96 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
     window.addEventListener('postEngagementUpdate', handleEngagementUpdate as EventListener);
     return () => window.removeEventListener('postEngagementUpdate', handleEngagementUpdate as EventListener);
   }, []);
-  
+
   // Handle post updates from child components
   const handlePostUpdate = useCallback((updatedPostInput: unknown) => {
     const updatedPost = updatedPostInput as Post;
     setLastLocalUpdate(Date.now());
-    setFeedPosts(prevPosts => prevPosts.map(p => 
+    setFeedPosts(prevPosts => prevPosts.map(p =>
       p.id === updatedPost.id ? { ...p, ...updatedPost } : p
     ));
   }, []);
-  
+
   return (
     <>
       {!session && (
-        <div className="pt-20 pb-16 text-center">
-          <div className="glass noise-overlay rounded-3xl p-10 sm:p-12 max-w-6xl mx-auto border border-white/10 hover:border-[var(--color-accent)]/30 transition-all duration-300 relative overflow-hidden group">
-            <div
-              aria-hidden="true"
-              className="absolute inset-0 pointer-events-none opacity-70"
-              style={{
-                background:
-                  "radial-gradient(1100px 380px at 25% 0%, rgba(var(--color-accent-rgb),0.16), transparent 62%), radial-gradient(900px 360px at 92% 10%, rgba(var(--color-accent-2-rgb),0.12), transparent 60%)",
-              }}
-            />
-            <div className="relative">
-              <div className="flex items-center justify-center gap-4 mb-8 animate-slide-down">
-                <ThemeLogoImg
-                  className="w-20 h-20 object-contain animate-float"
-                />
-                <h1 className="text-6xl lg:text-7xl font-bold bg-gradient-to-r from-[var(--color-accent)] via-pink-400 to-blue-400 bg-clip-text text-transparent">
-                  DevLink
-                </h1>
-              </div>
-              
-              <p className="text-2xl lg:text-3xl text-gray-300 mb-12 leading-relaxed animate-slide-up stagger-1">
-                The pulse of the Roblox development community
-              </p>
-              
-              <p className="text-xl text-gray-300 mb-10 leading-relaxed animate-slide-up stagger-2">
-                Join thousands of developers, clients, and influencers building the future of Roblox
-              </p>
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-8">
-                {features.map((item, index) => {
-                  const style = FEATURE_STYLES[item.color] ?? FEATURE_STYLES.blue;
-                  return (
-                  <div 
-                    key={item.title}
-                    className={cn("text-center group/card animate-slide-up cursor-default rounded-2xl p-6 transition-all duration-300", style.panel, style.shadowHover)}
-                    style={{ animationDelay: `${0.3 + index * 0.1}s` }}
-                  >
-                    <div 
-                      className={cn(
-                        "w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover/card:scale-110 transition-all duration-300",
-                        style.icon
-                      )}
-                    >
-                      <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
-                        {item.icon === "monitor" && (
-                          <>
-                            <rect x="2" y="3" width="20" height="14" rx="2" ry="2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                            <line x1="8" y1="21" x2="16" y2="21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                            <line x1="12" y1="17" x2="12" y2="21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                          </>
-                        )}
-                        {item.icon === "briefcase" && (
-                          <>
-                            <rect x="2" y="7" width="20" height="14" rx="2" ry="2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                          </>
-                        )}
-                        {item.icon === "bell" && (
-                          <>
-                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                            <path d="M13.73 21a2 2 0 0 1-3.46 0" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                          </>
-                        )}
-                      </svg>
-                    </div>
-                    <div className={cn("text-2xl font-semibold mb-3 text-white transition-colors", style.titleHover)}>{item.title}</div>
-                    <div className="text-white/60 group-hover/card:text-white/75 transition-colors">{item.desc}</div>
-                  </div>
-                )})}
-              </div>
+        <div className="pt-24 pb-20 text-center relative w-full h-full flex flex-col items-center justify-center">
+          <div className="relative z-10 w-full max-w-5xl mx-auto px-6">
+
+            <div className="flex flex-col items-center justify-center gap-6 mb-10 animate-slide-down">
+              <ThemeLogoImg
+                className="w-24 h-24 object-contain drop-shadow-[0_0_20px_rgba(255,255,255,0.2)]"
+              />
+              <h1
+                className="text-6xl sm:text-7xl lg:text-[6.5rem] font-bold tracking-tighter leading-none bg-clip-text text-transparent bg-gradient-to-br from-white via-white to-white/40"
+                style={{ fontFamily: "var(--font-space-grotesk)" }}
+              >
+                DevLink
+              </h1>
             </div>
+
+            <p className="text-xl md:text-2xl lg:text-3xl text-white/50 font-medium tracking-tight mb-20 max-w-2xl mx-auto leading-relaxed animate-slide-up stagger-1">
+              The pulse of the Roblox development community. <span className="text-white/80">Discover talent, promote projects, and build the future.</span>
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-slide-up stagger-2">
+              {features.map((item, index) => {
+                const style = FEATURE_STYLES[item.color] ?? FEATURE_STYLES.blue;
+                return (
+                  <div
+                    key={item.title}
+                    className={cn("group/card relative overflow-hidden rounded-3xl p-8 transition-all duration-500 hover:-translate-y-2 cursor-pointer border", style.panel)}
+                    style={{ animationDelay: `${0.3 + index * 0.15}s` }}
+                  >
+                    <div
+                      aria-hidden="true"
+                      className="absolute inset-0 opacity-0 group-hover/card:opacity-100 transition-opacity duration-500 pointer-events-none"
+                      style={{
+                        background: `radial-gradient(400px circle at 50% 100%, ${style.glow} 0%, transparent 70%)`
+                      }}
+                    />
+
+                    <div className="relative z-10">
+                      <div
+                        className={cn(
+                          "w-16 h-16 rounded-2xl flex items-center justify-center mb-8 mx-auto group-hover/card:scale-110 group-hover/card:rotate-[-5deg] transition-all duration-500",
+                          style.icon
+                        )}
+                      >
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                          {item.icon === "monitor" && (
+                            <>
+                              <rect x="2" y="3" width="20" height="14" rx="2" ry="2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                              <line x1="8" y1="21" x2="16" y2="21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                              <line x1="12" y1="17" x2="12" y2="21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                            </>
+                          )}
+                          {item.icon === "briefcase" && (
+                            <>
+                              <rect x="2" y="7" width="20" height="14" rx="2" ry="2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                              <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                            </>
+                          )}
+                          {item.icon === "bell" && (
+                            <>
+                              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                              <path d="M13.73 21a2 2 0 0 1-3.46 0" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                            </>
+                          )}
+                        </svg>
+                      </div>
+                      <div className={cn("text-2xl font-bold mb-3 tracking-tight text-white/90 transition-colors duration-300 font-[var(--font-space-grotesk)]", style.titleHover)}>
+                        {item.title}
+                      </div>
+                      <div className="text-white/50 text-base leading-relaxed group-hover/card:text-white/70 transition-colors duration-300">
+                        {item.desc}
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+
           </div>
         </div>
       )}
@@ -304,17 +323,17 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
           <div className="relative group">
             {/* Animated glow background */}
             <div className="absolute -inset-1 bg-gradient-to-r from-[var(--color-accent)]/10 via-cyan-500/10 to-[var(--color-accent)]/10 rounded-3xl opacity-30 group-hover:opacity-50 transition-opacity duration-500 animate-glow-pulse"></div>
-            
+
             <div className="relative glass-soft rounded-2xl p-6 border border-white/10 group-hover:border-white/20 transition-all duration-300 shadow-2xl overflow-hidden">
               {/* Subtle shimmer effect */}
               <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
                 <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out bg-gradient-to-r from-transparent via-white/5 to-transparent skew-x-12" />
               </div>
-              
+
               <div className="relative flex items-center gap-4 mb-6">
                 <div className="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center border border-white/10 shadow-lg group-hover:border-[var(--color-accent)]/30 transition-colors">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-[var(--color-accent)] group-hover:scale-110 transition-transform">
-                    <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 </div>
                 <div>
@@ -322,7 +341,7 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
                   <p className="text-xs text-[var(--muted-foreground)] opacity-70">Share with the community</p>
                 </div>
               </div>
-              
+
               <CreatePost currentUserProfile={{
                 avatarUrl: currentUserProfile.profile?.avatarUrl ?? null,
                 name: currentUserProfile.name,
@@ -333,14 +352,14 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
         </div>
       )}
 
-      {/* Main Feed Section */}
       <div className="mb-32 pb-16 animate-slide-up" style={{ animationDelay: "0.15s" }}>
-        <PostFeed 
-          posts={feedPosts} 
+        <PostFeed
+          posts={feedPosts}
           currentUserId={currentUserProfile?.id}
           hidePinnedIndicator={true}
           showNavigationArrow={false}
           onUpdate={handlePostUpdate}
+          session={session}
         />
       </div>
     </>

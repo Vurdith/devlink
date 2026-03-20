@@ -87,72 +87,99 @@ export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const targetUserId = searchParams.get("targetUserId");
   const reviewerId = searchParams.get("reviewerId");
-  const sentiment = searchParams.get("sentiment"); // "positive" | "neutral" | "negative" | null
+  const sentiment = searchParams.get("sentiment");
+  const page = parseInt(searchParams.get("page") || "1");
+  const limit = Math.min(parseInt(searchParams.get("limit") || "20"), 50);
+  const skip = (page - 1) * limit;
 
   if (!targetUserId && !reviewerId) {
     return NextResponse.json({ error: "Missing targetUserId or reviewerId" }, { status: 400 });
   }
 
   try {
-    // Build rating filter based on sentiment
     let ratingFilter = {};
     if (sentiment === "positive") {
-      ratingFilter = { gte: 4 }; // 4-5 stars
+      ratingFilter = { gte: 4 };
     } else if (sentiment === "neutral") {
-      ratingFilter = { equals: 3 }; // 3 stars
+      ratingFilter = { equals: 3 };
     } else if (sentiment === "negative") {
-      ratingFilter = { lte: 2 }; // 1-2 stars
+      ratingFilter = { lte: 2 };
     }
+
+    const baseSelect = {
+      id: true,
+      rating: true,
+      text: true,
+      createdAt: true,
+      updatedAt: true,
+    };
+
+    const userSelect = {
+      select: {
+        id: true,
+        username: true,
+        name: true,
+        profile: { select: { avatarUrl: true, verified: true } },
+        _count: { select: { followers: true } },
+      },
+    };
 
     let reviews;
-    
+    let total;
+
     if (targetUserId) {
-      // Get reviews received by a user
-      reviews = await prisma.review.findMany({
-        where: { 
-          reviewedId: targetUserId,
-          ...(sentiment ? { rating: ratingFilter } : {})
-        },
-        include: {
-          reviewer: {
-            include: {
-              profile: true,
-              _count: {
-                select: {
-                  followers: true,
-                  following: true,
-                },
-              },
-            },
+      [reviews, total] = await Promise.all([
+        prisma.review.findMany({
+          where: { 
+            reviewedId: targetUserId,
+            ...(sentiment ? { rating: ratingFilter } : {})
           },
-        },
-        orderBy: { createdAt: "desc" },
-      });
+          select: {
+            ...baseSelect,
+            reviewer: userSelect,
+          },
+          skip,
+          take: limit,
+          orderBy: { createdAt: "desc" },
+        }),
+        prisma.review.count({
+          where: { 
+            reviewedId: targetUserId,
+            ...(sentiment ? { rating: ratingFilter } : {})
+          },
+        }),
+      ]);
     } else {
-      // Get reviews written by a user
-      reviews = await prisma.review.findMany({
-        where: { 
-          reviewerId: reviewerId!,
-          ...(sentiment ? { rating: ratingFilter } : {})
-        },
-        include: {
-          reviewed: {
-            include: {
-              profile: true,
-              _count: {
-                select: {
-                  followers: true,
-                  following: true,
-                },
-              },
-            },
+      [reviews, total] = await Promise.all([
+        prisma.review.findMany({
+          where: { 
+            reviewerId: reviewerId!,
+            ...(sentiment ? { rating: ratingFilter } : {})
           },
-        },
-        orderBy: { createdAt: "desc" },
-      });
+          select: {
+            ...baseSelect,
+            reviewed: userSelect,
+          },
+          skip,
+          take: limit,
+          orderBy: { createdAt: "desc" },
+        }),
+        prisma.review.count({
+          where: { 
+            reviewerId: reviewerId!,
+            ...(sentiment ? { rating: ratingFilter } : {})
+          },
+        }),
+      ]);
     }
 
-    return NextResponse.json(reviews);
+    return NextResponse.json(
+      {
+        reviews,
+        pagination: { page, limit, total, hasMore: skip + reviews.length < total }
+      },
+      { headers: { "Cache-Control": "private, max-age=30, stale-while-revalidate=60" } }
+    );
   } catch (error) {
     console.error("Error fetching reviews:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

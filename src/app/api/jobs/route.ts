@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAuthSession } from "@/server/auth";
 import { prisma } from "@/server/db";
-import { checkRateLimit } from "@/lib/rate-limit";
+import { checkRateLimit } from "@/server/rate-limit";
 import { validateJobTitle, validateJobDescription, validateCurrency } from "@/lib/validation";
 
 const DEFAULT_LIMIT = 20;
@@ -34,7 +34,10 @@ export async function GET(req: Request) {
   const items = hasMore ? jobs.slice(0, limit) : jobs;
   const nextCursor = hasMore ? items[items.length - 1]?.id : null;
 
-  return NextResponse.json({ jobs: items, nextCursor });
+  return NextResponse.json(
+    { jobs: items, nextCursor },
+    { headers: { "Cache-Control": "public, max-age=30, stale-while-revalidate=60" } }
+  );
 }
 
 export async function POST(req: Request) {

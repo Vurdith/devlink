@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/server/db";
-import { responseCache } from "@/lib/cache";
+import { responseCache } from "@/server/cache";
 
 const HASHTAG_CACHE_TTL = 300; // Cache for 5 minutes (hashtags don't change often)
 

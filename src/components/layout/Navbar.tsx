@@ -1,15 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/Button";
-import { useSession } from "next-auth/react";
 import { ProfileMenu } from "@/components/layout/ProfileMenu";
 import { NavbarSearch } from "./NavbarSearch";
 import { useEffect, useState, memo, useCallback } from "react";
 import { cn } from "@/lib/cn";
 
-export const Navbar = memo(function Navbar() {
-  const { data: session } = useSession();
+export const Navbar = memo(function Navbar({ session }: { session?: { user?: { id?: string; username?: string; name?: string; image?: string } } | null }) {
   const username = session?.user?.username;
   const googleImage = session?.user?.image ?? undefined;
   const sessionName = session?.user?.name ?? undefined;
@@ -26,36 +25,33 @@ export const Navbar = memo(function Navbar() {
       if (!res.ok) return;
       const data = await res.json();
       if (typeof data?.unread === "number") setUnread(data.unread);
-    } catch {}
+    } catch { }
   }, [username]);
 
-  // Function to fetch fresh profile data
-  const fetchProfile = useCallback(async (bypassCache = false) => {
+  // Function to fetch fresh profile data - only when needed (bypass cache)
+  const fetchProfile = useCallback(async () => {
     if (!username) return;
-    
+
+    // Check cache first
     const cacheKey = `navbar-profile-${username}`;
-    
-    // Check cache unless bypassing
-    if (!bypassCache) {
-      const cached = sessionStorage.getItem(cacheKey);
-      if (cached) {
-        try {
-          const data = JSON.parse(cached);
-          if (data.user?.profile?.avatarUrl) setAvatarUrl(data.user.profile.avatarUrl);
-          if (data.user?.name) setDisplayName(data.user.name);
-          if (data.user?.profile?.profileType) setProfileType(data.user.profile.profileType);
-          return;
-        } catch {}
-      }
+    const cached = sessionStorage.getItem(cacheKey);
+    if (cached) {
+      try {
+        const data = JSON.parse(cached);
+        if (data.user?.profile?.avatarUrl) setAvatarUrl(data.user.profile.avatarUrl);
+        if (data.user?.name) setDisplayName(data.user.name);
+        if (data.user?.profile?.profileType) setProfileType(data.user.profile.profileType);
+        return;
+      } catch { }
     }
-    
+
     try {
       const res = await fetch(`/api/user/${username}`, { cache: 'no-store' });
       const data = await res.json();
-      
+
       // Update cache
       sessionStorage.setItem(cacheKey, JSON.stringify(data));
-      
+
       if (data.user?.profile?.avatarUrl) {
         setAvatarUrl(data.user.profile.avatarUrl);
       }
@@ -78,22 +74,48 @@ export const Navbar = memo(function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Initial profile fetch
+  // Initial: use session data immediately, then check cache
   useEffect(() => {
     if (username) {
+      // Use session image immediately
       if (googleImage) {
         setAvatarUrl(googleImage);
       }
-      fetchProfile(false);
+      // Check cache for profile type (only fetch if not cached)
+      const cacheKey = `navbar-profile-${username}`;
+      const cached = sessionStorage.getItem(cacheKey);
+      if (cached) {
+        try {
+          const data = JSON.parse(cached);
+          if (data.user?.profile?.avatarUrl && !googleImage) setAvatarUrl(data.user.profile.avatarUrl);
+          if (data.user?.name) setDisplayName(data.user.name);
+          if (data.user?.profile?.profileType) setProfileType(data.user.profile.profileType);
+          return; // Don't fetch if cached
+        } catch { }
+      }
+      // Only fetch if not cached
+      fetchProfile();
     }
   }, [username, googleImage, fetchProfile]);
 
-  // Poll unread notifications count (lightweight)
+  // Poll unread notifications count with visibility check
   useEffect(() => {
     if (!username) return;
-    fetchUnread();
-    const id = window.setInterval(fetchUnread, 15000);
-    return () => window.clearInterval(id);
+
+    const fetchUnreadIfVisible = () => {
+      if (document.visibilityState === 'visible') {
+        fetchUnread();
+      }
+    };
+
+    fetchUnreadIfVisible();
+    const id = window.setInterval(fetchUnreadIfVisible, 30000);
+    document.addEventListener('visibilitychange', fetchUnreadIfVisible);
+
+    return () => {
+      window.clearInterval(id);
+      document.removeEventListener('visibilitychange', fetchUnreadIfVisible);
+    };
   }, [username, fetchUnread]);
 
   // Refresh unread count on demand (e.g. after marking read)
@@ -108,29 +130,16 @@ export const Navbar = memo(function Navbar() {
   useEffect(() => {
     const handleProfileUpdate = (event: CustomEvent) => {
       const { avatarUrl: newAvatar, name: newName, profileType: newType } = event.detail || {};
-      
+
       // Clear cache immediately
       if (username) {
         sessionStorage.removeItem(`navbar-profile-${username}`);
       }
-      
-      // Update state immediately with new values - no refetch needed since we have the values directly
+
+      // Update state immediately with new values
       if (newAvatar !== undefined) setAvatarUrl(newAvatar);
       if (newName !== undefined) setDisplayName(newName);
       if (newType !== undefined) setProfileType(newType);
-      
-      // Update the cache with new values for consistency
-      if (username && (newAvatar !== undefined || newName !== undefined || newType !== undefined)) {
-        try {
-          const cacheKey = `navbar-profile-${username}`;
-          const cached = sessionStorage.getItem(cacheKey);
-          const data = cached ? JSON.parse(cached) : { user: { profile: {} } };
-          if (newAvatar !== undefined && data.user?.profile) data.user.profile.avatarUrl = newAvatar;
-          if (newName !== undefined && data.user) data.user.name = newName;
-          if (newType !== undefined && data.user?.profile) data.user.profile.profileType = newType;
-          sessionStorage.setItem(cacheKey, JSON.stringify(data));
-        } catch {}
-      }
     };
 
     window.addEventListener('devlink:profile-updated', handleProfileUpdate as EventListener);
@@ -145,19 +154,24 @@ export const Navbar = memo(function Navbar() {
       aria-label="Main navigation"
       className={cn(
         "sticky top-0 z-40 w-full transition-all duration-200",
-        scrolled 
-          ? "bg-[rgba(12,14,20,0.96)] border-b border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.35)]" 
+        scrolled
+          ? "bg-[rgba(12,14,20,0.96)] border-b border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.35)]"
           : "bg-transparent border-b border-transparent"
       )}
     >
-      
+
       <div className="relative w-full px-4 md:px-6 h-16 flex items-center gap-3">
         {/* Spacer for mobile hamburger - matches button size (p-2.5 + icon 20px = ~44px) */}
         <div className="w-[44px] h-[44px] md:hidden flex-shrink-0" />
-        
+
+        {/* Render a spacer on the landing page that exactly matches the Sidebar's width (w-72 = 18rem = 288px) */}
+        {usePathname() === "/" && (
+          <div className="hidden md:block w-72 flex-shrink-0" />
+        )}
+
         {/* Search bar */}
         <div className="flex items-center flex-1">
-          <NavbarSearch />
+          {usePathname() !== "/" && <NavbarSearch currentUserId={session?.user?.id} />}
         </div>
 
         {/* Right side actions */}
@@ -182,7 +196,7 @@ export const Navbar = memo(function Navbar() {
                   </span>
                 ) : null}
               </Link>
-              
+
               {/* Messages placeholder */}
               <button
                 aria-label="Messages"
@@ -198,9 +212,9 @@ export const Navbar = memo(function Navbar() {
 
           {/* Profile or auth buttons */}
           {username ? (
-            <ProfileMenu 
-              username={username} 
-              avatarUrl={avatarUrl} 
+            <ProfileMenu
+              username={username}
+              avatarUrl={avatarUrl}
               name={displayName}
               profileType={profileType}
             />

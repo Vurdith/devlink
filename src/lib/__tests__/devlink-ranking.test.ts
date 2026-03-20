@@ -59,10 +59,7 @@ describe("DevLink ranking", () => {
     const newbieScore = result.breakdownById["newbie"].finalScore;
     const establishedScore = result.breakdownById["established"].finalScore;
 
-    expect(newbieScore).toBeGreaterThan(
-      establishedScore,
-      "New developer should outrank established account with comparable engagement"
-    );
+    expect(newbieScore).toBeGreaterThan(establishedScore);
   });
 
   it("applies time decay so older posts fall behind newer ones", () => {
@@ -134,14 +131,8 @@ describe("DevLink ranking", () => {
     const duplicatePenalty = result.breakdownById["spam-duplicate"].spamPenalty;
     const organicPenalty = result.breakdownById["organic"].spamPenalty;
 
-    expect(spamPenalty).toBeGreaterThan(
-      organicPenalty,
-      "Low engagement should increase spam penalty"
-    );
-    expect(duplicatePenalty).toBeGreaterThanOrEqual(
-      spamPenalty,
-      "Identical content should accumulate additional repeat penalty"
-    );
+    expect(spamPenalty).toBeGreaterThan(organicPenalty);
+    expect(duplicatePenalty).toBeGreaterThanOrEqual(spamPenalty);
   });
 });
 

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { leaseDueJobs, requeueJob } from "@/lib/jobs/queue";
 import { processScheduledPosts } from "@/server/jobs/process-scheduled-posts";
 import { fanoutNotificationWithRust, processMediaWithRust } from "@/server/services/hotpath-client";
-import { startServerSpan } from "@/lib/monitoring/tracing";
+import { startServerSpan } from "@/server/monitoring/tracing";
 
 export async function POST(request: NextRequest) {
   const authHeader = request.headers.get("authorization");

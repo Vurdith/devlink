@@ -48,8 +48,8 @@ interface Post {
     totalVotes: number;
   };
   likes?: Array<{ id: string; userId: string }>;
-  reposts?: Array<{ id: string; userId: string }>;
-  replies?: Array<unknown>;
+  reposts?: { id: string; userId: string }[];
+  replies?: Array<{ id: string; userId: string }>;
   views: number;
   isLiked?: boolean;
   isReposted?: boolean;
@@ -57,6 +57,11 @@ interface Post {
   isPinned: boolean;
   userVote?: {
     optionIds: string[];
+  };
+  _count?: {
+    likes: number;
+    reposts: number;
+    replies?: number;
   };
 }
 
@@ -67,9 +72,17 @@ interface PostFeedProps {
   showNavigationArrow?: boolean;
   isLoading?: boolean;
   onUpdate?: (updatedPost: Post) => void;
-  // Infinite scroll props
   hasMore?: boolean;
   onLoadMore?: () => void;
+  session?: {
+    user?: {
+      id: string;
+      name?: string | null;
+      email?: string | null;
+      image?: string | null;
+      username?: string;
+    };
+  } | null;
 }
 
 /**
@@ -87,7 +100,8 @@ export const PostFeed = memo(function PostFeed({
   isLoading = false, 
   onUpdate,
   hasMore = false,
-  onLoadMore
+  onLoadMore,
+  session
 }: PostFeedProps) {
   // Stable callback reference
   const handleUpdate = useCallback((updatedPost: Post) => {
@@ -114,7 +128,6 @@ export const PostFeed = memo(function PostFeed({
     );
   }
 
-  // Use VirtualizedPostFeed for all feeds - same as X, Facebook, Instagram
   return (
     <VirtualizedPostFeed
       posts={posts}
@@ -123,6 +136,7 @@ export const PostFeed = memo(function PostFeed({
       onUpdate={handleUpdate}
       hasMore={hasMore}
       onLoadMore={onLoadMore}
+      session={session}
     />
   );
 });

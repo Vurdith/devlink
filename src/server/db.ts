@@ -4,15 +4,28 @@ import { Pool } from "pg";
 
 const globalForPrisma = global as unknown as { prisma?: PrismaClient };
 
-// Create PostgreSQL connection pool
+const connectionString =
+  process.env.NODE_ENV !== "production" && process.env.DIRECT_URL
+    ? process.env.DIRECT_URL
+    : process.env.DATABASE_URL;
+
+if (!connectionString) {
+  throw new Error("Missing DATABASE_URL (or DIRECT_URL) environment variable");
+}
+
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
+  connectionString,
+  max: 20,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 5000,
 });
 
-// Create Prisma adapter
+pool.on("error", (err) => {
+  console.error("PostgreSQL pool error:", err);
+});
+
 const adapter = new PrismaPg(pool);
 
-// Only log errors - query logging causes significant performance overhead
 export const prisma =
   globalForPrisma.prisma ??
   new PrismaClient({

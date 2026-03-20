@@ -4,11 +4,10 @@ import { useEffect, useRef, useState, memo } from "react";
 import { useRouter } from "next/navigation";
 import { Avatar } from "@/components/ui/Avatar";
 import { FollowButton } from "@/components/ui/FollowButton";
-import { ProfileTooltip } from "@/components/ui/ProfileTooltip";
+import { ProfileTooltip } from "@/components/profile/ProfileTooltip";
 import Link from "next/link";
 import { cn } from "@/lib/cn";
-import { getProfileTypeConfig, ProfileTypeIcon } from "@/lib/profile-types";
-import { useSession } from "next-auth/react";
+import { getProfileTypeConfig, ProfileTypeIcon } from "@/types/profile";
 
 interface UserSearchResult {
   id: string;
@@ -38,9 +37,7 @@ interface ProjectSearchResult {
   };
 }
 
-export const NavbarSearch = memo(function NavbarSearch() {
-  const { data: session } = useSession();
-  const currentUserId = session?.user?.id;
+export const NavbarSearch = memo(function NavbarSearch({ currentUserId }: { currentUserId?: string }) {
   const [value, setValue] = useState("");
   const [suggestions, setSuggestions] = useState<UserSearchResult[]>([]);
   const [hashtagSuggestions, setHashtagSuggestions] = useState<HashtagSearchResult[]>([]);
@@ -188,7 +185,7 @@ export const NavbarSearch = memo(function NavbarSearch() {
             placeholder="Search DevLink..."
             value={value}
             onChange={(e) => setValue(e.target.value)}
-            onFocus={() => { setFocused(true); value.length >= 2 && setOpen(true); }}
+            onFocus={() => { setFocused(true); if (value.length >= 2) setOpen(true); }}
             onBlur={() => !open && setFocused(false)}
             className={cn(
               "w-full h-11 rounded-xl bg-white/5 border pl-11 pr-16 text-sm outline-none placeholder:text-[var(--muted-foreground)] text-white transition-all duration-150",

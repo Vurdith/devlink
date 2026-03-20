@@ -63,7 +63,7 @@ export function EditPostModal({ post, isOpen, onClose, onSave }: EditPostModalPr
         setToastType("error");
         setShowToast(true);
       }
-    } catch (error) {
+    } catch {
       setToastMessage("Failed to update post");
       setToastType("error");
       setShowToast(true);

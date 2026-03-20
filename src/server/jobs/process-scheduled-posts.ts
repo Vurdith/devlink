@@ -1,5 +1,5 @@
 import { prisma } from "@/server/db";
-import { publishEvent } from "@/lib/events/bus";
+import { publishEvent } from "@/server/events/bus";
 
 export async function processScheduledPosts() {
   const now = new Date();

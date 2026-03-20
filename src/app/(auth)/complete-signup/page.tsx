@@ -1,14 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useSession, signIn } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { useTheme } from "@/components/providers/ThemeProvider";
 
 export default function CompleteSignupPage() {
-  const { data: session, status, update } = useSession();
+  const { data: _session, status, update } = useSession();
   const router = useRouter();
   const { logoPath } = useTheme();
   const [password, setPassword] = useState("");
@@ -89,7 +89,7 @@ export default function CompleteSignupPage() {
       setTimeout(() => {
         router.push("/home");
       }, 2000);
-    } catch (err) {
+    } catch {
       setError("An error occurred. Please try again.");
     } finally {
       setLoading(false);

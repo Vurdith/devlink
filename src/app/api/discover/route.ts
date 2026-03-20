@@ -1,7 +1,7 @@
 import { prisma } from "@/server/db";
 import { getAuthSession } from "@/server/auth";
 import { NextRequest, NextResponse } from "next/server";
-import { responseCache } from "@/lib/cache";
+import { responseCache } from "@/server/cache";
 import type { Prisma } from "@prisma/client";
 
 const PAGE_SIZE = 24; // 24 = nice grid (divisible by 2, 3, 4)

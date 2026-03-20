@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/server/db";
 import { getAuthSession } from "@/server/auth";
-import { responseCache } from "@/lib/cache";
+import { responseCache } from "@/server/cache";
 
 export async function GET() {
   const session = await getAuthSession();
@@ -33,7 +33,10 @@ export async function GET() {
     } 
   });
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  return NextResponse.json({ user: { id: user.id, username: user.username, name: user.name }, profile: user.profile, name: user.name });
+  return NextResponse.json(
+    { user: { id: user.id, username: user.username, name: user.name }, profile: user.profile, name: user.name },
+    { headers: { "Cache-Control": "private, max-age=30, stale-while-revalidate=60" } }
+  );
 }
 
 async function handleProfileUpdate(req: Request) {

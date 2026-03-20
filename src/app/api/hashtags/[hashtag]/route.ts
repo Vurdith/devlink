@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/server/db";
 import { getUniqueViewCounts } from "@/lib/view-utils";
-import { responseCache } from "@/lib/cache";
+import { responseCache } from "@/server/cache";
 import { getAuthSession } from "@/server/auth";
 
 const HASHTAG_CACHE_TTL = 60; // Cache for 60 seconds

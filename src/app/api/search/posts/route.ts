@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/server/db";
 import { prismaRead } from "@/server/db-read";
-import { responseCache } from "@/lib/cache";
+import { responseCache } from "@/server/cache";
 import { getAuthSession } from "@/server/auth";
 import { getUniqueViewCounts } from "@/lib/view-utils";
 import { searchPostsIndex } from "@/server/search";

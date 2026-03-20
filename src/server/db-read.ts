@@ -5,14 +5,27 @@ import { prisma } from "@/server/db";
 
 const globalForReadPrisma = global as unknown as { prismaRead?: PrismaClient };
 
-const readConnectionString = process.env.READ_DATABASE_URL || process.env.DATABASE_URL;
+const readConnectionString =
+  process.env.NODE_ENV !== "production" && process.env.DIRECT_URL
+    ? process.env.DIRECT_URL
+    : process.env.READ_DATABASE_URL || process.env.DATABASE_URL;
 
 let prismaReadInstance: PrismaClient;
 
 if (readConnectionString) {
   const readPool = new Pool({
     connectionString: readConnectionString,
+    max: 10,
+    min: 1,
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 5000,
+    allowExitOnIdle: false,
   });
+
+  readPool.on("error", (err) => {
+    console.error("Read replica pool error:", err);
+  });
+
   const readAdapter = new PrismaPg(readPool);
   prismaReadInstance =
     globalForReadPrisma.prismaRead ??

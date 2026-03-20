@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAuthSession } from "@/server/auth";
-import { uploadFile } from "@/lib/storage";
-import { checkRateLimit } from "@/lib/rate-limit";
+import { uploadFile } from "@/server/storage";
+import { checkRateLimit } from "@/server/rate-limit";
 import { processMediaWithRust } from "@/server/services/hotpath-client";
 
 export async function POST(req: Request) {

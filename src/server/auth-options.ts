@@ -8,6 +8,9 @@ import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { prisma } from "@/server/db";
 import { compare } from "bcryptjs";
 
+const MAX_LOGIN_ATTEMPTS = 5;
+const LOCKOUT_DURATION_MS = 15 * 60 * 1000;
+
 function normalizeEmail(email: string) {
   return email.trim().toLowerCase();
 }
@@ -43,10 +46,55 @@ export const authOptions: NextAuthOptions = {
         const email = normalizeEmail(credentials.email);
         const user = await prisma.user.findFirst({
           where: { email: { equals: email, mode: "insensitive" } },
+          select: {
+            id: true,
+            email: true,
+            username: true,
+            password: true,
+            loginAttempts: true,
+            lockedUntil: true,
+          },
         });
+        
         if (!user || !user.password) return null;
+        
+        if (user.lockedUntil && new Date() < user.lockedUntil) {
+          const remainingMs = user.lockedUntil.getTime() - Date.now();
+          const remainingMins = Math.ceil(remainingMs / 60000);
+          throw new Error(`Account locked. Try again in ${remainingMins} minute${remainingMins !== 1 ? 's' : ''}.`);
+        }
+        
         const ok = await compare(credentials.password, user.password);
-        if (!ok) return null;
+        
+        if (!ok) {
+          const newAttempts = user.loginAttempts + 1;
+          
+          if (newAttempts >= MAX_LOGIN_ATTEMPTS) {
+            await prisma.user.update({
+              where: { id: user.id },
+              data: {
+                loginAttempts: 0,
+                lockedUntil: new Date(Date.now() + LOCKOUT_DURATION_MS)
+              }
+            });
+            throw new Error(`Too many failed attempts. Account locked for 15 minutes.`);
+          }
+          
+          await prisma.user.update({
+            where: { id: user.id },
+            data: { loginAttempts: newAttempts }
+          });
+          
+          return null;
+        }
+        
+        if (user.loginAttempts > 0 || user.lockedUntil) {
+          await prisma.user.update({
+            where: { id: user.id },
+            data: { loginAttempts: 0, lockedUntil: null }
+          });
+        }
+        
         return { id: user.id, email: user.email, name: user.username };
       },
     }),
@@ -218,7 +266,7 @@ export const authOptions: NextAuthOptions = {
           });
           if (dbUser?.username) token.username = dbUser.username;
           token.needsPassword = !dbUser?.password;
-        } catch (e) {
+        } catch {
           // Use fallback from user object
           token.username = (user as { name?: string }).name || "";
           token.needsPassword = false;
@@ -234,7 +282,7 @@ export const authOptions: NextAuthOptions = {
           });
           if (dbUser?.username) token.username = dbUser.username;
           token.needsPassword = !dbUser?.password;
-        } catch (e) {
+        } catch {
           // Keep existing token values on error
         }
       }

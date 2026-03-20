@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback, ReactNode, memo, useRef } from "react";
+import { useEffect, useState, useCallback, ReactNode, memo, useRef, useId } from "react";
 import { createPortal } from "react-dom";
 import { cn } from "@/lib/cn";
 
@@ -247,7 +247,7 @@ export const BaseModal = memo(function BaseModal({
 }: BaseModalProps) {
   const [mounted, setMounted] = useState(false);
   const focusTrapRef = useFocusTrap(isOpen);
-  const titleId = useRef(`modal-title-${Math.random().toString(36).slice(2, 9)}`).current;
+  const titleId = `modal-title-${useId()}`;
 
   // Mount check for portal
   useEffect(() => {

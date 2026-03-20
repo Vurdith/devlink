@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server";
 import { getAuthSession } from "@/server/auth";
 import { prisma } from "@/server/db";
-import { checkRateLimit } from "@/lib/rate-limit";
+import { checkRateLimit } from "@/server/rate-limit";
 import { validateEscrowAmount, validateCurrency } from "@/lib/validation";
 
-export async function GET() {
+const DEFAULT_LIMIT = 20;
+
+export async function GET(req: Request) {
   try {
     const session = await getAuthSession();
     const userId = session?.user?.id;
@@ -13,20 +15,51 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const { searchParams } = new URL(req.url);
+    const limit = Math.min(parseInt(searchParams.get("limit") || String(DEFAULT_LIMIT)), 50);
+    const cursor = searchParams.get("cursor");
+
     const contracts = await prisma.escrowContract.findMany({
       where: { OR: [{ clientId: userId }, { developerId: userId }] },
-      include: {
-        client: { include: { profile: true } },
-        developer: { include: { profile: true } },
-        milestone: true,
-        job: true,
+      take: limit + 1,
+      ...(cursor ? { skip: 1, cursor: { id: cursor } } : {}),
+      select: {
+        id: true,
+        amount: true,
+        currency: true,
+        status: true,
+        createdAt: true,
+        updatedAt: true,
+        client: {
+          select: {
+            id: true,
+            username: true,
+            name: true,
+            profile: { select: { avatarUrl: true, verified: true } }
+          }
+        },
+        developer: {
+          select: {
+            id: true,
+            username: true,
+            name: true,
+            profile: { select: { avatarUrl: true, verified: true } }
+          }
+        },
+        milestone: { select: { id: true, title: true, amount: true, status: true } },
+        job: { select: { id: true, title: true } },
       },
       orderBy: { createdAt: "desc" },
     });
 
-    const response = NextResponse.json(contracts);
-    response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
-    return response;
+    const hasMore = contracts.length > limit;
+    const items = hasMore ? contracts.slice(0, limit) : contracts;
+    const nextCursor = hasMore ? items[items.length - 1]?.id : null;
+
+    return NextResponse.json(
+      { contracts: items, nextCursor, hasMore },
+      { headers: { "Cache-Control": "no-store" } }
+    );
   } catch (error) {
     console.error("Escrow error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

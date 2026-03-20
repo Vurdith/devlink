@@ -18,7 +18,7 @@ interface MediaViewerProps {
 }
 
 export function MediaViewer({
-  media,
+  media = [],
   isSlideshow = false,
   className = "",
   alt = "Media",
@@ -35,9 +35,8 @@ export function MediaViewer({
   const imageRef = useRef<HTMLImageElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  if (!media || media.length === 0) return null;
 
-  const currentMedia = media[currentIndex];
+  const currentMedia = media?.[currentIndex];
 
   // Reset zoom when modal opens/closes or image changes
   useEffect(() => {
@@ -66,30 +65,6 @@ export function MediaViewer({
     }
   }, [showModal]);
 
-  // Keyboard shortcuts
-  useEffect(() => {
-    if (!showModal) return;
-    
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        setShowModal(false);
-      } else if (e.key === "ArrowLeft") {
-        goToPrevious();
-      } else if (e.key === "ArrowRight") {
-        goToNext();
-      } else if (e.key === "+" || e.key === "=") {
-        handleZoomChange(Math.min(zoomLevel + 0.5, 5));
-      } else if (e.key === "-") {
-        handleZoomChange(Math.max(zoomLevel - 0.5, 0.5));
-      } else if (e.key === "0") {
-        setZoomLevel(1);
-        setPanPosition({ x: 0, y: 0 });
-      }
-    };
-    
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [showModal, zoomLevel, imageDimensions, containerDimensions, goToPrevious, goToNext]);
 
   // Calculate pan boundaries
   const clampPanPosition = useCallback((x: number, y: number, zoom: number = zoomLevel) => {
@@ -157,13 +132,38 @@ export function MediaViewer({
     handleZoomChange(newZoom);
   }, [zoomLevel, handleZoomChange]);
 
-  function goToPrevious() {
-    setCurrentIndex((prev) => (prev === 0 ? media.length - 1 : prev - 1));
-  }
+  const goToPrevious = useCallback(() => {
+    setCurrentIndex((prev) => (prev === 0 ? (media.length || 1) - 1 : prev - 1));
+  }, [media.length]);
 
-  function goToNext() {
-    setCurrentIndex((prev) => (prev === media.length - 1 ? 0 : prev + 1));
-  }
+  const goToNext = useCallback(() => {
+    setCurrentIndex((prev) => (prev === (media.length || 1) - 1 ? 0 : prev + 1));
+  }, [media.length]);
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    if (!showModal) return;
+    
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setShowModal(false);
+      } else if (e.key === "ArrowLeft") {
+        goToPrevious();
+      } else if (e.key === "ArrowRight") {
+        goToNext();
+      } else if (e.key === "+" || e.key === "=") {
+        handleZoomChange(Math.min(zoomLevel + 0.5, 5));
+      } else if (e.key === "-") {
+        handleZoomChange(Math.max(zoomLevel - 0.5, 0.5));
+      } else if (e.key === "0") {
+        setZoomLevel(1);
+        setPanPosition({ x: 0, y: 0 });
+      }
+    };
+    
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [showModal, zoomLevel, goToPrevious, goToNext, handleZoomChange]);
 
   const openModal = useCallback((index: number) => {
     setCurrentIndex(index);
@@ -175,18 +175,18 @@ export function MediaViewer({
     index: number; 
   }) => (
     <div
-      className="relative cursor-pointer group overflow-hidden rounded-xl bg-black/20"
+      className="relative cursor-pointer overflow-hidden rounded-xl bg-black/20 group/media"
       onClick={() => openModal(index)}
     >
       {item.type === "video" ? (
         <>
           <video
             src={item.url}
-            className="w-full h-auto rounded-xl transition-transform duration-700 group-hover:scale-105"
+            className="w-full h-auto rounded-xl transition-transform duration-500 ease-out group-hover/media:scale-105"
             preload="metadata"
           />
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div className="bg-black/60 rounded-full p-3 transform transition-transform duration-300 group-hover:scale-110">
+            <div className="bg-black/60 rounded-full p-3 transition-transform duration-300 group-hover/media:scale-110">
               <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
               </svg>
@@ -194,18 +194,18 @@ export function MediaViewer({
           </div>
         </>
       ) : (
-        <div className="relative w-full aspect-video">
+        <div className="relative w-full aspect-video overflow-hidden rounded-xl">
           <Image
             src={item.url}
             alt={`${alt} - ${index + 1}`}
             fill
             sizes="(max-width: 768px) 50vw, 300px"
-            className="rounded-xl transition-transform duration-700 group-hover:scale-105 object-cover"
+            className="rounded-xl object-cover transition-transform duration-500 ease-out group-hover/media:scale-105"
             unoptimized
           />
         </div>
       )}
-      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300 rounded-xl pointer-events-none" />
+      <div className="absolute inset-0 bg-black/0 group-hover/media:bg-black/10 transition-colors duration-200 rounded-xl pointer-events-none" />
     </div>
   );
 
@@ -217,7 +217,7 @@ export function MediaViewer({
     if (isSlideshow && count > 1) {
       return (
         <div 
-          className={`relative w-full rounded-2xl overflow-hidden group cursor-pointer bg-black/40 ${className}`}
+          className={`relative w-full rounded-2xl overflow-hidden cursor-pointer group/media bg-black/40 ${className}`}
           style={{ maxHeight: '400px' }}
           onClick={() => openModal(currentIndex)}
         >
@@ -244,7 +244,7 @@ export function MediaViewer({
           {/* Navigation Arrows */}
           <button
             onClick={(e) => { e.stopPropagation(); goToPrevious(); }}
-            className="absolute left-3 top-1/2 -translate-y-1/2 p-2.5 bg-black/70 hover:bg-black/90 text-white rounded-full transition-all opacity-0 group-hover:opacity-100"
+            className="absolute left-3 top-1/2 -translate-y-1/2 p-2.5 bg-black/70 hover:bg-black/90 text-white rounded-full transition-all opacity-0 group-hover/media:opacity-100"
             title="Previous"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -253,7 +253,7 @@ export function MediaViewer({
           </button>
           <button
             onClick={(e) => { e.stopPropagation(); goToNext(); }}
-            className="absolute right-3 top-1/2 -translate-y-1/2 p-2.5 bg-black/70 hover:bg-black/90 text-white rounded-full transition-all opacity-0 group-hover:opacity-100"
+            className="absolute right-3 top-1/2 -translate-y-1/2 p-2.5 bg-black/70 hover:bg-black/90 text-white rounded-full transition-all opacity-0 group-hover/media:opacity-100"
             title="Next"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -273,8 +273,6 @@ export function MediaViewer({
               />
             ))}
           </div>
-          
-          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-150 pointer-events-none rounded-2xl" />
         </div>
       );
     }
@@ -284,7 +282,7 @@ export function MediaViewer({
       const item = media[0];
       return (
         <div 
-          className={`relative w-full rounded-2xl overflow-hidden cursor-pointer group bg-black/40 ${className}`}
+          className={`relative w-full rounded-2xl overflow-hidden cursor-pointer group/media bg-black/40 ${className}`}
           style={{ maxHeight: '400px' }}
           onClick={() => openModal(0)}
         >
@@ -292,12 +290,12 @@ export function MediaViewer({
             <>
               <video
                 src={item.url}
-                className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105"
+                className="w-full h-full object-contain transition-transform duration-500 ease-out group-hover/media:scale-105"
                 style={{ maxHeight: '400px' }}
                 preload="metadata"
               />
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <div className="bg-black/60 rounded-full p-4 transform transition-transform duration-300 group-hover:scale-110">
+                <div className="bg-black/60 rounded-full p-4 transition-transform duration-300 group-hover/media:scale-110">
                   <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
                   </svg>
@@ -305,18 +303,18 @@ export function MediaViewer({
               </div>
             </>
           ) : (
-            <div className="relative w-full" style={{ height: '400px' }}>
+            <div className="relative w-full overflow-hidden rounded-2xl" style={{ height: '400px' }}>
               <Image
                 src={item.url}
                 alt={`${alt} - 1`}
                 fill
                 sizes="100vw"
-                className="object-contain transition-transform duration-700 group-hover:scale-105"
+                className="object-contain transition-transform duration-500 ease-out group-hover/media:scale-105"
                 unoptimized
               />
             </div>
           )}
-          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-150 pointer-events-none rounded-2xl" />
+          <div className="absolute inset-0 bg-black/0 group-hover/media:bg-black/5 transition-colors duration-200 pointer-events-none rounded-2xl" />
         </div>
       );
     }
@@ -511,6 +509,8 @@ export function MediaViewer({
       document.body
     );
   };
+
+  if (!media || media.length === 0) return null;
 
   return (
     <>

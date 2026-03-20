@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/server/db";
 import { getAuthSession } from "@/server/auth";
-import { responseCache } from "@/lib/cache";
+import { responseCache } from "@/server/cache";
 import { removeActorFromStackedNotification, upsertStackedNotification } from "@/server/notifications";
-import { publishEvent } from "@/lib/events/bus";
+import { publishEvent } from "@/server/events/bus";
 
 export async function POST(req: Request) {
   const session = await getAuthSession();
@@ -19,7 +19,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Post ID is required" }, { status: 400 });
     }
 
-    // Verify post exists and get owner
     const post = await prisma.post.findUnique({
       where: { id: postId },
       select: { id: true, userId: true },
@@ -28,85 +27,78 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Post not found" }, { status: 404 });
     }
 
-    // Check if user already liked the post
-    const existingLike = await prisma.postLike.findUnique({
-      where: {
-        postId_userId: {
-          postId,
-          userId,
+    const result = await prisma.$transaction(async (tx) => {
+      const existingLike = await tx.postLike.findUnique({
+        where: {
+          postId_userId: {
+            postId,
+            userId,
+          },
         },
-      },
-    });
+      });
 
-    let liked: boolean;
-    try {
       if (existingLike) {
-        // Unlike the post
-        await prisma.postLike.delete({
+        await tx.postLike.delete({
           where: { id: existingLike.id },
         });
-        liked = false;
-
-        // Remove actor from stacked notification (non-blocking)
-        void removeActorFromStackedNotification({
-          recipientId: post.userId,
-          actorId: userId,
-          type: "LIKE",
-          postId,
-        });
+        return { liked: false };
       } else {
-        // Like the post - will fail with FK error if post doesn't exist
-        await prisma.postLike.create({
+        await tx.postLike.create({
           data: {
             postId,
             userId,
           },
         });
-        liked = true;
+        return { liked: true };
+      }
+    });
 
-        // Stacked notification for the post owner (single notification with many actors)
-        void upsertStackedNotification({
-          recipientId: post.userId,
-          actorId: userId,
-          type: "LIKE",
-          postId,
-        });
-        void publishEvent("post.liked", {
-          postId,
-          actorId: userId,
-          recipientId: post.userId,
-          createdAt: new Date().toISOString(),
-        });
-      }
-    } catch (dbError) {
-      // Handle case where post doesn't exist (FK constraint)
-      const prismaError = dbError as { code?: string };
-      if (prismaError.code === 'P2003' || prismaError.code === 'P2025') {
-        return NextResponse.json({ error: "Post not found" }, { status: 404 });
-      }
-      throw dbError;
+    if (result.liked) {
+      void upsertStackedNotification({
+        recipientId: post.userId,
+        actorId: userId,
+        type: "LIKE",
+        postId,
+      });
+      void publishEvent("post.liked", {
+        postId,
+        actorId: userId,
+        recipientId: post.userId,
+        createdAt: new Date().toISOString(),
+      });
+    } else {
+      void removeActorFromStackedNotification({
+        recipientId: post.userId,
+        actorId: userId,
+        type: "LIKE",
+        postId,
+      });
     }
 
-    // Invalidate ALL relevant caches - MUST await
-    // This ensures counts are fresh everywhere
-    await Promise.all([
+    void Promise.all([
       responseCache.invalidatePattern(new RegExp(`^user:${userId}:`)),
       responseCache.invalidatePattern(new RegExp(`^hashtag:`)),
-      responseCache.invalidatePattern(new RegExp(`^feed:`)), // Invalidate feed cache
-      responseCache.invalidatePattern(new RegExp(`^post:${postId}`)) // Invalidate specific post cache
-    ]);
+      responseCache.invalidatePattern(new RegExp(`^feed:`)),
+      responseCache.invalidatePattern(new RegExp(`^post:${postId}`))
+    ]).catch(() => {});
 
-    // Get the updated like count to return to client
     const updatedPost = await prisma.post.findUnique({
       where: { id: postId },
       select: { _count: { select: { likes: true } } }
     });
 
     return NextResponse.json({ 
-      liked,
+      liked: result.liked,
       likeCount: updatedPost?._count.likes || 0
     });
   } catch (error) {
+    const prismaError = error as { code?: string };
+    if (prismaError.code === 'P2003' || prismaError.code === 'P2025') {
+      return NextResponse.json({ error: "Post not found" }, { status: 404 });
+    }
+    if (prismaError.code === 'P2002') {
+      return NextResponse.json({ error: "Already processed" }, { status: 409 });
+    }
     console.error("Error toggling like:", error);
     return NextResponse.json({ error: "Failed to toggle like" }, { status: 500 });
   }

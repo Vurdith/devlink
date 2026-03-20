@@ -1,11 +1,11 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { PROFILE_TYPE_CONFIG } from "@/lib/profile-types";
+import { PROFILE_TYPE_CONFIG } from "@/types/profile";
 import Link from "next/link";
 import Image from "next/image";
 import { FollowButton } from "@/components/ui/FollowButton";
-import { ProfileTooltip } from "@/components/ui/ProfileTooltip";
+import { ProfileTooltip } from "@/components/profile/ProfileTooltip";
 
 type ProfileType = "all" | "DEVELOPER" | "CLIENT" | "INFLUENCER" | "STUDIO" | "INVESTOR";
 
@@ -287,7 +287,7 @@ export function DiscoverClient({
                           </div>
 
                           <div className="min-w-0">
-                            <div className="font-semibold text-white truncate">{user.name || user.username}</div>
+                            <div className="font-semibold text-white hover:underline truncate">{user.name || user.username}</div>
                             <div className="text-xs text-[var(--muted-foreground)] truncate">@{user.username}</div>
                           </div>
                         </Link>

@@ -1,6 +1,6 @@
 import { prisma } from "@/server/db";
 import type { Prisma } from "@prisma/client";
-import { publishEvent } from "@/lib/events/bus";
+import { publishEvent } from "@/server/events/bus";
 import { fanoutNotificationWithRust } from "@/server/services/hotpath-client";
 
 export type NotificationCreateInput = {

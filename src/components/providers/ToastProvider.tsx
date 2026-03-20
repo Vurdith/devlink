@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, ReactNode } from "react";
-import { useToast, ToastOptions, ToastState } from "@/hooks/useToast";
+import { useToast, ToastOptions } from "@/hooks/useToast";
 import { Toast } from "@/components/ui/Toast";
 
 interface ToastContextType {

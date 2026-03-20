@@ -1,5 +1,5 @@
 "use client";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Button } from "./Button";
 
 interface BackButtonProps {
@@ -10,7 +10,6 @@ interface BackButtonProps {
 
 export function BackButton({ fallbackPath = "/home", className = "", onClick }: BackButtonProps) {
   const router = useRouter();
-  const pathname = usePathname();
 
   // Always show back button - users can navigate back from any page
 

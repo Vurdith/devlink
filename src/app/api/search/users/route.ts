@@ -2,7 +2,7 @@ import { prisma } from "@/server/db";
 import { prismaRead } from "@/server/db-read";
 import { NextResponse } from "next/server";
 import { getAuthSession } from "@/server/auth";
-import { responseCache } from "@/lib/cache";
+import { responseCache } from "@/server/cache";
 
 const SEARCH_CACHE_TTL = 120; // Cache search results for 2 minutes
 

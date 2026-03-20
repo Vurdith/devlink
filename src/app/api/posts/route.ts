@@ -3,13 +3,12 @@ import { getAuthSession } from "@/server/auth";
 import { prisma } from "@/server/db";
 import type { Prisma } from "@prisma/client";
 import { parseContent } from "@/lib/content-parser";
-import { CreatePostRequest, PostsResponse, ApiResponse } from "@/types/api";
-import { RATE_LIMITS, CONTENT_LIMITS, COLLECTION_LIMITS, HTTP_STATUS } from "@/lib/constants";
-import { checkRateLimit } from "@/lib/rate-limit";
+import { CONTENT_LIMITS, COLLECTION_LIMITS } from "@/constants";
+import { checkRateLimit } from "@/server/rate-limit";
 import { getUniqueViewCounts } from "@/lib/view-utils";
 import { createNotification } from "@/server/notifications";
-import { evaluatePostingAnomaly } from "@/lib/security/anomaly-detection";
-import { deriveDeviceFingerprint } from "@/lib/security/fingerprint";
+import { evaluatePostingAnomaly } from "@/server/security/anomaly-detection";
+import { deriveDeviceFingerprint } from "@/server/security/fingerprint";
 import { indexSearchDocumentWithRust } from "@/server/services/hotpath-client";
 
 export async function POST(request: NextRequest) {
@@ -52,7 +51,7 @@ export async function POST(request: NextRequest) {
       isSlideshow,
       location: locationInput,
       embedUrls: embedUrlsInput,
-      isScheduled: isScheduledInput,
+      isScheduled: _isScheduledInput,
       scheduledFor: scheduledForInput
     } = body;
 
@@ -71,11 +70,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Post must include text, media, poll, or an embed link." }, { status: 400 });
     }
 
-    // Sanitize content - simple removal of script tags and dangerous handlers
-    const sanitizedContent = (content || "")
-      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-      .replace(/javascript:/gi, '')
-      .replace(/ on\w+=/gi, ''); // spaced to avoid matching 'money', 'one', etc. if just 'on'
+    // Sanitize content using proper HTML sanitizer
+    const { sanitizeContent, sanitizeLocation } = await import("@/lib/sanitize");
+    const sanitizedContent = sanitizeContent(content || "");
 
     // Location validation
     let location: string | null = null;
@@ -83,7 +80,7 @@ export async function POST(request: NextRequest) {
       if (locationInput.length > CONTENT_LIMITS.LOCATION_MAX_LENGTH) {
         return NextResponse.json({ error: `Location must be ${CONTENT_LIMITS.LOCATION_MAX_LENGTH} characters or less` }, { status: 400 });
       }
-      location = locationInput.replace(/<[^>]+>/g, '').trim();
+      location = sanitizeLocation(locationInput);
     }
 
     // Embed URLs validation (limit 5)
@@ -226,20 +223,42 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Hashtags
+    // Hashtags - batch operation to avoid N+1
     if (parsedContent.hashtags.length > 0) {
       const hashtagPromise = (async () => {
         try {
-          await Promise.all(parsedContent.hashtags.map(async (hashtagName) => {
-            const hashtag = await prisma.hashtag.upsert({
-              where: { name: hashtagName },
-              update: {},
-              create: { name: hashtagName }
+          const uniqueHashtags = [...new Set(parsedContent.hashtags)];
+          
+          const existingHashtags = await prisma.hashtag.findMany({
+            where: { name: { in: uniqueHashtags } },
+            select: { id: true, name: true }
+          });
+          
+          const existingNames = new Set(existingHashtags.map(h => h.name));
+          const newHashtagNames = uniqueHashtags.filter(name => !existingNames.has(name));
+          
+          let allHashtags = [...existingHashtags];
+          
+          if (newHashtagNames.length > 0) {
+            await prisma.hashtag.createMany({
+              data: newHashtagNames.map(name => ({ name })),
+              skipDuplicates: true
             });
-            await prisma.postHashtag.create({
-              data: { postId: post.id, hashtagId: hashtag.id }
+            
+            const newHashtags = await prisma.hashtag.findMany({
+              where: { name: { in: newHashtagNames } },
+              select: { id: true, name: true }
             });
-          }));
+            allHashtags = [...allHashtags, ...newHashtags];
+          }
+          
+          await prisma.postHashtag.createMany({
+            data: allHashtags.map(h => ({
+              postId: post.id,
+              hashtagId: h.id
+            })),
+            skipDuplicates: true
+          });
         } catch (e) {
           console.error("Hashtag error", e);
         }

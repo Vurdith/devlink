@@ -2,7 +2,7 @@
  * Async utilities for better error handling, timeouts, and logging
  */
 
-import { TIME_CONSTRAINTS } from "@/lib/constants";
+import { TIME_CONSTRAINTS } from "@/constants";
 
 interface FetchOptions extends RequestInit {
   timeout?: number;
@@ -20,7 +20,7 @@ interface FetchResult<T> {
 /**
  * Fetch with timeout protection to prevent hanging requests
  */
-export async function fetchWithTimeout<T = any>(
+export async function fetchWithTimeout<T = unknown>(
   url: string,
   options: FetchOptions = {}
 ): Promise<FetchResult<T>> {
@@ -118,7 +118,7 @@ export async function asyncWrapper<T>(
 /**
  * Create a debounced async function
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+ 
 export function createDebouncedAsync<T extends unknown[], R>(
   fn: (...args: T) => Promise<R>,
   delay: number = TIME_CONSTRAINTS.API_CALL_DEBOUNCE_MS
