@@ -15,7 +15,7 @@ export function AboutEditor({ editable }: {
     <div className="absolute right-3 top-3 sm:right-4 sm:top-4 group z-10">
       <Link
         href="/profile-hub"
-        className="relative p-2.5 rounded-xl bg-black/60 border border-white/10 hover:border-white/30 hover:bg-black/80 transition-all duration-200 hover:scale-105 inline-flex items-center justify-center shadow-xl shadow-black/50"
+        className="relative p-2.5 rounded-lg bg-black/55 border border-white/10 hover:border-white/30 hover:bg-black/75 transition-all duration-200 hover:scale-105 inline-flex items-center justify-center shadow-xl shadow-black/45"
         aria-label="Profile Hub"
       >
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-white">

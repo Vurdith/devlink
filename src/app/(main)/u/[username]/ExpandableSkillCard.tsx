@@ -44,11 +44,11 @@ export function ExpandableSkillCard({
     <div
       className={`rounded-xl border transition-all overflow-hidden ${
         skill.isPrimary
-          ? "bg-gradient-to-r from-amber-500/5 to-transparent border-amber-500/20"
-          : "bg-white/[0.01] border-white/[0.06] hover:border-white/10"
+          ? "bg-gradient-to-r from-amber-400/[0.08] to-white/[0.015] border-amber-300/20"
+          : "bg-white/[0.018] border-white/[0.07] hover:border-white/[0.13] hover:bg-white/[0.03]"
       }`}
     >
-      <div className="p-5">
+      <div className="p-4 sm:p-5">
         <div className="flex items-start justify-between gap-4 mb-3">
           <div className="flex items-center gap-2">
             {skill.isPrimary && (
@@ -64,27 +64,27 @@ export function ExpandableSkillCard({
           </div>
 
           {skill.rate && skill.rateUnit && (
-            <span className="text-sm font-medium text-emerald-400">
+            <span className="rounded-md border border-emerald-300/15 bg-emerald-300/[0.06] px-2 py-1 text-xs font-semibold text-emerald-300">
               {formatRate(skill.rate, skill.rateUnit as RateUnit, currency)}
             </span>
           )}
         </div>
 
-        <div className="flex items-center gap-4 text-xs text-white/50 mb-3">
+        <div className="flex flex-wrap items-center gap-2 text-xs text-white/50 mb-3">
           <span className={levelConfig?.color || "text-white/50"}>
             {levelConfig?.label}
           </span>
 
           {skill.yearsOfExp && (
             <>
-              <span className="text-white/20">•</span>
+              <span className="text-white/20">/</span>
               <span>{skill.yearsOfExp}+ years</span>
             </>
           )}
 
           {availabilityConfig && (
             <>
-              <span className="text-white/20">•</span>
+              <span className="text-white/20">/</span>
               <span className="flex items-center gap-1.5">
                 <span
                   className={`w-1.5 h-1.5 rounded-full ${
@@ -114,7 +114,7 @@ export function ExpandableSkillCard({
 
       {hasExpandableContent && (
         <div
-          className="flex items-center gap-2 px-5 py-3 border-t border-white/5 bg-white/[0.01] cursor-pointer hover:bg-white/[0.02] transition-colors"
+          className="flex items-center gap-2 px-5 py-3 border-t border-white/[0.06] bg-white/[0.015] cursor-pointer hover:bg-white/[0.03] transition-colors"
           onClick={() => setExpanded(!expanded)}
         >
           <span className="text-xs text-white/40">
@@ -137,7 +137,7 @@ export function ExpandableSkillCard({
       )}
 
       {expanded && skill.description && (
-        <div className="px-5 py-4 border-t border-white/5 bg-white/[0.01]">
+        <div className="px-5 py-4 border-t border-white/[0.06] bg-black/[0.08]">
           <p className="text-sm text-white/50 leading-relaxed">
             {skill.description}
           </p>

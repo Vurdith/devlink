@@ -93,7 +93,7 @@ const VirtualPostItem = memo(function VirtualPostItem({
       ) : (
         // Placeholder with estimated height
         <div 
-          className="relative overflow-hidden glass-soft border border-white/10 rounded-xl sm:rounded-2xl p-3 sm:p-6 mb-3 sm:mb-6"
+          className="relative overflow-hidden border border-white/[0.08] bg-[rgba(12,16,23,0.58)] rounded-xl p-3 sm:p-5 mb-3 sm:mb-5"
           style={{ minHeight: ESTIMATED_POST_HEIGHT }}
         >
           <div className="animate-pulse space-y-4">
@@ -167,14 +167,14 @@ export const VirtualizedPostFeed = memo(function VirtualizedPostFeed({
 
   if (posts.length === 0) {
     return (
-      <div className="text-center py-12">
-        <div className="w-20 h-20 mx-auto mb-4 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center">
+      <div className="rounded-xl border border-white/[0.08] bg-white/[0.025] px-6 py-14 text-center">
+        <div className="w-16 h-16 mx-auto mb-4 rounded-xl bg-white/[0.035] border border-white/[0.08] flex items-center justify-center">
           <svg className="w-10 h-10 text-[var(--muted-foreground)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
           </svg>
         </div>
-        <h3 className="text-xl font-semibold text-white mb-2">No posts found</h3>
-        <p className="text-[var(--muted-foreground)]">
+        <h3 className="text-lg font-semibold text-white mb-2">No posts found</h3>
+        <p className="text-sm text-[var(--muted-foreground)]">
           Be the first to share something with the community!
         </p>
       </div>

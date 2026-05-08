@@ -465,7 +465,7 @@ export function ProfileTabs({
   };
 
   return (
-    <div className="mt-4 sm:mt-8">
+    <div className="mt-5 sm:mt-7">
       <ProfileTabNavigation
         tabs={tabs}
         activeTab={activeTab}

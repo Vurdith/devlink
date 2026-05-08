@@ -5,6 +5,7 @@ import { FollowButton } from "@/components/ui/FollowButton";
 import Link from "next/link";
 import { getAuthSession } from "@/server/auth";
 import { AboutEditor } from "./AboutEditor";
+import { ProfileLiveEvents } from "./ProfileLiveEvents";
 import { ProfileTabs } from "./ProfileTabs";
 import { ProfileBanner, ProfileAvatar } from "./ProfileMedia";
 import { getProfileTypeConfig, ProfileTypeIcon } from "@/types/profile";
@@ -19,8 +20,8 @@ export async function generateMetadata({ params }: { params: Promise<{ username:
     where: { username },
     select: { name: true, username: true, profile: { select: { bio: true, avatarUrl: true } } },
   });
-  if (!user) return { title: "User Not Found — DevLink" };
-  const title = `${user.name || user.username} (@${user.username}) — DevLink`;
+  if (!user) return { title: "User Not Found" };
+  const title = `${user.name || user.username} (@${user.username})`;
   const description = user.profile?.bio?.slice(0, 160) || `Check out ${user.username}'s profile on DevLink.`;
   return {
     title,
@@ -130,15 +131,16 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
       }))
     : false;
     
-  const rating = user.avgRating ? user.avgRating.toFixed(1) : "—";
+  const rating = user.avgRating ? user.avgRating.toFixed(1) : "-";
 
   const isOwnProfile = session?.user?.email === user.email;
   const profileType = user.profile?.profileType ?? null;
   const profileTypeConfig = profileType ? getProfileTypeConfig(profileType) : null;
 
   return (
-    <main className="mx-auto max-w-5xl px-2 sm:px-4 py-4 sm:py-10">
-      <section className="relative overflow-hidden glass-soft rounded-xl sm:rounded-2xl border border-white/10">
+    <main className="mx-auto max-w-6xl px-3 sm:px-5 py-4 sm:py-8">
+      <section className="relative overflow-hidden rounded-xl border border-white/[0.08] bg-[rgba(10,13,19,0.76)] shadow-[0_24px_80px_rgba(0,0,0,0.34)]">
+        <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent" />
         {/* Banner */}
         <ProfileBanner 
           initialBannerUrl={user.profile?.bannerUrl}
@@ -146,7 +148,7 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
         />
         
         {/* Content (Discover-card style) */}
-        <div className="relative p-4 sm:p-6">
+        <div className="relative p-4 sm:p-6 lg:p-7">
           <AboutEditor
             initialBio={user.profile?.bio}
             initialLocation={user.profile?.location}
@@ -157,112 +159,71 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
           />
 
           {/* Identity row */}
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3 min-w-0">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div className="flex items-end gap-3 sm:gap-4 min-w-0">
               <ProfileAvatar
                 initialAvatarUrl={user.profile?.avatarUrl}
                 isOwnProfile={isOwnProfile}
               />
 
-              <div className="min-w-0 flex items-center">
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2">
-                    <h1 className="text-lg sm:text-xl font-semibold text-white truncate">
-                      {user.name ?? user.username}
-                    </h1>
-                    {user.profile?.verified && (
-                      <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-blue-500/25 border border-blue-400/40 flex-shrink-0">
-                        <svg className="w-3 h-3 text-blue-300" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                          <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
-                        </svg>
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-sm text-[var(--muted-foreground)] truncate">@{user.username}</p>
+              <div className="min-w-0 pb-1">
+                <div className="flex items-center gap-2">
+                  <h1 className="text-2xl sm:text-3xl font-semibold text-white truncate tracking-tight">
+                    {user.name ?? user.username}
+                  </h1>
+                  {user.profile?.verified && (
+                    <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-blue-500/25 border border-blue-400/40 flex-shrink-0">
+                      <svg className="w-3 h-3 text-blue-300" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                      </svg>
+                    </span>
+                  )}
                 </div>
+                <p className="mt-1 text-sm text-[var(--muted-foreground)] truncate">@{user.username}</p>
               </div>
             </div>
 
-            <div className="flex-shrink-0">
+            <div className="flex flex-shrink-0 items-center gap-2">
+              {profileTypeConfig && profileType && (
+                <span
+                  className={`inline-flex items-center gap-1.5 rounded-lg border border-white/10 px-2.5 py-1.5 text-xs font-medium ${profileTypeConfig.bgColor} ${profileTypeConfig.color}`}
+                >
+                  <ProfileTypeIcon profileType={profileType} size={13} />
+                  {profileTypeConfig.label}
+                </span>
+              )}
               {!isOwnProfile && (
                 <FollowButton targetUserId={user.id} initialFollowing={initialFollowing} />
               )}
             </div>
           </div>
 
-          {/* Profile type + divider (Discover style) */}
-          {profileTypeConfig && profileType && (
-            <div className="mt-4 flex items-center gap-2">
-              <span
-                className={`inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] font-medium border border-white/10 ${profileTypeConfig.bgColor} ${profileTypeConfig.color}`}
-              >
-                <ProfileTypeIcon profileType={profileType} size={12} />
-                {profileTypeConfig.label}
-              </span>
-              <div className="h-px flex-1 bg-white/5" />
-            </div>
-          )}
-
           {/* Bio */}
           {user.profile?.bio && (
-            <p className="mt-4 text-sm text-[var(--muted-foreground)] whitespace-pre-wrap leading-relaxed">
+            <p className="mt-5 max-w-3xl rounded-xl border border-white/[0.06] bg-white/[0.025] p-4 text-sm text-[var(--muted-foreground)] whitespace-pre-wrap leading-relaxed">
               {user.profile.bio}
             </p>
           )}
 
           {/* Stats (Discover footer vibe) */}
-          <div className="mt-5 pt-4 border-t border-white/10 flex items-center justify-between gap-3 text-xs text-[var(--muted-foreground)]">
-            <div className="flex items-center gap-4">
-              <Link href={`/u/${user.username}/followers`} className="hover:text-white transition-colors">
-                <span className="font-semibold text-white tabular-nums">{user?._count?.followers ?? 0}</span>{" "}
-                followers
+          <div className="mt-5 grid grid-cols-2 gap-2 border-t border-white/[0.07] pt-4 text-xs text-[var(--muted-foreground)] sm:flex sm:flex-wrap sm:items-center sm:gap-3">
+              <Link href={`/u/${user.username}/followers`} className="rounded-lg border border-white/[0.06] bg-white/[0.025] px-3 py-2 transition-colors hover:border-white/15 hover:bg-white/[0.045] hover:text-white">
+                <span className="block font-semibold text-white tabular-nums">{user?._count?.followers ?? 0}</span>
+                <span>followers</span>
               </Link>
-              <Link href={`/u/${user.username}/following`} className="hover:text-white transition-colors">
-                <span className="font-semibold text-white tabular-nums">{user?._count?.following ?? 0}</span>{" "}
-                following
+              <Link href={`/u/${user.username}/following`} className="rounded-lg border border-white/[0.06] bg-white/[0.025] px-3 py-2 transition-colors hover:border-white/15 hover:bg-white/[0.045] hover:text-white">
+                <span className="block font-semibold text-white tabular-nums">{user?._count?.following ?? 0}</span>
+                <span>following</span>
               </Link>
-              {rating !== "—" && (
-                <span className="hidden sm:inline-flex items-center gap-1.5">
-                  <span className="font-semibold text-amber-300 tabular-nums">{rating}</span>
-                  <span className="text-amber-300/70">rating</span>
+              {rating !== "-" && (
+                <span className="rounded-lg border border-amber-300/15 bg-amber-300/[0.06] px-3 py-2 text-amber-200">
+                  <span className="block font-semibold tabular-nums">{rating}</span>
+                  <span className="text-amber-200/70">rating</span>
                 </span>
               )}
-            </div>
           </div>
           
-          {/* Client-side live updates */}
-          <script dangerouslySetInnerHTML={{ __html: `
-            (function(){
-              if (window.__devlink_profile_live_hook) return;
-              window.__devlink_profile_live_hook = true;
-              
-              // Clear all profile caches
-              function clearProfileCaches() {
-                try {
-                  Object.keys(sessionStorage).forEach(function(key) {
-                    if (key.startsWith('navbar-profile-')) {
-                      sessionStorage.removeItem(key);
-                    }
-                  });
-                } catch(e) {
-                  // Silently ignore - sessionStorage may be unavailable (private browsing, iframe, etc.)
-                }
-              }
-              
-              // Profile updates are handled by Next.js router.refresh() - no page reload needed
-              // The Navbar listens for this event and updates its state directly
-              window.addEventListener('devlink:profile-updated', function(e) {
-                clearProfileCaches();
-                // Don't reload - the MediaEditor already calls router.refresh()
-              });
-              
-              // Follow toggle needs a full reload to update follower counts
-              window.addEventListener('devlink:follow-toggled', function(){ 
-                clearProfileCaches();
-                location.reload(); 
-              });
-            })();
-          `}} />
+          <ProfileLiveEvents />
         </div>
       </section>
       

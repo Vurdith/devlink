@@ -41,11 +41,11 @@ export function ProfileRepliesTab({
     return (
       <div
         key={reply.id}
-        className="relative overflow-hidden glass-soft glass-hover rounded-2xl border border-white/10 overflow-hidden transition-colors"
+        className="relative overflow-hidden rounded-xl border border-white/[0.08] bg-[rgba(12,16,23,0.62)] transition-colors hover:border-white/[0.14]"
       >
         <button
           onClick={() => (window.location.href = `/p/${originalPost.id}`)}
-          className="w-full text-left p-4 pb-3 hover:bg-white/[0.02] transition-colors group"
+          className="w-full text-left p-4 pb-3 hover:bg-white/[0.025] transition-colors group"
         >
           <div className="flex items-start gap-3">
             <div className="relative flex flex-col items-center">
@@ -57,7 +57,7 @@ export function ProfileRepliesTab({
                 unoptimized={!originalAuthor?.image?.startsWith("/")}
                 className="w-8 h-8 rounded-full object-cover ring-2 ring-white/10 group-hover:ring-[rgba(var(--color-accent-rgb),0.3)] transition-all"
               />
-              <div className="w-0.5 h-6 bg-gradient-to-b from-white/20 to-transparent mt-2" />
+              <div className="w-0.5 h-6 bg-gradient-to-b from-[rgba(var(--color-accent-2-rgb),0.45)] to-transparent mt-2" />
             </div>
 
             <div className="flex-1 min-w-0">
@@ -119,14 +119,14 @@ export function ProfileRepliesTab({
           </div>
         </button>
 
-        <div className="flex items-center gap-3 px-4 py-2 bg-white/[0.02]">
+        <div className="flex items-center gap-3 px-4 py-2 bg-white/[0.025] border-y border-white/[0.05]">
           <div className="flex items-center gap-2 text-xs text-white/40">
             <svg
               width="14"
               height="14"
               viewBox="0 0 24 24"
               fill="none"
-              className="text-[rgba(var(--color-accent-rgb),0.6)]"
+              className="text-[rgba(var(--color-accent-2-rgb),0.75)]"
             >
               <path
                 d="M3 10h10a5 5 0 0 1 5 5v6M3 10l6 6M3 10l6-6"
@@ -186,7 +186,7 @@ export function ProfileRepliesTab({
           <button
             onClick={onLoadMore}
             disabled={loading}
-            className="px-6 py-2.5 text-sm font-medium text-white/80 bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 transition-colors disabled:opacity-50"
+            className="px-6 py-2.5 text-sm font-medium text-white/80 bg-white/[0.055] hover:bg-white/[0.09] rounded-lg border border-white/[0.09] transition-colors disabled:opacity-50"
           >
             {loading ? "Loading..." : "Load More"}
           </button>
@@ -237,9 +237,9 @@ export function EmptyState({ tab, icon }: EmptyStateProps) {
   const { title, description } = messages[tab];
 
   return (
-    <div className="text-center py-12 text-[var(--muted-foreground)]">
-      <div className="flex justify-center mb-4">{icon}</div>
-      <p className="text-lg font-medium mb-2">{title}</p>
+    <div className="rounded-xl border border-white/[0.08] bg-white/[0.025] px-6 py-14 text-center text-[var(--muted-foreground)]">
+      <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.035] text-white/45 [&>svg]:h-8 [&>svg]:w-8">{icon}</div>
+      <p className="text-lg font-semibold text-white mb-2">{title}</p>
       {description && <p className="text-sm">{description}</p>}
     </div>
   );

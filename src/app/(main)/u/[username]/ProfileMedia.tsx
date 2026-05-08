@@ -67,7 +67,7 @@ export function ProfileBanner({ initialBannerUrl, isOwnProfile }: ProfileBannerP
           />
         )
       ) : (
-        <div className="h-full w-full bg-gradient-to-br from-[var(--color-accent-hover)]/50 via-[var(--color-accent)]/30 to-[var(--color-accent-hover)]/50" />
+        <div className="h-full w-full bg-[linear-gradient(135deg,rgba(15,23,42,0.95),rgba(var(--color-accent-rgb),0.28)_45%,rgba(var(--color-accent-2-rgb),0.24))]" />
       )}
       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
       <BannerEditOverlay editable={isOwnProfile} />
@@ -83,8 +83,8 @@ export function ProfileAvatar({ initialAvatarUrl, isOwnProfile }: ProfileAvatarP
     <div className="relative z-20">
       <div className="relative w-20 h-20 sm:w-28 sm:h-28 group">
         {/* Subtle glow behind avatar */}
-        <div className="absolute -inset-1 bg-gradient-to-br from-white/10 via-[rgba(var(--color-accent-rgb),0.18)] to-[rgba(var(--color-accent-2-rgb),0.14)] rounded-full opacity-60" />
-        <div className="relative w-full h-full rounded-full border-4 border-[var(--background)] overflow-hidden flex items-center justify-center">
+        <div className="absolute -inset-1 bg-gradient-to-br from-white/12 via-[rgba(var(--color-accent-2-rgb),0.2)] to-[rgba(var(--color-accent-rgb),0.14)] rounded-full opacity-70" />
+        <div className="relative w-full h-full rounded-full border-4 border-[rgb(10,13,19)] overflow-hidden flex items-center justify-center shadow-[0_12px_38px_rgba(0,0,0,0.35)]">
           <Avatar 
             className="w-full h-full object-cover" 
             src={avatarUrl || undefined} 

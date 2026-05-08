@@ -94,7 +94,9 @@ export const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPag
     // Include user ID in key so switching accounts still tracks views
     const userId = session?.user?.id || 'anon';
     const viewKey = `viewed_${post.id}_${userId}`;
-    if (sessionStorage.getItem(viewKey)) return;
+    try {
+      if (sessionStorage.getItem(viewKey)) return;
+    } catch {}
 
     const timeoutId = setTimeout(async () => {
       try {
@@ -103,7 +105,9 @@ export const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPag
           headers: { 'Content-Type': 'application/json' },
         });
         if (response.ok) {
-          sessionStorage.setItem(viewKey, 'true');
+          try {
+            sessionStorage.setItem(viewKey, 'true');
+          } catch {}
         }
       } catch {}
     }, 500);
@@ -421,7 +425,7 @@ export const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPag
 
   return (
     <article 
-      className="group relative overflow-hidden border border-white/10 rounded-xl sm:rounded-2xl p-3 sm:p-6 mb-3 sm:mb-6 bg-white/[0.01] hover:bg-white/[0.04] hover:border-white/20 transition-all duration-200"
+      className="group relative overflow-hidden border border-white/[0.08] rounded-xl p-3 sm:p-5 mb-3 sm:mb-5 bg-[rgba(12,16,23,0.58)] hover:bg-[rgba(16,21,30,0.72)] hover:border-white/[0.16] transition-all duration-200"
       onClick={handlePostClick}
       style={{ cursor: isOnPostPage ? 'default' : 'pointer' }}
     >

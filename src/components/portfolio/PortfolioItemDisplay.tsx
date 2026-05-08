@@ -236,10 +236,10 @@ export function PortfolioItemDisplay({
   const currentMediaUrl = mediaUrls[currentMediaIndex];
 
   return (
-    <div className="group relative glass-soft rounded-2xl border border-white/10 overflow-hidden hover:border-white/20 transition-all duration-300">
+    <div className="group relative rounded-xl border border-white/[0.08] bg-[rgba(12,16,23,0.68)] overflow-hidden hover:border-white/[0.16] transition-all duration-300">
       {/* Media Gallery */}
       {mediaUrls.length > 0 && (
-        <div className="w-full h-72 sm:h-[32rem] bg-gradient-to-br from-white/5 to-transparent overflow-hidden flex items-center justify-center relative group/media">
+        <div className="w-full aspect-[16/10] max-h-[34rem] bg-gradient-to-br from-white/[0.055] to-transparent overflow-hidden flex items-center justify-center relative group/media">
           {/* Current Media */}
           <div 
             className="w-full h-full flex items-center justify-center cursor-pointer relative"
@@ -271,7 +271,7 @@ export function PortfolioItemDisplay({
               {/* Previous Button */}
               <button
                 onClick={(e) => { e.stopPropagation(); goToPrevious(); }}
-                className="absolute left-4 top-1/2 -translate-y-1/2 p-2.5 bg-black/40 hover:bg-black/60 text-white rounded-full transition-all opacity-0 group-hover/media:opacity-100 border border-white/10 backdrop-blur-sm z-10"
+                className="absolute left-4 top-1/2 -translate-y-1/2 p-2.5 bg-black/45 hover:bg-black/65 text-white rounded-full transition-all opacity-0 group-hover/media:opacity-100 border border-white/10 backdrop-blur-sm z-10"
                 title="Previous"
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -282,7 +282,7 @@ export function PortfolioItemDisplay({
               {/* Next Button */}
               <button
                 onClick={(e) => { e.stopPropagation(); goToNext(); }}
-                className="absolute right-4 top-1/2 -translate-y-1/2 p-2.5 bg-black/40 hover:bg-black/60 text-white rounded-full transition-all opacity-0 group-hover/media:opacity-100 border border-white/10 backdrop-blur-sm z-10"
+                className="absolute right-4 top-1/2 -translate-y-1/2 p-2.5 bg-black/45 hover:bg-black/65 text-white rounded-full transition-all opacity-0 group-hover/media:opacity-100 border border-white/10 backdrop-blur-sm z-10"
                 title="Next"
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">

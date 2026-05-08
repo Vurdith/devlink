@@ -52,13 +52,13 @@ export function PortfolioItemContent({
   onTagClick,
 }: PortfolioItemContentProps) {
   return (
-    <div className="p-5 sm:p-8">
-      <div className="flex items-start justify-between gap-4 mb-6">
+    <div className="p-4 sm:p-6">
+      <div className="flex items-start justify-between gap-4 mb-5">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-3 flex-wrap mb-2">
-            <h3 className="text-xl sm:text-2xl font-bold text-white tracking-tight">{item.title}</h3>
+            <h3 className="text-xl sm:text-2xl font-semibold text-white tracking-tight">{item.title}</h3>
             {item.category && (
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider bg-[rgba(var(--color-accent-rgb),0.1)] text-[var(--color-accent)] border border-[rgba(var(--color-accent-rgb),0.2)] rounded-lg">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider bg-[rgba(var(--color-accent-2-rgb),0.09)] text-[var(--color-accent-2)] border border-[rgba(var(--color-accent-2-rgb),0.18)] rounded-lg">
                 {capitalizeCategory(item.category)}
               </span>
             )}
@@ -67,13 +67,13 @@ export function PortfolioItemContent({
 
         {isOwner && (
           <div className="flex gap-2 shrink-0">
-            <button onClick={onEdit} className="p-2 text-white/40 rounded-xl hover:bg-white/5 hover:text-white transition-all border border-transparent hover:border-white/10" title="Edit">
+            <button onClick={onEdit} className="p-2 text-white/45 rounded-lg hover:bg-white/[0.055] hover:text-white transition-all border border-transparent hover:border-white/[0.1]" title="Edit">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
                 <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
               </svg>
             </button>
-            <button onClick={onDelete} className="p-2 text-white/40 rounded-xl hover:bg-red-500/10 hover:text-red-400 transition-all border border-transparent hover:border-red-500/20" title="Delete">
+            <button onClick={onDelete} className="p-2 text-white/45 rounded-lg hover:bg-red-500/10 hover:text-red-400 transition-all border border-transparent hover:border-red-500/20" title="Delete">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M10 11v6M14 11v6" />
               </svg>
@@ -82,22 +82,22 @@ export function PortfolioItemContent({
         )}
       </div>
 
-      {item.description && <p className="text-sm sm:text-base text-[var(--muted-foreground)] mb-6 leading-relaxed max-w-3xl">{item.description}</p>}
+      {item.description && <p className="text-sm sm:text-base text-[var(--muted-foreground)] mb-5 leading-relaxed max-w-3xl">{item.description}</p>}
 
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 pt-6 border-t border-white/10 mt-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5 pt-5 border-t border-white/[0.07] mt-5">
         <div className="flex flex-wrap gap-2">
           {tags.map((tag) => (
             <button
               key={tag}
               onClick={() => onTagClick(tag)}
-              className="px-3 py-1.5 text-[11px] font-medium bg-white/[0.03] text-white/50 rounded-lg border border-white/5 hover:bg-white/[0.06] hover:text-white hover:border-white/10 transition-all"
+              className="px-3 py-1.5 text-[11px] font-medium bg-white/[0.035] text-white/55 rounded-lg border border-white/[0.06] hover:bg-white/[0.065] hover:text-white hover:border-white/[0.12] transition-all"
             >
               #{tag}
             </button>
           ))}
 
           {linkedSkills?.map((skill) => (
-            <span key={skill.id} className="px-3 py-1.5 text-[11px] font-medium bg-[rgba(var(--color-accent-rgb),0.05)] text-[var(--color-accent)] rounded-lg border border-[rgba(var(--color-accent-rgb),0.1)]">
+            <span key={skill.id} className="px-3 py-1.5 text-[11px] font-medium bg-[rgba(var(--color-accent-2-rgb),0.07)] text-[var(--color-accent-2)] rounded-lg border border-[rgba(var(--color-accent-2-rgb),0.14)]">
               {skill.name}
             </span>
           ))}
@@ -109,7 +109,7 @@ export function PortfolioItemContent({
               const meta = getLinkMeta(link);
 
               return (
-                <a key={index} href={link} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 text-sm font-bold bg-white text-black rounded-xl hover:bg-white/90 transition-all active:scale-95">
+                <a key={index} href={link} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 text-sm font-bold bg-white text-black rounded-lg hover:bg-white/90 transition-all active:scale-95">
                   {meta.icon}
                   {meta.label}
                 </a>
