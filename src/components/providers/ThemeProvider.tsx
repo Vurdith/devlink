@@ -15,6 +15,23 @@ const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 const THEME_STORAGE_KEY = 'devlink-theme';
 
+function getStoredTheme(): ThemeId | null {
+  try {
+    const stored = localStorage.getItem(THEME_STORAGE_KEY) as ThemeId | null;
+    return stored === 'purple' || stored === 'red' ? stored : null;
+  } catch {
+    return null;
+  }
+}
+
+function storeTheme(themeId: ThemeId) {
+  try {
+    localStorage.setItem(THEME_STORAGE_KEY, themeId);
+  } catch {
+    // Theme persistence is optional; rendering should never depend on storage access.
+  }
+}
+
 interface ThemeProviderProps {
   children: ReactNode;
   defaultTheme?: ThemeId;
@@ -26,8 +43,8 @@ export function ThemeProvider({ children, defaultTheme = DEFAULT_THEME }: ThemeP
 
   // Load theme from localStorage on mount
   useEffect(() => {
-    const stored = localStorage.getItem(THEME_STORAGE_KEY) as ThemeId | null;
-    if (stored && (stored === 'purple' || stored === 'red')) {
+    const stored = getStoredTheme();
+    if (stored) {
       setThemeId(stored);
     }
     setMounted(true);
@@ -82,7 +99,7 @@ export function ThemeProvider({ children, defaultTheme = DEFAULT_THEME }: ThemeP
     }
 
     // Store in localStorage
-    localStorage.setItem(THEME_STORAGE_KEY, themeId);
+    storeTheme(themeId);
 
     // Add theme class to body for Tailwind-based theming
     document.body.classList.remove('theme-purple', 'theme-red');

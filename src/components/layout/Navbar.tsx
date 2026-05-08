@@ -8,7 +8,32 @@ import { NavbarSearch } from "./NavbarSearch";
 import { useEffect, useState, memo, useCallback } from "react";
 import { cn } from "@/lib/cn";
 
+function safeSessionStorageGet(key: string) {
+  try {
+    return sessionStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
+function safeSessionStorageSet(key: string, value: string) {
+  try {
+    sessionStorage.setItem(key, value);
+  } catch {
+    // Navbar cache is optional.
+  }
+}
+
+function safeSessionStorageRemove(key: string) {
+  try {
+    sessionStorage.removeItem(key);
+  } catch {
+    // Navbar cache is optional.
+  }
+}
+
 export const Navbar = memo(function Navbar({ session }: { session?: { user?: { id?: string; username?: string; name?: string; image?: string } } | null }) {
+  const pathname = usePathname();
   const username = session?.user?.username;
   const googleImage = session?.user?.image ?? undefined;
   const sessionName = session?.user?.name ?? undefined;
@@ -34,7 +59,7 @@ export const Navbar = memo(function Navbar({ session }: { session?: { user?: { i
 
     // Check cache first
     const cacheKey = `navbar-profile-${username}`;
-    const cached = sessionStorage.getItem(cacheKey);
+    const cached = safeSessionStorageGet(cacheKey);
     if (cached) {
       try {
         const data = JSON.parse(cached);
@@ -50,7 +75,7 @@ export const Navbar = memo(function Navbar({ session }: { session?: { user?: { i
       const data = await res.json();
 
       // Update cache
-      sessionStorage.setItem(cacheKey, JSON.stringify(data));
+      safeSessionStorageSet(cacheKey, JSON.stringify(data));
 
       if (data.user?.profile?.avatarUrl) {
         setAvatarUrl(data.user.profile.avatarUrl);
@@ -83,7 +108,7 @@ export const Navbar = memo(function Navbar({ session }: { session?: { user?: { i
       }
       // Check cache for profile type (only fetch if not cached)
       const cacheKey = `navbar-profile-${username}`;
-      const cached = sessionStorage.getItem(cacheKey);
+      const cached = safeSessionStorageGet(cacheKey);
       if (cached) {
         try {
           const data = JSON.parse(cached);
@@ -133,7 +158,7 @@ export const Navbar = memo(function Navbar({ session }: { session?: { user?: { i
 
       // Clear cache immediately
       if (username) {
-        sessionStorage.removeItem(`navbar-profile-${username}`);
+        safeSessionStorageRemove(`navbar-profile-${username}`);
       }
 
       // Update state immediately with new values
@@ -165,13 +190,13 @@ export const Navbar = memo(function Navbar({ session }: { session?: { user?: { i
         <div className="w-[44px] h-[44px] md:hidden flex-shrink-0" />
 
         {/* Render a spacer on the landing page that exactly matches the Sidebar's width (w-72 = 18rem = 288px) */}
-        {usePathname() === "/" && (
+        {pathname === "/" && (
           <div className="hidden md:block w-72 flex-shrink-0" />
         )}
 
         {/* Search bar */}
         <div className="flex items-center flex-1">
-          {usePathname() !== "/" && <NavbarSearch currentUserId={session?.user?.id} />}
+          {pathname !== "/" && <NavbarSearch currentUserId={session?.user?.id} />}
         </div>
 
         {/* Right side actions */}

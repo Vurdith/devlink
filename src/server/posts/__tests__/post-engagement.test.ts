@@ -48,4 +48,28 @@ describe("attachPostEngagement", () => {
       },
     });
   });
+
+  it("handles poll options without Prisma _count data", () => {
+    const post = {
+      id: "post-1",
+      poll: {
+        id: "poll-1",
+        question: "Pick one",
+        expiresAt: null,
+        isMultiple: false,
+        options: [
+          { id: "option-1", text: "Plugin", votes: [{ id: "vote-1" }, { id: "vote-2" }] },
+          { id: "option-2", text: "Game" },
+        ],
+      },
+    };
+
+    expect(attachPostEngagement(post, makeSummary()).poll).toMatchObject({
+      totalVotes: 2,
+      options: [
+        { id: "option-1", votes: 2, isSelected: false },
+        { id: "option-2", votes: 0, isSelected: true },
+      ],
+    });
+  });
 });

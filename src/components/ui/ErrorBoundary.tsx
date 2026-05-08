@@ -12,6 +12,18 @@ interface ErrorBoundaryProps {
   fallback?: React.ComponentType<{ error?: Error; resetError: () => void }>;
 }
 
+const CHUNK_RELOAD_KEY = "devlink:chunk-reload-attempted";
+
+function isChunkLoadError(error: Error) {
+  const message = `${error.name} ${error.message}`;
+  return (
+    message.includes("ChunkLoadError") ||
+    message.includes("Loading chunk") ||
+    message.includes("failed to fetch dynamically imported module") ||
+    message.includes("Importing a module script failed")
+  );
+}
+
 export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
   constructor(props: ErrorBoundaryProps) {
     super(props);
@@ -24,6 +36,17 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     console.error('ErrorBoundary caught an error:', error, errorInfo);
+
+    if (typeof window === "undefined" || !isChunkLoadError(error)) return;
+
+    try {
+      if (sessionStorage.getItem(CHUNK_RELOAD_KEY) === "1") return;
+      sessionStorage.setItem(CHUNK_RELOAD_KEY, "1");
+    } catch {
+      // If sessionStorage is blocked, still try one hard reload.
+    }
+
+    window.location.reload();
   }
 
   resetError = () => {
@@ -70,7 +93,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
               </button>
             </div>
             
-            {process.env.NODE_ENV === 'development' && this.state.error && (
+            {this.state.error && (
               <details className="mt-8 text-left group">
                 <summary className="cursor-pointer text-xs text-[var(--muted-foreground)] hover:text-white transition-colors flex items-center gap-2">
                   <div className="w-1.5 h-1.5 rounded-full bg-[var(--color-accent)]" />
@@ -78,9 +101,9 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
                 </summary>
                 <div className="mt-3 p-4 rounded-xl bg-black/40 border border-white/5 backdrop-blur-sm overflow-hidden">
                   <pre className="text-[10px] text-[var(--color-accent)]/80 font-mono overflow-x-auto whitespace-pre-wrap max-h-[200px] scrollbar-hide">
-                    {this.state.error.toString()}
-                    {"\n\n"}
-                    {this.state.error.stack}
+                    {process.env.NODE_ENV === 'development'
+                      ? `${this.state.error.toString()}\n\n${this.state.error.stack ?? ""}`
+                      : `${this.state.error.name}: ${this.state.error.message}`}
                   </pre>
                 </div>
               </details>

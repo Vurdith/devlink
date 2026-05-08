@@ -1,8 +1,9 @@
 interface PollOptionWithVoteCount {
   id: string;
   text: string;
-  _count: {
-    votes: number;
+  votes?: unknown[];
+  _count?: {
+    votes?: number;
   };
 }
 
@@ -40,6 +41,9 @@ export function attachPostEngagement<TPost extends PostWithEngagementCounts>(
   post: TPost,
   summary: PostEngagementSummary
 ) {
+  const getOptionVoteCount = (option: PollOptionWithVoteCount) =>
+    option._count?.votes ?? (Array.isArray(option.votes) ? option.votes.length : 0);
+
   const poll =
     post.poll === undefined
       ? undefined
@@ -49,11 +53,11 @@ export function attachPostEngagement<TPost extends PostWithEngagementCounts>(
             options: post.poll.options.map((option) => ({
               id: option.id,
               text: option.text,
-              votes: option._count.votes,
+              votes: getOptionVoteCount(option),
               isSelected: summary.votedOptionIds.has(option.id),
             })),
             totalVotes: post.poll.options.reduce(
-              (sum, option) => sum + option._count.votes,
+              (sum, option) => sum + getOptionVoteCount(option),
               0
             ),
           }
