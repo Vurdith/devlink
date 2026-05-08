@@ -17,7 +17,7 @@ export default function SettingsPage() {
       
       {/* Account Linking Section */}
       <div 
-        className="relative overflow-hidden glass glass-hover rounded-2xl p-6 border border-[var(--color-accent)]/20 animate-slide-up noise-overlay"
+        className="relative overflow-hidden rounded-xl border border-white/[0.08] bg-[rgba(12,16,23,0.72)] p-6 animate-slide-up noise-overlay"
         style={{ animationDelay: '0.05s' }}
       >
         <div

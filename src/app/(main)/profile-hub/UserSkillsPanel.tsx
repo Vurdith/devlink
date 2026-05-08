@@ -11,7 +11,7 @@ interface UserSkillsPanelProps {
 
 export function UserSkillsPanel({ userSkills, currency, onEditSkill, onRemoveSkill }: UserSkillsPanelProps) {
   return (
-    <div className="relative overflow-hidden glass-soft border border-white/10 rounded-2xl p-6">
+    <div className="relative overflow-hidden rounded-xl border border-white/[0.08] bg-[rgba(12,16,23,0.72)] p-6">
       <div
         aria-hidden="true"
         className="absolute inset-0 pointer-events-none opacity-55"
@@ -22,7 +22,7 @@ export function UserSkillsPanel({ userSkills, currency, onEditSkill, onRemoveSki
       />
       <div className="relative">
         <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-yellow-500 flex items-center justify-center shadow-lg shadow-amber-500/25">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-amber-300/20 bg-amber-400/10 text-amber-200">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-white">
               <polygon
                 points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"

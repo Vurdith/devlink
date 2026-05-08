@@ -12,9 +12,9 @@ function ThemePreview({ theme, isSelected, onSelect }: {
   return (
     <button
       onClick={onSelect}
-      className={`relative group w-full p-4 rounded-2xl border-2 transition-all duration-300 text-left overflow-hidden noise-overlay ${
+      className={`group relative w-full overflow-hidden rounded-xl border p-4 text-left transition-all duration-300 noise-overlay ${
         isSelected 
-          ? 'border-[var(--color-accent)] bg-[rgba(var(--color-accent-rgb),0.10)] shadow-lg shadow-[var(--color-accent)]/20'
+          ? 'accent-halo-cyan border-[rgba(var(--color-accent-2-rgb),0.34)] bg-[rgba(var(--color-accent-2-rgb),0.10)]'
           : 'border-white/10 bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.06]'
       }`}
     >
@@ -39,15 +39,15 @@ function ThemePreview({ theme, isSelected, onSelect }: {
       {/* Theme color preview circles */}
       <div className="flex items-center gap-2 mb-4">
         <div 
-          className="w-8 h-8 rounded-full shadow-lg" 
+          className="h-8 w-8 rounded-full border border-white/15"
           style={{ backgroundColor: theme.colors.accent }}
         />
         <div 
-          className="w-6 h-6 rounded-full shadow-md" 
+          className="h-6 w-6 rounded-full border border-white/15"
           style={{ backgroundColor: theme.colors.accent2 }}
         />
         <div 
-          className="w-5 h-5 rounded-full shadow-sm" 
+          className="h-5 w-5 rounded-full border border-white/15"
           style={{ backgroundColor: theme.colors.accent3 }}
         />
       </div>
@@ -99,8 +99,8 @@ export default function AppearanceSettingsPage() {
         <div className="h-8 w-48 bg-white/10 rounded-lg mb-2" />
         <div className="h-4 w-96 bg-white/5 rounded mb-8" />
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="h-48 bg-white/5 rounded-2xl" />
-          <div className="h-48 bg-white/5 rounded-2xl" />
+          <div className="h-48 rounded-xl bg-white/5" />
+          <div className="h-48 rounded-xl bg-white/5" />
         </div>
       </div>
     );
@@ -117,7 +117,7 @@ export default function AppearanceSettingsPage() {
       </div>
 
       {/* Theme Selection */}
-      <div className="relative overflow-hidden glass glass-hover rounded-2xl p-6 border border-white/10 noise-overlay">
+      <div className="relative overflow-hidden rounded-xl border border-white/[0.08] bg-[rgba(12,16,23,0.72)] p-6 noise-overlay">
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 opacity-60"
@@ -127,7 +127,7 @@ export default function AppearanceSettingsPage() {
           }}
         />
         <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--color-accent)] to-[var(--color-accent-2)] flex items-center justify-center shadow-lg">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-[rgba(var(--color-accent-2-rgb),0.22)] bg-[rgba(var(--color-accent-2-rgb),0.10)] text-[var(--color-accent-2)]">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-white">
               <circle cx="12" cy="12" r="5" stroke="currentColor" strokeWidth="2"/>
               <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
@@ -168,7 +168,7 @@ export default function AppearanceSettingsPage() {
       </div>
 
       {/* Future: More appearance settings */}
-      <div className="mt-6 relative overflow-hidden glass rounded-2xl p-6 border border-white/10 opacity-50 noise-overlay">
+      <div className="mt-6 relative overflow-hidden rounded-xl border border-white/[0.08] bg-[rgba(12,16,23,0.52)] p-6 opacity-50 noise-overlay">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-white/50">

@@ -15,7 +15,7 @@ export function SkillEditModal({ skill, onSkillChange, onSave, onClose }: SkillE
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/80" onClick={onClose} />
-      <div className="relative overflow-hidden w-full max-w-lg glass-soft rounded-2xl border border-white/10 p-6">
+      <div className="relative w-full max-w-lg overflow-hidden rounded-xl border border-white/[0.08] bg-[rgba(12,16,23,0.92)] p-6">
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-lg font-semibold text-white">Edit {skill.skill.name}</h3>
           <button onClick={onClose} className="p-2 rounded-lg hover:bg-white/10 text-white/60">

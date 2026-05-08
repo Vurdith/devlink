@@ -57,7 +57,7 @@ const Toggle = memo(function Toggle({ checked, onChange }: { checked: boolean; o
     >
       <span
         className={cn(
-          "pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-lg ring-0 transition-transform",
+          "pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white ring-0 transition-transform",
           checked ? "translate-x-5" : "translate-x-0"
         )}
       />
@@ -88,7 +88,7 @@ export default function NotificationSettings() {
 
       {/* Email Notifications */}
       <div
-        className="relative overflow-hidden glass glass-hover rounded-2xl p-6 border border-white/10 animate-slide-up noise-overlay"
+        className="relative overflow-hidden rounded-xl border border-white/[0.08] bg-[rgba(12,16,23,0.72)] p-6 animate-slide-up noise-overlay"
         style={{ animationDelay: '0.05s' }}
       >
         <div
@@ -100,7 +100,7 @@ export default function NotificationSettings() {
           }}
         />
         <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--color-accent)] to-[var(--color-accent-hover)] flex items-center justify-center shadow-lg shadow-[var(--color-accent)]/20">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-[rgba(var(--color-accent-2-rgb),0.22)] bg-[rgba(var(--color-accent-2-rgb),0.10)] text-[var(--color-accent-2)]">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-white">
               <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" stroke="currentColor" strokeWidth="2"/>
               <polyline points="22,6 12,13 2,6" stroke="currentColor" strokeWidth="2"/>
@@ -138,7 +138,7 @@ export default function NotificationSettings() {
       </div>
 
       {/* Push Notifications - Coming Soon */}
-      <div className="relative overflow-hidden glass rounded-2xl p-6 border border-white/10 animate-slide-up noise-overlay" style={{ animationDelay: '0.1s' }}>
+      <div className="relative overflow-hidden rounded-xl border border-white/[0.08] bg-[rgba(12,16,23,0.62)] p-6 animate-slide-up noise-overlay" style={{ animationDelay: '0.1s' }}>
         {/* Coming Soon Overlay */}
         <div className="absolute inset-0 bg-[var(--background)]/80 flex items-center justify-center z-10">
           <div className="text-center">

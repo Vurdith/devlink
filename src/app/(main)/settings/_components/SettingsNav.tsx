@@ -88,23 +88,23 @@ export default function SettingsNav() {
             <Link
               href={item.href}
               className={cn(
-                "group relative flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200",
+                "group relative flex items-center gap-3 rounded-lg border px-3 py-3 transition-all duration-200",
                 isActive 
-                  ? "bg-[var(--color-accent)]/15" 
-                  : "hover:bg-[var(--color-accent)]/10"
+                  ? "accent-halo-cyan border-[rgba(var(--color-accent-2-rgb),0.28)] bg-[rgba(var(--color-accent-2-rgb),0.10)]"
+                  : "border-transparent hover:border-white/[0.08] hover:bg-white/[0.04]"
               )}
             >
               {/* Active indicator */}
               {isActive && (
-                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-gradient-to-b from-[var(--color-accent)] to-[var(--color-accent-hover)] rounded-r-full" />
+                <div className="absolute left-0 top-1/2 h-8 w-0.5 -translate-y-1/2 rounded-r-full bg-[var(--color-accent-2)]" />
               )}
               
               {/* Icon */}
               <div className={cn(
                 "w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-200",
                 isActive 
-                  ? "bg-gradient-to-br from-[var(--color-accent)] to-[var(--color-accent-hover)] text-white shadow-lg shadow-[var(--color-accent)]/25" 
-                  : "bg-[var(--color-accent)]/10 text-[var(--color-accent)] group-hover:bg-[var(--color-accent)]/20"
+                  ? "border border-[rgba(var(--color-accent-2-rgb),0.24)] bg-[rgba(var(--color-accent-2-rgb),0.16)] text-[var(--color-accent-2)]"
+                  : "bg-white/[0.04] text-[var(--muted-foreground)] group-hover:bg-white/[0.07] group-hover:text-white"
               )}>
                 {item.icon}
               </div>

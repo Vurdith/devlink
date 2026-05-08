@@ -7,7 +7,7 @@ function SettingsSkeleton() {
       </div>
 
       {[1, 2, 3].map((i) => (
-        <div key={i} className="relative overflow-hidden glass glass-hover rounded-2xl p-6 border border-white/10">
+        <div key={i} className="relative overflow-hidden rounded-xl border border-white/[0.08] bg-[rgba(12,16,23,0.72)] p-6">
           <div className="flex items-start gap-3 mb-6">
             <div className="w-10 h-10 rounded-xl bg-white/10 animate-pulse" />
             <div className="min-w-0">

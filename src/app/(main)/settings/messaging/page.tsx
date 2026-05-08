@@ -70,12 +70,12 @@ export default function MessagingSettingsPage() {
       </div>
 
       {status === "unauthenticated" ? (
-        <div className="glass-soft border border-white/10 rounded-2xl p-5 text-sm text-[var(--muted-foreground)]">
+        <div className="rounded-xl border border-white/[0.08] bg-[rgba(12,16,23,0.72)] p-5 text-sm text-[var(--muted-foreground)]">
           Sign in to update messaging preferences.
         </div>
       ) : (
         <>
-          <div className="relative overflow-hidden glass glass-hover rounded-2xl p-6 border border-white/10 animate-slide-up noise-overlay">
+          <div className="relative overflow-hidden rounded-xl border border-white/[0.08] bg-[rgba(12,16,23,0.72)] p-6 animate-slide-up noise-overlay">
             <div
               aria-hidden="true"
               className="pointer-events-none absolute inset-0 opacity-60"
@@ -86,7 +86,7 @@ export default function MessagingSettingsPage() {
             />
             <div className="relative">
               <div className="flex items-center gap-3 mb-5">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--color-accent)] to-[var(--color-accent-hover)] flex items-center justify-center shadow-lg shadow-[var(--color-accent)]/20">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-[rgba(var(--color-accent-2-rgb),0.22)] bg-[rgba(var(--color-accent-2-rgb),0.10)] text-[var(--color-accent-2)]">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-white">
                     <path d="M21 15a4 4 0 0 1-4 4H7l-4 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
@@ -142,7 +142,7 @@ export default function MessagingSettingsPage() {
             </div>
           </div>
 
-          <div className="relative overflow-hidden glass rounded-2xl p-6 border border-white/10 animate-slide-up noise-overlay" style={{ animationDelay: "0.08s" }}>
+          <div className="relative overflow-hidden rounded-xl border border-white/[0.08] bg-[rgba(12,16,23,0.62)] p-6 animate-slide-up noise-overlay" style={{ animationDelay: "0.08s" }}>
             <div
               aria-hidden="true"
               className="pointer-events-none absolute inset-0 opacity-40"

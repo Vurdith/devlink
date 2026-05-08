@@ -43,7 +43,7 @@ export default async function FollowersPage({ params }: { params: Promise<{ user
       <h1 className="text-xl font-semibold mb-4">Followers of @{user.username}</h1>
       <div className="space-y-2">
         {followers.map((f) => (
-          <div key={f.id} className="group relative overflow-hidden glass glass-hover noise-overlay border border-white/10 rounded-[var(--radius)] p-3 flex items-center gap-3">
+          <div key={f.id} className="group relative flex items-center gap-3 overflow-hidden rounded-xl border border-white/[0.08] bg-[rgba(12,16,23,0.68)] p-3 transition-colors hover:border-white/[0.14] hover:bg-[rgba(15,20,28,0.82)]">
             <ProfileTooltip user={f.follower} currentUserId={currentUserId}>
               <Link href={`/u/${f.follower.username}`} className="flex items-center gap-3 min-w-0 flex-1 relative z-10">
                 <Avatar src={f.follower.profile?.avatarUrl ?? undefined} size={36} />

@@ -9,17 +9,17 @@ interface ProfileHubTabsProps {
 
 export function ProfileHubTabs({ activeSection, onSectionChange }: ProfileHubTabsProps) {
   return (
-    <div className="relative overflow-hidden glass-soft rounded-2xl border border-white/10 p-2 flex gap-2 mb-6 overflow-x-auto">
+    <div className="mb-6 flex gap-1.5 overflow-x-auto rounded-xl border border-white/[0.08] bg-[rgba(8,11,16,0.78)] p-1.5">
       <button
         onClick={() => onSectionChange("profile")}
         className={cn(
-          "flex items-center gap-2 px-4 py-2.5 text-sm font-medium transition-all rounded-lg whitespace-nowrap",
+          "flex items-center gap-2 whitespace-nowrap rounded-lg border px-4 py-2.5 text-sm font-semibold transition-all",
           activeSection === "profile"
-            ? "text-white bg-[rgba(var(--color-accent-rgb),0.2)] border border-[rgba(var(--color-accent-rgb),0.4)]"
-            : "text-[var(--muted-foreground)] hover:text-[var(--color-accent)] hover:bg-[rgba(var(--color-accent-rgb),0.1)] border border-transparent"
+            ? "accent-halo-cyan border-[rgba(var(--color-accent-2-rgb),0.34)] bg-[rgba(var(--color-accent-2-rgb),0.14)] text-white"
+            : "border-transparent text-[var(--muted-foreground)] hover:border-white/[0.07] hover:bg-white/[0.04] hover:text-white"
         )}
       >
-        <svg className={cn("w-4 h-4", activeSection === "profile" && "text-[var(--color-accent)]")} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className={cn("h-4 w-4", activeSection === "profile" && "text-[var(--color-accent-2)]")} fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
         </svg>
         Profile
@@ -27,13 +27,13 @@ export function ProfileHubTabs({ activeSection, onSectionChange }: ProfileHubTab
       <button
         onClick={() => onSectionChange("skills")}
         className={cn(
-          "flex items-center gap-2 px-4 py-2.5 text-sm font-medium transition-all rounded-lg whitespace-nowrap",
+          "flex items-center gap-2 whitespace-nowrap rounded-lg border px-4 py-2.5 text-sm font-semibold transition-all",
           activeSection === "skills"
-            ? "text-white bg-[rgba(var(--color-accent-rgb),0.2)] border border-[rgba(var(--color-accent-rgb),0.4)]"
-            : "text-[var(--muted-foreground)] hover:text-[var(--color-accent)] hover:bg-[rgba(var(--color-accent-rgb),0.1)] border border-transparent"
+            ? "accent-halo-cyan border-[rgba(var(--color-accent-2-rgb),0.34)] bg-[rgba(var(--color-accent-2-rgb),0.14)] text-white"
+            : "border-transparent text-[var(--muted-foreground)] hover:border-white/[0.07] hover:bg-white/[0.04] hover:text-white"
         )}
       >
-        <svg className={cn("w-4 h-4", activeSection === "skills" && "text-[var(--color-accent)]")} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className={cn("h-4 w-4", activeSection === "skills" && "text-[var(--color-accent-2)]")} fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
             strokeLinecap="round"
             strokeLinejoin="round"

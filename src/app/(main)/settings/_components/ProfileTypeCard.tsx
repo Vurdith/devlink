@@ -130,7 +130,7 @@ export function ProfileTypeCard() {
   }
 
   return (
-    <div className="relative overflow-hidden glass glass-hover rounded-2xl p-6 border border-[var(--color-accent)]/20 noise-overlay">
+    <div className="relative overflow-hidden rounded-xl border border-white/[0.08] bg-[rgba(12,16,23,0.72)] p-6 noise-overlay">
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 opacity-60"
@@ -141,7 +141,7 @@ export function ProfileTypeCard() {
       />
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--color-accent)] to-[var(--color-accent-hover)] flex items-center justify-center shadow-lg shadow-[var(--color-accent)]/25">
+        <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-[rgba(var(--color-accent-2-rgb),0.22)] bg-[rgba(var(--color-accent-2-rgb),0.10)] text-[var(--color-accent-2)]">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-white">
             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             <circle cx="12" cy="7" r="4" stroke="currentColor" strokeWidth="2"/>
@@ -177,7 +177,7 @@ export function ProfileTypeCard() {
                 className={cn(
                   "relative overflow-hidden p-4 rounded-xl border text-left transition-all group animate-slide-up active:scale-98",
                   isActive 
-                    ? `${profileType.bgColor} ${profileType.borderColor}` 
+                    ? `${profileType.bgColor} ${profileType.borderColor} accent-halo-purple`
                     : "bg-white/[0.03] border-white/10 hover:bg-white/[0.06] hover:border-white/20"
                 )}
                 style={{ animationDelay: `${index * 0.03}s` }}
@@ -210,7 +210,7 @@ export function ProfileTypeCard() {
                 <div className={cn(
                   "w-10 h-10 rounded-lg flex items-center justify-center mb-3 transition-all",
                   isActive 
-                    ? `bg-gradient-to-br ${profileType.gradient} text-white shadow-lg` 
+                    ? `bg-gradient-to-br ${profileType.gradient} text-white`
                     : "bg-white/10 text-[var(--muted-foreground)] group-hover:bg-white/15"
                 )}>
                   {profileType.icon}
