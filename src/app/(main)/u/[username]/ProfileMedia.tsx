@@ -47,7 +47,7 @@ export function ProfileBanner({ initialBannerUrl, isOwnProfile }: ProfileBannerP
   const isBlob = bannerUrl?.startsWith('blob:');
 
   return (
-    <div className="relative z-0 h-36 sm:h-64 w-full group">
+    <div className="relative z-0 h-40 sm:h-56 w-full group">
       {bannerUrl ? (
         // Use regular img for blob URLs (instant local preview), next/image for remote URLs
         isBlob ? (
@@ -69,7 +69,7 @@ export function ProfileBanner({ initialBannerUrl, isOwnProfile }: ProfileBannerP
       ) : (
         <div className="h-full w-full bg-[linear-gradient(135deg,rgba(15,23,42,0.95),rgba(var(--color-accent-rgb),0.28)_45%,rgba(var(--color-accent-2-rgb),0.24))]" />
       )}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-t from-[rgb(10,13,19)] via-black/18 to-transparent" />
       <BannerEditOverlay editable={isOwnProfile} />
     </div>
   );
@@ -81,7 +81,7 @@ export function ProfileAvatar({ initialAvatarUrl, isOwnProfile }: ProfileAvatarP
 
   return (
     <div className="relative z-20">
-      <div className="relative w-20 h-20 sm:w-28 sm:h-28 group">
+      <div className="relative w-24 h-24 sm:w-28 sm:h-28 group">
         {/* Subtle glow behind avatar */}
         <div className="absolute -inset-1 bg-gradient-to-br from-white/12 via-[rgba(var(--color-accent-2-rgb),0.2)] to-[rgba(var(--color-accent-rgb),0.14)] rounded-full opacity-70" />
         <div className="relative w-full h-full rounded-full border-4 border-[rgb(10,13,19)] overflow-hidden flex items-center justify-center shadow-[0_12px_38px_rgba(0,0,0,0.35)]">

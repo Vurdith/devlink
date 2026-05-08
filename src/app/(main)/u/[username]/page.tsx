@@ -147,8 +147,7 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
           isOwnProfile={isOwnProfile}
         />
         
-        {/* Content (Discover-card style) */}
-        <div className="relative p-4 sm:p-6 lg:p-7">
+        <div className="relative -mt-10 px-4 pb-5 sm:-mt-14 sm:px-6 sm:pb-6 lg:px-7">
           <AboutEditor
             initialBio={user.profile?.bio}
             initialLocation={user.profile?.location}
@@ -166,7 +165,7 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
                 isOwnProfile={isOwnProfile}
               />
 
-              <div className="min-w-0 pb-1">
+              <div className="min-w-0 pb-1.5">
                 <div className="flex items-center gap-2">
                   <h1 className="text-2xl sm:text-3xl font-semibold text-white truncate tracking-tight">
                     {user.name ?? user.username}
@@ -179,7 +178,23 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
                     </span>
                   )}
                 </div>
-                <p className="mt-1 text-sm text-[var(--muted-foreground)] truncate">@{user.username}</p>
+                <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-[var(--muted-foreground)]">
+                  <span className="truncate">@{user.username}</span>
+                  <Link href={`/u/${user.username}/followers`} className="hidden transition-colors hover:text-white sm:inline">
+                    <span className="font-medium text-white">{user?._count?.followers ?? 0}</span>{" "}
+                    followers
+                  </Link>
+                  <Link href={`/u/${user.username}/following`} className="hidden transition-colors hover:text-white sm:inline">
+                    <span className="font-medium text-white">{user?._count?.following ?? 0}</span>{" "}
+                    following
+                  </Link>
+                  {rating !== "-" && (
+                    <span className="hidden text-amber-200/90 sm:inline">
+                      <span className="font-medium text-amber-200">{rating}</span>{" "}
+                      rating
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
 
@@ -198,30 +213,29 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
             </div>
           </div>
 
+          <div className="mt-4 flex items-center gap-5 border-t border-white/[0.06] pt-4 text-sm text-[var(--muted-foreground)] sm:hidden">
+            <Link href={`/u/${user.username}/followers`} className="transition-colors hover:text-white">
+              <span className="font-medium text-white">{user?._count?.followers ?? 0}</span>{" "}
+              followers
+            </Link>
+            <Link href={`/u/${user.username}/following`} className="transition-colors hover:text-white">
+              <span className="font-medium text-white">{user?._count?.following ?? 0}</span>{" "}
+              following
+            </Link>
+            {rating !== "-" && (
+              <span className="text-amber-200/90">
+                <span className="font-medium text-amber-200">{rating}</span>{" "}
+                rating
+              </span>
+            )}
+          </div>
+
           {/* Bio */}
           {user.profile?.bio && (
-            <p className="mt-5 max-w-3xl rounded-xl border border-white/[0.06] bg-white/[0.025] p-4 text-sm text-[var(--muted-foreground)] whitespace-pre-wrap leading-relaxed">
+            <p className="mt-4 max-w-3xl text-sm text-[var(--muted-foreground)] whitespace-pre-wrap leading-relaxed sm:ml-[8rem]">
               {user.profile.bio}
             </p>
           )}
-
-          {/* Stats (Discover footer vibe) */}
-          <div className="mt-5 grid grid-cols-2 gap-2 border-t border-white/[0.07] pt-4 text-xs text-[var(--muted-foreground)] sm:flex sm:flex-wrap sm:items-center sm:gap-3">
-              <Link href={`/u/${user.username}/followers`} className="rounded-lg border border-white/[0.06] bg-white/[0.025] px-3 py-2 transition-colors hover:border-white/15 hover:bg-white/[0.045] hover:text-white">
-                <span className="block font-semibold text-white tabular-nums">{user?._count?.followers ?? 0}</span>
-                <span>followers</span>
-              </Link>
-              <Link href={`/u/${user.username}/following`} className="rounded-lg border border-white/[0.06] bg-white/[0.025] px-3 py-2 transition-colors hover:border-white/15 hover:bg-white/[0.045] hover:text-white">
-                <span className="block font-semibold text-white tabular-nums">{user?._count?.following ?? 0}</span>
-                <span>following</span>
-              </Link>
-              {rating !== "-" && (
-                <span className="rounded-lg border border-amber-300/15 bg-amber-300/[0.06] px-3 py-2 text-amber-200">
-                  <span className="block font-semibold tabular-nums">{rating}</span>
-                  <span className="text-amber-200/70">rating</span>
-                </span>
-              )}
-          </div>
           
           <ProfileLiveEvents />
         </div>
