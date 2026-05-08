@@ -38,7 +38,7 @@ export const LoadingSkeleton = memo(function LoadingSkeleton({ className }: { cl
 
 export const PostSkeleton = memo(function PostSkeleton() {
   return (
-    <div className="bg-[#0d0d12] rounded-2xl p-6 border border-white/10">
+    <div className="rounded-xl border border-white/[0.08] bg-[rgba(12,16,23,0.72)] p-6">
       <div className="flex items-center gap-3 mb-4">
         <div className="w-10 h-10 rounded-full bg-white/10 animate-pulse" />
         <div className="flex-1">

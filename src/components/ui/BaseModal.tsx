@@ -74,7 +74,7 @@ export const Tooltip = memo(function Tooltip({
         transform: getTransform()
       }}
     >
-      <div className="px-2.5 py-1.5 text-xs font-medium text-white bg-gradient-to-r from-[var(--color-accent)]/90 to-[var(--color-accent-hover)]/90 border border-[var(--color-accent)]/30 rounded-lg shadow-xl shadow-[var(--color-accent)]/20 whitespace-nowrap">
+      <div className="whitespace-nowrap rounded-lg border border-white/[0.08] bg-[rgba(12,16,23,0.96)] px-2.5 py-1.5 text-xs font-medium text-white">
         {content}
       </div>
     </div>,
@@ -234,9 +234,8 @@ export const BaseModal = memo(function BaseModal({
         aria-labelledby={title ? titleId : undefined}
         tabIndex={-1}
         className={cn(
-          "relative w-full max-h-[85vh] flex flex-col rounded-2xl overflow-hidden",
-          "glass-soft border border-white/10",
-          "shadow-2xl shadow-black/50",
+          "relative flex max-h-[85vh] w-full flex-col overflow-hidden rounded-xl",
+          "border border-white/[0.08] bg-[rgba(12,16,23,0.96)]",
           "animate-pop-in",
           sizeClasses[size],
           className

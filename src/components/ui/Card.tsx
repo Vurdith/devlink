@@ -13,7 +13,7 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
   ({ className, variant = "default", hover = false, glow = false, children, ...props }, ref) => {
     const variants = {
       default: "glass border border-[var(--line-soft)]",
-      elevated: "glass border border-[var(--line-strong)] shadow-[var(--shadow-soft)]",
+      elevated: "glass border border-[var(--line-strong)]",
       bordered: "glass border border-[var(--line-soft)]",
       gradient: "glass border border-[rgba(var(--color-accent-2-rgb),0.22)] bg-[linear-gradient(135deg,rgba(var(--color-accent-rgb),0.10),transparent_44%,rgba(var(--color-accent-2-rgb),0.06))]",
     };
@@ -25,7 +25,7 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
           "rounded-xl p-5 sm:p-6 transition-all duration-200",
           variants[variant],
           hover && "hover:bg-white/[0.045] hover:border-[rgba(var(--color-accent-2-rgb),0.22)] hover:-translate-y-0.5 cursor-pointer",
-          glow && "shadow-[0_14px_42px_rgba(var(--color-accent-rgb),0.16)]",
+          glow && "accent-halo-cyan",
           className
         )}
         {...props}

@@ -31,7 +31,7 @@ export function MediaViewerPreview({
   if (isSlideshow && count > 1) {
     return (
       <div
-        className={`relative w-full rounded-2xl overflow-hidden cursor-pointer group/media bg-black/40 ${className}`}
+        className={`group/media relative w-full cursor-pointer overflow-hidden rounded-xl bg-black/40 ${className}`}
         style={{ maxHeight: "400px" }}
         onClick={() => onOpen(currentIndex)}
       >
@@ -57,12 +57,12 @@ export function MediaViewerPreview({
   if (count === 1) {
     return (
       <div
-        className={`relative w-full rounded-2xl overflow-hidden cursor-pointer group/media bg-black/40 ${className}`}
+        className={`group/media relative w-full cursor-pointer overflow-hidden rounded-xl bg-black/40 ${className}`}
         style={{ maxHeight: "400px" }}
         onClick={() => onOpen(0)}
       >
         <LargeMedia item={media[0]} alt={`${alt} - 1`} hover />
-        <div className="absolute inset-0 bg-black/0 group-hover/media:bg-black/5 transition-colors duration-200 pointer-events-none rounded-2xl" />
+        <div className="pointer-events-none absolute inset-0 rounded-xl bg-black/0 transition-colors duration-200 group-hover/media:bg-black/5" />
       </div>
     );
   }
@@ -108,7 +108,7 @@ function LargeMedia({ item, alt, hover = false }: { item: MediaItem; alt: string
   }
 
   return (
-    <div className="relative w-full overflow-hidden rounded-2xl" style={{ height: "400px" }}>
+    <div className="relative w-full overflow-hidden rounded-xl" style={{ height: "400px" }}>
       <Image
         src={item.url}
         alt={alt}
@@ -154,7 +154,7 @@ function PreviewArrow({ direction, onClick }: { direction: "previous" | "next"; 
         event.stopPropagation();
         onClick();
       }}
-      className={`absolute ${isPrevious ? "left-3" : "right-3"} top-1/2 -translate-y-1/2 p-2.5 bg-black/70 hover:bg-black/90 text-white rounded-full transition-all opacity-0 group-hover/media:opacity-100`}
+      className={`absolute ${isPrevious ? "left-3" : "right-3"} top-1/2 -translate-y-1/2 rounded-lg border border-white/10 bg-[rgba(12,16,23,0.74)] p-2.5 text-white opacity-0 transition-all hover:border-[rgba(var(--color-accent-2-rgb),0.32)] hover:bg-[rgba(var(--color-accent-2-rgb),0.12)] group-hover/media:opacity-100`}
       title={isPrevious ? "Previous" : "Next"}
     >
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -167,7 +167,7 @@ function PreviewArrow({ direction, onClick }: { direction: "previous" | "next"; 
 function PlayOverlay({ size }: { size: "sm" | "lg" }) {
   return (
     <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-      <div className={`bg-black/60 rounded-full ${size === "lg" ? "p-4" : "p-3"} transition-transform duration-300 group-hover/media:scale-110`}>
+      <div className={`rounded-xl border border-white/10 bg-[rgba(12,16,23,0.7)] ${size === "lg" ? "p-4" : "p-3"} transition-transform duration-300 group-hover/media:scale-110`}>
         <svg className={size === "lg" ? "w-10 h-10 text-white" : "w-8 h-8 text-white"} fill="currentColor" viewBox="0 0 20 20">
           <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
         </svg>

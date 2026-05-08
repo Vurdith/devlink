@@ -35,21 +35,21 @@ const PROFILE_GRADIENTS: Record<string, string> = {
 };
 
 const PROFILE_BORDERS: Record<string, string> = {
-  DEVELOPER: "border-blue-500/40 shadow-blue-500/20",
-  CLIENT: "border-emerald-500/40 shadow-emerald-500/20",
-  STUDIO: "border-purple-500/40 shadow-purple-500/20",
-  INFLUENCER: "border-rose-500/40 shadow-rose-500/20",
-  INVESTOR: "border-amber-500/40 shadow-amber-500/20",
-  DEFAULT: "border-white/20 shadow-white/10",
+  DEVELOPER: "border-blue-500/40",
+  CLIENT: "border-emerald-500/40",
+  STUDIO: "border-purple-500/40",
+  INFLUENCER: "border-rose-500/40",
+  INVESTOR: "border-amber-500/40",
+  DEFAULT: "border-white/20",
 };
 
 const BADGE_CLASSES: Record<string, string> = {
-  DEVELOPER: "bg-blue-500/15 text-blue-300 border-blue-500/30 shadow-blue-500/20",
-  CLIENT: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30 shadow-emerald-500/20",
-  STUDIO: "bg-purple-500/15 text-purple-300 border-purple-500/30 shadow-purple-500/20",
-  INFLUENCER: "bg-rose-500/15 text-rose-300 border-rose-500/30 shadow-rose-500/20",
-  INVESTOR: "bg-amber-500/15 text-amber-300 border-amber-500/30 shadow-amber-500/20",
-  DEFAULT: "bg-slate-500/15 text-slate-300 border-slate-500/30 shadow-slate-500/20",
+  DEVELOPER: "bg-blue-500/15 text-blue-300 border-blue-500/30",
+  CLIENT: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30",
+  STUDIO: "bg-purple-500/15 text-purple-300 border-purple-500/30",
+  INFLUENCER: "bg-rose-500/15 text-rose-300 border-rose-500/30",
+  INVESTOR: "bg-amber-500/15 text-amber-300 border-amber-500/30",
+  DEFAULT: "bg-slate-500/15 text-slate-300 border-slate-500/30",
 };
 
 function formatCount(count: number | undefined | null) {
@@ -133,11 +133,10 @@ export function ProfilePreviewCard({
       <div
         ref={cardRef}
         className={cn(
-          "relative w-80 rounded-2xl overflow-hidden",
-          "bg-[#0d1117]",
+          "relative w-80 overflow-hidden rounded-xl",
+          "bg-[rgba(12,16,23,0.96)]",
           "border",
-          profileBorderColor,
-          "shadow-2xl shadow-black/60"
+          profileBorderColor
         )}
       >
         <button
@@ -217,7 +216,7 @@ export function ProfilePreviewCard({
 
           {profileConfig && profileType && (
             <div className="mb-3">
-              <span className={cn("inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full", "text-xs font-medium border shadow-sm", badgeClasses)}>
+              <span className={cn("inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg", "text-xs font-medium border", badgeClasses)}>
                 <ProfileTypeIcon profileType={profileType} size={12} />
                 {profileConfig.label}
               </span>

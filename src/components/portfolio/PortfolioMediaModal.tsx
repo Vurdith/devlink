@@ -92,7 +92,7 @@ export function PortfolioMediaModal({
               event.stopPropagation();
               onClose();
             }}
-            className="absolute -top-3 -right-3 w-9 h-9 flex items-center justify-center bg-black/90 hover:bg-[var(--color-accent)] text-white/80 hover:text-white rounded-full z-30 border border-white/30 hover:border-[var(--color-accent)] shadow-xl transition-all duration-200 hover:scale-110"
+            className="absolute -right-3 -top-3 z-30 flex h-9 w-9 items-center justify-center rounded-lg border border-white/20 bg-[rgba(12,16,23,0.94)] text-white/80 transition-all duration-200 hover:scale-105 hover:border-[rgba(var(--color-accent-2-rgb),0.36)] hover:bg-[rgba(var(--color-accent-2-rgb),0.12)] hover:text-white"
             title="Close (Esc)"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
@@ -102,7 +102,7 @@ export function PortfolioMediaModal({
 
           <div
             ref={containerRef}
-            className="relative overflow-hidden rounded-lg shadow-2xl border border-white/10"
+            className="relative overflow-hidden rounded-lg border border-white/10"
             onMouseDown={onMouseDown}
             onMouseMove={onMouseMove}
             onMouseUp={onMouseUp}
@@ -136,7 +136,7 @@ export function PortfolioMediaModal({
           </div>
         </div>
 
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center justify-center gap-3 px-5 py-3 bg-black/60 text-white text-sm rounded-2xl border border-white/10 shadow-xl">
+        <div className="absolute bottom-6 left-1/2 flex -translate-x-1/2 items-center justify-center gap-3 rounded-xl border border-white/10 bg-[rgba(12,16,23,0.78)] px-5 py-3 text-sm text-white">
           {mediaUrls.length > 1 && (
             <button onClick={onPrevious} className="p-2.5 bg-white/10 hover:bg-white/15 text-white rounded-xl transition-all duration-200 hover:scale-105" title="Previous">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none">

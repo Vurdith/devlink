@@ -92,7 +92,7 @@ export function NewMessageModal({ onClose, onThreadCreated, onRequestSent }: New
       />
 
       {/* Modal */}
-      <div className="relative w-full max-w-[600px] mx-4 bg-[#16181c] rounded-2xl border border-white/[0.08] shadow-2xl overflow-hidden flex flex-col max-h-[70vh]">
+      <div className="relative mx-4 flex max-h-[70vh] w-full max-w-[600px] flex-col overflow-hidden rounded-xl border border-white/[0.08] bg-[rgba(12,16,23,0.96)]">
         {/* Header */}
         <div className="flex items-center gap-3 px-4 h-[53px] border-b border-white/[0.06] flex-shrink-0">
           <button

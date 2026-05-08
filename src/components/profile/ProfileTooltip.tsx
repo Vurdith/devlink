@@ -298,11 +298,10 @@ export const ProfileTooltip = memo(function ProfileTooltip({
     >
       {/* Main card */}
       <div className={cn(
-        "relative w-80 rounded-2xl overflow-hidden",
-        "bg-[#0d1117]",
+        "relative w-80 overflow-hidden rounded-xl",
+        "bg-[rgba(12,16,23,0.96)]",
         "border",
-        profileBorderColor,
-        "shadow-2xl shadow-black/60"
+        profileBorderColor
       )}>
           {/* Gradient overlay at top */}
           <div className={cn(
@@ -390,7 +389,7 @@ export const ProfileTooltip = memo(function ProfileTooltip({
               <div className="mb-3">
                 <span className={cn(
                   "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full",
-                  "text-xs font-medium border shadow-sm",
+                  "text-xs font-medium border",
                   badgeClasses
                 )}>
                   <ProfileTypeIcon profileType={profileType} size={12} />

@@ -54,7 +54,7 @@ export function ProfilePortfolioTab({
               </div>
             </div>
             <Button
-              variant="primary"
+              variant="glow"
               size="md"
               onClick={onAddItem}
               className="flex items-center gap-2.5 whitespace-nowrap"
@@ -115,7 +115,7 @@ export function ProfilePortfolioTab({
           </p>
           {isOwner && (
             <Button
-              variant="secondary"
+              variant="glow"
               size="md"
               onClick={onAddItem}
               className="mt-5"

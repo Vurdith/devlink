@@ -79,7 +79,7 @@ export const MobileNav = memo(function MobileNav({ session }: MobileNavProps) {
       {/* Hamburger Button - Fixed in top left, vertically centered in navbar (h-16 = 64px, button ~44px) */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="md:hidden fixed top-[10px] left-4 z-50 p-2.5 rounded-lg bg-[rgba(7,9,13,0.9)] border border-white/10 hover:border-[rgba(var(--color-accent-2-rgb),0.35)] transition-all duration-150 active:scale-95 shadow-[0_10px_28px_rgba(0,0,0,0.32)]"
+        className="fixed left-4 top-[10px] z-50 rounded-lg border border-white/10 bg-[rgba(7,9,13,0.9)] p-2.5 transition-all duration-150 hover:border-[rgba(var(--color-accent-2-rgb),0.35)] hover:bg-[rgba(var(--color-accent-2-rgb),0.08)] active:scale-95 md:hidden"
         aria-label={isOpen ? "Close menu" : "Open menu"}
         aria-expanded={isOpen}
       >
@@ -122,7 +122,7 @@ export const MobileNav = memo(function MobileNav({ session }: MobileNavProps) {
       {/* Slide-out Menu - Exact same styling as desktop Sidebar */}
       <div
         className={cn(
-          "md:hidden fixed top-0 left-0 h-full w-72 z-50 transform transition-transform duration-300 ease-out bg-[rgba(7,9,13,0.94)] border-0 border-r border-white/10 shadow-[18px_0_60px_rgba(0,0,0,0.34)]",
+          "fixed left-0 top-0 z-50 h-full w-72 transform border-0 border-r border-white/10 bg-[rgba(7,9,13,0.94)] transition-transform duration-300 ease-out md:hidden",
           isOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
@@ -217,7 +217,7 @@ export const MobileNav = memo(function MobileNav({ session }: MobileNavProps) {
                   <Link
                     href="/register"
                     onClick={() => setIsOpen(false)}
-                    className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-gradient-to-r from-[var(--color-accent)] to-[var(--color-accent-hover)] text-white font-medium hover:from-[var(--color-accent-hover)] hover:to-[var(--color-accent-hover)] transition-all shadow-lg shadow-[rgba(var(--color-accent-rgb),0.2)]"
+                    className="flex w-full items-center justify-center gap-2 rounded-xl border border-[rgba(var(--color-accent-2-rgb),0.34)] bg-[linear-gradient(135deg,var(--color-accent),rgba(var(--color-accent-2-rgb),0.92))] py-3 font-medium text-white transition-all hover:-translate-y-0.5 hover:brightness-110 active:translate-y-0 active:scale-[0.98]"
                   >
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" strokeLinecap="round" strokeLinejoin="round" />
@@ -236,7 +236,7 @@ export const MobileNav = memo(function MobileNav({ session }: MobileNavProps) {
       </div>
 
       {/* Bottom Navigation Bar */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[rgba(7,9,13,0.92)] border-0 border-t border-white/10 safe-area-bottom shadow-[0_-16px_48px_rgba(0,0,0,0.28)]">
+      <nav className="safe-area-bottom fixed bottom-0 left-0 right-0 z-40 border-0 border-t border-white/10 bg-[rgba(7,9,13,0.92)] md:hidden">
         <div className="flex justify-around items-center h-16 px-2">
           {navigation.map((item) => {
             const isActive = pathname === item.href;

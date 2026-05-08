@@ -223,7 +223,7 @@ export function MessagesSidebar() {
 
             {/* Settings dropdown */}
             {showSettings && (
-              <div className="absolute top-full right-0 mt-1 w-72 bg-[#1a1d24] border border-white/[0.1] rounded-xl shadow-2xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-1 duration-150">
+              <div className="absolute right-0 top-full z-50 mt-1 w-72 overflow-hidden rounded-xl border border-white/[0.08] bg-[rgba(12,16,23,0.96)] animate-in fade-in slide-in-from-top-1 duration-150">
                 <div className="px-4 py-3 border-b border-white/[0.06]">
                   <h3 className="text-sm font-bold text-white">Who can message you</h3>
                   <p className="text-[11px] text-white/40 mt-0.5">Others will send a request instead</p>
@@ -352,7 +352,7 @@ export function MessagesSidebar() {
                             <div className="flex items-center gap-2 mt-2">
                               <button
                                 onClick={() => handleRequest(request.id, "ACCEPTED")}
-                                className="px-4 py-1.5 rounded-full text-xs font-bold bg-gradient-to-r from-[var(--color-accent)] to-[var(--color-accent-hover)] text-white hover:opacity-90 transition-opacity shadow-lg shadow-[rgba(var(--color-accent-rgb),0.2)]"
+                                className="rounded-lg border border-[rgba(var(--color-accent-2-rgb),0.32)] bg-[linear-gradient(135deg,var(--color-accent),rgba(var(--color-accent-2-rgb),0.92))] px-4 py-1.5 text-xs font-bold text-white transition-all hover:-translate-y-0.5 hover:brightness-110 active:translate-y-0"
                               >
                                 Accept
                               </button>
@@ -408,7 +408,7 @@ export function MessagesSidebar() {
                   </p>
                   <button
                     onClick={() => setShowNewMessage(true)}
-                    className="mt-6 px-6 py-3 rounded-full text-sm font-bold bg-gradient-to-r from-[var(--color-accent)] to-[var(--color-accent-hover)] text-white hover:opacity-90 transition-opacity shadow-lg shadow-[rgba(var(--color-accent-rgb),0.2)]"
+                    className="mt-6 rounded-lg border border-[rgba(var(--color-accent-2-rgb),0.32)] bg-[linear-gradient(135deg,var(--color-accent),rgba(var(--color-accent-2-rgb),0.92))] px-6 py-3 text-sm font-bold text-white transition-all hover:-translate-y-0.5 hover:brightness-110 active:translate-y-0"
                   >
                     Write a message
                   </button>

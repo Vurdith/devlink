@@ -47,11 +47,11 @@ export function Toast({ message, type = "success", duration = 3000, onClose }: T
   const getBgColor = () => {
     switch (type) {
       case "success":
-        return "bg-green-900/90 border-green-700/50";
+        return "bg-emerald-500/12 border-emerald-400/30";
       case "error":
-        return "bg-[var(--color-accent-hover)]/50 border-[var(--color-accent)]/50";
+        return "bg-rose-500/12 border-rose-400/30";
       default:
-        return "bg-blue-900/90 border-blue-700/50";
+        return "bg-cyan-500/12 border-cyan-400/30";
     }
   };
 
@@ -61,22 +61,10 @@ export function Toast({ message, type = "success", duration = 3000, onClose }: T
       aria-live={type === "error" ? "assertive" : "polite"}
       aria-atomic="true"
       className={cn(
-        "fixed top-4 right-4 z-[999999] flex items-center gap-3 px-4 py-3 rounded-lg border shadow-lg transition-all duration-300",
+        "fixed right-4 top-4 z-[999999] flex items-center gap-3 rounded-lg border bg-[rgba(12,16,23,0.96)] px-4 py-3 transition-all duration-300",
         getBgColor(),
         isVisible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"
       )}
-      style={{ 
-        zIndex: 999999,
-        position: 'fixed',
-        top: '16px',
-        right: '16px',
-        backgroundColor: type === 'error' ? 'rgba(var(--color-accent-rgb), 0.9)' : type === 'success' ? 'rgba(34, 197, 94, 0.9)' : 'rgba(59, 130, 246, 0.9)',
-        color: 'white',
-        padding: '12px 16px',
-        borderRadius: '8px',
-        border: '1px solid rgba(255, 255, 255, 0.2)',
-        boxShadow: '0 10px 25px rgba(0, 0, 0, 0.3)'
-      }}
     >
       <span aria-hidden="true">{getIcon()}</span>
       <span className="text-white text-sm font-medium">{message}</span>

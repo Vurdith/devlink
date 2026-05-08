@@ -124,7 +124,7 @@ export function PostActions({ post, currentUserId, onEdit, onDelete, onPinToggle
           <div 
             role="menu"
             aria-label="Post actions"
-            className="absolute right-0 top-full mt-2 w-48 overflow-hidden glass-soft border border-white/10 rounded-xl shadow-2xl z-50 animate-pop-in"
+            className="absolute right-0 top-full z-50 mt-2 w-48 overflow-hidden rounded-xl border border-white/[0.08] bg-[rgba(12,16,23,0.96)] animate-pop-in"
             onClick={(e) => {
               e.stopPropagation();
               e.preventDefault();

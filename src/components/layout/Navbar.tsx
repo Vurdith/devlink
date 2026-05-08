@@ -180,7 +180,7 @@ export const Navbar = memo(function Navbar({ session }: { session?: { user?: { i
       className={cn(
         "sticky top-0 z-40 w-full transition-all duration-200",
         scrolled
-          ? "bg-[rgba(7,9,13,0.88)] border-b border-white/10 shadow-[0_12px_34px_rgba(0,0,0,0.26)]"
+          ? "bg-[rgba(7,9,13,0.88)] border-b border-white/10"
           : "bg-[rgba(7,9,13,0.34)] border-b border-white/[0.04]"
       )}
     >

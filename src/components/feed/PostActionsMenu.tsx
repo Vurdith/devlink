@@ -41,7 +41,7 @@ export function PostActionsMenu({
           id="post-actions-menu"
           role="menu"
           aria-orientation="vertical"
-          className="absolute right-0 top-full mt-2 w-48 overflow-hidden glass-soft rounded-xl shadow-2xl border border-white/10 z-50 animate-pop-in"
+          className="absolute right-0 top-full z-50 mt-2 w-48 overflow-hidden rounded-xl border border-white/[0.08] bg-[rgba(12,16,23,0.96)] animate-pop-in"
         >
           <div className="py-1">
             <a href={`/p/${postId}/analytics`} role="menuitem" className="w-full text-left px-4 py-2.5 text-sm text-[var(--foreground)] hover:bg-white/5 transition-colors flex items-center space-x-3">

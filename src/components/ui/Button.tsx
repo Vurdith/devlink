@@ -18,11 +18,11 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = "primary", size = "md", isLoading, disabled, children, leftIcon, rightIcon, ...props }, ref) => {
 
     const base = cn(
-      "relative inline-flex items-center justify-center font-semibold tracking-[0.01em] transition-all duration-200",
+      "group relative inline-flex items-center justify-center font-semibold tracking-[0.01em] transition-all duration-200",
       "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.7)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)]",
       "disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none",
       "overflow-hidden",
-      "active:scale-[0.98]"
+      "hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
     );
 
     const sizes: Record<Size, string> = {
@@ -38,9 +38,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     const variants: Record<Variant, string> = {
       primary: cn(
         "text-white border border-[rgba(var(--color-accent-rgb),0.32)]",
-        "shadow-[0_10px_28px_rgba(var(--color-accent-rgb),0.22)]",
-        "hover:shadow-[0_14px_34px_rgba(var(--color-accent-rgb),0.28)]",
-        "bg-[linear-gradient(180deg,rgba(255,255,255,0.12),transparent),var(--color-accent)] hover:bg-[linear-gradient(180deg,rgba(255,255,255,0.14),transparent),var(--color-accent-hover)]"
+        "hover:border-[rgba(var(--color-accent-2-rgb),0.46)] hover:brightness-110",
+        "bg-[linear-gradient(180deg,rgba(255,255,255,0.12),transparent),var(--color-accent)] hover:bg-[linear-gradient(180deg,rgba(255,255,255,0.16),transparent),var(--color-accent-hover)]"
       ),
       secondary: cn(
         "bg-white/[0.055] text-white",
@@ -58,14 +57,12 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       ),
       destructive: cn(
         "bg-gradient-to-r from-red-500 to-red-600 text-white",
-        "hover:from-red-600 hover:to-red-700",
-        "shadow-lg shadow-red-500/30",
+        "hover:from-red-600 hover:to-red-700 hover:brightness-110",
         "border border-red-400/20"
       ),
       gradient: cn(
         "text-white border border-[rgba(var(--color-accent-rgb),0.36)]",
-        "shadow-[0_12px_32px_rgba(var(--color-accent-rgb),0.24)]",
-        "hover:shadow-[0_16px_38px_rgba(var(--color-accent-rgb),0.3)]",
+        "hover:border-[rgba(var(--color-accent-2-rgb),0.48)] hover:brightness-110",
         "bg-[linear-gradient(135deg,var(--color-accent),#6d5dfc_58%,rgba(var(--color-accent-2-rgb),0.92))]"
       ),
       outline: cn(
@@ -75,8 +72,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       ),
       glow: cn(
         "text-white border border-[rgba(var(--color-accent-2-rgb),0.36)]",
-        "shadow-[0_0_24px_rgba(var(--color-accent-2-rgb),0.22),0_12px_38px_rgba(var(--color-accent-rgb),0.2)]",
-        "hover:shadow-[0_0_32px_rgba(var(--color-accent-2-rgb),0.26),0_14px_42px_rgba(var(--color-accent-rgb),0.24)]",
+        "accent-halo-cyan hover:border-[rgba(var(--color-accent-2-rgb),0.56)] hover:brightness-110",
         "bg-[linear-gradient(135deg,var(--color-accent),rgba(var(--color-accent-2-rgb),0.92))]"
       ),
     };
@@ -97,8 +93,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         
         {/* Shimmer effect - CSS only */}
         {isAccentVariant && (
-          <span className="absolute inset-0 opacity-0 hover:opacity-100 transition-opacity duration-300 overflow-hidden rounded-[inherit] pointer-events-none">
-            <span className="absolute inset-0 -translate-x-full hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/16 to-transparent skew-x-12" />
+          <span className="pointer-events-none absolute inset-0 overflow-hidden rounded-[inherit] opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+            <span className="absolute inset-y-0 -left-1/2 w-1/2 -skew-x-12 bg-gradient-to-r from-transparent via-white/16 to-transparent transition-transform duration-700 group-hover:translate-x-[320%]" />
           </span>
         )}
         

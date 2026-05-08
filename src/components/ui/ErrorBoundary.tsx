@@ -66,8 +66,8 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
           <div className="absolute inset-0 gradient-bg opacity-30" />
           <div className="absolute inset-0 grid-pattern opacity-10" />
           
-          <div className="relative z-10 glass-soft rounded-2xl p-8 max-w-md mx-4 text-center border border-white/10 shadow-2xl">
-            <div className="w-16 h-16 rounded-2xl bg-[var(--color-accent)]/10 flex items-center justify-center mx-auto mb-6 border border-[var(--color-accent)]/20">
+          <div className="relative z-10 mx-4 max-w-md rounded-xl border border-white/[0.08] bg-[rgba(12,16,23,0.84)] p-8 text-center">
+            <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-xl border border-[rgba(var(--color-accent-2-rgb),0.22)] bg-[rgba(var(--color-accent-2-rgb),0.10)]">
               <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-[var(--color-accent)]">
                 <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0zM12 9v4M12 17h.01" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>

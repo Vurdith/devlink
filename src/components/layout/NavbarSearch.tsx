@@ -190,7 +190,7 @@ export const NavbarSearch = memo(function NavbarSearch({ currentUserId }: { curr
             className={cn(
               "w-full h-11 rounded-xl bg-white/5 border pl-11 pr-16 text-sm outline-none placeholder:text-[var(--muted-foreground)] text-white transition-all duration-150",
               focused 
-                ? "border-[var(--color-accent)]/50 bg-white/10 shadow-lg shadow-[var(--color-accent)]/10" 
+                ? "accent-halo-cyan border-[rgba(var(--color-accent-2-rgb),0.32)] bg-[rgba(var(--color-accent-2-rgb),0.08)]"
                 : "border-white/10 hover:border-white/20"
             )}
             aria-autocomplete="list"
@@ -213,7 +213,7 @@ export const NavbarSearch = memo(function NavbarSearch({ currentUserId }: { curr
           id="search-results"
           role="listbox"
           aria-label="Search results"
-          className="absolute left-0 mt-2 w-full relative overflow-hidden glass rounded-2xl p-2 shadow-2xl border border-white/10 z-50 max-h-[70vh] overflow-y-auto animate-fade-in"
+          className="absolute left-0 z-50 mt-2 max-h-[70vh] w-full overflow-y-auto rounded-xl border border-white/[0.08] bg-[rgba(12,16,23,0.96)] p-2 animate-fade-in"
         >
           {loading && (
             <div className="flex items-center justify-center py-8">
@@ -223,7 +223,7 @@ export const NavbarSearch = memo(function NavbarSearch({ currentUserId }: { curr
 
           {!loading && !hasResults && value.length >= 2 && (
             <div className="py-8 text-center">
-              <div className="w-12 h-12 mx-auto mb-2 rounded-full bg-white/10 flex items-center justify-center">
+                <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.04]">
                 <svg className="w-6 h-6 text-[var(--muted-foreground)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <circle cx="11" cy="11" r="8" strokeWidth="2"/>
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-4.35-4.35" />
@@ -247,10 +247,10 @@ export const NavbarSearch = memo(function NavbarSearch({ currentUserId }: { curr
                   key={hashtag.tag}
                   href={`/hashtag/${hashtag.tag.replace('#', '')}`}
                   onClick={() => setOpen(false)}
-                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/5 transition-colors group"
+                  className="group flex items-center gap-3 rounded-lg border border-transparent px-3 py-2.5 transition-colors hover:border-white/[0.08] hover:bg-white/[0.045]"
                 >
-                  <div className="w-10 h-10 bg-gradient-to-br from-[var(--color-accent)] to-pink-500 rounded-xl flex items-center justify-center shadow-lg">
-                    <span className="text-white font-bold text-lg">#</span>
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-[rgba(var(--color-accent-2-rgb),0.18)] bg-[rgba(var(--color-accent-2-rgb),0.09)] text-[var(--color-accent-2)]">
+                    <span className="text-lg font-bold">#</span>
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="text-sm font-semibold text-white">{hashtag.tag}</div>
@@ -281,7 +281,7 @@ export const NavbarSearch = memo(function NavbarSearch({ currentUserId }: { curr
                   key={user.id}
                   href={`/u/${user.username}`}
                   onClick={() => setOpen(false)}
-                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/5 transition-colors group"
+                  className="group flex items-center gap-3 rounded-lg border border-transparent px-3 py-2.5 transition-colors hover:border-white/[0.08] hover:bg-white/[0.045]"
                 >
                   <ProfileTooltip
                     user={{
@@ -345,10 +345,10 @@ export const NavbarSearch = memo(function NavbarSearch({ currentUserId }: { curr
                   key={project.id}
                   href={`/projects/${project.id}`}
                   onClick={() => setOpen(false)}
-                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/5 transition-colors group"
+                  className="group flex items-center gap-3 rounded-lg border border-transparent px-3 py-2.5 transition-colors hover:border-white/[0.08] hover:bg-white/[0.045]"
                 >
-                  <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg">
-                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-emerald-300/18 bg-emerald-400/10 text-emerald-200">
+                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
                     </svg>
                   </div>
