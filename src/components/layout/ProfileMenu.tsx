@@ -4,6 +4,7 @@ import { useEffect, useState, useRef, memo } from "react";
 import Link from "next/link";
 import { signOut } from "next-auth/react";
 import { Avatar } from "@/components/ui/Avatar";
+import { iconBox, menuItem, menuPanel, ui } from "@/components/ui/design-system";
 import { cn } from "@/lib/cn";
 import { getProfileTypeConfig, ProfileTypeIcon } from "@/types/profile";
 
@@ -97,8 +98,8 @@ export const ProfileMenu = memo(function ProfileMenu({ username, avatarUrl: init
         className={cn(
           "flex items-center gap-3 rounded-lg border px-3 py-2 transition-all duration-150 active:scale-98",
           open
-            ? "accent-halo-cyan border-[rgba(var(--color-accent-2-rgb),0.28)] bg-[rgba(var(--color-accent-2-rgb),0.10)]"
-            : "border-transparent hover:border-white/[0.08] hover:bg-white/[0.045]"
+            ? ui.active.cyan
+            : ui.control.ghost
         )}
         onClick={() => setOpen(!open)}
       >
@@ -128,7 +129,8 @@ export const ProfileMenu = memo(function ProfileMenu({ username, avatarUrl: init
       {/* Dropdown Menu */}
       <div
         className={cn(
-          "absolute right-0 z-50 mt-2 w-72 overflow-hidden rounded-xl border border-white/[0.08] bg-[rgba(12,16,23,0.96)]",
+          "absolute right-0 z-50 mt-2 w-72",
+          menuPanel(),
           "transition-all duration-200 origin-top-right",
           open 
             ? "opacity-100 scale-100 translate-y-0 pointer-events-auto" 
@@ -170,9 +172,9 @@ export const ProfileMenu = memo(function ProfileMenu({ username, avatarUrl: init
               key={item.href}
               href={item.href}
               onClick={() => setOpen(false)}
-              className="group flex items-center gap-3 rounded-lg border border-transparent px-3 py-2.5 transition-colors hover:border-white/[0.08] hover:bg-white/[0.045]"
+              className={menuItem()}
             >
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-[rgba(var(--color-accent-2-rgb),0.16)] bg-[rgba(var(--color-accent-2-rgb),0.08)] text-[var(--color-accent-2)] transition-colors group-hover:border-[rgba(var(--color-accent-2-rgb),0.28)] group-hover:bg-[rgba(var(--color-accent-2-rgb),0.13)]">
+              <div className={iconBox("cyan", "h-9 w-9 transition-colors group-hover:border-[rgba(var(--color-accent-2-rgb),0.28)] group-hover:bg-[rgba(var(--color-accent-2-rgb),0.13)]")}>
                 {item.icon}
               </div>
               <div className="flex-1 min-w-0">
@@ -203,9 +205,9 @@ export const ProfileMenu = memo(function ProfileMenu({ username, avatarUrl: init
         <div className="p-2">
           <button
             onClick={handleSignOut}
-            className="group flex w-full items-center gap-3 rounded-lg border border-transparent px-3 py-2.5 transition-colors hover:border-rose-400/20 hover:bg-rose-500/10"
+            className={cn("w-full", ui.menu.dangerItem)}
           >
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-rose-400/16 bg-rose-500/10 text-rose-300 transition-colors group-hover:border-rose-400/28 group-hover:bg-rose-500/15">
+            <div className={iconBox("danger", "h-9 w-9 transition-colors group-hover:border-rose-400/30 group-hover:bg-rose-500/15")}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 <polyline points="16,17 21,12 16,7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>

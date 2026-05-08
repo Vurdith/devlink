@@ -1,4 +1,5 @@
 import { cn } from "@/lib/cn";
+import { surface, ui } from "@/components/ui/design-system";
 
 type ProfileHubSection = "profile" | "skills";
 
@@ -9,13 +10,13 @@ interface ProfileHubTabsProps {
 
 export function ProfileHubTabs({ activeSection, onSectionChange }: ProfileHubTabsProps) {
   return (
-    <div className="mb-6 flex gap-1.5 overflow-x-auto rounded-xl border border-white/[0.08] bg-[rgba(8,11,16,0.78)] p-1.5">
+    <div className={surface("toolbar", "mb-6 flex gap-1.5 overflow-x-auto p-1.5")}>
       <button
         onClick={() => onSectionChange("profile")}
         className={cn(
           "flex items-center gap-2 whitespace-nowrap rounded-lg border px-4 py-2.5 text-sm font-semibold transition-all",
           activeSection === "profile"
-            ? "accent-halo-cyan border-[rgba(var(--color-accent-2-rgb),0.34)] bg-[rgba(var(--color-accent-2-rgb),0.14)] text-white"
+            ? ui.active.cyanStrong
             : "border-transparent text-[var(--muted-foreground)] hover:border-white/[0.07] hover:bg-white/[0.04] hover:text-white"
         )}
       >
@@ -29,7 +30,7 @@ export function ProfileHubTabs({ activeSection, onSectionChange }: ProfileHubTab
         className={cn(
           "flex items-center gap-2 whitespace-nowrap rounded-lg border px-4 py-2.5 text-sm font-semibold transition-all",
           activeSection === "skills"
-            ? "accent-halo-cyan border-[rgba(var(--color-accent-2-rgb),0.34)] bg-[rgba(var(--color-accent-2-rgb),0.14)] text-white"
+            ? ui.active.cyanStrong
             : "border-transparent text-[var(--muted-foreground)] hover:border-white/[0.07] hover:bg-white/[0.04] hover:text-white"
         )}
       >

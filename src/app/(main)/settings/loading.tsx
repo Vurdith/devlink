@@ -1,3 +1,5 @@
+import { surface } from "@/components/ui/design-system";
+
 function SettingsSkeleton() {
   return (
     <div className="space-y-6">
@@ -7,7 +9,7 @@ function SettingsSkeleton() {
       </div>
 
       {[1, 2, 3].map((i) => (
-        <div key={i} className="relative overflow-hidden rounded-xl border border-white/[0.08] bg-[rgba(12,16,23,0.72)] p-6">
+        <div key={i} className={surface("panel", "relative overflow-hidden p-6")}>
           <div className="flex items-start gap-3 mb-6">
             <div className="w-10 h-10 rounded-xl bg-white/10 animate-pulse" />
             <div className="min-w-0">

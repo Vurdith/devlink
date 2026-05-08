@@ -2,6 +2,7 @@
 
 import { HTMLAttributes, forwardRef } from "react";
 import { cn } from "@/lib/cn";
+import { ui } from "./design-system";
 
 interface CardProps extends HTMLAttributes<HTMLDivElement> {
   variant?: "default" | "elevated" | "bordered" | "gradient";
@@ -25,7 +26,7 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
           "rounded-xl p-5 sm:p-6 transition-all duration-200",
           variants[variant],
           hover && "hover:bg-white/[0.045] hover:border-[rgba(var(--color-accent-2-rgb),0.22)] hover:-translate-y-0.5 cursor-pointer",
-          glow && "accent-halo-cyan",
+          glow && ui.active.cyan,
           className
         )}
         {...props}

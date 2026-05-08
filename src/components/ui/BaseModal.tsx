@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback, ReactNode, memo, useRef, useId } from "react";
 import { createPortal } from "react-dom";
 import { cn } from "@/lib/cn";
+import { surface } from "./design-system";
 import { useBodyScrollLock } from "./useBodyScrollLock";
 import { useFocusTrap } from "./useFocusTrap";
 
@@ -74,7 +75,7 @@ export const Tooltip = memo(function Tooltip({
         transform: getTransform()
       }}
     >
-      <div className="whitespace-nowrap rounded-lg border border-white/[0.08] bg-[rgba(12,16,23,0.96)] px-2.5 py-1.5 text-xs font-medium text-white">
+      <div className={surface("panelStrong", "whitespace-nowrap rounded-lg px-2.5 py-1.5 text-xs font-medium text-white")}>
         {content}
       </div>
     </div>,
@@ -235,7 +236,7 @@ export const BaseModal = memo(function BaseModal({
         tabIndex={-1}
         className={cn(
           "relative flex max-h-[85vh] w-full flex-col overflow-hidden rounded-xl",
-          "border border-white/[0.08] bg-[rgba(12,16,23,0.96)]",
+          surface("panelStrong"),
           "animate-pop-in",
           sizeClasses[size],
           className

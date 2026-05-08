@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { PostFeed } from "@/components/feed/PostFeed";
+import { iconBox, surface } from "@/components/ui/design-system";
 import type { TabPost, TabType } from "./profile-types";
 
 interface ProfileRepliesTabProps {
@@ -41,7 +42,7 @@ export function ProfileRepliesTab({
     return (
       <div
         key={reply.id}
-        className="relative overflow-hidden rounded-xl border border-white/[0.08] bg-[rgba(12,16,23,0.62)] transition-colors hover:border-white/[0.14]"
+        className={surface("panelMuted", "relative overflow-hidden transition-colors hover:border-white/[0.14]")}
       >
         <button
           onClick={() => (window.location.href = `/p/${originalPost.id}`)}
@@ -237,8 +238,8 @@ export function EmptyState({ tab, icon }: EmptyStateProps) {
   const { title, description } = messages[tab];
 
   return (
-    <div className="rounded-xl border border-white/[0.08] bg-white/[0.025] px-6 py-14 text-center text-[var(--muted-foreground)]">
-      <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.035] text-white/45 [&>svg]:h-8 [&>svg]:w-8">{icon}</div>
+    <div className={surface("empty", "px-6 py-14 text-center text-[var(--muted-foreground)]")}>
+      <div className={iconBox("muted", "mx-auto mb-4 h-16 w-16 text-white/45 [&>svg]:h-8 [&>svg]:w-8")}>{icon}</div>
       <p className="text-lg font-semibold text-white mb-2">{title}</p>
       {description && <p className="text-sm">{description}</p>}
     </div>

@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/cn";
 import { memo } from "react";
+import { surface } from "./design-system";
 
 interface LoadingSpinnerProps {
   size?: "sm" | "md" | "lg";
@@ -38,7 +39,7 @@ export const LoadingSkeleton = memo(function LoadingSkeleton({ className }: { cl
 
 export const PostSkeleton = memo(function PostSkeleton() {
   return (
-    <div className="rounded-xl border border-white/[0.08] bg-[rgba(12,16,23,0.72)] p-6">
+    <div className={surface("panel", "p-6")}>
       <div className="flex items-center gap-3 mb-4">
         <div className="w-10 h-10 rounded-full bg-white/10 animate-pulse" />
         <div className="flex-1">

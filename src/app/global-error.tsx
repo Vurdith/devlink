@@ -2,6 +2,7 @@
 
 import * as Sentry from "@sentry/nextjs";
 import { useEffect } from "react";
+import { iconBox, surface } from "@/components/ui/design-system";
 
 export default function GlobalError({
   error,
@@ -17,9 +18,9 @@ export default function GlobalError({
 
   return (
     <html>
-      <body className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-gray-800/50 border border-gray-700/50 rounded-2xl p-8 text-center shadow-2xl">
-          <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-[var(--color-accent)]/20 flex items-center justify-center">
+      <body className="flex min-h-screen items-center justify-center bg-[var(--background)] p-4">
+        <div className={surface("panelStrong", "w-full max-w-md p-8 text-center")}>
+          <div className={iconBox("cyan", "mx-auto mb-6 h-16 w-16 rounded-xl")}>
             <svg
               className="w-8 h-8 text-[var(--color-accent)]"
               fill="none"
@@ -39,12 +40,12 @@ export default function GlobalError({
             Something went wrong
           </h2>
           
-          <p className="text-gray-400 mb-6">
+          <p className="text-[var(--muted-foreground)] mb-6">
             We&apos;ve been notified and are working to fix this issue.
           </p>
 
           {error.digest && (
-            <p className="text-xs text-gray-500 mb-6 font-mono">
+            <p className="text-xs text-white/45 mb-6 font-mono">
               Error ID: {error.digest}
             </p>
           )}
@@ -52,14 +53,14 @@ export default function GlobalError({
           <div className="flex gap-3 justify-center">
             <button
               onClick={() => reset()}
-              className="px-6 py-2.5 bg-[var(--color-accent-hover)] hover:bg-[var(--color-accent-hover)] text-white font-medium rounded-lg transition-colors"
+              className="rounded-lg border border-[rgba(var(--color-accent-2-rgb),0.32)] bg-[linear-gradient(135deg,var(--color-accent),rgba(var(--color-accent-2-rgb),0.92))] px-6 py-2.5 font-medium text-white transition-all hover:brightness-110 active:scale-[0.98]"
             >
               Try Again
             </button>
             
             <button
               onClick={() => window.location.href = "/"}
-              className="px-6 py-2.5 bg-gray-700 hover:bg-gray-600 text-white font-medium rounded-lg transition-colors"
+              className="rounded-lg border border-white/[0.10] bg-white/[0.055] px-6 py-2.5 font-medium text-white transition-colors hover:border-white/20 hover:bg-white/[0.09]"
             >
               Go Home
             </button>

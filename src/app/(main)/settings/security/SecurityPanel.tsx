@@ -1,4 +1,5 @@
 import type { CSSProperties, ReactNode } from "react";
+import { surface } from "@/components/ui/design-system";
 import { cn } from "@/lib/cn";
 
 interface SecurityPanelProps {
@@ -47,7 +48,7 @@ export function SecurityPanel({
 
   return (
     <div
-      className={cn("relative overflow-hidden rounded-xl border bg-[rgba(12,16,23,0.72)] p-6 noise-overlay", selectedAccent.border, className)}
+      className={surface("panel", cn("noise-overlay relative overflow-hidden p-6", selectedAccent.border, className))}
       style={style}
     >
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 opacity-60" style={{ background: selectedAccent.glow }} />

@@ -3,6 +3,8 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
+import { surface, ui } from "@/components/ui/design-system";
+import { cn } from "@/lib/cn";
 import { useBodyScrollLock } from "./useBodyScrollLock";
 import { MediaViewerPreview } from "./MediaViewerPreview";
 import type { MediaItem } from "./media-viewer-types";
@@ -169,7 +171,7 @@ export function MediaViewer({
             {/* Close button */}
             <button
               onClick={(e) => { e.stopPropagation(); setShowModal(false); }}
-              className="absolute -right-3 -top-3 z-30 flex h-9 w-9 items-center justify-center rounded-lg border border-white/20 bg-[rgba(12,16,23,0.94)] text-white/80 transition-all duration-200 hover:scale-105 hover:border-[rgba(var(--color-accent-2-rgb),0.36)] hover:bg-[rgba(var(--color-accent-2-rgb),0.12)] hover:text-white"
+              className={cn("absolute -right-3 -top-3 z-30 flex h-9 w-9 items-center justify-center rounded-lg text-white/80 hover:text-white", ui.active.cyan, ui.motion.lift)}
               title="Close (Esc)"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
@@ -225,7 +227,7 @@ export function MediaViewer({
           </div>
 
           {/* Bottom Control Bar */}
-          <div className="absolute bottom-6 left-1/2 flex -translate-x-1/2 items-center justify-center gap-3 rounded-xl border border-white/10 bg-[rgba(12,16,23,0.78)] px-5 py-3 text-sm text-white">
+          <div className={surface("toolbar", "absolute bottom-6 left-1/2 flex -translate-x-1/2 items-center justify-center gap-3 px-5 py-3 text-sm text-white")}>
             {/* Previous Button */}
             {media.length > 1 && (
               <button

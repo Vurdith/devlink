@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { iconBox, ui } from "@/components/ui/design-system";
 import { cn } from "@/lib/cn";
 
 const navItems = [
@@ -90,8 +91,8 @@ export default function SettingsNav() {
               className={cn(
                 "group relative flex items-center gap-3 rounded-lg border px-3 py-3 transition-all duration-200",
                 isActive 
-                  ? "accent-halo-cyan border-[rgba(var(--color-accent-2-rgb),0.28)] bg-[rgba(var(--color-accent-2-rgb),0.10)]"
-                  : "border-transparent hover:border-white/[0.08] hover:bg-white/[0.04]"
+                  ? ui.active.cyan
+                  : ui.control.ghost
               )}
             >
               {/* Active indicator */}
@@ -101,10 +102,10 @@ export default function SettingsNav() {
               
               {/* Icon */}
               <div className={cn(
-                "w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-200",
+                "h-9 w-9 transition-all duration-200",
                 isActive 
-                  ? "border border-[rgba(var(--color-accent-2-rgb),0.24)] bg-[rgba(var(--color-accent-2-rgb),0.16)] text-[var(--color-accent-2)]"
-                  : "bg-white/[0.04] text-[var(--muted-foreground)] group-hover:bg-white/[0.07] group-hover:text-white"
+                  ? iconBox("cyan")
+                  : iconBox("muted", "group-hover:bg-white/[0.07] group-hover:text-white")
               )}>
                 {item.icon}
               </div>

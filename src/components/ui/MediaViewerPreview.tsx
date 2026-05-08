@@ -1,4 +1,6 @@
 import Image from "next/image";
+import { surface, ui } from "@/components/ui/design-system";
+import { cn } from "@/lib/cn";
 import type { MediaItem } from "./media-viewer-types";
 
 interface MediaViewerPreviewProps {
@@ -154,7 +156,7 @@ function PreviewArrow({ direction, onClick }: { direction: "previous" | "next"; 
         event.stopPropagation();
         onClick();
       }}
-      className={`absolute ${isPrevious ? "left-3" : "right-3"} top-1/2 -translate-y-1/2 rounded-lg border border-white/10 bg-[rgba(12,16,23,0.74)] p-2.5 text-white opacity-0 transition-all hover:border-[rgba(var(--color-accent-2-rgb),0.32)] hover:bg-[rgba(var(--color-accent-2-rgb),0.12)] group-hover/media:opacity-100`}
+      className={cn(`absolute ${isPrevious ? "left-3" : "right-3"} top-1/2 -translate-y-1/2 rounded-lg p-2.5 text-white opacity-0 transition-all group-hover/media:opacity-100`, ui.active.cyan)}
       title={isPrevious ? "Previous" : "Next"}
     >
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -167,7 +169,7 @@ function PreviewArrow({ direction, onClick }: { direction: "previous" | "next"; 
 function PlayOverlay({ size }: { size: "sm" | "lg" }) {
   return (
     <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-      <div className={`rounded-xl border border-white/10 bg-[rgba(12,16,23,0.7)] ${size === "lg" ? "p-4" : "p-3"} transition-transform duration-300 group-hover/media:scale-110`}>
+      <div className={surface("panelMuted", `${size === "lg" ? "p-4" : "p-3"} transition-transform duration-300 group-hover/media:scale-110`)}>
         <svg className={size === "lg" ? "w-10 h-10 text-white" : "w-8 h-8 text-white"} fill="currentColor" viewBox="0 0 20 20">
           <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
         </svg>

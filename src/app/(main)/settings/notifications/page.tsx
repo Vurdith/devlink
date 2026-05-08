@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, memo } from "react";
+import { iconBox, surface, ui } from "@/components/ui/design-system";
 import { cn } from "@/lib/cn";
 
 interface NotificationSetting {
@@ -88,7 +89,7 @@ export default function NotificationSettings() {
 
       {/* Email Notifications */}
       <div
-        className="relative overflow-hidden rounded-xl border border-white/[0.08] bg-[rgba(12,16,23,0.72)] p-6 animate-slide-up noise-overlay"
+        className={surface("panel", "noise-overlay relative overflow-hidden p-6 animate-slide-up")}
         style={{ animationDelay: '0.05s' }}
       >
         <div
@@ -100,7 +101,7 @@ export default function NotificationSettings() {
           }}
         />
         <div className="flex items-center gap-3 mb-6">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-[rgba(var(--color-accent-2-rgb),0.22)] bg-[rgba(var(--color-accent-2-rgb),0.10)] text-[var(--color-accent-2)]">
+          <div className={iconBox("cyan", "h-10 w-10")}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-white">
               <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" stroke="currentColor" strokeWidth="2"/>
               <polyline points="22,6 12,13 2,6" stroke="currentColor" strokeWidth="2"/>
@@ -119,7 +120,7 @@ export default function NotificationSettings() {
               className={cn(
                 "flex items-center justify-between p-4 rounded-xl border transition-all animate-slide-up",
                 setting.enabled
-                  ? "bg-[rgba(var(--color-accent-rgb),0.10)] border-[rgba(var(--color-accent-rgb),0.22)]"
+                  ? ui.active.cyan
                   : "bg-white/[0.03] border-white/10 hover:bg-white/[0.05] hover:border-white/15"
               )}
               style={{ animationDelay: `${0.05 + index * 0.03}s` }}
@@ -138,7 +139,7 @@ export default function NotificationSettings() {
       </div>
 
       {/* Push Notifications - Coming Soon */}
-      <div className="relative overflow-hidden rounded-xl border border-white/[0.08] bg-[rgba(12,16,23,0.62)] p-6 animate-slide-up noise-overlay" style={{ animationDelay: '0.1s' }}>
+      <div className={surface("panelMuted", "noise-overlay relative overflow-hidden p-6 animate-slide-up")} style={{ animationDelay: '0.1s' }}>
         {/* Coming Soon Overlay */}
         <div className="absolute inset-0 bg-[var(--background)]/80 flex items-center justify-center z-10">
           <div className="text-center">

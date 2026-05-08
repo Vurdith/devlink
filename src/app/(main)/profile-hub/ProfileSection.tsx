@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/Button";
 import { ModalInput, ModalTextarea } from "@/components/ui/BaseModal";
+import { iconBox, surface, ui } from "@/components/ui/design-system";
 import { cn } from "@/lib/cn";
 import { profileTypes } from "./profile-type-options";
 
@@ -36,7 +37,7 @@ export function ProfileSection({
 }: ProfileSectionProps) {
   return (
     <div className="space-y-6">
-      <div className="relative overflow-hidden rounded-xl border border-white/[0.08] bg-[rgba(12,16,23,0.72)] p-6">
+      <div className={surface("panel", "relative overflow-hidden p-6")}>
         <div
           aria-hidden="true"
           className="absolute inset-0 pointer-events-none opacity-65"
@@ -47,7 +48,7 @@ export function ProfileSection({
         />
         <div className="relative">
           <div className="flex items-center gap-3 mb-6">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-cyan-300/20 bg-cyan-400/10 text-cyan-200">
+            <div className={iconBox("cyan", "h-10 w-10")}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-white">
                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                 <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -95,7 +96,7 @@ export function ProfileSection({
         </div>
       </div>
 
-      <div className="relative overflow-hidden rounded-xl border border-white/[0.08] bg-[rgba(12,16,23,0.72)] p-6">
+      <div className={surface("panel", "relative overflow-hidden p-6")}>
         <div
           aria-hidden="true"
           className="absolute inset-0 pointer-events-none opacity-55"
@@ -106,7 +107,7 @@ export function ProfileSection({
         />
         <div className="relative">
           <div className="flex items-center gap-3 mb-6">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-[rgba(var(--color-accent-2-rgb),0.22)] bg-[rgba(var(--color-accent-2-rgb),0.10)] text-[var(--color-accent-2)]">
+            <div className={iconBox("cyan", "h-10 w-10")}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-white">
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                 <circle cx="12" cy="7" r="4" stroke="currentColor" strokeWidth="2" />
@@ -129,7 +130,7 @@ export function ProfileSection({
                   className={cn(
                     "relative p-4 rounded-xl border text-left transition-all group",
                     isActive
-                      ? `${profileType.bgColor} ${profileType.borderColor} accent-halo-purple`
+                      ? `${profileType.bgColor} ${profileType.borderColor} ${ui.active.purple}`
                       : "border-white/10 bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.06]"
                   )}
                 >

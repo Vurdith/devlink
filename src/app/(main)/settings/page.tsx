@@ -1,5 +1,6 @@
 "use client";
 
+import { surface } from "@/components/ui/design-system";
 import AccountLinking from "./_components/AccountLinking";
 
 export default function SettingsPage() {
@@ -17,7 +18,7 @@ export default function SettingsPage() {
       
       {/* Account Linking Section */}
       <div 
-        className="relative overflow-hidden rounded-xl border border-white/[0.08] bg-[rgba(12,16,23,0.72)] p-6 animate-slide-up noise-overlay"
+        className={surface("panel", "noise-overlay relative overflow-hidden p-6 animate-slide-up")}
         style={{ animationDelay: '0.05s' }}
       >
         <div

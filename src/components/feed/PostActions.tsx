@@ -1,6 +1,8 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
 import { Toast } from "@/components/ui/Toast";
+import { menuItem, menuPanel, ui } from "@/components/ui/design-system";
+import { cn } from "@/lib/cn";
 
 interface PostActionsProps {
   post: {
@@ -110,7 +112,7 @@ export function PostActions({ post, currentUserId, onEdit, onDelete, onPinToggle
           aria-label="Post options menu"
           aria-haspopup="menu"
           aria-expanded={isOpen}
-          className="p-2 rounded-full hover:bg-white/10 transition-colors text-[var(--muted-foreground)] hover:text-white"
+          className={cn("rounded-full p-2 text-[var(--muted-foreground)] transition-colors hover:text-white", ui.control.ghost)}
           title="More options"
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -124,7 +126,7 @@ export function PostActions({ post, currentUserId, onEdit, onDelete, onPinToggle
           <div 
             role="menu"
             aria-label="Post actions"
-            className="absolute right-0 top-full z-50 mt-2 w-48 overflow-hidden rounded-xl border border-white/[0.08] bg-[rgba(12,16,23,0.96)] animate-pop-in"
+            className={menuPanel("absolute right-0 top-full z-50 mt-2 w-48 animate-pop-in")}
             onClick={(e) => {
               e.stopPropagation();
               e.preventDefault();
@@ -144,7 +146,7 @@ export function PostActions({ post, currentUserId, onEdit, onDelete, onPinToggle
                     onEdit(post.id);
                     setIsOpen(false);
                   }}
-                  className="w-full px-4 py-2.5 text-left text-sm text-white/80 hover:text-white hover:bg-white/5 transition-colors flex items-center gap-3"
+                  className={menuItem("w-full text-left text-sm text-white/80 hover:text-white")}
                 >
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                     <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -160,7 +162,7 @@ export function PostActions({ post, currentUserId, onEdit, onDelete, onPinToggle
                     e.stopPropagation();
                     handlePinToggle();
                   }}
-                  className="w-full px-4 py-2.5 text-left text-sm text-white/80 hover:text-white hover:bg-white/5 transition-colors flex items-center gap-3"
+                  className={menuItem("w-full text-left text-sm text-white/80 hover:text-white")}
                 >
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                     <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -175,7 +177,7 @@ export function PostActions({ post, currentUserId, onEdit, onDelete, onPinToggle
                     e.stopPropagation();
                     handleDelete();
                   }}
-                  className="w-full px-4 py-2.5 text-left text-sm text-red-400 hover:bg-red-500/10 transition-colors flex items-center gap-3"
+                  className={cn("w-full text-left text-sm text-rose-300", ui.menu.dangerItem)}
                 >
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                     <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -192,7 +194,7 @@ export function PostActions({ post, currentUserId, onEdit, onDelete, onPinToggle
                     // Open report form
                     window.location.href = `/report?postId=${post.id}`;
                   }}
-                  className="w-full px-4 py-2.5 text-left text-sm text-amber-400/80 hover:bg-amber-500/10 transition-colors flex items-center gap-3"
+                  className={menuItem("w-full text-left text-sm text-amber-300/90 hover:bg-amber-500/10")}
                 >
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                     <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>

@@ -2,6 +2,7 @@
 
 import { PortfolioItemDisplay } from "@/components/portfolio/PortfolioItemDisplay";
 import { Button } from "@/components/ui/Button";
+import { iconBox, surface } from "@/components/ui/design-system";
 import type { PortfolioItem } from "@/types/api";
 import type { UserSkill } from "./ExpandableSkillCard";
 
@@ -24,10 +25,10 @@ export function ProfilePortfolioTab({
   return (
     <>
       {isOwner && (
-        <div className="relative overflow-hidden mb-6 p-4 sm:p-5 rounded-xl bg-[rgba(12,16,23,0.6)] border border-white/[0.08]">
+        <div className={surface("panelMuted", "relative mb-6 overflow-hidden p-4 sm:p-5")}>
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-[rgba(var(--color-accent-2-rgb),0.1)] border border-[rgba(var(--color-accent-2-rgb),0.22)] flex items-center justify-center text-[var(--color-accent-2)]">
+              <div className={iconBox("cyan", "h-10 w-10")}>
                 <svg
                   className="w-5 h-5"
                   fill="none"
@@ -87,7 +88,7 @@ export function ProfilePortfolioTab({
           ))}
         </div>
       ) : (
-        <div className="rounded-xl border border-white/[0.08] bg-white/[0.025] px-6 py-14 text-center text-[var(--muted-foreground)]">
+        <div className={surface("empty", "px-6 py-14 text-center text-[var(--muted-foreground)]")}>
           <div className="flex justify-center mb-4">
             <div className="w-16 h-16 rounded-xl bg-[rgba(var(--color-accent-2-rgb),0.09)] border border-[rgba(var(--color-accent-2-rgb),0.18)] flex items-center justify-center">
               <svg

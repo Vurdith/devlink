@@ -1,14 +1,15 @@
 import type { TabType } from "./profile-types";
+import { surface } from "@/components/ui/design-system";
 
 export function ProfileTabLoadingSkeleton() {
   return (
     <div className="space-y-3 animate-pulse">
-      <div className="rounded-xl border border-white/[0.08] bg-white/[0.025] p-4">
+      <div className={surface("empty", "p-4")}>
         <div className="h-3 w-28 rounded bg-white/10" />
         <div className="mt-3 h-4 w-2/3 rounded bg-white/[0.08]" />
       </div>
       {[1, 2, 3].map((i) => (
-        <div key={i} className="relative overflow-hidden rounded-xl border border-white/[0.08] bg-[rgba(12,16,23,0.58)] p-4">
+        <div key={i} className={surface("panelMuted", "relative overflow-hidden p-4")}>
           <div className="flex items-start gap-3">
             <div className="w-10 h-10 rounded-full bg-white/10" />
             <div className="flex-1 space-y-2">

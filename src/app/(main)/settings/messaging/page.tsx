@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
+import { iconBox, surface, ui } from "@/components/ui/design-system";
 import { cn } from "@/lib/cn";
 import { safeJson } from "@/lib/safe-json";
 import type { MessagingSettings } from "@/types/api";
@@ -70,12 +71,12 @@ export default function MessagingSettingsPage() {
       </div>
 
       {status === "unauthenticated" ? (
-        <div className="rounded-xl border border-white/[0.08] bg-[rgba(12,16,23,0.72)] p-5 text-sm text-[var(--muted-foreground)]">
+        <div className={surface("panel", "p-5 text-sm text-[var(--muted-foreground)]")}>
           Sign in to update messaging preferences.
         </div>
       ) : (
         <>
-          <div className="relative overflow-hidden rounded-xl border border-white/[0.08] bg-[rgba(12,16,23,0.72)] p-6 animate-slide-up noise-overlay">
+          <div className={surface("panel", "noise-overlay relative overflow-hidden p-6 animate-slide-up")}>
             <div
               aria-hidden="true"
               className="pointer-events-none absolute inset-0 opacity-60"
@@ -86,7 +87,7 @@ export default function MessagingSettingsPage() {
             />
             <div className="relative">
               <div className="flex items-center gap-3 mb-5">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-[rgba(var(--color-accent-2-rgb),0.22)] bg-[rgba(var(--color-accent-2-rgb),0.10)] text-[var(--color-accent-2)]">
+                <div className={iconBox("cyan", "h-10 w-10")}>
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-white">
                     <path d="M21 15a4 4 0 0 1-4 4H7l-4 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
@@ -115,7 +116,7 @@ export default function MessagingSettingsPage() {
                   className={cn(
                     "flex items-center justify-between p-4 rounded-xl border transition-all animate-slide-up",
                     isSelected
-                      ? "bg-[rgba(var(--color-accent-rgb),0.10)] border-[rgba(var(--color-accent-rgb),0.22)] text-white"
+                      ? cn(ui.active.cyan, "text-white")
                       : "bg-white/[0.03] border-white/10 text-[var(--muted-foreground)] hover:bg-white/[0.05] hover:border-white/15",
                     saving && "opacity-60 cursor-not-allowed"
                   )}
@@ -142,7 +143,7 @@ export default function MessagingSettingsPage() {
             </div>
           </div>
 
-          <div className="relative overflow-hidden rounded-xl border border-white/[0.08] bg-[rgba(12,16,23,0.62)] p-6 animate-slide-up noise-overlay" style={{ animationDelay: "0.08s" }}>
+          <div className={surface("panelMuted", "noise-overlay relative overflow-hidden p-6 animate-slide-up")} style={{ animationDelay: "0.08s" }}>
             <div
               aria-hidden="true"
               className="pointer-events-none absolute inset-0 opacity-40"

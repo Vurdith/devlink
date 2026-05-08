@@ -1,4 +1,5 @@
 import { AVAILABILITY_STATUS, EXPERIENCE_LEVELS, formatRate, type AvailabilityStatus } from "@/lib/skills";
+import { iconBox, surface } from "@/components/ui/design-system";
 import { cn } from "@/lib/cn";
 import type { UserSkill } from "./profile-hub-types";
 
@@ -11,7 +12,7 @@ interface UserSkillsPanelProps {
 
 export function UserSkillsPanel({ userSkills, currency, onEditSkill, onRemoveSkill }: UserSkillsPanelProps) {
   return (
-    <div className="relative overflow-hidden rounded-xl border border-white/[0.08] bg-[rgba(12,16,23,0.72)] p-6">
+    <div className={surface("panel", "relative overflow-hidden p-6")}>
       <div
         aria-hidden="true"
         className="absolute inset-0 pointer-events-none opacity-55"
@@ -22,7 +23,7 @@ export function UserSkillsPanel({ userSkills, currency, onEditSkill, onRemoveSki
       />
       <div className="relative">
         <div className="flex items-center gap-3 mb-6">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-amber-300/20 bg-amber-400/10 text-amber-200">
+          <div className={iconBox("amber", "h-10 w-10")}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-white">
               <polygon
                 points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"
@@ -51,7 +52,7 @@ export function UserSkillsPanel({ userSkills, currency, onEditSkill, onRemoveSki
                 <div
                   key={userSkill.id}
                   className={cn(
-                    "rounded-xl border transition-all overflow-hidden",
+                    "overflow-hidden rounded-xl border transition-all",
                     userSkill.isPrimary ? "bg-gradient-to-r from-amber-500/5 to-transparent border-amber-500/20" : "bg-white/[0.01] border-white/[0.06] hover:border-white/10"
                   )}
                 >
@@ -107,7 +108,7 @@ export function UserSkillsPanel({ userSkills, currency, onEditSkill, onRemoveSki
                   <div className="flex items-center gap-2 px-5 py-3 border-t border-white/5 bg-white/[0.01]">
                     <button
                       onClick={() => onEditSkill(userSkill)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs text-white/60 hover:text-[var(--color-accent)] hover:bg-[var(--color-accent)]/10 transition-colors"
+                      className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs text-white/60 transition-colors hover:bg-[rgba(var(--color-accent-2-rgb),0.10)] hover:text-[var(--color-accent-2)]"
                     >
                       <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -116,7 +117,7 @@ export function UserSkillsPanel({ userSkills, currency, onEditSkill, onRemoveSki
                     </button>
                     <button
                       onClick={() => onRemoveSkill(userSkill.id, userSkill.skill.name)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs text-white/40 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                      className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs text-white/40 transition-colors hover:bg-rose-500/10 hover:text-rose-300"
                     >
                       <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />

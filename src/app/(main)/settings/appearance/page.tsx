@@ -1,6 +1,7 @@
 "use client";
 
 import { useTheme } from "@/components/providers/ThemeProvider";
+import { iconBox, surface, ui } from "@/components/ui/design-system";
 import { getAllThemes, ThemeId, ThemeConfig } from "@/lib/themes";
 import { useState, useEffect } from "react";
 
@@ -14,7 +15,7 @@ function ThemePreview({ theme, isSelected, onSelect }: {
       onClick={onSelect}
       className={`group relative w-full overflow-hidden rounded-xl border p-4 text-left transition-all duration-300 noise-overlay ${
         isSelected 
-          ? 'accent-halo-cyan border-[rgba(var(--color-accent-2-rgb),0.34)] bg-[rgba(var(--color-accent-2-rgb),0.10)]'
+          ? ui.active.cyanStrong
           : 'border-white/10 bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.06]'
       }`}
     >
@@ -117,7 +118,7 @@ export default function AppearanceSettingsPage() {
       </div>
 
       {/* Theme Selection */}
-      <div className="relative overflow-hidden rounded-xl border border-white/[0.08] bg-[rgba(12,16,23,0.72)] p-6 noise-overlay">
+      <div className={surface("panel", "noise-overlay relative overflow-hidden p-6")}>
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 opacity-60"
@@ -127,7 +128,7 @@ export default function AppearanceSettingsPage() {
           }}
         />
         <div className="flex items-center gap-3 mb-6">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-[rgba(var(--color-accent-2-rgb),0.22)] bg-[rgba(var(--color-accent-2-rgb),0.10)] text-[var(--color-accent-2)]">
+          <div className={iconBox("cyan", "h-10 w-10")}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-white">
               <circle cx="12" cy="12" r="5" stroke="currentColor" strokeWidth="2"/>
               <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
@@ -168,7 +169,7 @@ export default function AppearanceSettingsPage() {
       </div>
 
       {/* Future: More appearance settings */}
-      <div className="mt-6 relative overflow-hidden rounded-xl border border-white/[0.08] bg-[rgba(12,16,23,0.52)] p-6 opacity-50 noise-overlay">
+      <div className={surface("panelMuted", "noise-overlay relative mt-6 overflow-hidden p-6 opacity-50")}>
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-white/50">

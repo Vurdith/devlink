@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { surface } from "@/components/ui/design-system";
 import { cn } from "@/lib/cn";
 
 interface ToastProps {
@@ -61,7 +62,7 @@ export function Toast({ message, type = "success", duration = 3000, onClose }: T
       aria-live={type === "error" ? "assertive" : "polite"}
       aria-atomic="true"
       className={cn(
-        "fixed right-4 top-4 z-[999999] flex items-center gap-3 rounded-lg border bg-[rgba(12,16,23,0.96)] px-4 py-3 transition-all duration-300",
+        surface("panelStrong", "fixed right-4 top-4 z-[999999] flex items-center gap-3 px-4 py-3 transition-all duration-300"),
         getBgColor(),
         isVisible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"
       )}

@@ -1,5 +1,6 @@
 "use client";
 
+import { surface, ui } from "@/components/ui/design-system";
 import type { TabType } from "./profile-types";
 
 interface Tab {
@@ -24,7 +25,7 @@ export function ProfileTabNavigation({
 }: ProfileTabNavigationProps) {
   return (
     <div
-      className="mb-4 flex gap-1 overflow-x-auto rounded-xl border border-white/[0.08] bg-[rgba(8,11,16,0.78)] p-1.5 sm:mb-6"
+      className={surface("toolbar", "mb-4 flex gap-1 overflow-x-auto p-1.5 sm:mb-6")}
       style={{
         WebkitOverflowScrolling: "touch",
         scrollbarWidth: "none",
@@ -41,7 +42,7 @@ export function ProfileTabNavigation({
             aria-pressed={activeTab === tab.id}
             className={`relative flex flex-shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg border px-3 py-2 text-xs font-semibold transition-all duration-200 sm:gap-2 sm:px-4 sm:text-sm ${
               activeTab === tab.id
-                ? "accent-halo-cyan border-[rgba(var(--color-accent-2-rgb),0.34)] bg-[rgba(var(--color-accent-2-rgb),0.14)] text-white"
+                ? ui.active.cyanStrong
                 : "border-transparent text-[var(--muted-foreground)] hover:border-white/[0.07] hover:bg-white/[0.04] hover:text-white"
             }`}
           >

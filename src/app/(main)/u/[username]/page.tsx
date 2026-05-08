@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { prisma } from "@/server/db";
 import { notFound } from "next/navigation";
 import { FollowButton } from "@/components/ui/FollowButton";
+import { surface } from "@/components/ui/design-system";
 import Link from "next/link";
 import { getAuthSession } from "@/server/auth";
 import { AboutEditor } from "./AboutEditor";
@@ -139,7 +140,7 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
 
   return (
     <main className="mx-auto max-w-6xl px-3 sm:px-5 py-4 sm:py-8">
-      <section className="relative overflow-hidden rounded-xl border border-white/[0.08] bg-[rgba(10,13,19,0.82)]">
+      <section className={surface("panelStrong", "relative overflow-hidden bg-[rgba(10,13,19,0.82)]")}>
         <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent" />
         {/* Banner */}
         <ProfileBanner 
@@ -157,7 +158,7 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
             editable={isOwnProfile}
           />
 
-          <div className="grid gap-5 rounded-xl border border-white/[0.1] bg-[rgba(7,10,15,0.78)] p-4 backdrop-blur-md sm:grid-cols-[auto_1fr_auto] sm:items-end sm:p-5">
+          <div className={surface("toolbar", "grid gap-5 bg-[rgba(7,10,15,0.78)] p-4 backdrop-blur-md sm:grid-cols-[auto_1fr_auto] sm:items-end sm:p-5")}>
             <ProfileAvatar
               initialAvatarUrl={user.profile?.avatarUrl}
               isOwnProfile={isOwnProfile}
