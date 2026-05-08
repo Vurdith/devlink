@@ -139,7 +139,7 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
 
   return (
     <main className="mx-auto max-w-6xl px-3 sm:px-5 py-4 sm:py-8">
-      <section className="relative overflow-hidden rounded-xl border border-white/[0.08] bg-[rgba(10,13,19,0.82)] shadow-[0_24px_80px_rgba(0,0,0,0.34)]">
+      <section className="relative overflow-hidden rounded-xl border border-white/[0.08] bg-[rgba(10,13,19,0.82)]">
         <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent" />
         {/* Banner */}
         <ProfileBanner 
@@ -157,7 +157,7 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
             editable={isOwnProfile}
           />
 
-          <div className="grid gap-5 rounded-xl border border-white/[0.08] bg-[rgba(7,10,15,0.72)] p-4 shadow-[0_18px_46px_rgba(0,0,0,0.24)] backdrop-blur-md sm:grid-cols-[auto_1fr_auto] sm:items-end sm:p-5">
+          <div className="grid gap-5 rounded-xl border border-white/[0.1] bg-[rgba(7,10,15,0.78)] p-4 backdrop-blur-md sm:grid-cols-[auto_1fr_auto] sm:items-end sm:p-5">
             <ProfileAvatar
               initialAvatarUrl={user.profile?.avatarUrl}
               isOwnProfile={isOwnProfile}
@@ -201,7 +201,7 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
               </div>
 
               {user.profile?.bio && (
-                <p className="mt-4 max-w-3xl text-sm text-[var(--muted-foreground)] whitespace-pre-wrap leading-relaxed">
+                <p className="mt-4 max-w-3xl border-l-2 border-[rgba(var(--color-accent-2-rgb),0.42)] pl-4 text-[15px] font-medium text-white/78 whitespace-pre-wrap leading-relaxed">
                   {user.profile.bio}
                 </p>
               )}
@@ -210,7 +210,7 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
             <div className="flex flex-wrap items-center gap-2 sm:justify-end">
               {profileTypeConfig && profileType && (
                 <span
-                  className={`inline-flex items-center gap-1.5 rounded-lg border border-white/10 px-2.5 py-1.5 text-xs font-medium ${profileTypeConfig.bgColor} ${profileTypeConfig.color}`}
+                  className={`inline-flex items-center gap-1.5 rounded-lg border border-white/12 px-3 py-2 text-xs font-bold uppercase tracking-wide ring-1 ring-inset ring-white/[0.04] ${profileTypeConfig.bgColor} ${profileTypeConfig.color}`}
                 >
                   <ProfileTypeIcon profileType={profileType} size={13} />
                   {profileTypeConfig.label}

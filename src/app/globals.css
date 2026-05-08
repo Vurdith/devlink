@@ -61,8 +61,8 @@
     --surface-3: rgba(22, 28, 39, 0.92);
     --line-soft: rgba(255, 255, 255, 0.08);
     --line-strong: rgba(255, 255, 255, 0.14);
-    --shadow-soft: 0 18px 60px rgba(0, 0, 0, 0.32);
-    --shadow-tight: 0 10px 28px rgba(0, 0, 0, 0.24);
+    --shadow-soft: none;
+    --shadow-tight: none;
   }
 
   .dark {
@@ -1828,4 +1828,37 @@ video {
 .slide-right.is-visible {
   opacity: 1;
   transform: translateX(0);
+}
+
+/* DevLink visual reset: prefer crisp borders and layered fills over cast shadows. */
+[class*="shadow-"],
+.glass,
+.glass-soft,
+.glass-hover:hover,
+.glow,
+.glow-strong,
+.glow-cyan,
+.glow-pink,
+.tooltip,
+.float-card:hover,
+.btn-gradient:hover,
+.badge-glow,
+.badge-glow-blue,
+.badge-glow-emerald,
+.badge-glow-accent,
+.badge-glow-rose,
+.badge-glow-amber,
+.lift-hover:hover,
+.create-post-collapsed:hover {
+  box-shadow: none !important;
+}
+
+[class*="drop-shadow"],
+.hero-gradient-text {
+  filter: none !important;
+}
+
+.text-glow,
+.text-glow-cyan {
+  text-shadow: none !important;
 }

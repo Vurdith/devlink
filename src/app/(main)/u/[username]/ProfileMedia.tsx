@@ -84,7 +84,7 @@ export function ProfileAvatar({ initialAvatarUrl, isOwnProfile }: ProfileAvatarP
       <div className="relative w-24 h-24 sm:w-32 sm:h-32 group">
         {/* Subtle glow behind avatar */}
         <div className="absolute -inset-1 bg-gradient-to-br from-white/12 via-[rgba(var(--color-accent-2-rgb),0.2)] to-[rgba(var(--color-accent-rgb),0.14)] rounded-full opacity-70" />
-        <div className="relative w-full h-full rounded-full border-4 border-[rgb(10,13,19)] overflow-hidden flex items-center justify-center shadow-[0_12px_38px_rgba(0,0,0,0.35)]">
+        <div className="relative w-full h-full rounded-full border-4 border-[rgb(10,13,19)] overflow-hidden flex items-center justify-center">
           <Avatar 
             className="w-full h-full object-cover" 
             src={avatarUrl || undefined} 
