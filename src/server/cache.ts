@@ -9,8 +9,10 @@
 
 import { Redis } from "@upstash/redis";
 import RedisIO from "ioredis";
+import { createLogger } from "@/server/logger";
 
 // Initialize Redis clients
+const logger = createLogger("cache");
 let upstashClient: Redis | null = null;
 let ioRedisClient: RedisIO | null = null;
 let upstashTemporarilyDisabled = false;
@@ -40,9 +42,7 @@ if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) 
       url: process.env.UPSTASH_REDIS_REST_URL,
       token: process.env.UPSTASH_REDIS_REST_TOKEN,
     });
-    if (process.env.NODE_ENV === 'development') {
-      console.log("[Cache] Using Upstash Redis");
-    }
+    logger.debug("Using Upstash Redis");
   } catch (e) {
     console.error("[Cache] Failed to initialize Upstash Redis:", e);
   }
@@ -54,16 +54,14 @@ else if (process.env.REDIS_URL) {
       maxRetriesPerRequest: 3,
       lazyConnect: true,
     });
-    if (process.env.NODE_ENV === 'development') {
-      console.log("[Cache] Using standard Redis");
-    }
+    logger.debug("Using standard Redis");
   } catch (e) {
     console.error("[Cache] Failed to initialize Redis:", e);
   }
 }
 
-if (!upstashClient && !ioRedisClient && process.env.NODE_ENV === 'development') {
-  console.log("[Cache] Using in-memory cache (not recommended for production)");
+if (!upstashClient && !ioRedisClient) {
+  logger.debug("Using in-memory cache");
 }
 
 // In-memory cache for fallback

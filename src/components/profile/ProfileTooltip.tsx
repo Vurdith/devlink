@@ -6,34 +6,7 @@ import Image from "next/image";
 import { FollowButton } from "../ui/FollowButton";
 import { getProfileTypeConfig, ProfileTypeIcon } from "@/types/profile";
 import { cn } from "@/lib/cn";
-
-// Pre-computed profile type styles for performance
-const PROFILE_GRADIENTS: Record<string, string> = {
-  DEVELOPER: "from-blue-500/20 via-blue-400/10 to-cyan-500/20",
-  CLIENT: "from-emerald-500/20 via-green-400/10 to-teal-500/20",
-  STUDIO: "from-purple-500/20 via-fuchsia-400/10 to-indigo-500/20",
-  INFLUENCER: "from-rose-500/20 via-pink-400/10 to-[var(--color-accent)]/20",
-  INVESTOR: "from-amber-500/20 via-yellow-400/10 to-orange-500/20",
-  DEFAULT: "from-slate-500/20 via-gray-400/10 to-zinc-500/20",
-};
-
-const PROFILE_BORDERS: Record<string, string> = {
-  DEVELOPER: "border-blue-500/40 shadow-blue-500/20",
-  CLIENT: "border-emerald-500/40 shadow-emerald-500/20",
-  STUDIO: "border-purple-500/40 shadow-purple-500/20",
-  INFLUENCER: "border-rose-500/40 shadow-rose-500/20",
-  INVESTOR: "border-amber-500/40 shadow-amber-500/20",
-  DEFAULT: "border-white/20 shadow-white/10",
-};
-
-const BADGE_CLASSES: Record<string, string> = {
-  DEVELOPER: "bg-blue-500/15 text-blue-300 border-blue-500/30 shadow-blue-500/20",
-  CLIENT: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30 shadow-emerald-500/20",
-  STUDIO: "bg-purple-500/15 text-purple-300 border-purple-500/30 shadow-purple-500/20",
-  INFLUENCER: "bg-rose-500/15 text-rose-300 border-rose-500/30 shadow-rose-500/20",
-  INVESTOR: "bg-amber-500/15 text-amber-300 border-amber-500/30 shadow-amber-500/20",
-  DEFAULT: "bg-slate-500/15 text-slate-300 border-slate-500/30 shadow-slate-500/20",
-};
+import { formatProfileCount, getProfileBadgeClasses, getProfileBorder, getProfileGradient } from "./profile-tooltip-utils";
 
 interface ProfileTooltipProps {
   user: {
@@ -300,24 +273,11 @@ export const ProfileTooltip = memo(function ProfileTooltip({
   const profileConfig = profileType ? getProfileTypeConfig(profileType) : null;
   
   // Use pre-computed lookups instead of recreating functions on every render
-  const profileGradient = useMemo(() => 
-    PROFILE_GRADIENTS[profileType || "DEFAULT"] || PROFILE_GRADIENTS.DEFAULT
-  , [profileType]);
+  const profileGradient = useMemo(() => getProfileGradient(profileType), [profileType]);
   
-  const profileBorderColor = useMemo(() => 
-    PROFILE_BORDERS[profileType || "DEFAULT"] || PROFILE_BORDERS.DEFAULT
-  , [profileType]);
+  const profileBorderColor = useMemo(() => getProfileBorder(profileType), [profileType]);
   
-  const badgeClasses = useMemo(() => 
-    BADGE_CLASSES[profileType || "DEFAULT"] || BADGE_CLASSES.DEFAULT
-  , [profileType]);
-
-  const formatCount = (count: number | undefined | null) => {
-    if (count == null) return "0";
-    if (count >= 1000000) return `${(count / 1000000).toFixed(1)}M`;
-    if (count >= 1000) return `${(count / 1000).toFixed(1)}K`;
-    return count.toString();
-  };
+  const badgeClasses = useMemo(() => getProfileBadgeClasses(profileType), [profileType]);
 
   const slideDirection = tooltipPosition.placement === "top" ? -12 : 12;
   
@@ -483,7 +443,7 @@ export const ProfileTooltip = memo(function ProfileTooltip({
                   className="group flex items-center gap-1.5 text-sm hover:text-[var(--color-accent)] transition-colors"
                 >
                   <span className="font-bold text-white group-hover:text-[var(--color-accent)] transition-colors">
-                    {formatCount(userData._count.followers)}
+                    {formatProfileCount(userData._count.followers)}
                   </span>
                   <span className="text-[var(--muted-foreground)] text-xs">followers</span>
                 </button>
@@ -492,7 +452,7 @@ export const ProfileTooltip = memo(function ProfileTooltip({
                   className="group flex items-center gap-1.5 text-sm hover:text-[var(--color-accent)] transition-colors"
                 >
                   <span className="font-bold text-white group-hover:text-[var(--color-accent)] transition-colors">
-                    {formatCount(userData._count.following)}
+                    {formatProfileCount(userData._count.following)}
                   </span>
                   <span className="text-[var(--muted-foreground)] text-xs">following</span>
                 </button>

@@ -9,8 +9,6 @@ const eslintConfig = [
       "out/**",
       "build/**",
       "next-env.d.ts",
-      "fix-imports.js",
-      "fix-imports2.js",
       "loadtests/**",
       "scripts/load-tests/**",
     ],
@@ -18,7 +16,10 @@ const eslintConfig = [
   ...nextCoreWebVitals,
   ...nextTypescript,
   {
-    rules: { "react-hooks/set-state-in-effect": "off" },
+    rules: {
+      "react-hooks/set-state-in-effect": "off",
+      "@next/next/no-img-element": "off",
+    },
   },
 ];
 

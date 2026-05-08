@@ -69,26 +69,13 @@ function LoginForm() {
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center px-4 py-16 -m-6">
-      {/* Background decorations - CSS only */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div
-          className="absolute top-1/4 -left-32 w-96 h-96 rounded-full opacity-60 animate-float"
-          style={{ background: "radial-gradient(circle, rgba(var(--color-accent-rgb),0.22) 0%, transparent 70%)" }}
-        />
-        <div
-          className="absolute bottom-1/4 -right-32 w-96 h-96 rounded-full opacity-55 animate-float"
-          style={{
-            background: "radial-gradient(circle, rgba(var(--color-accent-2-rgb),0.18) 0%, transparent 70%)",
-            animationDelay: "-2s",
-          }}
-        />
-      </div>
+    <main className="min-h-screen flex items-center justify-center px-4 py-14 -m-6">
+      <div className="fixed inset-0 pointer-events-none bg-[radial-gradient(circle_at_50%_18%,rgba(34,211,238,0.08),transparent_34%),linear-gradient(180deg,rgba(255,255,255,0.02),transparent_42%)]" />
 
       <div className="relative w-full max-w-md animate-fade-in">
         {/* Header */}
         <div className="text-center mb-8 animate-slide-down">
-          <Link href="/" className="inline-block mb-6 hover:scale-110 transition-transform">
+          <Link href="/" className="inline-block mb-6 transition-opacity hover:opacity-85">
             <Image
               src={logoPath}
               alt="DevLink"
@@ -107,7 +94,7 @@ function LoginForm() {
         </div>
 
         {/* Form card */}
-        <div className="relative overflow-hidden glass noise-overlay rounded-2xl p-8 border border-white/10 animate-slide-up" style={{ animationDelay: '0.1s' }}>
+        <div className="relative overflow-hidden glass noise-overlay rounded-xl p-6 border border-white/[0.1] shadow-[var(--shadow-soft)] animate-slide-up sm:p-8" style={{ animationDelay: '0.1s' }}>
           <form onSubmit={onSubmit} className="space-y-5">
             {/* Email field */}
             <div>
@@ -123,7 +110,7 @@ function LoginForm() {
                   type="email"
                   autoComplete="email"
                   placeholder="you@example.com"
-                  className="w-full h-12 pl-11 pr-4 rounded-xl bg-white/5 border border-white/10 outline-none text-white placeholder:text-[var(--muted-foreground)] focus:border-[var(--accent)] focus:bg-white/10 transition-all"
+                  className="w-full h-12 pl-11 pr-4 rounded-lg bg-white/[0.04] border border-white/[0.1] outline-none text-white placeholder:text-[var(--muted-foreground)] focus:border-[rgba(var(--color-accent-2-rgb),0.55)] focus:bg-white/[0.07] transition-all"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -136,7 +123,7 @@ function LoginForm() {
             <div>
               <div className="flex items-center justify-between mb-2">
                 <label htmlFor="password" className="text-sm font-medium text-white">Password</label>
-                <Link href="/reset-password" className="text-xs text-[var(--accent)] hover:underline">
+                <Link href="/reset-password" className="text-xs text-[var(--color-accent-2)] hover:underline">
                   Forgot password?
                 </Link>
               </div>
@@ -151,7 +138,7 @@ function LoginForm() {
                   type={showPassword ? "text" : "password"}
                   autoComplete="current-password"
                   placeholder="••••••••"
-                  className="w-full h-12 pl-11 pr-11 rounded-xl bg-white/5 border border-white/10 outline-none text-white placeholder:text-[var(--muted-foreground)] focus:border-[var(--accent)] focus:bg-white/10 transition-all"
+                  className="w-full h-12 pl-11 pr-11 rounded-lg bg-white/[0.04] border border-white/[0.1] outline-none text-white placeholder:text-[var(--muted-foreground)] focus:border-[rgba(var(--color-accent-2-rgb),0.55)] focus:bg-white/[0.07] transition-all"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
@@ -214,7 +201,7 @@ function LoginForm() {
               <div className="w-full border-t border-white/10" />
             </div>
             <div className="relative flex justify-center">
-              <span className="bg-[var(--card)] px-4 text-xs text-[var(--muted-foreground)]">
+              <span className="bg-[var(--color-card)] px-4 text-xs text-[var(--muted-foreground)]">
                 or continue with
               </span>
             </div>
@@ -248,7 +235,7 @@ function LoginForm() {
         {/* Sign up link */}
         <p className="text-center mt-6 text-[var(--muted-foreground)] animate-fade-in" style={{ animationDelay: '0.2s' }}>
           Don&apos;t have an account?{" "}
-          <Link href="/register" className="text-[var(--accent)] hover:underline font-medium">
+          <Link href="/register" className="text-[var(--color-accent-2)] hover:underline font-medium">
             Sign up
           </Link>
         </p>
@@ -260,24 +247,15 @@ function LoginForm() {
 // Loading skeleton for Suspense fallback
 function LoginSkeleton() {
   return (
-    <main className="min-h-screen flex items-center justify-center px-4 py-16 -m-6">
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div
-          className="absolute top-1/4 -left-32 w-96 h-96 rounded-full opacity-60"
-          style={{ background: "radial-gradient(circle, rgba(var(--color-accent-rgb),0.22) 0%, transparent 70%)" }}
-        />
-        <div
-          className="absolute bottom-1/4 -right-32 w-96 h-96 rounded-full opacity-55"
-          style={{ background: "radial-gradient(circle, rgba(var(--color-accent-2-rgb),0.18) 0%, transparent 70%)" }}
-        />
-      </div>
+    <main className="min-h-screen flex items-center justify-center px-4 py-14 -m-6">
+      <div className="fixed inset-0 pointer-events-none bg-[radial-gradient(circle_at_50%_18%,rgba(34,211,238,0.08),transparent_34%),linear-gradient(180deg,rgba(255,255,255,0.02),transparent_42%)]" />
       <div className="relative w-full max-w-md">
         <div className="text-center mb-8">
           <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-white/10 animate-pulse" />
           <div className="h-8 w-48 mx-auto mb-2 rounded-lg bg-white/10 animate-pulse" />
           <div className="h-4 w-56 mx-auto rounded bg-white/10 animate-pulse" />
         </div>
-        <div className="relative overflow-hidden glass noise-overlay rounded-2xl p-8 border border-white/10">
+        <div className="relative overflow-hidden glass noise-overlay rounded-xl p-6 border border-white/[0.1] sm:p-8">
           <div className="space-y-5">
             <div className="h-12 rounded-xl bg-white/5 animate-pulse" />
             <div className="h-12 rounded-xl bg-white/5 animate-pulse" />

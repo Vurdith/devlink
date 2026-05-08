@@ -4,6 +4,7 @@ import { CreatePost } from "./CreatePost";
 import { PostFeed } from "./PostFeed";
 import { ThemeLogoImg } from "@/components/ui/ThemeLogo";
 import { cn } from "@/lib/cn";
+import type { FeedPost } from "@/types/post";
 
 interface UserProfile {
   id: string;
@@ -24,65 +25,6 @@ interface UserProfile {
   };
 }
 
-interface Post {
-  id: string;
-  userId: string;
-  content: string;
-  createdAt: Date;
-  updatedAt: Date;
-  user: {
-    id: string;
-    username: string;
-    name: string | null;
-    profile: {
-      avatarUrl: string | null;
-      bannerUrl: string | null;
-      profileType: string;
-      verified: boolean;
-      bio: string | null;
-      website: string | null;
-      location: string | null;
-    } | null;
-    _count?: {
-      followers: number;
-      following: number;
-    };
-  };
-  media: Array<{
-    id: string;
-    mediaUrl: string;
-    mediaType: string;
-    order: number;
-  }>;
-  isSlideshow: boolean;
-  poll?: {
-    id: string;
-    question: string;
-    options: Array<{
-      id: string;
-      text: string;
-      votes: number;
-      isSelected?: boolean;
-    }>;
-    isMultiple: boolean;
-    expiresAt: Date | null;
-    totalVotes: number;
-  };
-  likes?: Array<{ id: string; userId: string }>;
-  reposts?: { id: string; userId: string }[];
-  replies?: Array<{ id: string; userId: string }>;
-  views: number;
-  isPinned: boolean;
-  isLiked?: boolean;
-  isReposted?: boolean;
-  isSaved?: boolean;
-  _count?: {
-    likes: number;
-    reposts: number;
-    replies?: number;
-  };
-}
-
 interface AnimatedHomeContentProps {
   session?: {
     user?: {
@@ -94,7 +36,7 @@ interface AnimatedHomeContentProps {
     };
   } | null;
   currentUserProfile: UserProfile | null;
-  postsWithViewCounts: Post[];
+  postsWithViewCounts: FeedPost[];
 }
 
 const features = [
@@ -133,7 +75,7 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
   postsWithViewCounts
 }: AnimatedHomeContentProps) {
   // Manage posts state locally so we can update on engagement changes
-  const [feedPosts, setFeedPosts] = useState<Post[]>(postsWithViewCounts || []);
+  const [feedPosts, setFeedPosts] = useState<FeedPost[]>(postsWithViewCounts || []);
   // Track when we last made a local update to avoid server overwriting optimistic state
   const [lastLocalUpdate, setLastLocalUpdate] = useState(0);
   // Track if we've fetched fresh engagement state
@@ -191,7 +133,7 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
     // Small delay to not block initial render
     const timeoutId = setTimeout(fetchEngagement, 100);
     return () => clearTimeout(timeoutId);
-  }, [session?.user?.id, engagementFetched, feedPosts.length]);
+  }, [session?.user?.id, engagementFetched, feedPosts]);
 
   // Listen for engagement updates and update posts immediately
   useEffect(() => {
@@ -205,7 +147,7 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
         if (p.id !== post.id) return p;
 
         // Update the specific engagement state
-        const updates: Partial<Post> = {};
+        const updates: Partial<FeedPost> = {};
         if (action === 'like' && liked !== undefined) {
           updates.isLiked = liked;
         }
@@ -216,7 +158,7 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
           updates.isSaved = saved;
         }
 
-        return { ...p, ...updates } as Post;
+        return { ...p, ...updates };
       }));
     };
 
@@ -226,7 +168,7 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
 
   // Handle post updates from child components
   const handlePostUpdate = useCallback((updatedPostInput: unknown) => {
-    const updatedPost = updatedPostInput as Post;
+    const updatedPost = updatedPostInput as FeedPost;
     setLastLocalUpdate(Date.now());
     setFeedPosts(prevPosts => prevPosts.map(p =>
       p.id === updatedPost.id ? { ...p, ...updatedPost } : p

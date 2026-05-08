@@ -1,127 +1,18 @@
 "use client";
-import { useState, useRef, memo, useCallback, lazy, Suspense, useEffect } from "react";
-import { createPortal } from "react-dom";
+import { useState, useRef, memo, useCallback, lazy, Suspense } from "react";
 import { Button } from "@/components/ui/Button";
 import { Avatar } from "@/components/ui/Avatar";
 import { Toast } from "@/components/ui/Toast";
 import { cn } from "@/lib/cn";
+import { ComposerActionButton } from "./composer/ComposerActionButton";
+import { ComposerLoadingPlaceholder } from "./composer/ComposerLoadingPlaceholder";
+import { ComposerMediaGrid } from "./composer/ComposerMediaGrid";
+import { ComposerPollSummary } from "./composer/ComposerPollSummary";
+import type { PollData } from "./composer/composer-types";
 
 // Lazy load heavy components
 const EmojiPicker = lazy(() => import("emoji-picker-react"));
 const CreatePoll = lazy(() => import("@/components/polls/CreatePoll").then(m => ({ default: m.CreatePoll })));
-
-// Loading placeholder - defined before use
-function LoadingPlaceholder({ height = "h-32" }: { height?: string }) {
-  return (
-    <div className={cn("flex items-center justify-center", height)}>
-      <div className="flex items-center gap-2">
-        <div className="typing-dot w-2 h-2 bg-[var(--color-accent)] rounded-full" />
-        <div className="typing-dot w-2 h-2 bg-[var(--color-accent)] rounded-full" />
-        <div className="typing-dot w-2 h-2 bg-[var(--color-accent)] rounded-full" />
-      </div>
-    </div>
-  );
-}
-
-// Action button with hover effects and custom tooltip - memoized and defined before use
-const ActionButton = memo(function ActionButton({ 
-  onClick, 
-  title, 
-  children, 
-  active, 
-  badge,
-  delay = 0,
-  shortcut
-}: { 
-  onClick: () => void; 
-  title: string; 
-  children: React.ReactNode; 
-  active?: boolean; 
-  badge?: number;
-  delay?: number;
-  shortcut?: string;
-}) {
-  const [showTooltip, setShowTooltip] = useState(false);
-  const [mounted, setMounted] = useState(false);
-  const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
-  const buttonRef = useRef<HTMLButtonElement>(null);
-  
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-  
-  const handleMouseEnter = useCallback(() => {
-    if (buttonRef.current) {
-      const rect = buttonRef.current.getBoundingClientRect();
-      setTooltipPos({
-        x: rect.left + rect.width / 2,
-        y: rect.top - 8
-      });
-    }
-    setShowTooltip(true);
-  }, []);
-  
-  const handleMouseLeave = useCallback(() => {
-    setShowTooltip(false);
-  }, []);
-  
-  const tooltipContent = showTooltip && mounted && createPortal(
-    <div 
-      className={cn(
-        "fixed pointer-events-none transition-all duration-300 z-[9999]",
-        showTooltip ? "opacity-100 scale-100" : "opacity-0 scale-95"
-      )}
-      style={{
-        left: tooltipPos.x,
-        top: tooltipPos.y,
-        transform: 'translate(-50%, -100%)'
-      }}
-    >
-      <div className="relative px-3 py-1.5 glass-soft border border-[var(--color-accent)]/30 rounded-lg shadow-2xl backdrop-blur-md">
-        <div className="flex items-center gap-2 whitespace-nowrap">
-          <span className="text-xs font-bold text-white tracking-tight">{title}</span>
-          {shortcut && (
-            <kbd className="px-1.5 py-0.5 text-[10px] font-bold text-[var(--color-accent)] bg-[var(--color-accent)]/10 border border-[var(--color-accent)]/20 rounded-md">
-              {shortcut}
-            </kbd>
-          )}
-        </div>
-        <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-px">
-          <div className="border-4 border-transparent border-t-[var(--color-accent)]/30" />
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 -mt-[1px] border-4 border-transparent border-t-[#0c0e14]" />
-        </div>
-      </div>
-    </div>,
-    document.body
-  );
-  
-  return (
-    <div className="relative">
-      <button
-        ref={buttonRef}
-        type="button"
-        onClick={onClick}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-        className={cn(
-          "icon-btn p-2.5 rounded-xl transition-all relative",
-          active 
-            ? "text-[var(--color-accent)] bg-[rgba(var(--color-accent-rgb),0.2)] shadow-lg shadow-[rgba(var(--color-accent-rgb),0.2)]" 
-            : "text-gray-400 hover:text-[var(--color-accent)] hover:bg-[rgba(var(--color-accent-rgb),0.1)]"
-        )}
-        style={{ animationDelay: `${delay * 0.05}s` }}
-      >
-        {children}
-        {badge !== undefined && badge > 0 && (
-          <span className="absolute -top-1 -right-1 bg-gradient-to-r from-[var(--color-accent)] to-pink-500 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-lg badge-animated">
-            {badge}
-          </span>
-        )}
-      </button>
-      {tooltipContent}
-    </div>
-  );
-});
 
 interface CreatePostProps {
   currentUserProfile?: {
@@ -160,12 +51,7 @@ export const CreatePost = memo(function CreatePost({
   const [toastMessage, setToastMessage] = useState("");
   const [toastType, setToastType] = useState<"success" | "error" | "info">("success");
   const [showPoll, setShowPoll] = useState(false);
-  const [pollData, setPollData] = useState<{
-    question: string;
-    options: string[];
-    expiresAt?: Date;
-    isMultiple: boolean;
-  } | null>(null);
+  const [pollData, setPollData] = useState<PollData | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const addEmoji = useCallback((emoji: { emoji?: string }) => {
@@ -366,30 +252,30 @@ export const CreatePost = memo(function CreatePost({
         <form onSubmit={handleSubmit} className="relative space-y-4">
           {/* Icon Buttons Row - with stagger animation */}
           <div className="flex items-center gap-2 p-2 bg-black/40 rounded-xl border border-white/5 stagger-in shadow-inner">
-            <ActionButton onClick={() => fileInputRef.current?.click()} title="Add Media" shortcut="⌘I" badge={formData.mediaUrls.length || undefined} delay={1}>
+            <ComposerActionButton onClick={() => fileInputRef.current?.click()} title="Add Media" shortcut="⌘I" badge={formData.mediaUrls.length || undefined} delay={1}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M21 19V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2z" stroke="currentColor" strokeWidth="2"/><circle cx="8.5" cy="8.5" r="1.5" stroke="currentColor" strokeWidth="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" stroke="currentColor" strokeWidth="2"/></svg>
-            </ActionButton>
-            <ActionButton onClick={() => setShowPoll(!showPoll)} active={showPoll} title="Create Poll" shortcut="⌘P" delay={2}>
+            </ComposerActionButton>
+            <ComposerActionButton onClick={() => setShowPoll(!showPoll)} active={showPoll} title="Create Poll" shortcut="⌘P" delay={2}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" strokeWidth="2"/><path d="M9 9h6M9 12h4M9 15h5" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
-            </ActionButton>
-            <ActionButton onClick={() => setShowEmbedInput(v => !v)} active={showEmbedInput} title="Embed Link" shortcut="⌘L" delay={3}>
+            </ComposerActionButton>
+            <ComposerActionButton onClick={() => setShowEmbedInput(v => !v)} active={showEmbedInput} title="Embed Link" shortcut="⌘L" delay={3}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
-            </ActionButton>
-            <ActionButton onClick={() => setShowEmojiPicker(v => !v)} active={showEmojiPicker} title="Emoji" shortcut="⌘E" delay={4}>
+            </ComposerActionButton>
+            <ComposerActionButton onClick={() => setShowEmojiPicker(v => !v)} active={showEmojiPicker} title="Emoji" shortcut="⌘E" delay={4}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/><path d="M8 14s1.5 2 4 2 4-2 4-2" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/><circle cx="9" cy="9" r="1" fill="currentColor"/><circle cx="15" cy="9" r="1" fill="currentColor"/></svg>
-            </ActionButton>
-            <ActionButton onClick={() => setShowSchedule(s => !s)} active={showSchedule} title="Schedule Post" delay={5}>
+            </ComposerActionButton>
+            <ComposerActionButton onClick={() => setShowSchedule(s => !s)} active={showSchedule} title="Schedule Post" delay={5}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" strokeWidth="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/><circle cx="12" cy="15" r="2" stroke="currentColor" strokeWidth="2"/></svg>
-            </ActionButton>
-            <ActionButton onClick={() => setShowLocationInput(v => !v)} active={showLocationInput} title="Add Location" delay={6}>
+            </ComposerActionButton>
+            <ComposerActionButton onClick={() => setShowLocationInput(v => !v)} active={showLocationInput} title="Add Location" delay={6}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" stroke="currentColor" strokeWidth="2"/><circle cx="12" cy="10" r="3" stroke="currentColor" strokeWidth="2"/></svg>
-            </ActionButton>
+            </ComposerActionButton>
           </div>
 
           {/* Conditional panels with slide animation */}
           {showEmojiPicker && (
             <div className="animate-slide-down p-4 bg-black/30 rounded-xl border border-white/10">
-              <Suspense fallback={<LoadingPlaceholder height="h-64" />}>
+              <Suspense fallback={<ComposerLoadingPlaceholder height="h-64" />}>
                 <EmojiPicker onEmojiClick={addEmoji} searchDisabled skinTonesDisabled lazyLoadEmojis width="100%" />
               </Suspense>
             </div>
@@ -516,28 +402,7 @@ export const CreatePost = memo(function CreatePost({
                 </div>
                 <button type="button" onClick={() => removeMedia()} className="icon-btn text-xs text-[var(--color-accent)] hover:bg-[rgba(var(--color-accent-rgb),0.1)] px-3 py-1.5 rounded-lg transition-colors">Remove All</button>
               </div>
-              <div className={cn(
-                "grid gap-2 rounded-xl overflow-hidden",
-                formData.mediaUrls.length === 1 ? "grid-cols-1" : 
-                formData.mediaUrls.length === 2 ? "grid-cols-2" :
-                formData.mediaUrls.length <= 4 ? "grid-cols-2" : "grid-cols-3"
-              )}>
-                {formData.mediaUrls.map((url, index) => (
-                  <div key={index} className="relative group animate-pop-in" style={{ animationDelay: `${index * 0.05}s` }}>
-                    <img src={url} alt={`Media ${index + 1}`} className="w-full h-24 object-cover rounded-lg border border-white/10 group-hover:border-[rgba(var(--color-accent-rgb),0.05)]0 transition-colors" />
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors rounded-lg" />
-                    <button
-                      type="button"
-                      onClick={() => removeMedia(index)}
-                      className="absolute top-2 right-2 bg-[rgba(var(--color-accent-rgb),0.9)] text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 scale-90 group-hover:scale-100 transition-all"
-                    >
-                      <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none">
-                        <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
-                      </svg>
-                    </button>
-                  </div>
-                ))}
-              </div>
+              <ComposerMediaGrid mediaUrls={formData.mediaUrls} onRemove={removeMedia} />
             </div>
           )}
 
@@ -569,37 +434,13 @@ export const CreatePost = memo(function CreatePost({
           {/* Poll */}
           {showPoll && (
             <div className="animate-slide-down">
-              <Suspense fallback={<LoadingPlaceholder height="h-48" />}>
+              <Suspense fallback={<ComposerLoadingPlaceholder height="h-48" />}>
                 <CreatePoll onSubmit={(data) => { setPollData(data); setShowPoll(false); }} onCancel={() => { setShowPoll(false); setPollData(null); }} />
               </Suspense>
             </div>
           )}
 
-          {pollData && !showPoll && (
-            <div className="animate-pop-in p-4 bg-gradient-to-r from-[rgba(var(--color-accent-rgb),0.1)] to-cyan-500/10 border border-[rgba(var(--color-accent-rgb),0.3)] rounded-xl">
-              <div className="flex items-start justify-between">
-                <div className="flex items-start gap-3">
-                  <div className="p-2 bg-[rgba(var(--color-accent-rgb),0.2)] rounded-lg mt-0.5">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-[var(--color-accent)]">
-                      <path d="M9 12l2 2 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
-                    </svg>
-                  </div>
-                  <div>
-                    <div className="font-medium text-white">{pollData.question}</div>
-                    <div className="text-xs text-[var(--muted-foreground)] mt-1">
-                      {pollData.options.length} options • {pollData.isMultiple ? "Multiple choice" : "Single choice"}
-                    </div>
-                  </div>
-                </div>
-                <button type="button" onClick={() => setPollData(null)} className="icon-btn p-2 text-[var(--color-accent)] hover:bg-[rgba(var(--color-accent-rgb),0.1)] rounded-lg">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                    <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                  </svg>
-                </button>
-              </div>
-            </div>
-          )}
+          {pollData && !showPoll && <ComposerPollSummary pollData={pollData} onRemove={() => setPollData(null)} />}
 
           {/* Submit Buttons */}
           <div className="flex justify-end items-center gap-3 pt-4 border-t border-white/5">
@@ -631,3 +472,4 @@ export const CreatePost = memo(function CreatePost({
     </>
   );
 });
+

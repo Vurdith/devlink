@@ -3,58 +3,11 @@ import PostDetail from "@/components/feed/PostDetail";
 import { CreatePost } from "@/components/feed/CreatePost";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-
-interface PostPagePost {
-  id: string;
-  content: string;
-  createdAt: Date;
-  updatedAt: Date;
-  userId: string;
-  location?: string | null;
-  embedUrls?: string | string[] | null;
-  isScheduled?: boolean;
-  scheduledFor?: Date | null;
-  user: {
-    id: string;
-    username: string;
-    name: string | null;
-    profile: {
-      avatarUrl: string | null;
-      bannerUrl: string | null;
-      profileType: string;
-      verified: boolean;
-      bio: string | null;
-      website: string | null;
-      location: string | null;
-    } | null;
-    _count?: { followers: number; following: number };
-  };
-  media: Array<{ id: string; mediaUrl: string; mediaType: string; order: number }>;
-  isSlideshow: boolean;
-  isPinned: boolean;
-  views: number;
-  likes?: Array<{ id: string; userId: string }>;
-  reposts?: Array<{ id: string; userId: string }>;
-  savedBy?: Array<{ id: string; userId: string }>;
-  replies?: Array<{ id: string; userId: string }>;
-  isLiked?: boolean;
-  isReposted?: boolean;
-  isSaved?: boolean;
-  _count?: { likes: number; reposts: number; replies?: number };
-  poll?: {
-    id: string;
-    question: string;
-    options: Array<{ id: string; text: string; votes: number; isSelected?: boolean }>;
-    isMultiple: boolean;
-    expiresAt: Date | null;
-    totalVotes: number;
-  };
-  replyTo?: { id: string; user: { username: string } };
-}
+import type { FeedPost } from "@/types/post";
 
 interface PostPageContentProps {
-  post: PostPagePost;
-  replies: PostPagePost[];
+  post: FeedPost;
+  replies: FeedPost[];
   currentUserId?: string;
   currentUserProfile?: {
     avatarUrl: string | null;

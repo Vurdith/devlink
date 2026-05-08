@@ -1,17 +1,17 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { PostFeed } from "@/components/feed/PostFeed";
 import { ReviewsSection } from "@/components/reviews/ReviewsSection";
 import { PortfolioEditor } from "@/components/portfolio/PortfolioEditor";
-import { Button } from "@/components/ui/Button";
 import { useToast } from "@/hooks/useToast";
 import type { PortfolioItem } from "@/types/api";
 import { ProfileTabNavigation } from "./ProfileTabNavigation";
+import { ProfileTabError, ProfileTabLoadingSkeleton } from "./ProfileTabFeedback";
 import { ProfileAboutTab } from "./ProfileAboutTab";
-import { ProfileRepliesTab, EmptyState } from "./ProfileRepliesTab";
 import { ProfilePortfolioTab } from "./ProfilePortfolioTab";
+import { ProfilePostsTab } from "./ProfilePostsTab";
 import { type UserSkill } from "./ExpandableSkillCard";
+import { getProfileTabs } from "./profile-tab-config";
 import type { TabType, TabPost } from "./profile-types";
 
 interface ProfileData {
@@ -69,155 +69,7 @@ export function ProfileTabs({
   const POSTS_PER_PAGE = 20;
   const isOwner = currentUserId === userId;
 
-  const tabs = [
-    ...(hasAboutContent
-      ? [
-          {
-            id: "about" as TabType,
-            label: "About",
-            icon: (
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-            ),
-          },
-        ]
-      : []),
-    {
-      id: "posts" as TabType,
-      label: "Posts",
-      icon: (
-        <svg
-          className="w-4 h-4"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-          />
-        </svg>
-      ),
-    },
-    {
-      id: "replies" as TabType,
-      label: "Replies",
-      icon: (
-        <svg
-          className="w-4 h-4"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-          />
-        </svg>
-      ),
-    },
-    {
-      id: "reposts" as TabType,
-      label: "Reposts",
-      icon: (
-        <svg
-          className="w-4 h-4"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-          />
-        </svg>
-      ),
-    },
-    {
-      id: "liked" as TabType,
-      label: "Liked",
-      icon: (
-        <svg
-          className="w-4 h-4"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-          />
-        </svg>
-      ),
-    },
-    {
-      id: "saved" as TabType,
-      label: "Saved",
-      icon: (
-        <svg
-          className="w-4 h-4"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
-          />
-        </svg>
-      ),
-      private: true,
-    },
-    {
-      id: "portfolio" as TabType,
-      label: "Portfolio",
-      icon: (
-        <svg
-          className="w-4 h-4"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
-          />
-        </svg>
-      ),
-    },
-    {
-      id: "reviews" as TabType,
-      label: "Reviews",
-      icon: (
-        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-        </svg>
-      ),
-    },
-  ];
+  const tabs = getProfileTabs(Boolean(hasAboutContent));
 
   const fetchPosts = useCallback(
     async (
@@ -309,7 +161,6 @@ export function ProfileTabs({
       } catch (error) {
         const errorMessage =
           error instanceof Error ? error.message : "Failed to load posts";
-        console.error(`Error fetching ${tabType}:`, error);
         setError(errorMessage);
         toast({
           title: "Error",
@@ -323,7 +174,7 @@ export function ProfileTabs({
     [userId, toast]
   );
 
-  const fetchPortfolio = async () => {
+  const fetchPortfolio = useCallback(async () => {
     setLoading(true);
     try {
       const endpoint = isOwner
@@ -335,12 +186,11 @@ export function ProfileTabs({
         const data = await response.json();
         setPortfolioItems(data.portfolioItems || []);
       }
-    } catch (error) {
-      console.error("Error fetching portfolio:", error);
+    } catch {
     } finally {
       setLoading(false);
     }
-  };
+  }, [isOwner, userId]);
 
   const handlePostUpdate = useCallback(
     (updatedPostInput: unknown) => {
@@ -418,7 +268,7 @@ export function ProfileTabs({
     } else {
       fetchPosts(activeTab, 1, false, false);
     }
-  }, [activeTab, userId, fetchPosts]);
+  }, [activeTab, userId, fetchPosts, fetchPortfolio]);
 
   useEffect(() => {
     const handleEngagementUpdate = (event: CustomEvent) => {
@@ -625,31 +475,7 @@ export function ProfileTabs({
 
       <div className="min-h-[400px]">
         {loading ? (
-          <div className="space-y-4 animate-pulse">
-            {[1, 2, 3].map((i) => (
-              <div
-                key={i}
-                className="relative overflow-hidden glass-soft rounded-xl border border-white/10 p-4"
-              >
-                <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 rounded-full bg-white/10" />
-                  <div className="flex-1 space-y-2">
-                    <div className="flex gap-2">
-                      <div className="h-4 w-24 bg-white/10 rounded" />
-                      <div className="h-4 w-16 bg-white/5 rounded" />
-                    </div>
-                    <div className="h-4 w-full bg-white/10 rounded" />
-                    <div className="h-4 w-3/4 bg-white/10 rounded" />
-                    <div className="flex gap-4 mt-3">
-                      <div className="h-4 w-12 bg-white/5 rounded" />
-                      <div className="h-4 w-12 bg-white/5 rounded" />
-                      <div className="h-4 w-12 bg-white/5 rounded" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+          <ProfileTabLoadingSkeleton />
         ) : activeTab === "about" ? (
           <ProfileAboutTab skills={skills} profileData={profileData} />
         ) : activeTab === "portfolio" ? (
@@ -665,29 +491,7 @@ export function ProfileTabs({
             onDeleteItem={handleDeletePortfolioItem}
           />
         ) : error ? (
-          <div className="rounded-lg bg-[rgba(var(--color-accent-rgb),0.1)] border border-[rgba(var(--color-accent-rgb),0.2)] p-4 mb-4">
-            <div className="flex items-start gap-3">
-              <svg
-                className="w-5 h-5 text-[var(--color-accent)] mt-0.5 flex-shrink-0"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              <div>
-                <h3 className="font-medium text-[var(--color-accent)]">
-                  Failed to load {activeTab}
-                </h3>
-                <p className="text-sm text-[var(--color-accent)]/80 mt-1">
-                  {error}
-                </p>
-              </div>
-            </div>
-          </div>
+          <ProfileTabError activeTab={activeTab} error={error} />
         ) : activeTab === "reviews" ? (
           <ReviewsSection
             targetUserId={userId}
@@ -695,8 +499,9 @@ export function ProfileTabs({
             currentUserId={currentUserId}
             canReview={true}
           />
-        ) : activeTab === "replies" && posts.length > 0 ? (
-          <ProfileRepliesTab
+        ) : (
+          <ProfilePostsTab
+            activeTab={activeTab}
             posts={posts}
             currentUserId={currentUserId}
             hasMore={hasMore}
@@ -707,34 +512,8 @@ export function ProfileTabs({
             }}
             onUpdate={handlePostUpdate}
             session={session}
+            emptyIcon={renderEmptyIcon()}
           />
-        ) : posts.length > 0 ? (
-          <div>
-            <PostFeed
-              posts={posts}
-              currentUserId={currentUserId}
-              hidePinnedIndicator={false}
-              onUpdate={handlePostUpdate}
-              session={session}
-            />
-            {hasMore && (
-              <div className="text-center pt-8">
-                <Button
-                  onClick={() => {
-                    setCurrentPage((prev) => prev + 1);
-                    fetchPosts(activeTab, currentPage + 1, true);
-                  }}
-                  disabled={loading}
-                  variant="secondary"
-                  size="lg"
-                >
-                  {loading ? "Loading..." : "Load More"}
-                </Button>
-              </div>
-            )}
-          </div>
-        ) : (
-          <EmptyState tab={activeTab} icon={renderEmptyIcon()} />
         )}
       </div>
 

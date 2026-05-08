@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/server/db";
 import { getAuthSession } from "@/server/auth";
-import { getUniqueViewCounts } from "@/lib/view-utils";
+import { attachPostEngagement, fetchPostEngagementSummary, getPostPollIds } from "@/server/posts/post-engagement";
+import { repliedPostListSelect } from "@/server/posts/post-selects";
 
 // NO server-side caching for user content tabs - they need real-time accuracy
 
@@ -23,87 +24,23 @@ export async function GET(
     const repliedPosts = await prisma.post.findMany({
       where: {
         replyToId: { not: null },
-        userId: userId
+        userId
       },
       skip,
       take: limit,
       orderBy: { createdAt: 'desc' },
-      select: {
-        id: true,
-        content: true,
-        createdAt: true,
-        updatedAt: true,
-        isPinned: true,
-        isSlideshow: true,
-        location: true,
-        embedUrls: true,
-        user: {
-          select: {
-            id: true,
-            username: true,
-            name: true,
-            profile: {
-              select: {
-                avatarUrl: true,
-                profileType: true,
-                verified: true,
-              }
-            },
-            _count: { select: { followers: true, following: true } }
-          }
-        },
-        _count: { select: { likes: true, reposts: true, replies: true } },
-        media: { select: { id: true, mediaUrl: true, mediaType: true, order: true }, orderBy: { order: 'asc' } },
-        replyTo: {
-          select: {
-            id: true,
-            content: true,
-            user: {
-              select: {
-                id: true,
-                username: true,
-                name: true,
-                profile: { select: { avatarUrl: true, verified: true } }
-              }
-            }
-          }
-        },
-      }
+      select: repliedPostListSelect
     });
 
     const postIds = repliedPosts.map(p => p.id);
-    
-    const [viewCountMap, userLikes, userReposts, userSaves] = await Promise.all([
-      getUniqueViewCounts(postIds),
-      currentUserId ? prisma.postLike.findMany({
-        where: { postId: { in: postIds }, userId: currentUserId },
-        select: { postId: true }
-      }) : [],
-      currentUserId ? prisma.postRepost.findMany({
-        where: { postId: { in: postIds }, userId: currentUserId },
-        select: { postId: true }
-      }) : [],
-      currentUserId ? prisma.savedPost.findMany({
-        where: { postId: { in: postIds }, userId: currentUserId },
-        select: { postId: true }
-      }) : []
-    ]);
-    
-    const likedSet = new Set(userLikes.map(l => l.postId));
-    const repostedSet = new Set(userReposts.map(r => r.postId));
-    const savedSet = new Set(userSaves.map(s => s.postId));
-
-    const transformedPosts = repliedPosts.map((post) => ({
-      ...post,
-      views: viewCountMap.get(post.id) || 0,
-      isLiked: likedSet.has(post.id),
-      isReposted: repostedSet.has(post.id),
-      isSaved: savedSet.has(post.id),
-      likes: [],
-      reposts: [],
-      savedBy: [],
-      replies: Array(post._count?.replies || 0).fill(null),
-    }));
+    const engagementSummary = await fetchPostEngagementSummary(
+      postIds,
+      currentUserId,
+      getPostPollIds(repliedPosts)
+    );
+    const transformedPosts = repliedPosts.map((post) =>
+      attachPostEngagement(post, engagementSummary)
+    );
     
     // Return fresh data without caching
     return NextResponse.json({ posts: transformedPosts }, {

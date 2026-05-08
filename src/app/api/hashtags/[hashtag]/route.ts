@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/server/db";
-import { getUniqueViewCounts } from "@/lib/view-utils";
 import { responseCache } from "@/server/cache";
 import { getAuthSession } from "@/server/auth";
+import { attachPostEngagement, fetchPostEngagementSummary, getPostPollIds } from "@/server/posts/post-engagement";
+import { postListSelect } from "@/server/posts/post-selects";
 
 const HASHTAG_CACHE_TTL = 60; // Cache for 60 seconds
 
@@ -57,94 +58,19 @@ export async function GET(
         orderBy: { createdAt: "desc" },
         skip,
         take: limit,
-        select: {
-          id: true,
-          content: true,
-          createdAt: true,
-          updatedAt: true,
-          isPinned: true,
-          isSlideshow: true,
-          location: true,
-          embedUrls: true,
-          user: {
-            select: {
-              id: true,
-              username: true,
-              name: true,
-              profile: {
-                select: {
-                  avatarUrl: true,
-                  profileType: true,
-                  verified: true,
-                }
-              },
-              _count: { select: { followers: true, following: true } }
-            }
-          },
-          _count: { select: { likes: true, reposts: true, replies: true } },
-          media: { select: { id: true, mediaUrl: true, mediaType: true, order: true }, orderBy: { order: 'asc' } },
-          poll: {
-            select: {
-              id: true,
-              question: true,
-              expiresAt: true,
-              isMultiple: true,
-              options: { select: { id: true, text: true, _count: { select: { votes: true } } } }
-            }
-          },
-        }
+        select: postListSelect
       })
     ]);
 
     const postIds = posts.map((post) => post.id);
-    
-    // Batch fetch all engagement data in parallel
-    const [viewCountMap, userLikes, userReposts, userSaves] = await Promise.all([
-      getUniqueViewCounts(postIds),
-      currentUserId ? prisma.postLike.findMany({
-        where: { postId: { in: postIds }, userId: currentUserId },
-        select: { postId: true }
-      }) : Promise.resolve([]),
-      currentUserId ? prisma.postRepost.findMany({
-        where: { postId: { in: postIds }, userId: currentUserId },
-        select: { postId: true }
-      }) : Promise.resolve([]),
-      currentUserId ? prisma.savedPost.findMany({
-        where: { postId: { in: postIds }, userId: currentUserId },
-        select: { postId: true }
-      }) : Promise.resolve([])
-    ]);
-    
-    const likedPostIds = new Set(userLikes.map(l => l.postId));
-    const repostedPostIds = new Set(userReposts.map(r => r.postId));
-    const savedPostIds = new Set(userSaves.map(s => s.postId));
-
-    const finalPosts = posts.map((post) => {
-      const poll = post.poll
-        ? {
-            ...post.poll,
-            options: post.poll.options.map((option) => ({
-              id: option.id,
-              text: option.text,
-              votes: option._count.votes,
-            })),
-            totalVotes: post.poll.options.reduce((sum: number, option) => sum + option._count.votes, 0),
-          }
-        : null;
-
-      return {
-        ...post,
-        views: viewCountMap.get(post.id) || 0,
-        isLiked: likedPostIds.has(post.id),
-        isReposted: repostedPostIds.has(post.id),
-        isSaved: savedPostIds.has(post.id),
-        poll,
-        // Add counts for UI
-        likes: [],
-        reposts: [],
-        replies: Array(post._count?.replies || 0).fill(null),
-      };
-    });
+    const engagementSummary = await fetchPostEngagementSummary(
+      postIds,
+      currentUserId,
+      getPostPollIds(posts)
+    );
+    const finalPosts = posts.map((post) =>
+      attachPostEngagement(post, engagementSummary)
+    );
 
     const result = {
       posts: finalPosts,

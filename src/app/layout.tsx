@@ -32,8 +32,8 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "DevLink – Roblox Developer Network",
-    template: "%s – DevLink",
+    default: "DevLink - Roblox Developer Network",
+    template: "%s - DevLink",
   },
   description: "Portfolios, projects, and collaborations for Roblox developers, clients, and creators.",
   metadataBase: new URL("https://devlink.ink"),
@@ -56,7 +56,7 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: "https://devlink.ink",
     siteName: "DevLink",
-    title: "DevLink – Roblox Developer Network",
+    title: "DevLink - Roblox Developer Network",
     description: "The premier professional network for Roblox developers, clients, studios, and influencers. Showcase your work, find collaborators, and grow your network.",
     images: [
       {
@@ -70,7 +70,7 @@ export const metadata: Metadata = {
   // Twitter Card meta tags
   twitter: {
     card: "summary_large_image",
-    title: "DevLink – Roblox Developer Network",
+    title: "DevLink - Roblox Developer Network",
     description: "The premier professional network for Roblox developers, clients, studios, and influencers.",
     images: ["/logo/logo.png"],
     creator: "@devlink",

@@ -142,7 +142,7 @@ export function processCursorResult<T extends { id: string; createdAt: Date | st
  * Convert offset pagination to cursor pagination
  * Useful for migration from old pagination method
  */
-export function offsetToCursor(offset: number, _limit: number): string {
+export function offsetToCursor(offset: number): string {
   // For compatibility, we use offset as the "cursor"
   // In production, you'd want to actually fetch the item at that offset
   const cursorData = offset.toString();

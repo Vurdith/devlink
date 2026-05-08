@@ -12,11 +12,6 @@ interface Particle {
   color: string;
 }
 
-interface Connection {
-  from: number;
-  to: number;
-}
-
 export function NeonCircuitHero() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const particlesRef = useRef<Particle[]>([]);

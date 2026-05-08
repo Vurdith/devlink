@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { createLogger } from "@/server/logger";
+
+const logger = createLogger("web-vitals");
 
 export function reportWebVitals(metric: {
   name: string;
@@ -89,7 +92,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const body = await request.json();
     const { name, value, id, page } = body;
 
-    console.log(`[Web Vitals] ${name}: ${value}ms (${id}) on ${page}`);
+    logger.info({ name, value, id, page }, "Web vital received");
 
     return NextResponse.json({ success: true });
   } catch {

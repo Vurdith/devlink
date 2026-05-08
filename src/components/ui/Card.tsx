@@ -12,20 +12,20 @@ interface CardProps extends HTMLAttributes<HTMLDivElement> {
 export const Card = forwardRef<HTMLDivElement, CardProps>(
   ({ className, variant = "default", hover = false, glow = false, children, ...props }, ref) => {
     const variants = {
-      default: "glass border border-[var(--color-accent)]/10",
-      elevated: "glass border border-[var(--color-accent)]/20 shadow-xl shadow-[var(--color-accent)]/10",
-      bordered: "glass border border-[var(--color-accent)]/20",
-      gradient: "glass border border-[var(--color-accent)]/30 bg-gradient-to-br from-[var(--color-accent)]/10 via-transparent to-[var(--color-accent)]/5",
+      default: "glass border border-[var(--line-soft)]",
+      elevated: "glass border border-[var(--line-strong)] shadow-[var(--shadow-soft)]",
+      bordered: "glass border border-[var(--line-soft)]",
+      gradient: "glass border border-[rgba(var(--color-accent-2-rgb),0.22)] bg-[linear-gradient(135deg,rgba(var(--color-accent-rgb),0.10),transparent_44%,rgba(var(--color-accent-2-rgb),0.06))]",
     };
 
     return (
       <div
         ref={ref}
         className={cn(
-          "rounded-2xl p-6 transition-all duration-200",
+          "rounded-xl p-5 sm:p-6 transition-all duration-200",
           variants[variant],
-          hover && "hover:bg-[var(--color-accent)]/[0.08] hover:border-[var(--color-accent)]/30 hover:-translate-y-1 cursor-pointer",
-          glow && "shadow-lg shadow-[var(--color-accent)]/20",
+          hover && "hover:bg-white/[0.045] hover:border-[rgba(var(--color-accent-2-rgb),0.22)] hover:-translate-y-0.5 cursor-pointer",
+          glow && "shadow-[0_14px_42px_rgba(var(--color-accent-rgb),0.16)]",
           className
         )}
         {...props}
@@ -54,7 +54,7 @@ export function CardTitle({ className, ...props }: HTMLAttributes<HTMLHeadingEle
   return (
     <h3 
       className={cn(
-        "text-lg font-semibold text-white font-[var(--font-space-grotesk)]",
+        "text-lg font-semibold text-white font-[var(--font-space-grotesk)] tracking-tight",
         className
       )} 
       {...props} 
@@ -90,7 +90,7 @@ export function CardFooter({ className, ...props }: HTMLAttributes<HTMLDivElemen
   return (
     <div 
       className={cn(
-        "mt-4 pt-4 border-t border-[var(--color-accent)]/20 flex items-center justify-between",
+        "mt-4 pt-4 border-t border-white/10 flex items-center justify-between",
         className
       )} 
       {...props} 
@@ -112,7 +112,7 @@ export function FeatureCard({
 }) {
   return (
     <Card hover variant="bordered" className={cn("group", className)} {...props}>
-      <div className="mb-4 inline-flex p-3 rounded-xl bg-[var(--color-accent)]/15 text-[var(--color-accent)] group-hover:bg-[var(--color-accent)]/25 transition-colors">
+      <div className="mb-4 inline-flex p-3 rounded-lg bg-[rgba(var(--color-accent-2-rgb),0.10)] text-[var(--color-accent-2)] border border-[rgba(var(--color-accent-2-rgb),0.16)] group-hover:bg-[rgba(var(--color-accent-2-rgb),0.14)] transition-colors">
         {icon}
       </div>
       <CardTitle>{title}</CardTitle>
@@ -160,7 +160,7 @@ export function StatCard({
           )}
         </div>
         {icon && (
-          <div className="p-3 rounded-xl bg-[var(--color-accent)]/15 text-[var(--color-accent)]">
+          <div className="p-3 rounded-lg bg-[rgba(var(--color-accent-2-rgb),0.10)] text-[var(--color-accent-2)] border border-[rgba(var(--color-accent-2-rgb),0.16)]">
             {icon}
           </div>
         )}

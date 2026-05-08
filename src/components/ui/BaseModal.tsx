@@ -3,72 +3,8 @@
 import { useEffect, useState, useCallback, ReactNode, memo, useRef, useId } from "react";
 import { createPortal } from "react-dom";
 import { cn } from "@/lib/cn";
-
-// Focus trap hook for modal accessibility
-function useFocusTrap(isOpen: boolean) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const previousActiveElement = useRef<HTMLElement | null>(null);
-
-  useEffect(() => {
-    if (!isOpen) return;
-
-    // Store the previously focused element
-    previousActiveElement.current = document.activeElement as HTMLElement;
-
-    const container = containerRef.current;
-    if (!container) return;
-
-    // Find all focusable elements
-    const getFocusableElements = () => {
-      return container.querySelectorAll<HTMLElement>(
-        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-      );
-    };
-
-    // Focus the first focusable element or the container
-    const focusableElements = getFocusableElements();
-    if (focusableElements.length > 0) {
-      focusableElements[0].focus();
-    } else {
-      container.focus();
-    }
-
-    // Handle tab key to trap focus
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key !== 'Tab') return;
-
-      const focusable = getFocusableElements();
-      if (focusable.length === 0) return;
-
-      const firstElement = focusable[0];
-      const lastElement = focusable[focusable.length - 1];
-
-      if (e.shiftKey) {
-        // Shift + Tab
-        if (document.activeElement === firstElement) {
-          e.preventDefault();
-          lastElement.focus();
-        }
-      } else {
-        // Tab
-        if (document.activeElement === lastElement) {
-          e.preventDefault();
-          firstElement.focus();
-        }
-      }
-    };
-
-    container.addEventListener('keydown', handleKeyDown);
-
-    return () => {
-      container.removeEventListener('keydown', handleKeyDown);
-      // Restore focus to previously focused element
-      previousActiveElement.current?.focus();
-    };
-  }, [isOpen]);
-
-  return containerRef;
-}
+import { useBodyScrollLock } from "./useBodyScrollLock";
+import { useFocusTrap } from "./useFocusTrap";
 
 // Portal-based Tooltip component - won't clip at container boundaries
 export const Tooltip = memo(function Tooltip({ 
@@ -254,17 +190,7 @@ export const BaseModal = memo(function BaseModal({
     setMounted(true);
   }, []);
 
-  // Prevent body scroll when modal is open
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, [isOpen]);
+  useBodyScrollLock(isOpen);
 
   // Close on escape key
   useEffect(() => {

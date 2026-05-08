@@ -464,7 +464,7 @@ export function setRequestContext(request: Request) {
 // EXPORTS
 // ============================================================================
 
-export default {
+const performanceMonitoring = {
   withSpan,
   withSpanSync,
   perf,
@@ -475,4 +475,6 @@ export default {
   setUserContext,
   setRequestContext,
 };
+
+export default performanceMonitoring;
 

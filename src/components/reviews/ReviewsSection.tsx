@@ -86,7 +86,10 @@ export const ReviewsSection = memo(function ReviewsSection({ targetUserId, targe
     fetchReviews();
   };
 
-  const handleEditReview = (_reviewId: string) => {
+  const handleEditReview = (reviewId: string) => {
+    const review = reviews.find((item) => item.id === reviewId);
+    if (!review) return;
+    setShowCreateForm(true);
   };
 
   const handleDeleteReview = (reviewId: string) => {

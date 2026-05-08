@@ -27,7 +27,7 @@ export function MessagesSidebar() {
 
   const [threads, setThreads] = useState<MessageThread[]>([]);
   const [incomingRequests, setIncomingRequests] = useState<MessageRequest[]>([]);
-  const [_outgoingRequests, setOutgoingRequests] = useState<MessageRequest[]>([]);
+  const [, setOutgoingRequests] = useState<MessageRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState<"inbox" | "requests">("inbox");

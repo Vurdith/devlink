@@ -1,9 +1,11 @@
 "use client";
 
-import { useState, useCallback, memo, useRef, useEffect } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { BaseModal, Tooltip } from "@/components/ui/BaseModal";
 import { Button } from "@/components/ui/Button";
 import type { PortfolioItem } from "@/types/api";
+import { LinkItem, MediaPreview, MediaUrlItem, TagItem } from "./PortfolioEditorItems";
+import { extractPortfolioSkillIds, parsePortfolioListField } from "./portfolio-editor-utils";
 
 interface PortfolioEditorProps {
   isOpen: boolean;
@@ -18,91 +20,6 @@ interface PortfolioEditorProps {
   }>;
 }
 
-// Memoized list item components for better performance - removes re-renders
-const MediaUrlItem = memo(function MediaUrlItem({ url, idx, onRemove }: { url: string; idx: number; onRemove: (idx: number) => void }) {
-  return (
-    <div className="flex items-center gap-2 px-2.5 py-1.5 bg-white/5 rounded-lg group hover:bg-white/10">
-      <span className="text-[11px] text-white/50 truncate flex-1">{url}</span>
-      <Tooltip content="Remove media">
-        <button
-          type="button"
-          onClick={() => onRemove(idx)}
-          className="p-0.5 text-[var(--color-accent)] hover:bg-[var(--color-accent)]/20 rounded opacity-0 group-hover:opacity-100"
-        >
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-            <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-          </svg>
-        </button>
-      </Tooltip>
-    </div>
-  );
-});
-
-const LinkItem = memo(function LinkItem({ link, idx, onRemove }: { link: string; idx: number; onRemove: (idx: number) => void }) {
-  return (
-    <div className="flex items-center gap-2 px-2.5 py-1.5 bg-white/5 rounded-lg group hover:bg-white/10">
-      <span className="text-[11px] text-white/50 truncate flex-1">{link}</span>
-      <Tooltip content="Remove link">
-        <button
-          type="button"
-          onClick={() => onRemove(idx)}
-          className="p-0.5 text-[var(--color-accent)] hover:bg-[var(--color-accent)]/20 rounded opacity-0 group-hover:opacity-100"
-        >
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-            <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-          </svg>
-        </button>
-      </Tooltip>
-    </div>
-  );
-});
-
-const TagItem = memo(function TagItem({ tag, idx, onRemove }: { tag: string; idx: number; onRemove: (idx: number) => void }) {
-  return (
-    <div className="flex items-center gap-1 px-2 py-1 bg-[var(--color-accent)]/15 text-[var(--color-accent)] rounded-full border border-[var(--color-accent)]/30 group hover:border-[var(--color-accent)]/50">
-      <span className="text-[10px] font-medium">#{tag}</span>
-      <Tooltip content="Remove tag">
-        <button
-          type="button"
-          onClick={() => onRemove(idx)}
-          className="p-0.5 text-[var(--color-accent)] hover:bg-[var(--color-accent)]/30 rounded-full opacity-0 group-hover:opacity-100"
-        >
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none">
-            <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
-          </svg>
-        </button>
-      </Tooltip>
-    </div>
-  );
-});
-
-const MediaPreview = memo(function MediaPreview({ url, idx, onRemove }: { url: string; idx: number; onRemove: (idx: number) => void }) {
-  return (
-    <div className="relative group">
-      <div className="aspect-square rounded-lg overflow-hidden bg-white/5">
-        <img
-          src={url}
-          alt={`Preview ${idx + 1}`}
-          className="w-full h-full object-cover"
-          loading="lazy"
-          onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
-        />
-      </div>
-      <Tooltip content="Remove">
-        <button
-          type="button"
-          onClick={() => onRemove(idx)}
-          className="absolute top-1 right-1 p-1 bg-black/70 text-white rounded-md opacity-0 group-hover:opacity-100 hover:bg-[var(--color-accent)]"
-        >
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none">
-            <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
-          </svg>
-        </button>
-      </Tooltip>
-    </div>
-  );
-});
-
 export function PortfolioEditor({
   isOpen,
   onClose,
@@ -115,20 +32,10 @@ export function PortfolioEditor({
   const descriptionRef = useRef<HTMLTextAreaElement>(null);
   
   // Only use state for dynamic arrays and UI state
-  const [links, setLinks] = useState(() => existingItem?.links ? existingItem.links.split(",").map((l: string) => l.trim()).filter(Boolean) : []);
-  const [mediaUrls, setMediaUrls] = useState(() => existingItem?.mediaUrls ? existingItem.mediaUrls.split(",").map((m: string) => m.trim()).filter(Boolean) : []);
-  const [tags, setTags] = useState(() => existingItem?.tags ? existingItem.tags.split(",").map((t: string) => t.trim()).filter(Boolean) : []);
-  const [selectedSkillIds, setSelectedSkillIds] = useState<string[]>(() => {
-    const skills = existingItem?.skills;
-    if (!Array.isArray(skills)) return [];
-    return Array.from(
-      new Set(
-        skills
-          .map((s) => s?.skill?.id ?? (s as { skillId?: string })?.skillId)
-          .filter((id): id is string => typeof id === "string")
-      )
-    );
-  });
+  const [links, setLinks] = useState(() => parsePortfolioListField(existingItem?.links));
+  const [mediaUrls, setMediaUrls] = useState(() => parsePortfolioListField(existingItem?.mediaUrls));
+  const [tags, setTags] = useState(() => parsePortfolioListField(existingItem?.tags));
+  const [selectedSkillIds, setSelectedSkillIds] = useState<string[]>(() => extractPortfolioSkillIds(existingItem));
   const [skillSearch, setSkillSearch] = useState("");
   const [isPublic, setIsPublic] = useState(existingItem?.isPublic ?? true);
   const [loading, setLoading] = useState(false);
@@ -142,36 +49,6 @@ export function PortfolioEditor({
   const newLinkRef = useRef<HTMLInputElement>(null);
   const newTagRef = useRef<HTMLInputElement>(null);
 
-  const parseListField = useCallback((value: unknown): string[] => {
-    if (!value || typeof value !== "string") return [];
-    const raw = value.trim();
-    if (!raw) return [];
-    // Support accidental JSON storage (e.g. ["a","b"]) as well as comma separated.
-    if (raw.startsWith("[") && raw.endsWith("]")) {
-      try {
-        const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed)) {
-          return parsed.map((x) => String(x).trim()).filter(Boolean);
-        }
-      } catch {
-        // fall back to CSV
-      }
-    }
-    return raw
-      .split(",")
-      .map((x) => x.trim())
-      .filter(Boolean);
-  }, []);
-
-  const extractSkillIds = useCallback((item: PortfolioItem | null | undefined): string[] => {
-    const skills = item?.skills;
-    if (!Array.isArray(skills)) return [];
-    const ids = skills
-      .map((s) => s?.skill?.id ?? (s as { skillId?: string })?.skillId)
-      .filter((id): id is string => typeof id === "string");
-    return Array.from(new Set(ids));
-  }, []);
-
   // Re-hydrate the modal every time it opens or the item changes.
   // Without this, the initial useState/defaultValue only applies on first mount.
   useEffect(() => {
@@ -183,10 +60,10 @@ export function PortfolioEditor({
     if (titleRef.current) titleRef.current.value = item?.title ?? "";
     if (descriptionRef.current) descriptionRef.current.value = item?.description ?? "";
 
-    setLinks(parseListField(item?.links));
-    setMediaUrls(parseListField(item?.mediaUrls));
-    setTags(parseListField(item?.tags).map((t) => t.toLowerCase()));
-    setSelectedSkillIds(extractSkillIds(item));
+    setLinks(parsePortfolioListField(item?.links));
+    setMediaUrls(parsePortfolioListField(item?.mediaUrls));
+    setTags(parsePortfolioListField(item?.tags).map((t) => t.toLowerCase()));
+    setSelectedSkillIds(extractPortfolioSkillIds(item));
     setIsPublic(item?.isPublic ?? true);
 
     // reset transient UI bits
@@ -194,7 +71,7 @@ export function PortfolioEditor({
     setError("");
     setMediaInputMethod("url");
     setDragActive(false);
-  }, [isOpen, existingItem, parseListField, extractSkillIds]);
+  }, [isOpen, existingItem]);
 
   // Memoized callback functions to prevent re-creation on every render
   const handleDrag = useCallback((e: React.DragEvent) => {

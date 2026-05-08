@@ -7,46 +7,8 @@ import { OAuthButton } from "@/components/ui/OAuthButton";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useTheme } from "@/components/providers/ThemeProvider";
-
-// Password validation requirements
-const PASSWORD_REQUIREMENTS = [
-  { key: "length", label: "At least 8 characters", test: (p: string) => p.length >= 8 },
-  { key: "lowercase", label: "One lowercase letter", test: (p: string) => /[a-z]/.test(p) },
-  { key: "uppercase", label: "One uppercase letter", test: (p: string) => /[A-Z]/.test(p) },
-  { key: "number", label: "One number", test: (p: string) => /\d/.test(p) },
-];
-
-// Username validation
-const validateUsername = (username: string): { valid: boolean; error?: string } => {
-  const trimmed = username.trim().toLowerCase();
-  if (!trimmed) return { valid: false, error: "Username is required" };
-  if (trimmed.length < 3) return { valid: false, error: "At least 3 characters" };
-  if (trimmed.length > 30) return { valid: false, error: "Less than 30 characters" };
-  if (!/^[a-z0-9_]+$/.test(trimmed)) return { valid: false, error: "Only letters, numbers, underscores" };
-  if (trimmed.startsWith('_') || trimmed.endsWith('_')) return { valid: false, error: "Can't start/end with underscore" };
-  return { valid: true };
-};
-
-// Email validation
-const validateEmail = (email: string): { valid: boolean; error?: string } => {
-  const trimmed = email.trim();
-  if (!trimmed) return { valid: false, error: "Email is required" };
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) return { valid: false, error: "Invalid email format" };
-  if (trimmed.length > 254) return { valid: false, error: "Email too long" };
-  return { valid: true };
-};
-
-// Debounce hook
-function useDebounce<T>(value: T, delay: number): T {
-  const [debouncedValue, setDebouncedValue] = useState<T>(value);
-
-  useEffect(() => {
-    const handler = setTimeout(() => setDebouncedValue(value), delay);
-    return () => clearTimeout(handler);
-  }, [value, delay]);
-
-  return debouncedValue;
-}
+import { useDebounce } from "@/hooks/useDebounce";
+import { getPasswordStrength, getStrengthColor, PASSWORD_REQUIREMENTS, validateRegisterEmail, validateRegisterUsername } from "./register-validation";
 
 export default function RegisterPage() {
   const { logoPath } = useTheme();
@@ -75,7 +37,7 @@ export default function RegisterPage() {
   // Check username availability
   useEffect(() => {
     const checkUsername = async () => {
-      const validation = validateUsername(debouncedUsername);
+      const validation = validateRegisterUsername(debouncedUsername);
       
       if (!validation.valid) {
         if (debouncedUsername.trim()) {
@@ -114,21 +76,20 @@ export default function RegisterPage() {
   // Validate email on blur
   const handleEmailBlur = () => {
     if (email.trim()) {
-      const validation = validateEmail(email);
+      const validation = validateRegisterEmail(email);
       setEmailError(validation.valid ? null : validation.error || null);
     }
   };
 
   // Password strength calculation
-  const passedRequirements = PASSWORD_REQUIREMENTS.filter(req => req.test(password));
-  const passwordStrength = passedRequirements.length;
+  const passwordStrength = getPasswordStrength(password);
   const passwordValid = passwordStrength === PASSWORD_REQUIREMENTS.length;
   const passwordsMatch = password === confirmPassword;
 
   // Form validation
   const isFormValid = 
     usernameStatus === "available" &&
-    validateEmail(email).valid &&
+    validateRegisterEmail(email).valid &&
     passwordValid &&
     passwordsMatch &&
     confirmPassword.length > 0;
@@ -217,15 +178,6 @@ export default function RegisterPage() {
     return null;
   };
 
-  // Get password strength color
-  const getStrengthColor = () => {
-    if (passwordStrength === 0) return "bg-gray-600";
-    if (passwordStrength === 1) return "bg-[var(--color-accent)]";
-    if (passwordStrength === 2) return "bg-orange-500";
-    if (passwordStrength === 3) return "bg-yellow-500";
-    return "bg-emerald-500";
-  };
-
   // Get loading message
   const getLoadingMessage = () => {
     if (step === "registering") return "Creating your account...";
@@ -234,33 +186,13 @@ export default function RegisterPage() {
   };
 
   return (
-    <main className="min-h-screen flex items-center justify-center px-4 py-16 -m-6">
-      {/* Background decorations - CSS only */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div
-          className="absolute top-1/4 -left-32 w-96 h-96 rounded-full opacity-60 animate-float"
-          style={{ background: "radial-gradient(circle, rgba(var(--color-accent-rgb),0.22) 0%, transparent 70%)" }}
-        />
-        <div
-          className="absolute bottom-1/4 -right-32 w-96 h-96 rounded-full opacity-55 animate-float"
-          style={{
-            background: "radial-gradient(circle, rgba(var(--color-accent-2-rgb),0.18) 0%, transparent 70%)",
-            animationDelay: "-2s",
-          }}
-        />
-        <div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full opacity-35 animate-float"
-          style={{
-            background: "radial-gradient(circle, rgba(var(--color-accent-3-rgb),0.12) 0%, transparent 70%)",
-            animationDelay: "-1s",
-          }}
-        />
-      </div>
+    <main className="min-h-screen flex items-center justify-center px-4 py-14 -m-6">
+      <div className="fixed inset-0 pointer-events-none bg-[radial-gradient(circle_at_50%_18%,rgba(34,211,238,0.08),transparent_34%),linear-gradient(180deg,rgba(255,255,255,0.02),transparent_42%)]" />
 
       <div className="relative w-full max-w-md animate-fade-in">
         {/* Header */}
         <div className="text-center mb-8 animate-slide-down">
-          <Link href="/" className="inline-block mb-6 hover:scale-110 transition-transform">
+          <Link href="/" className="inline-block mb-6 transition-opacity hover:opacity-85">
             <Image
               src={logoPath}
               alt="DevLink"
@@ -279,7 +211,7 @@ export default function RegisterPage() {
         </div>
 
         {/* Form card */}
-        <div className="relative overflow-hidden glass noise-overlay rounded-2xl p-8 border border-white/10 animate-slide-up" style={{ animationDelay: '0.1s' }}>
+        <div className="relative overflow-hidden glass noise-overlay rounded-xl p-6 border border-white/[0.1] shadow-[var(--shadow-soft)] animate-slide-up sm:p-8" style={{ animationDelay: '0.1s' }}>
           <form onSubmit={onSubmit} className="space-y-5">
             {/* Username field */}
             <div>
@@ -294,12 +226,12 @@ export default function RegisterPage() {
                   id="username"
                   autoComplete="username"
                   placeholder="cooldev123"
-                  className={`w-full h-12 pl-11 pr-11 rounded-xl bg-white/5 border outline-none text-white placeholder:text-[var(--muted-foreground)] focus:bg-white/10 transition-all ${
+                  className={`w-full h-12 pl-11 pr-11 rounded-lg bg-white/[0.04] border outline-none text-white placeholder:text-[var(--muted-foreground)] focus:bg-white/[0.07] transition-all ${
                     usernameStatus === "available" 
                       ? "border-emerald-500/50 focus:border-emerald-500" 
                       : usernameStatus === "unavailable" && username.trim()
                         ? "border-[var(--color-accent)]/50 focus:border-[var(--color-accent)]"
-                        : "border-white/10 focus:border-[var(--accent)]"
+                        : "border-white/[0.1] focus:border-[rgba(var(--color-accent-2-rgb),0.55)]"
                   }`}
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
@@ -341,10 +273,10 @@ export default function RegisterPage() {
                   type="email"
                   autoComplete="email"
                   placeholder="you@example.com"
-                  className={`w-full h-12 pl-11 pr-4 rounded-xl bg-white/5 border outline-none text-white placeholder:text-[var(--muted-foreground)] focus:bg-white/10 transition-all ${
+                  className={`w-full h-12 pl-11 pr-4 rounded-lg bg-white/[0.04] border outline-none text-white placeholder:text-[var(--muted-foreground)] focus:bg-white/[0.07] transition-all ${
                     emailError 
                       ? "border-[var(--color-accent)]/50 focus:border-[var(--color-accent)]" 
-                      : "border-white/10 focus:border-[var(--accent)]"
+                      : "border-white/[0.1] focus:border-[rgba(var(--color-accent-2-rgb),0.55)]"
                   }`}
                   value={email}
                   onChange={(e) => {
@@ -381,7 +313,7 @@ export default function RegisterPage() {
                   type={showPassword ? "text" : "password"}
                   autoComplete="new-password"
                   placeholder="••••••••"
-                  className="w-full h-12 pl-11 pr-11 rounded-xl bg-white/5 border border-white/10 outline-none text-white placeholder:text-[var(--muted-foreground)] focus:border-[var(--accent)] focus:bg-white/10 transition-all"
+                  className="w-full h-12 pl-11 pr-11 rounded-lg bg-white/[0.04] border border-white/[0.1] outline-none text-white placeholder:text-[var(--muted-foreground)] focus:border-[rgba(var(--color-accent-2-rgb),0.55)] focus:bg-white/[0.07] transition-all"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   onFocus={() => setPasswordFocused(true)}
@@ -417,7 +349,7 @@ export default function RegisterPage() {
                       <div
                         key={i}
                         className={`h-1 flex-1 rounded-full transition-all ${
-                          i < passwordStrength ? getStrengthColor() : "bg-white/10"
+                          i < passwordStrength ? getStrengthColor(passwordStrength) : "bg-white/10"
                         }`}
                       />
                     ))}
@@ -470,12 +402,12 @@ export default function RegisterPage() {
                   type={showPassword ? "text" : "password"}
                   autoComplete="new-password"
                   placeholder="••••••••"
-                  className={`w-full h-12 pl-11 pr-11 rounded-xl bg-white/5 border outline-none text-white placeholder:text-[var(--muted-foreground)] focus:bg-white/10 transition-all ${
+                  className={`w-full h-12 pl-11 pr-11 rounded-lg bg-white/[0.04] border outline-none text-white placeholder:text-[var(--muted-foreground)] focus:bg-white/[0.07] transition-all ${
                     confirmPassword && !passwordsMatch
                       ? "border-[var(--color-accent)]/50 focus:border-[var(--color-accent)]"
                       : confirmPassword && passwordsMatch
                         ? "border-emerald-500/50 focus:border-emerald-500"
-                        : "border-white/10 focus:border-[var(--accent)]"
+                        : "border-white/[0.1] focus:border-[rgba(var(--color-accent-2-rgb),0.55)]"
                   }`}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
@@ -531,9 +463,9 @@ export default function RegisterPage() {
             {/* Terms */}
             <p className="text-xs text-[var(--muted-foreground)] text-center">
               By creating an account, you agree to our{" "}
-              <Link href="/terms" className="text-[var(--accent)] hover:underline">Terms of Service</Link>
+                <Link href="/terms" className="text-[var(--color-accent-2)] hover:underline">Terms of Service</Link>
               {" "}and{" "}
-              <Link href="/privacy" className="text-[var(--accent)] hover:underline">Privacy Policy</Link>
+                <Link href="/privacy" className="text-[var(--color-accent-2)] hover:underline">Privacy Policy</Link>
             </p>
           </form>
 
@@ -543,7 +475,7 @@ export default function RegisterPage() {
               <div className="w-full border-t border-white/10" />
             </div>
             <div className="relative flex justify-center">
-              <span className="bg-[var(--card)] px-4 text-xs text-[var(--muted-foreground)]">
+              <span className="bg-[var(--color-card)] px-4 text-xs text-[var(--muted-foreground)]">
                 or continue with
               </span>
             </div>
@@ -577,7 +509,7 @@ export default function RegisterPage() {
         {/* Sign in link */}
         <p className="text-center mt-6 text-[var(--muted-foreground)] animate-fade-in" style={{ animationDelay: '0.2s' }}>
           Already have an account?{" "}
-          <Link href="/login" className="text-[var(--accent)] hover:underline font-medium">
+          <Link href="/login" className="text-[var(--color-accent-2)] hover:underline font-medium">
             Sign in
           </Link>
         </p>

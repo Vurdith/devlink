@@ -19,8 +19,8 @@ export default async function SiteLockPage({ searchParams }: SiteLockPageProps) 
   const nextPath = sanitizeNextPath(params.next);
 
   return (
-    <main className="min-h-screen bg-[#0a0a0f] text-white flex items-center justify-center px-4">
-      <div className="w-full max-w-md rounded-2xl border border-white/10 bg-white/5 p-6 sm:p-8">
+    <main className="flex min-h-screen items-center justify-center px-4 text-white">
+      <div className="w-full max-w-md rounded-xl border border-white/[0.1] bg-[var(--color-card)] p-6 shadow-[var(--shadow-soft)] sm:p-8">
         <h1 className="text-2xl font-semibold tracking-tight">Site access restricted</h1>
         <p className="mt-2 text-sm text-white/70">
           Enter the temporary access password to continue.
@@ -36,7 +36,7 @@ export default async function SiteLockPage({ searchParams }: SiteLockPageProps) 
               name="password"
               required
               autoFocus
-              className="w-full rounded-lg border border-white/15 bg-black/30 px-3 py-2 text-white placeholder:text-white/40 outline-none focus:border-white/40"
+              className="w-full rounded-lg border border-white/[0.12] bg-white/[0.04] px-3 py-2 text-white placeholder:text-white/40 outline-none transition-colors focus:border-[rgba(var(--color-accent-2-rgb),0.55)] focus:bg-white/[0.07]"
               placeholder="Enter password"
             />
           </label>
@@ -47,7 +47,7 @@ export default async function SiteLockPage({ searchParams }: SiteLockPageProps) 
 
           <button
             type="submit"
-            className="w-full rounded-lg bg-white text-black font-medium py-2.5 hover:bg-white/90 transition-colors"
+            className="w-full rounded-lg border border-white/[0.12] bg-white text-black font-medium py-2.5 shadow-[0_16px_44px_rgba(255,255,255,0.08)] transition-colors hover:bg-white/90"
           >
             Unlock site
           </button>

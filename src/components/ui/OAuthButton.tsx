@@ -11,24 +11,24 @@ interface OAuthButtonProps {
 
 const providerConfig = {
   google: {
-    bgColor: "bg-white hover:bg-gray-50",
-    textColor: "text-gray-900",
-    borderColor: "border-gray-300",
+    bgColor: "bg-white/[0.04] hover:bg-white/[0.08]",
+    textColor: "text-white",
+    borderColor: "border-white/[0.1] hover:border-white/20",
   },
   twitter: {
-    bgColor: "bg-black hover:bg-gray-900",
+    bgColor: "bg-white/[0.04] hover:bg-white/[0.08]",
     textColor: "text-white",
-    borderColor: "border-gray-800",
+    borderColor: "border-white/[0.1] hover:border-white/20",
   },
   apple: {
-    bgColor: "bg-black hover:bg-gray-900",
+    bgColor: "bg-white/[0.04] hover:bg-white/[0.08]",
     textColor: "text-white",
-    borderColor: "border-gray-800",
+    borderColor: "border-white/[0.1] hover:border-white/20",
   },
   roblox: {
-    bgColor: "bg-[#00A2FF] hover:bg-[#0088CC]",
+    bgColor: "bg-[rgba(var(--color-accent-2-rgb),0.14)] hover:bg-[rgba(var(--color-accent-2-rgb),0.2)]",
     textColor: "text-white",
-    borderColor: "border-[#00A2FF]",
+    borderColor: "border-[rgba(var(--color-accent-2-rgb),0.28)]",
   },
 };
 
@@ -39,7 +39,7 @@ export function OAuthButton({ provider, children, className = "" }: OAuthButtonP
     <Button
       type="button"
       onClick={() => signIn(provider, { callbackUrl: "/me" })}
-      className={`w-full ${config.bgColor} ${config.textColor} ${config.borderColor} border transition-all duration-200 ${className}`}
+      className={`w-full ${config.bgColor} ${config.textColor} ${config.borderColor} border shadow-none transition-all duration-200 ${className}`}
     >
       {children}
     </Button>

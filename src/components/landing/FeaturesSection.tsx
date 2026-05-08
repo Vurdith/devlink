@@ -8,8 +8,8 @@ const features = [
     ),
     title: "Portfolio Showcase",
     description: "Display your best work with beautiful portfolio galleries. Share game dev projects, scripts, models, and more.",
-    color: "from-[var(--color-accent)] to-[var(--color-accent-hover)]",
-    glow: "rgba(var(--color-accent-rgb), 0.3)",
+    color: "from-[rgba(var(--color-accent-2-rgb),0.18)] to-[rgba(var(--color-accent-rgb),0.18)]",
+    glow: "rgba(34, 211, 238, 0.16)",
   },
   {
     icon: (
@@ -19,8 +19,8 @@ const features = [
     ),
     title: "Connect & Collaborate",
     description: "Find the perfect team members for your next project. Connect with developers, artists, scripters, and builders.",
-    color: "from-cyan-500 to-blue-600",
-    glow: "rgba(34, 211, 238, 0.3)",
+    color: "from-[rgba(var(--color-accent-2-rgb),0.22)] to-[rgba(96,165,250,0.18)]",
+    glow: "rgba(34, 211, 238, 0.16)",
   },
   {
     icon: (
@@ -30,8 +30,8 @@ const features = [
     ),
     title: "Find Opportunities",
     description: "Discover job postings, commissions, and collaboration requests from studios and clients looking for talent.",
-    color: "from-pink-500 to-rose-600",
-    glow: "rgba(244, 114, 182, 0.3)",
+    color: "from-[rgba(244,114,182,0.18)] to-[rgba(var(--color-accent-rgb),0.14)]",
+    glow: "rgba(244, 114, 182, 0.14)",
   },
   {
     icon: (
@@ -41,8 +41,8 @@ const features = [
     ),
     title: "Verified Profiles",
     description: "Build trust with verified badges. Showcase your credentials and establish credibility in the community.",
-    color: "from-emerald-500 to-green-600",
-    glow: "rgba(16, 185, 129, 0.3)",
+    color: "from-[rgba(var(--color-accent-3-rgb),0.2)] to-[rgba(34,211,238,0.12)]",
+    glow: "rgba(52, 211, 153, 0.14)",
   },
   {
     icon: (
@@ -52,8 +52,8 @@ const features = [
     ),
     title: "Reviews & Ratings",
     description: "Give and receive reviews to build your reputation. Help others find reliable collaborators.",
-    color: "from-amber-500 to-orange-600",
-    glow: "rgba(245, 158, 11, 0.3)",
+    color: "from-[rgba(245,158,11,0.18)] to-[rgba(251,191,36,0.1)]",
+    glow: "rgba(245, 158, 11, 0.12)",
   },
   {
     icon: (
@@ -63,14 +63,14 @@ const features = [
     ),
     title: "Community Feed",
     description: "Stay updated with the latest from the community. Share updates, showcase progress, and get inspired.",
-    color: "from-[var(--color-accent)] to-[var(--color-accent-hover)]",
-    glow: "rgba(var(--color-accent-rgb), 0.3)",
+    color: "from-[rgba(var(--color-accent-rgb),0.18)] to-[rgba(var(--color-accent-2-rgb),0.16)]",
+    glow: "rgba(139, 92, 246, 0.14)",
   },
 ];
 
 export function FeaturesSection() {
   return (
-    <section className="relative px-4 py-24 md:py-32">
+    <section className="relative px-4 py-20 md:py-28">
       <div className="max-w-6xl mx-auto">
         <div className="grid gap-10 lg:grid-cols-[0.95fr_1.05fr] items-start">
           {/* Narrative header (left) */}
@@ -86,7 +86,7 @@ export function FeaturesSection() {
             {/* CTA to fill blank space */}
             <div className="mt-12 flex flex-col gap-8">
               <div className="flex">
-                <a href="/register" className="group relative inline-flex items-center justify-center gap-2 rounded-xl px-8 py-4 text-sm font-semibold text-white transition-all duration-300 hover:scale-[1.02] active:scale-95 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20">
+                <a href="/register" className="group relative inline-flex items-center justify-center gap-2 rounded-xl border border-white/[0.1] bg-white/[0.045] px-7 py-3 text-sm font-semibold text-white transition-all duration-200 hover:border-white/20 hover:bg-white/[0.08] active:scale-[0.98]">
                   <span>Start your profile</span>
                   <svg className="w-4 h-4 opacity-70 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
@@ -108,7 +108,7 @@ export function FeaturesSection() {
                   style={{ animationDelay: `${index * 0.1}s` }}
                 >
                   {/* Give the middle item in this col slightly more height for masonry effect */}
-                  <div className={`relative overflow-hidden rounded-3xl glass glass-hover border border-white/10 p-6 noise-overlay ${index === 1 ? 'md:py-10' : ''}`}>
+                  <div className={`relative overflow-hidden rounded-xl glass glass-hover border border-white/[0.08] p-6 noise-overlay ${index === 1 ? 'md:py-9' : ''}`}>
                     <div
                       aria-hidden="true"
                       className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
@@ -117,8 +117,8 @@ export function FeaturesSection() {
                       }}
                     />
 
-                    <div className={`relative inline-flex p-3 rounded-2xl bg-gradient-to-br ${feature.color} mb-5 shadow-[0_0_15px_${feature.glow}]`}>
-                      <div className="text-white">{feature.icon}</div>
+                    <div className={`relative mb-5 inline-flex rounded-lg border border-white/[0.08] bg-gradient-to-br p-3 ${feature.color}`}>
+                      <div className="text-white/90">{feature.icon}</div>
                     </div>
 
                     <h3 className="relative text-lg font-semibold text-white mb-2 font-[var(--font-space-grotesk)]">
@@ -140,7 +140,7 @@ export function FeaturesSection() {
                   className="group relative animate-fade-in transition-transform duration-500 hover:-translate-y-1"
                   style={{ animationDelay: `${(index + 1) * 0.15}s` }}
                 >
-                  <div className={`relative overflow-hidden rounded-3xl glass glass-hover border border-white/10 p-6 noise-overlay ${index === 0 ? 'md:py-10' : ''}`}>
+                  <div className={`relative overflow-hidden rounded-xl glass glass-hover border border-white/[0.08] p-6 noise-overlay ${index === 0 ? 'md:py-9' : ''}`}>
                     <div
                       aria-hidden="true"
                       className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
@@ -149,8 +149,8 @@ export function FeaturesSection() {
                       }}
                     />
 
-                    <div className={`relative inline-flex p-3 rounded-2xl bg-gradient-to-br ${feature.color} mb-5 shadow-[0_0_15px_${feature.glow}]`}>
-                      <div className="text-white">{feature.icon}</div>
+                    <div className={`relative mb-5 inline-flex rounded-lg border border-white/[0.08] bg-gradient-to-br p-3 ${feature.color}`}>
+                      <div className="text-white/90">{feature.icon}</div>
                     </div>
 
                     <h3 className="relative text-lg font-semibold text-white mb-2 font-[var(--font-space-grotesk)]">

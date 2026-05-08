@@ -155,8 +155,8 @@ export const Navbar = memo(function Navbar({ session }: { session?: { user?: { i
       className={cn(
         "sticky top-0 z-40 w-full transition-all duration-200",
         scrolled
-          ? "bg-[rgba(12,14,20,0.96)] border-b border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.35)]"
-          : "bg-transparent border-b border-transparent"
+          ? "bg-[rgba(7,9,13,0.88)] border-b border-white/10 shadow-[0_12px_34px_rgba(0,0,0,0.26)]"
+          : "bg-[rgba(7,9,13,0.34)] border-b border-white/[0.04]"
       )}
     >
 
@@ -182,7 +182,7 @@ export const Navbar = memo(function Navbar({ session }: { session?: { user?: { i
               <Link
                 href="/notifications"
                 aria-label="Notifications"
-                className="relative p-2.5 rounded-xl text-[var(--muted-foreground)] hover:text-white hover:bg-white/5 transition-all duration-150 hover:scale-105 active:scale-95"
+                className="relative p-2.5 rounded-lg text-[var(--muted-foreground)] hover:text-white hover:bg-white/[0.055] transition-all duration-150 active:scale-95"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
@@ -201,7 +201,7 @@ export const Navbar = memo(function Navbar({ session }: { session?: { user?: { i
               <button
                 aria-label="Messages"
                 aria-haspopup="true"
-                className="relative p-2.5 rounded-xl text-[var(--muted-foreground)] hover:text-white hover:bg-white/5 transition-all duration-150 hover:scale-105 active:scale-95"
+                className="relative p-2.5 rounded-lg text-[var(--muted-foreground)] hover:text-white hover:bg-white/[0.055] transition-all duration-150 active:scale-95"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
@@ -229,7 +229,7 @@ export const Navbar = memo(function Navbar({ session }: { session?: { user?: { i
                 </Button>
               </Link>
               <Link href="/register">
-                <Button className="bg-gradient-to-r from-[var(--color-accent)] to-[var(--color-accent-hover)] hover:from-[var(--color-accent-hover)] hover:to-[var(--color-accent-hover)] text-white border-0 shadow-lg shadow-[var(--color-accent)]/20">
+                <Button>
                   Sign up
                 </Button>
               </Link>

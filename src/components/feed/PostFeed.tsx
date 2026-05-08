@@ -2,76 +2,15 @@
 import { memo, useCallback } from "react";
 import { VirtualizedPostFeed } from "./VirtualizedPostFeed";
 import { FeedSkeleton } from "@/components/ui/LoadingSpinner";
-
-interface Post {
-  id: string;
-  userId: string;
-  content: string;
-  createdAt: Date;
-  updatedAt: Date;
-  user: {
-    id: string;
-    username: string;
-    name: string | null;
-    profile: {
-      avatarUrl: string | null;
-      bannerUrl: string | null;
-      profileType: string;
-      verified: boolean;
-      bio: string | null;
-      website: string | null;
-      location: string | null;
-    } | null;
-    _count?: {
-      followers: number;
-      following: number;
-    };
-  };
-  media: Array<{
-    id: string;
-    mediaUrl: string;
-    mediaType: string;
-    order: number;
-  }>;
-  isSlideshow: boolean;
-  poll?: {
-    id: string;
-    question: string;
-    options: Array<{
-      id: string;
-      text: string;
-      votes: number;
-      isSelected?: boolean;
-    }>;
-    isMultiple: boolean;
-    expiresAt: Date | null;
-    totalVotes: number;
-  };
-  likes?: Array<{ id: string; userId: string }>;
-  reposts?: { id: string; userId: string }[];
-  replies?: Array<{ id: string; userId: string }>;
-  views: number;
-  isLiked?: boolean;
-  isReposted?: boolean;
-  isSaved?: boolean;
-  isPinned: boolean;
-  userVote?: {
-    optionIds: string[];
-  };
-  _count?: {
-    likes: number;
-    reposts: number;
-    replies?: number;
-  };
-}
+import type { FeedPost } from "@/types/post";
 
 interface PostFeedProps {
-  posts: Post[];
+  posts: FeedPost[];
   currentUserId?: string;
   hidePinnedIndicator?: boolean;
   showNavigationArrow?: boolean;
   isLoading?: boolean;
-  onUpdate?: (updatedPost: Post) => void;
+  onUpdate?: (updatedPost: FeedPost) => void;
   hasMore?: boolean;
   onLoadMore?: () => void;
   session?: {
@@ -104,7 +43,7 @@ export const PostFeed = memo(function PostFeed({
   session
 }: PostFeedProps) {
   // Stable callback reference
-  const handleUpdate = useCallback((updatedPost: Post) => {
+  const handleUpdate = useCallback((updatedPost: FeedPost) => {
     onUpdate?.(updatedPost);
   }, [onUpdate]);
 

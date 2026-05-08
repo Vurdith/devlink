@@ -11,7 +11,6 @@ const nextConfig: NextConfig = {
   experimental: {
     optimizePackageImports: [
       'framer-motion', 
-      'recharts', 
       'date-fns', 
       'emoji-picker-react',
       '@sentry/nextjs',
@@ -151,10 +150,6 @@ const nextConfig: NextConfig = {
         source: '/api/(user|hashtag|search|discover)/:path*',
         headers: [{ key: 'Cache-Control', value: 'private, max-age=10, stale-while-revalidate=30' }],
       },
-      {
-        source: '/_next/static/(.*)',
-        headers: [{ key: 'Cache-Control', value: 'public, max-age=31536000, immutable' }],
-      },
     ];
   },
 };
@@ -164,11 +159,15 @@ const sentryWebpackPluginOptions = {
   project: process.env.SENTRY_PROJECT,
   silent: !process.env.CI,
   widenClientFileUpload: true,
-  disableLogger: true,
   hideSourceMaps: true,
-  reactComponentAnnotation: { enabled: true },
   tunnelRoute: "/monitoring",
-  automaticVercelMonitors: false,
+  webpack: {
+    treeshake: {
+      removeDebugLogging: true,
+    },
+    reactComponentAnnotation: { enabled: true },
+    automaticVercelMonitors: false,
+  },
 };
 
 export default withBundleAnalyzer(withSentryConfig(nextConfig, sentryWebpackPluginOptions));

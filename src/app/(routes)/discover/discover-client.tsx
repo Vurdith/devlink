@@ -40,7 +40,7 @@ const filters: { value: ProfileType; label: string; icon: string; color: string;
     label: "All Profiles",
     icon: "M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z",
     color: "text-white",
-    bgColor: "bg-white/20"
+    bgColor: "bg-white/[0.08]"
   },
   {
     value: "DEVELOPER",
@@ -172,13 +172,13 @@ export function DiscoverClient({
   return (
     <div className="max-w-6xl mx-auto">
       {/* Header + Filters (single cohesive panel) */}
-      <div className="relative overflow-hidden glass-soft rounded-2xl border border-white/10">
+      <div className="relative overflow-hidden glass-soft rounded-xl border border-white/[0.1] shadow-[var(--shadow-soft)]">
         <div
           aria-hidden="true"
           className="absolute inset-0 pointer-events-none opacity-55"
           style={{
             background:
-              "radial-gradient(900px 260px at 20% 0%, rgba(var(--color-accent-rgb),0.10), transparent 62%), radial-gradient(700px 260px at 90% 10%, rgba(var(--color-accent-2-rgb),0.08), transparent 60%)",
+              "radial-gradient(900px 260px at 20% 0%, rgba(var(--color-accent-2-rgb),0.09), transparent 62%), radial-gradient(700px 260px at 90% 10%, rgba(var(--color-accent-rgb),0.06), transparent 60%)",
           }}
         />
         <div className="relative p-4 sm:p-6">
@@ -196,11 +196,11 @@ export function DiscoverClient({
                 onClick={() => handleFilterChange(filter.value)}
                 className={`flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-2 sm:py-2.5 rounded-lg sm:rounded-xl transition-all duration-200 flex-shrink-0 ${
                   selectedFilter === filter.value
-                    ? `${filter.bgColor} ${filter.color} border border-current/30 shadow-lg`
-                    : "bg-white/[0.03] text-[var(--muted-foreground)] hover:bg-white/[0.06] hover:text-white border border-white/10"
+                    ? "bg-white/[0.08] text-white border border-white/20 shadow-[0_10px_30px_rgba(0,0,0,0.18)]"
+                    : "bg-white/[0.03] text-[var(--muted-foreground)] hover:bg-white/[0.06] hover:text-white border border-white/[0.1]"
                 }`}
               >
-                <div className={`p-1 sm:p-1.5 rounded-md sm:rounded-lg ${selectedFilter === filter.value ? "bg-current/20" : "bg-white/10"}`}>
+                <div className={`p-1 sm:p-1.5 rounded-md sm:rounded-lg ${selectedFilter === filter.value ? "bg-[rgba(var(--color-accent-2-rgb),0.16)] text-[var(--color-accent-2)]" : "bg-white/10"}`}>
                   <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4" viewBox="0 0 24 24" fill="currentColor">
                     <path d={filter.icon} />
                   </svg>
@@ -217,7 +217,7 @@ export function DiscoverClient({
       {loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           {[...Array(6)].map((_, i) => (
-            <div key={i} className="relative overflow-hidden glass-soft border border-white/10 rounded-xl sm:rounded-2xl overflow-hidden animate-pulse">
+            <div key={i} className="relative overflow-hidden glass-soft border border-white/[0.1] rounded-xl overflow-hidden animate-pulse">
               <div className="h-24 sm:h-28 bg-white/5" />
               <div className="p-3 sm:p-6">
                 <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
@@ -241,11 +241,11 @@ export function DiscoverClient({
               return (
                 <div 
                   key={user.id} 
-                  className="relative overflow-hidden glass-soft rounded-xl sm:rounded-2xl transition-all duration-200 border border-white/10 hover:border-white/20 flex flex-col h-[340px] sm:h-[390px]"
+                  className="relative overflow-hidden glass-soft rounded-xl transition-all duration-200 border border-white/[0.1] hover:border-white/20 flex flex-col h-[340px] sm:h-[390px] shadow-[0_16px_42px_rgba(0,0,0,0.18)]"
                 >
                   {/* Banner */}
                   <Link href={`/u/${user.username}`} className="block">
-                    <div className="relative h-24 sm:h-28 w-full bg-gradient-to-br from-[rgba(var(--color-accent-rgb),0.18)] via-black/20 to-black/40">
+                    <div className="relative h-24 sm:h-28 w-full bg-gradient-to-br from-[rgba(var(--color-accent-2-rgb),0.13)] via-white/[0.025] to-black/40">
                       {user.profile?.bannerUrl && (
                         <Image
                           src={user.profile.bannerUrl}
@@ -273,7 +273,7 @@ export function DiscoverClient({
                                 className="w-11 h-11 sm:w-12 sm:h-12 rounded-full object-cover border-4 border-[var(--background)]"
                               />
                             ) : (
-                              <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-[var(--color-accent)] to-pink-500 flex items-center justify-center text-white text-lg font-bold border-4 border-[var(--background)]">
+                              <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-[var(--color-accent-2)] to-[var(--color-accent)] flex items-center justify-center text-white text-lg font-bold border-4 border-[var(--background)]">
                                 {user.username.charAt(0).toUpperCase()}
                               </div>
                             )}
@@ -352,13 +352,13 @@ export function DiscoverClient({
               </div>
             )}
             {!hasMore && users.length > 0 && (
-              <p className="text-[var(--muted-foreground)] text-sm">You’re all caught up.</p>
+              <p className="text-[var(--muted-foreground)] text-sm">You&apos;re all caught up.</p>
             )}
           </div>
         </>
       ) : (
         <div className="text-center py-16">
-          <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center">
+          <div className="w-20 h-20 mx-auto mb-6 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-[var(--muted-foreground)]">
               <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" strokeLinecap="round" strokeLinejoin="round"/>
               <circle cx="9" cy="7" r="4"/>

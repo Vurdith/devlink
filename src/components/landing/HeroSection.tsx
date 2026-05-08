@@ -15,9 +15,9 @@ const PrimaryCTA = ({
 }) => (
   <Link
     href={href}
-    className="group relative inline-flex items-center justify-center gap-2.5 rounded-2xl px-12 py-5 text-base font-bold transition-all duration-300 overflow-hidden bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white hover:-translate-y-1.5 active:scale-95 outline-none transform-gpu"
+    className="group relative inline-flex min-h-12 items-center justify-center gap-2.5 overflow-hidden rounded-xl border border-white/[0.12] bg-[linear-gradient(135deg,var(--color-accent),#5f6cf6_52%,var(--color-accent-2))] px-8 py-3.5 text-sm font-semibold text-white shadow-[0_16px_44px_rgba(124,58,237,0.18)] outline-none transition-all duration-200 hover:border-white/20 hover:brightness-110 active:scale-[0.98] sm:px-10"
   >
-    <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0)_0%,rgba(255,255,255,0.2)_50%,rgba(255,255,255,0)_100%)] translate-x-[-100%] group-hover:animate-[shimmer-sweep_1.2s_infinite] skew-x-[-25deg]" />
+    <div className="absolute inset-0 translate-x-[-100%] skew-x-[-25deg] bg-[linear-gradient(to_right,rgba(255,255,255,0)_0%,rgba(255,255,255,0.2)_50%,rgba(255,255,255,0)_100%)] group-hover:animate-[shimmer-sweep_1.2s_infinite]" />
     <span className="relative flex items-center gap-2 text-white">
       {children}
     </span>
@@ -33,7 +33,7 @@ const SecondaryCTA = ({
 }) => (
   <Link
     href={href}
-    className="group relative inline-flex items-center justify-center gap-2.5 rounded-2xl px-12 py-5 text-base font-semibold text-white/90 transition-all duration-300 hover:text-white bg-white/[0.04] hover:bg-white/[0.1] border border-white/10 hover:border-white/20 outline-none hover:-translate-y-1.5 active:scale-95 transform-gpu"
+    className="group relative inline-flex min-h-12 items-center justify-center gap-2.5 rounded-xl border border-white/[0.1] bg-white/[0.045] px-8 py-3.5 text-sm font-semibold text-white/90 outline-none transition-all duration-200 hover:border-white/20 hover:bg-white/[0.08] hover:text-white active:scale-[0.98] sm:px-10"
   >
     <span className="relative flex items-center gap-2">{children}</span>
   </Link>
@@ -57,12 +57,12 @@ const stagger = {
 
 export function HeroSection({ isLoggedIn }: { isLoggedIn: boolean }) {
   return (
-    <section className="relative w-full min-h-[100dvh] flex flex-col justify-center items-center overflow-hidden selection:bg-purple-500/30">
+    <section className="relative flex min-h-[92dvh] w-full flex-col items-center justify-center overflow-hidden selection:bg-[rgba(var(--color-accent-2-rgb),0.25)]">
       <motion.div
         variants={stagger.container}
         initial="hidden"
         animate="visible"
-        className="relative z-10 w-full max-w-[1200px] mx-auto px-6 flex flex-col items-center text-center"
+        className="relative z-10 mx-auto flex w-full max-w-[1120px] flex-col items-center px-5 text-center"
       >
         {/* Headline — Interactive Cinematic Typography */}
         <motion.div variants={stagger.item}>
@@ -72,17 +72,17 @@ export function HeroSection({ isLoggedIn }: { isLoggedIn: boolean }) {
         {/* Refined Interactive Subtitle */}
         <motion.div
           variants={stagger.item}
-          className="max-w-2xl mb-8 flex flex-wrap justify-center gap-x-1.5 cursor-default group"
+          className="group mb-8 flex max-w-2xl cursor-default flex-wrap justify-center gap-x-1.5"
         >
           {"Beyond the standard portfolio. Find visionary collaborators, showcase your true capabilities, and assemble the team to build the next generation of games."
             .split(" ")
             .map((word, i) => (
               <span key={i} className="relative overflow-visible">
-                <span className="text-lg md:text-2xl text-white/40 font-medium leading-[1.6] tracking-tight block transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:-translate-y-1 group-hover:opacity-0">
+                <span className="block text-base font-medium leading-[1.65] tracking-normal text-white/52 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:-translate-y-1 group-hover:opacity-0 md:text-xl">
                   {word}
                 </span>
                 <span
-                  className="absolute inset-0 text-lg md:text-2xl text-white font-medium leading-[1.6] tracking-tight transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] opacity-0 translate-y-1 group-hover:translate-y-0 group-hover:opacity-100 group-hover:drop-shadow-[0_0_12px_rgba(255,255,255,0.4)]"
+                  className="absolute inset-0 translate-y-1 text-base font-medium leading-[1.65] tracking-normal text-white opacity-0 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-y-0 group-hover:opacity-100 group-hover:drop-shadow-[0_0_12px_rgba(var(--color-accent-2-rgb),0.28)] md:text-xl"
                   style={{ transitionDelay: `${i * 15}ms` }}
                 >
                   {word}
@@ -94,7 +94,7 @@ export function HeroSection({ isLoggedIn }: { isLoggedIn: boolean }) {
         {/* CTAs */}
         <motion.div
           variants={stagger.item}
-          className="flex flex-col sm:flex-row items-center gap-6"
+          className="flex flex-col items-center gap-3 sm:flex-row"
         >
           <PrimaryCTA href={isLoggedIn ? "/home" : "/register"}>
             {isLoggedIn ? "Go to Dashboard" : "Create your profile"}

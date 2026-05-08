@@ -1,6 +1,8 @@
 import { MetadataRoute } from 'next';
 import { prisma } from '@/server/db';
 
+export const dynamic = 'force-dynamic';
+
 /**
  * Dynamic sitemap generation for SEO
  * Includes static pages and dynamic user profiles
@@ -103,12 +105,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     return [...staticPages, ...userPages, ...postUrls, ...jobUrls];
   } catch (error) {
-    console.error('Error generating sitemap:', error);
+    console.warn('Dynamic sitemap data unavailable; returning static sitemap only.', error);
     // Return static pages only if database query fails
     return staticPages;
   }
 }
-
 
 
 

@@ -1,83 +1,23 @@
 "use client";
 
-import { useState, useEffect, type CSSProperties, type ReactNode } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/Button";
 import { useSession, signOut } from "next-auth/react";
 import { useToastContext } from "@/components/providers/ToastProvider";
 import { cn } from "@/lib/cn";
 import { TwoFactorSetup } from "@/components/auth/TwoFactorSetup";
+import { ChangeEmailPanel, type EmailData } from "./ChangeEmailPanel";
+import { DangerZonePanel } from "./DangerZonePanel";
+import { PasswordMismatchMessage } from "./PasswordMismatchMessage";
+import { PasswordStrengthMeter } from "./PasswordStrengthMeter";
+import { ResetPasswordPanel } from "./ResetPasswordPanel";
+import { SecurityPanel } from "./SecurityPanel";
+import { getPasswordStrength } from "./password-strength";
 
 interface PasswordData {
   currentPassword: string;
   newPassword: string;
   confirmPassword: string;
-}
-
-interface EmailData {
-  newEmail: string;
-  password: string;
-}
-
-function SecurityPanel({
-  accent,
-  title,
-  description,
-  icon,
-  children,
-  className,
-  style,
-}: {
-  accent: "cyan" | "emerald" | "amber" | "red";
-  title: string;
-  description?: string;
-  icon: ReactNode;
-  children: ReactNode;
-  className?: string;
-  style?: CSSProperties;
-}) {
-  const accents: Record<typeof accent, { glow: string; border: string; iconBg: string }> = {
-    cyan: {
-      glow: "radial-gradient(900px 260px at 18% 0%, rgba(34,211,238,0.14), transparent 60%), radial-gradient(800px 240px at 92% 0%, rgba(59,130,246,0.10), transparent 60%)",
-      border: "border-white/10",
-      iconBg: "from-cyan-500 to-blue-500 shadow-cyan-500/20",
-    },
-    emerald: {
-      glow: "radial-gradient(900px 260px at 18% 0%, rgba(16,185,129,0.14), transparent 60%), radial-gradient(800px 240px at 92% 0%, rgba(34,197,94,0.10), transparent 60%)",
-      border: "border-white/10",
-      iconBg: "from-emerald-500 to-green-500 shadow-emerald-500/20",
-    },
-    amber: {
-      glow: "radial-gradient(900px 260px at 18% 0%, rgba(245,158,11,0.14), transparent 60%), radial-gradient(800px 240px at 92% 0%, rgba(249,115,22,0.10), transparent 60%)",
-      border: "border-white/10",
-      iconBg: "from-amber-500 to-orange-500 shadow-amber-500/20",
-    },
-    red: {
-      glow: "radial-gradient(900px 260px at 18% 0%, rgba(239,68,68,0.14), transparent 60%), radial-gradient(800px 240px at 92% 0%, rgba(244,63,94,0.10), transparent 60%)",
-      border: "border-red-500/30",
-      iconBg: "from-red-500 to-rose-600 shadow-red-500/25",
-    },
-  };
-
-  const a = accents[accent];
-
-  return (
-    <div
-      className={cn("relative overflow-hidden glass glass-hover rounded-2xl p-6 border noise-overlay", a.border, className)}
-      style={style}
-    >
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 opacity-60" style={{ background: a.glow }} />
-      <div className="relative flex items-start gap-3 mb-6">
-        <div className={cn("w-10 h-10 rounded-xl bg-gradient-to-br flex items-center justify-center shadow-lg", a.iconBg)}>
-          <div className="text-white">{icon}</div>
-        </div>
-        <div className="min-w-0">
-          <h2 className="text-lg font-semibold text-white">{title}</h2>
-          {description ? <p className="text-sm text-[var(--muted-foreground)]">{description}</p> : null}
-        </div>
-      </div>
-      <div className="relative">{children}</div>
-    </div>
-  );
 }
 
 export default function SecuritySettings() {
@@ -119,9 +59,7 @@ export default function SecuritySettings() {
           const data = await res.json();
           setHasPassword(data.hasPassword);
         }
-      } catch (error) {
-        console.error("Error checking password:", error);
-      }
+      } catch {}
     };
     checkPassword();
   }, []);
@@ -287,19 +225,65 @@ export default function SecuritySettings() {
     }
   };
 
-  const getPasswordStrength = (password: string) => {
-    let score = 0;
-    if (password.length >= 8) score++;
-    if (/[a-z]/.test(password)) score++;
-    if (/[A-Z]/.test(password)) score++;
-    if (/[0-9]/.test(password)) score++;
-    if (/[^A-Za-z0-9]/.test(password)) score++;
-    return score;
+  const handleDeleteAccount = async () => {
+    if (deleteConfirmText !== "DELETE") {
+      toast({
+        title: "Error",
+        description: "Please type DELETE to confirm.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (hasPassword && !deletePassword) {
+      toast({
+        title: "Error",
+        description: "Please enter your password.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsDeleting(true);
+
+    try {
+      const response = await fetch("/api/user/delete", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          password: deletePassword || undefined,
+          confirmationText: deleteConfirmText,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast({
+          title: "Account Deleted",
+          description: "Your account has been permanently deleted.",
+          variant: "success",
+        });
+        await signOut({ callbackUrl: "/" });
+      } else {
+        toast({
+          title: "Error",
+          description: data.error || "Failed to delete account.",
+          variant: "destructive",
+        });
+      }
+    } catch {
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   const passwordStrength = getPasswordStrength(passwordData.newPassword);
-  const strengthLabels = ["Very Weak", "Weak", "Fair", "Good", "Strong"];
-  const strengthColors = ["bg-[var(--color-accent)]", "bg-orange-500", "bg-yellow-500", "bg-lime-500", "bg-emerald-500"];
   const inputBase =
     "w-full h-11 px-4 rounded-xl bg-white/[0.04] border border-white/10 text-white placeholder-[var(--muted-foreground)] focus:border-[var(--accent)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)] transition-all";
 
@@ -319,7 +303,7 @@ export default function SecuritySettings() {
       {hasPassword === null && (
         <SecurityPanel
           accent="cyan"
-          title="Loading security settings…"
+          title="Loading security settings..."
           description="Fetching your authentication details."
           icon={
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -377,26 +361,7 @@ export default function SecuritySettings() {
                 autoComplete="new-password"
                 required
               />
-              {newPasswordData.password && (
-                <div className="mt-3">
-                  <div className="flex gap-1 mb-2">
-                    {[1, 2, 3, 4, 5].map((level) => (
-                      <div
-                        key={level}
-                        className={cn(
-                          "h-1.5 flex-1 rounded-full transition-colors",
-                          getPasswordStrength(newPasswordData.password) >= level 
-                            ? strengthColors[getPasswordStrength(newPasswordData.password) - 1] 
-                            : "bg-white/10"
-                        )}
-                      />
-                    ))}
-                  </div>
-                  <p className="text-xs text-[var(--muted-foreground)]">
-                    {strengthLabels[getPasswordStrength(newPasswordData.password) - 1] || "Enter a password"} password
-                  </p>
-                </div>
-              )}
+              <PasswordStrengthMeter password={newPasswordData.password} />
             </div>
 
             <div>
@@ -415,15 +380,7 @@ export default function SecuritySettings() {
                 autoComplete="new-password"
                 required
               />
-              {newPasswordData.confirmPassword && newPasswordData.password !== newPasswordData.confirmPassword && (
-                <p className="text-xs text-[var(--color-accent)] mt-2 flex items-center gap-1">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-                    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
-                    <path d="M12 8v4m0 4h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                  </svg>
-                  Passwords do not match
-                </p>
-              )}
+              {newPasswordData.confirmPassword && newPasswordData.password !== newPasswordData.confirmPassword && <PasswordMismatchMessage />}
             </div>
 
             <Button
@@ -481,24 +438,7 @@ export default function SecuritySettings() {
                 autoComplete="off"
                 required
               />
-              {passwordData.newPassword && (
-                <div className="mt-3">
-                  <div className="flex gap-1 mb-2">
-                    {[1, 2, 3, 4, 5].map((level) => (
-                      <div
-                        key={level}
-                        className={cn(
-                          "h-1.5 flex-1 rounded-full transition-colors",
-                          passwordStrength >= level ? strengthColors[passwordStrength - 1] : "bg-white/10"
-                        )}
-                      />
-                    ))}
-                  </div>
-                  <p className="text-xs text-[var(--muted-foreground)]">
-                    {strengthLabels[passwordStrength - 1] || "Enter a password"} password
-                  </p>
-                </div>
-              )}
+              <PasswordStrengthMeter password={passwordData.newPassword} />
             </div>
 
             <div>
@@ -516,15 +456,7 @@ export default function SecuritySettings() {
                 autoComplete="off"
                 required
               />
-              {passwordData.confirmPassword && passwordData.newPassword !== passwordData.confirmPassword && (
-                <p className="text-xs text-[var(--color-accent)] mt-2 flex items-center gap-1">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-                    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
-                    <path d="M12 8v4m0 4h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                  </svg>
-                  Passwords do not match
-                </p>
-              )}
+              {passwordData.confirmPassword && passwordData.newPassword !== passwordData.confirmPassword && <PasswordMismatchMessage />}
             </div>
 
             <Button
@@ -540,113 +472,16 @@ export default function SecuritySettings() {
         </SecurityPanel>
       )}
 
-      {/* Reset Password Section */}
-      <SecurityPanel
-        accent="amber"
-        title="Reset via email"
-        description="Send yourself a secure password reset link."
-        icon={
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <path
-              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        }
-        className="animate-slide-up"
-        style={{ animationDelay: "0.1s" }}
-      >
-        <div className="space-y-4">
-          <p className="text-sm text-[var(--muted-foreground)]">
-            Forgot your password? We&apos;ll send a secure reset link to your email address.
-          </p>
-          
-          <Button
-            onClick={handlePasswordReset}
-            variant="secondary"
-            isLoading={isRequestingReset}
-            className="w-full"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="mr-2">
-              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" stroke="currentColor" strokeWidth="2"/>
-              <polyline points="22,6 12,13 2,6" stroke="currentColor" strokeWidth="2"/>
-            </svg>
-            Send Reset Email
-          </Button>
-        </div>
-      </SecurityPanel>
+      <ResetPasswordPanel isRequestingReset={isRequestingReset} onPasswordReset={handlePasswordReset} />
 
-      {/* Change Email Section */}
-      <SecurityPanel
-        accent="emerald"
-        title="Change email"
-        description="Update where you receive security and account emails."
-        icon={
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <path
-              d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"
-              stroke="currentColor"
-              strokeWidth="2"
-            />
-            <polyline points="22,6 12,13 2,6" stroke="currentColor" strokeWidth="2" />
-          </svg>
-        }
-        className="animate-slide-up"
-        style={{ animationDelay: "0.15s" }}
-      >
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-white mb-2">Current Email</label>
-            <div className="w-full h-11 px-4 rounded-xl bg-white/[0.04] border border-white/10 text-[var(--muted-foreground)] flex items-center">
-              {session?.user?.email || "Loading..."}
-            </div>
-          </div>
-
-          <form onSubmit={handleEmailChange} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-white mb-2">New Email Address</label>
-              <input
-                type="email"
-                className={inputBase}
-                placeholder="Enter new email"
-                value={emailData.newEmail}
-                onChange={(e) => setEmailData(prev => ({ ...prev, newEmail: e.target.value }))}
-                autoComplete="off"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-white mb-2">Confirm Password</label>
-              <input
-                type="password"
-                className={inputBase}
-                placeholder="Enter your password"
-                value={emailData.password}
-                onChange={(e) => setEmailData(prev => ({ ...prev, password: e.target.value }))}
-                autoComplete="off"
-                required
-              />
-            </div>
-
-            <Button
-              type="submit"
-              variant="gradient"
-              isLoading={isChangingEmail}
-              className="w-full"
-            >
-              Send Verification Email
-            </Button>
-          </form>
-
-          <p className="text-xs text-[var(--muted-foreground)] text-center">
-            A verification email will be sent to your new address
-          </p>
-        </div>
-      </SecurityPanel>
+      <ChangeEmailPanel
+        currentEmail={session?.user?.email}
+        emailData={emailData}
+        inputClassName={inputBase}
+        isChangingEmail={isChangingEmail}
+        onEmailDataChange={setEmailData}
+        onEmailChange={handleEmailChange}
+      />
 
       {/* Two-Factor Authentication */}
       <SecurityPanel
@@ -665,172 +500,22 @@ export default function SecuritySettings() {
         <TwoFactorSetup />
       </SecurityPanel>
 
-      {/* Danger Zone - Account Deletion */}
-      <SecurityPanel
-        accent="red"
-        title="Danger zone"
-        description="Permanently delete your account and all associated data."
-        icon={
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <path
-              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        }
-        className="animate-slide-up"
-        style={{ animationDelay: "0.2s" }}
-      >
-        {!showDeleteConfirm ? (
-          <div className="space-y-4">
-            <p className="text-sm text-[var(--muted-foreground)]">
-              Once you delete your account, there is no going back. All your data, posts, followers, and everything associated with your account will be permanently removed.
-            </p>
-            
-            <Button
-              onClick={() => setShowDeleteConfirm(true)}
-              variant="secondary"
-              className="w-full border-red-500/30 hover:bg-red-500/20 hover:border-red-500/50 text-red-500"
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="mr-2">
-                <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              Delete Account
-            </Button>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4">
-              <div className="flex items-start gap-3">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-red-500 mt-0.5 flex-shrink-0">
-                  <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-                <div>
-                  <p className="text-sm text-red-500 font-medium">This action cannot be undone!</p>
-                  <p className="text-xs text-red-500/70 mt-1">
-                    All your posts, likes, followers, and profile data will be permanently deleted.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {hasPassword && (
-              <div>
-                <label className="block text-sm font-medium text-white mb-2">Your Password</label>
-                <input
-                  type="password"
-                  className="w-full h-11 px-4 rounded-xl bg-white/5 border border-red-500/30 text-white placeholder-[var(--muted-foreground)] focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500 transition-all"
-                  placeholder="Enter your password"
-                  value={deletePassword}
-                  onChange={(e) => setDeletePassword(e.target.value)}
-                  autoComplete="current-password"
-                />
-              </div>
-            )}
-
-            <div>
-              <label className="block text-sm font-medium text-white mb-2">
-                Type <span className="text-red-500 font-mono">DELETE</span> to confirm
-              </label>
-              <input
-                type="text"
-                className={cn(
-                  "w-full h-11 px-4 rounded-xl bg-white/5 border text-white placeholder-[var(--muted-foreground)] focus:outline-none focus:ring-1 transition-all",
-                  deleteConfirmText === "DELETE"
-                    ? "border-red-500 focus:border-red-500 focus:ring-red-500"
-                    : "border-white/10 focus:border-red-500/50 focus:ring-red-500/50"
-                )}
-                placeholder="Type DELETE"
-                value={deleteConfirmText}
-                onChange={(e) => setDeleteConfirmText(e.target.value.toUpperCase())}
-                autoComplete="off"
-              />
-            </div>
-
-            <div className="flex gap-3">
-              <Button
-                onClick={() => {
-                  setShowDeleteConfirm(false);
-                  setDeletePassword("");
-                  setDeleteConfirmText("");
-                }}
-                variant="secondary"
-                className="flex-1"
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={async () => {
-                  if (deleteConfirmText !== "DELETE") {
-                    toast({
-                      title: "Error",
-                      description: "Please type DELETE to confirm.",
-                      variant: "destructive",
-                    });
-                    return;
-                  }
-                  
-                  if (hasPassword && !deletePassword) {
-                    toast({
-                      title: "Error",
-                      description: "Please enter your password.",
-                      variant: "destructive",
-                    });
-                    return;
-                  }
-                  
-                  setIsDeleting(true);
-                  
-                  try {
-                    const response = await fetch("/api/user/delete", {
-                      method: "DELETE",
-                      headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({
-                        password: deletePassword || undefined,
-                        confirmationText: deleteConfirmText,
-                      }),
-                    });
-                    
-                    const data = await response.json();
-                    
-                    if (response.ok) {
-                      toast({
-                        title: "Account Deleted",
-                        description: "Your account has been permanently deleted.",
-                        variant: "success",
-                      });
-                      // Sign out and redirect to home
-                      await signOut({ callbackUrl: "/" });
-                    } else {
-                      toast({
-                        title: "Error",
-                        description: data.error || "Failed to delete account.",
-                        variant: "destructive",
-                      });
-                    }
-                  } catch {
-                    toast({
-                      title: "Error",
-                      description: "An unexpected error occurred.",
-                      variant: "destructive",
-                    });
-                  } finally {
-                    setIsDeleting(false);
-                  }
-                }}
-                disabled={deleteConfirmText !== "DELETE" || (hasPassword === true && !deletePassword)}
-                isLoading={isDeleting}
-                className="flex-1 bg-[var(--color-accent)] hover:bg-[var(--color-accent)] border-[var(--color-accent)]"
-              >
-                Delete Forever
-              </Button>
-            </div>
-          </div>
-        )}
-      </SecurityPanel>
+      <DangerZonePanel
+        hasPassword={hasPassword}
+        showDeleteConfirm={showDeleteConfirm}
+        deletePassword={deletePassword}
+        deleteConfirmText={deleteConfirmText}
+        isDeleting={isDeleting}
+        onShowDeleteConfirm={() => setShowDeleteConfirm(true)}
+        onCancelDelete={() => {
+          setShowDeleteConfirm(false);
+          setDeletePassword("");
+          setDeleteConfirmText("");
+        }}
+        onDeletePasswordChange={setDeletePassword}
+        onDeleteConfirmTextChange={setDeleteConfirmText}
+        onDeleteAccount={handleDeleteAccount}
+      />
     </div>
   );
 }

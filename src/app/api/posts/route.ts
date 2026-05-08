@@ -5,11 +5,12 @@ import type { Prisma } from "@prisma/client";
 import { parseContent } from "@/lib/content-parser";
 import { CONTENT_LIMITS, COLLECTION_LIMITS } from "@/constants";
 import { checkRateLimit } from "@/server/rate-limit";
-import { getUniqueViewCounts } from "@/lib/view-utils";
 import { createNotification } from "@/server/notifications";
 import { evaluatePostingAnomaly } from "@/server/security/anomaly-detection";
 import { deriveDeviceFingerprint } from "@/server/security/fingerprint";
 import { indexSearchDocumentWithRust } from "@/server/services/hotpath-client";
+import { attachPostEngagement, fetchPostEngagementSummary, getPostPollIds } from "@/server/posts/post-engagement";
+import { postListSelect } from "@/server/posts/post-selects";
 
 export async function POST(request: NextRequest) {
   try {
@@ -51,7 +52,6 @@ export async function POST(request: NextRequest) {
       isSlideshow,
       location: locationInput,
       embedUrls: embedUrlsInput,
-      isScheduled: _isScheduledInput,
       scheduledFor: scheduledForInput
     } = body;
 
@@ -418,65 +418,7 @@ export async function GET(request: NextRequest) {
     // OPTIMIZED: Minimal includes, separate queries for user-specific data
     const posts = await prisma.post.findMany({
       where,
-      select: {
-        id: true,
-        content: true,
-        createdAt: true,
-        updatedAt: true,
-        isPinned: true,
-        isSlideshow: true,
-        location: true,
-        embedUrls: true,
-        userId: true,
-        user: {
-          select: {
-            id: true,
-            username: true,
-            name: true,
-            createdAt: true,
-            profile: {
-              select: {
-                avatarUrl: true,
-                bannerUrl: true,
-                profileType: true,
-                verified: true,
-                bio: true,
-                website: true,
-                location: true,
-              }
-            },
-            _count: {
-              select: { followers: true, following: true }
-            }
-          }
-        },
-        _count: {
-          select: {
-            likes: true,
-            reposts: true,
-            replies: true,
-          }
-        },
-        media: {
-          select: { id: true, mediaUrl: true, mediaType: true, order: true },
-          orderBy: { order: 'asc' }
-        },
-        poll: {
-          select: {
-            id: true,
-            question: true,
-            expiresAt: true,
-            isMultiple: true,
-            options: {
-              select: {
-                id: true,
-                text: true,
-                _count: { select: { votes: true } }
-              }
-            }
-          }
-        },
-      },
+      select: postListSelect,
       orderBy: filterUserId ? [
         { isPinned: "desc" },
         { createdAt: "desc" }
@@ -486,74 +428,14 @@ export async function GET(request: NextRequest) {
     });
 
     const postIds = posts.map(post => post.id);
-
-    // PARALLEL: Fetch all user-specific data in one go
-    const [viewCountMap, userLikes, userReposts, userSaves, userPollVotes] = await Promise.all([
-      // Unique view counts (counts unique users, not total view records)
-      getUniqueViewCounts(postIds),
-      // User likes
-      currentUserId ? prisma.postLike.findMany({
-        where: { postId: { in: postIds }, userId: currentUserId },
-        select: { postId: true }
-      }) : Promise.resolve([]),
-      // User reposts
-      currentUserId ? prisma.postRepost.findMany({
-        where: { postId: { in: postIds }, userId: currentUserId },
-        select: { postId: true }
-      }) : Promise.resolve([]),
-      // User saves
-      currentUserId ? prisma.savedPost.findMany({
-        where: { postId: { in: postIds }, userId: currentUserId },
-        select: { postId: true }
-      }) : Promise.resolve([]),
-      // User poll votes
-      currentUserId && posts.some(post => post.poll) ? prisma.pollVote.findMany({
-        where: {
-          pollId: { in: posts.filter(p => p.poll).map(p => p.poll!.id) },
-          userId: currentUserId
-        },
-        select: { optionId: true }
-      }) : Promise.resolve([])
-    ]);
-    const likedPostIds = new Set(userLikes.map(l => l.postId));
-    const repostedPostIds = new Set(userReposts.map(r => r.postId));
-    const savedPostIds = new Set(userSaves.map(s => s.postId));
-    const votedOptionIds = new Set(userPollVotes.map(v => v.optionId));
-
-    const transformedPosts = posts.map((post) => {
-      const viewCount = viewCountMap.get(post.id) || 0;
-      
-      const transformedPost = {
-        ...post,
-        views: viewCount,
-        isLiked: likedPostIds.has(post.id),
-        isReposted: repostedPostIds.has(post.id),
-        isSaved: savedPostIds.has(post.id),
-        likes: [], // Clear to reduce payload
-        reposts: [],
-        savedBy: [],
-        replies: Array(post._count?.replies || 0).fill(null), // For reply count display
-      };
-      
-      if (post.poll) {
-        const totalVotes = post.poll.options.reduce((sum: number, opt) => sum + opt._count.votes, 0);
-        return {
-          ...transformedPost,
-          poll: {
-            ...post.poll,
-            totalVotes,
-            options: post.poll.options.map((opt) => ({
-              id: opt.id,
-              text: opt.text,
-              votes: opt._count.votes,
-              isSelected: votedOptionIds.has(opt.id)
-            }))
-          }
-        };
-      }
-      
-      return transformedPost;
-    });
+    const engagementSummary = await fetchPostEngagementSummary(
+      postIds,
+      currentUserId,
+      getPostPollIds(posts)
+    );
+    const transformedPosts = posts.map((post) =>
+      attachPostEngagement(post, engagementSummary)
+    );
 
     // Add cache headers for better performance (stale-while-revalidate for fast subsequent loads)
     const response = NextResponse.json({ posts: transformedPosts });

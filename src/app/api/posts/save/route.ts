@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { getAuthSession } from "@/server/auth";
 import { prisma } from "@/server/db";
 import { responseCache } from "@/server/cache";
-import { getUniqueViewCounts } from "@/lib/view-utils";
+import { attachPostEngagement, fetchPostEngagementSummary, getPostPollIds } from "@/server/posts/post-engagement";
+import { postListSelect } from "@/server/posts/post-selects";
 
 export async function POST(request: NextRequest) {
   try {
@@ -108,69 +109,7 @@ export async function GET(request: NextRequest) {
         id: true,
         createdAt: true,
         post: {
-          select: {
-            id: true,
-            content: true,
-            createdAt: true,
-            updatedAt: true,
-            isPinned: true,
-            isSlideshow: true,
-            location: true,
-            embedUrls: true,
-            userId: true,
-            user: {
-              select: {
-                id: true,
-                username: true,
-                name: true,
-                profile: {
-                  select: {
-                    avatarUrl: true,
-                    bannerUrl: true,
-                    profileType: true,
-                    verified: true,
-                    bio: true,
-                    website: true,
-                    location: true
-                  }
-                },
-                _count: {
-                  select: {
-                    followers: true,
-                    following: true
-                  }
-                }
-              }
-            },
-            // Use _count instead of fetching all records
-            _count: {
-              select: {
-                likes: true,
-                reposts: true,
-                savedBy: true,
-                replies: true
-              }
-            },
-            media: {
-              select: { id: true, mediaUrl: true, mediaType: true, order: true },
-              orderBy: { order: 'asc' }
-            },
-            poll: {
-              select: {
-                id: true,
-                question: true,
-                expiresAt: true,
-                isMultiple: true,
-                options: {
-                  select: {
-                    id: true,
-                    text: true,
-                    _count: { select: { votes: true } }
-                  }
-                }
-              }
-            }
-          }
+          select: postListSelect
         }
       },
       orderBy: { createdAt: "desc" },
@@ -178,81 +117,20 @@ export async function GET(request: NextRequest) {
       take: limit
     });
 
-    // OPTIMIZATION: Batch fetch all data in parallel (no N+1 queries)
     const postIds = savedPosts.map(sp => sp.post.id);
-    const pollIds = savedPosts
-      .filter(sp => sp.post.poll)
-      .map(sp => sp.post.poll!.id);
-    
     const currentUserId = (session.user as { id?: string })?.id;
-    
-    // Batch fetch: views + user's poll votes (if logged in)
-    const [viewsMap, userPollVotes] = await Promise.all([
-      // Use optimized batch view count function
-      getUniqueViewCounts(postIds),
-      // Batch fetch all poll votes for current user (instead of N+1)
-      currentUserId && pollIds.length > 0
-        ? prisma.pollVote.findMany({
-            where: {
-              pollId: { in: pollIds },
-              userId: currentUserId
-            },
-            select: { optionId: true }
-          })
-        : Promise.resolve([])
-    ]);
-    
-    const userVotedOptions = new Set(userPollVotes.map(v => v.optionId));
+    const posts = savedPosts.map((savedPost) => savedPost.post);
+    const engagementSummary = await fetchPostEngagementSummary(
+      postIds,
+      currentUserId,
+      getPostPollIds(posts)
+    );
 
-    // Batch fetch user's likes and reposts for these posts
-    const [userLikes, userReposts] = await Promise.all([
-      currentUserId ? prisma.postLike.findMany({
-        where: { postId: { in: postIds }, userId: currentUserId },
-        select: { postId: true }
-      }) : Promise.resolve([]),
-      currentUserId ? prisma.postRepost.findMany({
-        where: { postId: { in: postIds }, userId: currentUserId },
-        select: { postId: true }
-      }) : Promise.resolve([])
-    ]);
-    
-    const likedPostIds = new Set(userLikes.map(l => l.postId));
-    const repostedPostIds = new Set(userReposts.map(r => r.postId));
-
-    // Transform posts (no async needed now - all data is pre-fetched)
     const postsWithViewCounts = savedPosts.map((savedPost) => {
-      const viewCount = viewsMap.get(savedPost.post.id) || 0;
-      const post = savedPost.post;
-      
-      // Transform to expected format with proper engagement flags
-      const transformedPost = {
-        ...post,
-        views: viewCount,
-        // Set boolean flags for current user's engagement
-        isLiked: likedPostIds.has(post.id),
-        isReposted: repostedPostIds.has(post.id),
-        isSaved: true, // Always true since these are saved posts
-        // Keep counts for display
-        likes: [] as { id: string; userId: string }[],
-        reposts: [] as { id: string; userId: string }[],
-        savedBy: [] as { id: string; userId: string }[],
-        replies: Array(post._count?.replies || 0).fill(null) as null[],
-        poll: post.poll ? {
-          id: post.poll.id,
-          question: post.poll.question,
-          isMultiple: post.poll.isMultiple,
-          expiresAt: post.poll.expiresAt,
-          totalVotes: post.poll.options.reduce((sum: number, opt) => sum + (opt._count?.votes || 0), 0),
-          options: post.poll.options.map((opt) => ({
-            id: opt.id,
-            text: opt.text,
-            votes: opt._count?.votes || 0,
-            isSelected: userVotedOptions.has(opt.id)
-          }))
-        } : undefined
+      return {
+        ...savedPost,
+        post: attachPostEngagement(savedPost.post, engagementSummary),
       };
-      
-      return { ...savedPost, post: transformedPost };
     });
 
     // Return fresh data without caching - profile tab updates need to be instant

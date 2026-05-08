@@ -7,6 +7,7 @@ import { cn } from "@/lib/cn";
 import { BackButton } from "@/components/ui/BackButton";
 import { ThemeLogoImg } from "@/components/ui/ThemeLogo";
 import { navigation, userNavigation, type NavItem } from "@/config/navigation";
+import { useBodyScrollLock } from "@/components/ui/useBodyScrollLock";
 
 interface MobileNavProps {
   session?: { user?: { id?: string; username?: string; name?: string; image?: string } } | null;
@@ -19,24 +20,24 @@ const NavLink = memo(function NavLink({ item, isActive, onClick }: { item: NavIt
       href={item.href}
       onClick={onClick}
       className={cn(
-        "group relative flex items-center gap-3 px-4 py-3 rounded-xl transition-colors duration-150",
+        "group relative flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors duration-150",
         isActive
-          ? "bg-[rgba(var(--color-accent-rgb),0.15)] text-white"
-          : "text-[var(--muted-foreground)] hover:text-white hover:bg-[rgba(var(--color-accent-rgb),0.1)]"
+          ? "bg-white/[0.075] text-white border border-white/10"
+          : "text-[var(--muted-foreground)] hover:text-white hover:bg-white/[0.045] border border-transparent"
       )}
       title={item.description}
     >
       {/* Active indicator */}
       {isActive && (
-        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-gradient-to-b from-[var(--color-accent)] to-[var(--color-accent-hover)] rounded-r-full" />
+        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-7 bg-[var(--color-accent-2)] rounded-r-full" />
       )}
 
       {/* Icon */}
       <div className={cn(
-        "p-2 rounded-lg transition-colors duration-150",
+        "p-2 rounded-md transition-colors duration-150",
         isActive
-          ? "bg-[rgba(var(--color-accent-rgb),0.2)] text-[var(--color-accent)]"
-          : "text-[var(--muted-foreground)] group-hover:text-[var(--color-accent)] group-hover:bg-[rgba(var(--color-accent-rgb),0.1)]"
+          ? "bg-[rgba(var(--color-accent-2-rgb),0.10)] text-[var(--color-accent-2)]"
+          : "text-[var(--muted-foreground)] group-hover:text-[var(--color-accent-2)] group-hover:bg-white/[0.04]"
       )}>
         {item.icon}
       </div>
@@ -48,7 +49,7 @@ const NavLink = memo(function NavLink({ item, isActive, onClick }: { item: NavIt
       <svg
         className={cn(
           "ml-auto w-4 h-4 transition-opacity duration-150",
-          isActive ? "text-[var(--color-accent)] opacity-100" : "opacity-0 group-hover:opacity-50"
+          isActive ? "text-[var(--color-accent-2)] opacity-100" : "opacity-0 group-hover:opacity-50"
         )}
         fill="none"
         stroke="currentColor"
@@ -71,24 +72,14 @@ export const MobileNav = memo(function MobileNav({ session }: MobileNavProps) {
     setIsOpen(false);
   }, [pathname]);
 
-  // Prevent body scroll when menu is open
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [isOpen]);
+  useBodyScrollLock(isOpen);
 
   return (
     <>
       {/* Hamburger Button - Fixed in top left, vertically centered in navbar (h-16 = 64px, button ~44px) */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="md:hidden fixed top-[10px] left-4 z-50 p-2.5 rounded-xl glass border border-white/10 hover:border-[var(--color-accent)]/30 transition-all duration-150 hover:scale-105 active:scale-95"
+        className="md:hidden fixed top-[10px] left-4 z-50 p-2.5 rounded-lg bg-[rgba(7,9,13,0.9)] border border-white/10 hover:border-[rgba(var(--color-accent-2-rgb),0.35)] transition-all duration-150 active:scale-95 shadow-[0_10px_28px_rgba(0,0,0,0.32)]"
         aria-label={isOpen ? "Close menu" : "Open menu"}
         aria-expanded={isOpen}
       >
@@ -123,7 +114,7 @@ export const MobileNav = memo(function MobileNav({ session }: MobileNavProps) {
       {/* Overlay */}
       {isOpen && (
         <div
-          className="md:hidden fixed inset-0 bg-black/80 z-40"
+          className="md:hidden fixed inset-0 bg-black/82 z-40"
           onClick={() => setIsOpen(false)}
         />
       )}
@@ -131,7 +122,7 @@ export const MobileNav = memo(function MobileNav({ session }: MobileNavProps) {
       {/* Slide-out Menu - Exact same styling as desktop Sidebar */}
       <div
         className={cn(
-          "md:hidden fixed top-0 left-0 h-full w-72 z-50 transform transition-transform duration-300 ease-out glass border-0 border-r border-white/10",
+          "md:hidden fixed top-0 left-0 h-full w-72 z-50 transform transition-transform duration-300 ease-out bg-[rgba(7,9,13,0.94)] border-0 border-r border-white/10 shadow-[18px_0_60px_rgba(0,0,0,0.34)]",
           isOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
@@ -141,7 +132,7 @@ export const MobileNav = memo(function MobileNav({ session }: MobileNavProps) {
             <Link href="/" className="flex items-center gap-3 group" onClick={() => setIsOpen(false)}>
               <ThemeLogoImg className="w-10 h-10 object-contain" />
               <div>
-                <h1 className="text-xl font-bold gradient-text font-[var(--font-space-grotesk)]">
+                <h1 className="text-xl font-bold text-white font-[var(--font-space-grotesk)] tracking-tight">
                   DevLink
                 </h1>
                 <p className="text-[10px] text-[var(--muted-foreground)] uppercase tracking-widest">
@@ -154,7 +145,7 @@ export const MobileNav = memo(function MobileNav({ session }: MobileNavProps) {
           {/* Back Button - matching Sidebar */}
           <div className="px-4 pt-4">
             <BackButton
-              className="w-full justify-start glass-hover rounded-xl text-[var(--muted-foreground)] hover:text-white border-0"
+              className="w-full justify-start bg-white/[0.035] hover:bg-white/[0.065] rounded-lg text-[var(--muted-foreground)] hover:text-white border border-white/8"
               onClick={() => setIsOpen(false)}
             />
           </div>
@@ -245,7 +236,7 @@ export const MobileNav = memo(function MobileNav({ session }: MobileNavProps) {
       </div>
 
       {/* Bottom Navigation Bar */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 glass border-0 border-t border-white/10 safe-area-bottom">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[rgba(7,9,13,0.92)] border-0 border-t border-white/10 safe-area-bottom shadow-[0_-16px_48px_rgba(0,0,0,0.28)]">
         <div className="flex justify-around items-center h-16 px-2">
           {navigation.map((item) => {
             const isActive = pathname === item.href;
@@ -256,13 +247,13 @@ export const MobileNav = memo(function MobileNav({ session }: MobileNavProps) {
                 className={cn(
                   "flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all duration-150",
                   isActive
-                    ? "text-[var(--color-accent)]"
+                    ? "text-[var(--color-accent-2)]"
                     : "text-[var(--muted-foreground)] hover:text-white active:scale-95"
                 )}
               >
                 <div className={cn(
                   "p-1.5 rounded-lg transition-all",
-                  isActive && "bg-[rgba(var(--color-accent-rgb),0.2)] scale-110"
+                  isActive && "bg-[rgba(var(--color-accent-2-rgb),0.12)] scale-110"
                 )}>
                   {item.icon}
                 </div>
@@ -278,13 +269,13 @@ export const MobileNav = memo(function MobileNav({ session }: MobileNavProps) {
               className={cn(
                 "flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all duration-150",
                 pathname.startsWith("/u/") || pathname === "/me"
-                  ? "text-[var(--color-accent)]"
+                  ? "text-[var(--color-accent-2)]"
                   : "text-[var(--muted-foreground)] hover:text-white active:scale-95"
               )}
             >
               <div className={cn(
                 "p-1.5 rounded-lg transition-all",
-                (pathname.startsWith("/u/") || pathname === "/me") && "bg-[rgba(var(--color-accent-rgb),0.2)] scale-110"
+                (pathname.startsWith("/u/") || pathname === "/me") && "bg-[rgba(var(--color-accent-2-rgb),0.12)] scale-110"
               )}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                   <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />

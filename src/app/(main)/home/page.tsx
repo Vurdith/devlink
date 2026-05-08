@@ -4,6 +4,7 @@ import { prisma } from "@/server/db";
 import { AnimatedHomeContent } from "@/components/feed/AnimatedHomeContent";
 import { fetchHomeFeedPosts } from "@/server/feed/fetch-home-feed";
 import { rankHomeFeedPosts } from "@/server/feed/rank-home-feed";
+import { attachPostEngagement, fetchPostEngagementSummary, getPostPollIds } from "@/server/posts/post-engagement";
 
 // Cache page for 30 seconds - engagement state is fetched client-side
 export const revalidate = 30;
@@ -64,31 +65,12 @@ export default async function HomePage() {
 
   // Rank a larger candidate set, then trim to the render size.
   const rankedPosts = (await rankHomeFeedPosts(posts)).slice(0, FEED_RENDER_LIMIT);
-  const postIds = rankedPosts.map((p) => p.id);
-  const pollIds = rankedPosts
-    .filter((p) => p.poll)
-    .map((p) => p.poll?.id)
-    .filter((id): id is string => Boolean(id));
-
-  // Fetch ALL data in ONE parallel batch (including user profile)
-  const [userLikes, userReposts, userSaves, userVotes, currentUserProfile] = await Promise.all([
-    currentUserId ? prisma.postLike.findMany({
-      where: { postId: { in: postIds }, userId: currentUserId },
-      select: { postId: true }
-    }) : Promise.resolve([]),
-    currentUserId ? prisma.postRepost.findMany({
-      where: { postId: { in: postIds }, userId: currentUserId },
-      select: { postId: true }
-    }) : Promise.resolve([]),
-    currentUserId ? prisma.savedPost.findMany({
-      where: { postId: { in: postIds }, userId: currentUserId },
-      select: { postId: true }
-    }) : Promise.resolve([]),
-    currentUserId && pollIds.length > 0 ? prisma.pollVote.findMany({
-      where: { pollId: { in: pollIds }, userId: currentUserId },
-      select: { pollId: true, optionId: true }
-    }) : Promise.resolve([]),
-    // Fetch user profile IN PARALLEL with engagement data
+  const [engagementSummary, currentUserProfile] = await Promise.all([
+    fetchPostEngagementSummary(
+      rankedPosts.map((post) => post.id),
+      currentUserId,
+      getPostPollIds(rankedPosts)
+    ),
     username ? prisma.user.findUnique({
       where: { username },
       select: { 
@@ -99,47 +81,9 @@ export default async function HomePage() {
     }) : Promise.resolve(null)
   ]);
 
-  // Build lookup sets/maps
-  const likedPostIds = new Set(userLikes.map(l => l.postId));
-  const repostedPostIds = new Set(userReposts.map(r => r.postId));
-  const savedPostIds = new Set(userSaves.map(s => s.postId));
-  
-  const userVotesMap = new Map<string, string[]>();
-  userVotes.forEach(vote => {
-    if (!userVotesMap.has(vote.pollId)) {
-      userVotesMap.set(vote.pollId, []);
-    }
-    userVotesMap.get(vote.pollId)!.push(vote.optionId);
-  });
-
-  // Transform posts with engagement data
-  const postsWithViewCounts = rankedPosts.map(post => {
-    let transformedPoll = undefined;
-    if (post.poll) {
-      const userVotedOptionIds = userVotesMap.get(post.poll.id) || [];
-      transformedPoll = {
-        id: post.poll.id,
-        question: post.poll.question,
-        options: post.poll.options?.map((opt: { id: string; text: string; votes?: unknown[] }) => ({
-          id: opt.id, text: opt.text,
-          votes: opt.votes?.length || 0,
-          isSelected: userVotedOptionIds.includes(opt.id)
-        })) || [],
-        totalVotes: post.poll.options?.reduce((sum: number, opt: { votes?: unknown[] }) => sum + (opt.votes?.length || 0), 0) || 0,
-        isMultiple: post.poll.isMultiple,
-        expiresAt: post.poll.expiresAt
-      };
-    }
-    return {
-      ...post,
-      views: post.views || 0,
-      isLiked: likedPostIds.has(post.id),
-      isReposted: repostedPostIds.has(post.id),
-      isSaved: savedPostIds.has(post.id),
-      poll: transformedPoll,
-      replies: []
-    };
-  });
+  const postsWithViewCounts = rankedPosts.map((post) =>
+    attachPostEngagement(post, engagementSummary)
+  );
 
   return (
     <div className="min-h-screen pt-12">

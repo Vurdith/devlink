@@ -8,7 +8,7 @@ import Image from "next/image";
 import { useTheme } from "@/components/providers/ThemeProvider";
 
 export default function CompleteSignupPage() {
-  const { data: _session, status, update } = useSession();
+  const { status, update } = useSession();
   const router = useRouter();
   const { logoPath } = useTheme();
   const [password, setPassword] = useState("");
@@ -112,7 +112,7 @@ export default function CompleteSignupPage() {
     return (
       <div className="min-h-screen flex items-center justify-center -m-6 px-4">
         <div className="w-full max-w-md">
-          <div className="relative overflow-hidden glass noise-overlay border border-white/10 rounded-2xl p-8 text-center">
+          <div className="relative overflow-hidden glass noise-overlay border border-white/[0.1] rounded-xl p-6 text-center shadow-[var(--shadow-soft)] sm:p-8">
             <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-green-500/20 flex items-center justify-center">
               <svg className="w-8 h-8 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -142,8 +142,8 @@ export default function CompleteSignupPage() {
         </div>
 
         {/* Form */}
-        <div className="relative overflow-hidden glass noise-overlay border border-white/10 rounded-2xl p-8">
-          <div className="mb-6 p-4 rounded-xl bg-blue-500/10 border border-blue-500/20">
+        <div className="relative overflow-hidden glass noise-overlay border border-white/[0.1] rounded-xl p-6 shadow-[var(--shadow-soft)] sm:p-8">
+          <div className="mb-6 p-4 rounded-lg bg-[rgba(var(--color-accent-2-rgb),0.1)] border border-[rgba(var(--color-accent-2-rgb),0.2)]">
             <div className="flex items-start gap-3">
               <svg className="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -174,7 +174,7 @@ export default function CompleteSignupPage() {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]/50 focus:border-[var(--color-accent)]/50 transition-all"
+                className="w-full px-4 py-3 rounded-lg bg-white/[0.04] border border-white/[0.1] text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[rgba(var(--color-accent-2-rgb),0.24)] focus:border-[rgba(var(--color-accent-2-rgb),0.55)] transition-all"
                 placeholder="Create a password"
               />
               {password && (
@@ -202,7 +202,7 @@ export default function CompleteSignupPage() {
                 type="password"
                 value={passwordConfirm}
                 onChange={(e) => setPasswordConfirm(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]/50 focus:border-[var(--color-accent)]/50 transition-all"
+                className="w-full px-4 py-3 rounded-lg bg-white/[0.04] border border-white/[0.1] text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[rgba(var(--color-accent-2-rgb),0.24)] focus:border-[rgba(var(--color-accent-2-rgb),0.55)] transition-all"
                 placeholder="Confirm your password"
               />
               {passwordConfirm && password !== passwordConfirm && (
@@ -222,7 +222,7 @@ export default function CompleteSignupPage() {
             <button
               type="submit"
               disabled={loading || !password || !passwordConfirm || password !== passwordConfirm}
-              className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-[var(--color-accent-hover)] to-pink-600 text-white font-semibold hover:from-[var(--color-accent)] hover:to-pink-500 focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              className="w-full py-3 px-4 rounded-lg bg-[linear-gradient(135deg,var(--color-accent),#5f6cf6_52%,var(--color-accent-2))] text-white font-semibold hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-[rgba(var(--color-accent-2-rgb),0.24)] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             >
               {loading ? (
                 <span className="flex items-center justify-center gap-2">
@@ -241,7 +241,7 @@ export default function CompleteSignupPage() {
             <button
               type="button"
               onClick={handleSkip}
-              className="w-full py-3 px-4 rounded-xl bg-white/5 border border-white/10 text-gray-300 font-medium hover:bg-white/10 hover:text-white focus:outline-none focus:ring-2 focus:ring-white/20 transition-all"
+              className="w-full py-3 px-4 rounded-lg bg-white/[0.04] border border-white/[0.1] text-gray-300 font-medium hover:bg-white/[0.08] hover:text-white focus:outline-none focus:ring-2 focus:ring-white/20 transition-all"
             >
               Skip for now
             </button>
@@ -249,8 +249,8 @@ export default function CompleteSignupPage() {
 
           <p className="mt-6 text-center text-sm text-gray-500">
             You can always set a password later in{" "}
-            <Link href="/settings/security" className="text-[var(--color-accent)] hover:text-[var(--color-accent)]">
-              Settings → Security
+            <Link href="/settings/security" className="text-[var(--color-accent-2)] hover:text-[var(--color-accent-2)]">
+              Settings / Security
             </Link>
           </p>
         </div>

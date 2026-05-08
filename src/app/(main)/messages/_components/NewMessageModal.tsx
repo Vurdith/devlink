@@ -24,7 +24,7 @@ interface NewMessageModalProps {
   onRequestSent: (request: MessageRequest) => void;
 }
 
-export function NewMessageModal({ onClose, onThreadCreated, onRequestSent: _onRequestSent }: NewMessageModalProps) {
+export function NewMessageModal({ onClose, onThreadCreated, onRequestSent }: NewMessageModalProps) {
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<UserSearchResult[]>([]);
@@ -65,11 +65,14 @@ export function NewMessageModal({ onClose, onThreadCreated, onRequestSent: _onRe
       onThreadCreated(data.thread);
       onClose();
       router.push(`/messages/${data.thread.id}`);
+    } else if (res.ok && data?.request) {
+      onRequestSent(data.request);
+      onClose();
     } else {
       alert(data?.error || "Unable to start conversation");
     }
     setCreating(false);
-  }, [onClose, onThreadCreated, router]);
+  }, [onClose, onRequestSent, onThreadCreated, router]);
 
   // Close on Escape
   useEffect(() => {

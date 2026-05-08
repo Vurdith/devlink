@@ -1,8 +1,10 @@
 import { NodeSDK } from "@opentelemetry/sdk-node";
 import { getNodeAutoInstrumentations } from "@opentelemetry/auto-instrumentations-node";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
+import { createLogger } from "@/server/logger";
 
 let sdk: NodeSDK | null = null;
+const logger = createLogger("otel");
 
 export async function initializeOpenTelemetry() {
   if (sdk || process.env.OTEL_ENABLED !== "true") return;
@@ -25,9 +27,7 @@ export async function initializeOpenTelemetry() {
   });
 
   await sdk.start();
-  if (process.env.NODE_ENV === "development") {
-    console.log("[OTel] initialized");
-  }
+  logger.debug("OpenTelemetry initialized");
 }
 
 export async function shutdownOpenTelemetry() {

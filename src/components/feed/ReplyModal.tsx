@@ -7,6 +7,10 @@ import { BaseModal, ModalActionButton, Tooltip } from "@/components/ui/BaseModal
 import { Button } from "@/components/ui/Button";
 import Image from "next/image";
 import { cn } from "@/lib/cn";
+import { ComposerLoadingPlaceholder } from "./composer/ComposerLoadingPlaceholder";
+import { ComposerMediaGrid } from "./composer/ComposerMediaGrid";
+import { ComposerPollSummary } from "./composer/ComposerPollSummary";
+import type { PollData } from "./composer/composer-types";
 
 // Lazy load heavy components
 const EmojiPicker = lazy(() => import('emoji-picker-react'));
@@ -41,15 +45,6 @@ interface ReplyModalProps {
   onReplyPosted?: () => void;
 }
 
-// Loading placeholder
-function LoadingPlaceholder({ height = "h-64" }: { height?: string }) {
-  return (
-    <div className={`${height} flex items-center justify-center`}>
-      <div className="w-6 h-6 border-2 border-[var(--color-accent)]/30 border-t-[var(--color-accent)] rounded-full animate-spin" />
-    </div>
-  );
-}
-
 export const ReplyModal = memo(function ReplyModal({
   isOpen,
   onClose,
@@ -69,12 +64,7 @@ export const ReplyModal = memo(function ReplyModal({
   const [embedUrls, setEmbedUrls] = useState<string[]>([]);
   const [mediaUrls, setMediaUrls] = useState<string[]>([]);
   const [uploadProgress, setUploadProgress] = useState<{[key: string]: number}>({});
-  const [pollData, setPollData] = useState<{
-    question: string;
-    options: string[];
-    expiresAt?: Date;
-    isMultiple: boolean;
-  } | null>(null);
+  const [pollData, setPollData] = useState<PollData | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -130,8 +120,7 @@ export const ReplyModal = memo(function ReplyModal({
           const data = await response.json();
           setMediaUrls(prev => [...prev, data.url]);
         }
-      } catch (error) {
-        console.error('Upload error:', error);
+      } catch {
       } finally {
         setUploadProgress(prev => {
           const newProgress = { ...prev };
@@ -175,8 +164,7 @@ export const ReplyModal = memo(function ReplyModal({
         onClose();
         onReplyPosted?.();
       }
-    } catch (error) {
-      console.error('Error posting reply:', error);
+    } catch {
     } finally {
       setIsSubmitting(false);
     }
@@ -405,7 +393,7 @@ export const ReplyModal = memo(function ReplyModal({
           {/* Conditional panels */}
           {showEmojiPicker && (
             <div className="mt-3 p-3 bg-black/30 rounded-xl border border-white/10 animate-slide-down">
-              <Suspense fallback={<LoadingPlaceholder />}>
+              <Suspense fallback={<ComposerLoadingPlaceholder />}>
                 <EmojiPicker 
                   onEmojiClick={addEmoji} 
                   searchDisabled 
@@ -483,7 +471,7 @@ export const ReplyModal = memo(function ReplyModal({
           {/* Poll Creator */}
           {showPoll && (
             <div className="mt-3 animate-slide-down">
-              <Suspense fallback={<LoadingPlaceholder height="h-48" />}>
+              <Suspense fallback={<ComposerLoadingPlaceholder height="h-48" />}>
                 <CreatePoll 
                   onSubmit={(data) => { 
                     setPollData(data); 
@@ -500,61 +488,13 @@ export const ReplyModal = memo(function ReplyModal({
 
           {/* Poll Preview (after creation) */}
           {pollData && !showPoll && (
-            <div className="mt-3 p-4 bg-gradient-to-r from-[var(--color-accent)]/10 to-cyan-500/10 border border-[var(--color-accent)]/30 rounded-xl animate-pop-in">
-              <div className="flex items-start justify-between">
-                <div className="flex items-start gap-3">
-                  <div className="p-2 bg-[var(--color-accent)]/20 rounded-lg mt-0.5">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-[var(--color-accent)]">
-                      <path d="M9 12l2 2 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
-                    </svg>
-                  </div>
-                  <div>
-                    <div className="font-medium text-white">{pollData.question}</div>
-                    <div className="text-xs text-[var(--muted-foreground)] mt-1">
-                      {pollData.options.length} options • {pollData.isMultiple ? "Multiple choice" : "Single choice"}
-                    </div>
-                  </div>
-                </div>
-                <Tooltip content="Remove poll">
-                  <button type="button" onClick={() => setPollData(null)} className="p-2 text-[var(--color-accent)] hover:bg-[var(--color-accent)]/10 rounded-lg">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                      <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                    </svg>
-                  </button>
-                </Tooltip>
-              </div>
+            <div className="mt-3">
+              <ComposerPollSummary pollData={pollData} onRemove={() => setPollData(null)} />
             </div>
           )}
-          
+
           {/* Media preview */}
-          {mediaUrls.length > 0 && (
-            <div className={cn(
-              "grid gap-2 mt-3 rounded-xl overflow-hidden",
-              mediaUrls.length === 1 ? "grid-cols-1" : "grid-cols-2"
-            )}>
-              {mediaUrls.map((url, index) => (
-                <div key={index} className="relative group aspect-video">
-                  <img 
-                    src={url} 
-                    alt={`Media ${index + 1}`} 
-                    className="w-full h-full object-cover rounded-xl border border-white/10" 
-                  />
-                  <Tooltip content="Remove media">
-                    <button
-                      type="button"
-                      onClick={() => removeMedia(index)}
-                      className="absolute top-2 right-2 bg-black/70 hover:bg-[var(--color-accent)] text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-all"
-                    >
-                      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none">
-                        <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                      </svg>
-                    </button>
-                  </Tooltip>
-                </div>
-              ))}
-            </div>
-          )}
+          {mediaUrls.length > 0 && <ComposerMediaGrid mediaUrls={mediaUrls} onRemove={removeMedia} compact />}
           
           {/* Upload progress */}
           {Object.keys(uploadProgress).length > 0 && (
@@ -572,3 +512,4 @@ export const ReplyModal = memo(function ReplyModal({
 });
 
 export default ReplyModal;
+

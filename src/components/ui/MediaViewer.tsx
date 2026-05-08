@@ -3,12 +3,9 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
-
-interface MediaItem {
-  id?: string;
-  url: string;
-  type: "image" | "video";
-}
+import { useBodyScrollLock } from "./useBodyScrollLock";
+import { MediaViewerPreview } from "./MediaViewerPreview";
+import type { MediaItem } from "./media-viewer-types";
 
 interface MediaViewerProps {
   media: MediaItem[];
@@ -46,24 +43,7 @@ export function MediaViewer({
     setContainerDimensions({ width: 0, height: 0 });
   }, [showModal, currentIndex]);
 
-  // Lock body scroll when modal is open
-  useEffect(() => {
-    if (showModal) {
-      const scrollY = window.scrollY;
-      document.body.style.position = 'fixed';
-      document.body.style.top = `-${scrollY}px`;
-      document.body.style.width = '100%';
-      document.body.style.overflow = 'hidden';
-      
-      return () => {
-        document.body.style.position = '';
-        document.body.style.top = '';
-        document.body.style.width = '';
-        document.body.style.overflow = '';
-        window.scrollTo(0, scrollY);
-      };
-    }
-  }, [showModal]);
+  useBodyScrollLock(showModal, true);
 
 
   // Calculate pan boundaries
@@ -169,182 +149,6 @@ export function MediaViewer({
     setCurrentIndex(index);
     setShowModal(true);
   }, []);
-
-  const GridMediaItem = ({ item, index }: { 
-    item: MediaItem; 
-    index: number; 
-  }) => (
-    <div
-      className="relative cursor-pointer overflow-hidden rounded-xl bg-black/20 group/media"
-      onClick={() => openModal(index)}
-    >
-      {item.type === "video" ? (
-        <>
-          <video
-            src={item.url}
-            className="w-full h-auto rounded-xl transition-transform duration-500 ease-out group-hover/media:scale-105"
-            preload="metadata"
-          />
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div className="bg-black/60 rounded-full p-3 transition-transform duration-300 group-hover/media:scale-110">
-              <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
-              </svg>
-            </div>
-          </div>
-        </>
-      ) : (
-        <div className="relative w-full aspect-video overflow-hidden rounded-xl">
-          <Image
-            src={item.url}
-            alt={`${alt} - ${index + 1}`}
-            fill
-            sizes="(max-width: 768px) 50vw, 300px"
-            className="rounded-xl object-cover transition-transform duration-500 ease-out group-hover/media:scale-105"
-            unoptimized
-          />
-        </div>
-      )}
-      <div className="absolute inset-0 bg-black/0 group-hover/media:bg-black/10 transition-colors duration-200 rounded-xl pointer-events-none" />
-    </div>
-  );
-
-  // Render preview with X.com-style layouts
-  const renderPreview = () => {
-    const count = media.length;
-    
-    // Slideshow mode - full width container, image scales to fit
-    if (isSlideshow && count > 1) {
-      return (
-        <div 
-          className={`relative w-full rounded-2xl overflow-hidden cursor-pointer group/media bg-black/40 ${className}`}
-          style={{ maxHeight: '400px' }}
-          onClick={() => openModal(currentIndex)}
-        >
-          {currentMedia.type === "video" ? (
-            <video
-              src={currentMedia.url}
-              className="w-full h-full object-contain"
-              style={{ maxHeight: '400px' }}
-              preload="metadata"
-            />
-          ) : (
-            <div className="relative w-full" style={{ height: '400px' }}>
-              <Image
-                src={currentMedia.url}
-                alt={`${alt} - ${currentIndex + 1}`}
-                fill
-                sizes="100vw"
-                className="object-contain"
-                unoptimized
-              />
-            </div>
-          )}
-          
-          {/* Navigation Arrows */}
-          <button
-            onClick={(e) => { e.stopPropagation(); goToPrevious(); }}
-            className="absolute left-3 top-1/2 -translate-y-1/2 p-2.5 bg-black/70 hover:bg-black/90 text-white rounded-full transition-all opacity-0 group-hover/media:opacity-100"
-            title="Previous"
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-              <path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </button>
-          <button
-            onClick={(e) => { e.stopPropagation(); goToNext(); }}
-            className="absolute right-3 top-1/2 -translate-y-1/2 p-2.5 bg-black/70 hover:bg-black/90 text-white rounded-full transition-all opacity-0 group-hover/media:opacity-100"
-            title="Next"
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-              <path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </button>
-          
-          {/* Slide Indicators */}
-          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 bg-black/50 px-3 py-1.5 rounded-full">
-            {media.map((_, idx) => (
-              <button
-                key={idx}
-                onClick={(e) => { e.stopPropagation(); setCurrentIndex(idx); }}
-                className={`h-1.5 rounded-full transition-all ${
-                  idx === currentIndex ? "bg-white w-4" : "bg-white/40 hover:bg-white/60 w-1.5"
-                }`}
-              />
-            ))}
-          </div>
-        </div>
-      );
-    }
-
-    // Single image - full width container, image scales to fit
-    if (count === 1) {
-      const item = media[0];
-      return (
-        <div 
-          className={`relative w-full rounded-2xl overflow-hidden cursor-pointer group/media bg-black/40 ${className}`}
-          style={{ maxHeight: '400px' }}
-          onClick={() => openModal(0)}
-        >
-          {item.type === "video" ? (
-            <>
-              <video
-                src={item.url}
-                className="w-full h-full object-contain transition-transform duration-500 ease-out group-hover/media:scale-105"
-                style={{ maxHeight: '400px' }}
-                preload="metadata"
-              />
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <div className="bg-black/60 rounded-full p-4 transition-transform duration-300 group-hover/media:scale-110">
-                  <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
-                  </svg>
-                </div>
-              </div>
-            </>
-          ) : (
-            <div className="relative w-full overflow-hidden rounded-2xl" style={{ height: '400px' }}>
-              <Image
-                src={item.url}
-                alt={`${alt} - 1`}
-                fill
-                sizes="100vw"
-                className="object-contain transition-transform duration-500 ease-out group-hover/media:scale-105"
-                unoptimized
-              />
-            </div>
-          )}
-          <div className="absolute inset-0 bg-black/0 group-hover/media:bg-black/5 transition-colors duration-200 pointer-events-none rounded-2xl" />
-        </div>
-      );
-    }
-
-    // 2 images - side by side
-    if (count === 2) {
-      return (
-        <div className={`grid grid-cols-2 gap-2 ${className}`}>
-          <GridMediaItem item={media[0]} index={0} />
-          <GridMediaItem item={media[1]} index={1} />
-        </div>
-      );
-    }
-
-    // 3+ images - 2 column grid
-    return (
-      <div className={`grid grid-cols-2 gap-2 ${className}`}>
-        {media.slice(0, 4).map((item, index) => (
-          <div key={item.id || index} className="relative">
-            <GridMediaItem item={item} index={index} />
-            {index === 3 && count > 4 && (
-              <div className="absolute inset-0 bg-black/60 flex items-center justify-center rounded-xl">
-                <span className="text-white text-2xl font-bold">+{count - 4}</span>
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
-    );
-  };
 
   // Modal portal
   const renderModal = () => {
@@ -514,7 +318,18 @@ export function MediaViewer({
 
   return (
     <>
-      {renderPreview()}
+      <MediaViewerPreview
+        media={media}
+        currentIndex={currentIndex}
+        currentMedia={currentMedia}
+        isSlideshow={isSlideshow}
+        className={className}
+        alt={alt}
+        onOpen={openModal}
+        onPrevious={goToPrevious}
+        onNext={goToNext}
+        onSelect={setCurrentIndex}
+      />
       {renderModal()}
     </>
   );

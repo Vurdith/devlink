@@ -60,10 +60,10 @@ export function useTypingIndicator(
       .subscribe();
 
     channelRef.current = channel;
+    const timeouts = timeoutsRef.current;
 
     return () => {
       if (supabase) supabase.removeChannel(channel);
-      const timeouts = timeoutsRef.current;
       Object.values(timeouts).forEach(clearTimeout);
     };
   }, [conversationId, currentUser]);
