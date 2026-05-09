@@ -3,7 +3,9 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { useSession } from "next-auth/react";
+import { cn } from "@/lib/cn";
 import { safeJson } from "@/lib/safe-json";
+import { surface, ui } from "@/components/ui/design-system";
 import type { Job, JobApplication } from "@/types/api";
 
 export default function JobDetailPage() {
@@ -75,7 +77,7 @@ export default function JobDetailPage() {
   if (loading) {
     return (
       <main className="max-w-4xl mx-auto px-4 pb-24 pt-8">
-        <div className="text-sm text-[var(--muted-foreground)]">Loading job...</div>
+        <div className={surface("empty", "p-5 text-sm text-[var(--muted-foreground)]")}>Loading job...</div>
       </main>
     );
   }
@@ -83,7 +85,7 @@ export default function JobDetailPage() {
   if (!job) {
     return (
       <main className="max-w-4xl mx-auto px-4 pb-24 pt-8">
-        <div className="text-sm text-[var(--muted-foreground)]">Job not found.</div>
+        <div className={surface("empty", "p-5 text-sm text-[var(--muted-foreground)]")}>Job not found.</div>
       </main>
     );
   }
@@ -92,7 +94,7 @@ export default function JobDetailPage() {
 
   return (
     <main className="max-w-4xl mx-auto px-4 pb-24 pt-8">
-      <div className="glass-soft border border-white/10 rounded-2xl p-6">
+      <div className={surface("panel", "p-6")}>
         <div className="flex items-start justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-white">{job.title}</h1>
@@ -100,7 +102,7 @@ export default function JobDetailPage() {
               {job.user?.username} • {job.location || "Remote"}
             </p>
           </div>
-          <span className="text-xs text-white/70 px-2 py-1 rounded-full bg-white/5 border border-white/10">
+          <span className="rounded-lg border border-white/[0.08] bg-white/[0.04] px-2 py-1 text-xs font-semibold text-white/70">
             {job.status}
           </span>
         </div>
@@ -113,7 +115,7 @@ export default function JobDetailPage() {
         {!isOwner && userId && (
           <button
             onClick={apply}
-            className="mt-5 px-4 py-2 rounded-xl text-sm font-semibold bg-[var(--color-accent)] text-white hover:brightness-110"
+            className={cn("mt-5 rounded-lg px-4 py-2 text-sm font-semibold transition-all", ui.control.gradient)}
           >
             Apply to this job
           </button>
@@ -121,14 +123,14 @@ export default function JobDetailPage() {
       </div>
 
       {isOwner && (
-        <div className="glass-soft border border-white/10 rounded-2xl p-6 mt-6">
+        <div className={surface("panel", "mt-6 p-6")}>
           <h2 className="text-lg font-semibold text-white mb-4">Applications</h2>
           {applications.length === 0 ? (
             <div className="text-xs text-[var(--muted-foreground)]">No applications yet.</div>
           ) : (
             <div className="grid gap-3">
               {applications.map((app) => (
-                <div key={app.id} className="rounded-xl border border-white/10 p-3 bg-white/5">
+                <div key={app.id} className={surface("panelMuted", "p-3")}>
                   <div className="flex items-center justify-between text-sm text-white/80">
                     <span>{app.applicant?.username || "Applicant"}</span>
                     <span className="text-[10px] text-white/60">{app.status}</span>
@@ -140,13 +142,13 @@ export default function JobDetailPage() {
                     <div className="flex gap-2 mt-3">
                       <button
                         onClick={() => updateApplicationStatus(app.id, "ACCEPTED")}
-                        className="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-[var(--color-accent)] text-white"
+                        className={cn("rounded-lg px-2.5 py-1.5 text-xs font-semibold transition-all", ui.control.gradient)}
                       >
                         Accept
                       </button>
                       <button
                         onClick={() => updateApplicationStatus(app.id, "DECLINED")}
-                        className="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-white/10 text-white"
+                        className={cn("rounded-lg px-2.5 py-1.5 text-xs font-semibold text-white transition-colors", ui.control.ghost)}
                       >
                         Decline
                       </button>

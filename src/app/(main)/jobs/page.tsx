@@ -5,7 +5,11 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { cn } from "@/lib/cn";
 import { safeJson } from "@/lib/safe-json";
+import { iconBox, surface, ui } from "@/components/ui/design-system";
 import type { Job, JobApplication } from "@/types/api";
+
+const fieldClass =
+  "w-full rounded-lg border border-white/[0.10] bg-white/[0.035] px-3 py-2 text-sm text-white outline-none transition-colors placeholder:text-white/35 focus:border-[rgba(var(--color-accent-2-rgb),0.42)] focus:bg-white/[0.05]";
 
 export default function JobsPage() {
   const { data: session } = useSession();
@@ -128,28 +132,45 @@ export default function JobsPage() {
 
   return (
     <main className="max-w-5xl mx-auto px-4 pb-24 pt-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight text-white">Jobs</h1>
-        <p className="text-sm text-[var(--muted-foreground)] mt-2">
-          Find work or hire Roblox talent with fast, focused listings.
-        </p>
+      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight text-white">Jobs</h1>
+          <p className="mt-2 text-sm text-[var(--muted-foreground)]">
+            Find work or hire Roblox talent with fast, focused listings.
+          </p>
+        </div>
+        <div className={iconBox("cyan", "h-11 w-11")}>
+          <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v1m12 0H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V8a2 2 0 00-2-2z" />
+          </svg>
+        </div>
       </div>
 
       {canCreate && (
-        <div className="glass-soft border border-white/10 rounded-2xl p-5 mb-10">
-          <h2 className="text-lg font-semibold text-white mb-4">Post a job</h2>
+        <div className={surface("panel", "mb-10 overflow-hidden p-5")}>
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h2 className="text-lg font-semibold text-white">Post a job</h2>
+              <p className="mt-1 text-sm text-[var(--muted-foreground)]">
+                Keep the brief tight so candidates can judge fit quickly.
+              </p>
+            </div>
+            <span className="rounded-lg border border-[rgba(var(--color-accent-2-rgb),0.22)] bg-[rgba(var(--color-accent-2-rgb),0.08)] px-3 py-1.5 text-xs font-semibold text-[var(--color-accent-2)]">
+              {budgetSummary}
+            </span>
+          </div>
           <div className="grid gap-3">
             <input
               value={form.title}
               onChange={(e) => setForm((prev) => ({ ...prev, title: e.target.value }))}
               placeholder="Job title"
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white"
+              className={fieldClass}
             />
             <textarea
               value={form.description}
               onChange={(e) => setForm((prev) => ({ ...prev, description: e.target.value }))}
               placeholder="Describe the work, goals, and expectations"
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white min-h-[140px]"
+              className={cn(fieldClass, "min-h-[140px] resize-y")}
             />
             <div className="grid gap-3 md:grid-cols-2">
               <input
@@ -157,14 +178,14 @@ export default function JobsPage() {
                 onChange={(e) => setForm((prev) => ({ ...prev, budgetMin: e.target.value }))}
                 placeholder="Budget min"
                 type="number"
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white"
+                className={fieldClass}
               />
               <input
                 value={form.budgetMax}
                 onChange={(e) => setForm((prev) => ({ ...prev, budgetMax: e.target.value }))}
                 placeholder="Budget max"
                 type="number"
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white"
+                className={fieldClass}
               />
             </div>
             <div className="grid gap-3 md:grid-cols-2">
@@ -172,30 +193,30 @@ export default function JobsPage() {
                 value={form.currency}
                 onChange={(e) => setForm((prev) => ({ ...prev, currency: e.target.value.toUpperCase() }))}
                 placeholder="Currency (USD)"
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white"
+                className={fieldClass}
               />
               <input
                 value={form.location}
                 onChange={(e) => setForm((prev) => ({ ...prev, location: e.target.value }))}
                 placeholder="Location (optional)"
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white"
+                className={fieldClass}
               />
             </div>
             <input
               value={form.skills}
               onChange={(e) => setForm((prev) => ({ ...prev, skills: e.target.value }))}
               placeholder="Skills (comma separated)"
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white"
+              className={fieldClass}
             />
           </div>
-          <div className="flex flex-wrap items-center gap-3 mt-4">
-            <span className="text-xs text-[var(--muted-foreground)]">{budgetSummary}</span>
+          <div className="mt-4 flex flex-wrap items-center gap-3 border-t border-white/[0.06] pt-4">
+            <span className="text-xs text-[var(--muted-foreground)]">Visible to everyone browsing open roles.</span>
             <button
               onClick={createJob}
               disabled={submitting}
               className={cn(
-                "ml-auto px-4 py-2 rounded-xl text-sm font-semibold transition-all",
-                "bg-[var(--color-accent)] text-white hover:brightness-110",
+                "ml-auto rounded-lg px-4 py-2 text-sm font-semibold transition-all",
+                ui.control.gradient,
                 submitting && "opacity-60 cursor-not-allowed"
               )}
             >
@@ -209,23 +230,23 @@ export default function JobsPage() {
         <section>
           <h2 className="text-lg font-semibold text-white mb-3">Open roles</h2>
           {loading ? (
-            <div className="text-sm text-[var(--muted-foreground)]">Loading jobs...</div>
+            <div className={surface("empty", "p-5 text-sm text-[var(--muted-foreground)]")}>Loading jobs...</div>
           ) : jobs.length === 0 ? (
-            <div className="text-sm text-[var(--muted-foreground)]">No jobs available yet.</div>
+            <div className={surface("empty", "p-5 text-sm text-[var(--muted-foreground)]")}>No jobs available yet.</div>
           ) : (
             <div className="grid gap-3">
               {jobs.map((job) => (
-                <div key={job.id} className="glass-soft border border-white/10 rounded-2xl p-4">
+                <div key={job.id} className={surface("panelMuted", "p-4 transition-colors hover:border-white/[0.16] hover:bg-white/[0.04]")}>
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <Link href={`/jobs/${job.id}`} className="text-lg font-semibold text-white hover:text-[var(--color-accent)]">
+                      <Link href={`/jobs/${job.id}`} className="text-lg font-semibold text-white transition-colors hover:text-[var(--color-accent-2)]">
                         {job.title}
                       </Link>
                       <div className="text-xs text-[var(--muted-foreground)] mt-1">
                         {job.user?.username} • {job.location || "Remote"}
                       </div>
                     </div>
-                    <span className="text-xs text-white/70 px-2 py-1 rounded-full bg-white/5 border border-white/10">
+                    <span className="rounded-lg border border-white/[0.08] bg-white/[0.04] px-2 py-1 text-xs font-semibold text-white/70">
                       {job.status}
                     </span>
                   </div>
@@ -240,7 +261,7 @@ export default function JobsPage() {
                   {userId && job.userId !== userId && (
                     <button
                       onClick={() => applyToJob(job.id)}
-                      className="mt-4 px-3 py-2 rounded-xl text-xs font-semibold bg-white/10 text-white hover:bg-white/15"
+                      className={cn("mt-4 rounded-lg px-3 py-2 text-xs font-semibold text-white transition-colors", ui.control.ghost)}
                     >
                       Apply
                     </button>
@@ -253,7 +274,7 @@ export default function JobsPage() {
 
         {userId && (
           <section className="grid gap-4 md:grid-cols-2">
-            <div className="glass-soft border border-white/10 rounded-2xl p-4">
+            <div className={surface("panelMuted", "p-4")}>
               <h3 className="text-sm font-semibold text-white mb-3">My jobs</h3>
               {myJobs.length === 0 ? (
                 <div className="text-xs text-[var(--muted-foreground)]">No jobs posted yet.</div>
@@ -261,7 +282,7 @@ export default function JobsPage() {
                 <div className="grid gap-2">
                   {myJobs.map((job) => (
                     <div key={job.id} className="flex items-center justify-between text-sm text-white/80">
-                      <Link href={`/jobs/${job.id}`} className="hover:text-[var(--color-accent)]">
+                      <Link href={`/jobs/${job.id}`} className="transition-colors hover:text-[var(--color-accent-2)]">
                         {job.title}
                       </Link>
                       <span className="text-[10px] text-white/60">{job.status}</span>
@@ -271,7 +292,7 @@ export default function JobsPage() {
               )}
             </div>
 
-            <div className="glass-soft border border-white/10 rounded-2xl p-4">
+            <div className={surface("panelMuted", "p-4")}>
               <h3 className="text-sm font-semibold text-white mb-3">My applications</h3>
               {myApplications.length === 0 ? (
                 <div className="text-xs text-[var(--muted-foreground)]">No applications yet.</div>

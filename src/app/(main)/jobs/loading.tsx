@@ -1,3 +1,5 @@
+import { surface } from "@/components/ui/design-system";
+
 function JobsSkeleton() {
   return (
     <div className="max-w-5xl mx-auto space-y-6">
@@ -8,7 +10,7 @@ function JobsSkeleton() {
 
       <div className="grid gap-4">
         {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="glass-soft border border-white/10 rounded-2xl p-5">
+          <div key={i} className={surface("panelMuted", "p-5")}>
             <div className="flex items-start justify-between mb-3">
               <div className="flex-1">
                 <div className="h-5 w-64 bg-white/10 rounded animate-pulse mb-2" />

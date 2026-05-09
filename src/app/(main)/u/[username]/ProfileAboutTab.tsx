@@ -25,6 +25,7 @@ interface ProfileAboutTabProps {
 
 export function ProfileAboutTab({ skills, profileData }: ProfileAboutTabProps) {
   const hasProfileDetails = Boolean(profileData.location || profileData.website);
+  const primarySkill = skills.find((skill) => skill.isPrimary) ?? skills[0];
 
   if (skills.length === 0 && !hasProfileDetails) {
     return (
@@ -43,18 +44,26 @@ export function ProfileAboutTab({ skills, profileData }: ProfileAboutTabProps) {
   return (
     <div className="space-y-6">
       {skills.length > 0 && (
-        <section className={surface("panelMuted", "p-4 sm:p-5")}>
-          <div className="mb-4 flex items-center justify-between gap-3">
+        <section className={surface("panel", "overflow-hidden p-4 sm:p-5")}>
+          <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h3 className="text-base font-semibold text-white">Skills & services</h3>
               <p className="mt-1 text-sm text-[var(--muted-foreground)]">
                 {skills.length} {skills.length === 1 ? "capability" : "capabilities"} listed
               </p>
             </div>
-            <div className={iconBox("cyan", "h-10 w-10")}>
-              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-              </svg>
+            <div className="flex items-center gap-3 rounded-xl border border-white/[0.08] bg-white/[0.025] px-3 py-2">
+              <div className={iconBox(primarySkill?.isPrimary ? "amber" : "cyan", "h-9 w-9")}>
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+              </div>
+              <div className="min-w-0">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/40">
+                  {primarySkill?.isPrimary ? "Primary skill" : "Top skill"}
+                </p>
+                <p className="truncate text-sm font-semibold text-white">{primarySkill?.skill.name}</p>
+              </div>
             </div>
           </div>
           <div className="space-y-3">
