@@ -3,22 +3,43 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
+import { BriefcaseBusiness, CheckCircle2, Clock3, DollarSign, FileText, MapPin, Send, Sparkles, Users } from "lucide-react";
+import { Button } from "@/components/ui/Button";
+import { iconBox, surface, ui } from "@/components/ui/design-system";
+import { useToastContext } from "@/components/providers/ToastProvider";
 import { cn } from "@/lib/cn";
 import { safeJson } from "@/lib/safe-json";
-import { iconBox, surface, ui } from "@/components/ui/design-system";
 import type { Job, JobApplication } from "@/types/api";
 
-const fieldClass =
-  "w-full rounded-lg border border-white/[0.10] bg-white/[0.035] px-3 py-2 text-sm text-white outline-none transition-colors placeholder:text-white/35 focus:border-[rgba(var(--color-accent-2-rgb),0.42)] focus:bg-white/[0.05]";
+const fieldClass = ui.control.field;
+
+function formatBudget(job: Pick<Job, "budgetMin" | "budgetMax" | "currency">) {
+  if (job.budgetMin && job.budgetMax) return `${job.currency} ${job.budgetMin} - ${job.budgetMax}`;
+  if (job.budgetMin) return `${job.currency} ${job.budgetMin}+`;
+  if (job.budgetMax) return `Up to ${job.currency} ${job.budgetMax}`;
+  return "Budget flexible";
+}
+
+function splitSkills(skills: string | null) {
+  return (skills || "")
+    .split(",")
+    .map((skill) => skill.trim())
+    .filter(Boolean)
+    .slice(0, 4);
+}
 
 export default function JobsPage() {
   const { data: session } = useSession();
+  const { toast } = useToastContext();
   const userId = session?.user?.id;
   const [jobs, setJobs] = useState<Job[]>([]);
   const [myJobs, setMyJobs] = useState<Job[]>([]);
   const [myApplications, setMyApplications] = useState<JobApplication[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [applyingJobId, setApplyingJobId] = useState<string | null>(null);
+  const [openApplicationJobId, setOpenApplicationJobId] = useState<string | null>(null);
+  const [applicationNotes, setApplicationNotes] = useState<Record<string, string>>({});
   const [form, setForm] = useState({
     title: "",
     description: "",
@@ -30,6 +51,7 @@ export default function JobsPage() {
   });
 
   const canCreate = Boolean(userId);
+  const appliedJobIds = useMemo(() => new Set(myApplications.map((application) => application.jobId)), [myApplications]);
 
   useEffect(() => {
     let isMounted = true;
@@ -78,15 +100,24 @@ export default function JobsPage() {
 
   async function createJob() {
     if (!canCreate) return;
+    if (!form.title.trim() || !form.description.trim()) {
+      toast({
+        title: "Add the job basics",
+        description: "A title and a clear brief help candidates decide whether to apply.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setSubmitting(true);
     const payload = {
-      title: form.title,
-      description: form.description,
+      title: form.title.trim(),
+      description: form.description.trim(),
       budgetMin: form.budgetMin ? Number(form.budgetMin) : undefined,
       budgetMax: form.budgetMax ? Number(form.budgetMax) : undefined,
-      currency: form.currency,
-      skills: form.skills,
-      location: form.location,
+      currency: form.currency.trim() || "USD",
+      skills: form.skills.trim(),
+      location: form.location.trim(),
     };
     const res = await fetch("/api/jobs", {
       method: "POST",
@@ -108,15 +139,25 @@ export default function JobsPage() {
         skills: "",
         location: "",
       });
+      toast({
+        title: "Job posted",
+        description: "Your listing is live for developers browsing open roles.",
+        variant: "success",
+      });
     } else {
-      alert(data?.error || "Failed to create job");
+      toast({
+        title: "Job was not posted",
+        description: data?.error || "Try again after checking the required fields.",
+        variant: "destructive",
+      });
     }
     setSubmitting(false);
   }
 
   async function applyToJob(jobId: string) {
     if (!userId) return;
-    const message = window.prompt("Add a short note for your application (optional):") || "";
+    setApplyingJobId(jobId);
+    const message = applicationNotes[jobId]?.trim() || "";
     const res = await fetch(`/api/jobs/${jobId}/apply`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -124,43 +165,58 @@ export default function JobsPage() {
     });
     const data = await safeJson<JobApplication & { error?: string }>(res);
     if (!res.ok) {
-      alert(data?.error || "Failed to apply");
+      toast({
+        title: "Application was not sent",
+        description: data?.error || "Try again in a moment.",
+        variant: "destructive",
+      });
+      setApplyingJobId(null);
       return;
     }
     if (data) setMyApplications((prev) => [data, ...prev]);
+    setOpenApplicationJobId(null);
+    setApplicationNotes((prev) => ({ ...prev, [jobId]: "" }));
+    toast({
+      title: "Application sent",
+      description: "You can track the response in My applications.",
+      variant: "success",
+    });
+    setApplyingJobId(null);
   }
 
   return (
-    <main className="mx-auto max-w-5xl px-4 pb-24 pt-8">
-      <div className={surface("panel", "noise-overlay relative mb-8 overflow-hidden p-5 sm:p-6")}>
+    <main className="mx-auto max-w-5xl px-4 pb-24 pt-6 sm:pt-8">
+      <div className={surface("panel", "noise-overlay relative mb-6 overflow-hidden p-5 sm:mb-8 sm:p-6")}>
         <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.42)] to-transparent" />
-        <div className="relative flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <div className="mb-2 text-[10px] font-bold uppercase tracking-[0.16em] text-[var(--color-accent-2)]">Marketplace</div>
-          <h1 className="text-3xl font-bold tracking-tight text-white">Jobs</h1>
-          <p className="mt-2 max-w-2xl text-sm text-[var(--muted-foreground)]">
-            Find work or hire Roblox talent with fast, focused listings.
-          </p>
-        </div>
-        <div className={iconBox("cyan", "h-11 w-11")}>
-          <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v1m12 0H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V8a2 2 0 00-2-2z" />
-          </svg>
-        </div>
+        <div className="relative flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <div className="mb-2 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.16em] text-[var(--color-accent-2)]">
+              <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
+              Marketplace
+            </div>
+            <h1 className="text-3xl font-bold tracking-tight text-white font-[var(--font-space-grotesk)]">Jobs</h1>
+            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[var(--muted-foreground)]">
+              Find work or hire Roblox talent with fast, focused listings.
+            </p>
+          </div>
+          <div className={iconBox("cyan", "h-11 w-11")}>
+            <BriefcaseBusiness className="h-5 w-5" aria-hidden="true" />
+          </div>
         </div>
       </div>
 
       {canCreate && (
-        <div className={surface("panel", "noise-overlay relative mb-10 overflow-hidden p-5")}>
+        <div className={surface("panel", "noise-overlay relative mb-10 overflow-hidden p-5 sm:p-6")}>
           <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.12] to-transparent" />
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
             <div>
-              <h2 className="text-lg font-semibold text-white">Post a job</h2>
+              <h2 className="text-lg font-semibold text-white font-[var(--font-space-grotesk)]">Post a job</h2>
               <p className="mt-1 text-sm text-[var(--muted-foreground)]">
                 Keep the brief tight so candidates can judge fit quickly.
               </p>
             </div>
-            <span className="rounded-md border border-[rgba(var(--color-accent-2-rgb),0.22)] bg-[rgba(var(--color-accent-2-rgb),0.08)] px-3 py-1.5 text-xs font-bold uppercase tracking-[0.10em] text-[var(--color-accent-2)]">
+            <span className="inline-flex max-w-full items-center gap-1.5 rounded-lg border border-[rgba(var(--color-accent-2-rgb),0.22)] bg-[rgba(var(--color-accent-2-rgb),0.08)] px-3 py-1.5 text-xs font-bold text-[var(--color-accent-2)]">
+              <DollarSign className="h-3.5 w-3.5 flex-shrink-0" aria-hidden="true" />
               {budgetSummary}
             </span>
           </div>
@@ -214,19 +270,19 @@ export default function JobsPage() {
               className={fieldClass}
             />
           </div>
-          <div className="mt-4 flex flex-wrap items-center gap-3 border-t border-white/[0.06] pt-4">
+          <div className="mt-4 flex flex-col gap-3 border-t border-white/[0.06] pt-4 sm:flex-row sm:items-center">
             <span className="text-xs text-[var(--muted-foreground)]">Visible to everyone browsing open roles.</span>
-            <button
+            <Button
               onClick={createJob}
               disabled={submitting}
-              className={cn(
-                "ml-auto rounded-lg px-4 py-2 text-sm font-semibold transition-all",
-                ui.control.gradient,
-                submitting && "opacity-60 cursor-not-allowed"
-              )}
+              isLoading={submitting}
+              size="sm"
+              variant="glow"
+              className="w-full sm:ml-auto sm:w-auto"
+              leftIcon={<Send className="h-4 w-4" aria-hidden="true" />}
             >
-              {submitting ? "Posting..." : "Post job"}
-            </button>
+              Post job
+            </Button>
           </div>
         </div>
       )}
@@ -238,44 +294,45 @@ export default function JobsPage() {
             <div className="h-px flex-1 bg-gradient-to-r from-white/[0.10] to-transparent" />
           </div>
           {loading ? (
-            <div className={surface("empty", "p-5 text-sm text-[var(--muted-foreground)]")}>Loading jobs...</div>
+            <div className={surface("empty", "grid gap-3 p-5")}>
+              {[0, 1, 2].map((item) => (
+                <div key={item} className="flex items-start gap-3">
+                  <div className="skeleton h-10 w-10 rounded-lg" />
+                  <div className="flex-1 space-y-2">
+                    <div className="skeleton h-4 w-2/5" />
+                    <div className="skeleton h-3 w-3/5" />
+                  </div>
+                </div>
+              ))}
+            </div>
           ) : jobs.length === 0 ? (
-            <div className={surface("empty", "p-5 text-sm text-[var(--muted-foreground)]")}>No jobs available yet.</div>
+            <div className={surface("empty", "flex items-start gap-3 p-5")}>
+              <div className={iconBox("muted", "h-10 w-10 flex-shrink-0")}>
+                <FileText className="h-5 w-5" aria-hidden="true" />
+              </div>
+              <div>
+                <div className="text-sm font-semibold text-white">No open roles yet</div>
+                <p className="mt-1 text-sm leading-relaxed text-[var(--muted-foreground)]">
+                  Post the first brief with a clear goal, budget, and skill list.
+                </p>
+              </div>
+            </div>
           ) : (
             <div className="grid gap-3">
               {jobs.map((job) => (
-                <div key={job.id} className={surface("panelMuted", "noise-overlay group relative overflow-hidden p-4 transition-colors hover:border-[rgba(var(--color-accent-2-rgb),0.20)] hover:bg-white/[0.04]")}>
-                  <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.10] to-transparent" />
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <Link href={`/jobs/${job.id}`} className="text-lg font-semibold text-white transition-colors hover:text-[var(--color-accent-2)]">
-                        {job.title}
-                      </Link>
-                      <div className="text-xs text-[var(--muted-foreground)] mt-1">
-                        {job.user?.username} | {job.location || "Remote"}
-                      </div>
-                    </div>
-                    <span className="rounded-md border border-white/[0.08] bg-white/[0.04] px-2 py-1 text-[10px] font-bold uppercase tracking-[0.10em] text-white/70">
-                      {job.status}
-                    </span>
-                  </div>
-                  <p className="mt-3 line-clamp-3 border-l border-[rgba(var(--color-accent-2-rgb),0.24)] pl-3 text-sm leading-relaxed text-white/75">{job.description}</p>
-                  <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-[var(--muted-foreground)]">
-                    <span className="text-white/70">{job.skills || "Skills flexible"}</span>
-                    <span className="text-white/20">/</span>
-                    <span>{job.currency} {job.budgetMin || "?"} - {job.budgetMax || "?"}</span>
-                    <span className="text-white/20">/</span>
-                    <span>{job._count?.applications ?? 0} applicants</span>
-                  </div>
-                  {userId && job.userId !== userId && (
-                    <button
-                      onClick={() => applyToJob(job.id)}
-                      className={cn("mt-4 rounded-lg px-3 py-2 text-xs font-semibold text-white transition-colors", ui.control.ghost)}
-                    >
-                      Apply
-                    </button>
-                  )}
-                </div>
+                <JobCard
+                  key={job.id}
+                  job={job}
+                  alreadyApplied={appliedJobIds.has(job.id)}
+                  applicationOpen={openApplicationJobId === job.id}
+                  canApply={Boolean(userId && job.userId !== userId && !appliedJobIds.has(job.id))}
+                  applying={applyingJobId === job.id}
+                  applicationNote={applicationNotes[job.id] || ""}
+                  onApply={applyToJob}
+                  onNoteChange={(note) => setApplicationNotes((prev) => ({ ...prev, [job.id]: note }))}
+                  onOpenApplication={() => setOpenApplicationJobId(job.id)}
+                  onCloseApplication={() => setOpenApplicationJobId(null)}
+                />
               ))}
             </div>
           )}
@@ -284,17 +341,22 @@ export default function JobsPage() {
         {userId && (
           <section className="grid gap-4 md:grid-cols-2">
             <div className={surface("panelMuted", "noise-overlay p-4")}>
-              <h3 className="mb-3 text-sm font-semibold text-white">My jobs</h3>
+              <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-white">
+                <BriefcaseBusiness className="h-4 w-4 text-[var(--color-accent-2)]" aria-hidden="true" />
+                My jobs
+              </div>
               {myJobs.length === 0 ? (
-                <div className="text-xs text-[var(--muted-foreground)]">No jobs posted yet.</div>
+                <div className="text-xs leading-relaxed text-[var(--muted-foreground)]">
+                  No jobs posted yet. Use the form above when you are ready to hire.
+                </div>
               ) : (
                 <div className="grid gap-2">
                   {myJobs.map((job) => (
-                    <div key={job.id} className="flex items-center justify-between text-sm text-white/80">
-                      <Link href={`/jobs/${job.id}`} className="transition-colors hover:text-[var(--color-accent-2)]">
+                    <div key={job.id} className="flex items-center justify-between gap-3 text-sm text-white/80">
+                      <Link href={`/jobs/${job.id}`} className="truncate transition-colors hover:text-[var(--color-accent-2)]">
                         {job.title}
                       </Link>
-                      <span className="text-[10px] text-white/60">{job.status}</span>
+                      <span className="flex-shrink-0 text-[10px] text-white/60">{job.status}</span>
                     </div>
                   ))}
                 </div>
@@ -302,15 +364,20 @@ export default function JobsPage() {
             </div>
 
             <div className={surface("panelMuted", "noise-overlay p-4")}>
-              <h3 className="mb-3 text-sm font-semibold text-white">My applications</h3>
+              <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-white">
+                <CheckCircle2 className="h-4 w-4 text-[var(--color-accent-2)]" aria-hidden="true" />
+                My applications
+              </div>
               {myApplications.length === 0 ? (
-                <div className="text-xs text-[var(--muted-foreground)]">No applications yet.</div>
+                <div className="text-xs leading-relaxed text-[var(--muted-foreground)]">
+                  No applications yet. Apply to an open role to start tracking status here.
+                </div>
               ) : (
                 <div className="grid gap-2">
                   {myApplications.map((application) => (
-                    <div key={application.id} className="flex items-center justify-between text-sm text-white/80">
-                      <span>{application.job?.title || "Job"}</span>
-                      <span className="text-[10px] text-white/60">{application.status}</span>
+                    <div key={application.id} className="flex items-center justify-between gap-3 text-sm text-white/80">
+                      <span className="truncate">{application.job?.title || "Job"}</span>
+                      <span className="flex-shrink-0 text-[10px] text-white/60">{application.status}</span>
                     </div>
                   ))}
                 </div>
@@ -320,5 +387,136 @@ export default function JobsPage() {
         )}
       </div>
     </main>
+  );
+}
+
+function JobCard({
+  job,
+  alreadyApplied,
+  applicationOpen,
+  canApply,
+  applying,
+  applicationNote,
+  onApply,
+  onNoteChange,
+  onOpenApplication,
+  onCloseApplication,
+}: {
+  job: Job;
+  alreadyApplied: boolean;
+  applicationOpen: boolean;
+  canApply: boolean;
+  applying: boolean;
+  applicationNote: string;
+  onApply: (jobId: string) => void;
+  onNoteChange: (note: string) => void;
+  onOpenApplication: () => void;
+  onCloseApplication: () => void;
+}) {
+  const skills = splitSkills(job.skills);
+
+  return (
+    <article className={surface("panelMuted", "noise-overlay group relative overflow-hidden p-4 transition-colors hover:border-[rgba(var(--color-accent-2-rgb),0.20)] hover:bg-white/[0.04] sm:p-5")}>
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.10] to-transparent" />
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <Link href={`/jobs/${job.id}`} className="line-clamp-2 text-lg font-semibold text-white transition-colors hover:text-[var(--color-accent-2)]">
+            {job.title}
+          </Link>
+          <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[var(--muted-foreground)]">
+            <span className="truncate text-white/70">@{job.user?.username || "unknown"}</span>
+            <span className="inline-flex items-center gap-1">
+              <MapPin className="h-3.5 w-3.5" aria-hidden="true" />
+              {job.location || "Remote"}
+            </span>
+          </div>
+        </div>
+        <span
+          className={cn(
+            "inline-flex w-fit items-center rounded-lg border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.10em]",
+            alreadyApplied
+              ? "border-[rgba(var(--color-accent-2-rgb),0.22)] bg-[rgba(var(--color-accent-2-rgb),0.08)] text-[var(--color-accent-2)]"
+              : "border-emerald-300/20 bg-emerald-400/10 text-emerald-200"
+          )}
+        >
+          {alreadyApplied ? "Applied" : job.status}
+        </span>
+      </div>
+
+      <p className="mt-3 line-clamp-3 border-l border-[rgba(var(--color-accent-2-rgb),0.24)] pl-3 text-sm leading-relaxed text-white/75">
+        {job.description}
+      </p>
+
+      <div className="mt-4 flex flex-wrap gap-2">
+        {skills.length ? (
+          skills.map((skill) => (
+            <span key={skill} className="rounded-md border border-white/[0.08] bg-white/[0.04] px-2.5 py-1 text-xs font-medium text-white/70">
+              {skill}
+            </span>
+          ))
+        ) : (
+          <span className="rounded-md border border-white/[0.08] bg-white/[0.04] px-2.5 py-1 text-xs font-medium text-white/55">Skills flexible</span>
+        )}
+      </div>
+
+      <div className="mt-4 flex flex-col gap-3 border-t border-white/[0.06] pt-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-[var(--muted-foreground)]">
+          <span className="inline-flex items-center gap-1.5 text-white/70">
+            <DollarSign className="h-3.5 w-3.5 text-[var(--color-accent-2)]" aria-hidden="true" />
+            {formatBudget(job)}
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <Users className="h-3.5 w-3.5" aria-hidden="true" />
+            {job._count?.applications ?? 0} applicants
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <Clock3 className="h-3.5 w-3.5" aria-hidden="true" />
+            Open now
+          </span>
+        </div>
+        {canApply && !applicationOpen ? (
+          <Button size="sm" variant="secondary" onClick={onOpenApplication} className="w-full sm:w-auto" leftIcon={<Send className="h-4 w-4" aria-hidden="true" />}>
+            Apply
+          </Button>
+        ) : null}
+      </div>
+
+      {alreadyApplied ? (
+        <div className="mt-4 rounded-lg border border-[rgba(var(--color-accent-2-rgb),0.18)] bg-[rgba(var(--color-accent-2-rgb),0.06)] px-3 py-2 text-xs text-[var(--color-accent-2)]">
+          Application sent. Watch My applications for status changes.
+        </div>
+      ) : null}
+
+      {canApply && applicationOpen ? (
+        <div className={surface("empty", "mt-4 p-3")}>
+          <label className="text-xs font-semibold uppercase tracking-[0.10em] text-white/60" htmlFor={`application-note-${job.id}`}>
+            Application note
+          </label>
+          <textarea
+            id={`application-note-${job.id}`}
+            value={applicationNote}
+            onChange={(e) => onNoteChange(e.target.value)}
+            placeholder="Share fit, availability, or one relevant Roblox project."
+            className={cn(fieldClass, "mt-2 min-h-[96px] resize-y")}
+          />
+          <div className="mt-3 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+            <Button size="sm" variant="ghost" onClick={onCloseApplication} className="w-full sm:w-auto">
+              Cancel
+            </Button>
+            <Button
+              size="sm"
+              variant="glow"
+              onClick={() => onApply(job.id)}
+              disabled={applying}
+              isLoading={applying}
+              className="w-full sm:w-auto"
+              leftIcon={<Send className="h-4 w-4" aria-hidden="true" />}
+            >
+              Send application
+            </Button>
+          </div>
+        </div>
+      ) : null}
+    </article>
   );
 }

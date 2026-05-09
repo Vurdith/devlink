@@ -5,14 +5,17 @@ import { useSession } from "next-auth/react";
 import { cn } from "@/lib/cn";
 import { safeJson } from "@/lib/safe-json";
 import { iconBox, surface, ui } from "@/components/ui/design-system";
+import { useToastContext } from "@/components/providers/ToastProvider";
 import type { EscrowContract } from "@/types/api";
 
 export default function EscrowPage() {
   const { data: session } = useSession();
+  const { toast } = useToastContext();
   const userId = session?.user?.id;
   const [contracts, setContracts] = useState<EscrowContract[]>([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
+  const [busyContractId, setBusyContractId] = useState<string | null>(null);
   const [form, setForm] = useState({
     developerId: "",
     jobId: "",
@@ -47,16 +50,26 @@ export default function EscrowPage() {
   }, [contracts]);
 
   async function createContract() {
+    const amount = Number(form.amount);
+    if (!form.developerId.trim() || !form.title.trim() || !amount || amount <= 0) {
+      toast({
+        title: "Check the escrow details",
+        description: "Developer ID, milestone title, and a positive amount are required.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setCreating(true);
     const res = await fetch("/api/escrow/contracts", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        developerId: form.developerId,
-        jobId: form.jobId || undefined,
-        amount: Number(form.amount),
-        currency: form.currency,
-        title: form.title,
+        developerId: form.developerId.trim(),
+        jobId: form.jobId.trim() || undefined,
+        amount,
+        currency: form.currency.trim() || "USD",
+        title: form.title.trim(),
       }),
     });
     const data = await safeJson<EscrowContract & { error?: string }>(res);
@@ -65,34 +78,65 @@ export default function EscrowPage() {
         setContracts((prev) => [data, ...prev]);
       }
       setForm({ developerId: "", jobId: "", amount: "", currency: "USD", title: "Milestone 1" });
+      toast({
+        title: "Escrow contract created",
+        description: "The milestone is ready to track from the contracts list.",
+        variant: "success",
+      });
     } else {
-      alert(data?.error || "Failed to create contract");
+      toast({
+        title: "Contract was not created",
+        description: data?.error || "Check the details and try again.",
+        variant: "destructive",
+      });
     }
     setCreating(false);
   }
 
   async function submitMilestone(contractId: string) {
+    setBusyContractId(contractId);
     const res = await fetch(`/api/escrow/contracts/${contractId}/milestone/submit`, { method: "POST" });
     const data = await safeJson<{ contract?: EscrowContract; error?: string }>(res);
     if (res.ok) {
       if (data?.contract) {
         setContracts((prev) => prev.map((c) => (c.id === contractId ? data.contract! : c)));
       }
+      toast({
+        title: "Milestone submitted",
+        description: "The client can now review and release funds.",
+        variant: "success",
+      });
     } else {
-      alert(data?.error || "Failed to submit milestone");
+      toast({
+        title: "Milestone was not submitted",
+        description: data?.error || "Try again in a moment.",
+        variant: "destructive",
+      });
     }
+    setBusyContractId(null);
   }
 
   async function releaseMilestone(contractId: string) {
+    setBusyContractId(contractId);
     const res = await fetch(`/api/escrow/contracts/${contractId}/milestone/release`, { method: "POST" });
     const data = await safeJson<{ contract?: EscrowContract; error?: string }>(res);
     if (res.ok) {
       if (data?.contract) {
         setContracts((prev) => prev.map((c) => (c.id === contractId ? data.contract! : c)));
       }
+      toast({
+        title: "Funds released",
+        description: "The milestone is marked as released.",
+        variant: "success",
+      });
     } else {
-      alert(data?.error || "Failed to release milestone");
+      toast({
+        title: "Funds were not released",
+        description: data?.error || "Try again in a moment.",
+        variant: "destructive",
+      });
     }
+    setBusyContractId(null);
   }
 
   return (
@@ -116,12 +160,17 @@ export default function EscrowPage() {
       </div>
 
       {!userId ? (
-        <div className={surface("empty", "p-5 text-sm text-[var(--muted-foreground)]")}>Sign in to manage escrow.</div>
+        <div className={surface("empty", "p-5 text-sm leading-relaxed text-[var(--muted-foreground)]")}>
+          Sign in to create escrow contracts, submit milestones, and release funds from one place.
+        </div>
       ) : (
         <>
           <div className={surface("panel", "noise-overlay relative mb-8 overflow-hidden p-4")}>
             <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.12] to-transparent" />
             <h2 className="mb-3 text-sm font-semibold text-white">Create escrow contract</h2>
+            <p className="mb-4 text-sm leading-relaxed text-[var(--muted-foreground)]">
+              Start with one milestone so both sides know who is responsible for the next action.
+            </p>
             <div className="grid gap-3 md:grid-cols-2">
               <input
                 value={form.developerId}
@@ -180,13 +229,23 @@ export default function EscrowPage() {
           {loading ? (
             <div className={surface("empty", "p-5 text-sm text-[var(--muted-foreground)]")}>Loading contracts...</div>
           ) : contracts.length === 0 ? (
-            <div className={surface("empty", "p-5 text-sm text-[var(--muted-foreground)]")}>No escrow contracts yet.</div>
+            <div className={surface("empty", "p-5 text-sm leading-relaxed text-[var(--muted-foreground)]")}>
+              No escrow contracts yet. Create a milestone above when a client and developer are ready to work.
+            </div>
           ) : (
             <div className="grid gap-3">
               {contracts.map((contract) => {
                 const isClient = contract.clientId === userId;
                 const isDeveloper = contract.developerId === userId;
                 const milestoneStatus = contract.milestone?.status || "PENDING";
+                const actionBusy = busyContractId === contract.id;
+                const nextStep = isDeveloper && milestoneStatus === "PENDING"
+                  ? "Next: submit the milestone when the work is ready."
+                  : isClient && milestoneStatus === "SUBMITTED"
+                    ? "Next: review the work, then release funds if it is complete."
+                    : milestoneStatus === "RELEASED"
+                      ? "Complete: funds have been released."
+                      : "No action needed from you right now.";
                 return (
                   <div key={contract.id} className={surface("panelMuted", "noise-overlay group relative overflow-hidden p-4 transition-colors hover:border-[rgba(var(--color-accent-2-rgb),0.20)] hover:bg-white/[0.04]")}>
                     <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.10] to-transparent" />
@@ -207,22 +266,27 @@ export default function EscrowPage() {
                       <span className="text-white/20">/</span>
                       <span>{contract.jobId ? `Job ${contract.jobId}` : "No linked job"}</span>
                     </div>
+                    <div className="mt-3 rounded-lg border border-white/[0.08] bg-black/15 px-3 py-2 text-xs leading-relaxed text-white/70">
+                      {nextStep}
+                    </div>
 
                     <div className="flex flex-wrap gap-2 mt-4">
                       {isDeveloper && milestoneStatus === "PENDING" && (
                         <button
                           onClick={() => submitMilestone(contract.id)}
+                          disabled={actionBusy}
                           className={cn("rounded-lg px-3 py-2 text-xs font-semibold text-white transition-colors", ui.control.ghost)}
                         >
-                          Submit milestone
+                          {actionBusy ? "Submitting..." : "Submit milestone"}
                         </button>
                       )}
                       {isClient && milestoneStatus === "SUBMITTED" && (
                         <button
                           onClick={() => releaseMilestone(contract.id)}
+                          disabled={actionBusy}
                           className={cn("rounded-lg px-3 py-2 text-xs font-semibold transition-all", ui.control.gradient)}
                         >
-                          Release funds
+                          {actionBusy ? "Releasing..." : "Release funds"}
                         </button>
                       )}
                     </div>

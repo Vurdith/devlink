@@ -1,10 +1,10 @@
 import { rankPosts } from "@/lib/ranking/devlink-ranking";
-import { buildRankablePost } from "@/lib/ranking/ranking-transforms";
-import type { FeedPost } from "@/server/feed/fetch-home-feed";
+import { buildRankablePost, type FeedPostForRanking } from "@/lib/ranking/ranking-transforms";
 import { rankFeedWithRust } from "@/server/services/hotpath-client";
 
 const DIVERSITY_WINDOW = 20;
 const MAX_POSTS_PER_AUTHOR_IN_WINDOW = 2;
+type RankableFeedPost = FeedPostForRanking & { id: string; userId: string };
 
 function mergeOrdering(preferredOrder: string[], fallbackOrder: string[]): string[] {
   const seen = new Set<string>();
@@ -27,7 +27,7 @@ function mergeOrdering(preferredOrder: string[], fallbackOrder: string[]): strin
   return merged;
 }
 
-function applyAuthorDiversity(order: string[], postsById: Map<string, FeedPost>): string[] {
+function applyAuthorDiversity<TPost extends RankableFeedPost>(order: string[], postsById: Map<string, TPost>): string[] {
   if (order.length <= 1) return order;
 
   const result: string[] = [];
@@ -53,7 +53,7 @@ function applyAuthorDiversity(order: string[], postsById: Map<string, FeedPost>)
   return [...result, ...deferred];
 }
 
-export async function rankHomeFeedPosts(posts: FeedPost[]): Promise<FeedPost[]> {
+export async function rankHomeFeedPosts<TPost extends RankableFeedPost>(posts: TPost[]): Promise<TPost[]> {
   if (posts.length <= 1) return posts;
 
   const rankablePosts = posts.map(buildRankablePost);
@@ -73,5 +73,5 @@ export async function rankHomeFeedPosts(posts: FeedPost[]): Promise<FeedPost[]> 
   const postMap = new Map(posts.map((post) => [post.id, post]));
   const diversifiedOrder = applyAuthorDiversity(safeOrder, postMap);
 
-  return diversifiedOrder.map((id) => postMap.get(id)).filter((post): post is FeedPost => Boolean(post));
+  return diversifiedOrder.map((id) => postMap.get(id)).filter((post): post is TPost => Boolean(post));
 }

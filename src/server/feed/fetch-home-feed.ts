@@ -1,53 +1,92 @@
-import { prisma } from "@/server/db";
 import { prismaRead } from "@/server/db-read";
 import { getOrSetFeedCache } from "@/server/cache";
 import { postListSelect } from "@/server/posts/post-selects";
-import { attachPostEngagement, fetchPostEngagementSummary, getPostPollIds } from "@/server/posts/post-engagement";
+import type { Prisma } from "@prisma/client";
 
 const FEED_CACHE_TTL = 30; // Cache feed for 30 seconds - invalidated on engagement actions
 
 const feedPostSelect = postListSelect;
+const homeFeedCandidateSelect = {
+  id: true,
+  content: true,
+  createdAt: true,
+  userId: true,
+  user: {
+    select: {
+      id: true,
+      createdAt: true,
+      _count: { select: { followers: true } },
+    },
+  },
+  _count: {
+    select: {
+      likes: true,
+      reposts: true,
+      replies: true,
+      savedBy: true,
+    },
+  },
+} satisfies Prisma.PostSelect;
 
-export type FeedPost = Awaited<ReturnType<typeof _transformFeedPosts>>[number];
+type SelectedFeedPost = Prisma.PostGetPayload<{ select: typeof feedPostSelect }>;
+export type HomeFeedCandidate = Prisma.PostGetPayload<{ select: typeof homeFeedCandidateSelect }>;
 
-async function _transformFeedPosts(
-  posts: Awaited<ReturnType<typeof prisma.post.findMany<{ where: { replyToId: null }; select: typeof feedPostSelect }>>>
-) {
-  const postIds = posts.map((post) => post.id);
-  const summary = await fetchPostEngagementSummary(
-    postIds,
-    undefined,
-    getPostPollIds(posts)
-  );
+export type FeedPost = SelectedFeedPost & { hashtags: string[] };
 
-  return posts.map((post) => ({
-    ...attachPostEngagement(post, summary),
-    hashtags: [] as string[],
-  }));
+function addFeedDefaults(post: SelectedFeedPost): FeedPost {
+  return {
+    ...post,
+    hashtags: [],
+  };
 }
 
-export async function fetchHomeFeedPosts(limit = 30) {
+export async function fetchHomeFeedCandidates(limit = 30) {
   const cacheKey = `feed:home:${limit}`;
 
   return getOrSetFeedCache(cacheKey, async () => {
-    // Fetch posts
-    const posts = await prismaRead.post.findMany({
+    return prismaRead.post.findMany({
       where: {
         replyToId: null,
         isScheduled: false,
       },
-      select: feedPostSelect,
+      select: homeFeedCandidateSelect,
       orderBy: { createdAt: "desc" },
       take: limit,
     });
-
-    return _transformFeedPosts(posts);
   }, FEED_CACHE_TTL);
 }
 
-export async function fetchPostForRanking(postId: string) {
-  return prismaRead.post.findUnique({
+export async function fetchHomeFeedPostDetails(postIds: string[]): Promise<FeedPost[]> {
+  if (postIds.length === 0) {
+    return [];
+  }
+
+  const posts = await prismaRead.post.findMany({
+    where: { id: { in: postIds } },
+    select: feedPostSelect,
+  });
+
+  const postsById = new Map(posts.map((post) => [post.id, addFeedDefaults(post)]));
+
+  return postIds
+    .map((postId) => postsById.get(postId))
+    .filter((post): post is FeedPost => Boolean(post));
+}
+
+export async function fetchHomeFeedPosts(limit = 30) {
+  const cacheKey = `feed:home:details:${limit}`;
+
+  return getOrSetFeedCache(cacheKey, async () => {
+    const candidates = await fetchHomeFeedCandidates(limit);
+    return fetchHomeFeedPostDetails(candidates.map((post) => post.id));
+  }, FEED_CACHE_TTL);
+}
+
+export async function fetchPostForRanking(postId: string): Promise<FeedPost | null> {
+  const post = await prismaRead.post.findUnique({
     where: { id: postId },
     select: feedPostSelect,
   });
+
+  return post ? addFeedDefaults(post) : null;
 }

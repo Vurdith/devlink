@@ -46,7 +46,6 @@ async function getProfileData(username: string) {
       id: true,
       username: true,
       name: true,
-      email: true,
       profile: {
         select: {
           avatarUrl: true,
@@ -134,7 +133,7 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
     
   const rating = user.avgRating ? user.avgRating.toFixed(1) : "-";
 
-  const isOwnProfile = session?.user?.email === user.email;
+  const isOwnProfile = currentUserId === user.id;
   const profileType = user.profile?.profileType ?? null;
 
   return (
