@@ -5,7 +5,7 @@ import { surface } from "@/components/ui/design-system";
 import { ProfileTooltip } from "@/components/profile/ProfileTooltip";
 import { ProfileTypeLabel } from "@/components/profile/ProfileTypeLabel";
 
-interface NetworkUser {
+export interface NetworkUser {
   id: string;
   username: string;
   name: string | null;
