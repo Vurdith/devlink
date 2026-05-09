@@ -2,6 +2,7 @@
 
 import { useTheme } from "@/components/providers/ThemeProvider";
 import { iconBox, surface, ui } from "@/components/ui/design-system";
+import { cn } from "@/lib/cn";
 import { getAllThemes, ThemeId, ThemeConfig } from "@/lib/themes";
 import { useState, useEffect } from "react";
 
@@ -13,11 +14,12 @@ function ThemePreview({ theme, isSelected, onSelect }: {
   return (
     <button
       onClick={onSelect}
-      className={`group relative w-full overflow-hidden rounded-xl border p-4 text-left transition-all duration-300 noise-overlay ${
-        isSelected 
+      className={cn(
+        "noise-overlay group relative w-full overflow-hidden rounded-xl border p-4 text-left transition-all duration-300",
+        isSelected
           ? ui.active.cyanStrong
-          : 'border-white/10 bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.06]'
-      }`}
+          : cn(ui.surface.empty, "hover:border-white/[0.14] hover:bg-white/[0.055]")
+      )}
     >
       <div
         aria-hidden="true"
@@ -58,7 +60,7 @@ function ThemePreview({ theme, isSelected, onSelect }: {
       <p className="text-sm text-white/60">{theme.description}</p>
 
       {/* Preview bar */}
-      <div className="mt-4 h-2 rounded-full overflow-hidden bg-black/30">
+      <div className="mt-4 h-2 overflow-hidden rounded-full border border-white/[0.08] bg-white/[0.035]">
         <div 
           className="h-full rounded-full transition-all"
           style={{ 
@@ -171,7 +173,7 @@ export default function AppearanceSettingsPage() {
       {/* Future: More appearance settings */}
       <div className={surface("panelMuted", "noise-overlay relative mt-6 overflow-hidden p-6 opacity-50")}>
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
+          <div className={iconBox("muted", "h-10 w-10 rounded-xl")}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-white/50">
               <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" strokeWidth="2"/>
               <path d="M3 9h18M9 21V9" stroke="currentColor" strokeWidth="2"/>

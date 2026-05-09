@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/Button";
-import { iconBox, surface } from "@/components/ui/design-system";
+import { iconBox, surface, ui } from "@/components/ui/design-system";
 import { useSession } from "next-auth/react";
 import { cn } from "@/lib/cn";
 
@@ -181,7 +181,7 @@ export default function AccountLinking() {
                 "relative flex items-center justify-between p-4 rounded-xl border transition-all animate-slide-up overflow-hidden",
                 linked 
                   ? "bg-[rgba(var(--color-accent-rgb),0.10)] border-[rgba(var(--color-accent-rgb),0.25)]"
-                  : "bg-white/[0.03] border-white/10 hover:bg-white/[0.06] hover:border-white/20"
+                  : cn(ui.surface.empty, "hover:border-white/[0.14] hover:bg-white/[0.055]")
               )}
               style={{ animationDelay: `${index * 0.05}s` }}
             >
@@ -207,8 +207,8 @@ export default function AccountLinking() {
                   <div className="text-sm text-[var(--muted-foreground)] flex items-center gap-2">
                     {linked ? (
                       <>
-                        <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-accent)]" />
-                        <span className="text-[var(--color-accent)]">Connected</span>
+                        <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-accent-2)]" />
+                        <span className="text-[var(--color-accent-2)]">Connected</span>
                       </>
                     ) : (
                       "Not connected"

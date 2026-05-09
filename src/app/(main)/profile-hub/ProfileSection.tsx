@@ -131,13 +131,13 @@ export function ProfileSection({
                     "relative p-4 rounded-xl border text-left transition-all group",
                     isActive
                       ? `${profileType.bgColor} ${profileType.borderColor} ${ui.active.purple}`
-                      : "border-white/10 bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.06]"
+                      : cn(ui.surface.empty, "hover:border-white/[0.14] hover:bg-white/[0.055]")
                   )}
                 >
                   <div
                     className={cn(
                       "absolute top-3 right-3 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all",
-                      isActive ? `bg-gradient-to-br ${profileType.gradient} border-transparent` : "border-white/20"
+                    isActive ? `bg-gradient-to-br ${profileType.gradient} border-transparent` : "border-white/[0.18]"
                     )}
                   >
                     {isActive && (

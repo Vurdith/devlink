@@ -121,7 +121,7 @@ export default function NotificationSettings() {
                 "flex items-center justify-between p-4 rounded-xl border transition-all animate-slide-up",
                 setting.enabled
                   ? ui.active.cyan
-                  : "bg-white/[0.03] border-white/10 hover:bg-white/[0.05] hover:border-white/15"
+                  : cn(ui.surface.empty, "hover:border-white/[0.14] hover:bg-white/[0.045]")
               )}
               style={{ animationDelay: `${0.05 + index * 0.03}s` }}
             >

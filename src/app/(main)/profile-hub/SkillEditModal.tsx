@@ -34,7 +34,7 @@ export function SkillEditModal({ skill, onSkillChange, onSave, onClose }: SkillE
                 <button
                   key={key}
                   onClick={() => onSkillChange({ ...skill, experienceLevel: key })}
-                  className={cn("rounded-lg border p-2 text-xs font-medium transition-all", skill.experienceLevel === key ? `${config.bgColor} ${config.color}` : "border-white/10 text-white/60 hover:border-white/20 hover:bg-white/[0.035]")}
+                  className={cn("rounded-lg border p-2 text-xs font-medium transition-all", skill.experienceLevel === key ? `${config.bgColor} ${config.color}` : cn(ui.surface.empty, "text-white/60 hover:border-white/[0.14] hover:bg-white/[0.045]"))}
                 >
                   {config.label}
                 </button>
@@ -111,7 +111,7 @@ export function SkillEditModal({ skill, onSkillChange, onSave, onClose }: SkillE
                   onClick={() => onSkillChange({ ...skill, skillAvailability: key })}
                   className={cn(
                     "flex items-center gap-2 rounded-lg border p-2 text-xs font-medium transition-all",
-                    skill.skillAvailability === key ? `${config.bgColor} ${config.color}` : "border-white/10 text-white/60 hover:border-white/20 hover:bg-white/[0.035]"
+                    skill.skillAvailability === key ? `${config.bgColor} ${config.color}` : cn(ui.surface.empty, "text-white/60 hover:border-white/[0.14] hover:bg-white/[0.045]")
                   )}
                 >
                   <div
@@ -129,7 +129,7 @@ export function SkillEditModal({ skill, onSkillChange, onSave, onClose }: SkillE
             </div>
           </div>
 
-          <div className="flex items-center justify-between rounded-lg border border-white/10 bg-white/[0.035] p-3">
+          <div className={surface("empty", "flex items-center justify-between rounded-lg p-3")}>
             <div>
               <p className="text-sm font-medium text-white">Primary Skill</p>
               <p className="text-xs text-white/50">Shown prominently on your profile</p>

@@ -179,7 +179,7 @@ export function ProfileTypeCard() {
                   "relative overflow-hidden p-4 rounded-xl border text-left transition-all group animate-slide-up active:scale-98",
                   isActive 
                     ? `${profileType.bgColor} ${profileType.borderColor} ${ui.active.purple}`
-                    : "bg-white/[0.03] border-white/10 hover:bg-white/[0.06] hover:border-white/20"
+                    : cn(ui.surface.empty, "hover:border-white/[0.14] hover:bg-white/[0.055]")
                 )}
                 style={{ animationDelay: `${index * 0.03}s` }}
               >
@@ -198,7 +198,7 @@ export function ProfileTypeCard() {
                   "absolute top-3 right-3 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all",
                   isActive 
                     ? `bg-gradient-to-br ${profileType.gradient} border-transparent` 
-                    : "border-white/20"
+                    : "border-white/[0.18]"
                 )}>
                   {isActive && (
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" className="text-white animate-pop-in">

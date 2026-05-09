@@ -1,5 +1,5 @@
 import { ModalInput } from "@/components/ui/BaseModal";
-import { iconBox, surface } from "@/components/ui/design-system";
+import { iconBox, surface, ui } from "@/components/ui/design-system";
 import { cn } from "@/lib/cn";
 import type { Skill } from "./profile-hub-types";
 
@@ -56,7 +56,8 @@ export function AddSkillsPanel({
               disabled={!canAddMore}
               className={cn(
                 "p-3 rounded-lg border text-left transition-all",
-                "border-white/10 hover:border-[var(--color-accent)]/30 bg-white/[0.02] hover:bg-[var(--color-accent)]/5",
+                ui.surface.empty,
+                "hover:border-[rgba(var(--color-accent-2-rgb),0.28)] hover:bg-[rgba(var(--color-accent-2-rgb),0.06)]",
                 !canAddMore && "opacity-50 cursor-not-allowed"
               )}
             >
