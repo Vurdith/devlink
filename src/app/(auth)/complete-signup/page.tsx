@@ -5,8 +5,12 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import { Button } from "@/components/ui/Button";
 import { useTheme } from "@/components/providers/ThemeProvider";
-import { surface } from "@/components/ui/design-system";
+import { surface, ui } from "@/components/ui/design-system";
+import { cn } from "@/lib/cn";
+
+const authInputClass = cn(ui.control.field, "h-12 px-4");
 
 export default function CompleteSignupPage() {
   const { status, update } = useSession();
@@ -101,6 +105,12 @@ export default function CompleteSignupPage() {
     router.push("/home");
   };
 
+  const canSubmitPassword =
+    password.length >= 8 &&
+    passwordConfirm.length >= 8 &&
+    password === passwordConfirm &&
+    !loading;
+
   if (status === "loading") {
     return (
       <div className="min-h-screen flex items-center justify-center -my-6">
@@ -173,13 +183,15 @@ export default function CompleteSignupPage() {
               <input
                 id="password"
                 type="password"
+                autoComplete="new-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 rounded-lg bg-white/[0.04] border border-white/[0.1] text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[rgba(var(--color-accent-2-rgb),0.24)] focus:border-[rgba(var(--color-accent-2-rgb),0.55)] transition-all"
+                className={authInputClass}
                 placeholder="Create a password"
+                aria-describedby={password ? "complete-password-strength" : undefined}
               />
               {password && (
-                <div className="mt-2">
+                <div id="complete-password-strength" className="mt-2">
                   <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
                     <div
                       className="h-full transition-all duration-300"
@@ -201,13 +213,16 @@ export default function CompleteSignupPage() {
               <input
                 id="passwordConfirm"
                 type="password"
+                autoComplete="new-password"
                 value={passwordConfirm}
                 onChange={(e) => setPasswordConfirm(e.target.value)}
-                className="w-full px-4 py-3 rounded-lg bg-white/[0.04] border border-white/[0.1] text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[rgba(var(--color-accent-2-rgb),0.24)] focus:border-[rgba(var(--color-accent-2-rgb),0.55)] transition-all"
+                className={cn(authInputClass, passwordConfirm && password !== passwordConfirm ? "border-[var(--color-accent)]/50 focus:border-[var(--color-accent)]" : "")}
                 placeholder="Confirm your password"
+                aria-invalid={passwordConfirm ? password !== passwordConfirm : undefined}
+                aria-describedby={passwordConfirm && password !== passwordConfirm ? "complete-password-match-error" : undefined}
               />
               {passwordConfirm && password !== passwordConfirm && (
-                <p className="text-xs text-[var(--color-accent)] mt-1">Passwords do not match</p>
+                <p id="complete-password-match-error" className="text-xs text-[var(--color-accent)] mt-1">Passwords do not match</p>
               )}
               {passwordConfirm && password === passwordConfirm && passwordConfirm.length >= 8 && (
                 <p className="text-xs text-green-400 mt-1 flex items-center gap-1">
@@ -220,23 +235,21 @@ export default function CompleteSignupPage() {
             </div>
 
             {/* Submit Button */}
-            <button
+            <Button
               type="submit"
-              disabled={loading || !password || !passwordConfirm || password !== passwordConfirm}
-              className="w-full py-3 px-4 rounded-lg bg-[linear-gradient(135deg,var(--color-accent),#5f6cf6_52%,var(--color-accent-2))] text-white font-semibold hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-[rgba(var(--color-accent-2-rgb),0.24)] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              disabled={!canSubmitPassword}
+              isLoading={loading}
+              variant="gradient"
+              className="w-full"
             >
-              {loading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                  </svg>
-                  Setting Password...
-                </span>
-              ) : (
-                "Set Password"
-              )}
-            </button>
+              Set password
+            </Button>
+
+            {!canSubmitPassword && (password || passwordConfirm) && !loading && (
+              <p className="text-center text-xs text-[var(--muted-foreground)]">
+                Use at least 8 characters and make both password fields match.
+              </p>
+            )}
 
             {/* Skip Button */}
             <button

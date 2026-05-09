@@ -23,16 +23,22 @@ export function TwoFactorSetup({ onStatusChange }: TwoFactorSetupProps) {
   const [disableCode, setDisableCode] = useState("");
   const [showDisable, setShowDisable] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [statusError, setStatusError] = useState<string | null>(null);
+  const [setupError, setSetupError] = useState<string | null>(null);
 
   const fetchStatus = useCallback(async () => {
+    setStatusError(null);
+    setIsLoading(true);
     try {
       const res = await fetch("/api/2fa/status");
       if (res.ok) {
         const data = await res.json();
         setIsEnabled(data.enabled);
+      } else {
+        setStatusError("Could not check your two-factor status. Try again before changing security settings.");
       }
-    } catch (error) {
-      console.error("Error fetching 2FA status:", error);
+    } catch {
+      setStatusError("Could not reach DevLink. Check your connection and try again.");
     } finally {
       setIsLoading(false);
     }
@@ -44,6 +50,7 @@ export function TwoFactorSetup({ onStatusChange }: TwoFactorSetupProps) {
 
   const startSetup = async () => {
     setIsSubmitting(true);
+    setSetupError(null);
     try {
       const res = await fetch("/api/2fa/setup", { method: "POST" });
       if (res.ok) {
@@ -54,6 +61,7 @@ export function TwoFactorSetup({ onStatusChange }: TwoFactorSetupProps) {
         setSetupStep("qr");
       } else {
         const data = await res.json();
+        setSetupError(data.error || "Failed to start two-factor setup.");
         toast({
           title: "Error",
           description: data.error || "Failed to start 2FA setup",
@@ -61,6 +69,7 @@ export function TwoFactorSetup({ onStatusChange }: TwoFactorSetupProps) {
         });
       }
     } catch {
+      setSetupError("Could not reach DevLink. Check your connection and try again.");
       toast({
         title: "Error",
         description: "An unexpected error occurred",
@@ -72,7 +81,9 @@ export function TwoFactorSetup({ onStatusChange }: TwoFactorSetupProps) {
   };
 
   const verifyAndEnable = async () => {
+    setSetupError(null);
     if (!verifyCode || verifyCode.length !== 6) {
+      setSetupError("Enter the 6-digit code from your authenticator app.");
       toast({
         title: "Error",
         description: "Please enter a 6-digit code",
@@ -97,6 +108,7 @@ export function TwoFactorSetup({ onStatusChange }: TwoFactorSetupProps) {
         onStatusChange?.(true);
       } else {
         const data = await res.json();
+        setSetupError(data.error || "Invalid verification code.");
         toast({
           title: "Error",
           description: data.error || "Invalid verification code",
@@ -104,6 +116,7 @@ export function TwoFactorSetup({ onStatusChange }: TwoFactorSetupProps) {
         });
       }
     } catch {
+      setSetupError("Could not reach DevLink. Check your connection and try again.");
       toast({
         title: "Error",
         description: "An unexpected error occurred",
@@ -115,7 +128,9 @@ export function TwoFactorSetup({ onStatusChange }: TwoFactorSetupProps) {
   };
 
   const disable2FA = async () => {
+    setSetupError(null);
     if (!disableCode || disableCode.length !== 6) {
+      setSetupError("Enter the 6-digit code from your authenticator app.");
       toast({
         title: "Error",
         description: "Please enter a 6-digit code",
@@ -144,6 +159,7 @@ export function TwoFactorSetup({ onStatusChange }: TwoFactorSetupProps) {
         });
       } else {
         const data = await res.json();
+        setSetupError(data.error || "Failed to disable two-factor authentication.");
         toast({
           title: "Error",
           description: data.error || "Failed to disable 2FA",
@@ -151,6 +167,7 @@ export function TwoFactorSetup({ onStatusChange }: TwoFactorSetupProps) {
         });
       }
     } catch {
+      setSetupError("Could not reach DevLink. Check your connection and try again.");
       toast({
         title: "Error",
         description: "An unexpected error occurred",
@@ -168,6 +185,7 @@ export function TwoFactorSetup({ onStatusChange }: TwoFactorSetupProps) {
     setVerifyCode("");
     setRecoveryCodes([]);
     setSetupStep("qr");
+    setSetupError(null);
   };
 
   const inputBase = cn(ui.control.field, "h-11 px-4 text-center text-lg tracking-widest");
@@ -183,6 +201,21 @@ export function TwoFactorSetup({ onStatusChange }: TwoFactorSetupProps) {
 
   return (
     <div className="space-y-4">
+      {statusError && (
+        <div role="alert" className="rounded-xl border border-[var(--color-accent)]/20 bg-[var(--color-accent)]/10 p-4 text-sm text-[var(--color-accent)]">
+          <p>{statusError}</p>
+          <Button onClick={fetchStatus} variant="secondary" className="mt-3 h-9 px-3">
+            Retry status check
+          </Button>
+        </div>
+      )}
+
+      {setupError && (
+        <div role="alert" className="rounded-xl border border-[var(--color-accent)]/20 bg-[var(--color-accent)]/10 p-3 text-sm text-[var(--color-accent)]">
+          {setupError}
+        </div>
+      )}
+
       {showSetup ? (
         <div className="space-y-6">
           {setupStep === "qr" && qrCode && (
@@ -205,7 +238,7 @@ export function TwoFactorSetup({ onStatusChange }: TwoFactorSetupProps) {
                   </code>
                 </div>
               </div>
-              <div className="flex gap-3">
+              <div className="flex flex-col gap-3 sm:flex-row">
                 <Button onClick={cancelSetup} variant="secondary" className="flex-1">
                   Cancel
                 </Button>
@@ -240,7 +273,7 @@ export function TwoFactorSetup({ onStatusChange }: TwoFactorSetupProps) {
                   autoFocus
                 />
               </div>
-              <div className="flex gap-3">
+              <div className="flex flex-col gap-3 sm:flex-row">
                 <Button onClick={() => setSetupStep("qr")} variant="secondary" className="flex-1">
                   Back
                 </Button>
@@ -293,7 +326,7 @@ export function TwoFactorSetup({ onStatusChange }: TwoFactorSetupProps) {
                   ))}
                 </div>
               </div>
-              <div className="flex gap-3">
+              <div className="flex flex-col gap-3 sm:flex-row">
                 <Button
                   onClick={() => {
                     navigator.clipboard.writeText(recoveryCodes.join("\n"));
@@ -340,11 +373,12 @@ export function TwoFactorSetup({ onStatusChange }: TwoFactorSetupProps) {
             placeholder="000000"
             autoFocus
           />
-          <div className="flex gap-3">
+          <div className="flex flex-col gap-3 sm:flex-row">
             <Button
               onClick={() => {
                 setShowDisable(false);
                 setDisableCode("");
+                setSetupError(null);
               }}
               variant="secondary"
               className="flex-1"
