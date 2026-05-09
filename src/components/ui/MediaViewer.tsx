@@ -33,6 +33,7 @@ export function MediaViewer({
   
   const imageRef = useRef<HTMLImageElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const dragFrameRef = useRef<number | null>(null);
 
 
   const currentMedia = media?.[currentIndex];
@@ -47,8 +48,14 @@ export function MediaViewer({
 
   useBodyScrollLock(showModal, true);
 
+  useEffect(() => {
+    return () => {
+      if (dragFrameRef.current !== null) {
+        cancelAnimationFrame(dragFrameRef.current);
+      }
+    };
+  }, []);
 
-  // Calculate pan boundaries
   const clampPanPosition = useCallback((x: number, y: number, zoom: number = zoomLevel) => {
     if (!imageDimensions.width || !containerDimensions.width) {
       return { x: 0, y: 0 };
@@ -63,7 +70,6 @@ export function MediaViewer({
     };
   }, [imageDimensions, containerDimensions, zoomLevel]);
 
-  // Handle zoom with pan clamping
   const handleZoomChange = useCallback((newZoom: number) => {
     setZoomLevel(newZoom);
     if (imageDimensions.width && containerDimensions.width) {
@@ -95,10 +101,13 @@ export function MediaViewer({
   }, [zoomLevel, panPosition]);
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    if (isDragging && zoomLevel > 1) {
+    if (isDragging && zoomLevel > 1 && dragFrameRef.current === null) {
       const newX = e.clientX - dragStart.x;
       const newY = e.clientY - dragStart.y;
-      setPanPosition(clampPanPosition(newX, newY));
+      dragFrameRef.current = requestAnimationFrame(() => {
+        dragFrameRef.current = null;
+        setPanPosition(clampPanPosition(newX, newY));
+      });
     }
   }, [isDragging, zoomLevel, dragStart, clampPanPosition]);
 
@@ -122,7 +131,6 @@ export function MediaViewer({
     setCurrentIndex((prev) => (prev === (media.length || 1) - 1 ? 0 : prev + 1));
   }, [media.length]);
 
-  // Keyboard shortcuts
   useEffect(() => {
     if (!showModal) return;
     
@@ -152,7 +160,6 @@ export function MediaViewer({
     setShowModal(true);
   }, []);
 
-  // Modal portal
   const renderModal = () => {
     if (!showModal || typeof window === 'undefined') return null;
 
@@ -166,9 +173,7 @@ export function MediaViewer({
           className="relative w-full h-full flex flex-col items-center justify-center py-12 px-4"
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Image viewport container */}
           <div className="relative max-w-[90vw] max-h-[75vh] flex items-center justify-center">
-            {/* Close button */}
             <button
               onClick={(e) => { e.stopPropagation(); setShowModal(false); }}
               className={cn("absolute -right-3 -top-3 z-30 flex h-9 w-9 items-center justify-center text-white/80 hover:text-white", ui.control.icon)}
@@ -180,10 +185,9 @@ export function MediaViewer({
               </svg>
             </button>
 
-            {/* Clipping viewport */}
             <div
               ref={containerRef}
-              className="relative overflow-hidden rounded-lg border border-white/[0.08] bg-[rgba(8,11,16,0.72)]"
+              className="relative h-[75vh] w-[90vw] max-w-[1400px] overflow-hidden rounded-lg border border-white/[0.08] bg-[rgba(8,11,16,0.72)]"
               onMouseDown={handleMouseDown}
               onMouseMove={handleMouseMove}
               onMouseUp={handleMouseUp}
@@ -194,24 +198,23 @@ export function MediaViewer({
               {currentMedia.type === "video" ? (
                 <video
                   src={currentMedia.url}
-                  className="max-w-[90vw] max-h-[75vh] object-contain select-none block"
-                  style={{ maxWidth: '1400px' }}
+                  className="h-full w-full object-contain select-none"
                   controls
                   autoPlay
+                  playsInline
+                  preload="metadata"
                 />
               ) : (
                 <Image
                   src={currentMedia.url}
                   alt={`${alt} - ${currentIndex + 1}`}
-                  width={0}
-                  height={0}
+                  fill
                   sizes="90vw"
-                  unoptimized
-                  className="max-w-[90vw] max-h-[75vh] object-contain select-none block w-auto h-auto"
+                  quality={82}
+                  className="object-contain select-none"
                   style={{ 
                     transform: `scale(${zoomLevel}) translate(${panPosition.x / zoomLevel}px, ${panPosition.y / zoomLevel}px)`,
                     transformOrigin: 'center center',
-                    maxWidth: '1400px',
                     transition: isDragging ? 'none' : 'transform 0.15s ease-out'
                   }}
                   ref={imageRef}

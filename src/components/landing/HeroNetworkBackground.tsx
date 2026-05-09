@@ -10,22 +10,24 @@ export function HeroNetworkBackground() {
     useEffect(() => {
         const canvas = canvasRef.current;
         if (!canvas) return;
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
         const ctx = canvas.getContext("2d", { alpha: false });
         if (!ctx) return;
 
         let animationFrameId: number;
+        let resizeFrameId: number | null = null;
         let width = 0;
         let height = 0;
         let particles: { x: number; y: number; vx: number; vy: number; radius: number }[] = [];
+        const rawColor = getComputedStyle(document.documentElement).getPropertyValue("--color-accent-2-rgb").trim() || "34, 211, 238";
 
-        // Mouse positioning for interaction
         const mouse = { x: -1000, y: -1000, radius: 150 };
+        const mouseRadiusSq = mouse.radius * mouse.radius;
 
         const handleMouseMove = (e: MouseEvent) => {
-            const rect = canvas.getBoundingClientRect();
-            mouse.x = e.clientX - rect.left;
-            mouse.y = e.clientY - rect.top;
+            mouse.x = e.clientX;
+            mouse.y = e.clientY;
         };
 
         const handleMouseLeave = () => {
@@ -33,20 +35,28 @@ export function HeroNetworkBackground() {
             mouse.y = -1000;
         };
 
+        const scheduleResize = () => {
+            if (resizeFrameId !== null) return;
+            resizeFrameId = requestAnimationFrame(() => {
+                resizeFrameId = null;
+                init();
+            });
+        };
+
         window.addEventListener("mousemove", handleMouseMove);
         window.addEventListener("mouseleave", handleMouseLeave);
 
         const init = () => {
-            const dpr = window.devicePixelRatio || 1;
+            const dpr = Math.min(window.devicePixelRatio || 1, 2);
             width = window.innerWidth;
             height = window.innerHeight;
 
             canvas.width = width * dpr;
             canvas.height = height * dpr;
-            ctx.scale(dpr, dpr);
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
             particles = [];
-            const particleCount = Math.floor((width * height) / 12000); // Responsive density
+            const particleCount = Math.min(110, Math.floor((width * height) / 14000));
 
             for (let i = 0; i < particleCount; i++) {
                 particles.push({
@@ -60,12 +70,13 @@ export function HeroNetworkBackground() {
         };
 
         const draw = () => {
-            // Very slight trail effect - always use a dark/translucent clear overlay for this theme
+            if (document.hidden) {
+                animationFrameId = requestAnimationFrame(draw);
+                return;
+            }
+
             ctx.fillStyle = "rgba(7, 9, 13, 0.36)";
             ctx.fillRect(0, 0, width, height);
-
-            const rootStyles = getComputedStyle(document.documentElement);
-            const rawColor = rootStyles.getPropertyValue("--color-accent-2-rgb").trim() || "34, 211, 238";
 
             for (let i = 0; i < particles.length; i++) {
                 const p = particles[i];
@@ -73,18 +84,16 @@ export function HeroNetworkBackground() {
                 p.x += p.vx;
                 p.y += p.vy;
 
-                // Bounce off walls smoothly
                 if (p.x < 0 || p.x > width) p.vx *= -1;
                 if (p.y < 0 || p.y > height) p.vy *= -1;
 
-                // Mouse interaction (repel slightly, glow strongly)
                 const dx = mouse.x - p.x;
                 const dy = mouse.y - p.y;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-
-                const isNearMouse = distance < mouse.radius;
+                const distanceSq = dx * dx + dy * dy;
+                const isNearMouse = distanceSq < mouseRadiusSq;
 
                 if (isNearMouse) {
+                    const distance = Math.sqrt(distanceSq);
                     const force = (mouse.radius - distance) / mouse.radius;
                     p.x -= dx * force * 0.03;
                     p.y -= dy * force * 0.03;
@@ -93,25 +102,26 @@ export function HeroNetworkBackground() {
                 ctx.beginPath();
                 ctx.arc(p.x, p.y, isNearMouse ? p.radius * 2 : p.radius, 0, Math.PI * 2);
 
-                // Dynamic opacity based on mouse proximity
                 const opacity = isNearMouse ? 0.8 : 0.3;
                 ctx.fillStyle = `rgba(${rawColor}, ${opacity})`;
                 ctx.fill();
 
-                // Connect particles
                 for (let j = i + 1; j < particles.length; j++) {
                     const p2 = particles[j];
                     const dx2 = p.x - p2.x;
                     const dy2 = p.y - p2.y;
-                    const dist2 = Math.sqrt(dx2 * dx2 + dy2 * dy2);
+                    const distanceBetweenSq = dx2 * dx2 + dy2 * dy2;
 
-                    if (dist2 < 120) {
+                    if (distanceBetweenSq < 14400) {
+                        const dist2 = Math.sqrt(distanceBetweenSq);
                         ctx.beginPath();
                         ctx.moveTo(p.x, p.y);
                         ctx.lineTo(p2.x, p2.y);
 
-                        // Connection opacity is stronger if both particles are near mouse
-                        const lineOpacity = isNearMouse && Math.sqrt(Math.pow(mouse.x - p2.x, 2) + Math.pow(mouse.y - p2.y, 2)) < mouse.radius
+                        const p2MouseDx = mouse.x - p2.x;
+                        const p2MouseDy = mouse.y - p2.y;
+                        const p2NearMouse = p2MouseDx * p2MouseDx + p2MouseDy * p2MouseDy < mouseRadiusSq;
+                        const lineOpacity = isNearMouse && p2NearMouse
                             ? (1 - dist2 / 120) * 0.4
                             : (1 - dist2 / 120) * 0.1;
 
@@ -128,17 +138,17 @@ export function HeroNetworkBackground() {
         init();
         draw();
 
-        window.addEventListener("resize", init);
+        window.addEventListener("resize", scheduleResize);
 
         return () => {
-            window.removeEventListener("resize", init);
+            window.removeEventListener("resize", scheduleResize);
             window.removeEventListener("mousemove", handleMouseMove);
             window.removeEventListener("mouseleave", handleMouseLeave);
+            if (resizeFrameId !== null) cancelAnimationFrame(resizeFrameId);
             cancelAnimationFrame(animationFrameId);
         };
     }, [themeId]);
 
-    // Apply a powerful vignette over the canvas to blend it seamlessly into the background
     return (
         <div className="fixed inset-0 z-0 overflow-hidden bg-[var(--color-background)] pointer-events-none">
             <canvas ref={canvasRef} className="absolute inset-0 h-full w-full opacity-40" />

@@ -6,25 +6,22 @@ interface OptimizedImageProps extends Omit<ImageProps, "loading"> {
   fadeIn?: boolean;
 }
 
-/**
- * Performance-optimized image component with sensible defaults.
- * - Uses AVIF/WebP formats automatically
- * - Lazy loads by default
- * - Lower quality (75) for faster loads
- * - Fade-in animation on load
- */
 export function OptimizedImage({
   eager = false,
   fadeIn = true,
   className,
   alt,
+  fill,
+  sizes,
   ...props
 }: OptimizedImageProps) {
   return (
     <Image
       alt={alt}
+      fill={fill}
       loading={eager ? "eager" : "lazy"}
       quality={75}
+      sizes={sizes ?? (fill ? "100vw" : undefined)}
       className={cn(
         fadeIn && "transition-opacity duration-300",
         className
@@ -34,10 +31,6 @@ export function OptimizedImage({
   );
 }
 
-/**
- * Background image component optimized for above-the-fold content.
- * Uses priority loading and blur placeholder.
- */
 export function BackgroundImage({
   src,
   alt,

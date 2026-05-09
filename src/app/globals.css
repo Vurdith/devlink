@@ -1248,12 +1248,6 @@ a {
   touch-action: manipulation;
 }
 
-/* Smooth image loading */
-img,
-video {
-  content-visibility: auto;
-}
-
 /* Optimize large lists */
 .list-optimized>* {
   contain: layout style;
@@ -1482,12 +1476,6 @@ video {
   transition-property: transform, opacity;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   will-change: transform, opacity;
-}
-
-/* Optimize image rendering */
-img,
-video {
-  content-visibility: auto;
 }
 
 /* Fast hover states - avoid layout shifts */
