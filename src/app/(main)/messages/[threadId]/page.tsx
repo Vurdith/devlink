@@ -46,17 +46,19 @@ export default function MessageThreadPage() {
 
   const { typingUsers, setTyping } = useTypingIndicator(params.threadId, currentUser);
 
-  useMessagesRealtime(params.threadId, (newMessage) => {
+  const appendMessage = useCallback((message: Message) => {
     setThread((prev) => {
       if (!prev) return prev;
-      const exists = prev.messages?.some((m) => m.id === newMessage.id);
+      const exists = prev.messages?.some((m) => m.id === message.id);
       if (exists) return prev;
       return {
         ...prev,
-        messages: [...(prev.messages || []), { ...newMessage, threadId: prev.id } as Message],
+        messages: [...(prev.messages || []), { ...message, threadId: message.threadId ?? prev.id }],
       };
     });
-  });
+  }, []);
+
+  useMessagesRealtime(params.threadId, appendMessage);
 
   useEffect(() => {
     if (!userId) return;
@@ -73,7 +75,6 @@ export default function MessageThreadPage() {
       if (isMounted) {
         setThread(data || null);
 
-        // Check if there's a pending request from this user to the other user
         if (data && outgoing) {
           const otherUserId = data.userAId === userId ? data.userBId : data.userAId;
           const isPending = outgoing.some(
@@ -116,63 +117,59 @@ export default function MessageThreadPage() {
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setContent(e.target.value);
     setTyping(e.target.value.length > 0);
-    // Auto-resize textarea
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
       textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 150)}px`;
     }
   };
 
+  const sendThreadContent = useCallback(async (messageContent: string, restoreDraftOnFailure = false) => {
+    if (!messageContent.trim() || sending) return false;
+
+    setSending(true);
+    try {
+      const res = await fetch(`/api/messages/threads/${params.threadId}/messages`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: messageContent }),
+      });
+      const data = await safeJson<Message & { error?: string }>(res);
+
+      if (!res.ok || !data) {
+        if (restoreDraftOnFailure) setContent(messageContent);
+        alert(data?.error || "Message was not sent. Try again.");
+        return false;
+      }
+
+      appendMessage(data);
+      if (pendingRequest) setHasSentRequestMsg(true);
+      return true;
+    } catch {
+      if (restoreDraftOnFailure) setContent(messageContent);
+      alert("Message was not sent. Check your connection, then try again.");
+      return false;
+    } finally {
+      setSending(false);
+    }
+  }, [appendMessage, params.threadId, pendingRequest, sending]);
+
   const sendMessage = useCallback(async () => {
     if (!content.trim()) return;
-    setSending(true);
+
     const messageContent = content;
     setContent("");
     setTyping(false);
-    // Reset textarea height
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
     }
 
-    const res = await fetch(`/api/messages/threads/${params.threadId}/messages`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ content: messageContent }),
-    });
-    const data = await safeJson<Message & { error?: string }>(res);
-    if (res.ok && data) {
-      setThread((prev) =>
-        prev ? { ...prev, messages: [...(prev.messages || []), data] } : prev
-      );
-      if (pendingRequest) setHasSentRequestMsg(true);
-    } else {
-      setContent(messageContent); // Restore on failure
-      alert(data?.error || "Failed to send message");
-    }
-    setSending(false);
-  }, [content, params.threadId, setTyping, pendingRequest]);
+    await sendThreadContent(messageContent, true);
+  }, [content, sendThreadContent, setTyping]);
 
-  /* Send a media URL (image/GIF) as a message */
   const sendMediaMessage = useCallback(async (mediaUrl: string) => {
-    setSending(true);
-    const res = await fetch(`/api/messages/threads/${params.threadId}/messages`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ content: mediaUrl }),
-    });
-    const data = await safeJson<Message & { error?: string }>(res);
-    if (res.ok && data) {
-      setThread((prev) =>
-        prev ? { ...prev, messages: [...(prev.messages || []), data] } : prev
-      );
-      if (pendingRequest) setHasSentRequestMsg(true);
-    } else {
-      alert(data?.error || "Failed to send");
-    }
-    setSending(false);
-  }, [params.threadId, pendingRequest]);
+    await sendThreadContent(mediaUrl);
+  }, [sendThreadContent]);
 
-  /* Emoji handler */
   const addEmoji = useCallback((emoji: { emoji?: string }) => {
     const char = emoji?.emoji || "";
     if (char) {
@@ -181,16 +178,15 @@ export default function MessageThreadPage() {
     }
   }, []);
 
-  /* Image upload handler */
   const handleImageSelect = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     if (!file.type.startsWith("image/") && !file.type.startsWith("video/")) {
-      alert("Please select an image or video file");
+      alert("Choose an image or video file.");
       return;
     }
     if (file.size > 5 * 1024 * 1024) {
-      alert("File must be less than 5MB");
+      alert("Choose a file smaller than 5 MB.");
       return;
     }
     setUploading(true);
@@ -203,10 +199,10 @@ export default function MessageThreadPage() {
         await sendMediaMessage(data.url);
       } else {
         const err = await res.json().catch(() => null);
-        alert(err?.error || "Upload failed");
+        alert(err?.error || "Media upload failed. Try again.");
       }
     } catch {
-      alert("Upload failed");
+      alert("Media upload failed. Check your connection, then try again.");
     } finally {
       setUploading(false);
       if (imageInputRef.current) imageInputRef.current.value = "";
@@ -214,7 +210,6 @@ export default function MessageThreadPage() {
     }
   }, [sendMediaMessage]);
 
-  /* Close emoji picker on outside click */
   useEffect(() => {
     if (!showEmojiPicker) return;
     function handleClickOutside(e: MouseEvent) {

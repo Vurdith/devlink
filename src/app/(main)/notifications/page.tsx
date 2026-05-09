@@ -1,12 +1,23 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
 import { NotificationList } from "./NotificationList";
 import { NotificationsHeader } from "./NotificationsHeader";
 import { NotificationsEmpty, NotificationsError, NotificationsLoading, NotificationsSignedOut } from "./NotificationStates";
 import type { NotificationItem, NotificationTab } from "./notification-types";
 import { groupNotificationRows, safeJson } from "./notification-utils";
+
+const PAGE_SIZE = 40;
+
+type NotificationsPagePayload = {
+  notifications?: NotificationItem[];
+  nextCursor?: string | null;
+};
+
+type NotificationErrorPayload = {
+  error?: string;
+};
 
 export default function NotificationsPage() {
   const { data: session, status } = useSession();
@@ -19,15 +30,21 @@ export default function NotificationsPage() {
   const [cursor, setCursor] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
+  const activeFetchId = useRef(0);
 
   const unreadIds = useMemo(() => items.filter((item) => !item.readAt).map((item) => item.id), [items]);
   const visible = useMemo(() => (tab === "unread" ? items.filter((item) => !item.readAt) : items), [items, tab]);
   const groupedVisible = useMemo(() => groupNotificationRows(visible, tab), [visible, tab]);
 
-  const applyNotificationPage = useCallback((data: unknown, replace: boolean) => {
-    const json = data as { notifications?: NotificationItem[]; nextCursor?: string };
-    const list = Array.isArray(json?.notifications) ? json.notifications : [];
-    const next = json?.nextCursor ?? null;
+  const resetNotifications = useCallback(() => {
+    setItems([]);
+    setCursor(null);
+    setHasMore(false);
+  }, []);
+
+  const applyNotificationPage = useCallback((data: NotificationsPagePayload | null, replace: boolean) => {
+    const list = Array.isArray(data?.notifications) ? data.notifications : [];
+    const next = data?.nextCursor ?? null;
 
     setItems((prev) => (replace ? list : [...prev, ...list]));
     setCursor(typeof next === "string" ? next : null);
@@ -37,44 +54,43 @@ export default function NotificationsPage() {
   const fetchFirstPage = useCallback(async () => {
     if (status !== "authenticated") return;
 
+    const fetchId = activeFetchId.current + 1;
+    activeFetchId.current = fetchId;
     setLoading(true);
     setError("");
 
     try {
-      const res = await fetch("/api/notifications?limit=40", { cache: "no-store" });
-      const data = await safeJson(res);
+      const res = await fetch(`/api/notifications?limit=${PAGE_SIZE}`, { cache: "no-store" });
+      const data = await safeJson<NotificationsPagePayload & NotificationErrorPayload>(res);
+      if (fetchId !== activeFetchId.current) return;
 
       if (!res.ok) {
-        const json = data as { error?: string };
-        setError(String(json?.error || `Failed to load notifications (${res.status})`));
-        setItems([]);
-        setCursor(null);
-        setHasMore(false);
+        setError(String(data?.error || `Notifications could not load (${res.status}).`));
+        resetNotifications();
         return;
       }
 
       applyNotificationPage(data, true);
     } catch {
-      setError("Unable to reach notifications. Check your connection and try again.");
-      setItems([]);
-      setCursor(null);
-      setHasMore(false);
+      if (fetchId !== activeFetchId.current) return;
+      setError("Notifications are not reachable right now. Check your connection, then try again.");
+      resetNotifications();
     } finally {
-      setLoading(false);
+      if (fetchId === activeFetchId.current) setLoading(false);
     }
-  }, [applyNotificationPage, status]);
+  }, [applyNotificationPage, resetNotifications, status]);
 
   const fetchMore = async () => {
     if (!cursor || loadingMore || status !== "authenticated") return;
 
     setLoadingMore(true);
     try {
-      const res = await fetch(`/api/notifications?limit=40&cursor=${encodeURIComponent(cursor)}`, { cache: "no-store" });
-      const data = await safeJson(res);
+      const res = await fetch(`/api/notifications?limit=${PAGE_SIZE}&cursor=${encodeURIComponent(cursor)}`, { cache: "no-store" });
+      const data = await safeJson<NotificationsPagePayload>(res);
       if (res.ok) applyNotificationPage(data, false);
-      else setError("Unable to load more notifications. Please try again.");
+      else setError("Older notifications did not load. Try the button again.");
     } catch {
-      setError("Unable to load more notifications. Check your connection and try again.");
+      setError("Older notifications are not reachable right now. Check your connection, then try again.");
     } finally {
       setLoadingMore(false);
     }
@@ -87,30 +103,35 @@ export default function NotificationsPage() {
     }
 
     if (status === "unauthenticated") {
-      setItems([]);
-      setCursor(null);
-      setHasMore(false);
+      activeFetchId.current += 1;
+      resetNotifications();
       setError("");
       setLoading(false);
     }
-  }, [fetchFirstPage, status]);
+  }, [fetchFirstPage, resetNotifications, status]);
+
+  const postMarkRead = useCallback(async (body: { ids: string[] } | { all: true }) => {
+    const res = await fetch("/api/notifications/mark-read", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    return res.ok;
+  }, []);
 
   const markRead = async (ids: string[]) => {
     if (ids.length === 0 || status !== "authenticated") return;
 
     try {
-      const res = await fetch("/api/notifications/mark-read", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ids }),
-      });
-      if (!res.ok) return;
+      const updated = await postMarkRead({ ids });
+      if (!updated) return;
 
+      const idsToMark = new Set(ids);
       const now = new Date().toISOString();
-      setItems((prev) => prev.map((item) => (ids.includes(item.id) ? { ...item, readAt: item.readAt ?? now } : item)));
+      setItems((prev) => prev.map((item) => (idsToMark.has(item.id) ? { ...item, readAt: item.readAt ?? now } : item)));
       window.dispatchEvent(new CustomEvent("devlink:notifications-updated"));
     } catch {
-      setError("Unable to mark notifications as read. Please try again.");
+      setError("Those notifications were not marked read. Try again.");
     }
   };
 
@@ -120,18 +141,14 @@ export default function NotificationsPage() {
     setMarking(true);
 
     try {
-      const res = await fetch("/api/notifications/mark-read", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ all: true }),
-      });
-      if (!res.ok) return;
+      const updated = await postMarkRead({ all: true });
+      if (!updated) return;
 
       const now = new Date().toISOString();
       setItems((prev) => prev.map((item) => ({ ...item, readAt: item.readAt ?? now })));
       window.dispatchEvent(new CustomEvent("devlink:notifications-updated"));
     } catch {
-      setError("Unable to mark all notifications as read. Please try again.");
+      setError("Unread notifications were not marked read. Try again.");
     } finally {
       setMarking(false);
     }
