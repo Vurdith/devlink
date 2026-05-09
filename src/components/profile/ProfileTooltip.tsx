@@ -294,7 +294,7 @@ export const ProfileTooltip = memo(function ProfileTooltip({
     >
       {/* Main card */}
       <div className={cn(
-        "relative w-80 overflow-hidden rounded-xl",
+        "relative w-[min(20rem,calc(100vw-1.5rem))] overflow-hidden rounded-xl",
         "bg-[rgba(12,16,23,0.97)]",
         "border",
         profileBorderColor

@@ -7,6 +7,7 @@ import { iconBox, surface, ui } from "@/components/ui/design-system";
 import { useSearchParams } from "next/navigation";
 import { ProfileTooltip } from "@/components/profile/ProfileTooltip";
 import { ProfileTypeLabel } from "@/components/profile/ProfileTypeLabel";
+import { FeedbackState } from "@/components/ui/FeedbackState";
 import { useSession } from "next-auth/react";
 import { cn } from "@/lib/cn";
 
@@ -184,7 +185,7 @@ function SearchContent() {
             <button
               key={filter.value}
               onClick={() => setSelectedType(filter.value)}
-              className={cn("flex flex-shrink-0 items-center gap-2 rounded-lg border px-3 py-2 text-sm font-semibold transition-all duration-200",
+              className={cn("flex flex-shrink-0 items-center gap-2 rounded-lg border px-3 py-2 text-sm font-semibold transition-all duration-200 outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]",
                 selectedType === filter.value
                   ? ui.active.cyanStrong
                   : "border-transparent text-[var(--muted-foreground)] hover:border-white/[0.08] hover:bg-white/[0.045] hover:text-white"
@@ -204,9 +205,9 @@ function SearchContent() {
       </div>
 
       {loading ? (
-        <div className={surface("empty", "py-12 text-center text-[var(--muted-foreground)]")}>
-          <div className="inline-block h-8 w-8 animate-spin rounded-full border-2 border-[var(--accent)] border-r-transparent"></div>
-          <p className="mt-2">Searching...</p>
+        <div className={surface("empty", "flex items-center justify-center gap-3 py-12 text-sm font-semibold text-[var(--muted-foreground)]")}>
+          <div className="h-5 w-5 animate-spin rounded-full border-2 border-[var(--color-accent-2)] border-r-transparent" />
+          <span>Searching</span>
         </div>
       ) : (
         <div className="space-y-5">
@@ -219,7 +220,7 @@ function SearchContent() {
               </div>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 {users.map((user) => (
-                  <div key={user.id} className={surface("panelMuted", "noise-overlay group relative flex min-h-[126px] items-start gap-3 overflow-hidden p-4 transition-colors hover:border-[rgba(var(--color-accent-2-rgb),0.20)] hover:bg-white/[0.04]")}>
+                  <div key={user.id} className={surface("panelMuted", "noise-overlay group relative flex min-h-[136px] items-start gap-3 overflow-hidden p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-[rgba(var(--color-accent-2-rgb),0.20)] hover:bg-white/[0.04]")}>
                     <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.10] to-transparent" />
                     <ProfileTooltip
                       user={{
@@ -241,7 +242,7 @@ function SearchContent() {
                         aria-label={`View @${user.username}`}
                       >
                         <Avatar src={user.avatarUrl ?? undefined} size={44} className="border border-white/[0.10]" />
-                        <div className="min-w-0">
+                      <div className="min-w-0">
                           <div className="flex min-w-0 flex-wrap items-center gap-2 text-sm">
                             <span className="truncate font-semibold text-white group-hover:text-[var(--color-accent-2)]">{user.name ?? user.username}</span>
                         {user.verified && (
@@ -345,29 +346,31 @@ function SearchContent() {
 
           {/* No Results */}
           {!query && (
-            <div className={surface("empty", "py-12 text-center text-[var(--muted-foreground)]")}>
-              <div className={iconBox("muted", "mx-auto mb-4 h-12 w-12")}>
+            <FeedbackState
+              title="Search DevLink"
+              description="Look up handles, hashtags, or project names."
+              className="py-14"
+              icon={
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
                   <circle cx="11" cy="11" r="8" />
                   <path d="M21 21l-4.35-4.35" strokeLinecap="round" />
                 </svg>
-              </div>
-              <p>Type a search term above to get started.</p>
-              <p className="text-sm mt-1">Search for handles, hashtags, or project names.</p>
-            </div>
+              }
+            />
           )}
 
           {query && totalResults === 0 && !loading && (
-            <div className={surface("empty", "py-12 text-center text-[var(--muted-foreground)]")}>
-              <div className={iconBox("muted", "mx-auto mb-4 h-12 w-12")}>
+            <FeedbackState
+              title={`No results for "${query}"`}
+              description="Try a different handle, hashtag, or project name."
+              className="py-14"
+              icon={
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
                   <circle cx="11" cy="11" r="8" />
                   <path d="M21 21l-4.35-4.35" strokeLinecap="round" />
                 </svg>
-              </div>
-              <p>No results found for &quot;{query}&quot;</p>
-              <p className="text-sm mt-1">Try adjusting your search terms or filters.</p>
-            </div>
+              }
+            />
           )}
         </div>
       )}

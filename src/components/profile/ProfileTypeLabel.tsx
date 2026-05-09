@@ -31,7 +31,7 @@ export function ProfileTypeLabel({
   return (
     <span
       className={cn(
-        "inline-flex flex-shrink-0 items-center gap-1.5 border border-white/[0.09] bg-white/[0.035] font-bold uppercase tracking-[0.13em] text-white/70",
+        "inline-flex max-w-full flex-shrink-0 items-center gap-1.5 whitespace-nowrap border border-white/[0.09] bg-white/[0.035] font-bold uppercase tracking-[0.13em] text-white/70",
         variantClasses[variant],
         className
       )}
@@ -41,7 +41,7 @@ export function ProfileTypeLabel({
         size={iconSizes[variant]}
         className={cn("opacity-95", config.color)}
       />
-      <span>{config.label}</span>
+      <span className="truncate">{config.label}</span>
     </span>
   );
 }

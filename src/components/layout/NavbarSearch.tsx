@@ -209,12 +209,12 @@ export const NavbarSearch = memo(function NavbarSearch({ currentUserId }: { curr
       </form>
 
       {/* Results dropdown - CSS only animation */}
-      {open && (hasResults || loading) && (
+      {open && (hasResults || loading || value.trim().length >= 2) && (
         <div 
           id="search-results"
           role="listbox"
           aria-label="Search results"
-          className={cn("absolute left-0 z-50 mt-2 max-h-[70vh] w-full overflow-y-auto p-2 animate-fade-in", menuPanel())}
+          className={cn("absolute right-0 z-50 mt-2 max-h-[70vh] w-[min(28rem,calc(100vw-1rem))] overflow-y-auto p-2 animate-fade-in sm:left-0 sm:right-auto", menuPanel())}
         >
           {loading && (
             <div className="flex items-center justify-center py-8">
@@ -230,7 +230,8 @@ export const NavbarSearch = memo(function NavbarSearch({ currentUserId }: { curr
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-4.35-4.35" />
                 </svg>
               </div>
-              <p className="text-[var(--muted-foreground)]">No results found</p>
+              <p className="text-sm font-semibold text-white">No results found</p>
+              <p className="mt-1 text-xs text-[var(--muted-foreground)]">Try a username, hashtag, or project name.</p>
             </div>
           )}
 
@@ -302,7 +303,7 @@ export const NavbarSearch = memo(function NavbarSearch({ currentUserId }: { curr
                     </div>
                   </ProfileTooltip>
                   <div className="flex-1 min-w-0">
-                    <div className="text-sm font-semibold text-white flex items-center gap-1.5">
+                    <div className="flex min-w-0 flex-wrap items-center gap-1.5 text-sm font-semibold text-white">
                       <span className="truncate">{user.name ?? user.username}</span>
                       {user.verified && (
                         <svg className="w-4 h-4 text-[var(--color-accent)] flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
