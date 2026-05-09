@@ -1,6 +1,5 @@
-import Link from "next/link";
 import type { Metadata } from "next";
-import { surface } from "@/components/ui/design-system";
+import { LegalPageShell } from "@/components/landing/LegalPageShell";
 
 export const metadata: Metadata = {
   title: "Terms of Service",
@@ -9,47 +8,30 @@ export const metadata: Metadata = {
 
 export default function TermsPage() {
   return (
-    <div className="max-w-4xl mx-auto py-12 px-4">
-      <div className="mb-8">
-        <Link 
-          href="/"
-          className="text-[var(--color-accent)] hover:text-[var(--color-accent)] transition-colors inline-flex items-center gap-2"
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-            <path d="M19 12H5M12 19l-7-7 7-7" />
-          </svg>
-          Back to Home
-        </Link>
-      </div>
-
-      <div className={surface("panel", "p-8")}>
-        <h1 className="text-3xl font-bold text-white mb-2 font-[var(--font-space-grotesk)]">
-          Terms of Service
-        </h1>
-        <p className="text-[var(--muted-foreground)] mb-8">
-          Last updated: December 1, 2024
-        </p>
-
-        <div className="prose prose-invert max-w-none space-y-6">
+    <LegalPageShell
+      title="Terms of Service"
+      description="The rules for using DevLink as a professional network for Roblox developers, studios, clients, and creators."
+      updatedAt="December 1, 2024"
+    >
           <section>
-            <h2 className="text-xl font-semibold text-white mb-3">1. Acceptance of Terms</h2>
-            <p className="text-[var(--muted-foreground)] leading-relaxed">
+            <h2>1. Acceptance of Terms</h2>
+            <p>
               By accessing or using DevLink (&quot;the Service&quot;), you agree to be bound by these Terms of Service. 
               If you do not agree to these terms, please do not use the Service.
             </p>
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-white mb-3">2. Description of Service</h2>
-            <p className="text-[var(--muted-foreground)] leading-relaxed">
+            <h2>2. Description of Service</h2>
+            <p>
               DevLink is a professional network platform for Roblox developers, clients, studios, and influencers. 
               The Service allows users to create profiles, share content, connect with other users, and showcase their work.
             </p>
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-white mb-3">3. User Accounts</h2>
-            <p className="text-[var(--muted-foreground)] leading-relaxed">
+            <h2>3. User Accounts</h2>
+            <p>
               You are responsible for maintaining the confidentiality of your account credentials. 
               You agree to notify us immediately of any unauthorized use of your account. 
               You must be at least 13 years old to use this Service.
@@ -57,11 +39,11 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-white mb-3">4. User Conduct</h2>
-            <p className="text-[var(--muted-foreground)] leading-relaxed mb-3">
+            <h2>4. User Conduct</h2>
+            <p>
               You agree not to:
             </p>
-            <ul className="list-disc list-inside text-[var(--muted-foreground)] space-y-2">
+            <ul>
               <li>Post content that is illegal, harmful, threatening, abusive, or otherwise objectionable</li>
               <li>Impersonate any person or entity</li>
               <li>Engage in spamming, phishing, or other malicious activities</li>
@@ -72,8 +54,8 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-white mb-3">5. Content Ownership</h2>
-            <p className="text-[var(--muted-foreground)] leading-relaxed">
+            <h2>5. Content Ownership</h2>
+            <p>
               You retain ownership of content you post on DevLink. By posting content, you grant DevLink 
               a non-exclusive, worldwide, royalty-free license to use, display, and distribute your content 
               in connection with the Service.
@@ -81,8 +63,8 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-white mb-3">6. Intellectual Property</h2>
-            <p className="text-[var(--muted-foreground)] leading-relaxed">
+            <h2>6. Intellectual Property</h2>
+            <p>
               The DevLink platform, including its design, features, and branding, is protected by copyright, 
               trademark, and other intellectual property laws. You may not copy, modify, or distribute any 
               part of the Service without our prior written consent.
@@ -90,46 +72,44 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-white mb-3">7. Termination</h2>
-            <p className="text-[var(--muted-foreground)] leading-relaxed">
+            <h2>7. Termination</h2>
+            <p>
               We reserve the right to suspend or terminate your account at any time for violations of these 
               Terms of Service or for any other reason at our discretion.
             </p>
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-white mb-3">8. Disclaimer of Warranties</h2>
-            <p className="text-[var(--muted-foreground)] leading-relaxed">
+            <h2>8. Disclaimer of Warranties</h2>
+            <p>
               The Service is provided &quot;as is&quot; without warranties of any kind. We do not guarantee that the 
               Service will be uninterrupted, secure, or error-free.
             </p>
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-white mb-3">9. Limitation of Liability</h2>
-            <p className="text-[var(--muted-foreground)] leading-relaxed">
+            <h2>9. Limitation of Liability</h2>
+            <p>
               DevLink shall not be liable for any indirect, incidental, special, consequential, or punitive 
               damages arising from your use of the Service.
             </p>
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-white mb-3">10. Changes to Terms</h2>
-            <p className="text-[var(--muted-foreground)] leading-relaxed">
+            <h2>10. Changes to Terms</h2>
+            <p>
               We may update these Terms of Service from time to time. We will notify users of significant 
               changes by posting a notice on the Service.
             </p>
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-white mb-3">11. Contact</h2>
-            <p className="text-[var(--muted-foreground)] leading-relaxed">
+            <h2>11. Contact</h2>
+            <p>
               If you have questions about these Terms, please contact us through the report system or 
               reach out to the DevLink team.
             </p>
           </section>
-        </div>
-      </div>
-    </div>
+    </LegalPageShell>
   );
 }

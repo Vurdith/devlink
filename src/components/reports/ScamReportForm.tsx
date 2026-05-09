@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, memo } from "react";
+import Link from "next/link";
 import { Button } from "../ui/Button";
 import { surface, ui } from "@/components/ui/design-system";
 import { cn } from "@/lib/cn";
@@ -29,11 +30,26 @@ export const ScamReportForm = memo(function ScamReportForm({ targetUserId, targe
   const [description, setDescription] = useState("");
   const [evidence, setEvidence] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState("");
+  const [submitted, setSubmitted] = useState(false);
   const [step, setStep] = useState(1);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!reportType) return;
+    setError("");
+    const trimmedDescription = description.trim();
+    const trimmedEvidence = evidence.trim();
+
+    if (!reportType) {
+      setError("Choose the issue type before continuing.");
+      setStep(1);
+      return;
+    }
+
+    if (trimmedDescription.length < 10) {
+      setError("Add at least 10 characters so the moderation team has enough context.");
+      return;
+    }
 
     setIsSubmitting(true);
     try {
@@ -42,8 +58,8 @@ export const ScamReportForm = memo(function ScamReportForm({ targetUserId, targe
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           reportType,
-          description: description.trim(),
-          evidence: evidence.trim() || null,
+          description: trimmedDescription,
+          evidence: trimmedEvidence || null,
           targetUserId,
           postId,
         }),
@@ -53,13 +69,17 @@ export const ScamReportForm = memo(function ScamReportForm({ targetUserId, targe
         setReportType("");
         setDescription("");
         setEvidence("");
-        onReportSubmitted?.();
+        setSubmitted(true);
+        window.setTimeout(() => {
+          onReportSubmitted?.();
+        }, 900);
       } else {
-        const error = await response.text();
-        console.error("Error submitting report:", error);
+        const data = await response.json().catch(() => null) as { error?: string } | null;
+        setError(data?.error || "We could not submit this report. Check the details and try again.");
       }
     } catch (error) {
       console.error("Error submitting report:", error);
+      setError("DevLink could not reach the report service. Check your connection and try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -67,7 +87,10 @@ export const ScamReportForm = memo(function ScamReportForm({ targetUserId, targe
 
   const nextStep = () => {
     if (step === 1 && reportType) {
+      setError("");
       setStep(2);
+    } else {
+      setError("Choose the issue type before continuing.");
     }
   };
 
@@ -78,15 +101,32 @@ export const ScamReportForm = memo(function ScamReportForm({ targetUserId, targe
   return (
     <div className={surface("panel", "mx-auto max-w-2xl p-6 animate-slide-up")}>
       <div className="mb-6">
-        <h3 className="text-xl font-semibold mb-2">Report Issue</h3>
+        <h3 className="text-xl font-semibold mb-2">Report a safety issue</h3>
         <p className="text-sm text-[var(--muted-foreground)]">
-          Help us keep DevLink safe by reporting violations of our community guidelines.
+          Tell the moderation team what happened. Reports are private and reviewed for safety action.
           {targetUsername && (
             <> You are reporting <span className="text-[var(--accent)]">@{targetUsername}</span></>
           )}
           {postId && " You are reporting a specific post."}
         </p>
       </div>
+
+      {submitted && (
+        <div className={cn(surface("empty"), "mb-4 border-emerald-300/20 bg-emerald-400/10 p-3 text-sm text-emerald-100")} role="status">
+          Report submitted. The moderation team will review it and take action if needed.
+        </div>
+      )}
+
+      {error && (
+        <div className={cn(surface("empty"), "mb-4 border-rose-300/20 bg-rose-500/10 p-3 text-sm text-rose-100")} role="alert">
+          {error}
+          {error.toLowerCase().includes("sign in") && (
+            <Link href="/login?callbackUrl=/report" className="ml-2 font-semibold text-white underline underline-offset-4">
+              Sign in
+            </Link>
+          )}
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Step 1: Report Type Selection */}
@@ -139,16 +179,25 @@ export const ScamReportForm = memo(function ScamReportForm({ targetUserId, targe
               <textarea
                 id="description"
                 value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Provide a detailed description of the issue..."
+                onChange={(e) => {
+                  setDescription(e.target.value);
+                  if (error) setError("");
+                }}
+                placeholder="Describe the behavior, where it happened, and who was affected."
                 className="w-full resize-none rounded-lg border border-white/[0.10] bg-white/[0.035] px-3 py-2 outline-none transition-colors focus:border-[rgba(var(--color-accent-2-rgb),0.42)]"
                 rows={4}
-                maxLength={1000}
+                minLength={10}
+                maxLength={5000}
                 required
               />
-              <div className="flex justify-between items-center mt-1">
+              <div className="mt-1 flex flex-wrap items-center justify-between gap-2">
+                <span className={cn("text-xs", description.trim().length > 0 && description.trim().length < 10 ? "text-amber-200" : "text-[var(--muted-foreground)]")}>
+                  {Math.max(0, 10 - description.trim().length) > 0
+                    ? `${10 - description.trim().length} more characters needed`
+                    : "Enough detail to submit"}
+                </span>
                 <span className="text-xs text-[var(--muted-foreground)]">
-                  {description.length}/1000 characters
+                  {description.length}/5000
                 </span>
               </div>
             </div>
@@ -161,7 +210,7 @@ export const ScamReportForm = memo(function ScamReportForm({ targetUserId, targe
                 id="evidence"
                 value={evidence}
                 onChange={(e) => setEvidence(e.target.value)}
-                placeholder="Links to screenshots, URLs, or other evidence..."
+                placeholder="Add links, usernames, timestamps, transaction IDs, or screenshot URLs."
                 className="w-full resize-none rounded-lg border border-white/[0.10] bg-white/[0.035] px-3 py-2 outline-none transition-colors focus:border-[rgba(var(--color-accent-2-rgb),0.42)]"
                 rows={3}
                 maxLength={500}
@@ -187,7 +236,7 @@ export const ScamReportForm = memo(function ScamReportForm({ targetUserId, targe
               </Button>
               <Button
                 type="submit"
-                disabled={!description.trim() || isSubmitting}
+                disabled={description.trim().length < 10 || isSubmitting || submitted}
                 className="flex-1 flex items-center gap-2"
               >
                 {isSubmitting ? (

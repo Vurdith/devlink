@@ -63,33 +63,33 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
       }
 
       return (
-        <div className="min-h-screen flex items-center justify-center bg-[var(--background)] relative overflow-hidden">
-          {/* Background effects matching the app theme */}
-          <div className="absolute inset-0 gradient-bg opacity-30" />
-          <div className="absolute inset-0 grid-pattern opacity-10" />
+        <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[var(--background)] p-4">
+          <div aria-hidden="true" className="absolute inset-0 gradient-bg opacity-30" />
+          <div aria-hidden="true" className="absolute inset-0 grid-pattern opacity-[0.08]" />
           
-          <div className={surface("panel", "relative z-10 mx-4 max-w-md bg-[rgba(12,16,23,0.84)] p-8 text-center")}>
+          <div className={surface("panel", "noise-overlay relative z-10 w-full max-w-md overflow-hidden bg-[rgba(12,16,23,0.84)] p-6 text-center sm:p-8")}>
+            <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.42)] to-transparent" />
             <div className={iconBox("cyan", "mx-auto mb-6 h-16 w-16 rounded-xl")}>
               <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-[var(--color-accent)]">
                 <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0zM12 9v4M12 17h.01" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </div>
             
-            <h2 className="text-2xl font-bold text-white mb-3 tracking-tight">Something went wrong</h2>
-            <p className="text-[var(--muted-foreground)] mb-8 leading-relaxed">
+            <h2 className="mb-3 font-[var(--font-space-grotesk)] text-2xl font-bold tracking-normal text-white">Something went wrong</h2>
+            <p className="mb-8 text-sm leading-relaxed text-white/58">
               We encountered an unexpected error. Don&apos;t worry, your data is safe. Please try refreshing the page.
             </p>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <button
                 onClick={this.resetError}
-                className={cn("rounded-lg px-6 py-2.5 text-sm font-bold", ui.control.gradient, ui.motion.press)}
+                className={cn("rounded-lg px-6 py-2.5 text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.68)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)]", ui.control.gradient, ui.motion.lift)}
               >
                 Try Again
               </button>
               <button
                 onClick={() => window.location.reload()}
-                className={cn("rounded-lg px-6 py-2.5 text-sm font-bold text-white", ui.control.ghost, ui.motion.press)}
+                className={cn("rounded-lg px-6 py-2.5 text-sm font-semibold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.56)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)]", ui.control.ghost, ui.motion.lift)}
               >
                 Refresh
               </button>
