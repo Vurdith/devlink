@@ -57,7 +57,7 @@ function TerminalMathBlock({
   colorClass: string;
 }) {
   return (
-    <div className="bg-[rgba(12,16,23,0.72)] rounded-[1.25rem] border border-white/5 p-5 font-mono relative overflow-hidden h-full flex flex-col noise-overlay">
+    <div className={surface("panelMuted", "relative flex h-full flex-col overflow-hidden p-5 font-mono")}>
       <div className="space-y-2 flex-1">
         {rows.map((row, i) => (
           <div key={i} className="flex justify-between items-center text-sm">
@@ -75,11 +75,11 @@ function TerminalMathBlock({
           </div>
         )}
         <div className="flex justify-between items-center text-sm">
-          <span className="text-white/50 text-xs">→ normalized (0-100)</span>
+          <span className="text-white/50 text-xs">-&gt; normalized (0-100)</span>
           <span className="text-white">{normalizedValue.toFixed(1)}</span>
         </div>
         <div className="flex justify-between items-center text-sm">
-          <span className="text-white/50 text-xs">→ × {weight}% weight</span>
+          <span className="text-white/50 text-xs">-&gt; x {weight}% weight</span>
           <span className="text-white">{(normalizedValue * weight / 100).toFixed(1)}</span>
         </div>
       </div>
@@ -193,10 +193,10 @@ export function PostAnalyticsClient({
       <div className="min-h-screen pb-24 pt-8 px-6 flex justify-center">
         <div className="w-full max-w-5xl space-y-8 animate-pulse">
           <div className="h-10 w-32 bg-white/5 rounded-xl border border-white/10" />
-          <div className="h-[400px] glass rounded-3xl border border-white/10" />
+          <div className={surface("panel", "h-[400px]")} />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="h-64 glass rounded-3xl border border-white/10" />
-            <div className="h-64 glass rounded-3xl border border-white/10" />
+            <div className={surface("panel", "h-64")} />
+            <div className={surface("panel", "h-64")} />
           </div>
         </div>
       </div>
@@ -213,7 +213,7 @@ export function PostAnalyticsClient({
         </div>
 
         {/* Hero Dashboard */}
-        <div className="glass rounded-[2rem] border border-white/10 p-8 md:p-12 relative overflow-hidden flex flex-col md:flex-row items-center gap-10 md:gap-16 noise-overlay animate-fade-in">
+        <div className={surface("panel", "relative flex flex-col items-center gap-10 overflow-hidden p-8 animate-fade-in md:flex-row md:gap-16 md:p-12")}>
           <div
             aria-hidden="true"
             className="pointer-events-none absolute inset-0 opacity-40"
@@ -247,7 +247,7 @@ export function PostAnalyticsClient({
                 Performance Report
               </h1>
               <p className="text-[var(--muted-foreground)]">
-                Analytics for post by <Link href={`/u/${author.username}`} className="text-[var(--color-accent)] hover:text-white transition-colors font-medium">@{author.username}</Link> • {postedDistance}
+                Analytics for post by <Link href={`/u/${author.username}`} className="text-[var(--color-accent)] hover:text-white transition-colors font-medium">@{author.username}</Link> | {postedDistance}
               </p>
             </div>
 
@@ -295,7 +295,7 @@ export function PostAnalyticsClient({
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mt-4">
           
           {/* 1. Engagement */}
-          <div className="lg:col-span-2 glass rounded-3xl border border-white/10 flex flex-col lg:flex-row p-1.5 noise-overlay bg-black/20 group hover:border-[var(--color-accent)]/30 transition-colors animate-slide-up" style={{ animationDelay: "0.15s" }}>
+          <div className={surface("panel", "group flex flex-col p-1.5 transition-colors hover:border-[rgba(var(--color-accent-2-rgb),0.28)] animate-slide-up lg:col-span-2 lg:flex-row")} style={{ animationDelay: "0.15s" }}>
             <div className="p-8 lg:p-10 flex flex-col justify-center flex-1 relative z-10">
               <div className="flex items-center gap-4 mb-5">
                 <div className="w-14 h-14 rounded-[1.25rem] bg-rose-500/10 text-rose-400 flex items-center justify-center">
@@ -318,17 +318,17 @@ export function PostAnalyticsClient({
                  normalizedValue={breakdown.calculation.engagementNormalized}
                  rawPoints={breakdown.calculation.weightedEngagement}
                  rows={[
-                   { label: `Likes (${engagement.likes}) × ${w.engagement.like}`, value: engagement.likes * w.engagement.like },
-                   { label: `Replies (${engagement.replies}) × ${w.engagement.reply}`, value: engagement.replies * w.engagement.reply },
-                   { label: `Reposts (${engagement.reposts}) × ${w.engagement.repost}`, value: engagement.reposts * w.engagement.repost },
-                   { label: `Saves (${engagement.saves}) × ${w.engagement.save}`, value: engagement.saves * w.engagement.save },
+                   { label: `Likes (${engagement.likes}) x ${w.engagement.like}`, value: engagement.likes * w.engagement.like },
+                   { label: `Replies (${engagement.replies}) x ${w.engagement.reply}`, value: engagement.replies * w.engagement.reply },
+                   { label: `Reposts (${engagement.reposts}) x ${w.engagement.repost}`, value: engagement.reposts * w.engagement.repost },
+                   { label: `Saves (${engagement.saves}) x ${w.engagement.save}`, value: engagement.saves * w.engagement.save },
                  ]}
                />
             </div>
           </div>
 
           {/* 2. Freshness */}
-          <div className="glass rounded-3xl border border-white/10 flex flex-col p-1.5 noise-overlay bg-black/20 group hover:border-[var(--color-accent)]/30 transition-colors animate-slide-up" style={{ animationDelay: "0.2s" }}>
+          <div className={surface("panel", "group flex flex-col p-1.5 transition-colors hover:border-[rgba(var(--color-accent-2-rgb),0.28)] animate-slide-up")} style={{ animationDelay: "0.2s" }}>
             <div className="p-8 pb-6 flex flex-col justify-center relative z-10">
               <div className="flex items-center gap-4 mb-4">
                 <div className="w-12 h-12 rounded-[1rem] bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
@@ -360,7 +360,7 @@ export function PostAnalyticsClient({
           </div>
 
           {/* 3. Discovery */}
-          <div className="glass rounded-3xl border border-white/10 flex flex-col p-1.5 noise-overlay bg-black/20 group hover:border-[var(--color-accent)]/30 transition-colors animate-slide-up" style={{ animationDelay: "0.25s" }}>
+          <div className={surface("panel", "group flex flex-col p-1.5 transition-colors hover:border-[rgba(var(--color-accent-2-rgb),0.28)] animate-slide-up")} style={{ animationDelay: "0.25s" }}>
             <div className="p-8 pb-6 flex flex-col justify-center relative z-10">
               <div className="flex items-center gap-4 mb-4">
                 <div className="w-12 h-12 rounded-[1rem] bg-purple-500/10 text-purple-400 flex items-center justify-center">
@@ -394,7 +394,7 @@ export function PostAnalyticsClient({
           </div>
 
           {/* 4. Velocity */}
-          <div className="glass rounded-3xl border border-white/10 flex flex-col p-1.5 noise-overlay bg-black/20 group hover:border-[var(--color-accent)]/30 transition-colors animate-slide-up" style={{ animationDelay: "0.3s" }}>
+          <div className={surface("panel", "group flex flex-col p-1.5 transition-colors hover:border-[rgba(var(--color-accent-2-rgb),0.28)] animate-slide-up")} style={{ animationDelay: "0.3s" }}>
             <div className="p-8 pb-6 flex flex-col justify-center relative z-10">
               <div className="flex items-center gap-4 mb-4">
                 <div className="w-12 h-12 rounded-[1rem] bg-orange-500/10 text-orange-400 flex items-center justify-center">
@@ -426,7 +426,7 @@ export function PostAnalyticsClient({
           </div>
 
           {/* 5. Authority */}
-          <div className="glass rounded-3xl border border-white/10 flex flex-col p-1.5 noise-overlay bg-black/20 group hover:border-[var(--color-accent)]/30 transition-colors animate-slide-up" style={{ animationDelay: "0.35s" }}>
+          <div className={surface("panel", "group flex flex-col p-1.5 transition-colors hover:border-[rgba(var(--color-accent-2-rgb),0.28)] animate-slide-up")} style={{ animationDelay: "0.35s" }}>
             <div className="p-8 pb-6 flex flex-col justify-center relative z-10">
               <div className="flex items-center gap-4 mb-4">
                 <div className="w-12 h-12 rounded-[1rem] bg-amber-500/10 text-amber-400 flex items-center justify-center">
@@ -459,7 +459,7 @@ export function PostAnalyticsClient({
 
           {/* 6. Penalties (If Applicable) */}
           {breakdown.penalties > 0 && (
-            <div className="lg:col-span-2 glass rounded-3xl border border-red-500/30 flex flex-col p-8 noise-overlay bg-red-500/5 animate-slide-up" style={{ animationDelay: "0.4s" }}>
+            <div className="flex flex-col rounded-xl border border-red-500/30 bg-red-500/5 p-8 animate-slide-up lg:col-span-2" style={{ animationDelay: "0.4s" }}>
               <div className="flex items-center gap-4 mb-6">
                 <div className="w-12 h-12 rounded-[1rem] bg-red-500/20 text-red-400 flex items-center justify-center">
                   <ShieldAlertIcon />

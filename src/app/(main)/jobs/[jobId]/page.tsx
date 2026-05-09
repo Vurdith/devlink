@@ -99,7 +99,7 @@ export default function JobDetailPage() {
           <div>
             <h1 className="text-2xl font-bold text-white">{job.title}</h1>
             <p className="text-xs text-[var(--muted-foreground)] mt-2">
-              {job.user?.username} • {job.location || "Remote"}
+              {job.user?.username} | {job.location || "Remote"}
             </p>
           </div>
           <span className="rounded-lg border border-white/[0.08] bg-white/[0.04] px-2 py-1 text-xs font-semibold text-white/70">
@@ -109,7 +109,7 @@ export default function JobDetailPage() {
         <p className="text-sm text-white/80 mt-4 leading-relaxed whitespace-pre-wrap">{job.description}</p>
         <div className="flex flex-wrap items-center gap-3 mt-4 text-xs text-[var(--muted-foreground)]">
           <span>{job.skills || "Skills flexible"}</span>
-          <span>•</span>
+          <span className="text-white/20">/</span>
           <span>{job.currency} {job.budgetMin || "?"} - {job.budgetMax || "?"}</span>
         </div>
         {!isOwner && userId && (

@@ -1,4 +1,5 @@
 // Server Component - No client JS needed
+import { surface } from "@/components/ui/design-system";
 const features = [
   {
     icon: (
@@ -108,7 +109,7 @@ export function FeaturesSection() {
                   style={{ animationDelay: `${index * 0.1}s` }}
                 >
                   {/* Give the middle item in this col slightly more height for masonry effect */}
-                  <div className={`relative overflow-hidden rounded-xl glass glass-hover border border-white/[0.08] p-6 noise-overlay ${index === 1 ? 'md:py-9' : ''}`}>
+                  <div className={surface("panelMuted", `relative overflow-hidden p-6 transition-colors hover:border-[rgba(var(--color-accent-2-rgb),0.28)] hover:bg-white/[0.04] ${index === 1 ? "md:py-9" : ""}`)}>
                     <div
                       aria-hidden="true"
                       className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
@@ -140,7 +141,7 @@ export function FeaturesSection() {
                   className="group relative animate-fade-in transition-transform duration-500 hover:-translate-y-1"
                   style={{ animationDelay: `${(index + 1) * 0.15}s` }}
                 >
-                  <div className={`relative overflow-hidden rounded-xl glass glass-hover border border-white/[0.08] p-6 noise-overlay ${index === 0 ? 'md:py-9' : ''}`}>
+                  <div className={surface("panelMuted", `relative overflow-hidden p-6 transition-colors hover:border-[rgba(var(--color-accent-2-rgb),0.28)] hover:bg-white/[0.04] ${index === 0 ? "md:py-9" : ""}`)}>
                     <div
                       aria-hidden="true"
                       className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"

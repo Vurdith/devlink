@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { useTheme } from "@/components/providers/ThemeProvider";
+import { surface } from "@/components/ui/design-system";
 
 export default function CompleteSignupPage() {
   const { status, update } = useSession();
@@ -112,7 +113,7 @@ export default function CompleteSignupPage() {
     return (
       <div className="min-h-screen flex items-center justify-center -m-6 px-4">
         <div className="w-full max-w-md">
-          <div className="relative overflow-hidden glass noise-overlay border border-white/[0.1] rounded-xl p-6 text-center sm:p-8">
+          <div className={surface("panel", "relative overflow-hidden p-6 text-center sm:p-8")}>
             <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-green-500/20 flex items-center justify-center">
               <svg className="w-8 h-8 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -142,7 +143,7 @@ export default function CompleteSignupPage() {
         </div>
 
         {/* Form */}
-        <div className="relative overflow-hidden glass noise-overlay border border-white/[0.1] rounded-xl p-6 sm:p-8">
+        <div className={surface("panel", "relative overflow-hidden p-6 sm:p-8")}>
           <div className="mb-6 p-4 rounded-lg bg-[rgba(var(--color-accent-2-rgb),0.1)] border border-[rgba(var(--color-accent-2-rgb),0.2)]">
             <div className="flex items-start gap-3">
               <svg className="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">

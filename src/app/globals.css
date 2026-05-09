@@ -139,25 +139,6 @@ body::before {
     var(--color-background);
 }
 
-/* Glassmorphism - PERFORMANCE OPTIMIZED (removed backdrop-filter) */
-.glass {
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.035), transparent 42%),
-    var(--surface-1);
-  border: 1px solid var(--line-soft);
-  box-shadow: var(--shadow-tight), inset 0 1px 0 rgba(255, 255, 255, 0.05);
-}
-
-.glass-hover {
-  transition: background 0.15s ease, border-color 0.15s ease;
-}
-
-.glass-hover:hover {
-  background: var(--surface-3);
-  border-color: rgba(var(--color-accent-2-rgb), 0.28);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
-}
-
 /* Glow effects */
 .glow {
   box-shadow:
@@ -1200,15 +1181,7 @@ select:focus {
 (update: slow),
 (pointer: coarse) and (max-width: 480px) {
 
-  /* Remove expensive backdrop filter */
-  .glass {
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-    background: rgba(8, 11, 16, 0.95) !important;
-  }
-
   /* Simplify box shadows */
-  .glass,
   .glow,
   .glow-strong,
   .glow-cyan,
@@ -1239,12 +1212,6 @@ select:focus {
 }
 
 /* JavaScript-toggled low-end mode (detected at runtime) */
-.low-end-device .glass {
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-  background: rgba(8, 11, 16, 0.95) !important;
-}
-
 .low-end-device .glow,
 .low-end-device .glow-strong,
 .low-end-device .glow-cyan,
@@ -1264,13 +1231,6 @@ select:focus {
 }
 
 /* Battery saver mode - even more aggressive */
-.battery-saver .glass {
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-  background: var(--color-card) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-}
-
 .battery-saver * {
   animation: none !important;
   transition: none !important;
@@ -1626,11 +1586,6 @@ video {
 }
 
 /* Disable expensive visual effects */
-.low-end-device .glass {
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-}
-
 .low-end-device .gradient-bg,
 .low-end-device .orb,
 .low-end-device .orb-delayed {

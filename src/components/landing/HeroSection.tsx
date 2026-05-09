@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import { InteractiveTypography } from "./InteractiveTypography";
 
-/* ─── Premium CTA buttons with Inline Gradient Fallbacks ─── */
+/* Premium CTA buttons with inline gradient fallbacks */
 const PrimaryCTA = ({
   children,
   href,
@@ -39,7 +39,7 @@ const SecondaryCTA = ({
   </Link>
 );
 
-/* ─── Stagger helpers ─── */
+/* Stagger helpers */
 const stagger = {
   container: {
     hidden: {},
@@ -64,7 +64,7 @@ export function HeroSection({ isLoggedIn }: { isLoggedIn: boolean }) {
         animate="visible"
         className="relative z-10 mx-auto flex w-full max-w-[1120px] flex-col items-center px-5 text-center"
       >
-        {/* Headline — Interactive Cinematic Typography */}
+        {/* Headline - interactive cinematic typography */}
         <motion.div variants={stagger.item}>
           <InteractiveTypography />
         </motion.div>

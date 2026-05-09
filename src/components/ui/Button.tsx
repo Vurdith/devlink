@@ -3,7 +3,7 @@
 import { ButtonHTMLAttributes, forwardRef } from "react";
 import { cn } from "@/lib/cn";
 
-type Variant = "primary" | "secondary" | "ghost" | "glass" | "destructive" | "gradient" | "outline" | "glow";
+type Variant = "primary" | "secondary" | "ghost" | "destructive" | "gradient" | "outline" | "glow";
 type Size = "sm" | "md" | "lg" | "icon";
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -49,11 +49,6 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       ghost: cn(
         "bg-transparent text-[var(--muted-foreground)]",
         "hover:bg-white/10 hover:text-white"
-      ),
-      glass: cn(
-        "bg-[var(--surface-2)] text-white",
-        "border border-[var(--line-soft)]",
-        "hover:bg-[var(--surface-3)] hover:border-[var(--line-strong)]"
       ),
       destructive: cn(
         "bg-gradient-to-r from-red-500 to-red-600 text-white",

@@ -8,6 +8,7 @@ import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useTheme } from "@/components/providers/ThemeProvider";
 import { useDebounce } from "@/hooks/useDebounce";
+import { surface } from "@/components/ui/design-system";
 import { getPasswordStrength, getStrengthColor, PASSWORD_REQUIREMENTS, validateRegisterEmail, validateRegisterUsername } from "./register-validation";
 
 export default function RegisterPage() {
@@ -211,7 +212,7 @@ export default function RegisterPage() {
         </div>
 
         {/* Form card */}
-        <div className="relative overflow-hidden glass noise-overlay rounded-xl p-6 border border-white/[0.1] animate-slide-up sm:p-8" style={{ animationDelay: '0.1s' }}>
+        <div className={surface("panel", "relative overflow-hidden p-6 animate-slide-up sm:p-8")} style={{ animationDelay: '0.1s' }}>
           <form onSubmit={onSubmit} className="space-y-5">
             {/* Username field */}
             <div>

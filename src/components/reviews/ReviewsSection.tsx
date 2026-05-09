@@ -206,7 +206,7 @@ export const ReviewsSection = memo(function ReviewsSection({ targetUserId, targe
           <h2 className="text-2xl font-bold text-white mb-3">Reviews</h2>
           <div className="flex items-center gap-4">
             {renderStars(averageRating)}
-            <span className="text-2xl font-bold text-white">{averageRating || "—"}</span>
+            <span className="text-2xl font-bold text-white">{averageRating || "-"}</span>
             <span className="text-white/40 text-lg">
               ({reviews.length} {reviews.length === 1 ? 'review' : 'reviews'})
             </span>
@@ -368,7 +368,7 @@ export const ReviewsSection = memo(function ReviewsSection({ targetUserId, targe
               onClick={() => setSentimentFilter("all")}
               className="mt-4 text-sm text-[var(--color-accent)] hover:text-white transition-colors"
             >
-              View all reviews →
+              View all reviews
             </button>
           </div>
         ) : (

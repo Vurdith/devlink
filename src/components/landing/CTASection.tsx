@@ -1,5 +1,6 @@
-// Server Component – no client JS needed
+// Server Component - no client JS needed
 import Link from "next/link";
+import { surface } from "@/components/ui/design-system";
 import { PrimaryButton, SecondaryButton } from "./ActionButtons";
 
 export function CTASection({ isLoggedIn }: { isLoggedIn: boolean }) {
@@ -8,7 +9,7 @@ export function CTASection({ isLoggedIn }: { isLoggedIn: boolean }) {
       <div className="max-w-5xl mx-auto">
 
         <div
-          className="relative overflow-hidden rounded-2xl"
+          className={surface("panel", "relative overflow-hidden")}
           style={{
             background:
               "linear-gradient(135deg, rgba(34,211,238,0.08) 0%, rgba(10,13,18,0.97) 38%, rgba(10,13,18,0.97) 66%, rgba(139,92,246,0.07) 100%)",
@@ -22,7 +23,7 @@ export function CTASection({ isLoggedIn }: { isLoggedIn: boolean }) {
           {/* Layout */}
           <div className="relative grid gap-10 p-8 sm:p-10 md:grid-cols-2 md:p-12 items-center">
 
-            {/* Left — headline */}
+            {/* Left - headline */}
             <div>
               <h2 className="text-3xl sm:text-5xl font-bold font-[var(--font-space-grotesk)] tracking-normal leading-[1.08] text-white">
                 Make your work{" "}
@@ -40,7 +41,7 @@ export function CTASection({ isLoggedIn }: { isLoggedIn: boolean }) {
               </p>
             </div>
 
-            {/* Right — action card */}
+            {/* Right - action card */}
             <div className="relative">
               <div
                 className="absolute -inset-px rounded-xl pointer-events-none"
@@ -49,14 +50,7 @@ export function CTASection({ isLoggedIn }: { isLoggedIn: boolean }) {
                     "linear-gradient(135deg, rgba(34,211,238,0.24) 0%, rgba(139,92,246,0.16) 50%, transparent 80%)",
                 }}
               />
-              <div
-                className="relative rounded-xl p-6 sm:p-8"
-                style={{
-                  background: "rgba(255,255,255,0.03)",
-                  border: "1px solid rgba(255,255,255,0.08)",
-                  backdropFilter: "blur(20px)",
-                }}
-              >
+              <div className={surface("panelMuted", "relative p-6 sm:p-8")}>
                 <p className="text-xs font-semibold uppercase tracking-widest text-white/35 mb-1">
                   {isLoggedIn ? "Welcome back" : "Get started"}
                 </p>

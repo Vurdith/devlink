@@ -8,6 +8,7 @@ import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useTheme } from "@/components/providers/ThemeProvider";
+import { surface } from "@/components/ui/design-system";
 
 function LoginForm() {
   const [email, setEmail] = useState("");
@@ -94,7 +95,7 @@ function LoginForm() {
         </div>
 
         {/* Form card */}
-        <div className="relative overflow-hidden glass noise-overlay rounded-xl p-6 border border-white/[0.1] animate-slide-up sm:p-8" style={{ animationDelay: '0.1s' }}>
+        <div className={surface("panel", "relative overflow-hidden p-6 animate-slide-up sm:p-8")} style={{ animationDelay: '0.1s' }}>
           <form onSubmit={onSubmit} className="space-y-5">
             {/* Email field */}
             <div>
@@ -255,7 +256,7 @@ function LoginSkeleton() {
           <div className="h-8 w-48 mx-auto mb-2 rounded-lg bg-white/10 animate-pulse" />
           <div className="h-4 w-56 mx-auto rounded bg-white/10 animate-pulse" />
         </div>
-        <div className="relative overflow-hidden glass noise-overlay rounded-xl p-6 border border-white/[0.1] sm:p-8">
+        <div className={surface("panel", "relative overflow-hidden p-6 sm:p-8")}>
           <div className="space-y-5">
             <div className="h-12 rounded-xl bg-white/5 animate-pulse" />
             <div className="h-12 rounded-xl bg-white/5 animate-pulse" />

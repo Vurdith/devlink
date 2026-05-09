@@ -187,7 +187,7 @@ export default function EscrowPage() {
                           {contract.milestone?.title || "Milestone"}
                         </div>
                         <p className="text-xs text-[var(--muted-foreground)] mt-1">
-                          {isClient ? "Client" : "Developer"} • {contract.currency} {contract.amount}
+                          {isClient ? "Client" : "Developer"} | {contract.currency} {contract.amount}
                         </p>
                       </div>
                       <span className="rounded-md border border-white/[0.08] bg-white/[0.04] px-2 py-0.5 text-[10px] font-semibold text-white/60">{contract.status}</span>
@@ -195,7 +195,7 @@ export default function EscrowPage() {
 
                     <div className="flex flex-wrap gap-2 mt-3 text-xs text-[var(--muted-foreground)]">
                       <span>Milestone: {milestoneStatus}</span>
-                      <span>•</span>
+                      <span className="text-white/20">/</span>
                       <span>{contract.jobId ? `Job ${contract.jobId}` : "No linked job"}</span>
                     </div>
 

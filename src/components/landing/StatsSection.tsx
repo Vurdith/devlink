@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useEffect, useState } from "react";
+import { surface } from "@/components/ui/design-system";
 
 interface StatsSectionProps {
   totalUsers: number;
@@ -109,7 +110,7 @@ export function StatsSection({ totalUsers, totalPosts, totalStudios }: StatsSect
               ].map((s, i) => (
                 <div
                   key={s.label}
-                  className="relative overflow-hidden rounded-2xl glass border border-white/10 p-4 animate-fade-in noise-overlay"
+                  className={surface("panelMuted", "relative overflow-hidden p-4 animate-fade-in")}
                   style={{ animationDelay: `${0.06 + i * 0.05}s` }}
                 >
                   <div
@@ -129,9 +130,9 @@ export function StatsSection({ totalUsers, totalPosts, totalStudios }: StatsSect
             </div>
           </div>
 
-          {/* Right: lightweight “activity” panel */}
+          {/* Right: lightweight activity panel */}
           <div className="animate-fade-in" style={{ animationDelay: "0.08s" }}>
-            <div className="relative overflow-hidden rounded-[2rem] glass border border-white/10 noise-overlay">
+            <div className={surface("panel", "relative overflow-hidden")}>
               <div
                 aria-hidden="true"
                 className="absolute inset-0 pointer-events-none opacity-60"

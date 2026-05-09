@@ -243,7 +243,7 @@ export default function JobsPage() {
                         {job.title}
                       </Link>
                       <div className="text-xs text-[var(--muted-foreground)] mt-1">
-                        {job.user?.username} • {job.location || "Remote"}
+                        {job.user?.username} | {job.location || "Remote"}
                       </div>
                     </div>
                     <span className="rounded-lg border border-white/[0.08] bg-white/[0.04] px-2 py-1 text-xs font-semibold text-white/70">
@@ -253,9 +253,9 @@ export default function JobsPage() {
                   <p className="text-sm text-white/80 mt-3 line-clamp-3">{job.description}</p>
                   <div className="flex flex-wrap items-center gap-3 mt-3 text-xs text-[var(--muted-foreground)]">
                     <span>{job.skills || "Skills flexible"}</span>
-                    <span>•</span>
+                    <span className="text-white/20">/</span>
                     <span>{job.currency} {job.budgetMin || "?"} - {job.budgetMax || "?"}</span>
-                    <span>•</span>
+                    <span className="text-white/20">/</span>
                     <span>{job._count?.applications ?? 0} applicants</span>
                   </div>
                   {userId && job.userId !== userId && (
