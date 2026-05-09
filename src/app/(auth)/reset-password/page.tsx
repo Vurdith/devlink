@@ -25,6 +25,7 @@ function ResetPasswordContent() {
   const [requestSent, setRequestSent] = useState(false);
   const [requestError, setRequestError] = useState<string | null>(null);
   const [confirmError, setConfirmError] = useState<string | null>(null);
+  const [linkError, setLinkError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     newPassword: "",
     confirmPassword: "",
@@ -43,6 +44,7 @@ function ResetPasswordContent() {
   async function handleRequestSubmit(e: React.FormEvent) {
     e.preventDefault();
     setRequestError(null);
+    setLinkError(null);
 
     if (!requestEmailValidation.valid) {
       setRequestError(requestEmailValidation.error || "Enter a valid email address.");
@@ -65,6 +67,8 @@ function ResetPasswordContent() {
       }
 
       setRequestSent(true);
+      setToken(null);
+      setFormData({ newPassword: "", confirmPassword: "" });
     } catch {
       setRequestError("Could not reach DevLink. Check your connection and try again.");
     } finally {
@@ -75,6 +79,7 @@ function ResetPasswordContent() {
   async function handleConfirmSubmit(e: React.FormEvent) {
     e.preventDefault();
     setConfirmError(null);
+    setLinkError(null);
 
     if (!token) {
       setConfirmError("Open the link from your reset email, or request a fresh link.");
@@ -106,7 +111,13 @@ function ResetPasswordContent() {
       const data = await response.json().catch(() => ({}));
 
       if (!response.ok) {
-        setConfirmError(data.error || "Failed to reset password.");
+        const message = data.error || "Failed to reset password.";
+        if (message.toLowerCase().includes("token")) {
+          setLinkError(message);
+          setFormData({ newPassword: "", confirmPassword: "" });
+        } else {
+          setConfirmError(message);
+        }
         return;
       }
 
@@ -235,6 +246,32 @@ function ResetPasswordContent() {
       </div>
 
       <form onSubmit={handleConfirmSubmit} className={surface("panel", "noise-overlay relative overflow-hidden space-y-4 p-6")}>
+        {linkError && (
+          <div role="alert" className="rounded-xl border border-amber-400/20 bg-amber-400/10 p-4">
+            <div className="flex gap-3">
+              <div className="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg border border-amber-300/20 bg-amber-400/10 text-amber-200">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M12 9v4m0 4h.01M10.3 4.2 2.8 17a2 2 0 0 0 1.7 3h15a2 2 0 0 0 1.7-3L13.7 4.2a2 2 0 0 0-3.4 0Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-medium text-amber-100">This reset link did not work</p>
+                <p className="mt-1 text-sm leading-6 text-amber-100/75">
+                  {linkError} Request a new link and use the latest email from DevLink.
+                </p>
+              </div>
+            </div>
+            <div className="mt-4 grid gap-2 sm:grid-cols-2">
+              <Button type="button" variant="secondary" onClick={() => setToken(null)} className="w-full">
+                Request new link
+              </Button>
+              <Button type="button" variant="ghost" onClick={() => router.push("/login")} className="w-full">
+                Back to login
+              </Button>
+            </div>
+          </div>
+        )}
+
         <div>
           <label htmlFor="new-password" className="mb-2 block text-sm font-medium text-white">
             New password
@@ -245,9 +282,13 @@ function ResetPasswordContent() {
             autoComplete="new-password"
             className={authInputClass}
             value={formData.newPassword}
-            onChange={(e) => setFormData((prev) => ({ ...prev, newPassword: e.target.value }))}
+            onChange={(e) => {
+              setFormData((prev) => ({ ...prev, newPassword: e.target.value }));
+              if (confirmError) setConfirmError(null);
+            }}
             required
             minLength={8}
+            disabled={!!linkError || isLoading}
             aria-describedby="reset-password-requirements"
           />
 
@@ -286,9 +327,13 @@ function ResetPasswordContent() {
             autoComplete="new-password"
             className={cn(authInputClass, formData.confirmPassword && !passwordsMatch ? "border-[var(--color-accent)]/50 focus:border-[var(--color-accent)]" : "")}
             value={formData.confirmPassword}
-            onChange={(e) => setFormData((prev) => ({ ...prev, confirmPassword: e.target.value }))}
+            onChange={(e) => {
+              setFormData((prev) => ({ ...prev, confirmPassword: e.target.value }));
+              if (confirmError) setConfirmError(null);
+            }}
             required
             minLength={8}
+            disabled={!!linkError || isLoading}
             aria-describedby={formData.confirmPassword && !passwordsMatch ? "reset-confirm-error" : undefined}
             aria-invalid={formData.confirmPassword ? !passwordsMatch : undefined}
           />
@@ -305,8 +350,8 @@ function ResetPasswordContent() {
           </div>
         )}
 
-        <Button type="submit" isLoading={isLoading} disabled={!passwordValid || !passwordsMatch || isLoading} className="w-full" variant="gradient">
-          Reset password
+        <Button type="submit" isLoading={isLoading} disabled={!!linkError || !passwordValid || !passwordsMatch || isLoading} className="w-full" variant="gradient">
+          {isLoading ? "Saving new password..." : "Reset password"}
         </Button>
 
         <div className="text-center">

@@ -16,10 +16,10 @@ function VerifyEmailChangeContent() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const token = searchParams.get('token');
+    const token = searchParams.get("token");
     
     if (!token) {
-      setError("Invalid verification link");
+      setError("This verification link is missing its secure token. Request a new email change from Security settings.");
       setIsLoading(false);
       return;
     }
@@ -27,7 +27,7 @@ function VerifyEmailChangeContent() {
     // Auto-process the token
     const verifyEmailChange = async () => {
       try {
-        const response = await fetch(`/api/user/change-email/confirm?token=${token}`, {
+        const response = await fetch(`/api/user/change-email/confirm?token=${encodeURIComponent(token)}`, {
           method: "GET",
         });
 
@@ -42,11 +42,11 @@ function VerifyEmailChangeContent() {
             variant: "success",
           });
         } else {
-          setError(data.error || "Failed to verify email change");
+          setError(data.error || "This email change link could not be verified. It may have expired or already been used.");
         }
       } catch (error) {
         console.error("Error verifying email change:", error);
-        setError("An unexpected error occurred");
+        setError("Could not reach DevLink. Check your connection and try again.");
       } finally {
         setIsLoading(false);
       }
@@ -79,9 +79,14 @@ function VerifyEmailChangeContent() {
           <p className="text-[var(--muted-foreground)] mb-6">
             {error}
           </p>
-          <Button onClick={() => router.push("/settings/security")} variant="primary">
-            Back to Settings
-          </Button>
+          <div className="space-y-3">
+            <Button onClick={() => router.push("/settings/security")} variant="primary" className="w-full">
+              Request a new email change
+            </Button>
+            <Button onClick={() => router.push("/login")} variant="ghost" className="w-full">
+              Back to login
+            </Button>
+          </div>
         </div>
       </main>
     );
@@ -115,7 +120,7 @@ function VerifyEmailChangeContent() {
           
           <h2 className="text-xl font-semibold text-white mb-2">Email Change Successful</h2>
           <p className="text-[var(--muted-foreground)] mb-6">
-            Your email address has been successfully changed to <strong className="text-white">{newEmail}</strong>.
+            Your DevLink sign-in email is now <strong className="text-white">{newEmail}</strong>. Use this address the next time you sign in.
           </p>
           
           <div className="space-y-3">

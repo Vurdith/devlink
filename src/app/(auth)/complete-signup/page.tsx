@@ -9,8 +9,10 @@ import { Button } from "@/components/ui/Button";
 import { useTheme } from "@/components/providers/ThemeProvider";
 import { surface, ui } from "@/components/ui/design-system";
 import { cn } from "@/lib/cn";
+import { getPasswordStrength, getStrengthColor, PASSWORD_REQUIREMENTS } from "../register/register-validation";
 
 const authInputClass = cn(ui.control.field, "h-12 px-4");
+const authInputWithRightIconClass = cn(authInputClass, "pr-11");
 
 export default function CompleteSignupPage() {
   const { status, update } = useSession();
@@ -21,7 +23,7 @@ export default function CompleteSignupPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
-  const [passwordStrength, setPasswordStrength] = useState({ score: 0, label: "", color: "" });
+  const [showPassword, setShowPassword] = useState(false);
 
   // Redirect if not logged in
   useEffect(() => {
@@ -30,43 +32,21 @@ export default function CompleteSignupPage() {
     }
   }, [status, router]);
 
-  // Calculate password strength
-  useEffect(() => {
-    if (!password) {
-      setPasswordStrength({ score: 0, label: "", color: "" });
-      return;
-    }
-
-    let score = 0;
-    if (password.length >= 8) score++;
-    if (password.length >= 12) score++;
-    if (/[A-Z]/.test(password)) score++;
-    if (/[a-z]/.test(password)) score++;
-    if (/[0-9]/.test(password)) score++;
-    if (/[^A-Za-z0-9]/.test(password)) score++;
-
-    const labels = ["Very Weak", "Weak", "Fair", "Good", "Strong", "Very Strong"];
-    const colors = ["#ef4444", "#f97316", "#eab308", "#84cc16", "#22c55e", "#10b981"];
-    
-    const index = Math.min(Math.floor(score * (labels.length / 6)), labels.length - 1);
-    setPasswordStrength({
-      score: (score / 6) * 100,
-      label: labels[index],
-      color: colors[index]
-    });
-  }, [password]);
+  const passwordStrength = getPasswordStrength(password);
+  const passwordValid = passwordStrength === PASSWORD_REQUIREMENTS.length;
+  const passwordsMatch = password === passwordConfirm;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
     // Validation
-    if (password.length < 8) {
-      setError("Password must be at least 8 characters");
+    if (!passwordValid) {
+      setError("Meet all password requirements before saving.");
       return;
     }
 
-    if (password !== passwordConfirm) {
+    if (!passwordsMatch) {
       setError("Passwords do not match");
       return;
     }
@@ -102,13 +82,14 @@ export default function CompleteSignupPage() {
   };
 
   const handleSkip = () => {
+    if (loading) return;
     router.push("/home");
   };
 
   const canSubmitPassword =
-    password.length >= 8 &&
-    passwordConfirm.length >= 8 &&
-    password === passwordConfirm &&
+    passwordValid &&
+    passwordConfirm.length > 0 &&
+    passwordsMatch &&
     !loading;
 
   if (status === "loading") {
@@ -132,6 +113,9 @@ export default function CompleteSignupPage() {
             <h2 className="text-2xl font-bold text-white mb-2">Password Set!</h2>
             <p className="text-[var(--muted-foreground)] mb-4">You can now log in with your email and password.</p>
             <p className="text-sm text-[var(--muted-foreground)]/70">Redirecting to home...</p>
+            <Button type="button" variant="secondary" className="mt-5 w-full" onClick={() => router.push("/home")}>
+              Go to home now
+            </Button>
           </div>
         </div>
       </div>
@@ -176,31 +160,67 @@ export default function CompleteSignupPage() {
 
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Password */}
-            <div>
+            <div className="relative">
               <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2">
                 Password
               </label>
               <input
                 id="password"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 autoComplete="new-password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className={authInputClass}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  if (error) setError("");
+                }}
+                className={authInputWithRightIconClass}
                 placeholder="Create a password"
-                aria-describedby={password ? "complete-password-strength" : undefined}
+                disabled={loading}
+                aria-describedby={password ? "complete-password-requirements" : "complete-password-help"}
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword((current) => !current)}
+                className="absolute right-3 top-9 text-[var(--muted-foreground)] transition-colors hover:text-white"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? (
+                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0 1 12 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 0 1 1.563-3.029m5.858.908a3 3 0 1 1 4.243 4.243M9.878 9.878l4.242 4.242M3 3l18 18" />
+                  </svg>
+                ) : (
+                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                )}
+              </button>
+              {!password && (
+                <p id="complete-password-help" className="mt-2 text-xs text-[var(--muted-foreground)]">
+                  Use a password you have not used on DevLink before.
+                </p>
+              )}
               {password && (
-                <div id="complete-password-strength" className="mt-2">
-                  <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
-                    <div
-                      className="h-full transition-all duration-300"
-                      style={{ width: `${passwordStrength.score}%`, backgroundColor: passwordStrength.color }}
-                    />
+                <div className="mt-2 space-y-2">
+                  <div className="flex gap-1">
+                    {[0, 1, 2, 3].map((level) => (
+                      <div
+                        key={level}
+                        className={cn("h-1 flex-1 rounded-full transition-all", level < passwordStrength ? getStrengthColor(passwordStrength) : "bg-white/10")}
+                      />
+                    ))}
                   </div>
-                  <p className="text-xs mt-1" style={{ color: passwordStrength.color }}>
-                    {passwordStrength.label}
-                  </p>
+                  <div id="complete-password-requirements" className="grid grid-cols-1 gap-1 text-xs sm:grid-cols-2">
+                    {PASSWORD_REQUIREMENTS.map((requirement) => {
+                      const passed = requirement.test(password);
+                      return (
+                        <span key={requirement.key} className={cn("flex items-center gap-1.5", passed ? "text-emerald-400" : "text-[var(--muted-foreground)]")}>
+                          <span aria-hidden="true">{passed ? "OK" : "-"}</span>
+                          {requirement.label}
+                        </span>
+                      );
+                    })}
+                  </div>
                 </div>
               )}
             </div>
@@ -212,12 +232,16 @@ export default function CompleteSignupPage() {
               </label>
               <input
                 id="passwordConfirm"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 autoComplete="new-password"
                 value={passwordConfirm}
-                onChange={(e) => setPasswordConfirm(e.target.value)}
+                onChange={(e) => {
+                  setPasswordConfirm(e.target.value);
+                  if (error) setError("");
+                }}
                 className={cn(authInputClass, passwordConfirm && password !== passwordConfirm ? "border-[var(--color-accent)]/50 focus:border-[var(--color-accent)]" : "")}
                 placeholder="Confirm your password"
+                disabled={loading}
                 aria-invalid={passwordConfirm ? password !== passwordConfirm : undefined}
                 aria-describedby={passwordConfirm && password !== passwordConfirm ? "complete-password-match-error" : undefined}
               />
@@ -242,12 +266,12 @@ export default function CompleteSignupPage() {
               variant="gradient"
               className="w-full"
             >
-              Set password
+              {loading ? "Saving password..." : "Set password"}
             </Button>
 
             {!canSubmitPassword && (password || passwordConfirm) && !loading && (
               <p className="text-center text-xs text-[var(--muted-foreground)]">
-                Use at least 8 characters and make both password fields match.
+                Meet the password requirements and make both fields match.
               </p>
             )}
 
@@ -255,6 +279,7 @@ export default function CompleteSignupPage() {
             <button
               type="button"
               onClick={handleSkip}
+              disabled={loading}
               className="w-full py-3 px-4 rounded-lg bg-white/[0.04] border border-white/[0.1] text-gray-300 font-medium hover:bg-white/[0.08] hover:text-white focus:outline-none focus:ring-2 focus:ring-white/20 transition-all"
             >
               Skip for now
