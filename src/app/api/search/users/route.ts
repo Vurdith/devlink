@@ -2,9 +2,15 @@ import { prismaRead } from "@/server/db-read";
 import { NextResponse } from "next/server";
 import { getAuthSession } from "@/server/auth";
 import { responseCache } from "@/server/cache";
-import { normalizeSearchQuery, searchCacheKeyPart } from "@/server/search/query-utils";
+import {
+  normalizeSearchLimit,
+  normalizeSearchQuery,
+  searchCacheKeyPart,
+} from "@/server/search/query-utils";
 
-const SEARCH_CACHE_TTL = 120; // Cache search results for 2 minutes
+const SEARCH_CACHE_TTL = 120;
+const DEFAULT_USER_LIMIT = 8;
+const MAX_USER_LIMIT = 20;
 
 type SearchUser = {
   id: string;
@@ -18,13 +24,16 @@ export async function GET(req: Request) {
   const q = (searchParams.get("q") || "").trim();
   if (!q) return NextResponse.json({ users: [] });
   
-  // allow leading @
   const term = normalizeSearchQuery(q, "@");
   if (!term) return NextResponse.json({ users: [] });
+  const limit = normalizeSearchLimit(
+    searchParams.get("limit"),
+    DEFAULT_USER_LIMIT,
+    MAX_USER_LIMIT
+  );
 
-  const cacheKey = `search:users:${searchCacheKeyPart(term)}`;
+  const cacheKey = `search:users:${searchCacheKeyPart(term)}:${limit}`;
   
-  // Try cache first for the base user data
   let users = await responseCache.get<SearchUser[]>(cacheKey);
   
   if (!users) {
@@ -35,7 +44,7 @@ export async function GET(req: Request) {
           { name: { contains: term } },
         ],
       },
-      take: 8,
+      take: limit,
       orderBy: { username: "asc" },
       select: { 
         id: true,
@@ -52,8 +61,13 @@ export async function GET(req: Request) {
       },
     });
     
-    // Cache the results
     await responseCache.set(cacheKey, users, SEARCH_CACHE_TTL);
+  }
+
+  if (users.length === 0) {
+    const response = NextResponse.json({ users: [] });
+    response.headers.set("Cache-Control", "public, max-age=60, stale-while-revalidate=120");
+    return response;
   }
   
   const session = await getAuthSession();
@@ -68,7 +82,7 @@ export async function GET(req: Request) {
     followingIds = new Set(relations.map(r => r.followingId));
   }
   
-  return NextResponse.json({
+  const response = NextResponse.json({
     users: users.map((u) => ({
       id: u.id,
       username: u.username,
@@ -81,6 +95,12 @@ export async function GET(req: Request) {
       isYou: currentUserId === u.id,
     })),
   });
+  response.headers.set(
+    "Cache-Control",
+    currentUserId ? "private, no-store" : "public, max-age=60, stale-while-revalidate=120"
+  );
+  response.headers.set("Vary", "Cookie");
+  return response;
 }
 
 

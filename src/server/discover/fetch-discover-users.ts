@@ -2,7 +2,7 @@ import { responseCache } from "@/server/cache";
 import { prismaRead } from "@/server/db-read";
 
 const PAGE_SIZE = 24;
-const CACHE_TTL = 120; // 2 minutes cache for faster loads
+const CACHE_TTL = 120;
 const DISCOVER_PROFILE_TYPES = new Set([
   "DEVELOPER",
   "CLIENT",
@@ -46,10 +46,6 @@ export function normalizeDiscoverCursor(cursor?: string | null) {
   return normalized && normalized.length <= 128 ? normalized : undefined;
 }
 
-/**
- * Fetch users for the discover page with caching
- * Optimized for server-side rendering
- */
 export async function fetchDiscoverUsers(
   profileType: string = "all",
   cursor?: string
@@ -58,19 +54,16 @@ export async function fetchDiscoverUsers(
   const normalizedCursor = normalizeDiscoverCursor(cursor);
   const cacheKey = `discover:v3:${normalizedProfileType}:${normalizedCursor || "initial"}`;
 
-  // Try cache first
   const cached = await responseCache.get<DiscoverResult>(cacheKey);
   if (cached) {
     return cached;
   }
 
-  // Build where clause
   const where: { profile?: { profileType: string } } = {};
   if (normalizedProfileType !== "all") {
     where.profile = { profileType: normalizedProfileType };
   }
 
-  // Optimized query - fetch only what's needed
   const users = await prismaRead.user.findMany({
     where,
     select: {
@@ -116,15 +109,11 @@ export async function fetchDiscoverUsers(
     hasMore,
   };
 
-  // Cache the result
   await responseCache.set(cacheKey, result, CACHE_TTL);
 
   return result;
 }
 
-/**
- * Get following status for a list of users
- */
 export async function getFollowingStatus(
   currentUserId: string,
   userIds: string[]
