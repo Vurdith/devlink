@@ -2,6 +2,7 @@
 
 import { signIn } from "next-auth/react";
 import { Button } from "./Button";
+import { cn } from "@/lib/cn";
 
 interface OAuthButtonProps {
   provider: "google" | "twitter" | "apple" | "roblox";
@@ -11,19 +12,19 @@ interface OAuthButtonProps {
 
 const providerConfig = {
   google: {
-    bgColor: "bg-white/[0.04] hover:bg-white/[0.08]",
+    bgColor: "bg-white/[0.035] hover:bg-white/[0.065]",
     textColor: "text-white",
-    borderColor: "border-white/[0.1] hover:border-white/20",
+    borderColor: "border-white/[0.10] hover:border-white/[0.18]",
   },
   twitter: {
-    bgColor: "bg-white/[0.04] hover:bg-white/[0.08]",
+    bgColor: "bg-white/[0.035] hover:bg-white/[0.065]",
     textColor: "text-white",
-    borderColor: "border-white/[0.1] hover:border-white/20",
+    borderColor: "border-white/[0.10] hover:border-white/[0.18]",
   },
   apple: {
-    bgColor: "bg-white/[0.04] hover:bg-white/[0.08]",
+    bgColor: "bg-white/[0.035] hover:bg-white/[0.065]",
     textColor: "text-white",
-    borderColor: "border-white/[0.1] hover:border-white/20",
+    borderColor: "border-white/[0.10] hover:border-white/[0.18]",
   },
   roblox: {
     bgColor: "bg-[rgba(var(--color-accent-2-rgb),0.14)] hover:bg-[rgba(var(--color-accent-2-rgb),0.2)]",
@@ -39,7 +40,7 @@ export function OAuthButton({ provider, children, className = "" }: OAuthButtonP
     <Button
       type="button"
       onClick={() => signIn(provider, { callbackUrl: "/me" })}
-      className={`w-full ${config.bgColor} ${config.textColor} ${config.borderColor} border shadow-none transition-all duration-200 ${className}`}
+      className={cn("w-full border transition-all duration-200", config.bgColor, config.textColor, config.borderColor, className)}
     >
       {children}
     </Button>

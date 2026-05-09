@@ -8,7 +8,12 @@ import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useTheme } from "@/components/providers/ThemeProvider";
-import { surface } from "@/components/ui/design-system";
+import { surface, ui } from "@/components/ui/design-system";
+import { cn } from "@/lib/cn";
+
+const authInputClass = cn(ui.control.field, "h-12 px-4");
+const authInputWithLeftIconClass = cn(authInputClass, "pl-11");
+const authInputWithBothIconsClass = cn(authInputClass, "pl-11 pr-11");
 
 function LoginForm() {
   const [email, setEmail] = useState("");
@@ -111,7 +116,7 @@ function LoginForm() {
                   type="email"
                   autoComplete="email"
                   placeholder="you@example.com"
-                  className="w-full h-12 pl-11 pr-4 rounded-lg bg-white/[0.04] border border-white/[0.1] outline-none text-white placeholder:text-[var(--muted-foreground)] focus:border-[rgba(var(--color-accent-2-rgb),0.55)] focus:bg-white/[0.07] transition-all"
+                  className={authInputWithLeftIconClass}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -139,7 +144,7 @@ function LoginForm() {
                   type={showPassword ? "text" : "password"}
                   autoComplete="current-password"
                   placeholder="••••••••"
-                  className="w-full h-12 pl-11 pr-11 rounded-lg bg-white/[0.04] border border-white/[0.1] outline-none text-white placeholder:text-[var(--muted-foreground)] focus:border-[rgba(var(--color-accent-2-rgb),0.55)] focus:bg-white/[0.07] transition-all"
+                  className={authInputWithBothIconsClass}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
@@ -199,7 +204,7 @@ function LoginForm() {
           {/* Divider */}
           <div className="relative my-6">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-white/10" />
+              <div className="w-full border-t border-white/[0.08]" />
             </div>
             <div className="relative flex justify-center">
               <span className="bg-[var(--color-card)] px-4 text-xs text-[var(--muted-foreground)]">

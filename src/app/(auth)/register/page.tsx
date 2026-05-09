@@ -8,8 +8,13 @@ import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useTheme } from "@/components/providers/ThemeProvider";
 import { useDebounce } from "@/hooks/useDebounce";
-import { surface } from "@/components/ui/design-system";
+import { surface, ui } from "@/components/ui/design-system";
+import { cn } from "@/lib/cn";
 import { getPasswordStrength, getStrengthColor, PASSWORD_REQUIREMENTS, validateRegisterEmail, validateRegisterUsername } from "./register-validation";
+
+const authInputClass = cn(ui.control.field, "h-12 px-4");
+const authInputWithLeftIconClass = cn(authInputClass, "pl-11");
+const authInputWithBothIconsClass = cn(authInputClass, "pl-11 pr-11");
 
 export default function RegisterPage() {
   const { logoPath } = useTheme();
@@ -227,13 +232,13 @@ export default function RegisterPage() {
                   id="username"
                   autoComplete="username"
                   placeholder="cooldev123"
-                  className={`w-full h-12 pl-11 pr-11 rounded-lg bg-white/[0.04] border outline-none text-white placeholder:text-[var(--muted-foreground)] focus:bg-white/[0.07] transition-all ${
+                  className={cn(authInputWithBothIconsClass,
                     usernameStatus === "available" 
                       ? "border-emerald-500/50 focus:border-emerald-500" 
                       : usernameStatus === "unavailable" && username.trim()
                         ? "border-[var(--color-accent)]/50 focus:border-[var(--color-accent)]"
-                        : "border-white/[0.1] focus:border-[rgba(var(--color-accent-2-rgb),0.55)]"
-                  }`}
+                        : ""
+                  )}
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   required
@@ -274,11 +279,11 @@ export default function RegisterPage() {
                   type="email"
                   autoComplete="email"
                   placeholder="you@example.com"
-                  className={`w-full h-12 pl-11 pr-4 rounded-lg bg-white/[0.04] border outline-none text-white placeholder:text-[var(--muted-foreground)] focus:bg-white/[0.07] transition-all ${
+                  className={cn(authInputWithLeftIconClass,
                     emailError 
                       ? "border-[var(--color-accent)]/50 focus:border-[var(--color-accent)]" 
-                      : "border-white/[0.1] focus:border-[rgba(var(--color-accent-2-rgb),0.55)]"
-                  }`}
+                      : ""
+                  )}
                   value={email}
                   onChange={(e) => {
                     setEmail(e.target.value);
@@ -314,7 +319,7 @@ export default function RegisterPage() {
                   type={showPassword ? "text" : "password"}
                   autoComplete="new-password"
                   placeholder="••••••••"
-                  className="w-full h-12 pl-11 pr-11 rounded-lg bg-white/[0.04] border border-white/[0.1] outline-none text-white placeholder:text-[var(--muted-foreground)] focus:border-[rgba(var(--color-accent-2-rgb),0.55)] focus:bg-white/[0.07] transition-all"
+                  className={authInputWithBothIconsClass}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   onFocus={() => setPasswordFocused(true)}
@@ -403,13 +408,13 @@ export default function RegisterPage() {
                   type={showPassword ? "text" : "password"}
                   autoComplete="new-password"
                   placeholder="••••••••"
-                  className={`w-full h-12 pl-11 pr-11 rounded-lg bg-white/[0.04] border outline-none text-white placeholder:text-[var(--muted-foreground)] focus:bg-white/[0.07] transition-all ${
+                  className={cn(authInputWithBothIconsClass,
                     confirmPassword && !passwordsMatch
                       ? "border-[var(--color-accent)]/50 focus:border-[var(--color-accent)]"
                       : confirmPassword && passwordsMatch
                         ? "border-emerald-500/50 focus:border-emerald-500"
-                        : "border-white/[0.1] focus:border-[rgba(var(--color-accent-2-rgb),0.55)]"
-                  }`}
+                        : ""
+                  )}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
@@ -473,7 +478,7 @@ export default function RegisterPage() {
           {/* Divider */}
           <div className="relative my-6">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-white/10" />
+              <div className="w-full border-t border-white/[0.08]" />
             </div>
             <div className="relative flex justify-center">
               <span className="bg-[var(--color-card)] px-4 text-xs text-[var(--muted-foreground)]">
