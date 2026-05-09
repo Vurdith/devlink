@@ -55,6 +55,8 @@ export default function AccountLinking() {
   const [loading, setLoading] = useState<string | null>(null);
   const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
+  const [pendingDisconnect, setPendingDisconnect] = useState<string | null>(null);
 
   const fetchLinkedAccounts = useCallback(async () => {
     setIsInitialLoading(true);
@@ -88,6 +90,7 @@ export default function AccountLinking() {
   const linkAccount = async (provider: string) => {
     setLoading(provider);
     setError(null);
+    setNotice(null);
     
     try {
       const response = await fetch("/api/auth/link-account", {
@@ -113,6 +116,7 @@ export default function AccountLinking() {
   const unlinkAccount = async (provider: string) => {
     setLoading(provider);
     setError(null);
+    setNotice(null);
     
     try {
       const response = await fetch("/api/auth/link-account", {
@@ -128,6 +132,8 @@ export default function AccountLinking() {
 
       await fetchLinkedAccounts();
       await update();
+      setNotice(`${providers.find((item) => item.id === provider)?.name || "Provider"} was disconnected.`);
+      setPendingDisconnect(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unknown error");
     } finally {
@@ -155,7 +161,7 @@ export default function AccountLinking() {
         </div>
         <div>
           <h2 className="text-lg font-semibold text-white">Connected Accounts</h2>
-          <p className="text-sm text-[var(--muted-foreground)]">Link accounts for easier sign-in</p>
+          <p className="text-sm text-[var(--muted-foreground)]">Use trusted providers as backup sign-in methods.</p>
         </div>
       </div>
 
@@ -167,8 +173,24 @@ export default function AccountLinking() {
             <path d="M12 8v4m0 4h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
           </svg>
           {error}
+          <Button type="button" size="sm" variant="ghost" onClick={() => void fetchLinkedAccounts()} className="ml-auto h-8 px-3 text-[var(--color-accent)]">
+            Retry
+          </Button>
         </div>
       )}
+
+      {notice && (
+        <div className="flex items-center gap-2 rounded-xl border border-emerald-400/20 bg-emerald-500/10 p-3 text-sm text-emerald-200 animate-fade-in" role="status">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="shrink-0">
+            <path d="M20 6 9 17l-5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          {notice}
+        </div>
+      )}
+
+      <div className="rounded-xl border border-white/[0.08] bg-white/[0.035] p-4 text-sm text-[var(--muted-foreground)]">
+        <span className="font-medium text-white">Before disconnecting:</span> make sure you still have another way to sign in. If this is your only provider, set a password on the Security page first.
+      </div>
 
       {/* Provider List */}
       <div className="space-y-3">
@@ -189,6 +211,7 @@ export default function AccountLinking() {
         ) : providers.map((provider, index) => {
           const linked = isAccountLinked(provider.id);
           const isLoading = loading === provider.id;
+          const isConfirmingDisconnect = pendingDisconnect === provider.id;
           
           return (
             <div
@@ -227,26 +250,55 @@ export default function AccountLinking() {
                         <span className="text-[var(--color-accent-2)]">Connected</span>
                       </>
                     ) : (
-                      "Not connected"
+                      "Available as a sign-in option"
                     )}
                   </div>
                 </div>
               </div>
               
               {/* Action Button */}
-              <div className="relative w-full sm:w-auto">
-                <Button
-                  variant={linked ? "ghost" : "secondary"}
-                  size="sm"
-                  onClick={() => linked ? unlinkAccount(provider.id) : linkAccount(provider.id)}
-                  isLoading={isLoading}
-                  className={cn(
-                    "w-full sm:w-auto",
-                    linked && "text-[var(--muted-foreground)] hover:bg-rose-500/10 hover:text-rose-300"
-                  )}
-                >
-                  {linked ? "Disconnect" : "Connect"}
-                </Button>
+              <div className="relative flex w-full flex-col gap-2 sm:w-auto sm:min-w-[150px]">
+                {linked && isConfirmingDisconnect ? (
+                  <>
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => unlinkAccount(provider.id)}
+                      isLoading={isLoading}
+                      className="w-full border-rose-400/30 text-rose-200 hover:border-rose-400/50 hover:bg-rose-500/15 sm:w-auto"
+                    >
+                      Confirm disconnect
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setPendingDisconnect(null)}
+                      disabled={isLoading}
+                      className="w-full sm:w-auto"
+                    >
+                      Keep connected
+                    </Button>
+                  </>
+                ) : (
+                  <Button
+                    variant={linked ? "ghost" : "secondary"}
+                    size="sm"
+                    onClick={() => {
+                      if (linked) {
+                        setPendingDisconnect(provider.id);
+                        return;
+                      }
+                      void linkAccount(provider.id);
+                    }}
+                    isLoading={isLoading}
+                    className={cn(
+                      "w-full sm:w-auto",
+                      linked && "text-[var(--muted-foreground)] hover:bg-rose-500/10 hover:text-rose-300"
+                    )}
+                  >
+                    {linked ? "Disconnect" : "Connect"}
+                  </Button>
+                )}
               </div>
             </div>
           );

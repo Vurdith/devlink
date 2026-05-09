@@ -518,10 +518,11 @@ export default function SecuritySettings() {
         </SecurityPanel>
       )}
 
-      <ResetPasswordPanel isRequestingReset={isRequestingReset} onPasswordReset={handlePasswordReset} />
+      <ResetPasswordPanel email={session?.user?.email} isRequestingReset={isRequestingReset} onPasswordReset={handlePasswordReset} />
 
       <ChangeEmailPanel
         currentEmail={session?.user?.email}
+        hasPassword={hasPassword}
         emailData={emailData}
         inputClassName={inputBase}
         isChangingEmail={isChangingEmail}

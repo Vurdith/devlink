@@ -2,11 +2,12 @@ import { Button } from "@/components/ui/Button";
 import { SecurityPanel } from "./SecurityPanel";
 
 interface ResetPasswordPanelProps {
+  email?: string | null;
   isRequestingReset: boolean;
   onPasswordReset: () => void;
 }
 
-export function ResetPasswordPanel({ isRequestingReset, onPasswordReset }: ResetPasswordPanelProps) {
+export function ResetPasswordPanel({ email, isRequestingReset, onPasswordReset }: ResetPasswordPanelProps) {
   return (
     <SecurityPanel
       accent="amber"
@@ -27,9 +28,11 @@ export function ResetPasswordPanel({ isRequestingReset, onPasswordReset }: Reset
       style={{ animationDelay: "0.1s" }}
     >
       <div className="space-y-4">
-        <p className="text-sm text-[var(--muted-foreground)]">Forgot your password? We&apos;ll send a secure reset link to your email address.</p>
+        <p className="text-sm text-[var(--muted-foreground)]">
+          Forgot your password? We&apos;ll send a secure reset link{email ? ` to ${email}` : " to your email address"}.
+        </p>
 
-        <Button onClick={onPasswordReset} variant="secondary" isLoading={isRequestingReset} className="w-full">
+        <Button onClick={onPasswordReset} variant="secondary" isLoading={isRequestingReset} disabled={!email} className="w-full">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="mr-2">
             <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" stroke="currentColor" strokeWidth="2" />
             <polyline points="22,6 12,13 2,6" stroke="currentColor" strokeWidth="2" />

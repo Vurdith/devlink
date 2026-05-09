@@ -10,17 +10,19 @@ import { SettingsAuthRequired } from "../_components/SettingsAuthRequired";
 import { SettingsPageHeader } from "../_components/SettingsPageHeader";
 
 const options = [
-  { value: "EVERYONE", label: "Everyone" },
-  { value: "FOLLOWERS", label: "Followers" },
-  { value: "FOLLOWING", label: "People I follow" },
-  { value: "MUTUALS", label: "Mutuals only" },
-  { value: "NONE", label: "No one" },
+  { value: "EVERYONE", label: "Everyone", description: "Anyone on DevLink can start a conversation." },
+  { value: "FOLLOWERS", label: "Followers", description: "People who follow you can message first." },
+  { value: "FOLLOWING", label: "People I follow", description: "Only people you follow can start a new thread." },
+  { value: "MUTUALS", label: "Mutuals only", description: "Both of you must follow each other first." },
+  { value: "NONE", label: "No one", description: "New conversations stay closed unless you start them." },
 ];
 
 export default function MessagingSettingsPage() {
   const { status } = useSession();
   const [settings, setSettings] = useState<MessagingSettings | null>(null);
   const [saving, setSaving] = useState(false);
+  const [savingChoice, setSavingChoice] = useState<MessagingSettings["allowFrom"] | null>(null);
+  const [savedMessage, setSavedMessage] = useState<string | null>(null);
   const [loadingSettings, setLoadingSettings] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -59,7 +61,10 @@ export default function MessagingSettingsPage() {
   }, [status]);
 
   async function updateSetting(allowFrom: MessagingSettings["allowFrom"]) {
+    if (saving || settings?.allowFrom === allowFrom) return;
     setSaving(true);
+    setSavingChoice(allowFrom);
+    setSavedMessage(null);
     try {
       const res = await fetch("/api/settings/messaging", {
         method: "PUT",
@@ -70,6 +75,7 @@ export default function MessagingSettingsPage() {
       if (res.ok && data) {
         setSettings(data);
         setError(null);
+        setSavedMessage("Messaging rule saved.");
       } else {
         setError(data?.error || "Failed to update messaging settings");
       }
@@ -77,6 +83,7 @@ export default function MessagingSettingsPage() {
       setError("Unable to save messaging settings. Check your connection and try again.");
     } finally {
       setSaving(false);
+      setSavingChoice(null);
     }
   }
 
@@ -138,19 +145,34 @@ export default function MessagingSettingsPage() {
               </div>
 
               {error && (
-                <div className="mb-4 rounded-xl border border-rose-400/30 bg-rose-500/10 px-4 py-2 text-sm text-rose-100">
-                  {error}
+                <div className="mb-4 flex items-center gap-3 rounded-xl border border-rose-400/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-100">
+                  <span className="min-w-0 flex-1">{error}</span>
+                  <button
+                    type="button"
+                    onClick={() => settings && void updateSetting(settings.allowFrom)}
+                    className="shrink-0 rounded-lg px-2 py-1 text-xs font-semibold text-rose-100 hover:bg-rose-400/10"
+                  >
+                    Retry
+                  </button>
                 </div>
               )}
+
+              {saving || savedMessage ? (
+                <div className="mb-4 rounded-xl border border-white/[0.08] bg-white/[0.035] px-4 py-3 text-sm text-[var(--muted-foreground)]" role="status">
+                  {saving ? "Saving your messaging rule..." : savedMessage}
+                </div>
+              ) : null}
 
               <div className="space-y-1">
                 {options.map((option, index) => {
                   const isSelected = settings?.allowFrom === option.value;
+                  const isSavingThis = savingChoice === option.value;
                   return (
                     <button
                       key={option.value}
                       type="button"
                       disabled={saving}
+                      aria-pressed={isSelected}
                       onClick={() => updateSetting(option.value as MessagingSettings["allowFrom"])}
                       className={cn(
                         "flex w-full items-center justify-between gap-4 rounded-xl border p-4 text-left outline-none transition-all animate-slide-up focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]",
@@ -170,13 +192,18 @@ export default function MessagingSettingsPage() {
                             "h-2.5 w-2.5 rounded-full border",
                             isSelected
                               ? "border-[var(--color-accent)] bg-[var(--color-accent)]"
-                              : "border-white/20"
+                            : "border-white/20"
                           )}
                         />
-                        <span className="truncate font-medium">{option.label}</span>
+                        <span className="min-w-0">
+                          <span className="block font-medium text-white">{option.label}</span>
+                          <span className="mt-0.5 block text-sm text-[var(--muted-foreground)]">{option.description}</span>
+                        </span>
                       </div>
-                      {isSelected ? (
-                        <span className="shrink-0 text-xs font-semibold text-[var(--color-accent)]">Selected</span>
+                      {isSavingThis ? (
+                        <span className="shrink-0 text-xs font-semibold text-[var(--color-accent)]">Saving</span>
+                      ) : isSelected ? (
+                        <span className="shrink-0 text-xs font-semibold text-[var(--color-accent)]">Active</span>
                       ) : null}
                     </button>
                   );

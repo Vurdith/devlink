@@ -9,6 +9,7 @@ export interface EmailData {
 
 interface ChangeEmailPanelProps {
   currentEmail?: string | null;
+  hasPassword: boolean;
   emailData: EmailData;
   inputClassName: string;
   isChangingEmail: boolean;
@@ -18,12 +19,18 @@ interface ChangeEmailPanelProps {
 
 export function ChangeEmailPanel({
   currentEmail,
+  hasPassword,
   emailData,
   inputClassName,
   isChangingEmail,
   onEmailDataChange,
   onEmailChange,
 }: ChangeEmailPanelProps) {
+  const normalizedCurrentEmail = currentEmail?.trim().toLowerCase();
+  const normalizedNewEmail = emailData.newEmail.trim().toLowerCase();
+  const isSameEmail = Boolean(normalizedCurrentEmail && normalizedNewEmail && normalizedCurrentEmail === normalizedNewEmail);
+  const canSubmit = hasPassword && Boolean(emailData.newEmail.trim()) && Boolean(emailData.password) && !isSameEmail;
+
   return (
     <SecurityPanel
       accent="emerald"
@@ -39,6 +46,12 @@ export function ChangeEmailPanel({
       style={{ animationDelay: "0.15s" }}
     >
       <div className="space-y-4">
+        {!hasPassword ? (
+          <div className="rounded-xl border border-amber-400/25 bg-amber-500/10 p-4 text-sm text-amber-100">
+            Set a password first, then return here to confirm sensitive email changes.
+          </div>
+        ) : null}
+
         <div>
           <label className="block text-sm font-medium text-white mb-2">Current Email</label>
           <div className={surface("empty", "flex h-11 w-full items-center px-4 text-[var(--muted-foreground)]")}>
@@ -46,7 +59,16 @@ export function ChangeEmailPanel({
           </div>
         </div>
 
-        <form onSubmit={onEmailChange} className="space-y-4">
+        <form
+          onSubmit={(event) => {
+            if (!canSubmit) {
+              event.preventDefault();
+              return;
+            }
+            onEmailChange(event);
+          }}
+          className="space-y-4"
+        >
           <div>
             <label className="block text-sm font-medium text-white mb-2">New Email Address</label>
             <input
@@ -56,8 +78,10 @@ export function ChangeEmailPanel({
               value={emailData.newEmail}
               onChange={(event) => onEmailDataChange({ ...emailData, newEmail: event.target.value })}
               autoComplete="off"
+              disabled={!hasPassword}
               required
             />
+            {isSameEmail ? <p className="mt-2 text-xs text-rose-200">Use an email that is different from your current address.</p> : null}
           </div>
 
           <div>
@@ -69,11 +93,12 @@ export function ChangeEmailPanel({
               value={emailData.password}
               onChange={(event) => onEmailDataChange({ ...emailData, password: event.target.value })}
               autoComplete="off"
+              disabled={!hasPassword}
               required
             />
           </div>
 
-          <Button type="submit" variant="gradient" isLoading={isChangingEmail} className="w-full">
+          <Button type="submit" variant="gradient" isLoading={isChangingEmail} disabled={!canSubmit} className="w-full">
             Send Verification Email
           </Button>
         </form>
