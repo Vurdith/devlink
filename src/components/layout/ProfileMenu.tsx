@@ -129,96 +129,95 @@ export const ProfileMenu = memo(function ProfileMenu({ username, avatarUrl: init
       </button>
 
       {/* Dropdown Menu */}
-      <div
-        className={cn(
-          "absolute right-0 z-50 mt-2 w-72",
-          menuPanel(),
-          "transition-all duration-200 origin-top-right",
-          open 
-            ? "opacity-100 scale-100 translate-y-0 pointer-events-auto" 
-            : "opacity-0 scale-95 -translate-y-2 pointer-events-none"
-        )}
-      >
-        {/* Header with user info */}
-        <div className="border-b border-white/[0.08] bg-white/[0.025] p-4">
-          <div className="flex items-center gap-3">
-            <Avatar size={48} src={currentAvatarUrl} />
-            <div className="flex-1 min-w-0">
-              <div className="font-semibold text-white truncate">
-                {name || username}
-              </div>
-              <div className="text-sm text-[var(--muted-foreground)]">
-                @{username}
-              </div>
-              {profileType && (
-                <div className="mt-1">
-                  <ProfileTypeLabel profileType={profileType} variant="compact" />
+      {open && (
+        <div
+          className={cn(
+            "absolute right-0 z-50 mt-2 w-[min(18rem,calc(100vw-2rem))]",
+            menuPanel(),
+            "origin-top-right animate-fade-in"
+          )}
+        >
+          {/* Header with user info */}
+          <div className="border-b border-white/[0.08] bg-white/[0.025] p-4">
+            <div className="flex items-center gap-3">
+              <Avatar size={48} src={currentAvatarUrl} />
+              <div className="flex-1 min-w-0">
+                <div className="font-semibold text-white truncate">
+                  {name || username}
                 </div>
-              )}
+                <div className="text-sm text-[var(--muted-foreground)]">
+                  @{username}
+                </div>
+                {profileType && (
+                  <div className="mt-1">
+                    <ProfileTypeLabel profileType={profileType} variant="compact" />
+                  </div>
+                )}
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Menu Items */}
-        <div className="p-2">
-          {menuItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              onClick={closeMenu}
-              className={menuItem()}
-            >
-              <div className={iconBox("cyan", "h-9 w-9 transition-colors group-hover:border-[rgba(var(--color-accent-2-rgb),0.28)] group-hover:bg-[rgba(var(--color-accent-2-rgb),0.13)]")}>
-                {item.icon}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium text-white">
-                  {item.label}
-                </div>
-                <div className="text-xs text-[var(--muted-foreground)]">
-                  {item.description}
-                </div>
-              </div>
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                className="text-[var(--muted-foreground)] opacity-0 group-hover:opacity-100 -translate-x-1 group-hover:translate-x-0 transition-all"
+          {/* Menu Items */}
+          <div className="p-2">
+            {menuItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={closeMenu}
+                className={menuItem()}
               >
-                <path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </Link>
-          ))}
-        </div>
+                <div className={iconBox("cyan", "h-9 w-9 transition-colors group-hover:border-[rgba(var(--color-accent-2-rgb),0.28)] group-hover:bg-[rgba(var(--color-accent-2-rgb),0.13)]")}>
+                  {item.icon}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-medium text-white">
+                    {item.label}
+                  </div>
+                  <div className="text-xs text-[var(--muted-foreground)]">
+                    {item.description}
+                  </div>
+                </div>
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  className="text-[var(--muted-foreground)] opacity-0 group-hover:opacity-100 -translate-x-1 group-hover:translate-x-0 transition-all"
+                >
+                  <path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </Link>
+            ))}
+          </div>
 
-        {/* Divider */}
-        <div className="mx-3 h-px bg-white/[0.08]" />
+          {/* Divider */}
+          <div className="mx-3 h-px bg-white/[0.08]" />
 
-        {/* Sign Out */}
-        <div className="p-2">
-          <button
-            onClick={handleSignOut}
-            className={cn("w-full", ui.menu.dangerItem)}
-          >
-            <div className={iconBox("danger", "h-9 w-9 transition-colors group-hover:border-rose-400/30 group-hover:bg-rose-500/15")}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                <polyline points="16,17 21,12 16,7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                <line x1="21" y1="12" x2="9" y2="12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </div>
-            <div className="flex-1 text-left">
-              <div className="text-sm font-medium text-rose-200">
-                Sign Out
+          {/* Sign Out */}
+          <div className="p-2">
+            <button
+              onClick={handleSignOut}
+              className={cn("w-full", ui.menu.dangerItem)}
+            >
+              <div className={iconBox("danger", "h-9 w-9 transition-colors group-hover:border-rose-400/30 group-hover:bg-rose-500/15")}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <polyline points="16,17 21,12 16,7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <line x1="21" y1="12" x2="9" y2="12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
               </div>
-              <div className="text-xs text-rose-200/55">
-                End your session
+              <div className="flex-1 text-left">
+                <div className="text-sm font-medium text-rose-200">
+                  Sign Out
+                </div>
+                <div className="text-xs text-rose-200/55">
+                  End your session
+                </div>
               </div>
-            </div>
-          </button>
+            </button>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 });
