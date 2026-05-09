@@ -1,5 +1,6 @@
 "use client";
 
+import { FeedbackState } from "@/components/ui/FeedbackState";
 import { iconBox, surface } from "@/components/ui/design-system";
 import { ExpandableSkillCard, type UserSkill } from "./ExpandableSkillCard";
 import {
@@ -29,15 +30,16 @@ export function ProfileAboutTab({ skills, profileData }: ProfileAboutTabProps) {
 
   if (skills.length === 0 && !hasProfileDetails) {
     return (
-      <div className={surface("empty", "px-6 py-14 text-center text-[var(--muted-foreground)]")}>
-        <div className={iconBox("muted", "mx-auto mb-4 h-14 w-14 text-white/45")}>
+      <FeedbackState
+        title="No about details yet"
+        description="Skills, links, and profile details will appear here."
+        className="py-14"
+        icon={
           <svg className="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6M8 4h8l4 4v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2z" />
           </svg>
-        </div>
-        <p className="text-base font-semibold text-white">No about details yet</p>
-        <p className="mt-1 text-sm">Skills, links, and profile details will appear here.</p>
-      </div>
+        }
+      />
     );
   }
 
@@ -99,9 +101,14 @@ export function ProfileAboutTab({ skills, profileData }: ProfileAboutTabProps) {
       )}
 
       {hasProfileDetails && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <section className={surface("panel", "overflow-hidden p-5 sm:p-6")}>
+          <div className="mb-4">
+            <h3 className="font-[var(--font-space-grotesk)] text-lg font-semibold text-white">Profile details</h3>
+            <p className="mt-1 text-sm text-[var(--muted-foreground)]">Location and public links for quick context.</p>
+          </div>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {profileData.location && (
-            <div className={surface("empty", "flex items-center gap-3 p-4")}>
+            <div className={surface("empty", "flex min-w-0 items-center gap-3 p-4 transition-colors hover:border-white/[0.12] hover:bg-white/[0.04]")}>
               <div className={iconBox("muted", "h-10 w-10")}>
                 <svg
                   className="w-5 h-5 text-[var(--color-accent-2)]"
@@ -123,11 +130,11 @@ export function ProfileAboutTab({ skills, profileData }: ProfileAboutTabProps) {
                   />
                 </svg>
               </div>
-              <div>
-                <p className="text-xs text-white/40 uppercase tracking-wide">
+              <div className="min-w-0">
+                <p className="text-xs uppercase tracking-[0.14em] text-white/40">
                   Location
                 </p>
-                <p className="text-sm font-medium text-white/80">
+                <p className="truncate text-sm font-medium text-white/80">
                   {profileData.location}
                 </p>
               </div>
@@ -139,7 +146,7 @@ export function ProfileAboutTab({ skills, profileData }: ProfileAboutTabProps) {
               href={profileData.website}
               target="_blank"
               rel="noreferrer"
-              className={surface("empty", "group flex items-center gap-3 p-4 transition-colors hover:border-[rgba(var(--color-accent-2-rgb),0.34)] hover:bg-white/[0.04]")}
+              className={surface("empty", "group flex min-w-0 items-center gap-3 p-4 outline-none transition-colors hover:border-[rgba(var(--color-accent-2-rgb),0.34)] hover:bg-white/[0.04] focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.62)] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(12,16,23)]")}
             >
               <div className={iconBox("cyan", "h-10 w-10 transition-colors group-hover:bg-[rgba(var(--color-accent-2-rgb),0.13)]")}>
                 <svg
@@ -157,7 +164,7 @@ export function ProfileAboutTab({ skills, profileData }: ProfileAboutTabProps) {
                 </svg>
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-xs text-white/40 uppercase tracking-wide">
+                <p className="text-xs uppercase tracking-[0.14em] text-white/40">
                   Website
                 </p>
                 <p className="text-sm font-medium text-[var(--color-accent-2)] truncate group-hover:underline">
@@ -179,7 +186,8 @@ export function ProfileAboutTab({ skills, profileData }: ProfileAboutTabProps) {
               </svg>
             </a>
           )}
-        </div>
+          </div>
+        </section>
       )}
     </div>
   );

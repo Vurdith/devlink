@@ -122,9 +122,11 @@ export function ExpandableSkillCard({
       </div>
 
       {hasExpandableContent && (
-        <div
-          className="flex cursor-pointer items-center justify-between gap-2 border-t border-white/[0.06] bg-white/[0.018] px-5 py-3 transition-colors hover:bg-white/[0.04] sm:px-6"
+        <button
+          type="button"
+          className="flex w-full items-center justify-between gap-2 border-t border-white/[0.06] bg-white/[0.018] px-5 py-3 text-left outline-none transition-colors hover:bg-white/[0.04] focus-visible:bg-white/[0.045] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.55)] sm:px-6"
           onClick={() => setExpanded(!expanded)}
+          aria-expanded={expanded}
         >
           <span className="text-xs font-semibold text-white/50">
             {expanded ? "Hide details" : "Show details"}
@@ -142,7 +144,7 @@ export function ExpandableSkillCard({
               d="M19 9l-7 7-7-7"
             />
           </svg>
-        </div>
+        </button>
       )}
 
       {expanded && skill.description && (

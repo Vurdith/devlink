@@ -96,7 +96,7 @@ export function ProfilePortfolioTab({
           ))}
         </div>
       ) : (
-        <div className={surface("empty", "noise-overlay relative overflow-hidden px-6 py-14 text-center text-[var(--muted-foreground)]")}>
+        <div className={surface("empty", "noise-overlay relative overflow-hidden px-5 py-14 text-center text-[var(--muted-foreground)] sm:px-6")}>
           <div
             aria-hidden="true"
             className="pointer-events-none absolute inset-0 opacity-55"
@@ -106,7 +106,7 @@ export function ProfilePortfolioTab({
             }}
           />
           <div className="relative mb-4 flex justify-center">
-            <div className="flex h-16 w-16 items-center justify-center rounded-xl border border-[rgba(var(--color-accent-2-rgb),0.18)] bg-[rgba(var(--color-accent-2-rgb),0.09)]">
+            <div className={iconBox("cyan", "h-16 w-16")}>
               <svg
                 className="w-8 h-8 text-[var(--color-accent-2)]"
                 fill="none"

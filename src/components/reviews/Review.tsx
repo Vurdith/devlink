@@ -92,13 +92,13 @@ export function Review({ review, currentUserId, onEdit, onDelete }: ReviewProps)
   };
 
   return (
-    <div className={surface("panelMuted", "group overflow-hidden transition-colors hover:border-white/[0.16] hover:bg-white/[0.035]")}>
+    <div className={surface("panelMuted", "group overflow-hidden transition-all duration-200 hover:-translate-y-0.5 hover:border-white/[0.16] hover:bg-white/[0.035]")}>
       {/* User Info Row */}
       <div className="flex items-start gap-4 p-5 pb-4 sm:p-6 sm:pb-4">
         <ProfileTooltip user={userProfileData} currentUserId={currentUserId} position="top">
           <Link
             href={`/u/${review.reviewer.username}`}
-            className="flex-shrink-0"
+            className="flex-shrink-0 rounded-full outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.7)] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(12,16,23)]"
             onClick={(e) => e.stopPropagation()}
           >
             <Avatar size={48} src={review.reviewer.profile?.avatarUrl || undefined} />
@@ -110,7 +110,7 @@ export function Review({ review, currentUserId, onEdit, onDelete }: ReviewProps)
             <ProfileTooltip user={userProfileData} currentUserId={currentUserId} position="top">
               <Link
                 href={`/u/${review.reviewer.username}`}
-                className="font-semibold text-white transition-colors hover:text-[var(--color-accent-2)]"
+                className="rounded-md font-semibold text-white outline-none transition-colors hover:text-[var(--color-accent-2)] focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.7)]"
                 onClick={(e) => e.stopPropagation()}
               >
                 {review.reviewer.name || review.reviewer.username}
@@ -136,8 +136,8 @@ export function Review({ review, currentUserId, onEdit, onDelete }: ReviewProps)
       </div>
 
       {/* Rating Row */}
-      <div className="flex items-center justify-between gap-4 border-y border-white/[0.06] bg-white/[0.018] px-5 py-3 sm:px-6">
-        <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-y border-white/[0.06] bg-white/[0.018] px-5 py-3 sm:px-6">
+        <div className="flex min-w-0 items-center gap-3">
           {renderStars(review.rating)}
           <span className="text-sm font-semibold text-white">{review.rating}/5</span>
         </div>
@@ -162,10 +162,10 @@ export function Review({ review, currentUserId, onEdit, onDelete }: ReviewProps)
 
       {/* Action Buttons */}
       {canEdit && (
-        <div className="flex items-center gap-3 border-t border-white/[0.06] px-5 py-4 opacity-0 transition-opacity group-hover:opacity-100 sm:px-6">
+        <div className="flex items-center gap-3 border-t border-white/[0.06] px-5 py-4 opacity-100 transition-opacity sm:px-6 lg:opacity-0 lg:group-hover:opacity-100 lg:group-focus-within:opacity-100">
           <button
             onClick={() => onEdit?.(review.id)}
-            className={cn("flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-sm font-semibold text-[var(--color-accent-2)] transition-colors", ui.control.ghost)}
+            className={cn("flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-sm font-semibold text-[var(--color-accent-2)] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.7)]", ui.control.ghost)}
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
@@ -175,7 +175,7 @@ export function Review({ review, currentUserId, onEdit, onDelete }: ReviewProps)
           </button>
           <button
             onClick={() => onDelete?.(review.id)}
-            className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-sm font-semibold text-rose-300 transition-colors hover:bg-rose-500/10"
+            className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-sm font-semibold text-rose-300 outline-none transition-colors hover:bg-rose-500/10 focus-visible:ring-2 focus-visible:ring-rose-300/55"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />

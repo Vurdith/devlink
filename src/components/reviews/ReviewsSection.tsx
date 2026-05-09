@@ -1,11 +1,13 @@
 "use client";
 
-import { useState, useEffect, memo, useMemo, useCallback } from "react";
-import { Review } from "./Review";
-import { CreateReview } from "./CreateReview";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { ConfirmModal } from "../ui/BaseModal";
+import { Button } from "@/components/ui/Button";
+import { FeedbackState } from "@/components/ui/FeedbackState";
 import { cn } from "@/lib/cn";
-import { iconBox, surface, ui } from "@/components/ui/design-system";
+import { skeleton, surface, ui } from "@/components/ui/design-system";
+import { CreateReview } from "./CreateReview";
+import { Review } from "./Review";
 
 interface ReviewsSectionProps {
   targetUserId: string;
@@ -41,19 +43,57 @@ interface ReviewData {
 
 type SentimentFilter = "all" | "positive" | "neutral" | "negative";
 
-// Derive sentiment from rating
 function getSentiment(rating: number): "positive" | "negative" | "neutral" {
   if (rating >= 4) return "positive";
   if (rating <= 2) return "negative";
   return "neutral";
 }
 
-export const ReviewsSection = memo(function ReviewsSection({ targetUserId, targetUsername, currentUserId, canReview = true }: ReviewsSectionProps) {
+function ReviewStar({ filled }: { filled: boolean }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill={filled ? "currentColor" : "none"}
+      className={cn("h-5 w-5", filled ? "text-amber-400" : "text-white/20")}
+      aria-hidden="true"
+    >
+      <path
+        d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      />
+    </svg>
+  );
+}
+
+function EmptyReviewIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+      />
+    </svg>
+  );
+}
+
+export const ReviewsSection = memo(function ReviewsSection({
+  targetUserId,
+  targetUsername,
+  currentUserId,
+  canReview = true,
+}: ReviewsSectionProps) {
   const [reviews, setReviews] = useState<ReviewData[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [sentimentFilter, setSentimentFilter] = useState<SentimentFilter>("all");
-  const [deleteConfirm, setDeleteConfirm] = useState<{ isOpen: boolean; reviewId: string | null }>({ isOpen: false, reviewId: null });
+  const [deleteConfirm, setDeleteConfirm] = useState<{ isOpen: boolean; reviewId: string | null }>({
+    isOpen: false,
+    reviewId: null,
+  });
   const [isDeleting, setIsDeleting] = useState(false);
 
   const fetchReviews = useCallback(async () => {
@@ -61,14 +101,11 @@ export const ReviewsSection = memo(function ReviewsSection({ targetUserId, targe
       const response = await fetch(`/api/reviews?targetUserId=${targetUserId}`);
       if (response.ok) {
         const data = await response.json();
-        // API returns `{ reviews, pagination }`, but keep the component resilient
-        // in case the endpoint shape changes.
-        const nextReviews: unknown =
-          Array.isArray(data)
-            ? data
-            : data && typeof data === "object"
-              ? (data as { reviews?: unknown }).reviews
-              : null;
+        const nextReviews: unknown = Array.isArray(data)
+          ? data
+          : data && typeof data === "object"
+            ? (data as { reviews?: unknown }).reviews
+            : null;
         setReviews(Array.isArray(nextReviews) ? nextReviews : []);
       }
     } catch (error) {
@@ -82,19 +119,38 @@ export const ReviewsSection = memo(function ReviewsSection({ targetUserId, targe
     fetchReviews();
   }, [fetchReviews]);
 
+  const averageRating = useMemo(() => {
+    if (reviews.length === 0) return 0;
+    const total = reviews.reduce((sum, review) => sum + review.rating, 0);
+    return Math.round((total / reviews.length) * 10) / 10;
+  }, [reviews]);
+
+  const sentimentCounts = useMemo(() => {
+    return reviews.reduce(
+      (acc, review) => {
+        const sentiment = getSentiment(review.rating);
+        acc[sentiment] += 1;
+        return acc;
+      },
+      { positive: 0, neutral: 0, negative: 0 }
+    );
+  }, [reviews]);
+
+  const filteredReviews = useMemo(() => {
+    if (sentimentFilter === "all") return reviews;
+    return reviews.filter((review) => getSentiment(review.rating) === sentimentFilter);
+  }, [reviews, sentimentFilter]);
+
+  const canUserReview = canReview && currentUserId && currentUserId !== targetUserId;
+
   const handleReviewCreated = () => {
     setShowCreateForm(false);
     fetchReviews();
   };
 
   const handleEditReview = (reviewId: string) => {
-    const review = reviews.find((item) => item.id === reviewId);
-    if (!review) return;
+    if (!reviews.some((item) => item.id === reviewId)) return;
     setShowCreateForm(true);
-  };
-
-  const handleDeleteReview = (reviewId: string) => {
-    setDeleteConfirm({ isOpen: true, reviewId });
   };
 
   const confirmDeleteReview = async () => {
@@ -107,7 +163,7 @@ export const ReviewsSection = memo(function ReviewsSection({ targetUserId, targe
       });
 
       if (response.ok) {
-        setReviews(prev => prev.filter(review => review.id !== deleteConfirm.reviewId));
+        setReviews((prev) => prev.filter((review) => review.id !== deleteConfirm.reviewId));
         setDeleteConfirm({ isOpen: false, reviewId: null });
       }
     } catch (error) {
@@ -117,260 +173,150 @@ export const ReviewsSection = memo(function ReviewsSection({ targetUserId, targe
     }
   };
 
-  const averageRating = useMemo(() => {
-    if (reviews.length === 0) return 0;
-    const total = reviews.reduce((sum, review) => sum + review.rating, 0);
-    return Math.round((total / reviews.length) * 10) / 10;
-  }, [reviews]);
-
-  // Count reviews by sentiment
-  const sentimentCounts = useMemo(() => {
-    return reviews.reduce(
-      (acc, review) => {
-        const sentiment = getSentiment(review.rating);
-        if (sentiment === "positive") acc.positive++;
-        else if (sentiment === "neutral") acc.neutral++;
-        else if (sentiment === "negative") acc.negative++;
-        return acc;
-      },
-      { positive: 0, neutral: 0, negative: 0 }
-    );
-  }, [reviews]);
-
-  // Filter reviews based on selected sentiment
-  const filteredReviews = useMemo(() => {
-    if (sentimentFilter === "all") return reviews;
-    return reviews.filter((review) => getSentiment(review.rating) === sentimentFilter);
-  }, [reviews, sentimentFilter]);
-
-  const renderStars = (rating: number) => {
-    return (
-      <div className="flex items-center gap-1.5">
-        {Array.from({ length: 5 }, (_, i) => (
-          <svg
-            key={i}
-            viewBox="0 0 24 24"
-            fill={i < Math.round(rating) ? "currentColor" : "none"}
-            className={cn(
-              "w-5 h-5",
-              i < Math.round(rating) 
-                ? "text-amber-400" 
-                : "text-white/20"
-            )}
-          >
-            <path 
-              d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" 
-              stroke="currentColor" 
-              strokeWidth="1.5" 
-              strokeLinecap="round" 
-              strokeLinejoin="round"
-            />
-          </svg>
-        ))}
-      </div>
-    );
-  };
+  const renderStars = (rating: number) => (
+    <div className="flex items-center gap-1.5" aria-label={`${rating || 0} out of 5 stars`}>
+      {Array.from({ length: 5 }, (_, index) => (
+        <ReviewStar key={index} filled={index < Math.round(rating)} />
+      ))}
+    </div>
+  );
 
   if (loading) {
     return (
-      <div className="py-6">
-        <div className="animate-pulse space-y-6">
-          <div className="h-10 bg-white/5 rounded-lg w-1/3" />
-          <div className="h-6 bg-white/5 rounded-lg w-1/4" />
-          <div className="space-y-6 mt-8">
-            {[1, 2].map((i) => (
-              <div key={i} className={surface("panelMuted", "p-8")}>
-                <div className="flex gap-5">
-                  <div className="w-14 h-14 bg-white/5 rounded-full flex-shrink-0" />
-                  <div className="flex-1 space-y-4">
-                    <div className="h-5 bg-white/5 rounded w-1/3" />
-                    <div className="h-4 bg-white/5 rounded w-1/4" />
-                    <div className="h-20 bg-white/5 rounded mt-4" />
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+      <div className="space-y-4">
+        <div className={surface("panel", "p-5 sm:p-6")}>
+          <div className={skeleton("h-4 w-24")} />
+          <div className={skeleton("mt-4 h-7 w-40")} />
+          <div className={skeleton("mt-4 h-5 w-56 max-w-full")} />
         </div>
+        {[1, 2].map((item) => (
+          <div key={item} className={surface("panelMuted", "p-5 sm:p-6")}>
+            <div className="flex gap-4">
+              <div className={skeleton("h-12 w-12 flex-shrink-0 rounded-full")} />
+              <div className="min-w-0 flex-1 space-y-3">
+                <div className={skeleton("h-5 w-40 max-w-full")} />
+                <div className={skeleton("h-4 w-28")} />
+                <div className={skeleton("h-20 w-full")} />
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
     );
   }
 
-  const canUserReview = canReview && currentUserId && currentUserId !== targetUserId;
+  const filterTabs: Array<{ id: SentimentFilter; label: string; count: number; className?: string }> = [
+    { id: "all", label: "All", count: reviews.length },
+    { id: "positive", label: "Positive", count: sentimentCounts.positive, className: "data-[active=true]:border-emerald-500/30 data-[active=true]:bg-emerald-500/16 data-[active=true]:text-emerald-300 hover:text-emerald-300" },
+    { id: "neutral", label: "Neutral", count: sentimentCounts.neutral, className: "data-[active=true]:border-amber-500/30 data-[active=true]:bg-amber-500/16 data-[active=true]:text-amber-300 hover:text-amber-300" },
+    { id: "negative", label: "Critical", count: sentimentCounts.negative, className: "data-[active=true]:border-rose-500/30 data-[active=true]:bg-rose-500/16 data-[active=true]:text-rose-300 hover:text-rose-300" },
+  ];
 
   return (
-    <div className="py-6">
-      {/* Header */}
-      <div className="flex items-start justify-between gap-6 mb-6">
-        <div>
-          <h2 className="text-2xl font-bold text-white mb-3">Reviews</h2>
-          <div className="flex items-center gap-4">
-            {renderStars(averageRating)}
-            <span className="text-2xl font-bold text-white">{averageRating || "-"}</span>
-            <span className="text-white/40 text-lg">
-              ({reviews.length} {reviews.length === 1 ? 'review' : 'reviews'})
-            </span>
+    <div className="space-y-5">
+      <section className={surface("panel", "noise-overlay relative overflow-hidden p-5 sm:p-6")}>
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 opacity-55"
+          style={{
+            background: "radial-gradient(700px 220px at 10% 0%, rgba(var(--color-accent-2-rgb),0.11), transparent 62%)",
+          }}
+        />
+        <div className="relative flex flex-col justify-between gap-5 sm:flex-row sm:items-center">
+          <div className="min-w-0">
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--color-accent-2)]">Peer signal</p>
+            <h2 className="mt-2 font-[var(--font-space-grotesk)] text-2xl font-semibold tracking-tight text-white">Reviews</h2>
+            <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2">
+              {renderStars(averageRating)}
+              <span className="text-2xl font-semibold text-white">{averageRating || "-"}</span>
+              <span className="text-sm text-white/45">
+                ({reviews.length} {reviews.length === 1 ? "review" : "reviews"})
+              </span>
+            </div>
           </div>
-        </div>
-        
-        {canUserReview && !showCreateForm && (
-          <button
-            onClick={() => setShowCreateForm(true)}
-            className={cn("flex flex-shrink-0 items-center gap-2.5 rounded-lg px-6 py-3 text-sm font-semibold transition-all", ui.control.gradient, ui.motion.press)}
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 5v14M5 12h14" />
-            </svg>
-            Write Review
-          </button>
-        )}
-      </div>
 
-      {/* Sentiment Filter Tabs */}
-      {reviews.length > 0 && (
-        <div className="flex items-center gap-2 mb-8">
-          <button
-            onClick={() => setSentimentFilter("all")}
-            className={cn(
-              "rounded-lg border px-4 py-2 text-sm font-semibold transition-all",
-              sentimentFilter === "all"
-                ? ui.active.cyanStrong
-                : "border-transparent text-white/50 hover:border-white/[0.08] hover:bg-white/[0.045] hover:text-white/80"
-            )}
-          >
-            All
-            <span className="ml-1.5 text-white/40">({reviews.length})</span>
-          </button>
-          <button
-            onClick={() => setSentimentFilter("positive")}
-            className={cn(
-              "flex items-center gap-1.5 rounded-lg border px-4 py-2 text-sm font-semibold transition-all",
-              sentimentFilter === "positive"
-                ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
-                : "text-white/50 hover:text-emerald-400 hover:bg-emerald-500/10"
-            )}
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
-            </svg>
-            Positive
-            <span className={cn("ml-0.5", sentimentFilter === "positive" ? "text-emerald-400/70" : "text-white/40")}>
-              ({sentimentCounts.positive})
-            </span>
-          </button>
-          <button
-            onClick={() => setSentimentFilter("neutral")}
-            className={cn(
-              "flex items-center gap-1.5 rounded-lg border px-4 py-2 text-sm font-semibold transition-all",
-              sentimentFilter === "neutral"
-                ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
-                : "text-white/50 hover:text-amber-400 hover:bg-amber-500/10"
-            )}
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            Neutral
-            <span className={cn("ml-0.5", sentimentFilter === "neutral" ? "text-amber-400/70" : "text-white/40")}>
-              ({sentimentCounts.neutral})
-            </span>
-          </button>
-          <button
-            onClick={() => setSentimentFilter("negative")}
-            className={cn(
-              "flex items-center gap-1.5 rounded-lg border px-4 py-2 text-sm font-semibold transition-all",
-              sentimentFilter === "negative"
-                ? "bg-red-500/20 text-red-400 border border-red-500/30"
-                : "text-white/50 hover:text-red-400 hover:bg-red-500/10"
-            )}
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14H5.236a2 2 0 01-1.789-2.894l3.5-7A2 2 0 018.736 3h4.018c.163 0 .326.02.485.06L17 4m-7 10v2a2 2 0 002 2h.095c.5 0 .905-.405.905-.905 0-.714.211-1.412.608-2.006L17 13V4m-7 10h2m5-10h2a2 2 0 012 2v6a2 2 0 01-2 2h-2.5" />
-            </svg>
-            Negative
-            <span className={cn("ml-0.5", sentimentFilter === "negative" ? "text-red-400/70" : "text-white/40")}>
-              ({sentimentCounts.negative})
-            </span>
-          </button>
-        </div>
-      )}
-
-      {/* Create Review Form */}
-      {showCreateForm && (
-        <div className="mb-10">
-          <CreateReview
-            targetUserId={targetUserId}
-            targetUsername={targetUsername}
-            currentUserId={currentUserId}
-            onReviewCreated={handleReviewCreated}
-            onCancel={() => setShowCreateForm(false)}
-          />
-        </div>
-      )}
-
-      {/* Reviews List */}
-      <div className="space-y-6">
-        {reviews.length === 0 ? (
-          <div className={surface("empty", "px-6 py-20 text-center")}>
-            <div className={iconBox("amber", "mx-auto mb-8 h-20 w-20")}>
-              <svg className="w-10 h-10 text-amber-400/30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+          {canUserReview && !showCreateForm ? (
+            <Button
+              onClick={() => setShowCreateForm(true)}
+              variant="glow"
+              size="md"
+              className="w-full whitespace-nowrap sm:w-auto"
+            >
+              <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 5v14M5 12h14" />
               </svg>
-            </div>
-            <h3 className="text-xl font-semibold text-white mb-3">No reviews yet</h3>
-            <p className="text-white/50 text-lg mb-8">
-              Be the first to review <span className="text-[var(--color-accent)]">@{targetUsername}</span>
-            </p>
-            {canUserReview && !showCreateForm && (
+              Write Review
+            </Button>
+          ) : null}
+        </div>
+      </section>
+
+      {reviews.length > 0 ? (
+        <div className={surface("toolbar", "flex gap-1.5 overflow-x-auto p-1.5")}>
+          {filterTabs.map((tab) => {
+            const active = sentimentFilter === tab.id;
+
+            return (
               <button
-                onClick={() => setShowCreateForm(true)}
-                className={cn("rounded-lg px-6 py-3 text-sm font-semibold transition-all", ui.control.gradient)}
+                key={tab.id}
+                type="button"
+                data-active={active}
+                onClick={() => setSentimentFilter(tab.id)}
+                className={cn(
+                  "flex-shrink-0 rounded-lg border px-4 py-2 text-sm font-semibold outline-none transition-all focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.7)]",
+                  active
+                    ? tab.id === "all"
+                      ? ui.active.cyanStrong
+                      : "border-white/[0.10]"
+                    : "border-transparent text-white/50 hover:border-white/[0.08] hover:bg-white/[0.045] hover:text-white/80",
+                  tab.className
+                )}
               >
-                Write the first review
+                {tab.label}
+                <span className="ml-1.5 text-white/40">({tab.count})</span>
               </button>
-            )}
-          </div>
+            );
+          })}
+        </div>
+      ) : null}
+
+      {showCreateForm ? (
+        <CreateReview
+          targetUserId={targetUserId}
+          targetUsername={targetUsername}
+          currentUserId={currentUserId}
+          onReviewCreated={handleReviewCreated}
+          onCancel={() => setShowCreateForm(false)}
+        />
+      ) : null}
+
+      <div className="space-y-4">
+        {reviews.length === 0 ? (
+          <FeedbackState
+            title="No reviews yet"
+            description={`Be the first to review @${targetUsername}.`}
+            className="py-16"
+            icon={<EmptyReviewIcon />}
+            action={
+              canUserReview && !showCreateForm
+                ? { label: "Write the first review", onClick: () => setShowCreateForm(true) }
+                : undefined
+            }
+          />
         ) : filteredReviews.length === 0 ? (
-          <div className={surface("empty", "px-6 py-16 text-center")}>
-            <div className={cn(
-              "mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-lg",
-              sentimentFilter === "positive" 
-                ? "bg-emerald-500/10 border border-emerald-500/20" 
-                : sentimentFilter === "neutral"
-                  ? "bg-amber-500/10 border border-amber-500/20"
-                  : "bg-red-500/10 border border-red-500/20"
-            )}>
-              {sentimentFilter === "positive" ? (
-                <svg className="w-8 h-8 text-emerald-400/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
-                </svg>
-              ) : sentimentFilter === "neutral" ? (
-                <svg className="w-8 h-8 text-amber-400/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              ) : (
-                <svg className="w-8 h-8 text-red-400/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 14H5.236a2 2 0 01-1.789-2.894l3.5-7A2 2 0 018.736 3h4.018c.163 0 .326.02.485.06L17 4m-7 10v2a2 2 0 002 2h.095c.5 0 .905-.405.905-.905 0-.714.211-1.412.608-2.006L17 13V4m-7 10h2m5-10h2a2 2 0 012 2v6a2 2 0 01-2 2h-2.5" />
-                </svg>
-              )}
-            </div>
-            <h3 className="text-lg font-semibold text-white mb-2">
-              No {sentimentFilter} reviews
-            </h3>
-            <p className="text-white/40">
-              {sentimentFilter === "positive" 
-                ? "There are no positive reviews (4-5 stars) yet." 
+          <FeedbackState
+            title={`No ${sentimentFilter === "negative" ? "critical" : sentimentFilter} reviews`}
+            description={
+              sentimentFilter === "positive"
+                ? "There are no positive reviews (4-5 stars) yet."
                 : sentimentFilter === "neutral"
                   ? "There are no neutral reviews (3 stars) yet."
-                  : "There are no negative reviews (1-2 stars) yet."}
-            </p>
-            <button
-              onClick={() => setSentimentFilter("all")}
-              className="mt-4 text-sm text-[var(--color-accent)] hover:text-white transition-colors"
-            >
-              View all reviews
-            </button>
-          </div>
+                  : "There are no critical reviews (1-2 stars) yet."
+            }
+            className="py-14"
+            icon={<EmptyReviewIcon />}
+            action={{ label: "View all reviews", onClick: () => setSentimentFilter("all") }}
+          />
         ) : (
           filteredReviews.map((review) => (
             <Review
@@ -378,13 +324,12 @@ export const ReviewsSection = memo(function ReviewsSection({ targetUserId, targe
               review={review}
               currentUserId={currentUserId}
               onEdit={handleEditReview}
-              onDelete={handleDeleteReview}
+              onDelete={(reviewId) => setDeleteConfirm({ isOpen: true, reviewId })}
             />
           ))
         )}
       </div>
 
-      {/* Delete Confirmation Modal */}
       <ConfirmModal
         isOpen={deleteConfirm.isOpen}
         onClose={() => setDeleteConfirm({ isOpen: false, reviewId: null })}

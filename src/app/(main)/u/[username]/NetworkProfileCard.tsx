@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Avatar } from "@/components/ui/Avatar";
 import { FollowButton } from "@/components/ui/FollowButton";
+import { cn } from "@/lib/cn";
 import { surface } from "@/components/ui/design-system";
 import { ProfileTooltip } from "@/components/profile/ProfileTooltip";
 import { ProfileTypeLabel } from "@/components/profile/ProfileTypeLabel";
@@ -35,7 +36,11 @@ export function NetworkProfileCard({
   const profileType = user.profile?.profileType;
 
   return (
-    <div className={surface("panelMuted", "group relative flex h-full min-h-[236px] flex-col overflow-hidden transition-colors hover:border-white/[0.16] hover:bg-white/[0.035]")}>
+    <div className={surface("panelMuted", "group relative flex h-full min-h-[246px] flex-col overflow-hidden transition-all duration-200 hover:-translate-y-0.5 hover:border-white/[0.16] hover:bg-white/[0.035]")}>
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 top-0 z-10 h-px bg-gradient-to-r from-transparent via-white/22 to-transparent opacity-0 transition-opacity group-hover:opacity-100"
+      />
       <div
         aria-hidden="true"
         className="h-24 flex-shrink-0 bg-white/[0.025] sm:h-28"
@@ -50,11 +55,14 @@ export function NetworkProfileCard({
 
       <div className="flex min-h-0 flex-1 flex-col p-4 pt-0">
         <ProfileTooltip user={user} currentUserId={currentUserId}>
-          <Link href={`/u/${user.username}`} className="relative z-10 -mt-9 flex min-w-0 items-end gap-3">
+          <Link
+            href={`/u/${user.username}`}
+            className="relative z-10 -mt-9 flex min-w-0 items-end gap-3 rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.7)] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(10,13,18)]"
+          >
             <Avatar src={user.profile?.avatarUrl ?? undefined} size={56} className="border-4 border-[rgb(10,13,18)]" />
             <div className="min-w-0 pb-1">
               <div className="flex min-w-0 items-center gap-2">
-                <span className="truncate text-base font-semibold text-white group-hover:text-[var(--color-accent-2)]">
+                <span className="truncate text-base font-semibold text-white transition-colors group-hover:text-[var(--color-accent-2)]">
                   {user.name || user.username}
                 </span>
                 {currentUserId === user.id ? (
@@ -74,11 +82,24 @@ export function NetworkProfileCard({
             {user.profile?.bio ? (
               <p className="line-clamp-2 min-h-10 text-sm leading-relaxed text-white/58">{user.profile.bio}</p>
             ) : (
-              <p className="min-h-10 text-sm text-white/35">No bio yet</p>
+              <p className="min-h-10 text-sm italic text-white/35">No bio yet</p>
             )}
-            <div className="mt-3 flex gap-4 text-xs text-[var(--muted-foreground)]">
-              <span><strong className="font-semibold text-white">{user._count.followers}</strong> followers</span>
-              <span><strong className="font-semibold text-white">{user._count.following}</strong> following</span>
+            <div className="mt-3 flex flex-wrap gap-2 text-xs text-[var(--muted-foreground)]">
+              {[
+                ["followers", user._count.followers],
+                ["following", user._count.following],
+              ].map(([label, count]) => (
+                <span
+                  key={label}
+                  className={cn(
+                    "inline-flex items-center gap-1.5 rounded-lg border border-white/[0.08] bg-white/[0.028] px-2.5 py-1.5",
+                    "transition-colors group-hover:border-white/[0.12] group-hover:bg-white/[0.045]"
+                  )}
+                >
+                  <strong className="font-semibold text-white">{count}</strong>
+                  {label}
+                </span>
+              ))}
             </div>
           </div>
 
