@@ -82,7 +82,7 @@ export function ProfileAvatar({ initialAvatarUrl, isOwnProfile }: ProfileAvatarP
 
   return (
     <div className="relative z-20">
-      <div className="group relative h-24 w-24 sm:h-32 sm:w-32">
+      <div className="group relative h-24 w-24 sm:h-28 sm:w-28">
         <div className="absolute -inset-1 rounded-full bg-[linear-gradient(135deg,rgba(255,255,255,0.16),rgba(var(--color-accent-2-rgb),0.20),rgba(var(--color-accent-rgb),0.12))] opacity-80" />
         <div className="relative flex h-full w-full items-center justify-center overflow-hidden rounded-full border-4 border-[rgb(10,13,19)] bg-[rgb(8,11,16)]">
           <Avatar 

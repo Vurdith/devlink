@@ -158,23 +158,23 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
             editable={isOwnProfile}
           />
 
-          <div className={surface("toolbar", "relative overflow-hidden bg-[rgba(7,10,15,0.80)] p-4 backdrop-blur-md sm:p-5")}>
+          <div className={surface("toolbar", "relative overflow-hidden bg-[rgba(7,10,15,0.76)] p-4 backdrop-blur-md sm:p-5")}>
             <div
               aria-hidden="true"
-              className="pointer-events-none absolute inset-0 opacity-70"
+              className="pointer-events-none absolute inset-0 opacity-55"
               style={{
                 background:
-                  "radial-gradient(720px 180px at 12% 0%, rgba(var(--color-accent-2-rgb),0.12), transparent 62%), radial-gradient(520px 180px at 96% 18%, rgba(var(--color-accent-rgb),0.10), transparent 66%)",
+                  "radial-gradient(640px 150px at 12% 0%, rgba(var(--color-accent-2-rgb),0.10), transparent 64%), radial-gradient(520px 150px at 96% 18%, rgba(var(--color-accent-rgb),0.07), transparent 68%)",
               }}
             />
-            <div className="relative grid gap-5 sm:grid-cols-[auto_1fr] lg:grid-cols-[auto_1fr_auto] lg:items-start">
+            <div className="relative grid gap-4 sm:grid-cols-[auto_1fr] sm:items-center lg:grid-cols-[auto_1fr_auto]">
               <ProfileAvatar
                 initialAvatarUrl={user.profile?.avatarUrl}
                 isOwnProfile={isOwnProfile}
               />
 
               <div className="min-w-0 self-center">
-                <div className="flex flex-wrap items-center gap-3">
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
                   <h1 className="truncate text-2xl font-semibold tracking-tight text-white sm:text-3xl">
                     {user.name ?? user.username}
                   </h1>
@@ -186,7 +186,7 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
                     </span>
                   )}
                   {profileTypeConfig && profileType && (
-                    <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide ring-1 ring-inset ring-white/[0.04] ${profileTypeConfig.bgColor} ${profileTypeConfig.color}`}>
+                    <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide ring-1 ring-inset ring-white/[0.04] ${profileTypeConfig.bgColor} ${profileTypeConfig.color}`}>
                       <ProfileTypeIcon profileType={profileType} size={12} />
                       {profileTypeConfig.label}
                     </span>
@@ -195,19 +195,19 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
 
                 <div className="mt-2 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-sm text-[var(--muted-foreground)]">
                   <span className="truncate">@{user.username}</span>
-                  <span className="text-white/18">/</span>
+                  <span className="text-white/16">|</span>
                   <Link href={`/u/${user.username}/followers`} className="transition-colors hover:text-white">
                     <span className="font-semibold text-white">{user?._count?.followers ?? 0}</span>{" "}
                     followers
                   </Link>
-                  <span className="text-white/18">/</span>
+                  <span className="text-white/16">|</span>
                   <Link href={`/u/${user.username}/following`} className="transition-colors hover:text-white">
                     <span className="font-semibold text-white">{user?._count?.following ?? 0}</span>{" "}
                     following
                   </Link>
                   {rating !== "-" && (
                     <>
-                      <span className="text-white/18">/</span>
+                      <span className="text-white/16">|</span>
                       <span className="text-amber-200/90">
                         <span className="font-semibold text-amber-200">{rating}</span>{" "}
                         rating
@@ -218,7 +218,7 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
 
                 {user.profile?.bio && (
                   <div className="mt-4 max-w-3xl">
-                    <p className="border-l-2 border-[rgba(var(--color-accent-2-rgb),0.52)] pl-4 text-[15px] font-semibold leading-relaxed text-white/82 whitespace-pre-wrap">
+                    <p className="border-l-2 border-[rgba(var(--color-accent-2-rgb),0.46)] pl-4 text-[15px] font-medium leading-relaxed text-white/78 whitespace-pre-wrap">
                       {user.profile.bio}
                     </p>
                   </div>
