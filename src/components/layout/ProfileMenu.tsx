@@ -138,7 +138,7 @@ export const ProfileMenu = memo(function ProfileMenu({ username, avatarUrl: init
         )}
       >
         {/* Header with user info */}
-        <div className="border-b border-white/10 bg-[rgba(255,255,255,0.025)] p-4">
+        <div className="border-b border-white/[0.08] bg-white/[0.025] p-4">
           <div className="flex items-center gap-3">
             <Avatar size={48} src={currentAvatarUrl} />
             <div className="flex-1 min-w-0">
@@ -199,7 +199,7 @@ export const ProfileMenu = memo(function ProfileMenu({ username, avatarUrl: init
         </div>
 
         {/* Divider */}
-        <div className="h-px bg-white/10 mx-3" />
+        <div className="mx-3 h-px bg-white/[0.08]" />
 
         {/* Sign Out */}
         <div className="p-2">

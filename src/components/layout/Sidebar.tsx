@@ -6,6 +6,7 @@ import { cn } from "@/lib/cn";
 import { BackButton } from "@/components/ui/BackButton";
 import { memo } from "react";
 import { ThemeLogoImg } from "@/components/ui/ThemeLogo";
+import { ui } from "@/components/ui/design-system";
 import { navigation, userNavigation, type NavItem } from "@/config/navigation";
 
 interface SidebarProps {
@@ -23,8 +24,8 @@ const NavLink = memo(function NavLink({ item, isActive }: { item: NavItem; isAct
       className={cn(
         "group relative flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors duration-150",
         isActive
-          ? "bg-white/[0.075] text-white border border-white/10"
-          : "text-[var(--muted-foreground)] hover:text-white hover:bg-white/[0.045] border border-transparent"
+          ? cn("text-white", ui.active.cyan)
+          : "border border-transparent text-[var(--muted-foreground)] hover:border-white/[0.08] hover:bg-white/[0.045] hover:text-white"
       )}
       title={item.description}
     >
@@ -70,7 +71,7 @@ export const Sidebar = memo(function Sidebar({ session }: SidebarProps) {
     <aside
       role="navigation"
       aria-label="Main sidebar navigation"
-      className="fixed left-0 top-0 z-50 hidden h-full w-72 flex-col border-0 border-r border-white/10 bg-[rgba(7,9,13,0.86)] md:flex"
+      className="fixed left-0 top-0 z-50 hidden h-full w-72 flex-col border-0 border-r border-white/[0.08] bg-[rgba(7,9,13,0.88)] md:flex"
     >
       <div className="relative flex flex-col h-full">
         {/* Logo Section */}

@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/cn";
 import { BackButton } from "@/components/ui/BackButton";
 import { ThemeLogoImg } from "@/components/ui/ThemeLogo";
+import { ui } from "@/components/ui/design-system";
 import { navigation, userNavigation, type NavItem } from "@/config/navigation";
 import { useBodyScrollLock } from "@/components/ui/useBodyScrollLock";
 
@@ -22,8 +23,8 @@ const NavLink = memo(function NavLink({ item, isActive, onClick }: { item: NavIt
       className={cn(
         "group relative flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors duration-150",
         isActive
-          ? "bg-white/[0.075] text-white border border-white/10"
-          : "text-[var(--muted-foreground)] hover:text-white hover:bg-white/[0.045] border border-transparent"
+          ? cn("text-white", ui.active.cyan)
+          : "border border-transparent text-[var(--muted-foreground)] hover:border-white/[0.08] hover:bg-white/[0.045] hover:text-white"
       )}
       title={item.description}
     >
@@ -79,7 +80,7 @@ export const MobileNav = memo(function MobileNav({ session }: MobileNavProps) {
       {/* Hamburger Button - Fixed in top left, vertically centered in navbar (h-16 = 64px, button ~44px) */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed left-4 top-[10px] z-50 rounded-lg border border-white/10 bg-[rgba(7,9,13,0.9)] p-2.5 transition-all duration-150 hover:border-[rgba(var(--color-accent-2-rgb),0.35)] hover:bg-[rgba(var(--color-accent-2-rgb),0.08)] active:scale-95 md:hidden"
+        className={cn("fixed left-4 top-[10px] z-50 p-2.5 md:hidden", ui.control.icon)}
         aria-label={isOpen ? "Close menu" : "Open menu"}
         aria-expanded={isOpen}
       >
@@ -122,7 +123,7 @@ export const MobileNav = memo(function MobileNav({ session }: MobileNavProps) {
       {/* Slide-out Menu - Exact same styling as desktop Sidebar */}
       <div
         className={cn(
-          "fixed left-0 top-0 z-50 h-full w-72 transform border-0 border-r border-white/10 bg-[rgba(7,9,13,0.94)] transition-transform duration-300 ease-out md:hidden",
+          "fixed left-0 top-0 z-50 h-full w-72 transform border-0 border-r border-white/[0.08] bg-[rgba(7,9,13,0.94)] transition-transform duration-300 ease-out md:hidden",
           isOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
@@ -207,7 +208,7 @@ export const MobileNav = memo(function MobileNav({ session }: MobileNavProps) {
                   <Link
                     href="/login"
                     onClick={() => setIsOpen(false)}
-                    className="flex items-center justify-center gap-2 w-full py-3 rounded-xl border border-white/20 text-white hover:bg-white/5 transition-colors"
+                    className={cn("flex w-full items-center justify-center gap-2 rounded-lg py-3 text-white transition-colors", ui.control.ghost)}
                   >
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3" strokeLinecap="round" strokeLinejoin="round" />
@@ -236,7 +237,7 @@ export const MobileNav = memo(function MobileNav({ session }: MobileNavProps) {
       </div>
 
       {/* Bottom Navigation Bar */}
-      <nav className="safe-area-bottom fixed bottom-0 left-0 right-0 z-40 border-0 border-t border-white/10 bg-[rgba(7,9,13,0.92)] md:hidden">
+      <nav className="safe-area-bottom fixed bottom-0 left-0 right-0 z-40 border-0 border-t border-white/[0.08] bg-[rgba(7,9,13,0.92)] md:hidden">
         <div className="flex justify-around items-center h-16 px-2">
           {navigation.map((item) => {
             const isActive = pathname === item.href;
