@@ -31,6 +31,9 @@ export function MessagesSidebar() {
   const [incomingRequests, setIncomingRequests] = useState<MessageRequest[]>([]);
   const [, setOutgoingRequests] = useState<MessageRequest[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
+  const [requestFeedback, setRequestFeedback] = useState("");
+  const [actingRequestId, setActingRequestId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState<"inbox" | "requests">("inbox");
   const [showNewMessage, setShowNewMessage] = useState(false);
@@ -85,21 +88,30 @@ export function MessagesSidebar() {
     let isMounted = true;
     async function load() {
       setLoading(true);
-      const [threadsRes, incomingRes, outgoingRes] = await Promise.all([
-        fetch("/api/messages/threads"),
-        fetch("/api/messages/requests?type=incoming"),
-        fetch("/api/messages/requests?type=outgoing"),
-      ]);
-      const [threadsData, incomingData, outgoingData] = await Promise.all([
-        safeJson<MessageThread[]>(threadsRes),
-        safeJson<MessageRequest[]>(incomingRes),
-        safeJson<MessageRequest[]>(outgoingRes),
-      ]);
-      if (isMounted) {
-        setThreads(threadsData || []);
-        setIncomingRequests(incomingData || []);
-        setOutgoingRequests(outgoingData || []);
-        setLoading(false);
+      setLoadError("");
+      try {
+        const [threadsRes, incomingRes, outgoingRes] = await Promise.all([
+          fetch("/api/messages/threads"),
+          fetch("/api/messages/requests?type=incoming"),
+          fetch("/api/messages/requests?type=outgoing"),
+        ]);
+        const [threadsData, incomingData, outgoingData] = await Promise.all([
+          safeJson<MessageThread[]>(threadsRes),
+          safeJson<MessageRequest[]>(incomingRes),
+          safeJson<MessageRequest[]>(outgoingRes),
+        ]);
+        if (!threadsRes.ok || !incomingRes.ok || !outgoingRes.ok) {
+          throw new Error("Messages could not load.");
+        }
+        if (isMounted) {
+          setThreads(threadsData || []);
+          setIncomingRequests(incomingData || []);
+          setOutgoingRequests(outgoingData || []);
+        }
+      } catch {
+        if (isMounted) setLoadError("Messages could not load. Check your connection, then try again.");
+      } finally {
+        if (isMounted) setLoading(false);
       }
     }
     load();
@@ -109,22 +121,33 @@ export function MessagesSidebar() {
   }, [userId]);
 
   async function handleRequest(requestId: string, status: "ACCEPTED" | "DECLINED") {
-    const res = await fetch(`/api/messages/requests/${requestId}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status }),
-    });
-    const data = await safeJson<{ request?: MessageRequest; thread?: MessageThread; error?: string }>(res);
-    if (!res.ok) {
-      alert(data?.error || "Unable to update request");
-      return;
-    }
-    setIncomingRequests((prev) => prev.filter((req) => req.id !== requestId));
-    if (status === "ACCEPTED" && data?.thread) {
-      setThreads((prev) => {
-        const exists = prev.some((t) => t.id === data.thread!.id);
-        return exists ? prev : [data.thread!, ...prev];
+    setActingRequestId(requestId);
+    setRequestFeedback("");
+    try {
+      const res = await fetch(`/api/messages/requests/${requestId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
       });
+      const data = await safeJson<{ request?: MessageRequest; thread?: MessageThread; error?: string }>(res);
+      if (!res.ok) {
+        setRequestFeedback(data?.error || "This request could not be updated. Try again.");
+        return;
+      }
+      setIncomingRequests((prev) => prev.filter((req) => req.id !== requestId));
+      if (status === "ACCEPTED" && data?.thread) {
+        setThreads((prev) => {
+          const exists = prev.some((t) => t.id === data.thread!.id);
+          return exists ? prev : [data.thread!, ...prev];
+        });
+        setRequestFeedback("Request accepted. The thread is now in your inbox.");
+      } else {
+        setRequestFeedback("Request declined. They will not be able to continue this request.");
+      }
+    } catch {
+      setRequestFeedback("This request could not be updated. Check your connection, then try again.");
+    } finally {
+      setActingRequestId(null);
     }
   }
 
@@ -329,7 +352,32 @@ export function MessagesSidebar() {
         <div className="flex-1 overflow-y-auto scrollbar-hide">
           {activeTab === "requests" ? (
             <div className="space-y-2 p-3 pt-0">
-              {incomingRequests.length === 0 ? (
+              {requestFeedback && (
+                <div className={surface("empty", "px-3 py-2 text-sm text-white/65")} role="status">
+                  {requestFeedback}
+                </div>
+              )}
+              {loading ? (
+                <div className="flex flex-col gap-2">
+                  {[...Array(3)].map((_, i) => (
+                    <div key={i} className={surface("empty", "flex items-center gap-3 p-3")}>
+                      <div className={skeleton("h-12 w-12 rounded-full")} />
+                      <div className="flex-1 space-y-2">
+                        <div className={skeleton("h-3 w-28")} />
+                        <div className={skeleton("h-2.5 w-44 max-w-full")} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : loadError ? (
+                <FeedbackState
+                  className="px-4 py-8"
+                  icon={<MessageIcon />}
+                  title="Messages did not load"
+                  description={loadError}
+                  action={{ label: "Try again", onClick: () => window.location.reload() }}
+                />
+              ) : incomingRequests.length === 0 ? (
                 <FeedbackState
                   className="px-4 py-8"
                   icon={<RequestIcon />}
@@ -340,6 +388,7 @@ export function MessagesSidebar() {
                 <>
                   {incomingRequests.map((request) => {
                     const msgPreview = request.lastMessage?.content || "Sent you a message request";
+                    const isActing = actingRequestId === request.id;
                     return (
                       <div key={request.id} className={surface("empty", "px-4 py-3 transition-colors hover:border-white/[0.12] hover:bg-white/[0.04]")}>
                         <div className="flex items-start gap-3">
@@ -359,13 +408,15 @@ export function MessagesSidebar() {
                             <div className="flex items-center gap-2 mt-2">
                               <button
                                 onClick={() => handleRequest(request.id, "ACCEPTED")}
+                                disabled={!!actingRequestId}
                                 className={cn("rounded-lg px-4 py-1.5 text-xs font-bold transition-all", ui.control.gradient)}
                               >
-                                Accept
+                                {isActing ? "Working..." : "Accept"}
                               </button>
                               <button
                                 onClick={() => handleRequest(request.id, "DECLINED")}
-                                className={cn("rounded-lg px-4 py-1.5 text-xs font-bold text-white transition-colors", ui.control.ghost)}
+                                disabled={!!actingRequestId}
+                                className={cn("rounded-lg px-4 py-1.5 text-xs font-bold text-white transition-colors disabled:opacity-45", ui.control.ghost)}
                               >
                                 Decline
                               </button>
@@ -397,6 +448,16 @@ export function MessagesSidebar() {
                   </div>
                 </div>
               ))}
+            </div>
+          ) : loadError ? (
+            <div className="p-4 pt-0">
+              <FeedbackState
+                className="px-4 py-8"
+                icon={<MessageIcon />}
+                title="Messages did not load"
+                description={loadError}
+                action={{ label: "Try again", onClick: () => window.location.reload() }}
+              />
             </div>
           ) : filteredThreads.length === 0 ? (
             <div className="p-4 pt-0">

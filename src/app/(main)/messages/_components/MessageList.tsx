@@ -11,13 +11,22 @@ interface MessageListProps {
   userId: string;
   otherUser: MessageThread["userA"] | null;
   typingUsers: unknown[];
+  deliveryLabel?: string;
 }
 
-export function MessageList({ messages, userId, otherUser, typingUsers }: MessageListProps) {
+export function MessageList({ messages, userId, otherUser, typingUsers, deliveryLabel }: MessageListProps) {
+  const lastOwnMessageId = [...messages].reverse().find((message) => message.senderId === userId)?.id;
+
   return (
     <div className="mx-auto w-full max-w-4xl space-y-0.5">
       {messages.map((message) => (
-        <MessageBubble key={message.id} message={message} isMine={message.senderId === userId} otherUser={otherUser} />
+        <MessageBubble
+          key={message.id}
+          message={message}
+          isMine={message.senderId === userId}
+          otherUser={otherUser}
+          deliveryLabel={message.id === lastOwnMessageId ? deliveryLabel : undefined}
+        />
       ))}
 
       {typingUsers.length > 0 && <TypingIndicator />}
@@ -29,10 +38,12 @@ function MessageBubble({
   message,
   isMine,
   otherUser,
+  deliveryLabel,
 }: {
   message: FormattedMessage;
   isMine: boolean;
   otherUser: MessageThread["userA"] | null;
+  deliveryLabel?: string;
 }) {
   return (
     <div>
@@ -70,8 +81,15 @@ function MessageBubble({
             </div>
 
             {message.isLastInGroup && (
-              <div className={cn("text-[11px] text-white/25 mt-1 px-1 opacity-0 group-hover:opacity-100 transition-opacity", isMine ? "text-right" : "text-left")}>
+              <div
+                className={cn(
+                  "mt-1 px-1 text-[11px] text-white/25 transition-opacity",
+                  isMine && deliveryLabel ? "opacity-100" : "opacity-0 group-hover:opacity-100",
+                  isMine ? "text-right" : "text-left"
+                )}
+              >
                 {formatMessageTime(new Date(message.createdAt))}
+                {isMine && deliveryLabel ? <span className="ml-1 text-white/35">- {deliveryLabel}</span> : null}
               </div>
             )}
           </div>
@@ -102,7 +120,7 @@ function otherBubbleShape(message: FormattedMessage) {
 function TypingIndicator() {
   return (
     <div className="mx-auto mt-3 flex w-full max-w-4xl justify-start">
-      <div className="flex items-center gap-2 rounded-[22px] border border-white/[0.08] bg-white/[0.055] px-4 py-2.5">
+      <div className="flex items-center gap-2 rounded-[22px] border border-white/[0.08] bg-white/[0.055] px-4 py-2.5" aria-label="Typing">
         <div className="flex gap-1 items-center">
           <span className="w-1.5 h-1.5 rounded-full bg-white/40 animate-bounce [animation-delay:0ms]" />
           <span className="w-1.5 h-1.5 rounded-full bg-white/40 animate-bounce [animation-delay:150ms]" />

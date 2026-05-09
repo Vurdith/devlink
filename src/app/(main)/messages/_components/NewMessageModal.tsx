@@ -32,6 +32,8 @@ export function NewMessageModal({ onClose, onThreadCreated, onRequestSent }: New
   const [results, setResults] = useState<UserSearchResult[]>([]);
   const [searching, setSearching] = useState(false);
   const [creating, setCreating] = useState(false);
+  const [feedback, setFeedback] = useState("");
+  const [requestSentTo, setRequestSentTo] = useState<UserSearchResult | null>(null);
 
   // Search users with debounce
   useEffect(() => {
@@ -42,11 +44,18 @@ export function NewMessageModal({ onClose, onThreadCreated, onRequestSent }: New
     let active = true;
     const timeout = setTimeout(async () => {
       setSearching(true);
-      const res = await fetch(`/api/search/users?q=${encodeURIComponent(query.trim())}`);
-      const data = await safeJson<{ users: UserSearchResult[] }>(res);
-      if (active) {
-        setResults((data?.users || []).filter((u) => !u.isYou));
-        setSearching(false);
+      setFeedback("");
+      try {
+        const res = await fetch(`/api/search/users?q=${encodeURIComponent(query.trim())}`);
+        const data = await safeJson<{ users: UserSearchResult[]; error?: string }>(res);
+        if (active) {
+          setResults((data?.users || []).filter((u) => !u.isYou));
+          if (!res.ok) setFeedback(data?.error || "People search could not load. Try a different name or try again.");
+        }
+      } catch {
+        if (active) setFeedback("People search could not load. Check your connection, then try again.");
+      } finally {
+        if (active) setSearching(false);
       }
     }, 250);
     return () => {
@@ -57,23 +66,32 @@ export function NewMessageModal({ onClose, onThreadCreated, onRequestSent }: New
 
   const selectUser = useCallback(async (user: UserSearchResult) => {
     setCreating(true);
-    const res = await fetch("/api/messages/threads", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ otherUserId: user.id }),
-    });
-    const data = await safeJson<{ type?: string; thread?: MessageThread; request?: MessageRequest; error?: string }>(res);
-    if (res.ok && data?.thread) {
-      onThreadCreated(data.thread);
-      onClose();
-      router.push(`/messages/${data.thread.id}`);
-    } else if (res.ok && data?.request) {
-      onRequestSent(data.request);
-      onClose();
-    } else {
-      alert(data?.error || "Unable to start conversation");
+    setFeedback("");
+    setRequestSentTo(null);
+    try {
+      const res = await fetch("/api/messages/threads", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ otherUserId: user.id }),
+      });
+      const data = await safeJson<{ type?: string; thread?: MessageThread; request?: MessageRequest; error?: string }>(res);
+      if (res.ok && data?.thread) {
+        onThreadCreated(data.thread);
+        onClose();
+        router.push(`/messages/${data.thread.id}`);
+      } else if (res.ok && data?.request) {
+        onRequestSent(data.request);
+        setRequestSentTo(user);
+        setResults([]);
+        setFeedback(`${user.name || user.username} will see your first message as a request. You can continue once they accept.`);
+      } else {
+        setFeedback(data?.error || "This conversation could not be started. Try again.");
+      }
+    } catch {
+      setFeedback("This conversation could not be started. Check your connection, then try again.");
+    } finally {
+      setCreating(false);
     }
-    setCreating(false);
   }, [onClose, onRequestSent, onThreadCreated, router]);
 
   // Close on Escape
@@ -117,10 +135,14 @@ export function NewMessageModal({ onClose, onThreadCreated, onRequestSent }: New
           <span className="text-sm text-white/40 flex-shrink-0">To:</span>
           <input
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={(e) => {
+              setQuery(e.target.value);
+              setRequestSentTo(null);
+            }}
             placeholder="Search people"
             className={cn(ui.control.field, "flex-1 py-2.5")}
             autoFocus
+            disabled={creating}
           />
           {creating && (
             <div className="w-5 h-5 border-2 border-white/20 border-t-[var(--color-accent)] rounded-full animate-spin flex-shrink-0" />
@@ -129,6 +151,34 @@ export function NewMessageModal({ onClose, onThreadCreated, onRequestSent }: New
 
         {/* Results */}
         <div className="flex-1 overflow-y-auto scrollbar-hide">
+          {feedback && (
+            <div className="p-4 pb-0">
+              <div className={surface("empty", "px-4 py-3 text-sm leading-relaxed text-white/65")} role="status">
+                {feedback}
+                {requestSentTo ? (
+                  <div className="mt-3 flex items-center justify-center gap-2">
+                    <button
+                      onClick={onClose}
+                      className={cn("rounded-lg px-4 py-2 text-xs font-bold", ui.control.gradient)}
+                    >
+                      Done
+                    </button>
+                    <button
+                      onClick={() => {
+                        setQuery("");
+                        setFeedback("");
+                        setRequestSentTo(null);
+                      }}
+                      className={cn("rounded-lg px-4 py-2 text-xs font-bold text-white", ui.control.ghost)}
+                    >
+                      Message someone else
+                    </button>
+                  </div>
+                ) : null}
+              </div>
+            </div>
+          )}
+
           {searching && (
             <div className="flex items-center justify-center py-8">
               <div className="w-5 h-5 border-2 border-white/20 border-t-[var(--color-accent)] rounded-full animate-spin" />

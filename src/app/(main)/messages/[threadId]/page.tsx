@@ -21,17 +21,21 @@ const EmojiPicker = lazy(() => import("emoji-picker-react"));
 
 export default function MessageThreadPage() {
   const params = useParams<{ threadId: string }>();
-  const { data: session } = useSession();
+  const { data: session, status: authStatus } = useSession();
   const userId = session?.user?.id;
   const [thread, setThread] = useState<MessageThread | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
   const [sending, setSending] = useState(false);
   const [content, setContent] = useState("");
+  const [composerNotice, setComposerNotice] = useState("");
+  const [receiptLabel, setReceiptLabel] = useState("");
   const [showProfilePreview, setShowProfilePreview] = useState(false);
   const [pendingRequest, setPendingRequest] = useState(false); // sender has a pending request
   const [hasSentRequestMsg, setHasSentRequestMsg] = useState(false); // already sent 1 message
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [uploadLabel, setUploadLabel] = useState("Uploading media...");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const gifInputRef = useRef<HTMLInputElement>(null);
@@ -65,30 +69,39 @@ export default function MessageThreadPage() {
     let isMounted = true;
     async function load() {
       setLoading(true);
-      const [threadRes, outgoingRes] = await Promise.all([
-        fetch(`/api/messages/threads/${params.threadId}`),
-        fetch("/api/messages/requests?type=outgoing"),
-      ]);
-      const data = await safeJson<MessageThread>(threadRes);
-      const outgoing = await safeJson<MessageRequest[]>(outgoingRes);
+      setLoadError("");
+      try {
+        const [threadRes, outgoingRes] = await Promise.all([
+          fetch(`/api/messages/threads/${params.threadId}`),
+          fetch("/api/messages/requests?type=outgoing"),
+        ]);
+        const data = await safeJson<MessageThread>(threadRes);
+        const outgoing = await safeJson<MessageRequest[]>(outgoingRes);
 
-      if (isMounted) {
-        setThread(data || null);
-
-        if (data && outgoing) {
-          const otherUserId = data.userAId === userId ? data.userBId : data.userAId;
-          const isPending = outgoing.some(
-            (r) => r.recipientId === otherUserId && r.status === "PENDING"
-          );
-          setPendingRequest(isPending);
-
-          if (isPending && data.messages) {
-            const sentCount = data.messages.filter((m) => m.senderId === userId).length;
-            setHasSentRequestMsg(sentCount >= 1);
-          }
+        if (!threadRes.ok) {
+          throw new Error("Conversation could not load.");
         }
 
-        setLoading(false);
+        if (isMounted) {
+          setThread(data || null);
+
+          if (data && outgoingRes.ok && outgoing) {
+            const otherUserId = data.userAId === userId ? data.userBId : data.userAId;
+            const isPending = outgoing.some(
+              (r) => r.recipientId === otherUserId && r.status === "PENDING"
+            );
+            setPendingRequest(isPending);
+
+            if (isPending && data.messages) {
+              const sentCount = data.messages.filter((m) => m.senderId === userId).length;
+              setHasSentRequestMsg(sentCount >= 1);
+            }
+          }
+        }
+      } catch {
+        if (isMounted) setLoadError("This conversation could not load. Check your connection, then try again.");
+      } finally {
+        if (isMounted) setLoading(false);
       }
     }
     if (params.threadId) load();
@@ -106,6 +119,47 @@ export default function MessageThreadPage() {
     if (!thread?.messages) return [];
     return formatMessageRows(thread.messages);
   }, [thread?.messages]);
+
+  const latestOwnMessage = useMemo(() => {
+    if (!thread?.messages || !userId) return null;
+    return [...thread.messages].reverse().find((message) => message.senderId === userId) || null;
+  }, [thread?.messages, userId]);
+
+  const latestOtherMessage = useMemo(() => {
+    if (!thread?.messages || !userId) return null;
+    return [...thread.messages].reverse().find((message) => message.senderId !== userId) || null;
+  }, [thread?.messages, userId]);
+
+  useEffect(() => {
+    if (!latestOtherMessage) return;
+    fetch("/api/messages/receipts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ messageId: latestOtherMessage.id, status: "read" }),
+    }).catch(() => undefined);
+  }, [latestOtherMessage]);
+
+  useEffect(() => {
+    if (!latestOwnMessage || !otherUser?.id) {
+      setReceiptLabel("");
+      return;
+    }
+    let active = true;
+    setReceiptLabel("Sent");
+    (async () => {
+      const res = await fetch(`/api/messages/receipts?messageId=${encodeURIComponent(latestOwnMessage.id)}&userId=${encodeURIComponent(otherUser.id)}`);
+      const data = await safeJson<{ receipt?: { status?: "delivered" | "read" } | null }>(res);
+      if (!active) return;
+      if (data?.receipt?.status === "read") setReceiptLabel("Read");
+      else if (data?.receipt?.status === "delivered") setReceiptLabel("Delivered");
+      else setReceiptLabel("Sent");
+    })().catch(() => {
+      if (active) setReceiptLabel("Sent");
+    });
+    return () => {
+      active = false;
+    };
+  }, [latestOwnMessage, otherUser?.id]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -137,16 +191,18 @@ export default function MessageThreadPage() {
 
       if (!res.ok || !data) {
         if (restoreDraftOnFailure) setContent(messageContent);
-        alert(data?.error || "Message was not sent. Try again.");
+        setComposerNotice(data?.error || "Message was not sent. Your draft is still here.");
         return false;
       }
 
       appendMessage(data);
       if (pendingRequest) setHasSentRequestMsg(true);
+      setComposerNotice(pendingRequest ? "Request sent. You can continue after they accept." : "");
+      setReceiptLabel("Sent");
       return true;
     } catch {
       if (restoreDraftOnFailure) setContent(messageContent);
-      alert("Message was not sent. Check your connection, then try again.");
+      setComposerNotice("Message was not sent. Check your connection, then try again.");
       return false;
     } finally {
       setSending(false);
@@ -167,7 +223,7 @@ export default function MessageThreadPage() {
   }, [content, sendThreadContent, setTyping]);
 
   const sendMediaMessage = useCallback(async (mediaUrl: string) => {
-    await sendThreadContent(mediaUrl);
+    return sendThreadContent(mediaUrl);
   }, [sendThreadContent]);
 
   const addEmoji = useCallback((emoji: { emoji?: string }) => {
@@ -182,27 +238,30 @@ export default function MessageThreadPage() {
     const file = e.target.files?.[0];
     if (!file) return;
     if (!file.type.startsWith("image/") && !file.type.startsWith("video/")) {
-      alert("Choose an image or video file.");
+      setComposerNotice("Choose an image, GIF, or video file.");
       return;
     }
     if (file.size > 5 * 1024 * 1024) {
-      alert("Choose a file smaller than 5 MB.");
+      setComposerNotice("Choose a file smaller than 5 MB.");
       return;
     }
     setUploading(true);
+    setUploadLabel(`Uploading ${file.type.startsWith("video/") ? "video" : "image"}...`);
+    setComposerNotice("");
     try {
       const fd = new FormData();
       fd.append("file", file);
       const res = await fetch("/api/upload", { method: "POST", body: fd });
       if (res.ok) {
         const data = await res.json();
-        await sendMediaMessage(data.url);
+        const sent = await sendMediaMessage(data.url);
+        setComposerNotice(sent ? "Attachment sent." : "Attachment uploaded, but the message was not sent.");
       } else {
         const err = await res.json().catch(() => null);
-        alert(err?.error || "Media upload failed. Try again.");
+        setComposerNotice(err?.error || "Media upload failed. Try again.");
       }
     } catch {
-      alert("Media upload failed. Check your connection, then try again.");
+      setComposerNotice("Media upload failed. Check your connection, then try again.");
     } finally {
       setUploading(false);
       if (imageInputRef.current) imageInputRef.current.value = "";
@@ -221,6 +280,17 @@ export default function MessageThreadPage() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [showEmojiPicker]);
 
+  if (authStatus === "loading" || (userId && loading)) {
+    return (
+      <div className="flex h-full items-center justify-center p-4">
+        <div className={surface("empty", "noise-overlay flex items-center gap-3 px-5 py-4 text-sm text-white/55")} role="status">
+          <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/20 border-t-[var(--color-accent-2)]" />
+          Opening conversation
+        </div>
+      </div>
+    );
+  }
+
   if (!userId) {
     return (
       <div className="flex h-full items-center justify-center p-4">
@@ -235,13 +305,16 @@ export default function MessageThreadPage() {
     );
   }
 
-  if (loading) {
+  if (loadError) {
     return (
       <div className="flex h-full items-center justify-center p-4">
-        <div className={surface("empty", "noise-overlay flex items-center gap-3 px-5 py-4 text-sm text-white/55")}>
-          <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/20 border-t-[var(--color-accent-2)]" />
-          Loading conversation
-        </div>
+        <FeedbackState
+          className="max-w-[420px] px-6 py-10"
+          icon={<MessageIcon />}
+          title="Conversation did not load"
+          description={loadError}
+          action={{ label: "Back to messages", href: "/messages" }}
+        />
       </div>
     );
   }
@@ -276,7 +349,7 @@ export default function MessageThreadPage() {
       >
         <MessageThreadIntro otherUser={otherUser} />
 
-        <MessageList messages={formattedMessages} userId={userId} otherUser={otherUser} typingUsers={typingUsers} />
+        <MessageList messages={formattedMessages} userId={userId} otherUser={otherUser} typingUsers={typingUsers} deliveryLabel={receiptLabel} />
       </div>
 
       {/* Emoji picker panel */}
@@ -337,7 +410,13 @@ export default function MessageThreadPage() {
         {uploading && (
           <div className={surface("empty", "mb-2 flex items-center gap-2 px-3 py-2")}>
             <div className="w-4 h-4 border-2 border-white/20 border-t-[var(--color-accent)] rounded-full animate-spin" />
-            <span className="text-[13px] text-white/50">Uploading...</span>
+            <span className="text-[13px] text-white/55">{uploadLabel}</span>
+          </div>
+        )}
+
+        {composerNotice && (
+          <div className={surface("empty", "mb-2 px-3 py-2 text-[13px] text-white/60")} role="status">
+            {composerNotice}
           </div>
         )}
 
@@ -347,10 +426,10 @@ export default function MessageThreadPage() {
             <div className="flex flex-shrink-0 items-center gap-0.5">
               <button
                 onClick={() => imageInputRef.current?.click()}
-                disabled={uploading}
+                disabled={uploading || sending}
                 className={cn(
                   "flex h-9 w-9 items-center justify-center rounded-lg border border-transparent text-[var(--color-accent-2)] transition-colors hover:border-white/[0.10] hover:bg-white/[0.045]",
-                  uploading && "opacity-40 cursor-not-allowed"
+                  (uploading || sending) && "opacity-40 cursor-not-allowed"
                 )}
                 title="Attach media"
               >
@@ -362,10 +441,10 @@ export default function MessageThreadPage() {
               </button>
               <button
                 onClick={() => gifInputRef.current?.click()}
-                disabled={uploading}
+                disabled={uploading || sending}
                 className={cn(
                   "flex h-9 w-9 items-center justify-center rounded-lg border border-transparent text-[var(--color-accent-2)] transition-colors hover:border-white/[0.10] hover:bg-white/[0.045]",
-                  uploading && "opacity-40 cursor-not-allowed"
+                  (uploading || sending) && "opacity-40 cursor-not-allowed"
                 )}
                 title="Upload GIF"
               >
@@ -417,10 +496,10 @@ export default function MessageThreadPage() {
           {!(pendingRequest && hasSentRequestMsg) && (
             <button
               onClick={sendMessage}
-              disabled={sending || !content.trim()}
+              disabled={sending || uploading || !content.trim()}
               className={cn(
                 "flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg border transition-colors",
-                content.trim()
+                content.trim() && !uploading
                   ? "border-[rgba(var(--color-accent-2-rgb),0.26)] bg-[rgba(var(--color-accent-2-rgb),0.10)] text-[var(--color-accent-2)] hover:bg-[rgba(var(--color-accent-2-rgb),0.16)]"
                   : "cursor-not-allowed border-transparent text-white/20"
               )}

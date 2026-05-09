@@ -8,11 +8,18 @@ import { useEffect, useRef } from "react";
  */
 export function useChatScroll<T>(dep: T) {
   const ref = useRef<HTMLDivElement>(null);
+  const hasPositionedInitialContent = useRef(false);
 
   useEffect(() => {
     if (ref.current) {
       const { scrollHeight, clientHeight, scrollTop } = ref.current;
       const isNearBottom = scrollHeight - clientHeight - scrollTop < 150;
+
+      if (!hasPositionedInitialContent.current) {
+        ref.current.scrollTop = scrollHeight;
+        hasPositionedInitialContent.current = true;
+        return;
+      }
 
       if (isNearBottom) {
         ref.current.scrollTo({

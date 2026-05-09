@@ -34,7 +34,7 @@ export default function MessagesPage() {
         <NewMessageModal
           onClose={() => setShowNewMessage(false)}
           onThreadCreated={() => setShowNewMessage(false)}
-          onRequestSent={() => setShowNewMessage(false)}
+          onRequestSent={() => undefined}
         />
       )}
     </>
