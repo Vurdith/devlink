@@ -44,29 +44,39 @@ export function ProfileAboutTab({ skills, profileData }: ProfileAboutTabProps) {
   return (
     <div className="space-y-6">
       {skills.length > 0 && (
-        <section className={surface("panel", "overflow-hidden p-4 sm:p-5")}>
-          <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <section className={surface("panel", "overflow-hidden")}>
+          <div className="border-b border-white/[0.08] p-5 sm:p-6">
             <div>
-              <h3 className="text-base font-semibold text-white">Skills & services</h3>
+              <h3 className="text-lg font-semibold text-white font-[var(--font-space-grotesk)]">Capabilities</h3>
               <p className="mt-1 text-sm text-[var(--muted-foreground)]">
-                {skills.length} {skills.length === 1 ? "capability" : "capabilities"} listed
+                Practical strengths, availability, and service focus.
               </p>
             </div>
-            <div className="flex items-center gap-3 rounded-xl border border-white/[0.08] bg-white/[0.025] px-3 py-2">
-              <div className={iconBox(primarySkill?.isPrimary ? "amber" : "cyan", "h-9 w-9")}>
-                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
+            {primarySkill ? (
+              <div className="mt-5 grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
+                <div className="flex min-w-0 items-center gap-3">
+                  <div className={iconBox(primarySkill.isPrimary ? "amber" : "cyan", "h-11 w-11")}>
+                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/40">
+                      {primarySkill.isPrimary ? "Signature capability" : "Leading capability"}
+                    </p>
+                    <p className="mt-1 truncate text-xl font-semibold text-white">{primarySkill.skill.name}</p>
+                  </div>
+                </div>
+                <div className="rounded-lg border border-white/[0.08] bg-white/[0.025] px-3 py-2 text-left sm:text-right">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/35">Listed</p>
+                  <p className="text-sm font-semibold text-white">
+                    {skills.length} {skills.length === 1 ? "capability" : "capabilities"}
+                  </p>
+                </div>
               </div>
-              <div className="min-w-0">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/40">
-                  {primarySkill?.isPrimary ? "Primary skill" : "Top skill"}
-                </p>
-                <p className="truncate text-sm font-semibold text-white">{primarySkill?.skill.name}</p>
-              </div>
-            </div>
+            ) : null}
           </div>
-          <div className="space-y-3">
+          <div className="divide-y divide-white/[0.06]">
             {skills.map((s) => {
               const levelConfig = EXPERIENCE_LEVELS[
                 s.experienceLevel as ExperienceLevel
