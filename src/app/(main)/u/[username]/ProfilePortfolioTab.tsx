@@ -25,8 +25,16 @@ export function ProfilePortfolioTab({
   return (
     <>
       {isOwner && (
-        <div className={surface("panelMuted", "relative mb-6 overflow-hidden p-4 sm:p-5")}>
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className={surface("panel", "noise-overlay relative mb-6 overflow-hidden p-5 sm:p-6")}>
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 opacity-60"
+            style={{
+              background:
+                "radial-gradient(900px 260px at 12% 0%, rgba(var(--color-accent-2-rgb),0.14), transparent 62%), radial-gradient(700px 220px at 100% 0%, rgba(var(--color-accent-rgb),0.10), transparent 58%)",
+            }}
+          />
+          <div className="relative flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
             <div className="flex items-center gap-3">
               <div className={iconBox("cyan", "h-10 w-10")}>
                 <svg
@@ -44,13 +52,13 @@ export function ProfilePortfolioTab({
               </svg>
               </div>
               <div>
-                <h3 className="text-base font-semibold text-white">
-                  Your Portfolio
+                <h3 className="text-base font-semibold text-white font-[var(--font-space-grotesk)]">
+                  Portfolio studio
                 </h3>
                 <p className="text-sm text-[var(--muted-foreground)]">
                   {portfolioItems.length === 0
-                    ? "Showcase your best work"
-                    : `${portfolioItems.length} ${portfolioItems.length === 1 ? "item" : "items"} showcased`}
+                    ? "Curate the work visitors should judge you by."
+                    : `${portfolioItems.length} ${portfolioItems.length === 1 ? "case study" : "case studies"} published`}
                 </p>
               </div>
             </div>
@@ -69,7 +77,7 @@ export function ProfilePortfolioTab({
                   strokeLinejoin="round"
                 />
               </svg>
-              Add Portfolio Item
+              Add case study
             </Button>
           </div>
         </div>
@@ -88,9 +96,17 @@ export function ProfilePortfolioTab({
           ))}
         </div>
       ) : (
-        <div className={surface("empty", "px-6 py-14 text-center text-[var(--muted-foreground)]")}>
-          <div className="flex justify-center mb-4">
-            <div className="w-16 h-16 rounded-xl bg-[rgba(var(--color-accent-2-rgb),0.09)] border border-[rgba(var(--color-accent-2-rgb),0.18)] flex items-center justify-center">
+        <div className={surface("empty", "noise-overlay relative overflow-hidden px-6 py-14 text-center text-[var(--muted-foreground)]")}>
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 opacity-55"
+            style={{
+              background:
+                "radial-gradient(700px 260px at 50% 0%, rgba(var(--color-accent-2-rgb),0.12), transparent 62%)",
+            }}
+          />
+          <div className="relative mb-4 flex justify-center">
+            <div className="flex h-16 w-16 items-center justify-center rounded-xl border border-[rgba(var(--color-accent-2-rgb),0.18)] bg-[rgba(var(--color-accent-2-rgb),0.09)]">
               <svg
                 className="w-8 h-8 text-[var(--color-accent-2)]"
                 fill="none"
@@ -106,22 +122,22 @@ export function ProfilePortfolioTab({
               </svg>
             </div>
           </div>
-          <p className="text-lg font-semibold text-white mb-2">
-            {isOwner ? "Build out your portfolio" : "No public portfolio items"}
+          <p className="relative mb-2 text-lg font-semibold text-white">
+            {isOwner ? "Start with one excellent case study" : "No public case studies"}
           </p>
-          <p className="text-sm">
+          <p className="relative mx-auto max-w-md text-sm leading-relaxed">
             {isOwner
-              ? "Add your strongest work so visitors can understand what you make."
-              : "This user hasn&apos;t shared their portfolio yet."}
+              ? "Show the result, your role, and why the work mattered. One polished project is better than five loose links."
+              : "This user has not shared portfolio work yet."}
           </p>
           {isOwner && (
             <Button
               variant="glow"
               size="md"
               onClick={onAddItem}
-              className="mt-5"
+              className="relative mt-5"
             >
-              Add Portfolio Item
+              Add first case study
             </Button>
           )}
         </div>

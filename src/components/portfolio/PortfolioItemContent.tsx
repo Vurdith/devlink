@@ -53,14 +53,17 @@ export function PortfolioItemContent({
 }: PortfolioItemContentProps) {
   return (
     <div className="p-4 sm:p-6">
-      <div className="flex items-start justify-between gap-4 mb-5">
+      <div className="mb-5 flex items-start justify-between gap-4">
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-3 flex-wrap mb-2">
-            <h3 className="text-xl sm:text-2xl font-semibold text-white tracking-tight">{item.title}</h3>
+          {item.category && (
+            <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--color-accent-2)]">
+              {capitalizeCategory(item.category)}
+            </p>
+          )}
+          <div className="mb-2 flex flex-wrap items-center gap-3">
+            <h3 className="text-xl font-semibold tracking-tight text-white sm:text-2xl font-[var(--font-space-grotesk)]">{item.title}</h3>
             {item.category && (
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider bg-[rgba(var(--color-accent-2-rgb),0.09)] text-[var(--color-accent-2)] border border-[rgba(var(--color-accent-2-rgb),0.18)] rounded-lg">
-                {capitalizeCategory(item.category)}
-              </span>
+              <span className="h-px w-10 bg-[rgba(var(--color-accent-2-rgb),0.35)]" />
             )}
           </div>
         </div>
@@ -82,22 +85,22 @@ export function PortfolioItemContent({
         )}
       </div>
 
-      {item.description && <p className="text-sm sm:text-base text-[var(--muted-foreground)] mb-5 leading-relaxed max-w-3xl">{item.description}</p>}
+      {item.description && <p className="mb-5 max-w-3xl text-sm leading-relaxed text-white/66 sm:text-base">{item.description}</p>}
 
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5 pt-5 border-t border-white/[0.07] mt-5">
-        <div className="flex flex-wrap gap-2">
+      <div className="mt-5 flex flex-col justify-between gap-5 border-t border-white/[0.07] pt-5 sm:flex-row sm:items-center">
+        <div className="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-2">
           {tags.map((tag) => (
             <button
               key={tag}
               onClick={() => onTagClick(tag)}
-              className="px-3 py-1.5 text-[11px] font-medium bg-white/[0.035] text-white/55 rounded-lg border border-white/[0.06] hover:bg-white/[0.065] hover:text-white hover:border-white/[0.12] transition-all"
+              className="text-xs font-medium text-white/45 transition-colors hover:text-[var(--color-accent-2)]"
             >
               #{tag}
             </button>
           ))}
 
           {linkedSkills?.map((skill) => (
-            <span key={skill.id} className="px-3 py-1.5 text-[11px] font-medium bg-[rgba(var(--color-accent-2-rgb),0.07)] text-[var(--color-accent-2)] rounded-lg border border-[rgba(var(--color-accent-2-rgb),0.14)]">
+            <span key={skill.id} className="border-l border-[rgba(var(--color-accent-2-rgb),0.24)] pl-3 text-xs font-semibold text-[var(--color-accent-2)]">
               {skill.name}
             </span>
           ))}
@@ -109,7 +112,7 @@ export function PortfolioItemContent({
               const meta = getLinkMeta(link);
 
               return (
-                <a key={index} href={link} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 text-sm font-bold bg-white text-black rounded-lg hover:bg-white/90 transition-all active:scale-95">
+                <a key={index} href={link} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 rounded-lg border border-white/[0.10] bg-white/[0.055] px-4 py-2 text-sm font-semibold text-white transition-all hover:border-white/[0.16] hover:bg-white/[0.085] active:scale-95">
                   {meta.icon}
                   {meta.label}
                 </a>

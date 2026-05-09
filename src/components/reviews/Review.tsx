@@ -92,9 +92,9 @@ export function Review({ review, currentUserId, onEdit, onDelete }: ReviewProps)
   };
 
   return (
-    <div className={surface("panelMuted", "group p-6 transition-colors hover:border-white/[0.16] hover:bg-white/[0.04]")}>
+    <div className={surface("panelMuted", "group overflow-hidden transition-colors hover:border-white/[0.16] hover:bg-white/[0.035]")}>
       {/* User Info Row */}
-      <div className="flex items-start gap-4 mb-4">
+      <div className="flex items-start gap-4 p-5 pb-4 sm:p-6 sm:pb-4">
         <ProfileTooltip user={userProfileData} currentUserId={currentUserId} position="top">
           <Link
             href={`/u/${review.reviewer.username}`}
@@ -105,12 +105,12 @@ export function Review({ review, currentUserId, onEdit, onDelete }: ReviewProps)
           </Link>
         </ProfileTooltip>
 
-        <div className="flex-1 min-w-0">
+        <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 mb-0.5">
             <ProfileTooltip user={userProfileData} currentUserId={currentUserId} position="top">
               <Link
                 href={`/u/${review.reviewer.username}`}
-                className="font-semibold text-white hover:underline transition-colors"
+                className="font-semibold text-white transition-colors hover:text-[var(--color-accent-2)]"
                 onClick={(e) => e.stopPropagation()}
               >
                 {review.reviewer.name || review.reviewer.username}
@@ -129,53 +129,40 @@ export function Review({ review, currentUserId, onEdit, onDelete }: ReviewProps)
           </div>
         </div>
 
-        <TimeAgo 
-          date={review.createdAt} 
-          className="text-sm text-white/30 flex-shrink-0"
+        <TimeAgo
+          date={review.createdAt}
+          className="flex-shrink-0 text-sm text-white/30"
         />
       </div>
 
       {/* Rating Row */}
-      <div className="flex items-center gap-3 mb-4">
-        {renderStars(review.rating)}
-        <span className="text-sm text-white/40">{review.rating}/5</span>
-        
-        {/* Sentiment Badge */}
+      <div className="flex items-center justify-between gap-4 border-y border-white/[0.06] bg-white/[0.018] px-5 py-3 sm:px-6">
+        <div className="flex items-center gap-3">
+          {renderStars(review.rating)}
+          <span className="text-sm font-semibold text-white">{review.rating}/5</span>
+        </div>
         <span className={cn(
-          "inline-flex items-center gap-1 rounded-lg border px-2 py-0.5 text-xs font-semibold",
-          sentiment === "positive" 
-            ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"
+          "text-xs font-semibold uppercase tracking-[0.12em]",
+          sentiment === "positive"
+            ? "text-emerald-300"
             : sentiment === "neutral"
-              ? "bg-amber-500/15 text-amber-400 border border-amber-500/30"
-              : "bg-[var(--color-accent)]/15 text-[var(--color-accent)] border border-[var(--color-accent)]/30"
+              ? "text-amber-300"
+              : "text-rose-300"
         )}>
-          {sentiment === "positive" ? (
-            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
-            </svg>
-          ) : sentiment === "neutral" ? (
-            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          ) : (
-            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14H5.236a2 2 0 01-1.789-2.894l3.5-7A2 2 0 018.736 3h4.018c.163 0 .326.02.485.06L17 4m-7 10v2a2 2 0 002 2h.095c.5 0 .905-.405.905-.905 0-.714.211-1.412.608-2.006L17 13V4m-7 10h2m5-10h2a2 2 0 012 2v6a2 2 0 01-2 2h-2.5" />
-            </svg>
-          )}
-          {sentiment === "positive" ? "Positive" : sentiment === "neutral" ? "Neutral" : "Negative"}
+          {sentiment === "positive" ? "Positive" : sentiment === "neutral" ? "Neutral" : "Critical"}
         </span>
       </div>
 
       {/* Review Text */}
       {review.text && (
-        <p className="text-[15px] text-white/70 leading-relaxed whitespace-pre-wrap">
+        <p className="whitespace-pre-wrap px-5 py-5 text-[15px] leading-relaxed text-white/70 sm:px-6">
           {review.text}
         </p>
       )}
 
       {/* Action Buttons */}
       {canEdit && (
-        <div className="mt-4 flex items-center gap-3 border-t border-white/[0.06] pt-4 opacity-0 transition-opacity group-hover:opacity-100">
+        <div className="flex items-center gap-3 border-t border-white/[0.06] px-5 py-4 opacity-0 transition-opacity group-hover:opacity-100 sm:px-6">
           <button
             onClick={() => onEdit?.(review.id)}
             className={cn("flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-sm font-semibold text-[var(--color-accent-2)] transition-colors", ui.control.ghost)}

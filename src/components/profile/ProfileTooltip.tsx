@@ -6,7 +6,7 @@ import Image from "next/image";
 import { FollowButton } from "../ui/FollowButton";
 import { getProfileTypeConfig, ProfileTypeIcon } from "@/types/profile";
 import { cn } from "@/lib/cn";
-import { formatProfileCount, getProfileBadgeClasses, getProfileBorder, getProfileGradient } from "./profile-tooltip-utils";
+import { formatProfileCount, getProfileBorder, getProfileGradient } from "./profile-tooltip-utils";
 
 interface ProfileTooltipProps {
   user: {
@@ -277,8 +277,6 @@ export const ProfileTooltip = memo(function ProfileTooltip({
   
   const profileBorderColor = useMemo(() => getProfileBorder(profileType), [profileType]);
   
-  const badgeClasses = useMemo(() => getProfileBadgeClasses(profileType), [profileType]);
-
   const slideDirection = tooltipPosition.placement === "top" ? -12 : 12;
   
   const tooltipContent = (
@@ -299,7 +297,7 @@ export const ProfileTooltip = memo(function ProfileTooltip({
       {/* Main card */}
       <div className={cn(
         "relative w-80 overflow-hidden rounded-xl",
-        "bg-[rgba(12,16,23,0.96)]",
+        "bg-[rgba(12,16,23,0.97)]",
         "border",
         profileBorderColor
       )}>
@@ -341,9 +339,9 @@ export const ProfileTooltip = memo(function ProfileTooltip({
           </div>
           
           {/* Content */}
-          <div className="relative px-4 pb-4 -mt-8">
+          <div className="relative -mt-8 px-4 pb-4">
             {/* Avatar with ring */}
-            <div className="flex items-end gap-3 mb-3">
+            <div className="mb-3 flex items-end gap-3">
               <button
                 onClick={(e) => { e.stopPropagation(); window.location.href = `/u/${userData.username}`; }}
                 className="relative group"
@@ -363,12 +361,12 @@ export const ProfileTooltip = memo(function ProfileTooltip({
               </button>
               
               {/* Name and username inline with avatar */}
-              <div className="flex-1 min-w-0 pb-1">
+              <div className="min-w-0 flex-1 pb-1">
                 <button
                   onClick={(e) => { e.stopPropagation(); window.location.href = `/u/${userData.username}`; }}
                   className="group flex items-center gap-1.5"
                 >
-                  <span className="font-semibold text-white group-hover:text-[var(--color-accent)] transition-colors truncate">
+                  <span className="truncate font-semibold text-white transition-colors group-hover:text-[var(--color-accent-2)]">
                     {userData.name || userData.username}
                   </span>
                   {userData.profile?.verified && (
@@ -388,9 +386,8 @@ export const ProfileTooltip = memo(function ProfileTooltip({
             {profileConfig && profileType && (
               <div className="mb-3">
                 <span className={cn(
-                  "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full",
-                  "text-xs font-medium border",
-                  badgeClasses
+                  "inline-flex items-center gap-1.5",
+                  "text-[10px] font-semibold uppercase tracking-[0.14em] text-white/45"
                 )}>
                   <ProfileTypeIcon profileType={profileType} size={12} />
                   {profileConfig.label}
@@ -400,14 +397,14 @@ export const ProfileTooltip = memo(function ProfileTooltip({
             
             {/* Bio */}
             {userData.profile?.bio && (
-              <p className="text-sm text-[var(--muted-foreground)] line-clamp-2 mb-3 leading-relaxed">
+              <p className="mb-3 line-clamp-2 border-l border-[rgba(var(--color-accent-2-rgb),0.28)] pl-3 text-sm leading-relaxed text-white/62">
                 {userData.profile?.bio}
               </p>
             )}
             
             {/* Location and Website */}
             {(userData.profile?.location || userData.profile?.website) && (
-              <div className="flex flex-wrap gap-x-4 gap-y-1.5 mb-4 text-xs text-[var(--muted-foreground)]">
+              <div className="mb-4 flex flex-wrap gap-x-4 gap-y-1.5 text-xs text-[var(--muted-foreground)]">
                 {userData.profile?.location && (
                   <div className="flex items-center gap-1.5">
                     <svg className="w-3.5 h-3.5 text-[var(--muted-foreground)]/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -422,7 +419,7 @@ export const ProfileTooltip = memo(function ProfileTooltip({
                     href={userData.profile?.website?.startsWith('http') ? userData.profile.website : `https://${userData.profile?.website}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-1.5 text-[var(--color-accent)] hover:text-[var(--color-accent)] transition-colors"
+                    className="flex items-center gap-1.5 text-[var(--color-accent-2)] transition-colors hover:text-white"
                     onClick={(e) => e.stopPropagation()}
                   >
                     <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -436,24 +433,24 @@ export const ProfileTooltip = memo(function ProfileTooltip({
             
             {/* Stats */}
             {userData._count && (userData._count.followers != null || userData._count.following != null) && (
-              <div className="flex gap-4 mb-4">
+              <div className="mb-4 grid grid-cols-2 gap-2">
                 <button
                   onClick={(e) => { e.stopPropagation(); window.location.href = `/u/${userData.username}/followers`; }}
-                  className="group flex items-center gap-1.5 text-sm hover:text-[var(--color-accent)] transition-colors"
+                  className="group rounded-lg border border-white/[0.07] bg-white/[0.025] px-3 py-2 text-left transition-colors hover:border-white/[0.13] hover:bg-white/[0.045]"
                 >
-                  <span className="font-bold text-white group-hover:text-[var(--color-accent)] transition-colors">
+                  <span className="block text-sm font-bold text-white transition-colors group-hover:text-[var(--color-accent-2)]">
                     {formatProfileCount(userData._count.followers)}
                   </span>
-                  <span className="text-[var(--muted-foreground)] text-xs">followers</span>
+                  <span className="block text-[10px] font-semibold uppercase tracking-[0.12em] text-white/35">followers</span>
                 </button>
                 <button
                   onClick={(e) => { e.stopPropagation(); window.location.href = `/u/${userData.username}/following`; }}
-                  className="group flex items-center gap-1.5 text-sm hover:text-[var(--color-accent)] transition-colors"
+                  className="group rounded-lg border border-white/[0.07] bg-white/[0.025] px-3 py-2 text-left transition-colors hover:border-white/[0.13] hover:bg-white/[0.045]"
                 >
-                  <span className="font-bold text-white group-hover:text-[var(--color-accent)] transition-colors">
+                  <span className="block text-sm font-bold text-white transition-colors group-hover:text-[var(--color-accent-2)]">
                     {formatProfileCount(userData._count.following)}
                   </span>
-                  <span className="text-[var(--muted-foreground)] text-xs">following</span>
+                  <span className="block text-[10px] font-semibold uppercase tracking-[0.12em] text-white/35">following</span>
                 </button>
               </div>
             )}
