@@ -1,5 +1,5 @@
 "use client";
-import { useState, useRef, memo, useCallback, lazy, Suspense } from "react";
+import { useState, useRef, memo, useCallback, lazy, Suspense, useMemo } from "react";
 import { Button } from "@/components/ui/Button";
 import { Avatar } from "@/components/ui/Avatar";
 import { Toast } from "@/components/ui/Toast";
@@ -55,6 +55,54 @@ export const CreatePost = memo(function CreatePost({
   const [pollData, setPollData] = useState<PollData | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const uploadEntries = useMemo(() => Object.entries(uploadProgress), [uploadProgress]);
+  const hasActiveUpload = useMemo(() => uploadEntries.some(([, progress]) => progress < 100), [uploadEntries]);
+  const isSubmitDisabled = isSubmitting || (!formData.content && !pollData);
+
+  const openComposer = useCallback(() => {
+    setIsOpen(true);
+  }, []);
+
+  const openMediaPicker = useCallback(() => {
+    fileInputRef.current?.click();
+  }, []);
+
+  const togglePoll = useCallback(() => {
+    setShowPoll(prev => !prev);
+  }, []);
+
+  const toggleEmojiPicker = useCallback(() => {
+    setShowEmojiPicker(prev => !prev);
+  }, []);
+
+  const toggleSchedule = useCallback(() => {
+    setShowSchedule(prev => !prev);
+  }, []);
+
+  const toggleLocationInput = useCallback(() => {
+    setShowLocationInput(prev => !prev);
+  }, []);
+
+  const toggleEmbedInput = useCallback(() => {
+    setShowEmbedInput(prev => !prev);
+  }, []);
+
+  const closeComposer = useCallback(() => {
+    setIsOpen(false);
+  }, []);
+
+  const clearSchedule = useCallback(() => {
+    setScheduledFor("");
+  }, []);
+
+  const clearLocation = useCallback(() => {
+    setLocation("");
+  }, []);
+
+  const clearPoll = useCallback(() => {
+    setPollData(null);
+  }, []);
+
   const addEmoji = useCallback((emoji: { emoji?: string }) => {
     const char = emoji?.emoji || "";
     if (char) setFormData(prev => ({ ...prev, content: prev.content + char }));
@@ -71,7 +119,11 @@ export const CreatePost = memo(function CreatePost({
     setEmbedInput("");
   }, [embedInput]);
 
-  const handleFileUpload = async (files: FileList) => {
+  const removeEmbedUrl = useCallback((index: number) => {
+    setEmbedUrls(prev => prev.filter((_, idx) => idx !== index));
+  }, []);
+
+  const handleFileUpload = useCallback(async (files: FileList) => {
     const fileArray = Array.from(files);
     if (uploadedFiles.length + fileArray.length > 10) {
       setToastMessage('Maximum 10 images allowed.');
@@ -125,13 +177,13 @@ export const CreatePost = memo(function CreatePost({
       }
     }
     if (fileArray.length > 1) setIsSlideshow(true);
-  };
+  }, [uploadedFiles.length]);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files?.length) handleFileUpload(e.target.files);
-  };
+  }, [handleFileUpload]);
 
-  const removeMedia = (index?: number) => {
+  const removeMedia = useCallback((index?: number) => {
     if (index !== undefined) {
       setFormData(prev => ({ ...prev, mediaUrls: prev.mediaUrls.filter((_, i) => i !== index) }));
       setUploadedFiles(prev => prev.filter((_, i) => i !== index));
@@ -142,9 +194,23 @@ export const CreatePost = memo(function CreatePost({
       setIsSlideshow(false);
     }
     if (fileInputRef.current) fileInputRef.current.value = '';
-  };
+  }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const removeAllMedia = useCallback(() => {
+    removeMedia();
+  }, [removeMedia]);
+
+  const submitPoll = useCallback((data: PollData) => {
+    setPollData(data);
+    setShowPoll(false);
+  }, []);
+
+  const cancelPoll = useCallback(() => {
+    setShowPoll(false);
+    setPollData(null);
+  }, []);
+
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
@@ -205,7 +271,7 @@ export const CreatePost = memo(function CreatePost({
     } finally {
       setIsSubmitting(false);
     }
-  };
+  }, [embedUrls, formData.content, formData.mediaUrls, isSlideshow, location, onPostCreated, pollData, replyToId, scheduledFor]);
 
   // Collapsed state - with hover animations
   if (!currentUserProfile) return null;
@@ -214,7 +280,7 @@ export const CreatePost = memo(function CreatePost({
     return (
       <div 
         className={surface("panelMuted", "create-post-collapsed noise-overlay group relative mb-6 cursor-pointer overflow-hidden p-4 transition-all duration-300 hover:border-[rgba(var(--color-accent-2-rgb),0.24)] hover:bg-[rgba(13,18,26,0.76)] sm:p-5")}
-        onClick={() => setIsOpen(true)}
+        onClick={openComposer}
       >
         <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.5)] to-transparent opacity-60" />
         <div className="pointer-events-none absolute -right-20 -top-24 h-48 w-48 rounded-full bg-[rgba(var(--color-accent-2-rgb),0.08)] blur-3xl transition-opacity duration-300 group-hover:opacity-90" />
@@ -261,22 +327,22 @@ export const CreatePost = memo(function CreatePost({
           </div>
 
           <div className={surface("toolbar", "stagger-in flex flex-wrap items-center gap-2 p-2")}>
-            <ComposerActionButton onClick={() => fileInputRef.current?.click()} title="Add Media" shortcut="Ctrl I" badge={formData.mediaUrls.length || undefined} delay={1}>
+            <ComposerActionButton onClick={openMediaPicker} title="Add Media" shortcut="Ctrl I" badge={formData.mediaUrls.length || undefined} delay={1}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M21 19V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2z" stroke="currentColor" strokeWidth="2"/><circle cx="8.5" cy="8.5" r="1.5" stroke="currentColor" strokeWidth="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" stroke="currentColor" strokeWidth="2"/></svg>
             </ComposerActionButton>
-            <ComposerActionButton onClick={() => setShowPoll(!showPoll)} active={showPoll} title="Create Poll" shortcut="Ctrl P" delay={2}>
+            <ComposerActionButton onClick={togglePoll} active={showPoll} title="Create Poll" shortcut="Ctrl P" delay={2}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" strokeWidth="2"/><path d="M9 9h6M9 12h4M9 15h5" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
             </ComposerActionButton>
-            <ComposerActionButton onClick={() => setShowEmbedInput(v => !v)} active={showEmbedInput} title="Embed Link" shortcut="Ctrl L" delay={3}>
+            <ComposerActionButton onClick={toggleEmbedInput} active={showEmbedInput} title="Embed Link" shortcut="Ctrl L" delay={3}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
             </ComposerActionButton>
-            <ComposerActionButton onClick={() => setShowEmojiPicker(v => !v)} active={showEmojiPicker} title="Emoji" shortcut="Ctrl E" delay={4}>
+            <ComposerActionButton onClick={toggleEmojiPicker} active={showEmojiPicker} title="Emoji" shortcut="Ctrl E" delay={4}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/><path d="M8 14s1.5 2 4 2 4-2 4-2" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/><circle cx="9" cy="9" r="1" fill="currentColor"/><circle cx="15" cy="9" r="1" fill="currentColor"/></svg>
             </ComposerActionButton>
-            <ComposerActionButton onClick={() => setShowSchedule(s => !s)} active={showSchedule} title="Schedule Post" delay={5}>
+            <ComposerActionButton onClick={toggleSchedule} active={showSchedule} title="Schedule Post" delay={5}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" strokeWidth="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/><circle cx="12" cy="15" r="2" stroke="currentColor" strokeWidth="2"/></svg>
             </ComposerActionButton>
-            <ComposerActionButton onClick={() => setShowLocationInput(v => !v)} active={showLocationInput} title="Add Location" delay={6}>
+            <ComposerActionButton onClick={toggleLocationInput} active={showLocationInput} title="Add Location" delay={6}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" stroke="currentColor" strokeWidth="2"/><circle cx="12" cy="10" r="3" stroke="currentColor" strokeWidth="2"/></svg>
             </ComposerActionButton>
           </div>
@@ -305,7 +371,7 @@ export const CreatePost = memo(function CreatePost({
                   onChange={(e) => setScheduledFor(e.target.value)} 
                   className="flex-1 rounded-lg border border-white/[0.10] bg-white/[0.035] px-3 py-2 text-sm transition-colors focus:border-[rgba(var(--color-accent-2-rgb),0.42)] focus:outline-none"
                 />
-                {scheduledFor && <button type="button" onClick={() => setScheduledFor("")} className="rounded-lg p-2 text-[var(--muted-foreground)] transition-colors hover:bg-white/[0.055] hover:text-white" aria-label="Clear schedule">x</button>}
+                {scheduledFor && <button type="button" onClick={clearSchedule} className="rounded-lg p-2 text-[var(--muted-foreground)] transition-colors hover:bg-white/[0.055] hover:text-white" aria-label="Clear schedule">x</button>}
               </div>
             </div>
           )}
@@ -320,7 +386,7 @@ export const CreatePost = memo(function CreatePost({
                   </svg>
                 </div>
                 <input value={location} onChange={(e) => setLocation(e.target.value)} placeholder="Add location" className="flex-1 rounded-lg border border-white/[0.10] bg-white/[0.035] px-3 py-2 text-sm transition-colors focus:border-[rgba(var(--color-accent-2-rgb),0.42)] focus:outline-none" />
-                {location && <button type="button" onClick={() => setLocation("")} className="rounded-lg p-2 text-[var(--muted-foreground)] transition-colors hover:bg-white/[0.055] hover:text-white" aria-label="Clear location">x</button>}
+                {location && <button type="button" onClick={clearLocation} className="rounded-lg p-2 text-[var(--muted-foreground)] transition-colors hover:bg-white/[0.055] hover:text-white" aria-label="Clear location">x</button>}
               </div>
             </div>
           )}
@@ -342,7 +408,7 @@ export const CreatePost = memo(function CreatePost({
                   {embedUrls.map((u, i) => (
                     <span key={i} className="animate-pop-in inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-cyan-500/30 bg-cyan-500/10 text-sm">
                       <a href={u} target="_blank" rel="noreferrer" className="text-cyan-400 hover:underline truncate max-w-[200px]">{u}</a>
-                      <button type="button" onClick={() => setEmbedUrls(prev => prev.filter((_, idx) => idx !== i))} className="text-[var(--muted-foreground)] transition-colors hover:text-white" aria-label="Remove embed">x</button>
+                      <button type="button" onClick={() => removeEmbedUrl(i)} className="text-[var(--muted-foreground)] transition-colors hover:text-white" aria-label="Remove embed">x</button>
                     </span>
                   ))}
                 </div>
@@ -385,9 +451,9 @@ export const CreatePost = memo(function CreatePost({
           </div>
 
           {/* Upload Progress */}
-          {Object.keys(uploadProgress).length > 0 && Object.values(uploadProgress).some(p => p < 100) && (
+          {uploadEntries.length > 0 && hasActiveUpload && (
             <div className={surface("empty", "animate-slide-up space-y-2 overflow-hidden p-3")}>
-              {Object.entries(uploadProgress).map(([fileName, progress]) => (
+              {uploadEntries.map(([fileName, progress]) => (
                 <div key={fileName} className="space-y-1">
                   <div className="flex items-center justify-between text-xs">
                     <span className="text-[var(--muted-foreground)] truncate">{fileName}</span>
@@ -409,7 +475,7 @@ export const CreatePost = memo(function CreatePost({
                   <div className="w-2 h-2 bg-[var(--color-accent)] rounded-full animate-glow-pulse" />
                   <span className="text-sm font-medium text-[var(--color-accent)]">Media ({formData.mediaUrls.length}/10)</span>
                 </div>
-                <button type="button" onClick={() => removeMedia()} className="rounded-lg px-3 py-1.5 text-xs font-semibold text-[var(--muted-foreground)] transition-colors hover:bg-white/[0.055] hover:text-white">Remove all</button>
+                <button type="button" onClick={removeAllMedia} className="rounded-lg px-3 py-1.5 text-xs font-semibold text-[var(--muted-foreground)] transition-colors hover:bg-white/[0.055] hover:text-white">Remove all</button>
               </div>
               <ComposerMediaGrid mediaUrls={formData.mediaUrls} onRemove={removeMedia} />
             </div>
@@ -429,7 +495,7 @@ export const CreatePost = memo(function CreatePost({
               </div>
               <button 
                 type="button" 
-                onClick={() => setIsSlideshow(!isSlideshow)} 
+                onClick={() => setIsSlideshow(prev => !prev)}
                 className={cn(
                   "px-3 py-1.5 rounded-lg text-xs font-medium transition-all btn-press",
                   isSlideshow ? "bg-[var(--color-accent)] text-white" : "bg-white/10 text-gray-300 hover:bg-white/20"
@@ -444,18 +510,18 @@ export const CreatePost = memo(function CreatePost({
           {showPoll && (
             <div className="animate-slide-down">
               <Suspense fallback={<ComposerLoadingPlaceholder height="h-48" />}>
-                <CreatePoll onSubmit={(data) => { setPollData(data); setShowPoll(false); }} onCancel={() => { setShowPoll(false); setPollData(null); }} />
+                <CreatePoll onSubmit={submitPoll} onCancel={cancelPoll} />
               </Suspense>
             </div>
           )}
 
-          {pollData && !showPoll && <ComposerPollSummary pollData={pollData} onRemove={() => setPollData(null)} />}
+          {pollData && !showPoll && <ComposerPollSummary pollData={pollData} onRemove={clearPoll} />}
 
           {/* Submit Buttons */}
           <div className="flex justify-end items-center gap-3 pt-4 border-t border-white/5">
             <button
               type="button"
-              onClick={() => setIsOpen(false)}
+              onClick={closeComposer}
               disabled={isSubmitting}
               className="px-5 py-2.5 rounded-xl text-sm font-bold text-[var(--muted-foreground)] hover:text-white transition-colors"
             >
@@ -463,7 +529,7 @@ export const CreatePost = memo(function CreatePost({
             </button>
             <Button 
               type="submit" 
-              disabled={isSubmitting || (!formData.content && !pollData)}
+              disabled={isSubmitDisabled}
               className="min-w-[120px]"
             >
               {isSubmitting ? (

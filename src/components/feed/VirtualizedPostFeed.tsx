@@ -1,5 +1,5 @@
 "use client";
-import { memo, useCallback, useRef, useEffect, useState } from "react";
+import { memo, useCallback, useRef, useEffect, useState, useMemo } from "react";
 import PostDetail from "./PostDetail";
 import { FeedSkeleton } from "@/components/ui/LoadingSpinner";
 import { iconBox, surface } from "@/components/ui/design-system";
@@ -28,15 +28,38 @@ interface VirtualizedPostFeedProps {
 // Estimated post height for virtual scrolling calculations
 const ESTIMATED_POST_HEIGHT = 400;
 
+function getPostRenderKey(post: FeedPost, userId?: string) {
+  const likeCount = getPostCount(post, "likes");
+  const repostCount = getPostCount(post, "reposts");
+  const replyCount = getReplyCount(post);
+  const isLiked = post.isLiked ?? (userId ? post.likes?.some(like => like.userId === userId) : false) ?? false;
+  const isReposted = post.isReposted ?? (userId ? post.reposts?.some(repost => repost.userId === userId) : false) ?? false;
+  const isSaved = post.isSaved ?? (userId ? post.savedBy?.some(saved => saved.userId === userId) : false) ?? false;
+
+  return [
+    post.id,
+    post.updatedAt,
+    post.views,
+    likeCount,
+    repostCount,
+    replyCount,
+    isLiked ? 1 : 0,
+    isReposted ? 1 : 0,
+    isSaved ? 1 : 0,
+  ].join(":");
+}
+
 // Memoized post item with IntersectionObserver for lazy rendering
 const VirtualPostItem = memo(function VirtualPostItem({ 
   post, 
+  renderKey,
   showPinnedTag, 
   onUpdate,
   onVisible,
   session
 }: { 
   post: FeedPost; 
+  renderKey: string;
   showPinnedTag: boolean; 
   onUpdate?: (updatedPost: FeedPost) => void;
   onVisible?: () => void;
@@ -54,6 +77,7 @@ const VirtualPostItem = memo(function VirtualPostItem({
   const [hasBeenVisible, setHasBeenVisible] = useState(false);
   
   useEffect(() => {
+    if (hasBeenVisible) return;
     const element = ref.current;
     if (!element) return;
     
@@ -77,6 +101,7 @@ const VirtualPostItem = memo(function VirtualPostItem({
   return (
     <article 
       ref={ref}
+      data-render-key={renderKey}
       className={hasBeenVisible ? "animate-post-in" : ""}
       style={{ 
         contain: 'layout style paint',
@@ -117,17 +142,11 @@ const VirtualPostItem = memo(function VirtualPostItem({
     </article>
   );
 }, (prev, next) => {
-  return prev.post.id === next.post.id && 
-         prev.post.updatedAt === next.post.updatedAt &&
-         prev.post.isLiked === next.post.isLiked &&
-         prev.post.isReposted === next.post.isReposted &&
-         prev.post.isSaved === next.post.isSaved &&
-         getPostCount(prev.post, "likes") === getPostCount(next.post, "likes") &&
-         getPostCount(prev.post, "reposts") === getPostCount(next.post, "reposts") &&
-         getReplyCount(prev.post) === getReplyCount(next.post) &&
-         prev.post.views === next.post.views &&
+  return prev.renderKey === next.renderKey &&
          prev.showPinnedTag === next.showPinnedTag &&
-         prev.session?.user?.id === next.session?.user?.id;
+         prev.session?.user?.id === next.session?.user?.id &&
+         prev.onUpdate === next.onUpdate &&
+         prev.onVisible === next.onVisible;
 });
 
 export const VirtualizedPostFeed = memo(function VirtualizedPostFeed({ 
@@ -140,12 +159,21 @@ export const VirtualizedPostFeed = memo(function VirtualizedPostFeed({
   session
 }: VirtualizedPostFeedProps) {
   const loadMoreRef = useRef<HTMLDivElement>(null);
-  const [loadingMore, setLoadingMore] = useState(false);
+  const loadMorePendingRef = useRef(false);
+  const userId = session?.user?.id;
   
   // Stable callback reference
   const handleUpdate = useCallback((updatedPost: FeedPost) => {
     onUpdate?.(updatedPost);
   }, [onUpdate]);
+
+  const postRenderKeys = useMemo(() => {
+    return new Map(posts.map(post => [post.id, getPostRenderKey(post, userId)]));
+  }, [posts, userId]);
+
+  useEffect(() => {
+    loadMorePendingRef.current = false;
+  }, [posts.length]);
   
   // Infinite scroll trigger
   useEffect(() => {
@@ -153,11 +181,12 @@ export const VirtualizedPostFeed = memo(function VirtualizedPostFeed({
     
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting && !loadingMore) {
-          setLoadingMore(true);
+        if (entry.isIntersecting && !loadMorePendingRef.current) {
+          loadMorePendingRef.current = true;
           onLoadMore();
-          // Reset after a short delay
-          setTimeout(() => setLoadingMore(false), 1000);
+          window.setTimeout(() => {
+            loadMorePendingRef.current = false;
+          }, 1000);
         }
       },
       { rootMargin: '400px' }
@@ -165,7 +194,7 @@ export const VirtualizedPostFeed = memo(function VirtualizedPostFeed({
     
     observer.observe(loadMoreRef.current);
     return () => observer.disconnect();
-  }, [hasMore, onLoadMore, loadingMore]);
+  }, [hasMore, onLoadMore]);
 
   if (isLoading && posts.length === 0) {
     return <FeedSkeleton />;
@@ -193,6 +222,7 @@ export const VirtualizedPostFeed = memo(function VirtualizedPostFeed({
         <VirtualPostItem
           key={post.id}
           post={post}
+          renderKey={postRenderKeys.get(post.id) ?? post.id}
           showPinnedTag={!hidePinnedIndicator}
           onUpdate={handleUpdate}
           session={session}

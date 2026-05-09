@@ -1,11 +1,12 @@
 import type { PollData } from "./composer-types";
+import { memo } from "react";
 
 interface ComposerPollSummaryProps {
   pollData: PollData;
   onRemove: () => void;
 }
 
-export function ComposerPollSummary({ pollData, onRemove }: ComposerPollSummaryProps) {
+export const ComposerPollSummary = memo(function ComposerPollSummary({ pollData, onRemove }: ComposerPollSummaryProps) {
   return (
     <div className="animate-pop-in rounded-xl border border-[rgba(var(--color-accent-2-rgb),0.20)] bg-[rgba(var(--color-accent-2-rgb),0.055)] p-4">
       <div className="flex items-start justify-between">
@@ -31,4 +32,4 @@ export function ComposerPollSummary({ pollData, onRemove }: ComposerPollSummaryP
       </div>
     </div>
   );
-}
+});

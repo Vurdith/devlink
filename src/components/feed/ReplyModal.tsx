@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, memo, useCallback, Suspense, lazy } from "react";
+import { useState, useEffect, useRef, memo, useCallback, Suspense, lazy, useMemo } from "react";
 import { useSession } from "next-auth/react";
 import { TimeAgo } from "@/components/ui/TimeAgo";
 import { BaseModal, ModalActionButton, Tooltip } from "@/components/ui/BaseModal";
@@ -68,6 +68,8 @@ export const ReplyModal = memo(function ReplyModal({
   const [pollData, setPollData] = useState<PollData | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const isUploadingMedia = useMemo(() => Object.keys(uploadProgress).length > 0, [uploadProgress]);
+  const isReplyDisabled = (!content.trim() && !pollData) || isSubmitting;
 
   useEffect(() => {
     if (isOpen) {
@@ -99,13 +101,39 @@ export const ReplyModal = memo(function ReplyModal({
     }
   }, [embedInput, embedUrls.length]);
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
+  const openMediaPicker = useCallback(() => {
+    fileInputRef.current?.click();
+  }, []);
+
+  const togglePoll = useCallback(() => {
+    setShowPoll(prev => !prev);
+  }, []);
+
+  const toggleEmbedInput = useCallback(() => {
+    setShowEmbedInput(prev => !prev);
+  }, []);
+
+  const toggleEmojiPicker = useCallback(() => {
+    setShowEmojiPicker(prev => !prev);
+  }, []);
+
+  const toggleSchedule = useCallback(() => {
+    setShowSchedule(prev => !prev);
+  }, []);
+
+  const clearSchedule = useCallback(() => {
+    setScheduledFor("");
+  }, []);
+
+  const removeEmbedUrl = useCallback((index: number) => {
+    setEmbedUrls(prev => prev.filter((_, idx) => idx !== index));
+  }, []);
+
+  const handleFileChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []).slice(0, Math.max(0, 4 - mediaUrls.length));
     if (files.length === 0) return;
 
     for (const file of files) {
-      if (mediaUrls.length >= 4) break;
-      
       const formData = new FormData();
       formData.append('file', file);
       
@@ -132,11 +160,25 @@ export const ReplyModal = memo(function ReplyModal({
     }
     
     if (fileInputRef.current) fileInputRef.current.value = '';
-  };
+  }, [mediaUrls.length]);
 
-  const removeMedia = (index: number) => {
+  const removeMedia = useCallback((index: number) => {
     setMediaUrls(prev => prev.filter((_, i) => i !== index));
-  };
+  }, []);
+
+  const submitPoll = useCallback((data: PollData) => {
+    setPollData(data);
+    setShowPoll(false);
+  }, []);
+
+  const cancelPoll = useCallback(() => {
+    setShowPoll(false);
+    setPollData(null);
+  }, []);
+
+  const clearPoll = useCallback(() => {
+    setPollData(null);
+  }, []);
 
   const handleSubmit = async () => {
     if ((!content.trim() && !pollData) || !session?.user) return;
@@ -174,7 +216,7 @@ export const ReplyModal = memo(function ReplyModal({
   const headerRight = (
     <Button
       onClick={handleSubmit}
-      disabled={(!content.trim() && !pollData) || isSubmitting}
+      disabled={isReplyDisabled}
       isLoading={isSubmitting}
       size="sm"
     >
@@ -197,7 +239,7 @@ export const ReplyModal = memo(function ReplyModal({
         
         {/* Media button */}
         <ModalActionButton 
-          onClick={() => fileInputRef.current?.click()} 
+          onClick={openMediaPicker}
           tooltip="Add media (max 4)"
           badge={mediaUrls.length || undefined}
           disabled={mediaUrls.length >= 4}
@@ -211,7 +253,7 @@ export const ReplyModal = memo(function ReplyModal({
         
         {/* Poll button */}
         <ModalActionButton 
-          onClick={() => setShowPoll(!showPoll)} 
+          onClick={togglePoll}
           tooltip="Create a poll"
           active={showPoll || !!pollData}
         >
@@ -223,7 +265,7 @@ export const ReplyModal = memo(function ReplyModal({
         
         {/* Embed link button */}
         <ModalActionButton 
-          onClick={() => setShowEmbedInput(!showEmbedInput)} 
+          onClick={toggleEmbedInput}
           tooltip="Embed a link"
           active={showEmbedInput}
         >
@@ -235,7 +277,7 @@ export const ReplyModal = memo(function ReplyModal({
         
         {/* Emoji button */}
         <ModalActionButton 
-          onClick={() => setShowEmojiPicker(!showEmojiPicker)} 
+          onClick={toggleEmojiPicker}
           tooltip="Add emoji"
           active={showEmojiPicker}
         >
@@ -249,7 +291,7 @@ export const ReplyModal = memo(function ReplyModal({
         
         {/* Schedule button */}
         <ModalActionButton 
-          onClick={() => setShowSchedule(!showSchedule)} 
+          onClick={toggleSchedule}
           tooltip="Schedule reply"
           active={showSchedule}
         >
@@ -424,7 +466,7 @@ export const ReplyModal = memo(function ReplyModal({
                 />
                 {scheduledFor && (
                   <Tooltip content="Clear scheduled time">
-                    <button type="button" onClick={() => setScheduledFor("")} className="rounded-lg p-2 text-[var(--muted-foreground)] transition-colors hover:bg-white/[0.055] hover:text-white">x</button>
+                    <button type="button" onClick={clearSchedule} className="rounded-lg p-2 text-[var(--muted-foreground)] transition-colors hover:bg-white/[0.055] hover:text-white">x</button>
                   </Tooltip>
                 )}
               </div>
@@ -460,7 +502,7 @@ export const ReplyModal = memo(function ReplyModal({
                     <span key={i} className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-cyan-500/30 bg-cyan-500/10 text-sm">
                       <a href={u} target="_blank" rel="noreferrer" className="text-cyan-400 hover:underline truncate max-w-[200px]">{u}</a>
                       <Tooltip content="Remove link">
-                        <button type="button" onClick={() => setEmbedUrls(prev => prev.filter((_, idx) => idx !== i))} className="text-[var(--muted-foreground)] transition-colors hover:text-white">x</button>
+                        <button type="button" onClick={() => removeEmbedUrl(i)} className="text-[var(--muted-foreground)] transition-colors hover:text-white">x</button>
                       </Tooltip>
                     </span>
                   ))}
@@ -473,16 +515,7 @@ export const ReplyModal = memo(function ReplyModal({
           {showPoll && (
             <div className="mt-3 animate-slide-down">
               <Suspense fallback={<ComposerLoadingPlaceholder height="h-48" />}>
-                <CreatePoll 
-                  onSubmit={(data) => { 
-                    setPollData(data); 
-                    setShowPoll(false); 
-                  }} 
-                  onCancel={() => { 
-                    setShowPoll(false); 
-                    setPollData(null); 
-                  }} 
-                />
+                <CreatePoll onSubmit={submitPoll} onCancel={cancelPoll} />
               </Suspense>
             </div>
           )}
@@ -490,7 +523,7 @@ export const ReplyModal = memo(function ReplyModal({
           {/* Poll Preview (after creation) */}
           {pollData && !showPoll && (
             <div className="mt-3">
-              <ComposerPollSummary pollData={pollData} onRemove={() => setPollData(null)} />
+              <ComposerPollSummary pollData={pollData} onRemove={clearPoll} />
             </div>
           )}
 
@@ -498,7 +531,7 @@ export const ReplyModal = memo(function ReplyModal({
           {mediaUrls.length > 0 && <ComposerMediaGrid mediaUrls={mediaUrls} onRemove={removeMedia} compact />}
           
           {/* Upload progress */}
-          {Object.keys(uploadProgress).length > 0 && (
+          {isUploadingMedia && (
             <div className={surface("panelMuted", "mt-3 p-3")}>
               <div className="flex items-center gap-2 text-sm text-[var(--color-accent)]">
                 <div className="w-4 h-4 border-2 border-[var(--color-accent)]/30 border-t-[var(--color-accent)] rounded-full animate-spin" />
