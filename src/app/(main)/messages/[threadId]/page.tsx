@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { cn } from "@/lib/cn";
 import { safeJson } from "@/lib/safe-json";
-import { ui } from "@/components/ui/design-system";
+import { surface, ui } from "@/components/ui/design-system";
 import { MessageList } from "../_components/MessageList";
 import { ProfilePreviewCard } from "../_components/ProfilePreviewCard";
 import { MessageThreadHeader } from "../_components/MessageThreadHeader";
@@ -268,7 +268,7 @@ export default function MessageThreadPage() {
       {/* Messages area */}
       <div
         ref={scrollRef}
-        className="flex-1 overflow-y-auto px-4 py-4 scrollbar-hide"
+        className="scrollbar-hide flex-1 overflow-y-auto px-4 py-4"
       >
         <MessageThreadIntro otherUser={otherUser} />
 
@@ -277,7 +277,7 @@ export default function MessageThreadPage() {
 
       {/* Emoji picker panel */}
       {showEmojiPicker && (
-        <div ref={emojiPickerRef} className="flex-shrink-0 border-t border-white/[0.06] px-4 py-2">
+        <div ref={emojiPickerRef} className="flex-shrink-0 border-t border-white/[0.06] bg-[rgba(8,11,16,0.62)] px-4 py-2">
           <Suspense fallback={<div className="h-[350px] flex items-center justify-center"><div className="w-5 h-5 border-2 border-white/20 border-t-[var(--color-accent)] rounded-full animate-spin" /></div>}>
             <EmojiPicker
               onEmojiClick={addEmoji}
@@ -292,7 +292,7 @@ export default function MessageThreadPage() {
       )}
 
       {/* Input area */}
-      <div className="flex-shrink-0 border-t border-white/[0.06] px-4 py-3">
+      <div className="flex-shrink-0 border-t border-white/[0.06] bg-[rgba(8,11,16,0.72)] px-4 py-3 backdrop-blur-md">
         {/* Hidden file inputs for uploads */}
         <input
           ref={imageInputRef}
@@ -309,9 +309,9 @@ export default function MessageThreadPage() {
           onChange={handleImageSelect}
         />
 
-        {/* Pending request notice — shown after 1 message sent */}
+        {/* Pending request notice shown after 1 message sent */}
         {pendingRequest && hasSentRequestMsg && (
-          <div className="mb-2 px-3 py-2 rounded-xl bg-white/[0.04] border border-white/[0.06] text-center">
+          <div className={surface("empty", "mb-2 px-3 py-2 text-center")}>
             <p className="text-[13px] text-white/40">
               Your message request has been sent. You can send more messages once{" "}
               <span className="text-white/60 font-medium">{otherUser?.name || otherUser?.username}</span>{" "}
@@ -320,9 +320,9 @@ export default function MessageThreadPage() {
           </div>
         )}
 
-        {/* Pending request hint — shown before first message */}
+        {/* Pending request hint shown before first message */}
         {pendingRequest && !hasSentRequestMsg && (
-          <div className="mb-2 px-3 py-2 rounded-xl bg-[rgba(var(--color-accent-rgb),0.06)] border border-[rgba(var(--color-accent-rgb),0.12)] text-center">
+          <div className="mb-2 rounded-xl border border-[rgba(var(--color-accent-2-rgb),0.18)] bg-[rgba(var(--color-accent-2-rgb),0.06)] px-3 py-2 text-center">
             <p className="text-[13px] text-white/50">
               Send a message to introduce yourself. {otherUser?.name || otherUser?.username} will see it as a request.
             </p>
@@ -331,7 +331,7 @@ export default function MessageThreadPage() {
 
         {/* Upload progress indicator */}
         {uploading && (
-          <div className="mb-2 flex items-center gap-2 px-3 py-2 rounded-xl bg-white/[0.04] border border-white/[0.06]">
+          <div className={surface("empty", "mb-2 flex items-center gap-2 px-3 py-2")}>
             <div className="w-4 h-4 border-2 border-white/20 border-t-[var(--color-accent)] rounded-full animate-spin" />
             <span className="text-[13px] text-white/50">Uploading...</span>
           </div>
@@ -345,7 +345,7 @@ export default function MessageThreadPage() {
                 onClick={() => imageInputRef.current?.click()}
                 disabled={uploading}
                 className={cn(
-                  "w-9 h-9 rounded-full flex items-center justify-center text-[var(--color-accent)] hover:bg-[rgba(var(--color-accent-rgb),0.1)] transition-colors",
+                  "flex h-9 w-9 items-center justify-center rounded-lg border border-transparent text-[var(--color-accent-2)] transition-colors hover:border-white/[0.10] hover:bg-white/[0.045]",
                   uploading && "opacity-40 cursor-not-allowed"
                 )}
                 title="Attach media"
@@ -360,7 +360,7 @@ export default function MessageThreadPage() {
                 onClick={() => gifInputRef.current?.click()}
                 disabled={uploading}
                 className={cn(
-                  "w-9 h-9 rounded-full flex items-center justify-center text-[var(--color-accent)] hover:bg-[rgba(var(--color-accent-rgb),0.1)] transition-colors",
+                  "flex h-9 w-9 items-center justify-center rounded-lg border border-transparent text-[var(--color-accent-2)] transition-colors hover:border-white/[0.10] hover:bg-white/[0.045]",
                   uploading && "opacity-40 cursor-not-allowed"
                 )}
                 title="Upload GIF"
@@ -373,10 +373,10 @@ export default function MessageThreadPage() {
               <button
                 onClick={() => setShowEmojiPicker((v) => !v)}
                 className={cn(
-                  "w-9 h-9 rounded-full flex items-center justify-center transition-colors",
+                  "flex h-9 w-9 items-center justify-center rounded-lg border transition-colors",
                   showEmojiPicker
-                    ? "text-[var(--color-accent)] bg-[rgba(var(--color-accent-rgb),0.15)]"
-                    : "text-[var(--color-accent)] hover:bg-[rgba(var(--color-accent-rgb),0.1)]"
+                    ? ui.active.cyan
+                    : "border-transparent text-[var(--color-accent-2)] hover:border-white/[0.10] hover:bg-white/[0.045]"
                 )}
                 title="Emoji"
               >
@@ -415,10 +415,10 @@ export default function MessageThreadPage() {
               onClick={sendMessage}
               disabled={sending || !content.trim()}
               className={cn(
-                "w-9 h-9 rounded-full flex items-center justify-center transition-colors flex-shrink-0",
+                "flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg border transition-colors",
                 content.trim()
-                  ? "text-[var(--color-accent)] hover:bg-[rgba(var(--color-accent-rgb),0.1)]"
-                  : "text-white/20 cursor-not-allowed"
+                  ? "border-[rgba(var(--color-accent-2-rgb),0.26)] bg-[rgba(var(--color-accent-2-rgb),0.10)] text-[var(--color-accent-2)] hover:bg-[rgba(var(--color-accent-2-rgb),0.16)]"
+                  : "cursor-not-allowed border-transparent text-white/20"
               )}
               title="Send"
             >

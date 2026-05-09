@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { menuPanel, ui } from "@/components/ui/design-system";
+import { iconBox, menuPanel, surface, ui } from "@/components/ui/design-system";
 import { cn } from "@/lib/cn";
 import { safeJson } from "@/lib/safe-json";
 import { Avatar } from "@/components/ui/Avatar";
@@ -176,7 +176,7 @@ export function MessagesSidebar() {
 
   if (!userId) {
     return (
-      <aside className="flex h-full w-full flex-shrink-0 flex-col border-r border-white/[0.06] bg-[rgba(8,11,16,0.58)] md:w-[380px] lg:w-[420px]">
+      <aside className="flex h-full w-full flex-shrink-0 flex-col border-r border-white/[0.06] bg-[rgba(8,11,16,0.72)] md:w-[380px] lg:w-[420px]">
         <div className="flex items-center justify-center h-full text-sm text-[var(--muted-foreground)]">
           Sign in to view messages.
         </div>
@@ -188,13 +188,16 @@ export function MessagesSidebar() {
     <>
       <aside
         className={cn(
-          "flex h-full w-full flex-shrink-0 flex-col border-r border-white/[0.06] bg-[rgba(8,11,16,0.58)] md:w-[380px] lg:w-[420px]",
+          "flex h-full w-full flex-shrink-0 flex-col border-r border-white/[0.06] bg-[rgba(8,11,16,0.72)] md:w-[380px] lg:w-[420px]",
           isThreadRoute && "hidden md:flex"
         )}
       >
         {/* Header */}
-        <div className="flex h-[53px] flex-shrink-0 items-center justify-between border-b border-white/[0.06] px-4">
-          <h1 className="text-xl font-bold text-white">Messages</h1>
+        <div className="noise-overlay flex h-[60px] flex-shrink-0 items-center justify-between border-b border-white/[0.06] px-4">
+          <div>
+            <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--color-accent-2)]">Inbox</div>
+            <h1 className="text-xl font-bold text-white">Messages</h1>
+          </div>
           <div className="flex items-center gap-1 relative" ref={settingsRef}>
             <button
               onClick={() => setShowSettings((v) => !v)}
@@ -263,7 +266,7 @@ export function MessagesSidebar() {
         </div>
 
         {/* Search */}
-        <div className="px-4 py-2 flex-shrink-0">
+        <div className="flex-shrink-0 px-4 py-3">
           <div className="relative">
             <svg
               className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30 pointer-events-none"
@@ -279,34 +282,34 @@ export function MessagesSidebar() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search Direct Messages"
-              className={cn(ui.control.field, "rounded-full py-2.5 pl-10 pr-4")}
+              className={cn(ui.control.field, "rounded-lg py-2.5 pl-10 pr-4")}
             />
           </div>
         </div>
 
         {/* Tabs */}
-        <div className="flex border-b border-white/[0.06] flex-shrink-0">
+        <div className={surface("toolbar", "m-4 mt-0 flex flex-shrink-0 gap-1 p-1")}>
           <button
             onClick={() => setActiveTab("inbox")}
             className={cn(
-              "flex-1 py-3 text-sm font-semibold text-center transition-colors relative",
+              "relative flex-1 rounded-lg py-2.5 text-center text-sm font-semibold transition-colors",
               activeTab === "inbox"
                 ? "text-white"
-                : "text-white/40 hover:text-white/60 hover:bg-white/[0.03]"
+                : "text-white/40 hover:bg-white/[0.045] hover:text-white/70"
             )}
           >
             Inbox
             {activeTab === "inbox" && (
-                <div className="absolute bottom-0 left-1/2 h-[3px] w-14 -translate-x-1/2 rounded-full bg-[var(--color-accent-2)]" />
+                <div className="absolute inset-x-3 bottom-0 h-px rounded-full bg-[var(--color-accent-2)]" />
             )}
           </button>
           <button
             onClick={() => setActiveTab("requests")}
             className={cn(
-              "flex-1 py-3 text-sm font-semibold text-center transition-colors relative",
+              "relative flex-1 rounded-lg py-2.5 text-center text-sm font-semibold transition-colors",
               activeTab === "requests"
                 ? "text-white"
-                : "text-white/40 hover:text-white/60 hover:bg-white/[0.03]"
+                : "text-white/40 hover:bg-white/[0.045] hover:text-white/70"
             )}
           >
             Requests
@@ -316,7 +319,7 @@ export function MessagesSidebar() {
               </span>
             )}
             {activeTab === "requests" && (
-                <div className="absolute bottom-0 left-1/2 h-[3px] w-14 -translate-x-1/2 rounded-full bg-[var(--color-accent-2)]" />
+                <div className="absolute inset-x-3 bottom-0 h-px rounded-full bg-[var(--color-accent-2)]" />
             )}
           </button>
         </div>
@@ -327,7 +330,12 @@ export function MessagesSidebar() {
             <div className="divide-y divide-white/[0.06]">
               {incomingRequests.length === 0 ? (
                 <div className="px-4 py-8 text-center">
-                  <div className="text-white/30 text-sm">No message requests</div>
+                  <div className={iconBox("muted", "mx-auto mb-3 h-11 w-11")}>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                      <path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v8z" />
+                    </svg>
+                  </div>
+                  <div className="text-sm text-white/40">No message requests</div>
                   <p className="text-white/20 text-xs mt-1">When someone sends you a message request, it will appear here.</p>
                 </div>
               ) : (
@@ -403,7 +411,7 @@ export function MessagesSidebar() {
                 </>
               ) : (
                 <>
-                  <div className="text-2xl font-bold text-white mb-1">Welcome to your inbox!</div>
+                  <div className="mb-1 text-2xl font-bold text-white">Welcome to your inbox</div>
                   <p className="text-white/40 text-sm leading-relaxed">
                     Drop a line, share posts and more with private conversations between you and others on DevLink.
                   </p>
@@ -433,7 +441,7 @@ export function MessagesSidebar() {
                     key={thread.id}
                     href={`/messages/${thread.id}`}
                     className={cn(
-                      "flex items-start gap-3 px-4 py-3 transition-colors border-r-2",
+                      "flex items-start gap-3 border-r-2 px-4 py-3 transition-colors",
                       isActive
                         ? cn("border-r-[var(--color-accent-2)]", ui.active.cyan)
                         : "border-r-transparent hover:bg-white/[0.035]"

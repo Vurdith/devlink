@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
-import { ui } from "@/components/ui/design-system";
+import { iconBox, surface, ui } from "@/components/ui/design-system";
 import { NewMessageModal } from "./_components/NewMessageModal";
 
 export default function MessagesPage() {
@@ -13,14 +13,19 @@ export default function MessagesPage() {
 
   return (
     <>
-      <div className="hidden md:flex flex-col items-center justify-center h-full">
-        <div className="max-w-[340px] text-center px-8">
-          <h2 className="text-[31px] font-extrabold text-white leading-tight">
+      <div className="hidden h-full flex-col items-center justify-center md:flex">
+        <div className={surface("panel", "noise-overlay relative max-w-[380px] overflow-hidden px-8 py-9 text-center")}>
+          <div className={iconBox("cyan", "mx-auto mb-5 h-12 w-12")}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+              <path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v8z" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </div>
+          <h2 className="text-[28px] font-extrabold leading-tight text-white">
             {isLoggedIn ? "Select a message" : "Your messages"}
           </h2>
-          <p className="text-[15px] text-white/40 mt-2 leading-relaxed">
+          <p className="mt-2 text-[15px] leading-relaxed text-white/45">
             {isLoggedIn
-              ? "Choose from your existing conversations, start a new one, or just keep swimming."
+              ? "Choose an existing conversation or start a new private thread."
               : "Sign in to send and receive private messages with other developers on DevLink."}
           </p>
           {isLoggedIn ? (

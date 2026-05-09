@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Avatar } from "@/components/ui/Avatar";
 import { cn } from "@/lib/cn";
-import { ui } from "@/components/ui/design-system";
+import { surface, ui } from "@/components/ui/design-system";
 import type { MessageThread } from "@/types/api";
 
 interface MessageThreadHeaderProps {
@@ -11,7 +11,7 @@ interface MessageThreadHeaderProps {
 
 export function MessageThreadHeader({ otherUser, onShowProfile }: MessageThreadHeaderProps) {
   return (
-    <div className="flex h-[53px] flex-shrink-0 items-center gap-3 border-b border-white/[0.06] bg-[rgba(8,11,16,0.74)] px-4 backdrop-blur-md">
+    <div className={surface("toolbar", "noise-overlay flex h-[60px] flex-shrink-0 items-center gap-3 rounded-none border-x-0 border-t-0 px-4 backdrop-blur-md")}>
       <Link href="/messages" className={cn("flex h-9 w-9 items-center justify-center text-white/60 transition-colors md:hidden", ui.control.icon)}>
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
           <path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />

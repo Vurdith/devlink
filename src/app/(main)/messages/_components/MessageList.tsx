@@ -38,7 +38,7 @@ function MessageBubble({
     <div>
       {message.showDate && (
         <div className="flex items-center justify-center py-4">
-          <span className="text-xs text-white/30 font-medium">{formatMessageDay(new Date(message.createdAt))}</span>
+          <span className="rounded-full border border-white/[0.08] bg-white/[0.035] px-3 py-1 text-xs font-medium text-white/35">{formatMessageDay(new Date(message.createdAt))}</span>
         </div>
       )}
 
@@ -55,8 +55,8 @@ function MessageBubble({
               className={cn(
                 isMediaUrl(message.content) ? "p-1 overflow-hidden" : "px-4 py-2.5 text-[15px] leading-snug break-words",
                 isMine
-                  ? "bg-gradient-to-r from-[var(--color-accent)] to-[var(--color-accent-hover)] text-white"
-                  : "bg-white/[0.08] text-white",
+                  ? "border border-[rgba(var(--color-accent-2-rgb),0.26)] bg-[linear-gradient(135deg,var(--color-accent),rgba(var(--color-accent-2-rgb),0.92))] text-white"
+                  : "border border-white/[0.08] bg-white/[0.055] text-white",
                 isMine ? mineBubbleShape(message) : otherBubbleShape(message)
               )}
             >
@@ -102,7 +102,7 @@ function otherBubbleShape(message: FormattedMessage) {
 function TypingIndicator() {
   return (
     <div className="flex justify-start mt-3">
-      <div className="flex items-center gap-2 px-4 py-2.5 bg-white/[0.08] rounded-[22px]">
+      <div className="flex items-center gap-2 rounded-[22px] border border-white/[0.08] bg-white/[0.055] px-4 py-2.5">
         <div className="flex gap-1 items-center">
           <span className="w-1.5 h-1.5 rounded-full bg-white/40 animate-bounce [animation-delay:0ms]" />
           <span className="w-1.5 h-1.5 rounded-full bg-white/40 animate-bounce [animation-delay:150ms]" />

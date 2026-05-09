@@ -94,12 +94,13 @@ export function NewMessageModal({ onClose, onThreadCreated, onRequestSent }: New
       />
 
       {/* Modal */}
-      <div className={surface("panelStrong", "relative mx-4 flex max-h-[70vh] w-full max-w-[600px] flex-col overflow-hidden")}>
+      <div className={surface("panelStrong", "noise-overlay relative mx-4 flex max-h-[70vh] w-full max-w-[600px] flex-col overflow-hidden")}>
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.42)] to-transparent" />
         {/* Header */}
         <div className="flex items-center gap-3 px-4 h-[53px] border-b border-white/[0.06] flex-shrink-0">
           <button
             onClick={onClose}
-            className={cn("flex h-9 w-9 items-center justify-center rounded-full text-white/60 transition-colors", ui.control.ghost)}
+            className={cn("flex h-9 w-9 items-center justify-center rounded-lg text-white/60 transition-colors", ui.control.ghost)}
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
               <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
@@ -108,20 +109,20 @@ export function NewMessageModal({ onClose, onThreadCreated, onRequestSent }: New
           <h2 className="text-base font-bold text-white flex-1">New message</h2>
           <button
             disabled
-            className="px-4 py-1.5 rounded-full text-sm font-bold bg-white/20 text-white/40 cursor-not-allowed"
+            className="rounded-lg border border-white/[0.08] bg-white/[0.045] px-4 py-1.5 text-sm font-bold text-white/40"
           >
             Next
           </button>
         </div>
 
         {/* Search */}
-        <div className="flex items-center gap-3 px-4 py-1 border-b border-white/[0.06] flex-shrink-0">
+        <div className="flex flex-shrink-0 items-center gap-3 border-b border-white/[0.06] px-4 py-2">
           <span className="text-sm text-white/40 flex-shrink-0">To:</span>
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search people"
-            className="flex-1 bg-transparent text-sm text-white placeholder:text-white/30 focus:outline-none py-3"
+            className={cn(ui.control.field, "flex-1 py-2.5")}
             autoFocus
           />
           {creating && (
@@ -170,7 +171,7 @@ export function NewMessageModal({ onClose, onThreadCreated, onRequestSent }: New
                 </div>
                 <div className="text-sm text-white/40 truncate">@{user.username}</div>
                 {user.bio && (
-                  <div className="text-xs text-white/30 truncate mt-0.5">{user.bio}</div>
+                  <div className="mt-1 line-clamp-2 border-l border-[rgba(var(--color-accent-2-rgb),0.22)] pl-2 text-xs leading-relaxed text-white/40">{user.bio}</div>
                 )}
               </div>
               {user.isFollowing && (
