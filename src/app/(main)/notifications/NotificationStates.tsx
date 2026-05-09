@@ -1,20 +1,23 @@
 import { FeedbackState } from "@/components/ui/FeedbackState";
-import { surface } from "@/components/ui/design-system";
+import { skeleton, surface } from "@/components/ui/design-system";
 import type { NotificationTab } from "./notification-types";
 import { BellIcon } from "./NotificationIcons";
 
 export function NotificationsLoading() {
   return (
-    <div className="space-y-2">
+    <div className="space-y-2" aria-label="Loading notifications">
       {Array.from({ length: 6 }).map((_, i) => (
-        <div key={i} className={surface("empty", "p-4")}>
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-white/10" />
-            <div className="flex-1">
-              <div className="h-3 w-48 bg-white/10 rounded" />
-              <div className="h-3 w-64 bg-white/5 rounded mt-2" />
+        <div key={i} className={surface("panelMuted", "relative overflow-hidden p-4 sm:p-5")}>
+          <div className="flex items-start gap-3 sm:gap-4">
+            <div className={skeleton("h-10 w-10 shrink-0 rounded-full")} />
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <div className={skeleton("h-4 w-44 max-w-full")} />
+                <div className={skeleton("h-3 w-20")} />
+              </div>
+              <div className={skeleton("mt-3 h-3 w-full")} />
+              <div className={skeleton("mt-2 h-3 w-4/5")} />
             </div>
-            <div className="h-3 w-12 bg-white/10 rounded" />
           </div>
         </div>
       ))}

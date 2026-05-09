@@ -1,6 +1,6 @@
 import { useRouter } from "next/navigation";
 import { Avatar } from "@/components/ui/Avatar";
-import { Button } from "@/components/ui/Button";
+import { LoadMoreButton } from "@/components/ui/FeedbackState";
 import { surface, ui } from "@/components/ui/design-system";
 import { cn } from "@/lib/cn";
 import { ProfileTooltip } from "@/components/profile/ProfileTooltip";
@@ -42,11 +42,13 @@ export function NotificationList({ rows, currentUserId, hasMore, loadingMore, on
       })}
 
       {hasMore ? (
-        <div className="pt-2 flex justify-center">
-          <Button size="sm" variant="secondary" onClick={onFetchMore} disabled={loadingMore}>
-            {loadingMore ? "Loading..." : "Load more"}
-          </Button>
-        </div>
+        <LoadMoreButton
+          loading={loadingMore}
+          onClick={onFetchMore}
+          label="Load older notifications"
+          loadingLabel="Loading older notifications..."
+          className="pt-5"
+        />
       ) : null}
     </>
   );
@@ -54,9 +56,9 @@ export function NotificationList({ rows, currentUserId, hasMore, loadingMore, on
 
 function NotificationSection({ label }: { label: string }) {
   return (
-    <div className="pt-6 pb-2">
-      <div className="inline-flex items-center gap-2 text-xs font-semibold text-white/70 tracking-wide uppercase">
-        <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-accent)]" />
+    <div className="pb-2 pt-6 first:pt-2">
+      <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-white/70">
+        <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-accent-2)]" />
         {label}
       </div>
     </div>
@@ -65,8 +67,12 @@ function NotificationSection({ label }: { label: string }) {
 
 function NotificationDayHeader({ label }: { label: string }) {
   return (
-    <div className="pt-4 pb-2">
-      <div className="text-xs font-semibold text-white/45 tracking-wide uppercase">{label}</div>
+    <div className="pb-2 pt-4">
+      <div className="flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.16em] text-white/45">
+        <span className="h-px flex-1 bg-white/[0.08]" />
+        <span>{label}</span>
+        <span className="h-px flex-1 bg-white/[0.08]" />
+      </div>
     </div>
   );
 }
@@ -120,15 +126,16 @@ function NotificationCard({
         }
       }}
       className={[
-        surface("panelMuted", "group relative p-4 transition-all outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-rgb),0.45)] hover:border-white/20"),
-        n.readAt
-          ? ""
-          : ui.active.cyan,
+        surface(
+          "panelMuted",
+          "group relative cursor-pointer overflow-hidden p-4 outline-none transition-all duration-200 hover:-translate-y-0.5 hover:border-white/[0.16] hover:bg-white/[0.045] focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.55)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)] active:translate-y-0 sm:p-5"
+        ),
+        n.readAt ? "" : ui.active.cyan,
       ].join(" ")}
       aria-label="Notification"
     >
       {!n.readAt ? <UnreadGlow /> : null}
-      <div className="flex items-start gap-3">
+      <div className="flex items-start gap-3 sm:gap-4">
         <ActorStack
           actors={avatarStack}
           totalActors={actors.length}
@@ -142,12 +149,12 @@ function NotificationCard({
         />
 
         <div className="min-w-0 flex-1">
-          <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0">
-              <div className="text-white/90 flex items-center gap-2 min-w-0">
-                <span className="font-semibold truncate">{who.who}</span>
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+            <div className="min-w-0 text-sm leading-6 text-white/[0.88] sm:text-[15px]">
+              <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+                <span className="max-w-full truncate font-semibold text-white">{who.who}</span>
                 {verified ? <VerifiedBadge /> : null}
-                <span className="text-white/60 truncate">
+                <span className="min-w-0 text-white/[0.62]">
                   {who.rest ? `${who.rest} ` : ""}
                   {labelForNotification(n)}.
                 </span>
@@ -166,8 +173,8 @@ function NotificationCard({
 function UnreadGlow() {
   return (
     <>
-      <span aria-hidden="true" className="absolute left-0 top-3 bottom-3 w-[3px] rounded-full bg-gradient-to-b from-[var(--color-accent)] via-[var(--color-accent-2)] to-[var(--color-accent-3)]" />
-      <span aria-hidden="true" className="absolute inset-0 rounded-xl border border-[rgba(var(--color-accent-rgb),0.45)] pointer-events-none" />
+      <span aria-hidden="true" className="absolute bottom-3 left-0 top-3 w-[3px] rounded-full bg-gradient-to-b from-[var(--color-accent-2)] via-[var(--color-accent)] to-[var(--color-accent-3)]" />
+      <span aria-hidden="true" className="pointer-events-none absolute inset-0 rounded-xl border border-[rgba(var(--color-accent-2-rgb),0.38)]" />
     </>
   );
 }
@@ -188,7 +195,7 @@ function ActorStack({
   onProfileClick: (username: string) => void;
 }) {
   return (
-    <div className="relative flex-shrink-0">
+    <div className="relative shrink-0">
       <span
         aria-hidden="true"
         className="absolute left-1/2 w-px bg-white/10"
@@ -198,7 +205,7 @@ function ActorStack({
         {actors.map((actor, index) => (
           <div
             key={actor.id}
-            className={["rounded-full overflow-hidden flex items-center justify-center ring-2 ring-[var(--color-background)]", index === 0 ? "w-10 h-10" : "w-9 h-9"].join(" ")}
+            className={["flex items-center justify-center overflow-hidden rounded-full ring-2 ring-[var(--color-background)]", index === 0 ? "h-10 w-10" : "h-9 w-9"].join(" ")}
           >
             <ProfileTooltip
               user={{
@@ -214,7 +221,7 @@ function ActorStack({
                   event.stopPropagation();
                   onProfileClick(actor.username);
                 }}
-                className="block w-10 h-10 leading-none"
+                className="block h-10 w-10 leading-none"
                 aria-label={`Open profile for ${actor.name}`}
               >
                 <Avatar src={actor.avatarUrl} alt={actor.name} className="w-full h-full border-0" />
@@ -224,7 +231,7 @@ function ActorStack({
         ))}
       </div>
       {totalActors > 1 ? (
-        <span className="absolute -top-2 -right-2 rounded-full bg-white/10 border border-white/15 px-1.5 py-0.5 text-[10px] font-semibold text-white/80">
+        <span className="absolute -right-2 -top-2 rounded-full border border-white/15 bg-[rgba(8,11,16,0.92)] px-1.5 py-0.5 text-[10px] font-semibold text-white/80">
           +{totalActors - 1}
         </span>
       ) : null}
@@ -234,11 +241,11 @@ function ActorStack({
 
 function NotificationMeta({ notification: n, onMarkRead }: { notification: NotificationItem; onMarkRead: () => void }) {
   return (
-    <div className="flex items-center gap-2 flex-shrink-0">
-      <span className={["w-7 h-7 rounded-full border bg-white/5 flex items-center justify-center", typeBadgeClasses(n.type)].join(" ")} aria-hidden="true">
+    <div className="flex shrink-0 items-center gap-2 self-start">
+      <span className={["flex h-7 w-7 items-center justify-center rounded-lg border bg-white/[0.045]", typeBadgeClasses(n.type)].join(" ")} aria-hidden="true">
         <TypeIcon type={n.type} />
       </span>
-      <div className="text-[11px] text-white/45 tabular-nums">{safeDistance(n.createdAt)}</div>
+      <div className="whitespace-nowrap text-[11px] tabular-nums text-white/45">{safeDistance(n.createdAt)}</div>
       {!n.readAt ? (
         <button
           type="button"
@@ -246,7 +253,7 @@ function NotificationMeta({ notification: n, onMarkRead }: { notification: Notif
             event.stopPropagation();
             onMarkRead();
           }}
-          className={cn("p-1.5 opacity-0 transition-opacity group-hover:opacity-100", ui.control.icon)}
+          className={cn("p-1.5 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100", ui.control.icon)}
           aria-label="Mark as read"
         >
           <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -261,9 +268,9 @@ function NotificationMeta({ notification: n, onMarkRead }: { notification: Notif
 function NotificationPreview({ notification: n }: { notification: NotificationItem }) {
   if (n.type === "REPLY" && (n.sourcePost?.content || n.post?.content)) {
     return (
-      <div className={surface("empty", "relative mt-2 px-3 py-2 pl-5 text-sm text-white/60")}>
-        <span className="absolute bottom-2 left-2 top-2 w-px bg-white/[0.08]" aria-hidden="true" />
-        <span className="absolute left-1.5 top-2 w-2 h-2 rounded-full bg-white/25" aria-hidden="true" />
+      <div className="relative mt-3 rounded-lg border border-white/[0.08] bg-black/10 px-3 py-2 pl-5 text-sm leading-6 text-white/60">
+        <span className="absolute bottom-2 left-2 top-2 w-px bg-[rgba(var(--color-accent-2-rgb),0.18)]" aria-hidden="true" />
+        <span className="absolute left-1.5 top-2 h-2 w-2 rounded-full bg-[rgba(var(--color-accent-2-rgb),0.42)]" aria-hidden="true" />
         {n.sourcePost?.content ? <div className="line-clamp-3 break-words">{compactPreviewText(n.sourcePost.content)}</div> : null}
         {n.post?.content ? (
           <div className="mt-2 border-l border-white/[0.08] pl-3">
@@ -277,7 +284,7 @@ function NotificationPreview({ notification: n }: { notification: NotificationIt
   if (!n.post?.content) return null;
 
   return (
-    <div className={surface("empty", "mt-2 line-clamp-2 break-words px-3 py-2 text-sm text-white/60")}>
+    <div className="mt-3 line-clamp-2 break-words rounded-lg border border-white/[0.08] bg-black/10 px-3 py-2 text-sm leading-6 text-white/60">
       {compactPreviewText(n.post.content)}
     </div>
   );

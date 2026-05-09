@@ -155,7 +155,7 @@ export default function NotificationsPage() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto">
+    <div className="mx-auto w-full max-w-3xl pb-8">
       <NotificationsHeader
         unreadCount={unreadIds.length}
         tab={tab}
@@ -164,7 +164,7 @@ export default function NotificationsPage() {
         onTabChange={setTab}
       />
 
-      <div className="space-y-2">
+      <div className="space-y-2 px-1 sm:px-0">
         {status === "unauthenticated" ? (
           <NotificationsSignedOut />
         ) : loading || status === "loading" ? (
