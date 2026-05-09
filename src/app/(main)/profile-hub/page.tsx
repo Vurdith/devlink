@@ -9,7 +9,7 @@ import { ProfileHubTabs } from "./ProfileHubTabs";
 import { ProfileSection, type ProfileData } from "./ProfileSection";
 import { SkillEditModal } from "./SkillEditModal";
 import { UserSkillsPanel } from "./UserSkillsPanel";
-import { iconBox } from "@/components/ui/design-system";
+import { iconBox, surface } from "@/components/ui/design-system";
 import type { Skill, UserSkill } from "./profile-hub-types";
 
 export default function ProfileHubPage() {
@@ -250,13 +250,10 @@ export default function ProfileHubPage() {
 
   return (
     <main className="relative px-4 py-10">
-      {/* Background (full-height, no scroll cutoff) */}
-      <div className="fixed inset-0 -z-10 pointer-events-none gradient-bg" />
-      <div className="fixed inset-0 -z-10 pointer-events-none grid-pattern opacity-40" />
-
       <div className="relative mx-auto max-w-4xl">
         {/* Header */}
-        <div className="mb-8">
+        <div className={surface("panel", "noise-overlay relative mb-8 overflow-hidden p-5")}>
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.42)] to-transparent" />
           <div className="inline-flex items-center gap-3">
             <div className={iconBox("cyan", "h-10 w-10")}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -265,6 +262,7 @@ export default function ProfileHubPage() {
               </svg>
             </div>
             <div>
+              <div className="mb-1 text-[10px] font-bold uppercase tracking-[0.16em] text-[var(--color-accent-2)]">Profile tools</div>
               <h1 className="text-2xl font-bold text-white font-[var(--font-space-grotesk)]">Profile Hub</h1>
               <p className="text-[var(--muted-foreground)] mt-0.5">Manage your profile, skills, and services</p>
             </div>

@@ -24,7 +24,8 @@ export function AddSkillsPanel({
   const trimmedSearch = skillSearch.trim();
 
   return (
-    <div className={surface("panel", "relative overflow-hidden p-6")}>
+    <div className={surface("panel", "noise-overlay relative overflow-hidden p-6")}>
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.36)] to-transparent" />
       <div
         aria-hidden="true"
         className="absolute inset-0 pointer-events-none opacity-55"
@@ -41,21 +42,21 @@ export function AddSkillsPanel({
             </svg>
           </div>
           <div>
-            <h2 className="text-lg font-semibold text-white">Add Skills</h2>
+            <h2 className="text-lg font-semibold text-white">Add skills</h2>
             <p className="text-sm text-[var(--muted-foreground)]">Search from 200+ skills or add your own</p>
           </div>
         </div>
 
         <ModalInput placeholder="Search skills..." value={skillSearch} onChange={(event) => onSkillSearchChange(event.target.value)} className="mb-4" />
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-64 overflow-y-auto mb-4">
+        <div className="mb-4 grid max-h-64 grid-cols-1 gap-2 overflow-y-auto sm:grid-cols-2">
           {filteredSkills.slice(0, 30).map((skill) => (
             <button
               key={skill.id}
               onClick={() => onAddSkill(skill)}
               disabled={!canAddMore}
               className={cn(
-                "p-3 rounded-lg border text-left transition-all",
+                "rounded-lg border p-3 text-left transition-all",
                 ui.surface.empty,
                 "hover:border-[rgba(var(--color-accent-2-rgb),0.28)] hover:bg-[rgba(var(--color-accent-2-rgb),0.06)]",
                 !canAddMore && "opacity-50 cursor-not-allowed"
@@ -70,8 +71,8 @@ export function AddSkillsPanel({
               onClick={() => onAddCustomSkill(trimmedSearch)}
               disabled={!canAddMore}
               className={cn(
-                "p-3 rounded-lg border text-left transition-all col-span-full",
-                "border-[var(--color-accent)]/30 hover:border-[var(--color-accent)]/50 bg-[var(--color-accent)]/5 hover:bg-[var(--color-accent)]/10",
+                "col-span-full rounded-lg border p-3 text-left transition-all",
+                "border-[rgba(var(--color-accent-2-rgb),0.28)] bg-[rgba(var(--color-accent-2-rgb),0.06)] hover:bg-[rgba(var(--color-accent-2-rgb),0.10)]",
                 !canAddMore && "opacity-50 cursor-not-allowed"
               )}
             >

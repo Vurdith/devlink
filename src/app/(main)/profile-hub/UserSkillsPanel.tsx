@@ -12,7 +12,8 @@ interface UserSkillsPanelProps {
 
 export function UserSkillsPanel({ userSkills, currency, onEditSkill, onRemoveSkill }: UserSkillsPanelProps) {
   return (
-    <div className={surface("panel", "relative overflow-hidden p-6")}>
+    <div className={surface("panel", "noise-overlay relative overflow-hidden p-6")}>
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.36)] to-transparent" />
       <div
         aria-hidden="true"
         className="absolute inset-0 pointer-events-none opacity-55"
@@ -35,7 +36,7 @@ export function UserSkillsPanel({ userSkills, currency, onEditSkill, onRemoveSki
             </svg>
           </div>
           <div>
-            <h2 className="text-lg font-semibold text-white">Your Skills ({userSkills.length}/15)</h2>
+            <h2 className="text-lg font-semibold text-white">Your skills ({userSkills.length}/15)</h2>
             <p className="text-sm text-[var(--muted-foreground)]">Click a skill to edit rates and details</p>
           </div>
         </div>
@@ -52,12 +53,12 @@ export function UserSkillsPanel({ userSkills, currency, onEditSkill, onRemoveSki
                 <div
                   key={userSkill.id}
                   className={cn(
-                    "overflow-hidden rounded-xl border transition-all",
-                    userSkill.isPrimary ? "border-amber-500/20 bg-gradient-to-r from-amber-500/5 to-transparent" : cn(ui.surface.empty, "hover:border-white/[0.12] hover:bg-white/[0.045]")
+                    "overflow-hidden rounded-lg border transition-all",
+                    userSkill.isPrimary ? "border-amber-500/20 bg-amber-400/[0.045]" : cn(ui.surface.empty, "hover:border-white/[0.12] hover:bg-white/[0.045]")
                   )}
                 >
                   <div className="p-5">
-                    <div className="flex items-start justify-between gap-4 mb-3">
+                    <div className="mb-3 flex items-start justify-between gap-4">
                       <div className="flex items-center gap-2">
                         {userSkill.isPrimary && (
                           <span className="text-amber-400">
@@ -69,22 +70,22 @@ export function UserSkillsPanel({ userSkills, currency, onEditSkill, onRemoveSki
                         <h4 className="font-semibold text-white text-base">{userSkill.skill.name}</h4>
                       </div>
 
-                      {userSkill.rate && userSkill.rateUnit && <span className="text-sm font-medium text-emerald-400">{formatRate(userSkill.rate, userSkill.rateUnit, currency)}</span>}
+                      {userSkill.rate && userSkill.rateUnit && <span className="rounded-md border border-emerald-400/18 bg-emerald-500/10 px-2 py-1 text-xs font-semibold text-emerald-300">{formatRate(userSkill.rate, userSkill.rateUnit, currency)}</span>}
                     </div>
 
-                    <div className="flex items-center gap-4 text-xs text-white/50 mb-3">
+                    <div className="mb-3 flex flex-wrap items-center gap-3 text-xs text-white/50">
                       <span className={levelConfig.color}>{levelConfig.label}</span>
 
                       {userSkill.yearsOfExp && (
                         <>
-                          <span className="text-white/20">&bull;</span>
+                          <span className="text-white/20">/</span>
                           <span>{userSkill.yearsOfExp}+ years</span>
                         </>
                       )}
 
                       {availConfig && (
                         <>
-                          <span className="text-white/20">&bull;</span>
+                          <span className="text-white/20">/</span>
                           <span className="flex items-center gap-1.5">
                             <span
                               className={cn(
@@ -101,8 +102,8 @@ export function UserSkillsPanel({ userSkills, currency, onEditSkill, onRemoveSki
                       )}
                     </div>
 
-                    {userSkill.headline && <p className="text-sm text-white/60 leading-relaxed">{userSkill.headline}</p>}
-                    {userSkill.description && <p className="text-xs text-white/40 leading-relaxed mt-2 line-clamp-2">{userSkill.description}</p>}
+                    {userSkill.headline && <p className="border-l border-[rgba(var(--color-accent-2-rgb),0.24)] pl-3 text-sm leading-relaxed text-white/62">{userSkill.headline}</p>}
+                    {userSkill.description && <p className="mt-2 line-clamp-2 pl-3 text-xs leading-relaxed text-white/42">{userSkill.description}</p>}
                   </div>
 
                   <div className="flex items-center gap-2 border-t border-white/[0.06] bg-white/[0.018] px-5 py-3">

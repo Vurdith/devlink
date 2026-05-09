@@ -7,7 +7,9 @@ export default function SettingsPage() {
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div className="mb-8 animate-fade-in">
+      <div className={surface("panel", "noise-overlay relative mb-8 overflow-hidden p-5 animate-fade-in")}>
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.36)] to-transparent" />
+        <div className="mb-1 text-[10px] font-bold uppercase tracking-[0.16em] text-[var(--color-accent-2)]">Account</div>
         <h1 className="text-2xl font-bold text-white font-[var(--font-space-grotesk)]">
           Account Settings
         </h1>

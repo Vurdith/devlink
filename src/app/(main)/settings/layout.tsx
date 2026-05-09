@@ -7,12 +7,13 @@ import SettingsNav from "./_components/SettingsNav";
 export default function SettingsLayout({ children }: { children: ReactNode }) {
   return (
     <main className="mx-auto max-w-6xl px-4 py-8">
-      <div className="grid md:grid-cols-[280px_1fr] gap-8">
+      <div className="grid gap-8 md:grid-cols-[280px_1fr]">
         {/* Sidebar */}
         <aside className="md:sticky md:top-24 md:h-fit">
           <div className="animate-slide-up">
             {/* Navigation card */}
-            <div className={surface("panel", "relative p-5")}>
+            <div className={surface("panel", "noise-overlay relative overflow-hidden p-5")}>
+              <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.36)] to-transparent" />
               {/* Header */}
               <div className="flex items-center gap-3 mb-6 pb-4 border-b border-white/10">
                 <div className={iconBox("cyan", "h-10 w-10")}>
@@ -22,6 +23,7 @@ export default function SettingsLayout({ children }: { children: ReactNode }) {
                   </svg>
                 </div>
                 <div>
+                  <div className="mb-1 text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--color-accent-2)]">Controls</div>
                   <h2 className="text-lg font-semibold text-white">Settings</h2>
                   <p className="text-xs text-[var(--muted-foreground)]">Manage your account</p>
                 </div>

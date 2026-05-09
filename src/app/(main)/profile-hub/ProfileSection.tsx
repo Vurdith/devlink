@@ -37,7 +37,8 @@ export function ProfileSection({
 }: ProfileSectionProps) {
   return (
     <div className="space-y-6">
-      <div className={surface("panel", "relative overflow-hidden p-6")}>
+      <div className={surface("panel", "noise-overlay relative overflow-hidden p-6")}>
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.36)] to-transparent" />
         <div
           aria-hidden="true"
           className="absolute inset-0 pointer-events-none opacity-65"
@@ -55,7 +56,7 @@ export function ProfileSection({
               </svg>
             </div>
             <div>
-              <h2 className="text-lg font-semibold text-white">Basic Information</h2>
+              <h2 className="text-lg font-semibold text-white">Basic information</h2>
               <p className="text-sm text-[var(--muted-foreground)]">Your public profile details</p>
             </div>
           </div>
@@ -96,7 +97,8 @@ export function ProfileSection({
         </div>
       </div>
 
-      <div className={surface("panel", "relative overflow-hidden p-6")}>
+      <div className={surface("panel", "noise-overlay relative overflow-hidden p-6")}>
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.36)] to-transparent" />
         <div
           aria-hidden="true"
           className="absolute inset-0 pointer-events-none opacity-55"
@@ -114,7 +116,7 @@ export function ProfileSection({
               </svg>
             </div>
             <div>
-              <h2 className="text-lg font-semibold text-white">Profile Type</h2>
+              <h2 className="text-lg font-semibold text-white">Profile type</h2>
               <p className="text-sm text-[var(--muted-foreground)]">Choose how you want to use DevLink</p>
             </div>
           </div>
@@ -128,7 +130,7 @@ export function ProfileSection({
                   type="button"
                   onClick={() => onProfileChange({ ...profile, profileType: profileType.value })}
                   className={cn(
-                    "relative p-4 rounded-xl border text-left transition-all group",
+                    "group relative rounded-lg border p-4 text-left transition-all",
                     isActive
                       ? `${profileType.bgColor} ${profileType.borderColor} ${ui.active.purple}`
                       : cn(ui.surface.empty, "hover:border-white/[0.14] hover:bg-white/[0.055]")
