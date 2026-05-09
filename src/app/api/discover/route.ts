@@ -16,13 +16,19 @@ export async function GET(req: NextRequest) {
       ? await getFollowingStatus(session.user.id, result.users.map((user) => user.id))
       : new Set<string>();
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       ...result,
       users: result.users.map((user) => ({
         ...user,
         isFollowing: followingSet.has(user.id),
       })),
     });
+    response.headers.set(
+      "Cache-Control",
+      session?.user?.id ? "private, no-store" : "public, max-age=30, stale-while-revalidate=60"
+    );
+    response.headers.set("Vary", "Cookie");
+    return response;
   } catch (error) {
     console.error("Failed to fetch discover users:", error);
     return NextResponse.json(

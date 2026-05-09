@@ -110,6 +110,24 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Developer not found" }, { status: 404 });
     }
 
+    if (jobId) {
+      const job = await prisma.job.findUnique({
+        where: { id: jobId },
+        select: { userId: true, status: true },
+      });
+
+      if (!job) {
+        return NextResponse.json({ error: "Job not found" }, { status: 404 });
+      }
+
+      if (job.userId !== developerId) {
+        return NextResponse.json(
+          { error: "Escrow developer must match the job owner" },
+          { status: 400 }
+        );
+      }
+    }
+
     const contract = await prisma.escrowContract.create({
       data: {
         clientId: userId,

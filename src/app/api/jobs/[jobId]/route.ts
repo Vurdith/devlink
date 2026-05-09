@@ -29,7 +29,13 @@ export async function GET(
     return NextResponse.json({ error: "Job not found" }, { status: 404 });
   }
 
-  return NextResponse.json(job);
+  const response = NextResponse.json(job);
+  response.headers.set(
+    "Cache-Control",
+    userId ? "private, no-store" : "public, max-age=30, stale-while-revalidate=60"
+  );
+  response.headers.set("Vary", "Cookie");
+  return response;
 }
 
 export async function PATCH(

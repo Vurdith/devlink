@@ -3,6 +3,42 @@ import { EscrowStatus } from "@prisma/client";
 import { getAuthSession } from "@/server/auth";
 import { prisma } from "@/server/db";
 
+const ESCROW_TRANSITION_POLICY: Record<
+  EscrowStatus,
+  Partial<Record<EscrowStatus, "client" | "developer" | "either">>
+> = {
+  PENDING: {
+    FUNDED: "client",
+    CANCELLED: "client",
+  },
+  FUNDED: {
+    CANCELLED: "client",
+  },
+  SUBMITTED: {},
+  RELEASED: {},
+  CANCELLED: {},
+};
+
+function canApplyEscrowTransition({
+  actorId,
+  clientId,
+  developerId,
+  currentStatus,
+  nextStatus,
+}: {
+  actorId: string;
+  clientId: string;
+  developerId: string;
+  currentStatus: EscrowStatus;
+  nextStatus: EscrowStatus;
+}) {
+  const actor = clientId === actorId ? "client" : developerId === actorId ? "developer" : null;
+  const allowedActor = ESCROW_TRANSITION_POLICY[currentStatus]?.[nextStatus];
+
+  if (!actor || !allowedActor) return false;
+  return allowedActor === "either" || allowedActor === actor;
+}
+
 export async function GET(
   req: Request,
   { params }: { params: Promise<{ contractId: string }> }
@@ -73,30 +109,21 @@ export async function PATCH(
       return NextResponse.json({ error: "Invalid status" }, { status: 400 });
     }
 
-    // State-transition whitelist: only allow valid status transitions
     if (nextStatus) {
-      const VALID_TRANSITIONS: Record<string, string[]> = {
-        PENDING: ["FUNDED", "CANCELLED"],
-        FUNDED: ["ACTIVE", "CANCELLED"],
-        ACTIVE: ["SUBMITTED", "CANCELLED", "DISPUTED"],
-        SUBMITTED: ["RELEASED", "REVISION_REQUESTED", "DISPUTED"],
-        REVISION_REQUESTED: ["ACTIVE", "CANCELLED", "DISPUTED"],
-        RELEASED: ["COMPLETED"],
-        DISPUTED: ["RELEASED", "CANCELLED"],
-      };
+      const allowed = canApplyEscrowTransition({
+        actorId: userId,
+        clientId: contract.clientId,
+        developerId: contract.developerId,
+        currentStatus: contract.status,
+        nextStatus,
+      });
 
-      const allowed = VALID_TRANSITIONS[contract.status];
-      if (!allowed || !allowed.includes(nextStatus)) {
+      if (!allowed) {
         return NextResponse.json(
-          { error: `Cannot transition from ${contract.status} to ${nextStatus}` },
-          { status: 400 }
+          { error: "You cannot apply that escrow status transition" },
+          { status: 403 }
         );
       }
-    }
-
-    // Only client can cancel pending contracts
-    if (nextStatus === "CANCELLED" && contract.clientId !== userId) {
-      return NextResponse.json({ error: "Only the client can cancel" }, { status: 403 });
     }
 
     const updated = await prisma.escrowContract.update({
