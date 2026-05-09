@@ -32,6 +32,20 @@ function statusLabel(status: string) {
     .join(" ");
 }
 
+function statusPillClass(status: string) {
+  const normalized = status.toUpperCase();
+  const tone =
+    normalized === "OPEN" || normalized === "ACCEPTED"
+      ? "border-emerald-300/20 bg-emerald-400/10 text-emerald-200"
+      : normalized === "PENDING"
+        ? "border-[rgba(var(--color-accent-2-rgb),0.24)] bg-[rgba(var(--color-accent-2-rgb),0.10)] text-[var(--color-accent-2)]"
+        : normalized === "DECLINED" || normalized === "CLOSED"
+          ? "border-rose-400/20 bg-rose-500/10 text-rose-200"
+          : "border-white/[0.10] bg-white/[0.04] text-white/60";
+
+  return cn("inline-flex w-fit items-center rounded-lg border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.10em]", tone);
+}
+
 export default function JobDetailPage() {
   const params = useParams<{ jobId: string }>();
   const { data: session } = useSession();
@@ -152,16 +166,21 @@ export default function JobDetailPage() {
   if (loading) {
     return (
       <main className="max-w-4xl mx-auto px-4 pb-24 pt-8">
-        <div className={surface("empty", "grid gap-3 p-5")}>
-          {[0, 1, 2].map((item) => (
-            <div key={item} className="flex items-start gap-3">
-              <div className="skeleton h-10 w-10 rounded-lg" />
-              <div className="flex-1 space-y-2">
-                <div className="skeleton h-4 w-2/5" />
-                <div className="skeleton h-3 w-3/5" />
-              </div>
+        <div className={surface("panel", "noise-overlay relative overflow-hidden p-5 sm:p-6")}>
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.28)] to-transparent" />
+          <div className="flex items-start justify-between gap-4">
+            <div className="min-w-0 flex-1 space-y-3">
+              <div className="skeleton h-4 w-24 rounded-lg" />
+              <div className="skeleton h-7 w-4/5 max-w-lg rounded-lg" />
+              <div className="skeleton h-4 w-48 rounded-lg" />
             </div>
-          ))}
+            <div className="skeleton h-7 w-20 rounded-lg" />
+          </div>
+          <div className="mt-6 space-y-2">
+            <div className="skeleton h-4 w-full rounded-lg" />
+            <div className="skeleton h-4 w-11/12 rounded-lg" />
+            <div className="skeleton h-4 w-3/5 rounded-lg" />
+          </div>
         </div>
       </main>
     );
@@ -175,7 +194,7 @@ export default function JobDetailPage() {
             <div className="font-semibold text-white">Job not found</div>
             <p className="mt-1">This listing may have been removed or the link may be out of date.</p>
           </div>
-          <Link href="/jobs" className={cn("inline-flex h-9 items-center justify-center rounded-lg px-4 text-xs font-semibold text-white", ui.control.ghost)}>
+          <Link href="/jobs" className={cn("inline-flex h-9 items-center justify-center rounded-lg px-4 text-xs font-semibold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.65)]", ui.control.ghost)}>
             Back to jobs
           </Link>
         </div>
@@ -185,7 +204,7 @@ export default function JobDetailPage() {
 
   return (
     <main className="mx-auto max-w-4xl px-4 pb-24 pt-8">
-      <Link href="/jobs" className="mb-4 inline-flex items-center gap-2 text-xs font-semibold text-[var(--muted-foreground)] transition-colors hover:text-white">
+      <Link href="/jobs" className="mb-4 inline-flex items-center gap-2 rounded-lg px-1 py-1 text-xs font-semibold text-[var(--muted-foreground)] transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.65)]">
         <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
         Back to jobs
       </Link>
@@ -203,20 +222,18 @@ export default function JobDetailPage() {
               </span>
             </div>
           </div>
-          <span className="w-fit rounded-md border border-emerald-300/20 bg-emerald-400/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.10em] text-emerald-200">
+          <span className={statusPillClass(job.status)}>
             {statusLabel(job.status)}
           </span>
         </div>
         <p className="mt-5 whitespace-pre-wrap border-l border-[rgba(var(--color-accent-2-rgb),0.26)] pl-4 text-sm leading-relaxed text-white/78">{job.description}</p>
-        <div className="mt-5 flex flex-wrap items-center gap-3 border-t border-white/[0.06] pt-4 text-xs text-[var(--muted-foreground)]">
-          <span>{job.skills || "Skills flexible"}</span>
-          <span className="text-white/20">/</span>
-          <span className="inline-flex items-center gap-1.5">
+        <div className="mt-5 grid gap-2 rounded-lg border border-white/[0.07] bg-black/10 p-3 text-xs text-[var(--muted-foreground)] sm:grid-cols-3">
+          <span className="min-w-0 truncate rounded-md border border-white/[0.08] bg-white/[0.035] px-2.5 py-2 text-white/70">{job.skills || "Skills flexible"}</span>
+          <span className="inline-flex items-center gap-1.5 rounded-md border border-white/[0.08] bg-white/[0.035] px-2.5 py-2">
             <DollarSign className="h-3.5 w-3.5 text-[var(--color-accent-2)]" aria-hidden="true" />
             {formatBudget(job)}
           </span>
-          <span className="text-white/20">/</span>
-          <span className="inline-flex items-center gap-1.5">
+          <span className="inline-flex items-center gap-1.5 rounded-md border border-white/[0.08] bg-white/[0.035] px-2.5 py-2">
             <Users className="h-3.5 w-3.5" aria-hidden="true" />
             {job._count?.applications ?? 0} applicants
           </span>
@@ -229,10 +246,10 @@ export default function JobDetailPage() {
               <p className="mt-1 text-xs leading-relaxed text-[var(--muted-foreground)]">Create an account or log in to send a note to the client.</p>
             </div>
             <div className="flex flex-col gap-2 sm:flex-row">
-              <Link href="/login" className={cn("inline-flex h-9 items-center justify-center rounded-lg px-4 text-xs font-semibold text-white", ui.control.ghost)}>
+              <Link href="/login" className={cn("inline-flex h-9 items-center justify-center rounded-lg px-4 text-xs font-semibold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.65)]", ui.control.ghost)}>
                 Log in
               </Link>
-              <Link href="/register" className={cn("inline-flex h-9 items-center justify-center rounded-lg px-4 text-xs font-semibold", ui.control.gradient)}>
+              <Link href="/register" className={cn("inline-flex h-9 items-center justify-center rounded-lg px-4 text-xs font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.65)]", ui.control.gradient)}>
                 Sign up
               </Link>
             </div>
@@ -257,7 +274,7 @@ export default function JobDetailPage() {
               placeholder="Share fit, availability, or one relevant Roblox project."
               className={cn(fieldClass, "mt-2 min-h-[104px] resize-y")}
             />
-            <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div className="mt-3 flex flex-col gap-2 rounded-lg border border-white/[0.07] bg-black/10 px-3 py-3 sm:flex-row sm:items-center sm:justify-between">
               <p className="text-xs text-[var(--muted-foreground)]">The client will see this with your profile.</p>
               <Button
                 onClick={apply}
@@ -315,7 +332,7 @@ export default function JobDetailPage() {
                   <div key={app.id} className={surface("panelMuted", "p-4 transition-colors hover:border-white/[0.14]")}>
                     <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                       <span className="font-semibold text-white">{app.applicant?.username || "Applicant"}</span>
-                      <span className="w-fit rounded-md border border-white/[0.08] bg-white/[0.035] px-2 py-1 text-[10px] font-bold uppercase tracking-[0.10em] text-white/60">{statusLabel(app.status)}</span>
+                      <span className={statusPillClass(app.status)}>{statusLabel(app.status)}</span>
                     </div>
                     {app.message ? (
                       <p className="mt-3 whitespace-pre-wrap border-l border-[rgba(var(--color-accent-2-rgb),0.22)] pl-3 text-xs leading-relaxed text-white/70">{app.message}</p>
@@ -323,7 +340,7 @@ export default function JobDetailPage() {
                       <p className="mt-3 text-xs leading-relaxed text-[var(--muted-foreground)]">No note included with this application.</p>
                     )}
                     {isPending ? (
-                      <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+                      <div className="mt-3 flex flex-col gap-2 rounded-lg border border-white/[0.07] bg-black/10 p-2 sm:flex-row">
                         <Button
                           onClick={() => updateApplicationStatus(app.id, "ACCEPTED")}
                           disabled={isUpdating}

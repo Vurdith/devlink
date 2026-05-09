@@ -28,6 +28,19 @@ function splitSkills(skills: string | null) {
     .slice(0, 4);
 }
 
+function statusPillClass(tone: "open" | "applied" | "muted" = "muted") {
+  const tones = {
+    open: "border-emerald-300/20 bg-emerald-400/10 text-emerald-200",
+    applied: "border-[rgba(var(--color-accent-2-rgb),0.24)] bg-[rgba(var(--color-accent-2-rgb),0.10)] text-[var(--color-accent-2)]",
+    muted: "border-white/[0.10] bg-white/[0.04] text-white/60",
+  };
+
+  return cn(
+    "inline-flex w-fit items-center rounded-lg border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.10em]",
+    tones[tone]
+  );
+}
+
 export default function JobsPage() {
   const { data: session } = useSession();
   const { toast } = useToastContext();
@@ -246,13 +259,13 @@ export default function JobsPage() {
           <div className="flex flex-col gap-2 sm:flex-row">
             <Link
               href="/login"
-              className={cn("inline-flex h-9 items-center justify-center rounded-lg px-4 text-xs font-semibold text-white", ui.control.ghost)}
+              className={cn("inline-flex h-9 items-center justify-center rounded-lg px-4 text-xs font-semibold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.65)]", ui.control.ghost)}
             >
               Log in
             </Link>
             <Link
               href="/register"
-              className={cn("inline-flex h-9 items-center justify-center rounded-lg px-4 text-xs font-semibold", ui.control.gradient)}
+              className={cn("inline-flex h-9 items-center justify-center rounded-lg px-4 text-xs font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.65)]", ui.control.gradient)}
             >
               Sign up
             </Link>
@@ -349,13 +362,21 @@ export default function JobsPage() {
             <div className="h-px flex-1 bg-gradient-to-r from-white/[0.10] to-transparent" />
           </div>
           {loading ? (
-            <div className={surface("empty", "grid gap-3 p-5")}>
+            <div className="grid gap-3">
               {[0, 1, 2].map((item) => (
-                <div key={item} className="flex items-start gap-3">
-                  <div className="skeleton h-10 w-10 rounded-lg" />
-                  <div className="flex-1 space-y-2">
-                    <div className="skeleton h-4 w-2/5" />
-                    <div className="skeleton h-3 w-3/5" />
+                <div key={item} className={surface("panelMuted", "noise-overlay relative overflow-hidden p-4 sm:p-5")}>
+                  <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.10] to-transparent" />
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0 flex-1 space-y-3">
+                      <div className="skeleton h-5 w-3/5 max-w-72 rounded-lg" />
+                      <div className="skeleton h-3 w-4/5 rounded-lg" />
+                    </div>
+                    <div className="skeleton h-7 w-20 rounded-lg" />
+                  </div>
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    <div className="skeleton h-7 w-24 rounded-md" />
+                    <div className="skeleton h-7 w-28 rounded-md" />
+                    <div className="skeleton h-7 w-20 rounded-md" />
                   </div>
                 </div>
               ))}
@@ -407,11 +428,11 @@ export default function JobsPage() {
               ) : (
                 <div className="grid gap-2">
                   {myJobs.map((job) => (
-                    <div key={job.id} className="flex items-center justify-between gap-3 text-sm text-white/80">
-                      <Link href={`/jobs/${job.id}`} className="truncate transition-colors hover:text-[var(--color-accent-2)]">
+                    <div key={job.id} className="flex items-center justify-between gap-3 rounded-lg border border-transparent px-2 py-1.5 text-sm text-white/80 transition-colors hover:border-white/[0.08] hover:bg-white/[0.035]">
+                      <Link href={`/jobs/${job.id}`} className="truncate transition-colors hover:text-[var(--color-accent-2)] focus-visible:outline-none focus-visible:text-[var(--color-accent-2)]">
                         {job.title}
                       </Link>
-                      <span className="flex-shrink-0 text-[10px] text-white/60">{job.status}</span>
+                      <span className={statusPillClass(job.status === "OPEN" ? "open" : "muted")}>{job.status}</span>
                     </div>
                   ))}
                 </div>
@@ -430,9 +451,9 @@ export default function JobsPage() {
               ) : (
                 <div className="grid gap-2">
                   {myApplications.map((application) => (
-                    <div key={application.id} className="flex items-center justify-between gap-3 text-sm text-white/80">
+                    <div key={application.id} className="flex items-center justify-between gap-3 rounded-lg border border-transparent px-2 py-1.5 text-sm text-white/80 transition-colors hover:border-white/[0.08] hover:bg-white/[0.035]">
                       <span className="truncate">{application.job?.title || "Job"}</span>
-                      <span className="flex-shrink-0 text-[10px] text-white/60">{application.status}</span>
+                      <span className={statusPillClass(application.status === "PENDING" ? "applied" : "muted")}>{application.status}</span>
                     </div>
                   ))}
                 </div>
@@ -471,11 +492,11 @@ function JobCard({
   const skills = splitSkills(job.skills);
 
   return (
-    <article className={surface("panelMuted", "noise-overlay group relative overflow-hidden p-4 transition-colors hover:border-[rgba(var(--color-accent-2-rgb),0.20)] hover:bg-white/[0.04] sm:p-5")}>
+    <article className={surface("panelMuted", "noise-overlay group relative overflow-hidden p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-[rgba(var(--color-accent-2-rgb),0.24)] hover:bg-white/[0.04] focus-within:border-[rgba(var(--color-accent-2-rgb),0.30)] sm:p-5")}>
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.10] to-transparent" />
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
-          <Link href={`/jobs/${job.id}`} className="line-clamp-2 text-lg font-semibold text-white transition-colors hover:text-[var(--color-accent-2)]">
+          <Link href={`/jobs/${job.id}`} className="line-clamp-2 text-lg font-semibold text-white transition-colors hover:text-[var(--color-accent-2)] focus-visible:outline-none focus-visible:text-[var(--color-accent-2)]">
             {job.title}
           </Link>
           <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[var(--muted-foreground)]">
@@ -486,19 +507,12 @@ function JobCard({
             </span>
           </div>
         </div>
-        <span
-          className={cn(
-            "inline-flex w-fit items-center rounded-lg border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.10em]",
-            alreadyApplied
-              ? "border-[rgba(var(--color-accent-2-rgb),0.22)] bg-[rgba(var(--color-accent-2-rgb),0.08)] text-[var(--color-accent-2)]"
-              : "border-emerald-300/20 bg-emerald-400/10 text-emerald-200"
-          )}
-        >
+        <span className={statusPillClass(alreadyApplied ? "applied" : "open")}>
           {alreadyApplied ? "Applied" : job.status}
         </span>
       </div>
 
-      <p className="mt-3 line-clamp-3 border-l border-[rgba(var(--color-accent-2-rgb),0.24)] pl-3 text-sm leading-relaxed text-white/75">
+      <p className="mt-3 line-clamp-3 border-l border-[rgba(var(--color-accent-2-rgb),0.24)] pl-3 text-sm leading-relaxed text-white/75 sm:pr-4">
         {job.description}
       </p>
 
@@ -514,7 +528,7 @@ function JobCard({
         )}
       </div>
 
-      <div className="mt-4 flex flex-col gap-3 border-t border-white/[0.06] pt-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="mt-4 flex flex-col gap-3 rounded-lg border border-white/[0.07] bg-black/10 px-3 py-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-[var(--muted-foreground)]">
           <span className="inline-flex items-center gap-1.5 text-white/70">
             <DollarSign className="h-3.5 w-3.5 text-[var(--color-accent-2)]" aria-hidden="true" />
