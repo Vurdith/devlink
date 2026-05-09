@@ -7,7 +7,7 @@ import { publishEvent } from "@/server/events/bus";
 
 export async function POST(
   req: Request,
-  { params }: { params: Promise<{ threadId: string }> }
+  { params }: { params: Promise<{ threadId: string }> },
 ) {
   const session = await getAuthSession();
   const userId = session?.user?.id;
@@ -18,7 +18,10 @@ export async function POST(
 
   const rateLimit = await checkRateLimit(`message_send:${userId}`, 30, 60);
   if (!rateLimit.success) {
-    return NextResponse.json({ error: "Too many messages. Try again later." }, { status: 429 });
+    return NextResponse.json(
+      { error: "Too many messages. Try again later." },
+      { status: 429 },
+    );
   }
 
   const { threadId } = await params;
@@ -46,13 +49,16 @@ export async function POST(
     });
 
     if (pendingRequest) {
-      const existingMessages = await prisma.message.count({
+      const existingMessage = await prisma.message.findFirst({
         where: { conversationId: threadId, senderId: userId },
+        select: { id: true },
       });
-      if (existingMessages >= 1) {
+      if (existingMessage) {
         return NextResponse.json(
-          { error: "You can only send 1 message until your request is accepted" },
-          { status: 403 }
+          {
+            error: "You can only send 1 message until your request is accepted",
+          },
+          { status: 403 },
         );
       }
     }
@@ -98,8 +104,11 @@ export async function POST(
 
   const response = NextResponse.json(
     { ...message, threadId, content: message.content ?? "" },
-    { status: 201 }
+    { status: 201 },
   );
-  response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+  response.headers.set(
+    "Cache-Control",
+    "no-store, no-cache, must-revalidate, proxy-revalidate",
+  );
   return response;
 }

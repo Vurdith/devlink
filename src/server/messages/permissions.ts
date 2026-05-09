@@ -10,11 +10,14 @@ export async function canSendMessage({
   if (senderId === recipientId) return false;
 
   if (!("userMessagingSettings" in prisma)) {
-    throw new Error("Prisma client missing messaging models. Run prisma generate/migrate.");
+    throw new Error(
+      "Prisma client missing messaging models. Run prisma generate/migrate.",
+    );
   }
 
   const settings = await prisma.userMessagingSettings.findUnique({
     where: { userId: recipientId },
+    select: { allowFrom: true },
   });
 
   // Default to FOLLOWING — only people the recipient follows can DM directly.
@@ -31,6 +34,7 @@ export async function canSendMessage({
           followingId: recipientId,
         },
       },
+      select: { id: true },
     }),
     prisma.follower.findUnique({
       where: {
@@ -39,6 +43,7 @@ export async function canSendMessage({
           followingId: senderId,
         },
       },
+      select: { id: true },
     }),
   ]);
 

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getAuthSession } from "@/server/auth";
-import { prisma } from "@/server/db";
+import { prismaRead } from "@/server/db-read";
 
 function explainNotificationDbError(e: unknown) {
   const err = e as { message?: string; code?: string } | null;
@@ -24,15 +24,16 @@ export async function GET() {
   try {
     const session = await getAuthSession();
     const userId = session?.user?.id;
-    if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!userId)
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    const count = await prisma.notification.count({
+    const count = await prismaRead.notification.count({
       where: { userId, readAt: null },
     });
 
     return NextResponse.json(
       { unread: count },
-      { headers: { "Cache-Control": "private, max-age=10" } }
+      { headers: { "Cache-Control": "private, max-age=10" } },
     );
   } catch (e) {
     console.error("Unread count error:", e);
@@ -47,5 +48,3 @@ export async function GET() {
     return NextResponse.json(payload, { status: 500 });
   }
 }
-
-

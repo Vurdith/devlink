@@ -2,10 +2,24 @@ import { NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
 import { getAuthSession } from "@/server/auth";
 import { prisma } from "@/server/db";
+import { prismaRead } from "@/server/db-read";
 import { checkRateLimit } from "@/server/rate-limit";
 import { canSendMessage } from "@/server/messages/permissions";
 
-export async function GET() {
+const DEFAULT_THREAD_LIMIT = 50;
+const MAX_THREAD_LIMIT = 100;
+
+function boundedThreadLimit(req: Request) {
+  const rawLimit = Number(
+    new URL(req.url).searchParams.get("limit") || DEFAULT_THREAD_LIMIT,
+  );
+  return Math.min(
+    MAX_THREAD_LIMIT,
+    Math.max(1, Number.isFinite(rawLimit) ? rawLimit : DEFAULT_THREAD_LIMIT),
+  );
+}
+
+export async function GET(req: Request) {
   const session = await getAuthSession();
   const userId = session?.user?.id;
 
@@ -14,32 +28,37 @@ export async function GET() {
   }
 
   // Query ConversationMember directly to avoid Prisma v7 relation filter issues
-  const memberships = await prisma.conversationMember.findMany({
-    where: { userId },
-    select: { conversationId: true },
-  });
+  const limit = boundedThreadLimit(req);
+  const [memberships, pendingIncoming] = await Promise.all([
+    prismaRead.conversationMember.findMany({
+      where: { userId },
+      select: { conversationId: true },
+    }),
+    prismaRead.messageRequest.findMany({
+      where: { recipientId: userId, status: "PENDING" },
+      select: { senderId: true },
+    }),
+  ]);
   const myConvIds = memberships.map((m) => m.conversationId);
 
   // Find pending requests where user is the RECIPIENT — exclude those from inbox
-  const pendingIncoming = await prisma.messageRequest.findMany({
-    where: { recipientId: userId, status: "PENDING" },
-    select: { senderId: true },
-  });
   const pendingSenderIds = new Set(pendingIncoming.map((r) => r.senderId));
 
-  let conversations = myConvIds.length > 0
-    ? await prisma.conversation.findMany({
-        where: {
-          id: { in: myConvIds },
-          isGroup: false,
-        },
-        include: {
-          members: { include: { user: { include: { profile: true } } } },
-          messages: { orderBy: { createdAt: "desc" }, take: 1 },
-        },
-        orderBy: { lastMessageAt: "desc" },
-      })
-    : [];
+  let conversations =
+    myConvIds.length > 0
+      ? await prismaRead.conversation.findMany({
+          where: {
+            id: { in: myConvIds },
+            isGroup: false,
+          },
+          include: {
+            members: { include: { user: { include: { profile: true } } } },
+            messages: { orderBy: { createdAt: "desc" }, take: 1 },
+          },
+          orderBy: { lastMessageAt: "desc" },
+          take: limit,
+        })
+      : [];
 
   // Filter out conversations that are pending requests TO this user
   if (pendingSenderIds.size > 0) {
@@ -50,7 +69,9 @@ export async function GET() {
   }
 
   const threads = conversations.map((conversation) => {
-    const members = conversation.members.map((member) => member.user).filter(Boolean);
+    const members = conversation.members
+      .map((member) => member.user)
+      .filter(Boolean);
     const sortedMembers = [...members].sort((a, b) => a.id.localeCompare(b.id));
     const userA = sortedMembers[0] || members[0];
     const userB = sortedMembers[1] || members[1] || userA;
@@ -72,7 +93,10 @@ export async function GET() {
   });
 
   const response = NextResponse.json(threads);
-  response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+  response.headers.set(
+    "Cache-Control",
+    "no-store, no-cache, must-revalidate, proxy-revalidate",
+  );
   return response;
 }
 
@@ -87,21 +111,34 @@ export async function POST(req: Request) {
 
     const rateLimit = await checkRateLimit(`message_thread:${userId}`, 10, 60);
     if (!rateLimit.success) {
-      return NextResponse.json({ error: "Too many requests. Try again later." }, { status: 429 });
+      return NextResponse.json(
+        { error: "Too many requests. Try again later." },
+        { status: 429 },
+      );
     }
 
     const body = await req.json();
-    const otherUserId = typeof body?.otherUserId === "string" ? body.otherUserId : undefined;
-    const otherUsername = typeof body?.username === "string" ? body.username : undefined;
+    const otherUserId =
+      typeof body?.otherUserId === "string" ? body.otherUserId : undefined;
+    const otherUsername =
+      typeof body?.username === "string" ? body.username : undefined;
 
     if (!otherUserId && !otherUsername) {
-      return NextResponse.json({ error: "otherUserId or username is required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "otherUserId or username is required" },
+        { status: 400 },
+      );
     }
 
     const otherUser = otherUserId
-      ? await prisma.user.findUnique({ where: { id: otherUserId }, include: { profile: true } })
+      ? await prisma.user.findUnique({
+          where: { id: otherUserId },
+          include: { profile: true },
+        })
       : await prisma.user.findFirst({
-          where: { username: { equals: otherUsername!.trim(), mode: "insensitive" } },
+          where: {
+            username: { equals: otherUsername!.trim(), mode: "insensitive" },
+          },
           include: { profile: true },
         });
 
@@ -109,10 +146,16 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
     if (otherUser.id === userId) {
-      return NextResponse.json({ error: "Cannot message yourself" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Cannot message yourself" },
+        { status: 400 },
+      );
     }
 
-    const allowed = await canSendMessage({ senderId: userId, recipientId: otherUser.id });
+    const allowed = await canSendMessage({
+      senderId: userId,
+      recipientId: otherUser.id,
+    });
     const [userAId, userBId] = [userId, otherUser.id].sort();
 
     // Always find or create a conversation — even for requests
@@ -153,8 +196,14 @@ export async function POST(req: Request) {
           createdById: userId,
           members: {
             create: [
-              { userId: userAId, role: userAId === userId ? "OWNER" : "MEMBER" },
-              { userId: userBId, role: userBId === userId ? "OWNER" : "MEMBER" },
+              {
+                userId: userAId,
+                role: userAId === userId ? "OWNER" : "MEMBER",
+              },
+              {
+                userId: userBId,
+                role: userBId === userId ? "OWNER" : "MEMBER",
+              },
             ],
           },
         },
@@ -167,13 +216,21 @@ export async function POST(req: Request) {
     let request = null;
     if (!allowed) {
       request = await prisma.messageRequest.upsert({
-        where: { senderId_recipientId: { senderId: userId, recipientId: otherUser.id } },
+        where: {
+          senderId_recipientId: { senderId: userId, recipientId: otherUser.id },
+        },
         update: { status: "PENDING" },
-        create: { senderId: userId, recipientId: otherUser.id, status: "PENDING" },
+        create: {
+          senderId: userId,
+          recipientId: otherUser.id,
+          status: "PENDING",
+        },
       });
     }
 
-    const members = conversation.members.map((member) => member.user).filter(Boolean);
+    const members = conversation.members
+      .map((member) => member.user)
+      .filter(Boolean);
     const sortedMembers = [...members].sort((a, b) => a.id.localeCompare(b.id));
     const userA = sortedMembers[0] || members[0];
     const userB = sortedMembers[1] || members[1] || userA;
@@ -189,17 +246,25 @@ export async function POST(req: Request) {
     };
 
     const response = NextResponse.json(
-      { type: request ? "request_thread" : "thread", thread, isRequest: !!request },
-      { status: 201 }
+      {
+        type: request ? "request_thread" : "thread",
+        thread,
+        isRequest: !!request,
+      },
+      { status: 201 },
     );
-    response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+    response.headers.set(
+      "Cache-Control",
+      "no-store, no-cache, must-revalidate, proxy-revalidate",
+    );
     return response;
   } catch (error) {
     console.error("Message thread create error:", error);
     let message = "Unable to start thread";
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       if (error.code === "P2021") {
-        message = "Messaging tables are not initialized. Run database migrations.";
+        message =
+          "Messaging tables are not initialized. Run database migrations.";
       } else {
         message = `Messaging error (${error.code})`;
       }

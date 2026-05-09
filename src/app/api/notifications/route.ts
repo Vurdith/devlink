@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getAuthSession } from "@/server/auth";
-import { prisma } from "@/server/db";
+import { prismaRead } from "@/server/db-read";
 
 function explainNotificationDbError(e: unknown) {
   if (process.env.NODE_ENV !== "development") {
@@ -31,13 +31,17 @@ export async function GET(req: Request) {
   try {
     const session = await getAuthSession();
     const userId = session?.user?.id;
-    if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!userId)
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const url = new URL(req.url);
-    const limit = Math.min(100, Math.max(1, Number(url.searchParams.get("limit") || 40)));
+    const limit = Math.min(
+      100,
+      Math.max(1, Number(url.searchParams.get("limit") || 40)),
+    );
     const cursor = url.searchParams.get("cursor"); // notification id
 
-    const items = await prisma.notification.findMany({
+    const items = await prismaRead.notification.findMany({
       where: { userId },
       orderBy: [{ createdAt: "desc" }, { id: "desc" }],
       take: limit + 1,
@@ -53,7 +57,9 @@ export async function GET(req: Request) {
             id: true,
             username: true,
             name: true,
-            profile: { select: { avatarUrl: true, verified: true, profileType: true } },
+            profile: {
+              select: { avatarUrl: true, verified: true, profileType: true },
+            },
           },
         },
         actors: {
@@ -65,19 +71,27 @@ export async function GET(req: Request) {
                 id: true,
                 username: true,
                 name: true,
-                profile: { select: { avatarUrl: true, verified: true, profileType: true } },
+                profile: {
+                  select: {
+                    avatarUrl: true,
+                    verified: true,
+                    profileType: true,
+                  },
+                },
               },
             },
           },
         },
-        post: { select: { id: true, userId: true, content: true, createdAt: true } },
+        post: {
+          select: { id: true, userId: true, content: true, createdAt: true },
+        },
         sourcePost: { select: { id: true, content: true, createdAt: true } },
       },
     });
 
     const hasMore = items.length > limit;
     const sliced = hasMore ? items.slice(0, limit) : items;
-    const nextCursor = hasMore ? sliced[sliced.length - 1]?.id ?? null : null;
+    const nextCursor = hasMore ? (sliced[sliced.length - 1]?.id ?? null) : null;
 
     // Merge legacy duplicates for stacked types (LIKE/REPOST) so they appear as one, like X.
     // This is display-only: it doesn't mutate DB, but it does return `groupIds` so the UI
@@ -97,7 +111,8 @@ export async function GET(req: Request) {
     const groups = new Map<string, NotificationRow>();
 
     for (const n of sliced) {
-      const isStackable = (n.type === "LIKE" || n.type === "REPOST") && !!n.postId;
+      const isStackable =
+        (n.type === "LIKE" || n.type === "REPOST") && !!n.postId;
       if (!isStackable) {
         merged.push({ ...n } as unknown as NotificationRow);
         continue;
@@ -106,12 +121,13 @@ export async function GET(req: Request) {
       const key = `${n.type}:${n.postId}`;
       const existing = groups.get(key);
 
-      const actorList: Array<{ actor: unknown; createdAt: Date }> = Array.isArray(n.actors)
-        ? n.actors
-            .map((x) => x?.actor)
-            .filter(Boolean)
-            .map((a) => ({ actor: a, createdAt: n.createdAt }))
-        : [];
+      const actorList: Array<{ actor: unknown; createdAt: Date }> =
+        Array.isArray(n.actors)
+          ? n.actors
+              .map((x) => x?.actor)
+              .filter(Boolean)
+              .map((a) => ({ actor: a, createdAt: n.createdAt }))
+          : [];
 
       // legacy fallback
       if ((!n.actors || n.actors.length === 0) && n.actor) {
@@ -128,10 +144,15 @@ export async function GET(req: Request) {
       }
 
       // Merge: keep newest createdAt/id for sort position
-      existing.groupIds = Array.from(new Set([...(existing.groupIds || []), n.id]));
-      existing.readAt = existing.readAt === null || n.readAt === null ? null : existing.readAt;
+      existing.groupIds = Array.from(
+        new Set([...(existing.groupIds || []), n.id]),
+      );
+      existing.readAt =
+        existing.readAt === null || n.readAt === null ? null : existing.readAt;
 
-      if (new Date(n.createdAt).getTime() > new Date(existing.createdAt).getTime()) {
+      if (
+        new Date(n.createdAt).getTime() > new Date(existing.createdAt).getTime()
+      ) {
         existing.createdAt = n.createdAt;
         existing.actor = n.actor; // fallback
       }
@@ -162,5 +183,3 @@ export async function GET(req: Request) {
     return NextResponse.json(payload, { status: 500 });
   }
 }
-
-

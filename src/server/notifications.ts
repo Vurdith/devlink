@@ -120,7 +120,9 @@ type StackedNotificationInput = {
   postId: string;
 };
 
-export async function upsertStackedNotification(input: StackedNotificationInput) {
+export async function upsertStackedNotification(
+  input: StackedNotificationInput,
+) {
   if (!hasNotificationModel() || !hasNotificationActorModel()) return;
 
   const { recipientId, actorId, type, postId } = input;
@@ -172,7 +174,9 @@ export async function upsertStackedNotification(input: StackedNotificationInput)
   }
 }
 
-export async function removeActorFromStackedNotification(input: StackedNotificationInput) {
+export async function removeActorFromStackedNotification(
+  input: StackedNotificationInput,
+) {
   if (!hasNotificationModel() || !hasNotificationActorModel()) return;
 
   const { recipientId, actorId, type, postId } = input;
@@ -191,11 +195,12 @@ export async function removeActorFromStackedNotification(input: StackedNotificat
       where: { notificationId: n.id, actorId },
     });
 
-    const remaining = await prisma.notificationActor.count({
+    const remainingActor = await prisma.notificationActor.findFirst({
       where: { notificationId: n.id },
+      select: { id: true },
     });
 
-    if (remaining === 0) {
+    if (!remainingActor) {
       await prisma.notification.delete({ where: { id: n.id } });
     }
   } catch (e) {
