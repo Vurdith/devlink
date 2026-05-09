@@ -86,7 +86,7 @@ export function NewMessageModal({ onClose, onThreadCreated, onRequestSent }: New
   }, [onClose]);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center pt-[10vh]">
+    <div className="fixed inset-0 z-50 flex items-start justify-center px-3 pt-[8vh] sm:pt-[10vh]">
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/60 backdrop-blur-sm"
@@ -94,7 +94,7 @@ export function NewMessageModal({ onClose, onThreadCreated, onRequestSent }: New
       />
 
       {/* Modal */}
-      <div className={surface("panelStrong", "noise-overlay relative mx-4 flex max-h-[70vh] w-full max-w-[600px] flex-col overflow-hidden")}>
+      <div className={surface("panelStrong", "noise-overlay relative flex max-h-[78vh] w-full max-w-[600px] flex-col overflow-hidden")}>
         <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.42)] to-transparent" />
         {/* Header */}
         <div className="flex items-center gap-3 px-4 h-[53px] border-b border-white/[0.06] flex-shrink-0">
@@ -107,12 +107,9 @@ export function NewMessageModal({ onClose, onThreadCreated, onRequestSent }: New
             </svg>
           </button>
           <h2 className="text-base font-bold text-white flex-1">New message</h2>
-          <button
-            disabled
-            className="rounded-lg border border-white/[0.08] bg-white/[0.045] px-4 py-1.5 text-sm font-bold text-white/40"
-          >
-            Next
-          </button>
+          <span className="hidden rounded-lg border border-white/[0.08] bg-white/[0.035] px-3 py-1.5 text-xs font-semibold text-white/45 sm:inline-flex">
+            Search people
+          </span>
         </div>
 
         {/* Search */}
@@ -139,14 +136,24 @@ export function NewMessageModal({ onClose, onThreadCreated, onRequestSent }: New
           )}
 
           {!searching && query.trim() && results.length === 0 && (
-            <div className="px-4 py-8 text-center text-sm text-white/30">
-              No people found for &ldquo;{query}&rdquo;
+            <div className="p-4">
+              <div className={surface("empty", "px-5 py-8 text-center")}>
+                <div className="text-sm font-semibold text-white/70">No people found</div>
+                <p className="mt-1 text-xs leading-relaxed text-white/35">
+                  Nothing matched &ldquo;{query}&rdquo;. Try a name or username.
+                </p>
+              </div>
             </div>
           )}
 
           {!searching && !query.trim() && (
-            <div className="px-4 py-8 text-center text-sm text-white/30">
-              Try searching for people by name or username.
+            <div className="p-4">
+              <div className={surface("empty", "px-5 py-8 text-center")}>
+                <div className="text-sm font-semibold text-white/70">Find someone on DevLink</div>
+                <p className="mt-1 text-xs leading-relaxed text-white/35">
+                  Search by name or username to start a private thread.
+                </p>
+              </div>
             </div>
           )}
 
@@ -155,7 +162,7 @@ export function NewMessageModal({ onClose, onThreadCreated, onRequestSent }: New
               key={user.id}
               onClick={() => selectUser(user)}
               disabled={creating}
-              className={menuItem("w-full px-4 py-3 text-left disabled:opacity-50")}
+              className={menuItem("w-full rounded-none border-x-0 border-t-0 px-4 py-3 text-left disabled:opacity-50")}
             >
               <Avatar size={44} src={user.avatarUrl || undefined} />
               <div className="flex-1 min-w-0">

@@ -4,7 +4,8 @@ import { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { iconBox, menuPanel, surface, ui } from "@/components/ui/design-system";
+import { FeedbackState } from "@/components/ui/FeedbackState";
+import { menuPanel, skeleton, surface, ui } from "@/components/ui/design-system";
 import { cn } from "@/lib/cn";
 import { safeJson } from "@/lib/safe-json";
 import { Avatar } from "@/components/ui/Avatar";
@@ -177,8 +178,14 @@ export function MessagesSidebar() {
   if (!userId) {
     return (
       <aside className="flex h-full w-full flex-shrink-0 flex-col border-r border-white/[0.06] bg-[rgba(8,11,16,0.72)] md:w-[380px] lg:w-[420px]">
-        <div className="flex items-center justify-center h-full text-sm text-[var(--muted-foreground)]">
-          Sign in to view messages.
+        <div className="flex h-full items-center justify-center p-4">
+          <FeedbackState
+            className="w-full px-5 py-9"
+            icon={<MessageIcon />}
+            title="Sign in to view messages"
+            description="Your private conversations, requests, and message settings live here."
+            action={{ label: "Log in", href: "/login" }}
+          />
         </div>
       </aside>
     );
@@ -281,7 +288,7 @@ export function MessagesSidebar() {
             <input
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search Direct Messages"
+              placeholder="Search messages"
               className={cn(ui.control.field, "rounded-lg py-2.5 pl-10 pr-4")}
             />
           </div>
@@ -292,24 +299,21 @@ export function MessagesSidebar() {
           <button
             onClick={() => setActiveTab("inbox")}
             className={cn(
-              "relative flex-1 rounded-lg py-2.5 text-center text-sm font-semibold transition-colors",
+              "relative flex-1 rounded-lg border px-3 py-2.5 text-center text-sm font-semibold transition-all duration-200",
               activeTab === "inbox"
-                ? "text-white"
-                : "text-white/40 hover:bg-white/[0.045] hover:text-white/70"
+                ? cn("text-white", ui.active.cyanStrong)
+                : "border-transparent text-white/45 hover:border-white/[0.08] hover:bg-white/[0.045] hover:text-white/75"
             )}
           >
             Inbox
-            {activeTab === "inbox" && (
-                <div className="absolute inset-x-3 bottom-0 h-px rounded-full bg-[var(--color-accent-2)]" />
-            )}
           </button>
           <button
             onClick={() => setActiveTab("requests")}
             className={cn(
-              "relative flex-1 rounded-lg py-2.5 text-center text-sm font-semibold transition-colors",
+              "relative flex-1 rounded-lg border px-3 py-2.5 text-center text-sm font-semibold transition-all duration-200",
               activeTab === "requests"
-                ? "text-white"
-                : "text-white/40 hover:bg-white/[0.045] hover:text-white/70"
+                ? cn("text-white", ui.active.cyanStrong)
+                : "border-transparent text-white/45 hover:border-white/[0.08] hover:bg-white/[0.045] hover:text-white/75"
             )}
           >
             Requests
@@ -318,32 +322,26 @@ export function MessagesSidebar() {
                 {requestCount}
               </span>
             )}
-            {activeTab === "requests" && (
-                <div className="absolute inset-x-3 bottom-0 h-px rounded-full bg-[var(--color-accent-2)]" />
-            )}
           </button>
         </div>
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto scrollbar-hide">
           {activeTab === "requests" ? (
-            <div className="divide-y divide-white/[0.06]">
+            <div className="space-y-2 p-3 pt-0">
               {incomingRequests.length === 0 ? (
-                <div className="px-4 py-8 text-center">
-                  <div className={iconBox("muted", "mx-auto mb-3 h-11 w-11")}>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-                      <path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v8z" />
-                    </svg>
-                  </div>
-                  <div className="text-sm text-white/40">No message requests</div>
-                  <p className="text-white/20 text-xs mt-1">When someone sends you a message request, it will appear here.</p>
-                </div>
+                <FeedbackState
+                  className="px-4 py-8"
+                  icon={<RequestIcon />}
+                  title="No message requests"
+                  description="Requests from people outside your message permissions will appear here."
+                />
               ) : (
                 <>
                   {incomingRequests.map((request) => {
                     const msgPreview = request.lastMessage?.content || "Sent you a message request";
                     return (
-                      <div key={request.id} className="px-4 py-3 transition-colors hover:bg-white/[0.035]">
+                      <div key={request.id} className={surface("empty", "px-4 py-3 transition-colors hover:border-white/[0.12] hover:bg-white/[0.04]")}>
                         <div className="flex items-start gap-3">
                           <Avatar size={48} src={request.sender?.profile?.avatarUrl || request.sender?.image || undefined} />
                           <div className="flex-1 min-w-0">
@@ -391,41 +389,36 @@ export function MessagesSidebar() {
           ) : loading ? (
             <div className="flex flex-col gap-2 p-4">
               {[...Array(5)].map((_, i) => (
-                <div key={i} className="flex items-center gap-3 p-3 animate-pulse">
-                  <div className="w-12 h-12 rounded-full bg-white/[0.06]" />
+                <div key={i} className={surface("empty", "flex items-center gap-3 p-3")}>
+                  <div className={skeleton("h-12 w-12 rounded-full")} />
                   <div className="flex-1 space-y-2">
-                    <div className="h-3 w-24 rounded bg-white/[0.06]" />
-                    <div className="h-2.5 w-40 rounded bg-white/[0.04]" />
+                    <div className={skeleton("h-3 w-24")} />
+                    <div className={skeleton("h-2.5 w-40 max-w-full")} />
                   </div>
                 </div>
               ))}
             </div>
           ) : filteredThreads.length === 0 ? (
-            <div className="px-8 py-12 text-center">
+            <div className="p-4 pt-0">
               {searchQuery.trim() ? (
-                <>
-                  <div className="text-white/40 text-sm font-semibold">No results</div>
-                  <p className="text-white/20 text-xs mt-1">
-                    Try searching for a different name or username.
-                  </p>
-                </>
+                <FeedbackState
+                  className="px-4 py-8"
+                  icon={<SearchIcon />}
+                  title="No matches"
+                  description="Try a different name or username."
+                />
               ) : (
-                <>
-                  <div className="mb-1 text-2xl font-bold text-white">Welcome to your inbox</div>
-                  <p className="text-white/40 text-sm leading-relaxed">
-                    Drop a line, share posts and more with private conversations between you and others on DevLink.
-                  </p>
-                  <button
-                    onClick={() => setShowNewMessage(true)}
-                    className={cn("mt-6 rounded-lg px-6 py-3 text-sm font-bold transition-all", ui.control.gradient)}
-                  >
-                    Write a message
-                  </button>
-                </>
+                <FeedbackState
+                  className="px-4 py-9"
+                  icon={<MessageIcon />}
+                  title="Your inbox is ready"
+                  description="Start a private conversation, share context, or keep a collaboration moving."
+                  action={{ label: "Write a message", onClick: () => setShowNewMessage(true) }}
+                />
               )}
             </div>
           ) : (
-            <div className="divide-y divide-white/[0.06]">
+            <div className="space-y-2 p-3 pt-0">
               {filteredThreads.map((thread) => {
                 const other = thread.userAId === userId ? thread.userB : thread.userA;
                 const isActive = pathname === `/messages/${thread.id}`;
@@ -441,10 +434,10 @@ export function MessagesSidebar() {
                     key={thread.id}
                     href={`/messages/${thread.id}`}
                     className={cn(
-                      "flex items-start gap-3 border-r-2 px-4 py-3 transition-colors",
+                      "flex items-start gap-3 rounded-xl border px-3 py-3 transition-all duration-200",
                       isActive
-                        ? cn("border-r-[var(--color-accent-2)]", ui.active.cyan)
-                        : "border-r-transparent hover:bg-white/[0.035]"
+                        ? cn("border-[rgba(var(--color-accent-2-rgb),0.32)]", ui.active.cyan)
+                        : "border-white/[0.06] bg-white/[0.018] hover:border-white/[0.12] hover:bg-white/[0.04]"
                     )}
                   >
                     <Avatar size={48} src={other?.profile?.avatarUrl || undefined} />
@@ -482,5 +475,31 @@ export function MessagesSidebar() {
         />
       )}
     </>
+  );
+}
+
+function MessageIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+      <path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v8z" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function RequestIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+      <path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v8z" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M9 10h6M9 14h4" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function SearchIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+      <circle cx="11" cy="11" r="7" />
+      <path d="M20 20l-3.5-3.5" strokeLinecap="round" />
+    </svg>
   );
 }

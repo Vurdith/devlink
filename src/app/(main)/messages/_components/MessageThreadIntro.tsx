@@ -1,15 +1,17 @@
 import Link from "next/link";
 import { Avatar } from "@/components/ui/Avatar";
+import { surface } from "@/components/ui/design-system";
 import type { MessageThread } from "@/types/api";
 
 export function MessageThreadIntro({ otherUser }: { otherUser: MessageThread["userA"] | null }) {
   return (
-    <div className="flex flex-col items-center py-6 mb-4">
+    <div className="mx-auto mb-5 flex w-full max-w-4xl justify-center">
+      <div className={surface("empty", "noise-overlay flex w-full max-w-md flex-col items-center px-5 py-6 text-center")}>
       <Link href={`/u/${otherUser?.username || ""}`}>
         <Avatar size={64} src={otherUser?.profile?.avatarUrl || undefined} />
       </Link>
       <div className="mt-2 text-center">
-        <Link href={`/u/${otherUser?.username || ""}`} className="text-lg font-bold text-white hover:underline">
+        <Link href={`/u/${otherUser?.username || ""}`} className="text-lg font-bold text-white transition-colors hover:text-[var(--color-accent-2)]">
           {otherUser?.name || otherUser?.username}
         </Link>
         <div className="text-sm text-white/40">@{otherUser?.username}</div>
@@ -22,6 +24,7 @@ export function MessageThreadIntro({ otherUser }: { otherUser: MessageThread["us
             ? new Date(otherUser.createdAt).toLocaleDateString(undefined, { month: "long", year: "numeric" })
             : "DevLink"}
         </span>
+      </div>
       </div>
     </div>
   );

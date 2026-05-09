@@ -2,10 +2,10 @@
 
 import { useEffect, useMemo, useState, useRef, useCallback, lazy, Suspense } from "react";
 import { useParams } from "next/navigation";
-import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { cn } from "@/lib/cn";
 import { safeJson } from "@/lib/safe-json";
+import { FeedbackState } from "@/components/ui/FeedbackState";
 import { surface, ui } from "@/components/ui/design-system";
 import { MessageList } from "../_components/MessageList";
 import { ProfilePreviewCard } from "../_components/ProfilePreviewCard";
@@ -228,30 +228,39 @@ export default function MessageThreadPage() {
 
   if (!userId) {
     return (
-      <div className="flex items-center justify-center h-full text-sm text-white/40">
-        Sign in to view messages.
+      <div className="flex h-full items-center justify-center p-4">
+        <FeedbackState
+          className="max-w-[420px] px-6 py-10"
+          icon={<MessageIcon />}
+          title="Sign in to view messages"
+          description="Log in to open this conversation and reply privately."
+          action={{ label: "Log in", href: "/login" }}
+        />
       </div>
     );
   }
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-full">
-        <div className="w-6 h-6 border-2 border-white/20 border-t-[var(--color-accent)] rounded-full animate-spin" />
+      <div className="flex h-full items-center justify-center p-4">
+        <div className={surface("empty", "noise-overlay flex items-center gap-3 px-5 py-4 text-sm text-white/55")}>
+          <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/20 border-t-[var(--color-accent-2)]" />
+          Loading conversation
+        </div>
       </div>
     );
   }
 
   if (!thread) {
     return (
-      <div className="flex flex-col items-center justify-center h-full gap-2">
-        <div className="text-sm text-white/40">Conversation not found</div>
-        <Link
-          href="/messages"
-          className="text-sm text-[var(--color-accent)] hover:underline"
-        >
-          Back to messages
-        </Link>
+      <div className="flex h-full items-center justify-center p-4">
+        <FeedbackState
+          className="max-w-[420px] px-6 py-10"
+          icon={<MessageIcon />}
+          title="Conversation not found"
+          description="This thread may have been removed or you may not have access to it."
+          action={{ label: "Back to messages", href: "/messages" }}
+        />
       </div>
     );
   }
@@ -268,7 +277,7 @@ export default function MessageThreadPage() {
       {/* Messages area */}
       <div
         ref={scrollRef}
-        className="scrollbar-hide flex-1 overflow-y-auto px-4 py-4"
+        className="scrollbar-hide flex-1 overflow-y-auto bg-[radial-gradient(700px_360px_at_50%_0%,rgba(var(--color-accent-2-rgb),0.035),transparent_60%)] px-3 py-4 sm:px-5"
       >
         <MessageThreadIntro otherUser={otherUser} />
 
@@ -337,10 +346,10 @@ export default function MessageThreadPage() {
           </div>
         )}
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-end gap-2">
           {/* Action buttons */}
           {!(pendingRequest && hasSentRequestMsg) && (
-            <div className="flex items-center gap-0.5">
+            <div className="flex flex-shrink-0 items-center gap-0.5">
               <button
                 onClick={() => imageInputRef.current?.click()}
                 disabled={uploading}
@@ -391,7 +400,7 @@ export default function MessageThreadPage() {
           )}
 
           {/* Text input */}
-          <div className="flex-1 relative">
+          <div className="relative min-w-0 flex-1">
             <textarea
               ref={textareaRef}
               value={content}
@@ -434,5 +443,17 @@ export default function MessageThreadPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+function MessageIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+      <path
+        d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v8z"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
   );
 }
