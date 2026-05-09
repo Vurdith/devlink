@@ -2,6 +2,7 @@
 
 import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { surface, ui } from "@/components/ui/design-system";
 import { cn } from "@/lib/cn";
 
 interface ComposerActionButtonProps {
@@ -45,7 +46,7 @@ export const ComposerActionButton = memo(function ComposerActionButton({
       className={cn("fixed pointer-events-none transition-all duration-300 z-[9999]", showTooltip ? "opacity-100 scale-100" : "opacity-0 scale-95")}
       style={{ left: tooltipPos.x, top: tooltipPos.y, transform: "translate(-50%, -100%)" }}
     >
-      <div className="relative px-3 py-1.5 glass-soft border border-[var(--color-accent)]/30 rounded-lg shadow-2xl backdrop-blur-md">
+      <div className={surface("panelStrong", "relative px-3 py-1.5")}>
         <div className="flex items-center gap-2 whitespace-nowrap">
           <span className="text-xs font-bold text-white tracking-tight">{title}</span>
           {shortcut ? (
@@ -74,14 +75,14 @@ export const ComposerActionButton = memo(function ComposerActionButton({
         className={cn(
           "icon-btn p-2.5 rounded-xl transition-all relative",
           active
-            ? "text-[var(--color-accent)] bg-[rgba(var(--color-accent-rgb),0.2)] shadow-lg shadow-[rgba(var(--color-accent-rgb),0.2)]"
+            ? ui.active.cyan
             : "text-gray-400 hover:text-[var(--color-accent)] hover:bg-[rgba(var(--color-accent-rgb),0.1)]"
         )}
         style={{ animationDelay: `${delay * 0.05}s` }}
       >
         {children}
         {badge !== undefined && badge > 0 ? (
-          <span className="absolute -top-1 -right-1 bg-gradient-to-r from-[var(--color-accent)] to-pink-500 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-lg badge-animated">
+          <span className="badge-animated absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full border border-[rgba(var(--color-accent-2-rgb),0.32)] bg-[var(--color-accent)] text-[10px] font-bold text-white">
             {badge}
           </span>
         ) : null}

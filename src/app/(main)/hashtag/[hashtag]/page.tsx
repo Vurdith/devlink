@@ -1,6 +1,7 @@
 import { prisma } from "@/server/db";
 import { notFound } from "next/navigation";
 import { PostFeed } from "@/components/feed/PostFeed";
+import { iconBox, surface } from "@/components/ui/design-system";
 import { getAuthSession } from "@/server/auth";
 import { getUniqueViewCounts } from "@/lib/view-utils";
 
@@ -145,23 +146,23 @@ export default async function HashtagPage(props: { params: Promise<{ hashtag: st
   }));
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-[var(--color-accent-hover)]/20 to-slate-900">
+    <div className="min-h-screen bg-[var(--background)]">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
         {/* Hashtag Header */}
-        <div className="bg-[#0d0d12] rounded-2xl p-8 mb-8 border border-white/10">
+        <div className={surface("panel", "mb-8 p-8")}>
           <div className="flex items-center gap-4 mb-4">
-            <div className="w-16 h-16 bg-gradient-to-br from-[var(--color-accent-hover)] to-[var(--color-accent)] rounded-2xl flex items-center justify-center">
+            <div className={iconBox("cyan", "h-16 w-16")}>
               <span className="text-white font-bold text-3xl">#</span>
             </div>
             <div>
               <h1 className="text-3xl font-bold text-white">#{hashtagRecord.name}</h1>
-              <p className="text-gray-400 mt-1">
+              <p className="text-[var(--muted-foreground)] mt-1">
                 {totalPosts} {totalPosts === 1 ? 'post' : 'posts'}
               </p>
             </div>
           </div>
-          <p className="text-gray-300">
+          <p className="text-white/70">
             Explore posts tagged with #{hashtagRecord.name}
           </p>
         </div>
@@ -176,13 +177,13 @@ export default async function HashtagPage(props: { params: Promise<{ hashtag: st
           />
         ) : (
           <div className="text-center py-12">
-            <div className="w-20 h-20 mx-auto mb-4 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center">
+            <div className={iconBox("muted", "mx-auto mb-4 h-20 w-20")}>
               <svg className="w-10 h-10 text-[var(--muted-foreground)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
               </svg>
             </div>
             <h3 className="text-xl font-semibold text-white mb-2">No posts found</h3>
-            <p className="text-gray-400">
+            <p className="text-[var(--muted-foreground)]">
               No posts have been tagged with #{hashtagRecord.name} yet.
             </p>
           </div>

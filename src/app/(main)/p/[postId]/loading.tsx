@@ -1,9 +1,11 @@
+import { surface } from "@/components/ui/design-system";
+
 export default function PostPageLoading() {
   return (
     <main className="mx-auto max-w-2xl px-4 py-6">
       {/* Main post skeleton */}
       <div className="mb-6 animate-pulse">
-        <div className="bg-[#0d0d12] rounded-2xl p-6 border border-white/10">
+        <div className={surface("panel", "p-6")}>
           {/* Header */}
           <div className="flex items-start gap-3 mb-4">
             <div className="w-12 h-12 rounded-full bg-white/10" />
@@ -35,7 +37,7 @@ export default function PostPageLoading() {
       
       {/* Reply form skeleton */}
       <div className="mb-6 animate-pulse">
-        <div className="bg-[#0d0d12] rounded-xl p-4 border border-white/10">
+        <div className={surface("panelMuted", "p-4")}>
           <div className="flex gap-3">
             <div className="w-10 h-10 rounded-full bg-white/10" />
             <div className="flex-1">
@@ -49,7 +51,7 @@ export default function PostPageLoading() {
       <div className="space-y-4 animate-pulse">
         <div className="h-6 w-32 bg-white/10 rounded mb-4" />
         {[1, 2, 3].map(i => (
-          <div key={i} className="bg-[#0d0d12] rounded-xl p-4 border border-white/10">
+          <div key={i} className={surface("panelMuted", "p-4")}>
             <div className="flex items-start gap-3">
               <div className="w-10 h-10 rounded-full bg-white/10" />
               <div className="flex-1">

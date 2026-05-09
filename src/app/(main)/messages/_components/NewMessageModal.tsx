@@ -3,6 +3,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Avatar } from "@/components/ui/Avatar";
+import { menuItem, surface, ui } from "@/components/ui/design-system";
+import { cn } from "@/lib/cn";
 import { safeJson } from "@/lib/safe-json";
 import type { MessageThread, MessageRequest } from "@/types/api";
 
@@ -92,12 +94,12 @@ export function NewMessageModal({ onClose, onThreadCreated, onRequestSent }: New
       />
 
       {/* Modal */}
-      <div className="relative mx-4 flex max-h-[70vh] w-full max-w-[600px] flex-col overflow-hidden rounded-xl border border-white/[0.08] bg-[rgba(12,16,23,0.96)]">
+      <div className={surface("panelStrong", "relative mx-4 flex max-h-[70vh] w-full max-w-[600px] flex-col overflow-hidden")}>
         {/* Header */}
         <div className="flex items-center gap-3 px-4 h-[53px] border-b border-white/[0.06] flex-shrink-0">
           <button
             onClick={onClose}
-            className="w-9 h-9 rounded-full flex items-center justify-center text-white/60 hover:bg-white/[0.08] transition-colors"
+            className={cn("flex h-9 w-9 items-center justify-center rounded-full text-white/60 transition-colors", ui.control.ghost)}
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
               <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
@@ -152,7 +154,7 @@ export function NewMessageModal({ onClose, onThreadCreated, onRequestSent }: New
               key={user.id}
               onClick={() => selectUser(user)}
               disabled={creating}
-              className="w-full flex items-center gap-3 px-4 py-3 hover:bg-white/[0.04] transition-colors text-left disabled:opacity-50"
+              className={menuItem("w-full px-4 py-3 text-left disabled:opacity-50")}
             >
               <Avatar size={44} src={user.avatarUrl || undefined} />
               <div className="flex-1 min-w-0">

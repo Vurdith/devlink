@@ -2,6 +2,7 @@
 import { useState, useEffect, memo, useCallback } from "react";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/Button";
+import { iconBox, surface, ui } from "@/components/ui/design-system";
 import { cn } from "@/lib/cn";
 
 interface PollOption {
@@ -111,9 +112,9 @@ export const PollDisplay = memo(function PollDisplay({ poll, onVote }: PollDispl
   };
 
   return (
-    <div className="bg-gradient-to-br from-[var(--color-accent)]/10 via-[#0d0f14] to-[var(--color-accent)]/10 border border-[var(--color-accent)]/20 rounded-xl p-5 shadow-lg shadow-[var(--color-accent)]/5">
+    <div className={surface("panelMuted", "p-5")}>
       <div className="flex items-center gap-3 mb-4">
-        <div className="w-8 h-8 rounded-lg bg-[var(--color-accent)]/20 flex items-center justify-center">
+        <div className={iconBox("cyan", "h-8 w-8")}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-[var(--color-accent)]">
             <path d="M9 12l2 2 4-4M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
@@ -148,7 +149,7 @@ export const PollDisplay = memo(function PollDisplay({ poll, onVote }: PollDispl
                 "relative p-4 rounded-xl border-2 cursor-pointer transition-all duration-150",
                 "hover:scale-[1.01] active:scale-[0.99]",
                 isSelected
-                  ? "border-[var(--color-accent)] bg-[var(--color-accent)]/15 shadow-lg shadow-[var(--color-accent)]/10"
+                  ? ui.active.cyan
                   : "border-white/10 hover:border-[var(--color-accent)]/40 hover:bg-white/5"
               )}
               onClick={() => handleOptionClick(option.id)}

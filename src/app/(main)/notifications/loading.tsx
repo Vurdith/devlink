@@ -1,3 +1,5 @@
+import { surface } from "@/components/ui/design-system";
+
 function NotificationsSkeleton() {
   return (
     <div className="max-w-2xl mx-auto space-y-4">
@@ -6,7 +8,7 @@ function NotificationsSkeleton() {
       </div>
 
       {[1, 2, 3, 4, 5, 6].map((i) => (
-        <div key={i} className="glass-soft border border-white/10 rounded-xl p-4">
+        <div key={i} className={surface("panelMuted", "p-4")}>
           <div className="flex items-start gap-3">
             <div className="w-10 h-10 rounded-full bg-white/10 animate-pulse" />
             <div className="flex-1 min-w-0">

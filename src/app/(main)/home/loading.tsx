@@ -1,4 +1,5 @@
 import { FeedSkeleton } from "@/components/ui/LoadingSpinner";
+import { surface } from "@/components/ui/design-system";
 
 export default function HomeLoading() {
   return (
@@ -8,7 +9,7 @@ export default function HomeLoading() {
           {/* Main content */}
           <div className="lg:col-span-8 space-y-6">
             {/* Create post skeleton */}
-            <div className="bg-[#0d0d12] rounded-2xl p-6 border border-white/10 animate-pulse">
+            <div className={surface("panel", "p-6 animate-pulse")}>
               <div className="flex gap-4">
                 <div className="w-12 h-12 rounded-full bg-white/10" />
                 <div className="flex-1 space-y-3">
@@ -24,7 +25,7 @@ export default function HomeLoading() {
           
           {/* Sidebar skeleton */}
           <div className="lg:col-span-4 space-y-6">
-            <div className="bg-[#0d0d12] rounded-2xl p-6 border border-white/10 animate-pulse">
+            <div className={surface("panel", "p-6 animate-pulse")}>
               <div className="h-6 bg-white/10 rounded w-1/2 mb-4" />
               <div className="space-y-3">
                 <div className="h-4 bg-white/10 rounded" />

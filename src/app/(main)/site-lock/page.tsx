@@ -1,3 +1,5 @@
+import { surface, ui } from "@/components/ui/design-system";
+
 type SiteLockPageProps = {
   searchParams: Promise<{
     error?: string;
@@ -20,7 +22,7 @@ export default async function SiteLockPage({ searchParams }: SiteLockPageProps) 
 
   return (
     <main className="flex min-h-screen items-center justify-center px-4 text-white">
-      <div className="w-full max-w-md rounded-xl border border-white/[0.1] bg-[var(--color-card)] p-6 shadow-[var(--shadow-soft)] sm:p-8">
+      <div className={surface("panelStrong", "w-full max-w-md p-6 sm:p-8")}>
         <h1 className="text-2xl font-semibold tracking-tight">Site access restricted</h1>
         <p className="mt-2 text-sm text-white/70">
           Enter the temporary access password to continue.
@@ -47,7 +49,7 @@ export default async function SiteLockPage({ searchParams }: SiteLockPageProps) 
 
           <button
             type="submit"
-            className="w-full rounded-lg border border-white/[0.12] bg-white text-black font-medium py-2.5 shadow-[0_16px_44px_rgba(255,255,255,0.08)] transition-colors hover:bg-white/90"
+            className={`w-full rounded-lg px-4 py-2.5 font-medium ${ui.control.gradient}`}
           >
             Unlock site
           </button>

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
+import { ui } from "@/components/ui/design-system";
 import { NewMessageModal } from "./_components/NewMessageModal";
 
 export default function MessagesPage() {
@@ -25,14 +26,14 @@ export default function MessagesPage() {
           {isLoggedIn ? (
             <button
               onClick={() => setShowNewMessage(true)}
-              className="mt-7 px-8 py-3.5 rounded-full text-[15px] font-bold bg-gradient-to-r from-[var(--color-accent)] to-[var(--color-accent-hover)] text-white hover:opacity-90 transition-opacity shadow-lg shadow-[rgba(var(--color-accent-rgb),0.2)]"
+              className={`mt-7 rounded-lg px-8 py-3.5 text-[15px] font-bold ${ui.control.gradient}`}
             >
               New message
             </button>
           ) : (
             <Link
               href="/login"
-              className="mt-7 inline-block px-8 py-3.5 rounded-full text-[15px] font-bold bg-gradient-to-r from-[var(--color-accent)] to-[var(--color-accent-hover)] text-white hover:opacity-90 transition-opacity shadow-lg shadow-[rgba(var(--color-accent-rgb),0.2)]"
+              className={`mt-7 inline-block rounded-lg px-8 py-3.5 text-[15px] font-bold ${ui.control.gradient}`}
             >
               Log in
             </Link>

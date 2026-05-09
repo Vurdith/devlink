@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, memo } from "react";
+import { iconBox, surface, ui } from "@/components/ui/design-system";
 import { cn } from "@/lib/cn";
 
 interface CreatePollProps {
@@ -61,16 +62,16 @@ export const CreatePoll = memo(function CreatePoll({ onSubmit, onCancel }: Creat
   const canSubmit = question.trim() && validOptions && !isSubmitting;
 
   return (
-    <div className="bg-gradient-to-br from-black/60 via-black/40 to-[var(--accent)]/10 border border-[var(--accent)]/30 rounded-xl p-6 shadow-2xl animate-slide-up">
+    <div className={surface("panel", "animate-slide-up p-6")}>
       <div className="flex items-center gap-3 mb-6">
-        <div className="p-2 bg-[var(--accent)]/20 rounded-lg">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-[var(--accent)]">
+        <div className={iconBox("cyan", "h-10 w-10")}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
             <path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z" stroke="currentColor" strokeWidth="2"/>
             <path d="M9 12l2 2 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </div>
         <div>
-          <h3 className="text-xl font-bold bg-gradient-to-r from-white to-[var(--accent)] bg-clip-text text-transparent">Create Poll</h3>
+          <h3 className="text-xl font-bold text-white">Create Poll</h3>
           <p className="text-sm text-[var(--muted-foreground)]">Engage your community with a question</p>
         </div>
       </div>
@@ -85,7 +86,7 @@ export const CreatePoll = memo(function CreatePoll({ onSubmit, onCancel }: Creat
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
               placeholder="What would you like to ask?"
-              className="w-full px-4 py-3 bg-black/30 border border-[var(--accent)]/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/50 focus:border-[var(--accent)] transition-all"
+              className="w-full rounded-lg border border-white/[0.10] bg-white/[0.035] px-4 py-3 transition-all focus:border-[rgba(var(--color-accent-2-rgb),0.42)] focus:outline-none focus:ring-2 focus:ring-[rgba(var(--color-accent-2-rgb),0.20)]"
               maxLength={200}
               aria-describedby="poll-question-count"
             />
@@ -104,7 +105,7 @@ export const CreatePoll = memo(function CreatePoll({ onSubmit, onCancel }: Creat
                 className="flex items-center gap-3 animate-slide-up"
                 style={{ animationDelay: `${index * 0.03}s` }}
               >
-                <div className="flex-shrink-0 w-8 h-8 bg-[var(--accent)]/20 border border-[var(--accent)]/30 rounded-full flex items-center justify-center text-sm font-bold text-[var(--accent)]" aria-hidden="true">
+                <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg border border-[rgba(var(--color-accent-2-rgb),0.24)] bg-[rgba(var(--color-accent-2-rgb),0.10)] text-sm font-bold text-[var(--color-accent-2)]" aria-hidden="true">
                   {index + 1}
                 </div>
                 <label htmlFor={`poll-option-${index}`} className="sr-only">Option {index + 1}</label>
@@ -114,7 +115,7 @@ export const CreatePoll = memo(function CreatePoll({ onSubmit, onCancel }: Creat
                   value={option}
                   onChange={(e) => updateOption(index, e.target.value)}
                   placeholder={`Option ${index + 1}`}
-                  className="flex-1 px-4 py-3 bg-black/30 border border-white/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/50 focus:border-[var(--accent)] transition-all"
+                  className="flex-1 rounded-lg border border-white/[0.10] bg-white/[0.035] px-4 py-3 transition-all focus:border-[rgba(var(--color-accent-2-rgb),0.42)] focus:outline-none focus:ring-2 focus:ring-[rgba(var(--color-accent-2-rgb),0.20)]"
                   maxLength={100}
                 />
                 {options.length > 2 && (
@@ -135,7 +136,7 @@ export const CreatePoll = memo(function CreatePoll({ onSubmit, onCancel }: Creat
               <button
                 type="button"
                 onClick={addOption}
-                className="w-full py-3 px-4 bg-[var(--accent)]/10 border border-[var(--accent)]/30 rounded-lg text-[var(--accent)] hover:bg-[var(--accent)]/20 transition-all flex items-center justify-center gap-2 active:scale-98"
+                className={cn("flex w-full items-center justify-center gap-2 rounded-lg px-4 py-3 text-[var(--color-accent-2)]", ui.active.cyan, ui.motion.press)}
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                   <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -147,9 +148,9 @@ export const CreatePoll = memo(function CreatePoll({ onSubmit, onCancel }: Creat
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="p-4 bg-black/20 border border-white/10 rounded-lg">
+          <div className={surface("empty", "p-4")}>
             <div className="flex items-center gap-3 mb-3">
-              <div className="p-2 bg-[var(--accent)]/20 rounded-lg">
+              <div className={iconBox("cyan", "h-8 w-8")}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="text-[var(--accent)]">
                   <path d="M9 12l2 2 4-4M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z" stroke="currentColor" strokeWidth="2"/>
                 </svg>
@@ -168,9 +169,9 @@ export const CreatePoll = memo(function CreatePoll({ onSubmit, onCancel }: Creat
             </div>
           </div>
 
-          <div className="p-4 bg-black/20 border border-white/10 rounded-lg">
+          <div className={surface("empty", "p-4")}>
             <div className="flex items-center gap-3 mb-3">
-              <div className="p-2 bg-[var(--accent)]/20 rounded-lg">
+              <div className={iconBox("cyan", "h-8 w-8")}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="text-[var(--accent)]">
                   <path d="M12 2v6m0 0l2-2m-2 2l-2-2M12 22v-6m0 0l2 2m-2-2l-2 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
@@ -181,7 +182,7 @@ export const CreatePoll = memo(function CreatePoll({ onSubmit, onCancel }: Creat
               type="datetime-local"
               value={expiresAt}
               onChange={(e) => setExpiresAt(e.target.value)}
-              className="w-full px-3 py-2 bg-black/30 border border-[var(--accent)]/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/50 focus:border-[var(--accent)] transition-all"
+              className="w-full rounded-lg border border-white/[0.10] bg-white/[0.035] px-3 py-2 transition-all focus:border-[rgba(var(--color-accent-2-rgb),0.42)] focus:outline-none focus:ring-2 focus:ring-[rgba(var(--color-accent-2-rgb),0.20)]"
             />
             <p className="text-xs text-[var(--muted-foreground)] mt-1">Leave empty for no expiration</p>
           </div>
@@ -194,7 +195,7 @@ export const CreatePoll = memo(function CreatePoll({ onSubmit, onCancel }: Creat
             className={cn(
               "flex-1 py-3 px-6 rounded-lg font-medium transition-all",
               canSubmit 
-                ? "bg-[var(--accent)] hover:bg-[var(--accent)]/80 active:scale-98" 
+                ? ui.control.gradient
                 : "bg-[var(--accent)]/30 cursor-not-allowed"
             )}
             onClick={handleSubmit}
@@ -217,7 +218,7 @@ export const CreatePoll = memo(function CreatePoll({ onSubmit, onCancel }: Creat
           <button
             type="button"
             onClick={onCancel}
-            className="flex-1 py-3 px-6 bg-black/30 hover:bg-black/50 border border-white/20 rounded-lg font-medium transition-all active:scale-98"
+            className="flex-1 rounded-lg border border-white/[0.10] bg-white/[0.055] px-6 py-3 font-medium transition-all hover:border-white/20 hover:bg-white/[0.09] active:scale-[0.98]"
           >
             Cancel
           </button>

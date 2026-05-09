@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/Button";
+import { iconBox, surface, ui } from "@/components/ui/design-system";
 import type React from "react";
 import { BellIcon } from "./NotificationIcons";
 import type { NotificationTab } from "./notification-types";
@@ -14,10 +15,10 @@ interface NotificationsHeaderProps {
 export function NotificationsHeader({ unreadCount, tab, marking, onMarkAllRead, onTabChange }: NotificationsHeaderProps) {
   return (
     <div className="sticky top-0 z-20 -mx-4 px-4 pt-2 pb-3 mb-4">
-      <div className="glass-soft border border-white/10 rounded-2xl p-4">
+      <div className={surface("panelStrong", "p-4")}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 grid place-items-center text-white/80">
+            <div className={iconBox("cyan", "h-10 w-10 text-white/80")}>
               <BellIcon />
             </div>
             <div>
@@ -64,7 +65,7 @@ function TabButton({
       onClick={onClick}
       className={[
         "px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors",
-        isActive ? activeClass : "bg-transparent border-white/10 text-white/55 hover:bg-white/5 hover:text-white/80",
+        isActive ? activeClass : `bg-transparent text-white/55 hover:text-white/80 ${ui.control.ghost}`,
       ].join(" ")}
     >
       {children}

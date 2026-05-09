@@ -1,3 +1,5 @@
+import { surface } from "@/components/ui/design-system";
+
 export default function ProfileLoading() {
   return (
     <main className="mx-auto max-w-5xl px-2 sm:px-4 py-4 sm:py-10">
@@ -6,7 +8,7 @@ export default function ProfileLoading() {
         <div className="h-36 sm:h-64 w-full bg-gradient-to-br from-[var(--color-accent-hover)]/30 via-[var(--color-accent)]/20 to-[var(--color-accent-hover)]/30" />
         
         {/* Profile card skeleton */}
-        <div className="relative overflow-hidden glass noise-overlay border-t border-[var(--color-accent)]/20 px-4 sm:px-8 pb-4 sm:pb-8">
+        <div className={surface("panelStrong", "noise-overlay relative overflow-hidden rounded-t-none border-t-0 px-4 pb-4 sm:px-8 sm:pb-8")}>
           {/* Avatar */}
           <div className="flex justify-between items-start">
             <div className="relative -mt-12 sm:-mt-16 z-20">
@@ -43,7 +45,7 @@ export default function ProfileLoading() {
       
       {/* Tabs skeleton */}
       <div className="mt-4 sm:mt-8">
-          <div className="mb-6 flex gap-2 rounded-xl border border-white/[0.08] bg-[rgba(8,11,16,0.78)] p-1.5">
+          <div className={surface("toolbar", "mb-6 flex gap-2 p-1.5")}>
           {[1, 2, 3, 4, 5].map((i) => (
             <div key={i} className="h-9 w-20 bg-white/10 rounded-lg" />
           ))}
@@ -52,7 +54,7 @@ export default function ProfileLoading() {
         {/* Posts skeleton */}
         <div className="space-y-4">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="relative overflow-hidden rounded-xl border border-white/[0.08] bg-[rgba(12,16,23,0.72)] p-4">
+            <div key={i} className={surface("panel", "relative overflow-hidden p-4")}>
               <div className="flex items-start gap-3">
                 <div className="w-10 h-10 rounded-full bg-white/10" />
                 <div className="flex-1 space-y-2">

@@ -2,6 +2,7 @@
 
 import { useState, memo } from "react";
 import { Button } from "../ui/Button";
+import { surface, ui } from "@/components/ui/design-system";
 import { cn } from "@/lib/cn";
 
 interface ScamReportFormProps {
@@ -75,7 +76,7 @@ export const ScamReportForm = memo(function ScamReportForm({ targetUserId, targe
   };
 
   return (
-    <div className="bg-[#0d0d12] rounded-lg p-6 border border-white/10 max-w-2xl mx-auto animate-slide-up">
+    <div className={surface("panel", "mx-auto max-w-2xl p-6 animate-slide-up")}>
       <div className="mb-6">
         <h3 className="text-xl font-semibold mb-2">Report Issue</h3>
         <p className="text-sm text-[var(--muted-foreground)]">
@@ -102,7 +103,7 @@ export const ScamReportForm = memo(function ScamReportForm({ targetUserId, targe
                     className={cn(
                       "p-4 text-left rounded-lg border transition-all active:scale-98 animate-slide-up",
                       reportType === type.value
-                        ? "border-[var(--accent)] bg-[var(--accent)]/10"
+                        ? ui.active.cyan
                         : "border-white/10 hover:border-white/20 hover:bg-white/5"
                     )}
                     style={{ animationDelay: `${index * 0.03}s` }}
@@ -140,7 +141,7 @@ export const ScamReportForm = memo(function ScamReportForm({ targetUserId, targe
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Provide a detailed description of the issue..."
-                className="w-full px-3 py-2 bg-black/30 border border-white/10 rounded-lg focus:border-[var(--accent)] outline-none resize-none transition-colors"
+                className="w-full resize-none rounded-lg border border-white/[0.10] bg-white/[0.035] px-3 py-2 outline-none transition-colors focus:border-[rgba(var(--color-accent-2-rgb),0.42)]"
                 rows={4}
                 maxLength={1000}
                 required
@@ -161,7 +162,7 @@ export const ScamReportForm = memo(function ScamReportForm({ targetUserId, targe
                 value={evidence}
                 onChange={(e) => setEvidence(e.target.value)}
                 placeholder="Links to screenshots, URLs, or other evidence..."
-                className="w-full px-3 py-2 bg-black/30 border border-white/10 rounded-lg focus:border-[var(--accent)] outline-none resize-none transition-colors"
+                className="w-full resize-none rounded-lg border border-white/[0.10] bg-white/[0.035] px-3 py-2 outline-none transition-colors focus:border-[rgba(var(--color-accent-2-rgb),0.42)]"
                 rows={3}
                 maxLength={500}
               />

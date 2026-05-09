@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, memo, useCallback, useMemo, lazy, Suspense } from "react";
 import { useRouter } from "next/navigation";
+import { surface } from "@/components/ui/design-system";
 import type { FeedPost } from "@/types/post";
 import { DeletePostDialog } from "./DeletePostDialog";
 import { getPostMediaItems, PostBodyAttachments } from "./PostBodyAttachments";
@@ -425,7 +426,7 @@ export const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPag
 
   return (
     <article 
-      className="group relative overflow-hidden border border-white/[0.08] rounded-xl p-3 sm:p-5 mb-3 sm:mb-5 bg-[rgba(12,16,23,0.58)] hover:bg-[rgba(16,21,30,0.72)] hover:border-white/[0.16] transition-all duration-200"
+      className={surface("panelMuted", "group relative mb-3 overflow-hidden p-3 transition-all duration-200 hover:border-white/[0.16] hover:bg-[rgba(16,21,30,0.72)] sm:mb-5 sm:p-5")}
       onClick={handlePostClick}
       style={{ cursor: isOnPostPage ? 'default' : 'pointer' }}
     >

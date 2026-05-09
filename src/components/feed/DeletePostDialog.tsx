@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/Button";
+import { iconBox, surface } from "@/components/ui/design-system";
 
 interface DeletePostDialogProps {
   onClose: () => void;
@@ -8,9 +9,9 @@ interface DeletePostDialogProps {
 export function DeletePostDialog({ onClose, onConfirm }: DeletePostDialogProps) {
   return (
     <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center" onClick={onClose}>
-      <div className="relative overflow-hidden glass noise-overlay border border-white/10 rounded-xl p-6 w-[min(92vw,480px)] mx-4" onClick={(event) => event.stopPropagation()}>
+      <div className={surface("panelStrong", "noise-overlay relative mx-4 w-[min(92vw,480px)] overflow-hidden p-6")} onClick={(event) => event.stopPropagation()}>
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 bg-[var(--color-accent)]/20 rounded-full flex items-center justify-center">
+          <div className={iconBox("danger", "h-10 w-10")}>
             <svg className="w-5 h-5 text-[var(--color-accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"

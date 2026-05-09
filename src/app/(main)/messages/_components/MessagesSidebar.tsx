@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
+import { menuPanel, ui } from "@/components/ui/design-system";
 import { cn } from "@/lib/cn";
 import { safeJson } from "@/lib/safe-json";
 import { Avatar } from "@/components/ui/Avatar";
@@ -200,8 +201,8 @@ export function MessagesSidebar() {
               className={cn(
                 "w-9 h-9 rounded-full flex items-center justify-center transition-colors",
                 showSettings
-                  ? "text-[var(--color-accent)] bg-[rgba(var(--color-accent-rgb),0.1)]"
-                  : "text-white/60 hover:bg-white/[0.08]"
+                  ? cn("text-[var(--color-accent-2)]", ui.active.cyan)
+                  : cn("text-white/60", ui.control.ghost)
               )}
               title="Message settings"
             >
@@ -212,7 +213,7 @@ export function MessagesSidebar() {
             </button>
             <button
               onClick={() => setShowNewMessage(true)}
-              className="w-9 h-9 rounded-full flex items-center justify-center text-white/60 hover:bg-white/[0.08] transition-colors"
+              className={cn("flex h-9 w-9 items-center justify-center rounded-full text-white/60 transition-colors", ui.control.ghost)}
               title="New message"
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
@@ -223,7 +224,7 @@ export function MessagesSidebar() {
 
             {/* Settings dropdown */}
             {showSettings && (
-              <div className="absolute right-0 top-full z-50 mt-1 w-72 overflow-hidden rounded-xl border border-white/[0.08] bg-[rgba(12,16,23,0.96)] animate-in fade-in slide-in-from-top-1 duration-150">
+              <div className={menuPanel("absolute right-0 top-full z-50 mt-1 w-72 animate-in fade-in slide-in-from-top-1 duration-150")}>
                 <div className="px-4 py-3 border-b border-white/[0.06]">
                   <h3 className="text-sm font-bold text-white">Who can message you</h3>
                   <p className="text-[11px] text-white/40 mt-0.5">Others will send a request instead</p>
@@ -358,14 +359,14 @@ export function MessagesSidebar() {
                               </button>
                               <button
                                 onClick={() => handleRequest(request.id, "DECLINED")}
-                                className="px-4 py-1.5 rounded-full text-xs font-bold border border-white/20 text-white hover:bg-white/10 transition-colors"
+                                className="rounded-lg border border-white/[0.10] px-4 py-1.5 text-xs font-bold text-white transition-colors hover:border-white/20 hover:bg-white/[0.08]"
                               >
                                 Decline
                               </button>
                               {request.conversationId && (
                                 <Link
                                   href={`/messages/${request.conversationId}`}
-                                  className="px-3 py-1.5 rounded-full text-xs font-medium text-white/50 hover:text-white/70 hover:bg-white/[0.06] transition-colors ml-auto"
+                                  className="ml-auto rounded-lg px-3 py-1.5 text-xs font-medium text-white/50 transition-colors hover:bg-white/[0.06] hover:text-white/70"
                                 >
                                   View
                                 </Link>

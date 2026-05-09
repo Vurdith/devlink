@@ -2,7 +2,7 @@
 
 import { HTMLAttributes, forwardRef } from "react";
 import { cn } from "@/lib/cn";
-import { ui } from "./design-system";
+import { surface, ui } from "./design-system";
 
 interface CardProps extends HTMLAttributes<HTMLDivElement> {
   variant?: "default" | "elevated" | "bordered" | "gradient";
@@ -13,10 +13,10 @@ interface CardProps extends HTMLAttributes<HTMLDivElement> {
 export const Card = forwardRef<HTMLDivElement, CardProps>(
   ({ className, variant = "default", hover = false, glow = false, children, ...props }, ref) => {
     const variants = {
-      default: "glass border border-[var(--line-soft)]",
-      elevated: "glass border border-[var(--line-strong)]",
-      bordered: "glass border border-[var(--line-soft)]",
-      gradient: "glass border border-[rgba(var(--color-accent-2-rgb),0.22)] bg-[linear-gradient(135deg,rgba(var(--color-accent-rgb),0.10),transparent_44%,rgba(var(--color-accent-2-rgb),0.06))]",
+      default: surface("panel"),
+      elevated: surface("panelStrong"),
+      bordered: surface("panelMuted"),
+      gradient: surface("panel", "bg-[linear-gradient(135deg,rgba(var(--color-accent-rgb),0.10),transparent_44%,rgba(var(--color-accent-2-rgb),0.06))]"),
     };
 
     return (

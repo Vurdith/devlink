@@ -1,6 +1,7 @@
 import { useRouter } from "next/navigation";
 import { Avatar } from "@/components/ui/Avatar";
 import { Button } from "@/components/ui/Button";
+import { surface, ui } from "@/components/ui/design-system";
 import { ProfileTooltip } from "@/components/profile/ProfileTooltip";
 import { TypeIcon, VerifiedBadge, typeBadgeClasses } from "./NotificationIcons";
 import type { NotificationItem, NotificationRow } from "./notification-types";
@@ -118,10 +119,10 @@ function NotificationCard({
         }
       }}
       className={[
-        "group relative rounded-2xl p-4 transition-all outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-rgb),0.45)] border border-white/10 hover:border-white/20",
+        surface("panelMuted", "group relative p-4 transition-all outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-rgb),0.45)] hover:border-white/20"),
         n.readAt
-          ? "glass-soft"
-          : "glass-soft bg-[rgba(var(--color-accent-rgb),0.10)] border-[rgba(var(--color-accent-rgb),0.35)] shadow-[0_0_35px_rgba(var(--color-accent-rgb),0.18)]",
+          ? ""
+          : ui.active.cyan,
       ].join(" ")}
       aria-label="Notification"
     >
@@ -165,7 +166,7 @@ function UnreadGlow() {
   return (
     <>
       <span aria-hidden="true" className="absolute left-0 top-3 bottom-3 w-[3px] rounded-full bg-gradient-to-b from-[var(--color-accent)] via-[var(--color-accent-2)] to-[var(--color-accent-3)]" />
-      <span aria-hidden="true" className="absolute inset-0 rounded-2xl border border-[rgba(var(--color-accent-rgb),0.45)] pointer-events-none" />
+      <span aria-hidden="true" className="absolute inset-0 rounded-xl border border-[rgba(var(--color-accent-rgb),0.45)] pointer-events-none" />
     </>
   );
 }

@@ -2,6 +2,7 @@ import { prisma } from "@/server/db";
 import Link from "next/link";
 import { Avatar } from "@/components/ui/Avatar";
 import { FollowButton } from "@/components/ui/FollowButton";
+import { surface } from "@/components/ui/design-system";
 import { ProfileTooltip } from "@/components/profile/ProfileTooltip";
 import { getAuthSession } from "@/server/auth";
 import { getProfileTypeConfig, ProfileTypeIcon } from "@/types/profile";
@@ -43,7 +44,7 @@ export default async function FollowingPage({ params }: { params: Promise<{ user
       <h1 className="text-xl font-semibold mb-4">@{user.username} is following</h1>
       <div className="space-y-2">
         {following.map((f) => (
-          <div key={f.id} className="group relative flex items-center gap-3 overflow-hidden rounded-xl border border-white/[0.08] bg-[rgba(12,16,23,0.68)] p-3 transition-colors hover:border-white/[0.14] hover:bg-[rgba(15,20,28,0.82)]">
+          <div key={f.id} className={surface("panel", "group relative flex items-center gap-3 overflow-hidden p-3 transition-colors hover:border-white/[0.14] hover:bg-[rgba(15,20,28,0.82)]")}>
             <ProfileTooltip user={f.following} currentUserId={currentUserId}>
               <Link href={`/u/${f.following.username}`} className="flex items-center gap-3 min-w-0 flex-1 relative z-10">
                 <Avatar src={f.following.profile?.avatarUrl ?? undefined} size={36} />

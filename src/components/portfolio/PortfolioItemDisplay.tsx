@@ -4,6 +4,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { ConfirmModal } from "@/components/ui/BaseModal";
+import { surface } from "@/components/ui/design-system";
 import type { PortfolioItem } from "@/types/api";
 import { PortfolioItemContent } from "./PortfolioItemContent";
 import { PortfolioMediaModal } from "./PortfolioMediaModal";
@@ -236,7 +237,7 @@ export function PortfolioItemDisplay({
   const currentMediaUrl = mediaUrls[currentMediaIndex];
 
   return (
-    <div className="group relative rounded-xl border border-white/[0.08] bg-[rgba(12,16,23,0.68)] overflow-hidden hover:border-white/[0.16] transition-all duration-300">
+    <div className={surface("panel", "group relative overflow-hidden transition-all duration-300 hover:border-white/[0.16]")}>
       {/* Media Gallery */}
       {mediaUrls.length > 0 && (
         <div className="w-full aspect-[16/10] max-h-[34rem] bg-gradient-to-br from-white/[0.055] to-transparent overflow-hidden flex items-center justify-center relative group/media">

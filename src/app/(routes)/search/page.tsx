@@ -3,6 +3,7 @@ import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { Avatar } from "@/components/ui/Avatar";
 import { FollowButton } from "@/components/ui/FollowButton";
+import { iconBox, surface, ui } from "@/components/ui/design-system";
 import { useSearchParams } from "next/navigation";
 import { getProfileTypeConfig, ProfileTypeIcon } from "@/types/profile";
 import { ProfileTooltip } from "@/components/profile/ProfileTooltip";
@@ -153,7 +154,7 @@ function SearchContent() {
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-4">Search Results</h1>
         {query && (
-            <div className="bg-[#0d0d12] border border-white/10 rounded-[var(--radius)] p-4 mb-6">
+            <div className={surface("panelMuted", "mb-6 p-4")}>
             <div className="text-sm text-[var(--muted-foreground)]">
               Search results for: <span className="text-[var(--foreground)] font-medium">{query}</span>
               {totalResults > 0 && (
@@ -173,11 +174,11 @@ function SearchContent() {
               onClick={() => setSelectedType(filter.value)}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 ${
                 selectedType === filter.value
-                  ? "bg-[var(--accent)]/20 text-[var(--accent)] border border-[var(--accent)]/30"
+                  ? ui.active.cyan
                   : "bg-white/5 text-[var(--muted-foreground)] hover:bg-white/10 hover:text-white border border-transparent"
               }`}
             >
-              <div className={`p-1 rounded ${
+                <div className={`rounded p-1 ${
                 selectedType === filter.value
                   ? "bg-[var(--accent)]/20"
                   : "bg-white/5"
@@ -203,8 +204,7 @@ function SearchContent() {
               <h2 className="text-lg font-semibold mb-3 text-[var(--accent)]">Profiles</h2>
               <div className="space-y-2">
                 {users.map((user) => (
-                  <div key={user.id} className="group relative bg-[#0d0d12] border border-white/10 rounded-[var(--radius)] p-3 flex items-center gap-3">
-                    <div className="absolute inset-0 rounded-[var(--radius)] pointer-events-none transition-colors group-hover:bg-white/10" />
+                  <div key={user.id} className={surface("panelMuted", "group relative flex items-center gap-3 p-3 transition-colors hover:border-white/[0.14] hover:bg-white/[0.04]")}>
                     <ProfileTooltip
                       user={{
                         id: user.id,
@@ -260,13 +260,12 @@ function SearchContent() {
               <h2 className="text-lg font-semibold mb-3 text-[var(--accent)]">Hashtags</h2>
               <div className="space-y-2">
                 {hashtags.map((hashtag) => (
-                  <div key={hashtag.tag} className="group relative bg-[#0d0d12] border border-white/10 rounded-[var(--radius)] p-3 flex items-center gap-3">
-                    <div className="absolute inset-0 rounded-[var(--radius)] pointer-events-none transition-colors group-hover:bg-white/10" />
+                  <div key={hashtag.tag} className={surface("panelMuted", "group relative flex items-center gap-3 p-3 transition-colors hover:border-white/[0.14] hover:bg-white/[0.04]")}>
                     <Link href={`/hashtag/${hashtag.tag.replace('#', '')}`} className="absolute inset-0 z-10" aria-label={`View ${hashtag.tag}`}>
                       <span className="sr-only">View {hashtag.tag}</span>
                     </Link>
                     <div className="pointer-events-none">
-                      <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-[var(--color-accent)] rounded-full flex items-center justify-center">
+                      <div className={iconBox("cyan", "h-12 w-12")}>
                         <span className="text-white font-bold text-xl">#</span>
                       </div>
                     </div>
@@ -298,7 +297,7 @@ function SearchContent() {
               <h2 className="text-lg font-semibold mb-3 text-[var(--accent)]">Projects</h2>
               <div className="space-y-2">
                 {projects.map((project) => (
-                  <div key={project.id} className="bg-[#0d0d12] border border-white/10 rounded-[var(--radius)] p-3">
+                  <div key={project.id} className={surface("panelMuted", "p-3 transition-colors hover:border-white/[0.14]")}>
                     <div className="flex items-start gap-3">
                       <div className="flex-1">
                         <div className="text-lg font-medium">{project.title}</div>
