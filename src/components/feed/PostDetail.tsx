@@ -8,6 +8,7 @@ import { DeletePostDialog } from "./DeletePostDialog";
 import { getPostMediaItems, PostBodyAttachments } from "./PostBodyAttachments";
 import { PostEngagementBar } from "./PostEngagementBar";
 import { PostDetailHeader } from "./PostDetailHeader";
+import { getPostCount, getReplyCount, withPostCount } from "./post-engagement-utils";
 // Lazy load heavy components - only loaded when needed
 const ReplyModal = lazy(() => import("./ReplyModal").then(m => ({ default: m.ReplyModal })));
 
@@ -53,8 +54,8 @@ export const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPag
   // Compute engagement state from post data
   // Counts are always visible, but user-specific states require authentication
   const engagementState = useMemo(() => {
-    const likeCount = post._count?.likes ?? post.likes?.length ?? 0;
-    const repostCount = post._count?.reposts ?? post.reposts?.length ?? 0;
+    const likeCount = getPostCount(post, "likes");
+    const repostCount = getPostCount(post, "reposts");
     
     if (!session?.user?.id) {
       return { isLiked: false, isReposted: false, isSaved: false, likeCount, repostCount };
@@ -170,9 +171,10 @@ export const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPag
     }
     if (isUpdating) return;
     const newLikedState = !isLiked;
+    const optimisticLikeCount = newLikedState ? likeCount + 1 : Math.max(0, likeCount - 1);
     setIsUpdating(true);
     setIsLiked(newLikedState);
-    setLikeCount(prev => newLikedState ? prev + 1 : Math.max(0, prev - 1));
+    setLikeCount(optimisticLikeCount);
 
     try {
       const response = await fetch('/api/posts/like', {
@@ -183,17 +185,20 @@ export const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPag
 
       const data = await response.json();
       if (response.ok && data.liked !== undefined) {
+        const confirmedLikeCount =
+          typeof data.likeCount === "number"
+            ? data.likeCount
+            : data.liked === newLikedState
+              ? optimisticLikeCount
+              : likeCount;
+
         setIsLiked(data.liked);
-        if (data.likeCount !== undefined) {
-          setLikeCount(data.likeCount);
-        } else if (data.liked !== newLikedState) {
-          setLikeCount(prev => data.liked ? prev + 1 : Math.max(0, prev - 1));
-        }
+        setLikeCount(confirmedLikeCount);
         setLastUpdateTime(Date.now());
         setPendingState(prev => ({ ...prev, isLiked: data.liked }));
         
         if (onUpdate) {
-          const updatedPost = { ...post };
+          const updatedPost = withPostCount(post, "likes", confirmedLikeCount);
           if (data.liked) {
             if (!updatedPost.likes?.some(like => like.userId === userId)) {
               updatedPost.likes = [...(updatedPost.likes || []), { id: Date.now().toString(), userId }];
@@ -205,7 +210,7 @@ export const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPag
         }
         
         window.dispatchEvent(new CustomEvent('postEngagementUpdate', {
-          detail: { post, action: 'like', liked: data.liked }
+          detail: { post, action: 'like', liked: data.liked, likeCount: confirmedLikeCount }
         }));
       }
     } catch {
@@ -214,7 +219,7 @@ export const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPag
     } finally {
       setIsUpdating(false);
     }
-  }, [session?.user?.id, isLiked, isUpdating, post, onUpdate, router]);
+  }, [session?.user?.id, isLiked, isUpdating, likeCount, post, onUpdate, router]);
 
   const handleRepost = useCallback(async () => {
     const userId = session?.user?.id;
@@ -224,9 +229,10 @@ export const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPag
     }
     if (isUpdating) return;
     const newRepostedState = !isReposted;
+    const optimisticRepostCount = newRepostedState ? repostCount + 1 : Math.max(0, repostCount - 1);
     setIsUpdating(true);
     setIsReposted(newRepostedState);
-    setRepostCount(prev => newRepostedState ? prev + 1 : Math.max(0, prev - 1));
+    setRepostCount(optimisticRepostCount);
 
     try {
       const response = await fetch('/api/posts/repost', {
@@ -237,17 +243,20 @@ export const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPag
 
       const data = await response.json();
       if (response.ok && data.reposted !== undefined) {
+        const confirmedRepostCount =
+          typeof data.repostCount === "number"
+            ? data.repostCount
+            : data.reposted === newRepostedState
+              ? optimisticRepostCount
+              : repostCount;
+
         setIsReposted(data.reposted);
-        if (data.repostCount !== undefined) {
-          setRepostCount(data.repostCount);
-        } else if (data.reposted !== newRepostedState) {
-          setRepostCount(prev => data.reposted ? prev + 1 : Math.max(0, prev - 1));
-        }
+        setRepostCount(confirmedRepostCount);
         setLastUpdateTime(Date.now());
         setPendingState(prev => ({ ...prev, isReposted: data.reposted }));
         
         if (onUpdate) {
-          const updatedPost = { ...post };
+          const updatedPost = withPostCount(post, "reposts", confirmedRepostCount);
           if (data.reposted) {
             updatedPost.reposts = [...(post.reposts || []), { id: Date.now().toString(), userId }];
           } else {
@@ -257,7 +266,7 @@ export const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPag
         }
         
         window.dispatchEvent(new CustomEvent('postEngagementUpdate', {
-          detail: { post, action: 'repost', reposted: data.reposted }
+          detail: { post, action: 'repost', reposted: data.reposted, repostCount: confirmedRepostCount }
         }));
       } else {
         setIsReposted(!newRepostedState);
@@ -269,7 +278,7 @@ export const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPag
     } finally {
       setIsUpdating(false);
     }
-  }, [session?.user?.id, isReposted, isUpdating, post, onUpdate, router]);
+  }, [session?.user?.id, isReposted, isUpdating, repostCount, post, onUpdate, router]);
 
   const handleSave = useCallback(async () => {
     const userId = session?.user?.id;
@@ -473,7 +482,7 @@ export const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPag
 
       <PostEngagementBar
         isOnPostPage={isOnPostPage}
-        replyCount={post._count?.replies || post.replies?.length || 0}
+        replyCount={getReplyCount(post)}
         repostCount={repostCount}
         likeCount={likeCount}
         viewCount={post.views}

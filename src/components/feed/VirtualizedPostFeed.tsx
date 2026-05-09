@@ -4,6 +4,7 @@ import PostDetail from "./PostDetail";
 import { FeedSkeleton } from "@/components/ui/LoadingSpinner";
 import { iconBox, surface } from "@/components/ui/design-system";
 import type { FeedPost } from "@/types/post";
+import { getPostCount, getReplyCount } from "./post-engagement-utils";
 
 interface VirtualizedPostFeedProps {
   posts: FeedPost[];
@@ -121,6 +122,10 @@ const VirtualPostItem = memo(function VirtualPostItem({
          prev.post.isLiked === next.post.isLiked &&
          prev.post.isReposted === next.post.isReposted &&
          prev.post.isSaved === next.post.isSaved &&
+         getPostCount(prev.post, "likes") === getPostCount(next.post, "likes") &&
+         getPostCount(prev.post, "reposts") === getPostCount(next.post, "reposts") &&
+         getReplyCount(prev.post) === getReplyCount(next.post) &&
+         prev.post.views === next.post.views &&
          prev.showPinnedTag === next.showPinnedTag &&
          prev.session?.user?.id === next.session?.user?.id;
 });

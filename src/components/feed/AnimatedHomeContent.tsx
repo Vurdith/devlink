@@ -6,6 +6,7 @@ import { ThemeLogoImg } from "@/components/ui/ThemeLogo";
 import { cn } from "@/lib/cn";
 import { iconBox, surface } from "@/components/ui/design-system";
 import type { FeedPost } from "@/types/post";
+import { withPostCount } from "./post-engagement-utils";
 
 interface UserProfile {
   id: string;
@@ -139,7 +140,7 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
   // Listen for engagement updates and update posts immediately
   useEffect(() => {
     const handleEngagementUpdate = (event: CustomEvent) => {
-      const { post, action, liked, reposted, saved } = event.detail;
+      const { post, action, liked, likeCount, reposted, repostCount, saved } = event.detail;
 
       // Mark that we're making a local update
       setLastLocalUpdate(Date.now());
@@ -159,7 +160,16 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
           updates.isSaved = saved;
         }
 
-        return { ...p, ...updates };
+        const updatedPost = { ...p, ...updates };
+
+        if (action === 'like' && typeof likeCount === 'number') {
+          return withPostCount(updatedPost, "likes", likeCount);
+        }
+        if (action === 'repost' && typeof repostCount === 'number') {
+          return withPostCount(updatedPost, "reposts", repostCount);
+        }
+
+        return updatedPost;
       }));
     };
 
