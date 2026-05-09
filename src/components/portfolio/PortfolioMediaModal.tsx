@@ -86,7 +86,7 @@ export function PortfolioMediaModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50" style={{ contain: "layout style paint" }} onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(5,8,12,0.92)]" style={{ contain: "layout style paint" }} onClick={onClose}>
       <div className="relative w-full h-full flex flex-col items-center justify-center py-12 px-4" onClick={(event) => event.stopPropagation()}>
         <div className="relative max-w-[90vw] max-h-[75vh] flex items-center justify-center">
           <button
@@ -94,8 +94,9 @@ export function PortfolioMediaModal({
               event.stopPropagation();
               onClose();
             }}
-            className={cn("absolute -right-3 -top-3 z-30 flex h-9 w-9 items-center justify-center rounded-lg text-white/80 hover:text-white", ui.active.cyan, ui.motion.lift)}
+            className={cn("absolute -right-3 -top-3 z-30 flex h-9 w-9 items-center justify-center text-white/80 hover:text-white", ui.control.icon)}
             title="Close (Esc)"
+            aria-label="Close media viewer"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
               <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
@@ -104,7 +105,7 @@ export function PortfolioMediaModal({
 
           <div
             ref={containerRef}
-            className="relative overflow-hidden rounded-lg border border-white/10"
+            className="relative overflow-hidden rounded-lg border border-white/[0.08] bg-[rgba(8,11,16,0.72)]"
             onMouseDown={onMouseDown}
             onMouseMove={onMouseMove}
             onMouseUp={onMouseUp}
@@ -157,7 +158,7 @@ export function PortfolioMediaModal({
             </button>
           )}
 
-          {mediaUrls.length > 1 && <div className="w-px h-8 bg-white/20" />}
+          {mediaUrls.length > 1 && <div className="h-8 w-px bg-white/[0.12]" />}
 
           <button
             onClick={() => setZoomAndClamp(Math.max(zoomLevel - 0.5, 0.5))}

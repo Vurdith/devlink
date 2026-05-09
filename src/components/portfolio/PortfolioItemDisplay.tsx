@@ -4,7 +4,8 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { ConfirmModal } from "@/components/ui/BaseModal";
-import { surface } from "@/components/ui/design-system";
+import { surface, ui } from "@/components/ui/design-system";
+import { cn } from "@/lib/cn";
 import type { PortfolioItem } from "@/types/api";
 import { PortfolioItemContent } from "./PortfolioItemContent";
 import { PortfolioMediaModal } from "./PortfolioMediaModal";
@@ -256,9 +257,8 @@ export function PortfolioItemDisplay({
               }}
             />
             
-            {/* Cinematic Overlay on Hover */}
-            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/media:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-              <div className="p-3 rounded-full bg-white/10 backdrop-blur-md border border-white/20 transform scale-90 group-hover/media:scale-100 transition-transform duration-300">
+            <div className="absolute inset-0 flex items-center justify-center bg-[rgba(5,8,12,0.42)] opacity-0 transition-opacity duration-300 group-hover/media:opacity-100">
+              <div className={cn("scale-90 p-3 transition-transform duration-300 group-hover/media:scale-100", ui.control.icon)}>
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-white">
                   <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
@@ -272,8 +272,9 @@ export function PortfolioItemDisplay({
               {/* Previous Button */}
               <button
                 onClick={(e) => { e.stopPropagation(); goToPrevious(); }}
-                className="absolute left-4 top-1/2 -translate-y-1/2 p-2.5 bg-black/45 hover:bg-black/65 text-white rounded-full transition-all opacity-0 group-hover/media:opacity-100 border border-white/10 backdrop-blur-sm z-10"
+                className={cn("absolute left-4 top-1/2 z-10 -translate-y-1/2 p-2.5 opacity-0 transition-all group-hover/media:opacity-100", ui.control.icon)}
                 title="Previous"
+                aria-label="Previous media"
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                   <path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -283,8 +284,9 @@ export function PortfolioItemDisplay({
               {/* Next Button */}
               <button
                 onClick={(e) => { e.stopPropagation(); goToNext(); }}
-                className="absolute right-4 top-1/2 -translate-y-1/2 p-2.5 bg-black/45 hover:bg-black/65 text-white rounded-full transition-all opacity-0 group-hover/media:opacity-100 border border-white/10 backdrop-blur-sm z-10"
+                className={cn("absolute right-4 top-1/2 z-10 -translate-y-1/2 p-2.5 opacity-0 transition-all group-hover/media:opacity-100", ui.control.icon)}
                 title="Next"
+                aria-label="Next media"
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                   <path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -299,10 +301,11 @@ export function PortfolioItemDisplay({
                     onClick={(e) => { e.stopPropagation(); setCurrentMediaIndex(idx); }}
                     className={`h-1.5 rounded-full transition-all duration-300 ${
                       idx === currentMediaIndex
-                        ? "bg-white w-8"
-                        : "bg-white/30 hover:bg-white/50 w-1.5"
+                        ? "w-8 bg-[var(--color-accent-2)]"
+                        : "w-1.5 bg-white/35 hover:bg-white/60"
                     }`}
                     title={`Go to media ${idx + 1}`}
+                    aria-label={`Go to media ${idx + 1}`}
                   />
                 ))}
               </div>

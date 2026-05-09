@@ -158,7 +158,7 @@ export function MediaViewer({
 
     return createPortal(
       <div 
-        className="fixed inset-0 bg-black/90 flex items-center justify-center z-[99999]"
+        className="fixed inset-0 z-[99999] flex items-center justify-center bg-[rgba(5,8,12,0.92)]"
         style={{ contain: 'layout style paint' }}
         onClick={() => setShowModal(false)}
       >
@@ -171,8 +171,9 @@ export function MediaViewer({
             {/* Close button */}
             <button
               onClick={(e) => { e.stopPropagation(); setShowModal(false); }}
-              className={cn("absolute -right-3 -top-3 z-30 flex h-9 w-9 items-center justify-center rounded-lg text-white/80 hover:text-white", ui.active.cyan, ui.motion.lift)}
+              className={cn("absolute -right-3 -top-3 z-30 flex h-9 w-9 items-center justify-center text-white/80 hover:text-white", ui.control.icon)}
               title="Close (Esc)"
+              aria-label="Close media viewer"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                 <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
@@ -182,7 +183,7 @@ export function MediaViewer({
             {/* Clipping viewport */}
             <div
               ref={containerRef}
-              className="relative overflow-hidden rounded-lg border border-white/10"
+              className="relative overflow-hidden rounded-lg border border-white/[0.08] bg-[rgba(8,11,16,0.72)]"
               onMouseDown={handleMouseDown}
               onMouseMove={handleMouseMove}
               onMouseUp={handleMouseUp}
@@ -233,7 +234,8 @@ export function MediaViewer({
               <button
                 onClick={goToPrevious}
                 className={cn("p-2.5", ui.control.icon)}
-                title="Previous (←)"
+                title="Previous (Left arrow)"
+                aria-label="Previous media"
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                   <path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -253,7 +255,8 @@ export function MediaViewer({
               <button
                 onClick={goToNext}
                 className={cn("p-2.5", ui.control.icon)}
-                title="Next (→)"
+                title="Next (Right arrow)"
+                aria-label="Next media"
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                   <path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -262,7 +265,7 @@ export function MediaViewer({
             )}
 
             {/* Divider */}
-            {media.length > 1 && currentMedia.type !== 'video' && <div className="w-px h-8 bg-white/20" />}
+            {media.length > 1 && currentMedia.type !== 'video' && <div className="h-8 w-px bg-white/[0.12]" />}
 
             {/* Zoom controls (only for images) */}
             {currentMedia.type !== 'video' && (

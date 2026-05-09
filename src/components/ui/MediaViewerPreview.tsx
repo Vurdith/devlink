@@ -33,14 +33,14 @@ export function MediaViewerPreview({
   if (isSlideshow && count > 1) {
     return (
       <div
-        className={`group/media relative w-full cursor-pointer overflow-hidden rounded-xl bg-black/40 ${className}`}
+        className={cn("group/media relative w-full cursor-pointer overflow-hidden rounded-xl bg-[rgba(8,11,16,0.72)]", className)}
         style={{ maxHeight: "400px" }}
         onClick={() => onOpen(currentIndex)}
       >
         <LargeMedia item={currentMedia} alt={`${alt} - ${currentIndex + 1}`} />
         <PreviewArrow direction="previous" onClick={onPrevious} />
         <PreviewArrow direction="next" onClick={onNext} />
-        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 bg-black/50 px-3 py-1.5 rounded-full">
+        <div className={surface("toolbar", "absolute bottom-3 left-1/2 flex -translate-x-1/2 gap-1.5 rounded-full px-3 py-1.5")}>
           {media.map((_, idx) => (
             <button
               key={idx}
@@ -48,7 +48,8 @@ export function MediaViewerPreview({
                 event.stopPropagation();
                 onSelect(idx);
               }}
-              className={`h-1.5 rounded-full transition-all ${idx === currentIndex ? "bg-white w-4" : "bg-white/40 hover:bg-white/60 w-1.5"}`}
+              className={`h-1.5 rounded-full transition-all ${idx === currentIndex ? "w-4 bg-[var(--color-accent-2)]" : "w-1.5 bg-white/40 hover:bg-white/60"}`}
+              aria-label={`View media ${idx + 1}`}
             />
           ))}
         </div>
@@ -59,7 +60,7 @@ export function MediaViewerPreview({
   if (count === 1) {
     return (
       <div
-        className={`group/media relative w-full cursor-pointer overflow-hidden rounded-xl bg-black/40 ${className}`}
+        className={cn("group/media relative w-full cursor-pointer overflow-hidden rounded-xl bg-[rgba(8,11,16,0.72)]", className)}
         style={{ maxHeight: "400px" }}
         onClick={() => onOpen(0)}
       >
@@ -84,7 +85,7 @@ export function MediaViewerPreview({
         <div key={item.id || index} className="relative">
           <GridMediaItem item={item} index={index} alt={alt} onOpen={onOpen} />
           {index === 3 && count > 4 && (
-            <div className="absolute inset-0 bg-black/60 flex items-center justify-center rounded-xl">
+            <div className="absolute inset-0 flex items-center justify-center rounded-xl bg-[rgba(5,8,12,0.68)]">
               <span className="text-white text-2xl font-bold">+{count - 4}</span>
             </div>
           )}
@@ -125,7 +126,7 @@ function LargeMedia({ item, alt, hover = false }: { item: MediaItem; alt: string
 
 function GridMediaItem({ item, index, alt, onOpen }: { item: MediaItem; index: number; alt: string; onOpen: (index: number) => void }) {
   return (
-    <div className="relative cursor-pointer overflow-hidden rounded-xl bg-black/20 group/media" onClick={() => onOpen(index)}>
+    <div className="group/media relative cursor-pointer overflow-hidden rounded-xl bg-[rgba(8,11,16,0.58)]" onClick={() => onOpen(index)}>
       {item.type === "video" ? (
         <>
           <video src={item.url} className="w-full h-auto rounded-xl transition-transform duration-500 ease-out group-hover/media:scale-105" preload="metadata" />
@@ -156,8 +157,9 @@ function PreviewArrow({ direction, onClick }: { direction: "previous" | "next"; 
         event.stopPropagation();
         onClick();
       }}
-      className={cn(`absolute ${isPrevious ? "left-3" : "right-3"} top-1/2 -translate-y-1/2 rounded-lg p-2.5 text-white opacity-0 transition-all group-hover/media:opacity-100`, ui.active.cyan)}
+      className={cn(`absolute ${isPrevious ? "left-3" : "right-3"} top-1/2 -translate-y-1/2 p-2.5 text-white opacity-0 transition-all group-hover/media:opacity-100`, ui.control.icon)}
       title={isPrevious ? "Previous" : "Next"}
+      aria-label={isPrevious ? "Previous media" : "Next media"}
     >
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
         <path d={isPrevious ? "M15 18l-6-6 6-6" : "M9 18l6-6-6-6"} stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
