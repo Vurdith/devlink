@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
 
+export type ApiErrorBody = { error: string };
+export type JsonObject = Record<string, unknown>;
+
 export interface ApiErrorInterface {
   error: string;
   status: number;
@@ -7,7 +10,12 @@ export interface ApiErrorInterface {
 
 export type JsonBodyResult<T = unknown> =
   | { ok: true; data: T }
-  | { ok: false; response: NextResponse<{ error: string }> };
+  | { ok: false; response: NextResponse<ApiErrorBody> };
+
+export type JsonObjectBodyOptions = {
+  invalidJsonMessage?: string;
+  nonObjectMessage?: string;
+};
 
 export class ApiError extends Error {
   public status: number;
@@ -23,14 +31,18 @@ export function handleApiError(error: unknown): NextResponse {
   console.error("API Error:", error);
   
   if (error instanceof ApiError) {
-    return NextResponse.json({ error: error.message }, { status: error.status });
+    return apiErrorResponse(error.message, error.status);
   }
   
   if (error instanceof Error) {
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return apiErrorResponse("Internal server error", 500);
   }
   
-  return NextResponse.json({ error: "Unknown error occurred" }, { status: 500 });
+  return apiErrorResponse("Internal server error", 500);
+}
+
+export function apiErrorResponse(error: string, status = 400): NextResponse<ApiErrorBody> {
+  return NextResponse.json({ error }, { status });
 }
 
 export async function parseJsonBody<T = unknown>(
@@ -42,9 +54,37 @@ export async function parseJsonBody<T = unknown>(
   } catch {
     return {
       ok: false,
-      response: NextResponse.json({ error: invalidMessage }, { status: 400 }),
+      response: apiErrorResponse(invalidMessage, 400),
     };
   }
+}
+
+export async function parseJsonObjectBody<T extends JsonObject = JsonObject>(
+  request: Request,
+  options: JsonObjectBodyOptions = {}
+): Promise<JsonBodyResult<T>> {
+  const {
+    invalidJsonMessage = "Invalid JSON body",
+    nonObjectMessage = "Request body must be a JSON object",
+  } = options;
+  const parsed = await parseJsonBody<unknown>(request, invalidJsonMessage);
+
+  if (!parsed.ok) {
+    return parsed;
+  }
+
+  if (!isJsonObject(parsed.data)) {
+    return {
+      ok: false,
+      response: apiErrorResponse(nonObjectMessage, 400),
+    };
+  }
+
+  return { ok: true, data: parsed.data as T };
+}
+
+function isJsonObject(value: unknown): value is JsonObject {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 export function validateInput(data: Record<string, unknown>, schema: Record<string, Record<string, unknown>>): string | null {

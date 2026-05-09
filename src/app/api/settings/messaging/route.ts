@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { MessagePermission } from "@prisma/client";
+import { parseJsonObjectBody } from "@/lib/api-utils";
 import { getAuthSession } from "@/server/auth";
 import { prisma } from "@/server/db";
 
@@ -37,14 +38,12 @@ export async function PUT(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    let body: { allowFrom?: string } | null = null;
-    try {
-      body = await req.json();
-    } catch {
-      return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+    const parsedBody = await parseJsonObjectBody<{ allowFrom?: string }>(req);
+    if (!parsedBody.ok) {
+      return parsedBody.response;
     }
 
-    const allowFrom = typeof body?.allowFrom === "string" ? body.allowFrom : undefined;
+    const allowFrom = typeof parsedBody.data.allowFrom === "string" ? parsedBody.data.allowFrom : undefined;
     const nextAllowFrom = allowFrom as MessagePermission | undefined;
 
     if (!nextAllowFrom || !allowedValues.includes(nextAllowFrom)) {

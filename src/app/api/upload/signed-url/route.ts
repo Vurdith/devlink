@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAuthSession } from "@/server/auth";
 import { checkRateLimit } from "@/server/rate-limit";
+import { parseJsonObjectBody } from "@/lib/api-utils";
 import {
   isAllowedUploadMimeType,
   validateUploadContentType,
@@ -10,9 +11,9 @@ import {
 import { createSignedUploadUrl } from "@/server/storage";
 
 type SignedUploadRequestBody = {
-  filename?: string;
-  contentType?: string;
-  size?: number;
+  filename?: unknown;
+  contentType?: unknown;
+  size?: unknown;
 };
 
 export async function POST(req: Request) {
@@ -29,50 +30,51 @@ export async function POST(req: Request) {
     );
   }
 
-  let body: SignedUploadRequestBody;
-
-  try {
-    body = (await req.json()) as SignedUploadRequestBody;
-  } catch {
-    return NextResponse.json({ error: "Request body must be valid JSON." }, { status: 400 });
+  const parsedBody = await parseJsonObjectBody<SignedUploadRequestBody>(req, {
+    invalidJsonMessage: "Request body must be valid JSON.",
+    nonObjectMessage: "Request body must be a JSON object.",
+  });
+  if (!parsedBody.ok) {
+    return parsedBody.response;
   }
+  const body = parsedBody.data;
 
-  if (!body || typeof body !== "object" || Array.isArray(body)) {
-    return NextResponse.json({ error: "Request body must be a JSON object." }, { status: 400 });
-  }
-
-  if (!body.filename || !body.contentType) {
+  if (typeof body.filename !== "string" || typeof body.contentType !== "string") {
     return NextResponse.json(
       { error: "filename and contentType are required" },
       { status: 400 }
     );
   }
 
-  const filenameError = validateUploadFilename(body.filename);
+  const filename = body.filename;
+  const contentType = body.contentType;
+
+  const filenameError = validateUploadFilename(filename);
   if (filenameError) {
     return NextResponse.json({ error: filenameError }, { status: 400 });
   }
 
-  const contentTypeError = validateUploadContentType(body.contentType);
+  const contentTypeError = validateUploadContentType(contentType);
   if (contentTypeError) {
     return NextResponse.json({ error: contentTypeError }, { status: 400 });
   }
 
   if (body.size !== undefined) {
-    const sizeError = validateUploadSize(body.size);
+    const sizeError =
+      typeof body.size === "number" ? validateUploadSize(body.size) : "File size must be a number.";
     if (sizeError) {
       return NextResponse.json({ error: sizeError }, { status: 400 });
     }
   }
 
-  if (!isAllowedUploadMimeType(body.contentType)) {
+  if (!isAllowedUploadMimeType(contentType)) {
     return NextResponse.json({ error: "Unsupported upload content type." }, { status: 400 });
   }
 
   try {
     const signed = await createSignedUploadUrl({
-      filename: body.filename,
-      contentType: body.contentType,
+      filename,
+      contentType,
     });
     return NextResponse.json(signed);
   } catch (error) {

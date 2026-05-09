@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/server/db";
 import { getAuthSession } from "@/server/auth";
-import { parseJsonBody } from "@/lib/api-utils";
+import { parseJsonObjectBody } from "@/lib/api-utils";
 import { normalizePollOptions, validateId, validatePollData } from "@/lib/validation";
 
 export async function POST(req: Request) {
@@ -13,7 +13,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const parsedBody = await parseJsonBody<Record<string, unknown>>(req);
+    const parsedBody = await parseJsonObjectBody(req);
     if (!parsedBody.ok) {
       return parsedBody.response;
     }

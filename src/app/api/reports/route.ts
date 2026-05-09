@@ -1,6 +1,7 @@
 import { getAuthSession } from "@/server/auth";
 import { prisma } from "@/server/db";
 import { NextResponse } from "next/server";
+import { parseJsonObjectBody } from "@/lib/api-utils";
 import { validateId } from "@/lib/validation";
 
 // Create a new report
@@ -13,11 +14,18 @@ export async function POST(req: Request) {
   }
 
   try {
-    const body = await req.json().catch(() => null);
-    if (!body || typeof body !== "object") {
-      return NextResponse.json({ error: "Send report details as valid JSON." }, { status: 400 });
+    const parsedBody = await parseJsonObjectBody(req, {
+      invalidJsonMessage: "Send report details as valid JSON.",
+      nonObjectMessage: "Send report details as valid JSON.",
+    });
+    if (!parsedBody.ok) {
+      return parsedBody.response;
     }
-    const { reportType, description, evidence, targetUserId, postId } = body;
+    const body = parsedBody.data;
+    const { reportType, description } = body;
+    const targetUserId = typeof body.targetUserId === "string" ? body.targetUserId : undefined;
+    const postId = typeof body.postId === "string" ? body.postId : undefined;
+    const evidence = typeof body.evidence === "string" && body.evidence.trim() ? body.evidence : null;
 
     // Validate required fields
     if (!reportType || !description) {
@@ -26,6 +34,10 @@ export async function POST(req: Request) {
 
     if (typeof reportType !== 'string' || typeof description !== 'string') {
       return NextResponse.json({ error: "Report type and description must be text." }, { status: 400 });
+    }
+
+    if ((body.targetUserId && !targetUserId) || (body.postId && !postId)) {
+      return NextResponse.json({ error: "The reported post or account could not be identified." }, { status: 400 });
     }
 
     // Validate description length
@@ -87,7 +99,7 @@ export async function POST(req: Request) {
         reporterId: currentUserId,
         reportType,
         description,
-        evidence: evidence || null,
+        evidence,
         targetUserId: targetUserId || null,
         postId: postId || null,
         status: "PENDING"
