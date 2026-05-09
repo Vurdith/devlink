@@ -103,7 +103,7 @@ export default function CompleteSignupPage() {
 
   if (status === "loading") {
     return (
-      <div className="min-h-screen flex items-center justify-center -m-6">
+      <div className="min-h-screen flex items-center justify-center -my-6">
         <div className="animate-spin rounded-full h-8 w-8 border-2 border-[var(--color-accent)] border-t-transparent"></div>
       </div>
     );
@@ -111,7 +111,7 @@ export default function CompleteSignupPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center -m-6 px-4">
+      <div className="min-h-screen flex items-center justify-center -my-6 px-4">
         <div className="w-full max-w-md">
           <div className={surface("panel", "relative overflow-hidden p-6 text-center sm:p-8")}>
             <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-green-500/20 flex items-center justify-center">
@@ -129,7 +129,7 @@ export default function CompleteSignupPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center -m-6 px-4 py-12">
+    <div className="min-h-screen flex items-center justify-center -my-6 px-4 py-12">
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-8">

@@ -9,7 +9,7 @@ export default async function RootPage() {
   const isLoggedIn = !!session?.user;
 
   return (
-    <div className="relative min-h-screen -m-6 overflow-x-hidden">
+    <div className="relative min-h-screen -my-6 overflow-x-hidden">
       <HeroNetworkBackground />
 
       {/* Hero Section */}

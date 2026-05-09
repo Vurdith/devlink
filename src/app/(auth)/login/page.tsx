@@ -75,7 +75,7 @@ function LoginForm() {
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center px-4 py-14 -m-6">
+    <main className="min-h-screen flex items-center justify-center px-4 py-14 -my-6">
       <div className="fixed inset-0 pointer-events-none bg-[radial-gradient(circle_at_50%_18%,rgba(34,211,238,0.08),transparent_34%),linear-gradient(180deg,rgba(255,255,255,0.02),transparent_42%)]" />
 
       <div className="relative w-full max-w-md animate-fade-in">
@@ -253,7 +253,7 @@ function LoginForm() {
 // Loading skeleton for Suspense fallback
 function LoginSkeleton() {
   return (
-    <main className="min-h-screen flex items-center justify-center px-4 py-14 -m-6">
+    <main className="min-h-screen flex items-center justify-center px-4 py-14 -my-6">
       <div className="fixed inset-0 pointer-events-none bg-[radial-gradient(circle_at_50%_18%,rgba(34,211,238,0.08),transparent_34%),linear-gradient(180deg,rgba(255,255,255,0.02),transparent_42%)]" />
       <div className="relative w-full max-w-md">
         <div className="text-center mb-8">
