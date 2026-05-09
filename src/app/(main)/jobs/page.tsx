@@ -131,11 +131,14 @@ export default function JobsPage() {
   }
 
   return (
-    <main className="max-w-5xl mx-auto px-4 pb-24 pt-8">
-      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <main className="mx-auto max-w-5xl px-4 pb-24 pt-8">
+      <div className={surface("panel", "noise-overlay relative mb-8 overflow-hidden p-5 sm:p-6")}>
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.42)] to-transparent" />
+        <div className="relative flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
+          <div className="mb-2 text-[10px] font-bold uppercase tracking-[0.16em] text-[var(--color-accent-2)]">Marketplace</div>
           <h1 className="text-3xl font-bold tracking-tight text-white">Jobs</h1>
-          <p className="mt-2 text-sm text-[var(--muted-foreground)]">
+          <p className="mt-2 max-w-2xl text-sm text-[var(--muted-foreground)]">
             Find work or hire Roblox talent with fast, focused listings.
           </p>
         </div>
@@ -144,10 +147,12 @@ export default function JobsPage() {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v1m12 0H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V8a2 2 0 00-2-2z" />
           </svg>
         </div>
+        </div>
       </div>
 
       {canCreate && (
-        <div className={surface("panel", "mb-10 overflow-hidden p-5")}>
+        <div className={surface("panel", "noise-overlay relative mb-10 overflow-hidden p-5")}>
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.12] to-transparent" />
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
             <div>
               <h2 className="text-lg font-semibold text-white">Post a job</h2>
@@ -155,7 +160,7 @@ export default function JobsPage() {
                 Keep the brief tight so candidates can judge fit quickly.
               </p>
             </div>
-            <span className="rounded-lg border border-[rgba(var(--color-accent-2-rgb),0.22)] bg-[rgba(var(--color-accent-2-rgb),0.08)] px-3 py-1.5 text-xs font-semibold text-[var(--color-accent-2)]">
+            <span className="rounded-md border border-[rgba(var(--color-accent-2-rgb),0.22)] bg-[rgba(var(--color-accent-2-rgb),0.08)] px-3 py-1.5 text-xs font-bold uppercase tracking-[0.10em] text-[var(--color-accent-2)]">
               {budgetSummary}
             </span>
           </div>
@@ -228,7 +233,10 @@ export default function JobsPage() {
 
       <div className="grid gap-6">
         <section>
-          <h2 className="text-lg font-semibold text-white mb-3">Open roles</h2>
+          <div className="mb-3 flex items-center gap-3">
+            <h2 className="text-sm font-bold uppercase tracking-[0.14em] text-[var(--color-accent-2)]">Open roles</h2>
+            <div className="h-px flex-1 bg-gradient-to-r from-white/[0.10] to-transparent" />
+          </div>
           {loading ? (
             <div className={surface("empty", "p-5 text-sm text-[var(--muted-foreground)]")}>Loading jobs...</div>
           ) : jobs.length === 0 ? (
@@ -236,7 +244,8 @@ export default function JobsPage() {
           ) : (
             <div className="grid gap-3">
               {jobs.map((job) => (
-                <div key={job.id} className={surface("panelMuted", "p-4 transition-colors hover:border-white/[0.16] hover:bg-white/[0.04]")}>
+                <div key={job.id} className={surface("panelMuted", "noise-overlay group relative overflow-hidden p-4 transition-colors hover:border-[rgba(var(--color-accent-2-rgb),0.20)] hover:bg-white/[0.04]")}>
+                  <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.10] to-transparent" />
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <Link href={`/jobs/${job.id}`} className="text-lg font-semibold text-white transition-colors hover:text-[var(--color-accent-2)]">
@@ -246,13 +255,13 @@ export default function JobsPage() {
                         {job.user?.username} | {job.location || "Remote"}
                       </div>
                     </div>
-                    <span className="rounded-lg border border-white/[0.08] bg-white/[0.04] px-2 py-1 text-xs font-semibold text-white/70">
+                    <span className="rounded-md border border-white/[0.08] bg-white/[0.04] px-2 py-1 text-[10px] font-bold uppercase tracking-[0.10em] text-white/70">
                       {job.status}
                     </span>
                   </div>
-                  <p className="text-sm text-white/80 mt-3 line-clamp-3">{job.description}</p>
-                  <div className="flex flex-wrap items-center gap-3 mt-3 text-xs text-[var(--muted-foreground)]">
-                    <span>{job.skills || "Skills flexible"}</span>
+                  <p className="mt-3 line-clamp-3 border-l border-[rgba(var(--color-accent-2-rgb),0.24)] pl-3 text-sm leading-relaxed text-white/75">{job.description}</p>
+                  <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-[var(--muted-foreground)]">
+                    <span className="text-white/70">{job.skills || "Skills flexible"}</span>
                     <span className="text-white/20">/</span>
                     <span>{job.currency} {job.budgetMin || "?"} - {job.budgetMax || "?"}</span>
                     <span className="text-white/20">/</span>
@@ -274,8 +283,8 @@ export default function JobsPage() {
 
         {userId && (
           <section className="grid gap-4 md:grid-cols-2">
-            <div className={surface("panelMuted", "p-4")}>
-              <h3 className="text-sm font-semibold text-white mb-3">My jobs</h3>
+            <div className={surface("panelMuted", "noise-overlay p-4")}>
+              <h3 className="mb-3 text-sm font-semibold text-white">My jobs</h3>
               {myJobs.length === 0 ? (
                 <div className="text-xs text-[var(--muted-foreground)]">No jobs posted yet.</div>
               ) : (
@@ -292,8 +301,8 @@ export default function JobsPage() {
               )}
             </div>
 
-            <div className={surface("panelMuted", "p-4")}>
-              <h3 className="text-sm font-semibold text-white mb-3">My applications</h3>
+            <div className={surface("panelMuted", "noise-overlay p-4")}>
+              <h3 className="mb-3 text-sm font-semibold text-white">My applications</h3>
               {myApplications.length === 0 ? (
                 <div className="text-xs text-[var(--muted-foreground)]">No applications yet.</div>
               ) : (

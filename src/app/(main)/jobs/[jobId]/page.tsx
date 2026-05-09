@@ -93,21 +93,23 @@ export default function JobDetailPage() {
   const isOwner = userId === job.userId;
 
   return (
-    <main className="max-w-4xl mx-auto px-4 pb-24 pt-8">
-      <div className={surface("panel", "p-6")}>
+    <main className="mx-auto max-w-4xl px-4 pb-24 pt-8">
+      <div className={surface("panel", "noise-overlay relative overflow-hidden p-5 sm:p-6")}>
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.40)] to-transparent" />
         <div className="flex items-start justify-between gap-4">
           <div>
+            <div className="mb-2 text-[10px] font-bold uppercase tracking-[0.16em] text-[var(--color-accent-2)]">Job brief</div>
             <h1 className="text-2xl font-bold text-white">{job.title}</h1>
             <p className="text-xs text-[var(--muted-foreground)] mt-2">
               {job.user?.username} | {job.location || "Remote"}
             </p>
           </div>
-          <span className="rounded-lg border border-white/[0.08] bg-white/[0.04] px-2 py-1 text-xs font-semibold text-white/70">
+          <span className="rounded-md border border-white/[0.08] bg-white/[0.04] px-2 py-1 text-[10px] font-bold uppercase tracking-[0.10em] text-white/70">
             {job.status}
           </span>
         </div>
-        <p className="text-sm text-white/80 mt-4 leading-relaxed whitespace-pre-wrap">{job.description}</p>
-        <div className="flex flex-wrap items-center gap-3 mt-4 text-xs text-[var(--muted-foreground)]">
+        <p className="mt-5 whitespace-pre-wrap border-l border-[rgba(var(--color-accent-2-rgb),0.26)] pl-4 text-sm leading-relaxed text-white/78">{job.description}</p>
+        <div className="mt-5 flex flex-wrap items-center gap-3 border-t border-white/[0.06] pt-4 text-xs text-[var(--muted-foreground)]">
           <span>{job.skills || "Skills flexible"}</span>
           <span className="text-white/20">/</span>
           <span>{job.currency} {job.budgetMin || "?"} - {job.budgetMax || "?"}</span>
@@ -123,20 +125,20 @@ export default function JobDetailPage() {
       </div>
 
       {isOwner && (
-        <div className={surface("panel", "mt-6 p-6")}>
-          <h2 className="text-lg font-semibold text-white mb-4">Applications</h2>
+        <div className={surface("panel", "noise-overlay mt-6 p-5 sm:p-6")}>
+          <h2 className="mb-4 text-lg font-semibold text-white">Applications</h2>
           {applications.length === 0 ? (
             <div className="text-xs text-[var(--muted-foreground)]">No applications yet.</div>
           ) : (
             <div className="grid gap-3">
               {applications.map((app) => (
-                <div key={app.id} className={surface("panelMuted", "p-3")}>
+                <div key={app.id} className={surface("panelMuted", "p-4 transition-colors hover:border-white/[0.14]")}>
                   <div className="flex items-center justify-between text-sm text-white/80">
-                    <span>{app.applicant?.username || "Applicant"}</span>
-                    <span className="text-[10px] text-white/60">{app.status}</span>
+                    <span className="font-semibold text-white">{app.applicant?.username || "Applicant"}</span>
+                    <span className="rounded-md border border-white/[0.08] bg-white/[0.035] px-2 py-1 text-[10px] font-bold uppercase tracking-[0.10em] text-white/60">{app.status}</span>
                   </div>
                   {app.message && (
-                    <p className="text-xs text-white/70 mt-2">{app.message}</p>
+                    <p className="mt-3 border-l border-[rgba(var(--color-accent-2-rgb),0.22)] pl-3 text-xs leading-relaxed text-white/70">{app.message}</p>
                   )}
                   {app.status === "PENDING" && (
                     <div className="flex gap-2 mt-3">

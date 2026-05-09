@@ -96,11 +96,14 @@ export default function EscrowPage() {
   }
 
   return (
-    <main className="max-w-5xl mx-auto px-4 pb-24 pt-8">
-      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <main className="mx-auto max-w-5xl px-4 pb-24 pt-8">
+      <div className={surface("panel", "noise-overlay relative mb-6 overflow-hidden p-5 sm:p-6")}>
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.42)] to-transparent" />
+        <div className="relative flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
+          <div className="mb-2 text-[10px] font-bold uppercase tracking-[0.16em] text-[var(--color-accent-2)]">Payments</div>
           <h1 className="text-3xl font-bold tracking-tight text-white">Escrow</h1>
-          <p className="mt-2 text-sm text-[var(--muted-foreground)]">
+          <p className="mt-2 max-w-2xl text-sm text-[var(--muted-foreground)]">
             Track simple milestone escrow for Roblox project work.
           </p>
         </div>
@@ -109,13 +112,15 @@ export default function EscrowPage() {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 3l8 4v5c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V7l8-4z" />
           </svg>
         </div>
+        </div>
       </div>
 
       {!userId ? (
         <div className={surface("empty", "p-5 text-sm text-[var(--muted-foreground)]")}>Sign in to manage escrow.</div>
       ) : (
         <>
-          <div className={surface("panel", "mb-8 p-4")}>
+          <div className={surface("panel", "noise-overlay relative mb-8 overflow-hidden p-4")}>
+            <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.12] to-transparent" />
             <h2 className="mb-3 text-sm font-semibold text-white">Create escrow contract</h2>
             <div className="grid gap-3 md:grid-cols-2">
               <input
@@ -163,9 +168,12 @@ export default function EscrowPage() {
             </button>
           </div>
 
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-lg font-semibold text-white">Contracts</h2>
-            <span className="text-xs text-[var(--muted-foreground)]">
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <div className="flex min-w-0 flex-1 items-center gap-3">
+              <h2 className="text-sm font-bold uppercase tracking-[0.14em] text-[var(--color-accent-2)]">Contracts</h2>
+              <div className="h-px flex-1 bg-gradient-to-r from-white/[0.10] to-transparent" />
+            </div>
+            <span className="flex-shrink-0 text-xs text-[var(--muted-foreground)]">
               Total value: {totalValue} {contracts[0]?.currency || "USD"}
             </span>
           </div>
@@ -180,7 +188,8 @@ export default function EscrowPage() {
                 const isDeveloper = contract.developerId === userId;
                 const milestoneStatus = contract.milestone?.status || "PENDING";
                 return (
-                  <div key={contract.id} className={surface("panelMuted", "p-4 transition-colors hover:border-white/[0.16] hover:bg-white/[0.04]")}>
+                  <div key={contract.id} className={surface("panelMuted", "noise-overlay group relative overflow-hidden p-4 transition-colors hover:border-[rgba(var(--color-accent-2-rgb),0.20)] hover:bg-white/[0.04]")}>
+                    <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.10] to-transparent" />
                     <div className="flex items-start justify-between gap-3">
                       <div>
                         <div className="text-sm font-semibold text-white">
@@ -190,7 +199,7 @@ export default function EscrowPage() {
                           {isClient ? "Client" : "Developer"} | {contract.currency} {contract.amount}
                         </p>
                       </div>
-                      <span className="rounded-md border border-white/[0.08] bg-white/[0.04] px-2 py-0.5 text-[10px] font-semibold text-white/60">{contract.status}</span>
+                      <span className="rounded-md border border-white/[0.08] bg-white/[0.04] px-2 py-1 text-[10px] font-bold uppercase tracking-[0.10em] text-white/60">{contract.status}</span>
                     </div>
 
                     <div className="flex flex-wrap gap-2 mt-3 text-xs text-[var(--muted-foreground)]">
