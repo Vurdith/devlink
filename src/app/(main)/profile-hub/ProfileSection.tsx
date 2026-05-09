@@ -37,7 +37,7 @@ export function ProfileSection({
 }: ProfileSectionProps) {
   return (
     <div className="space-y-6">
-      <div className={surface("panel", "noise-overlay relative overflow-hidden p-6")}>
+      <div className={surface("panel", "noise-overlay relative overflow-hidden p-5 sm:p-6")}>
         <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.36)] to-transparent" />
         <div
           aria-hidden="true"
@@ -75,7 +75,7 @@ export function ProfileSection({
                 rows={4}
               />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <label className="text-sm text-white/60 mb-1.5 block">Location</label>
                 <ModalInput
@@ -97,7 +97,7 @@ export function ProfileSection({
         </div>
       </div>
 
-      <div className={surface("panel", "noise-overlay relative overflow-hidden p-6")}>
+      <div className={surface("panel", "noise-overlay relative overflow-hidden p-5 sm:p-6")}>
         <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.36)] to-transparent" />
         <div
           aria-hidden="true"
@@ -130,7 +130,7 @@ export function ProfileSection({
                   type="button"
                   onClick={() => onProfileChange({ ...profile, profileType: profileType.value })}
                   className={cn(
-                    "group relative rounded-lg border p-4 text-left transition-all",
+                    "group relative rounded-lg border p-4 text-left outline-none transition-all focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]",
                     isActive
                       ? `${profileType.bgColor} ${profileType.borderColor} ${ui.active.purple}`
                       : cn(ui.surface.empty, "hover:border-white/[0.14] hover:bg-white/[0.055]")

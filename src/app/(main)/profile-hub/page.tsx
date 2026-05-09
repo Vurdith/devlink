@@ -249,10 +249,10 @@ export default function ProfileHubPage() {
   }
 
   return (
-    <main className="relative px-4 py-10">
+    <main className="relative px-4 py-6 sm:py-10">
       <div className="relative mx-auto max-w-4xl">
         {/* Header */}
-        <div className={surface("panel", "noise-overlay relative mb-8 overflow-hidden p-5")}>
+        <div className={surface("panel", "noise-overlay relative mb-6 overflow-hidden p-5 sm:mb-8")}>
           <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.42)] to-transparent" />
           <div className="inline-flex items-center gap-3">
             <div className={iconBox("cyan", "h-10 w-10")}>

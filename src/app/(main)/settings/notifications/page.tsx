@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 import { iconBox, surface, ui } from "@/components/ui/design-system";
 import { cn } from "@/lib/cn";
 import { SettingsAuthRequired } from "../_components/SettingsAuthRequired";
+import { SettingsPageHeader } from "../_components/SettingsPageHeader";
 
 interface NotificationSetting {
   id: string;
@@ -54,7 +55,7 @@ const Toggle = memo(function Toggle({ checked, onChange }: { checked: boolean; o
       aria-checked={checked}
       onClick={() => onChange(!checked)}
       className={cn(
-        "relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)]",
+        "relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)]",
         checked ? "bg-gradient-to-r from-[var(--accent)] to-[var(--accent-2)]" : "bg-white/10"
       )}
     >
@@ -80,15 +81,17 @@ export default function NotificationSettings() {
 
   return (
     <div className="space-y-6">
-      {/* Page Header */}
-      <div className="mb-8 animate-fade-in">
-        <h1 className="text-2xl font-bold text-white font-[var(--font-space-grotesk)]">
-          Notification Settings
-        </h1>
-        <p className="text-[var(--muted-foreground)] mt-1">
-          Choose what notifications you want to receive
-        </p>
-      </div>
+      <SettingsPageHeader
+        eyebrow="Notifications"
+        title="Notification Settings"
+        description="Choose what notifications you want to receive"
+        icon={
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M13.73 21a2 2 0 0 1-3.46 0" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        }
+      />
 
       {status === "unauthenticated" ? (
         <SettingsAuthRequired
@@ -143,7 +146,7 @@ export default function NotificationSettings() {
             <div
               key={setting.id}
               className={cn(
-                "flex items-center justify-between p-4 rounded-xl border transition-all animate-slide-up",
+                "flex items-center justify-between gap-4 rounded-xl border p-4 transition-all animate-slide-up",
                 setting.enabled
                   ? ui.active.cyan
                   : cn(ui.surface.empty, "hover:border-white/[0.14] hover:bg-white/[0.045]")
@@ -166,9 +169,9 @@ export default function NotificationSettings() {
       {/* Push Notifications - Coming Soon */}
       <div className={surface("panelMuted", "noise-overlay relative overflow-hidden p-6 animate-slide-up")} style={{ animationDelay: '0.1s' }}>
         {/* Coming Soon Overlay */}
-        <div className="absolute inset-0 bg-[var(--background)]/80 flex items-center justify-center z-10">
+        <div className="absolute inset-0 z-10 flex items-center justify-center bg-[rgba(5,8,12,0.82)] backdrop-blur-sm">
           <div className="text-center">
-            <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center mx-auto mb-3">
+            <div className={iconBox("muted", "mx-auto mb-3 h-12 w-12")}>
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-[var(--muted-foreground)]">
                 <path d="M12 22c1.1 0 2-.9 2-2h-4a2 2 0 0 0 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
@@ -179,7 +182,7 @@ export default function NotificationSettings() {
         </div>
 
         <div className="flex items-center gap-3 mb-6 opacity-50">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-rose-500 to-pink-500 flex items-center justify-center">
+          <div className={iconBox("muted", "h-10 w-10")}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-white">
               <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               <path d="M13.73 21a2 2 0 0 1-3.46 0" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>

@@ -5,6 +5,7 @@ import { iconBox, surface, ui } from "@/components/ui/design-system";
 import { cn } from "@/lib/cn";
 import { getAllThemes, ThemeId, ThemeConfig } from "@/lib/themes";
 import { useState, useEffect } from "react";
+import { SettingsPageHeader } from "../_components/SettingsPageHeader";
 
 function ThemePreview({ theme, isSelected, onSelect }: { 
   theme: ThemeConfig; 
@@ -15,7 +16,7 @@ function ThemePreview({ theme, isSelected, onSelect }: {
     <button
       onClick={onSelect}
       className={cn(
-        "noise-overlay group relative w-full overflow-hidden rounded-xl border p-4 text-left transition-all duration-300",
+        "noise-overlay group relative w-full overflow-hidden rounded-xl border p-4 text-left outline-none transition-all duration-300 focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]",
         isSelected
           ? ui.active.cyanStrong
           : cn(ui.surface.empty, "hover:border-white/[0.14] hover:bg-white/[0.055]")
@@ -110,14 +111,18 @@ export default function AppearanceSettingsPage() {
   }
 
   return (
-    <div className="max-w-2xl animate-slide-up">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-white mb-2">Appearance</h1>
-        <p className="text-white/60">
-          Customize how DevLink looks for you. Choose a color theme that matches your style.
-        </p>
-      </div>
+    <div className="max-w-2xl space-y-6 animate-slide-up">
+      <SettingsPageHeader
+        eyebrow="Appearance"
+        title="Appearance"
+        description="Customize how DevLink looks for you. Choose a color theme that matches your style."
+        icon={
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="5" stroke="currentColor" strokeWidth="2" />
+            <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+          </svg>
+        }
+      />
 
       {/* Theme Selection */}
       <div className={surface("panel", "noise-overlay relative overflow-hidden p-6")}>
@@ -171,7 +176,7 @@ export default function AppearanceSettingsPage() {
       </div>
 
       {/* Future: More appearance settings */}
-      <div className={surface("panelMuted", "noise-overlay relative mt-6 overflow-hidden p-6 opacity-50")}>
+      <div className={surface("panelMuted", "noise-overlay relative overflow-hidden p-6 opacity-50")}>
         <div className="flex items-center gap-3">
           <div className={iconBox("muted", "h-10 w-10 rounded-xl")}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-white/50">

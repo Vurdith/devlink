@@ -63,7 +63,7 @@ export function ProfileHubTabs({ activeSection, onSectionChange }: ProfileHubTab
               onClick={() => onSectionChange(tab.id)}
               aria-pressed={selected}
               className={cn(
-                "group relative flex flex-shrink-0 items-center gap-2 whitespace-nowrap rounded-lg border px-3.5 py-2.5 text-xs font-semibold transition-all duration-200 sm:px-4 sm:text-sm",
+                "group relative flex flex-shrink-0 items-center gap-2 whitespace-nowrap rounded-lg border px-3.5 py-2.5 text-xs font-semibold outline-none transition-all duration-200 focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)] sm:px-4 sm:text-sm",
                 selected
                   ? "border-[rgba(var(--color-accent-2-rgb),0.28)] bg-[rgba(var(--color-accent-2-rgb),0.09)] text-white"
                   : "border-transparent text-white/52 hover:border-white/[0.08] hover:bg-white/[0.04] hover:text-white/86"

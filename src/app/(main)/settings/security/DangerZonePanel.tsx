@@ -69,7 +69,7 @@ export function DangerZonePanel({
         </div>
       ) : (
         <div className="space-y-4">
-          <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4">
+          <div className="rounded-xl border border-red-500/20 bg-red-500/10 p-4">
             <div className="flex items-start gap-3">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-red-500 mt-0.5 flex-shrink-0">
                 <path
@@ -119,7 +119,7 @@ export function DangerZonePanel({
             />
           </div>
 
-          <div className="flex gap-3">
+          <div className="grid gap-3 sm:grid-cols-2">
             <Button onClick={onCancelDelete} variant="secondary" className="flex-1">
               Cancel
             </Button>

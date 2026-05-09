@@ -194,7 +194,7 @@ export default function AccountLinking() {
             <div
               key={provider.id}
               className={cn(
-                "relative flex items-center justify-between p-4 rounded-xl border transition-all animate-slide-up overflow-hidden",
+                "relative flex flex-col gap-4 overflow-hidden rounded-xl border p-4 transition-all animate-slide-up sm:flex-row sm:items-center sm:justify-between",
                 linked 
                   ? "bg-[rgba(var(--color-accent-rgb),0.10)] border-[rgba(var(--color-accent-rgb),0.25)]"
                   : cn(ui.surface.empty, "hover:border-white/[0.14] hover:bg-white/[0.055]")
@@ -211,7 +211,7 @@ export default function AccountLinking() {
                   }}
                 />
               ) : null}
-              <div className="relative flex items-center gap-4">
+              <div className="relative flex min-w-0 items-center gap-4">
                 {/* Provider Icon */}
                 <div className={cn("w-10 h-10 rounded-lg flex items-center justify-center", provider.bgColor)}>
                   {provider.icon}
@@ -234,17 +234,20 @@ export default function AccountLinking() {
               </div>
               
               {/* Action Button */}
-              <Button
-                variant={linked ? "ghost" : "secondary"}
-                size="sm"
-                onClick={() => linked ? unlinkAccount(provider.id) : linkAccount(provider.id)}
-                isLoading={isLoading}
-                className={cn(
-                  linked && "text-[var(--muted-foreground)] hover:bg-rose-500/10 hover:text-rose-300"
-                )}
-              >
-                {linked ? "Disconnect" : "Connect"}
-              </Button>
+              <div className="relative w-full sm:w-auto">
+                <Button
+                  variant={linked ? "ghost" : "secondary"}
+                  size="sm"
+                  onClick={() => linked ? unlinkAccount(provider.id) : linkAccount(provider.id)}
+                  isLoading={isLoading}
+                  className={cn(
+                    "w-full sm:w-auto",
+                    linked && "text-[var(--muted-foreground)] hover:bg-rose-500/10 hover:text-rose-300"
+                  )}
+                >
+                  {linked ? "Disconnect" : "Connect"}
+                </Button>
+              </div>
             </div>
           );
         })}

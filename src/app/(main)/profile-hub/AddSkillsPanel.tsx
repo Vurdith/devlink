@@ -24,7 +24,7 @@ export function AddSkillsPanel({
   const trimmedSearch = skillSearch.trim();
 
   return (
-    <div className={surface("panel", "noise-overlay relative overflow-hidden p-6")}>
+    <div className={surface("panel", "noise-overlay relative overflow-hidden p-5 sm:p-6")}>
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.36)] to-transparent" />
       <div
         aria-hidden="true"
@@ -56,7 +56,7 @@ export function AddSkillsPanel({
               onClick={() => onAddSkill(skill)}
               disabled={!canAddMore}
               className={cn(
-                "rounded-lg border p-3 text-left transition-all",
+                "rounded-lg border p-3 text-left outline-none transition-all focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]",
                 ui.surface.empty,
                 "hover:border-[rgba(var(--color-accent-2-rgb),0.28)] hover:bg-[rgba(var(--color-accent-2-rgb),0.06)]",
                 !canAddMore && "opacity-50 cursor-not-allowed"
@@ -71,7 +71,7 @@ export function AddSkillsPanel({
               onClick={() => onAddCustomSkill(trimmedSearch)}
               disabled={!canAddMore}
               className={cn(
-                "col-span-full rounded-lg border p-3 text-left transition-all",
+                "col-span-full rounded-lg border p-3 text-left outline-none transition-all focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]",
                 "border-[rgba(var(--color-accent-2-rgb),0.28)] bg-[rgba(var(--color-accent-2-rgb),0.06)] hover:bg-[rgba(var(--color-accent-2-rgb),0.10)]",
                 !canAddMore && "opacity-50 cursor-not-allowed"
               )}
@@ -86,7 +86,12 @@ export function AddSkillsPanel({
           )}
         </div>
 
-        {!trimmedSearch && <p className="text-xs text-white/40 text-center">Can&apos;t find your skill? Type it above and add it as a custom skill</p>}
+        {!trimmedSearch && filteredSkills.length === 0 && (
+          <div className={surface("empty", "px-4 py-5 text-center text-sm text-[var(--muted-foreground)]")}>
+            Skill suggestions will appear here as the catalog loads.
+          </div>
+        )}
+        {!trimmedSearch && filteredSkills.length > 0 && <p className="text-center text-xs text-white/40">Can&apos;t find your skill? Type it above and add it as a custom skill</p>}
       </div>
     </div>
   );

@@ -15,6 +15,7 @@ import { SecurityPanel } from "./SecurityPanel";
 import { getPasswordStrength } from "./password-strength";
 import { ui } from "@/components/ui/design-system";
 import { SettingsAuthRequired } from "../_components/SettingsAuthRequired";
+import { SettingsPageHeader } from "../_components/SettingsPageHeader";
 import { FeedbackState } from "@/components/ui/FeedbackState";
 
 interface PasswordData {
@@ -302,15 +303,18 @@ export default function SecuritySettings() {
 
   return (
     <div className="space-y-6">
-      {/* Page Header */}
-      <div className="mb-8 animate-fade-in">
-        <h1 className="text-2xl font-bold text-white font-[var(--font-space-grotesk)]">
-          Security Settings
-        </h1>
-        <p className="text-[var(--muted-foreground)] mt-1">
-          Manage your password and account security
-        </p>
-      </div>
+      <SettingsPageHeader
+        eyebrow="Security"
+        title="Security Settings"
+        description="Manage your password and account security"
+        icon={
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <rect x="3" y="11" width="18" height="11" rx="2" stroke="currentColor" strokeWidth="2" />
+            <circle cx="12" cy="16" r="1" fill="currentColor" />
+            <path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="currentColor" strokeWidth="2" />
+          </svg>
+        }
+      />
 
       {status === "unauthenticated" ? (
         <SettingsAuthRequired

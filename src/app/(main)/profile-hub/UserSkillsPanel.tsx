@@ -12,7 +12,7 @@ interface UserSkillsPanelProps {
 
 export function UserSkillsPanel({ userSkills, currency, onEditSkill, onRemoveSkill }: UserSkillsPanelProps) {
   return (
-    <div className={surface("panel", "noise-overlay relative overflow-hidden p-6")}>
+    <div className={surface("panel", "noise-overlay relative overflow-hidden p-5 sm:p-6")}>
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.36)] to-transparent" />
       <div
         aria-hidden="true"
@@ -42,7 +42,17 @@ export function UserSkillsPanel({ userSkills, currency, onEditSkill, onRemoveSki
         </div>
 
         {userSkills.length === 0 ? (
-          <p className="text-white/50 text-sm py-8 text-center">No skills added yet. Add skills below to showcase your expertise.</p>
+          <div className={surface("empty", "px-5 py-10 text-center")}>
+            <div className={iconBox("muted", "mx-auto mb-4 h-12 w-12")}>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
+            <p className="text-sm font-semibold text-white">No skills added yet</p>
+            <p className="mx-auto mt-1 max-w-sm text-sm leading-relaxed text-[var(--muted-foreground)]">
+              Add skills below to show what you offer, your availability, and how people can work with you.
+            </p>
+          </div>
         ) : (
           <div className="space-y-3">
             {userSkills.map((userSkill) => {
@@ -109,7 +119,7 @@ export function UserSkillsPanel({ userSkills, currency, onEditSkill, onRemoveSki
                   <div className="flex items-center gap-2 border-t border-white/[0.06] bg-white/[0.018] px-5 py-3">
                     <button
                       onClick={() => onEditSkill(userSkill)}
-                      className={cn("flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs text-white/60 transition-colors", ui.control.ghost, "hover:text-[var(--color-accent-2)]")}
+                      className={cn("flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs text-white/60 outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]", ui.control.ghost, "hover:text-[var(--color-accent-2)]")}
                     >
                       <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -118,7 +128,7 @@ export function UserSkillsPanel({ userSkills, currency, onEditSkill, onRemoveSki
                     </button>
                     <button
                       onClick={() => onRemoveSkill(userSkill.id, userSkill.skill.name)}
-                      className="flex items-center gap-1.5 rounded-lg border border-transparent px-3 py-1.5 text-xs text-white/40 transition-colors hover:border-rose-400/20 hover:bg-rose-500/10 hover:text-rose-300"
+                      className="flex items-center gap-1.5 rounded-lg border border-transparent px-3 py-1.5 text-xs text-white/40 outline-none transition-colors hover:border-rose-400/20 hover:bg-rose-500/10 hover:text-rose-300 focus-visible:ring-2 focus-visible:ring-rose-300/35"
                     >
                       <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />

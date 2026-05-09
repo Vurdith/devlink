@@ -72,7 +72,15 @@ export default function SettingsNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="space-y-2">
+    <nav
+      className="flex gap-2 overflow-x-auto pb-0.5 md:block md:space-y-2 md:overflow-visible md:pb-0"
+      style={{
+        WebkitOverflowScrolling: "touch",
+        scrollbarWidth: "none",
+        msOverflowStyle: "none",
+      }}
+      aria-label="Settings sections"
+    >
       {navItems.map((item, index) => {
         // For the main settings page, only exact match
         // For sub-pages, check if pathname starts with the href
@@ -89,7 +97,7 @@ export default function SettingsNav() {
             <Link
               href={item.href}
               className={cn(
-                "group relative flex items-center gap-3 rounded-lg border px-3 py-3 transition-all duration-200",
+                "group relative flex min-w-[150px] items-center gap-2 rounded-lg border px-3 py-2.5 outline-none transition-all duration-200 focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)] md:min-w-0 md:gap-3 md:py-3",
                 isActive 
                   ? ui.active.cyan
                   : ui.control.ghost
@@ -97,12 +105,12 @@ export default function SettingsNav() {
             >
               {/* Active indicator */}
               {isActive && (
-                <div className="absolute left-0 top-1/2 h-8 w-0.5 -translate-y-1/2 rounded-r-full bg-[var(--color-accent-2)]" />
+                <div className="absolute inset-x-3 bottom-0 h-px rounded-full bg-[var(--color-accent-2)] md:inset-x-auto md:left-0 md:top-1/2 md:h-8 md:w-0.5 md:-translate-y-1/2 md:rounded-r-full" />
               )}
               
               {/* Icon */}
               <div className={cn(
-                "h-9 w-9 transition-all duration-200",
+                "h-8 w-8 shrink-0 transition-all duration-200 md:h-9 md:w-9",
                 isActive 
                   ? iconBox("cyan")
                   : iconBox("muted", "group-hover:bg-white/[0.07] group-hover:text-white")
@@ -113,12 +121,12 @@ export default function SettingsNav() {
               {/* Text */}
               <div className="flex-1 min-w-0">
                 <div className={cn(
-                  "text-sm font-medium transition-colors",
+                  "truncate text-sm font-medium transition-colors",
                   isActive ? "text-white" : "text-[var(--muted-foreground)] group-hover:text-white"
                 )}>
                   {item.label}
                 </div>
-                <div className="text-xs text-[var(--muted-foreground)] truncate">
+                <div className="hidden truncate text-xs text-[var(--muted-foreground)] sm:block">
                   {item.description}
                 </div>
               </div>
@@ -126,7 +134,7 @@ export default function SettingsNav() {
               {/* Arrow */}
               <svg 
                 className={cn(
-                  "w-4 h-4 transition-all duration-200",
+                  "hidden h-4 w-4 transition-all duration-200 md:block",
                   isActive 
                     ? "text-[var(--color-accent)] opacity-100" 
                     : "text-[var(--muted-foreground)] opacity-0 group-hover:opacity-50 -translate-x-1 group-hover:translate-x-0"

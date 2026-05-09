@@ -7,6 +7,7 @@ import { cn } from "@/lib/cn";
 import { safeJson } from "@/lib/safe-json";
 import type { MessagingSettings } from "@/types/api";
 import { SettingsAuthRequired } from "../_components/SettingsAuthRequired";
+import { SettingsPageHeader } from "../_components/SettingsPageHeader";
 
 const options = [
   { value: "EVERYONE", label: "Everyone" },
@@ -81,14 +82,16 @@ export default function MessagingSettingsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="mb-8 animate-fade-in">
-        <h1 className="text-2xl font-bold text-white font-[var(--font-space-grotesk)]">
-          Messaging Settings
-        </h1>
-        <p className="text-[var(--muted-foreground)] mt-1">
-          Control who can start conversations with you.
-        </p>
-      </div>
+      <SettingsPageHeader
+        eyebrow="Messaging"
+        title="Messaging Settings"
+        description="Control who can start conversations with you."
+        icon={
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M21 15a4 4 0 0 1-4 4H7l-4 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        }
+      />
 
       {status === "unauthenticated" ? (
         <SettingsAuthRequired
@@ -150,7 +153,7 @@ export default function MessagingSettingsPage() {
                       disabled={saving}
                       onClick={() => updateSetting(option.value as MessagingSettings["allowFrom"])}
                       className={cn(
-                        "flex items-center justify-between rounded-xl border p-4 transition-all animate-slide-up",
+                        "flex w-full items-center justify-between gap-4 rounded-xl border p-4 text-left outline-none transition-all animate-slide-up focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]",
                         isSelected
                           ? cn(ui.active.cyan, "text-white")
                           : cn(
@@ -161,7 +164,7 @@ export default function MessagingSettingsPage() {
                       )}
                       style={{ animationDelay: `${0.05 + index * 0.03}s` }}
                     >
-                      <div className="flex items-center gap-3">
+                      <div className="flex min-w-0 items-center gap-3">
                         <div
                           className={cn(
                             "h-2.5 w-2.5 rounded-full border",
@@ -170,10 +173,10 @@ export default function MessagingSettingsPage() {
                               : "border-white/20"
                           )}
                         />
-                        <span className="font-medium">{option.label}</span>
+                        <span className="truncate font-medium">{option.label}</span>
                       </div>
                       {isSelected ? (
-                        <span className="text-xs font-semibold text-[var(--color-accent)]">Selected</span>
+                        <span className="shrink-0 text-xs font-semibold text-[var(--color-accent)]">Selected</span>
                       ) : null}
                     </button>
                   );

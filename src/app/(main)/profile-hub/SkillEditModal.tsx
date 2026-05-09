@@ -15,11 +15,12 @@ interface SkillEditModalProps {
 export function SkillEditModal({ skill, onSkillChange, onSave, onClose }: SkillEditModalProps) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/80" onClick={onClose} />
-      <div className={surface("panelStrong", "relative w-full max-w-lg overflow-hidden p-6")}>
+      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={onClose} />
+      <div className={surface("panelStrong", "relative max-h-[90vh] w-full max-w-lg overflow-y-auto p-5 sm:p-6")}>
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.38)] to-transparent" />
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-lg font-semibold text-white">Edit {skill.skill.name}</h3>
-          <button onClick={onClose} className={cn("rounded-lg p-2 text-white/60", ui.control.ghost)}>
+          <button onClick={onClose} className={cn("rounded-lg p-2 text-white/60 outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]", ui.control.ghost)}>
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -29,12 +30,12 @@ export function SkillEditModal({ skill, onSkillChange, onSave, onClose }: SkillE
         <div className="space-y-4">
           <div>
             <label className="text-sm text-white/60 mb-2 block">Experience Level</label>
-            <div className="grid grid-cols-4 gap-2">
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
               {(Object.entries(EXPERIENCE_LEVELS) as [ExperienceLevel, typeof EXPERIENCE_LEVELS[ExperienceLevel]][]).map(([key, config]) => (
                 <button
                   key={key}
                   onClick={() => onSkillChange({ ...skill, experienceLevel: key })}
-                  className={cn("rounded-lg border p-2 text-xs font-medium transition-all", skill.experienceLevel === key ? `${config.bgColor} ${config.color}` : cn(ui.surface.empty, "text-white/60 hover:border-white/[0.14] hover:bg-white/[0.045]"))}
+                  className={cn("rounded-lg border p-2 text-xs font-medium outline-none transition-all focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]", skill.experienceLevel === key ? `${config.bgColor} ${config.color}` : cn(ui.surface.empty, "text-white/60 hover:border-white/[0.14] hover:bg-white/[0.045]"))}
                 >
                   {config.label}
                 </button>
@@ -75,7 +76,7 @@ export function SkillEditModal({ skill, onSkillChange, onSave, onClose }: SkillE
 
           <div>
             <label className="text-sm text-white/60 mb-1.5 block">Rate (optional)</label>
-            <div className="flex gap-2">
+            <div className="grid gap-2 sm:grid-cols-[1fr_auto]">
               <ModalInput
                 type="number"
                 value={skill.rate ? skill.rate / 100 : ""}
@@ -91,7 +92,7 @@ export function SkillEditModal({ skill, onSkillChange, onSave, onClose }: SkillE
               <select
                 value={skill.rateUnit || "HOURLY"}
                 onChange={(event) => onSkillChange({ ...skill, rateUnit: event.target.value as RateUnit })}
-                className="cursor-pointer appearance-none rounded-lg border border-white/[0.10] bg-[rgba(8,11,16,0.78)] bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23888%22%20stroke-width%3D%222%22%3E%3Cpath%20d%3D%22M6%209l6%206%206-6%22%2F%3E%3C%2Fsvg%3E')] bg-[right_0.5rem_center] bg-no-repeat px-3 py-2 pr-8 text-sm text-white transition-colors hover:border-white/[0.18]"
+                className="cursor-pointer appearance-none rounded-lg border border-white/[0.10] bg-[rgba(8,11,16,0.78)] bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23888%22%20stroke-width%3D%222%22%3E%3Cpath%20d%3D%22M6%209l6%206%206-6%22%2F%3E%3C%2Fsvg%3E')] bg-[right_0.5rem_center] bg-no-repeat px-3 py-2 pr-8 text-sm text-white outline-none transition-colors hover:border-white/[0.18] focus:border-[rgba(var(--color-accent-2-rgb),0.42)]"
               >
                 {(Object.entries(RATE_UNITS) as [RateUnit, typeof RATE_UNITS[RateUnit]][]).map(([key, config]) => (
                   <option key={key} value={key} className="bg-[#1a1a24] text-white">
@@ -110,7 +111,7 @@ export function SkillEditModal({ skill, onSkillChange, onSave, onClose }: SkillE
                   key={key}
                   onClick={() => onSkillChange({ ...skill, skillAvailability: key })}
                   className={cn(
-                    "flex items-center gap-2 rounded-lg border p-2 text-xs font-medium transition-all",
+                    "flex items-center gap-2 rounded-lg border p-2 text-xs font-medium outline-none transition-all focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]",
                     skill.skillAvailability === key ? `${config.bgColor} ${config.color}` : cn(ui.surface.empty, "text-white/60 hover:border-white/[0.14] hover:bg-white/[0.045]")
                   )}
                 >
@@ -134,13 +135,19 @@ export function SkillEditModal({ skill, onSkillChange, onSave, onClose }: SkillE
               <p className="text-sm font-medium text-white">Primary Skill</p>
               <p className="text-xs text-white/50">Shown prominently on your profile</p>
             </div>
-            <button onClick={() => onSkillChange({ ...skill, isPrimary: !skill.isPrimary })} className={cn("w-11 h-6 rounded-full transition-colors relative", skill.isPrimary ? "bg-amber-500" : "bg-white/20")}>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={skill.isPrimary}
+              onClick={() => onSkillChange({ ...skill, isPrimary: !skill.isPrimary })}
+              className={cn("relative h-6 w-11 rounded-full outline-none transition-colors focus-visible:ring-2 focus-visible:ring-amber-300/40", skill.isPrimary ? "bg-amber-500" : "bg-white/20")}
+            >
               <div className={cn("w-5 h-5 rounded-full bg-white absolute top-0.5 transition-transform", skill.isPrimary ? "translate-x-5" : "translate-x-0.5")} />
             </button>
           </div>
         </div>
 
-        <div className="flex gap-3 mt-6">
+        <div className="mt-6 grid gap-3 sm:grid-cols-2">
           <Button variant="secondary" onClick={onClose} className="flex-1">
             Cancel
           </Button>
