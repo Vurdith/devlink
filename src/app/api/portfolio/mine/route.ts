@@ -1,54 +1,74 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthSession } from "@/server/auth";
-import { prisma } from "@/server/db";
+import { prismaRead } from "@/server/db-read";
+
+const DEFAULT_PORTFOLIO_LIMIT = 50;
+const MAX_PORTFOLIO_LIMIT = 100;
+
+const ownedPortfolioItemSelect = {
+  id: true,
+  userId: true,
+  title: true,
+  description: true,
+  mediaUrls: true,
+  links: true,
+  category: true,
+  tags: true,
+  isPublic: true,
+  createdAt: true,
+  updatedAt: true,
+  skills: {
+    select: {
+      skill: {
+        select: { id: true, name: true, category: true, icon: true },
+      },
+    },
+  },
+  user: {
+    select: {
+      id: true,
+      username: true,
+      name: true,
+      profile: {
+        select: {
+          avatarUrl: true,
+          profileType: true,
+          verified: true,
+        },
+      },
+    },
+  },
+} as const;
+
+function parseOwnedPortfolioPagination(searchParams: URLSearchParams) {
+  const rawPage = Number.parseInt(searchParams.get("page") ?? "1", 10);
+  const rawLimit = Number.parseInt(searchParams.get("limit") ?? String(DEFAULT_PORTFOLIO_LIMIT), 10);
+  const page = Number.isFinite(rawPage) && rawPage > 0 ? rawPage : 1;
+  const limit =
+    Number.isFinite(rawLimit) && rawLimit > 0
+      ? Math.min(rawLimit, MAX_PORTFOLIO_LIMIT)
+      : DEFAULT_PORTFOLIO_LIMIT;
+
+  return { limit, skip: (page - 1) * limit };
+}
 
 export async function GET(request: NextRequest) {
   try {
     const session = await getAuthSession();
-    if (!session?.user?.username) {
+    if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Get user ID
-    const user = await prisma.user.findUnique({
-      where: { username: session.user.username },
-    });
-
-    if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
-    }
-
     const { searchParams } = new URL(request.url);
-    const page = parseInt(searchParams.get("page") || "1");
-    const limit = parseInt(searchParams.get("limit") || "50");
-    const skip = (page - 1) * limit;
+    const { limit, skip } = parseOwnedPortfolioPagination(searchParams);
 
-    const portfolioItems = await prisma.portfolioItem.findMany({
-      where: { userId: user.id },
+    const portfolioItems = await prismaRead.portfolioItem.findMany({
+      where: { userId: session.user.id },
       orderBy: { createdAt: "desc" },
       skip,
       take: limit,
-      include: {
-        skills: {
-          include: {
-            skill: {
-              select: { id: true, name: true, category: true, icon: true },
-            },
-          },
-        },
-        user: {
-          include: {
-            profile: {
-              select: {
-                avatarUrl: true,
-                profileType: true,
-                verified: true,
-              },
-            },
-          },
-        },
-      },
+      select: ownedPortfolioItemSelect,
     });
 
     return NextResponse.json({ portfolioItems });

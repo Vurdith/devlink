@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/server/db";
+import { prismaRead } from "@/server/db-read";
 import { getAuthSession } from "@/server/auth";
 import { responseCache } from "@/server/cache";
 
@@ -8,7 +9,7 @@ export async function GET() {
   if (!session?.user?.email) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-  const user = await prisma.user.findUnique({ 
+  const user = await prismaRead.user.findUnique({
     where: { email: session.user.email }, 
     select: { 
       id: true,
@@ -72,14 +73,11 @@ async function handleProfileUpdate(req: Request) {
     headline?: string;
     responseTime?: string;
   };
-  const user = await prisma.user.findUnique({ where: { email: session.user.email } });
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-  await prisma.profile.upsert({
-    where: { userId: user.id },
-    update: {},
-    create: { userId: user.id },
+  const user = await prisma.user.findUnique({
+    where: { email: session.user.email },
+    select: { id: true, username: true },
   });
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const data: Record<string, string | number | null | undefined> = {};
   if (typeof avatarUrl === "string") data.avatarUrl = avatarUrl;
@@ -94,12 +92,12 @@ async function handleProfileUpdate(req: Request) {
   if (typeof headline === "string") data.headline = headline.slice(0, 100);
   if (typeof responseTime === "string") data.responseTime = responseTime;
 
-  const profile = await prisma.profile.update({
+  const profile = await prisma.profile.upsert({
     where: { userId: user.id },
-    data,
+    update: data,
+    create: { userId: user.id, ...data },
   });
 
-  // Update user name if provided
   if (typeof name === "string") {
     await prisma.user.update({
       where: { id: user.id },

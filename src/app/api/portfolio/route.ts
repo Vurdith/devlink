@@ -1,7 +1,64 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthSession } from "@/server/auth";
 import { prisma } from "@/server/db";
+import { prismaRead } from "@/server/db-read";
 import { validatePortfolioTitle, validatePortfolioDescription } from "@/lib/validation";
+import { responseCache } from "@/server/cache";
+
+const PORTFOLIO_CACHE_TTL = 120;
+const DEFAULT_PORTFOLIO_LIMIT = 50;
+const MAX_PORTFOLIO_LIMIT = 100;
+
+const portfolioItemSelect = {
+  id: true,
+  userId: true,
+  title: true,
+  description: true,
+  mediaUrls: true,
+  links: true,
+  category: true,
+  tags: true,
+  isPublic: true,
+  createdAt: true,
+  updatedAt: true,
+  skills: {
+    select: {
+      skill: {
+        select: { id: true, name: true, category: true, icon: true },
+      },
+    },
+  },
+  user: {
+    select: {
+      id: true,
+      username: true,
+      name: true,
+      profile: {
+        select: {
+          avatarUrl: true,
+          profileType: true,
+          verified: true
+        }
+      }
+    }
+  }
+} as const;
+
+function parsePortfolioPagination(searchParams: URLSearchParams) {
+  const rawPage = Number.parseInt(searchParams.get("page") ?? "1", 10);
+  const rawLimit = Number.parseInt(searchParams.get("limit") ?? String(DEFAULT_PORTFOLIO_LIMIT), 10);
+  const page = Number.isFinite(rawPage) && rawPage > 0 ? rawPage : 1;
+  const limit =
+    Number.isFinite(rawLimit) && rawLimit > 0
+      ? Math.min(rawLimit, MAX_PORTFOLIO_LIMIT)
+      : DEFAULT_PORTFOLIO_LIMIT;
+
+  return { page, limit, skip: (page - 1) * limit };
+}
+
+async function clearPortfolioCache(userId: string) {
+  await responseCache.invalidatePattern(new RegExp(`^portfolio:${userId}:`));
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -79,9 +136,9 @@ export async function POST(request: NextRequest) {
       validatedSkillIds = unique;
     }
 
-    // Get user ID
     const user = await prisma.user.findUnique({
-      where: { username: session.user.username }
+      where: { username: session.user.username },
+      select: { id: true },
     });
 
     if (!user) {
@@ -99,7 +156,6 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Create portfolio item
     const portfolioItem = await prisma.portfolioItem.create({
       data: {
         title,
@@ -118,27 +174,10 @@ export async function POST(request: NextRequest) {
             }
           : {}),
       },
-      include: {
-        skills: {
-          include: {
-            skill: {
-              select: { id: true, name: true, category: true, icon: true },
-            },
-          },
-        },
-        user: {
-          include: {
-            profile: {
-              select: {
-                avatarUrl: true,
-                profileType: true,
-                verified: true
-              }
-            }
-          }
-        }
-      }
+      select: portfolioItemSelect,
     });
+
+    await clearPortfolioCache(user.id);
 
     return NextResponse.json({ portfolioItem });
   } catch (error) {
@@ -147,17 +186,11 @@ export async function POST(request: NextRequest) {
   }
 }
 
-import { responseCache } from "@/server/cache";
-
-const PORTFOLIO_CACHE_TTL = 120; // 2 minutes
-
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get("userId");
-    const page = parseInt(searchParams.get("page") || "1");
-    const limit = Math.min(parseInt(searchParams.get("limit") || "50"), 100);
-    const skip = (page - 1) * limit;
+    const { page, limit, skip } = parsePortfolioPagination(searchParams);
 
     if (!userId) {
       return NextResponse.json({ error: "User ID is required" }, { status: 400 });
@@ -165,7 +198,6 @@ export async function GET(request: NextRequest) {
 
     const cacheKey = `portfolio:${userId}:${page}:${limit}`;
     
-    // Try cache first
     const cached = await responseCache.get<{ portfolioItems: unknown[] }>(cacheKey);
     if (cached) {
       const response = NextResponse.json(cached);
@@ -174,49 +206,19 @@ export async function GET(request: NextRequest) {
       return response;
     }
 
-    const portfolioItems = await prisma.portfolioItem.findMany({
+    const portfolioItems = await prismaRead.portfolioItem.findMany({
       where: {
         userId,
         isPublic: true
       },
-      select: {
-        id: true,
-        title: true,
-        description: true,
-        mediaUrls: true,
-        links: true,
-        category: true,
-        tags: true,
-        createdAt: true,
-        skills: {
-          select: {
-            skill: {
-              select: { id: true, name: true, category: true, icon: true },
-            },
-          },
-        },
-        user: {
-          select: {
-            id: true,
-            username: true,
-            profile: {
-              select: {
-                avatarUrl: true,
-                profileType: true,
-                verified: true
-              }
-            }
-          }
-        }
-      },
+      select: portfolioItemSelect,
       orderBy: { createdAt: "desc" },
       skip,
       take: limit
     });
 
     const result = { portfolioItems };
-    
-    // Cache the result
+
     await responseCache.set(cacheKey, result, PORTFOLIO_CACHE_TTL);
 
     const response = NextResponse.json(result);

@@ -1,8 +1,34 @@
 import { getAuthSession } from "@/server/auth";
 import { prisma } from "@/server/db";
+import { responseCache } from "@/server/cache";
 import { NextResponse } from "next/server";
 
-// Update a review
+const reviewUserSelect = {
+  select: {
+    id: true,
+    username: true,
+    name: true,
+    profile: {
+      select: {
+        avatarUrl: true,
+        bannerUrl: true,
+        profileType: true,
+        verified: true,
+        bio: true,
+        website: true,
+        location: true,
+      },
+    },
+    _count: { select: { followers: true, following: true } },
+  },
+} as const;
+
+async function clearReviewedProfileCache(username?: string | null) {
+  if (!username) return;
+
+  await responseCache.delete(`profile:page:${username.toLowerCase()}`);
+}
+
 export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ reviewId: string }> }
@@ -23,9 +49,12 @@ export async function PATCH(
       return NextResponse.json({ error: "Invalid rating" }, { status: 400 });
     }
 
-    // Check if the review exists and belongs to the current user
     const existingReview = await prisma.review.findUnique({
       where: { id: reviewId },
+      select: {
+        reviewerId: true,
+        reviewed: { select: { username: true } },
+      },
     });
 
     if (!existingReview) {
@@ -36,27 +65,25 @@ export async function PATCH(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Update the review
     const updatedReview = await prisma.review.update({
       where: { id: reviewId },
       data: {
         rating,
         text: text || null,
       },
-      include: {
-        reviewer: {
-          include: {
-            profile: true,
-            _count: {
-              select: {
-                followers: true,
-                following: true,
-              },
-            },
-          },
-        },
+      select: {
+        id: true,
+        reviewerId: true,
+        reviewedId: true,
+        rating: true,
+        text: true,
+        createdAt: true,
+        updatedAt: true,
+        reviewer: reviewUserSelect,
       },
     });
+
+    await clearReviewedProfileCache(existingReview.reviewed.username);
 
     return NextResponse.json(updatedReview);
   } catch (error) {
@@ -80,9 +107,12 @@ export async function DELETE(
   try {
     const { reviewId } = await params;
 
-    // Check if the review exists and belongs to the current user
     const existingReview = await prisma.review.findUnique({
       where: { id: reviewId },
+      select: {
+        reviewerId: true,
+        reviewed: { select: { username: true } },
+      },
     });
 
     if (!existingReview) {
@@ -93,10 +123,11 @@ export async function DELETE(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Delete the review
     await prisma.review.delete({
       where: { id: reviewId },
     });
+
+    await clearReviewedProfileCache(existingReview.reviewed.username);
 
     return new NextResponse(null, { status: 204 });
   } catch (error) {

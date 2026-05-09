@@ -2,6 +2,44 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthSession } from "@/server/auth";
 import { prisma } from "@/server/db";
+import { responseCache } from "@/server/cache";
+
+const editablePortfolioItemSelect = {
+  id: true,
+  userId: true,
+  title: true,
+  description: true,
+  mediaUrls: true,
+  links: true,
+  category: true,
+  tags: true,
+  isPublic: true,
+  createdAt: true,
+  updatedAt: true,
+  skills: {
+    select: {
+      skill: { select: { id: true, name: true, category: true, icon: true } },
+    },
+  },
+  user: {
+    select: {
+      id: true,
+      username: true,
+      name: true,
+      profile: {
+        select: {
+          avatarUrl: true,
+          profileType: true,
+          verified: true,
+        },
+      },
+    },
+  },
+} as const;
+
+async function clearPortfolioCache(userId: string) {
+  await responseCache.invalidatePattern(new RegExp(`^portfolio:${userId}:`));
+}
 
 export async function PUT(
   request: NextRequest,
@@ -11,25 +49,16 @@ export async function PUT(
     const { id } = await params;
     
     const session = await getAuthSession();
-    if (!session?.user?.username) {
+    if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Get user ID
-    const user = await prisma.user.findUnique({
-      where: { username: session.user.username },
+    const portfolioItem = await prisma.portfolioItem.findFirst({
+      where: { id, userId: session.user.id },
+      select: { title: true, isPublic: true },
     });
 
-    if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
-    }
-
-    // Check if portfolio item exists and belongs to user
-    const portfolioItem = await prisma.portfolioItem.findUnique({
-      where: { id },
-    });
-
-    if (!portfolioItem || portfolioItem.userId !== user.id) {
+    if (!portfolioItem) {
       return NextResponse.json({ error: "Not found or unauthorized" }, { status: 404 });
     }
 
@@ -53,7 +82,7 @@ export async function PUT(
     // Ensure user can only link skills they actually have
     if (validatedSkillIds && validatedSkillIds.length > 0) {
       const owned = await prisma.userSkill.findMany({
-        where: { userId: user.id, skillId: { in: validatedSkillIds } },
+        where: { userId: session.user.id, skillId: { in: validatedSkillIds } },
         select: { skillId: true },
       });
       if (owned.length !== validatedSkillIds.length) {
@@ -78,7 +107,7 @@ export async function PUT(
         }
       }
 
-      await tx.portfolioItem.update({
+      return tx.portfolioItem.update({
         where: { id },
         data: {
           title: title ?? portfolioItem.title,
@@ -89,30 +118,11 @@ export async function PUT(
           tags,
           isPublic: isPublic ?? portfolioItem.isPublic,
         },
-      });
-
-      return tx.portfolioItem.findUnique({
-        where: { id },
-        include: {
-          skills: {
-            include: {
-              skill: { select: { id: true, name: true, category: true, icon: true } },
-            },
-          },
-          user: {
-            include: {
-              profile: {
-                select: {
-                  avatarUrl: true,
-                  profileType: true,
-                  verified: true,
-                },
-              },
-            },
-          },
-        },
+        select: editablePortfolioItemSelect,
       });
     });
+
+    await clearPortfolioCache(session.user.id);
 
     return NextResponse.json({ portfolioItem: updated });
   } catch (error) {
@@ -132,34 +142,22 @@ export async function DELETE(
     const { id } = await params;
     
     const session = await getAuthSession();
-    if (!session?.user?.username) {
+    if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Get user ID
-    const user = await prisma.user.findUnique({
-      where: { username: session.user.username },
+    const deleted = await prisma.portfolioItem.deleteMany({
+      where: { id, userId: session.user.id },
     });
 
-    if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
-    }
-
-    // Check if portfolio item exists and belongs to user
-    const portfolioItem = await prisma.portfolioItem.findUnique({
-      where: { id },
-    });
-
-    if (!portfolioItem || portfolioItem.userId !== user.id) {
+    if (deleted.count === 0) {
       return NextResponse.json(
         { error: "Not found or unauthorized" },
         { status: 404 }
       );
     }
 
-    await prisma.portfolioItem.delete({
-      where: { id },
-    });
+    await clearPortfolioCache(session.user.id);
 
     return NextResponse.json({ success: true });
   } catch (error) {

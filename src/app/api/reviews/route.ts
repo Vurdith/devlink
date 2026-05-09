@@ -1,7 +1,50 @@
 import { getAuthSession } from "@/server/auth";
 import { prisma } from "@/server/db";
+import { prismaRead } from "@/server/db-read";
+import { responseCache } from "@/server/cache";
 import { NextResponse } from "next/server";
 import { validateId, validateRating } from "@/lib/validation";
+
+const DEFAULT_REVIEWS_LIMIT = 20;
+const MAX_REVIEWS_LIMIT = 50;
+
+const reviewUserSelect = {
+  select: {
+    id: true,
+    username: true,
+    name: true,
+    profile: {
+      select: {
+        avatarUrl: true,
+        bannerUrl: true,
+        profileType: true,
+        verified: true,
+        bio: true,
+        website: true,
+        location: true,
+      },
+    },
+    _count: { select: { followers: true, following: true } },
+  },
+} as const;
+
+function parseReviewsPagination(searchParams: URLSearchParams) {
+  const rawPage = Number.parseInt(searchParams.get("page") ?? "1", 10);
+  const rawLimit = Number.parseInt(searchParams.get("limit") ?? String(DEFAULT_REVIEWS_LIMIT), 10);
+  const page = Number.isFinite(rawPage) && rawPage > 0 ? rawPage : 1;
+  const limit =
+    Number.isFinite(rawLimit) && rawLimit > 0
+      ? Math.min(rawLimit, MAX_REVIEWS_LIMIT)
+      : DEFAULT_REVIEWS_LIMIT;
+
+  return { page, limit, skip: (page - 1) * limit };
+}
+
+async function clearReviewedProfileCache(username?: string | null) {
+  if (!username) return;
+
+  await responseCache.delete(`profile:page:${username.toLowerCase()}`);
+}
 
 // Create a new review
 export async function POST(req: Request) {
@@ -52,7 +95,6 @@ export async function POST(req: Request) {
 
     // Allow multiple reviews - no need to check for existing reviews
 
-    // Create the review
     const review = await prisma.review.create({
       data: {
         reviewerId: currentUserId,
@@ -60,22 +102,31 @@ export async function POST(req: Request) {
         rating,
         text: text || null,
       },
-      include: {
-        reviewer: {
-          include: {
-            profile: true,
-            _count: {
-              select: {
-                followers: true,
-                following: true,
-              },
-            },
-          },
-        },
+      select: {
+        id: true,
+        reviewerId: true,
+        reviewedId: true,
+        rating: true,
+        text: true,
+        createdAt: true,
+        updatedAt: true,
+        reviewer: reviewUserSelect,
+        reviewed: { select: { username: true } },
       },
     });
 
-    return NextResponse.json(review);
+    await clearReviewedProfileCache(review.reviewed.username);
+
+    return NextResponse.json({
+      id: review.id,
+      reviewerId: review.reviewerId,
+      reviewedId: review.reviewedId,
+      rating: review.rating,
+      text: review.text,
+      createdAt: review.createdAt,
+      updatedAt: review.updatedAt,
+      reviewer: review.reviewer,
+    });
   } catch (error) {
     console.error("Error creating review:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
@@ -88,16 +139,14 @@ export async function GET(req: Request) {
   const targetUserId = searchParams.get("targetUserId");
   const reviewerId = searchParams.get("reviewerId");
   const sentiment = searchParams.get("sentiment");
-  const page = parseInt(searchParams.get("page") || "1");
-  const limit = Math.min(parseInt(searchParams.get("limit") || "20"), 50);
-  const skip = (page - 1) * limit;
+  const { page, limit, skip } = parseReviewsPagination(searchParams);
 
   if (!targetUserId && !reviewerId) {
     return NextResponse.json({ error: "Missing targetUserId or reviewerId" }, { status: 400 });
   }
 
   try {
-    let ratingFilter = {};
+    let ratingFilter: { gte?: number; equals?: number; lte?: number } | null = null;
     if (sentiment === "positive") {
       ratingFilter = { gte: 4 };
     } else if (sentiment === "neutral") {
@@ -114,62 +163,46 @@ export async function GET(req: Request) {
       updatedAt: true,
     };
 
-    const userSelect = {
-      select: {
-        id: true,
-        username: true,
-        name: true,
-        profile: { select: { avatarUrl: true, verified: true } },
-        _count: { select: { followers: true } },
-      },
-    };
-
     let reviews;
     let total;
 
     if (targetUserId) {
+      const where = {
+        reviewedId: targetUserId,
+        ...(ratingFilter ? { rating: ratingFilter } : {}),
+      };
+
       [reviews, total] = await Promise.all([
-        prisma.review.findMany({
-          where: { 
-            reviewedId: targetUserId,
-            ...(sentiment ? { rating: ratingFilter } : {})
-          },
+        prismaRead.review.findMany({
+          where,
           select: {
             ...baseSelect,
-            reviewer: userSelect,
+            reviewer: reviewUserSelect,
           },
           skip,
           take: limit,
           orderBy: { createdAt: "desc" },
         }),
-        prisma.review.count({
-          where: { 
-            reviewedId: targetUserId,
-            ...(sentiment ? { rating: ratingFilter } : {})
-          },
-        }),
+        prismaRead.review.count({ where }),
       ]);
     } else {
+      const where = {
+        reviewerId: reviewerId!,
+        ...(ratingFilter ? { rating: ratingFilter } : {}),
+      };
+
       [reviews, total] = await Promise.all([
-        prisma.review.findMany({
-          where: { 
-            reviewerId: reviewerId!,
-            ...(sentiment ? { rating: ratingFilter } : {})
-          },
+        prismaRead.review.findMany({
+          where,
           select: {
             ...baseSelect,
-            reviewed: userSelect,
+            reviewed: reviewUserSelect,
           },
           skip,
           take: limit,
           orderBy: { createdAt: "desc" },
         }),
-        prisma.review.count({
-          where: { 
-            reviewerId: reviewerId!,
-            ...(sentiment ? { rating: ratingFilter } : {})
-          },
-        }),
+        prismaRead.review.count({ where }),
       ]);
     }
 
