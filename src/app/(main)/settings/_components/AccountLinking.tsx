@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useCallback, useState, useEffect } from "react";
 import { Button } from "@/components/ui/Button";
 import { iconBox, surface, ui } from "@/components/ui/design-system";
 import { useSession } from "next-auth/react";
 import { cn } from "@/lib/cn";
+import { SettingsAuthRequired } from "./SettingsAuthRequired";
 
 interface LinkedAccount {
   provider: string;
@@ -49,29 +50,40 @@ const providers = [
 ];
 
 export default function AccountLinking() {
-  const { update } = useSession();
+  const { status, update } = useSession();
   const [linkedAccounts, setLinkedAccounts] = useState<LinkedAccount[]>([]);
   const [loading, setLoading] = useState<string | null>(null);
   const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchLinkedAccounts();
-  }, []);
-
-  const fetchLinkedAccounts = async () => {
+  const fetchLinkedAccounts = useCallback(async () => {
+    setIsInitialLoading(true);
     try {
       const response = await fetch("/api/auth/linked-accounts");
       if (response.ok) {
         const accounts = await response.json();
         setLinkedAccounts(accounts);
+        setError(null);
+      } else {
+        setError("Unable to load connected accounts. Please try again.");
       }
-    } catch (error) {
-      console.error("Error fetching linked accounts:", error);
+    } catch {
+      setError("Unable to reach account linking right now. Check your connection and try again.");
     } finally {
       setIsInitialLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    if (status === "authenticated") {
+      void fetchLinkedAccounts();
+      return;
+    }
+
+    if (status === "unauthenticated") {
+      setIsInitialLoading(false);
+    }
+  }, [fetchLinkedAccounts, status]);
 
   const linkAccount = async (provider: string) => {
     setLoading(provider);
@@ -122,6 +134,10 @@ export default function AccountLinking() {
       setLoading(null);
     }
   };
+
+  if (status === "unauthenticated") {
+    return <SettingsAuthRequired />;
+  }
 
   const isAccountLinked = (provider: string) => {
     return linkedAccounts.some(account => account.provider === provider);

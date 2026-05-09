@@ -4,12 +4,12 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSession } from "next-auth/react";
 import { NotificationList } from "./NotificationList";
 import { NotificationsHeader } from "./NotificationsHeader";
-import { NotificationsEmpty, NotificationsError, NotificationsLoading } from "./NotificationStates";
+import { NotificationsEmpty, NotificationsError, NotificationsLoading, NotificationsSignedOut } from "./NotificationStates";
 import type { NotificationItem, NotificationTab } from "./notification-types";
 import { groupNotificationRows, safeJson } from "./notification-utils";
 
 export default function NotificationsPage() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const currentUserId = session?.user?.id;
   const [items, setItems] = useState<NotificationItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -35,6 +35,8 @@ export default function NotificationsPage() {
   }, []);
 
   const fetchFirstPage = useCallback(async () => {
+    if (status !== "authenticated") return;
+
     setLoading(true);
     setError("");
 
@@ -52,30 +54,49 @@ export default function NotificationsPage() {
       }
 
       applyNotificationPage(data, true);
+    } catch {
+      setError("Unable to reach notifications. Check your connection and try again.");
+      setItems([]);
+      setCursor(null);
+      setHasMore(false);
     } finally {
       setLoading(false);
     }
-  }, [applyNotificationPage]);
+  }, [applyNotificationPage, status]);
 
   const fetchMore = async () => {
-    if (!cursor || loadingMore) return;
+    if (!cursor || loadingMore || status !== "authenticated") return;
 
     setLoadingMore(true);
     try {
       const res = await fetch(`/api/notifications?limit=40&cursor=${encodeURIComponent(cursor)}`, { cache: "no-store" });
       const data = await safeJson(res);
       if (res.ok) applyNotificationPage(data, false);
+      else setError("Unable to load more notifications. Please try again.");
+    } catch {
+      setError("Unable to load more notifications. Check your connection and try again.");
     } finally {
       setLoadingMore(false);
     }
   };
 
   useEffect(() => {
-    void fetchFirstPage();
-  }, [fetchFirstPage]);
+    if (status === "authenticated") {
+      void fetchFirstPage();
+      return;
+    }
+
+    if (status === "unauthenticated") {
+      setItems([]);
+      setCursor(null);
+      setHasMore(false);
+      setError("");
+      setLoading(false);
+    }
+  }, [fetchFirstPage, status]);
 
   const markRead = async (ids: string[]) => {
-    if (ids.length === 0) return;
+    if (ids.length === 0 || status !== "authenticated") return;
 
     try {
       const res = await fetch("/api/notifications/mark-read", {
@@ -88,10 +109,14 @@ export default function NotificationsPage() {
       const now = new Date().toISOString();
       setItems((prev) => prev.map((item) => (ids.includes(item.id) ? { ...item, readAt: item.readAt ?? now } : item)));
       window.dispatchEvent(new CustomEvent("devlink:notifications-updated"));
-    } catch {}
+    } catch {
+      setError("Unable to mark notifications as read. Please try again.");
+    }
   };
 
   const markAllRead = async () => {
+    if (unreadIds.length === 0 || status !== "authenticated") return;
+
     setMarking(true);
 
     try {
@@ -105,6 +130,8 @@ export default function NotificationsPage() {
       const now = new Date().toISOString();
       setItems((prev) => prev.map((item) => ({ ...item, readAt: item.readAt ?? now })));
       window.dispatchEvent(new CustomEvent("devlink:notifications-updated"));
+    } catch {
+      setError("Unable to mark all notifications as read. Please try again.");
     } finally {
       setMarking(false);
     }
@@ -121,7 +148,9 @@ export default function NotificationsPage() {
       />
 
       <div className="space-y-2">
-        {loading ? (
+        {status === "unauthenticated" ? (
+          <NotificationsSignedOut />
+        ) : loading || status === "loading" ? (
           <NotificationsLoading />
         ) : error ? (
           <NotificationsError error={error} onRetry={fetchFirstPage} />

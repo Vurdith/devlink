@@ -1,6 +1,7 @@
-import { Button } from "@/components/ui/Button";
+import { FeedbackState } from "@/components/ui/FeedbackState";
 import { surface } from "@/components/ui/design-system";
 import type { NotificationTab } from "./notification-types";
+import { BellIcon } from "./NotificationIcons";
 
 export function NotificationsLoading() {
   return (
@@ -23,25 +24,55 @@ export function NotificationsLoading() {
 
 export function NotificationsError({ error, onRetry }: { error: string; onRetry: () => void }) {
   return (
-    <div className={surface("empty", "p-5")}>
-      <div className="text-white/80 font-semibold">Could not load notifications</div>
-      <div className="mt-1 text-sm text-[var(--muted-foreground)]">{error}</div>
-      <div className="mt-4">
-        <Button size="sm" variant="secondary" onClick={onRetry}>
-          Retry
-        </Button>
-      </div>
-    </div>
+    <FeedbackState
+      tone="danger"
+      icon={<WarningIcon />}
+      title="Could not load notifications"
+      description={error}
+      action={{ label: "Retry", onClick: onRetry }}
+      className="py-10"
+    />
   );
 }
 
 export function NotificationsEmpty({ tab }: { tab: NotificationTab }) {
   return (
-    <div className={surface("empty", "p-6 text-center")}>
-      <div className="text-white/80 font-semibold">You are all caught up</div>
-      <div className="mt-1 text-sm text-[var(--muted-foreground)]">
-        {tab === "unread" ? "No unread notifications." : "No notifications yet."}
-      </div>
-    </div>
+    <FeedbackState
+      icon={<BellIcon />}
+      title={tab === "unread" ? "No unread notifications" : "No notifications yet"}
+      description={
+        tab === "unread"
+          ? "You are caught up. New mentions, replies, follows, and messages will appear here when they need attention."
+          : "Activity from follows, replies, mentions, messages, and profile updates will collect here."
+      }
+      className="py-12"
+    />
+  );
+}
+
+export function NotificationsSignedOut() {
+  return (
+    <FeedbackState
+      icon={<BellIcon />}
+      title="Sign in to see notifications"
+      description="Notifications are private to your account. Sign in to review replies, mentions, follows, and messages."
+      action={{ label: "Sign in", href: "/login?callbackUrl=/notifications" }}
+      className="py-12"
+    />
+  );
+}
+
+function WarningIcon() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <path d="M12 9v4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      <path d="M12 17h.01" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+      <path
+        d="M10.3 3.9 1.9 18a2 2 0 0 0 1.7 3h16.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinejoin="round"
+      />
+    </svg>
   );
 }

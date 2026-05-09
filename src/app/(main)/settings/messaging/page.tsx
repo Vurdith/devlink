@@ -6,6 +6,7 @@ import { iconBox, surface, ui } from "@/components/ui/design-system";
 import { cn } from "@/lib/cn";
 import { safeJson } from "@/lib/safe-json";
 import type { MessagingSettings } from "@/types/api";
+import { SettingsAuthRequired } from "../_components/SettingsAuthRequired";
 
 const options = [
   { value: "EVERYONE", label: "Everyone" },
@@ -19,24 +20,38 @@ export default function MessagingSettingsPage() {
   const { status } = useSession();
   const [settings, setSettings] = useState<MessagingSettings | null>(null);
   const [saving, setSaving] = useState(false);
+  const [loadingSettings, setLoadingSettings] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (status !== "authenticated") return;
+    if (status === "loading") return;
+
+    if (status === "unauthenticated") {
+      setLoadingSettings(false);
+      return;
+    }
+
     let isMounted = true;
     async function load() {
-      const res = await fetch("/api/settings/messaging");
-      const data = await safeJson<MessagingSettings & { error?: string }>(res);
-      if (isMounted) {
-        if (res.ok) {
-          setSettings((data || { allowFrom: "FOLLOWING" }) as MessagingSettings);
-          setError(null);
-        } else {
-          setError(data?.error || "Unable to load messaging settings");
+      setLoadingSettings(true);
+      try {
+        const res = await fetch("/api/settings/messaging");
+        const data = await safeJson<MessagingSettings & { error?: string }>(res);
+        if (isMounted) {
+          if (res.ok) {
+            setSettings((data || { allowFrom: "FOLLOWING" }) as MessagingSettings);
+            setError(null);
+          } else {
+            setError(data?.error || "Unable to load messaging settings");
+          }
         }
+      } catch {
+        if (isMounted) setError("Unable to reach messaging settings. Check your connection and try again.");
+      } finally {
+        if (isMounted) setLoadingSettings(false);
       }
     }
-    load();
+    void load();
     return () => {
       isMounted = false;
     };
@@ -44,19 +59,24 @@ export default function MessagingSettingsPage() {
 
   async function updateSetting(allowFrom: MessagingSettings["allowFrom"]) {
     setSaving(true);
-    const res = await fetch("/api/settings/messaging", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ allowFrom }),
-    });
-    const data = await safeJson<MessagingSettings & { error?: string }>(res);
-    if (res.ok && data) {
-      setSettings(data);
-      setError(null);
-    } else {
-      setError(data?.error || "Failed to update messaging settings");
+    try {
+      const res = await fetch("/api/settings/messaging", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ allowFrom }),
+      });
+      const data = await safeJson<MessagingSettings & { error?: string }>(res);
+      if (res.ok && data) {
+        setSettings(data);
+        setError(null);
+      } else {
+        setError(data?.error || "Failed to update messaging settings");
+      }
+    } catch {
+      setError("Unable to save messaging settings. Check your connection and try again.");
+    } finally {
+      setSaving(false);
     }
-    setSaving(false);
   }
 
   return (
@@ -71,8 +91,24 @@ export default function MessagingSettingsPage() {
       </div>
 
       {status === "unauthenticated" ? (
-        <div className={surface("panel", "p-5 text-sm text-[var(--muted-foreground)]")}>
-          Sign in to update messaging preferences.
+        <SettingsAuthRequired
+          title="Sign in to control who can message you"
+          description="Messaging rules protect your inbox. Sign in to choose who can start conversations and how requests are handled."
+        />
+      ) : loadingSettings ? (
+        <div className={surface("panel", "p-6")}>
+          <div className="mb-5 flex items-center gap-3">
+            <div className="h-10 w-10 animate-pulse rounded-xl bg-white/[0.06]" />
+            <div className="min-w-0 flex-1">
+              <div className="h-5 w-48 animate-pulse rounded bg-white/[0.08]" />
+              <div className="mt-2 h-4 w-64 max-w-full animate-pulse rounded bg-white/[0.045]" />
+            </div>
+          </div>
+          <div className="space-y-2">
+            {[1, 2, 3].map((item) => (
+              <div key={item} className="h-14 animate-pulse rounded-xl border border-white/[0.08] bg-white/[0.035]" />
+            ))}
+          </div>
         </div>
       ) : (
         <>

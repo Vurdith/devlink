@@ -1,8 +1,10 @@
 "use client";
 
 import { useState, memo } from "react";
+import { useSession } from "next-auth/react";
 import { iconBox, surface, ui } from "@/components/ui/design-system";
 import { cn } from "@/lib/cn";
+import { SettingsAuthRequired } from "../_components/SettingsAuthRequired";
 
 interface NotificationSetting {
   id: string;
@@ -67,6 +69,7 @@ const Toggle = memo(function Toggle({ checked, onChange }: { checked: boolean; o
 });
 
 export default function NotificationSettings() {
+  const { status } = useSession();
   const [settings, setSettings] = useState(defaultSettings);
 
   const toggleSetting = (id: string) => {
@@ -87,6 +90,28 @@ export default function NotificationSettings() {
         </p>
       </div>
 
+      {status === "unauthenticated" ? (
+        <SettingsAuthRequired
+          title="Sign in to manage notification settings"
+          description="Notification preferences are tied to your account. Sign in to choose which updates should reach you."
+        />
+      ) : status === "loading" ? (
+        <div className={surface("panel", "p-6")}>
+          <div className="mb-6 flex items-center gap-3">
+            <div className="h-10 w-10 animate-pulse rounded-xl bg-white/[0.06]" />
+            <div className="min-w-0 flex-1">
+              <div className="h-5 w-48 animate-pulse rounded bg-white/[0.08]" />
+              <div className="mt-2 h-4 w-56 max-w-full animate-pulse rounded bg-white/[0.045]" />
+            </div>
+          </div>
+          <div className="space-y-2">
+            {[1, 2, 3, 4].map((item) => (
+              <div key={item} className="h-16 animate-pulse rounded-xl border border-white/[0.08] bg-white/[0.035]" />
+            ))}
+          </div>
+        </div>
+      ) : (
+        <>
       {/* Email Notifications */}
       <div
         className={surface("panel", "noise-overlay relative overflow-hidden p-6 animate-slide-up")}
@@ -178,6 +203,8 @@ export default function NotificationSettings() {
           ))}
         </div>
       </div>
+        </>
+      )}
     </div>
   );
 }

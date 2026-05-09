@@ -14,6 +14,8 @@ import { ResetPasswordPanel } from "./ResetPasswordPanel";
 import { SecurityPanel } from "./SecurityPanel";
 import { getPasswordStrength } from "./password-strength";
 import { ui } from "@/components/ui/design-system";
+import { SettingsAuthRequired } from "../_components/SettingsAuthRequired";
+import { FeedbackState } from "@/components/ui/FeedbackState";
 
 interface PasswordData {
   currentPassword: string;
@@ -22,9 +24,10 @@ interface PasswordData {
 }
 
 export default function SecuritySettings() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const { toast } = useToastContext();
   const [hasPassword, setHasPassword] = useState<boolean | null>(null);
+  const [securityLoadError, setSecurityLoadError] = useState<string | null>(null);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [isRequestingReset, setIsRequestingReset] = useState(false);
   const [isChangingEmail, setIsChangingEmail] = useState(false);
@@ -53,17 +56,27 @@ export default function SecuritySettings() {
   });
 
   useEffect(() => {
+    if (status !== "authenticated") {
+      if (status === "unauthenticated") setHasPassword(null);
+      return;
+    }
+
     const checkPassword = async () => {
+      setSecurityLoadError(null);
       try {
         const res = await fetch("/api/user/has-password");
         if (res.ok) {
           const data = await res.json();
           setHasPassword(data.hasPassword);
+        } else {
+          setSecurityLoadError("We could not load your password status. Refresh the page before changing security settings.");
         }
-      } catch {}
+      } catch {
+        setSecurityLoadError("We could not reach your security settings. Check your connection and try again.");
+      }
     };
-    checkPassword();
-  }, []);
+    void checkPassword();
+  }, [status]);
 
   const handleSetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -299,8 +312,35 @@ export default function SecuritySettings() {
         </p>
       </div>
 
+      {status === "unauthenticated" ? (
+        <SettingsAuthRequired
+          title="Sign in to manage account security"
+          description="Security controls are private. Sign in to update passwords, email verification, two-factor authentication, and account deletion."
+        />
+      ) : securityLoadError ? (
+        <FeedbackState
+          tone="danger"
+          icon={
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <path d="M12 9v4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+              <path d="M12 17h.01" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+              <path
+                d="M10.3 3.9 1.9 18a2 2 0 0 0 1.7 3h16.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinejoin="round"
+              />
+            </svg>
+          }
+          title="Security settings unavailable"
+          description={securityLoadError}
+          action={{ label: "Refresh", onClick: () => window.location.reload() }}
+          className="py-12"
+        />
+      ) : (
+        <>
       {/* Password Section Loading Skeleton */}
-      {hasPassword === null && (
+      {(status === "loading" || hasPassword === null) && (
         <SecurityPanel
           accent="cyan"
           title="Loading security settings..."
@@ -321,6 +361,8 @@ export default function SecuritySettings() {
         </SecurityPanel>
       )}
 
+      {status === "authenticated" && hasPassword !== null ? (
+        <>
       {/* Set Password Section - for OAuth users without a password */}
       {hasPassword === false && (
         <SecurityPanel
@@ -516,6 +558,10 @@ export default function SecuritySettings() {
         onDeleteConfirmTextChange={setDeleteConfirmText}
         onDeleteAccount={handleDeleteAccount}
       />
+        </>
+      ) : null}
+        </>
+      )}
     </div>
   );
 }
