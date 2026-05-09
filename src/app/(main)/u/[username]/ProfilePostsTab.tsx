@@ -1,5 +1,5 @@
-import { Button } from "@/components/ui/Button";
 import { PostFeed } from "@/components/feed/PostFeed";
+import { LoadMoreButton } from "@/components/ui/FeedbackState";
 import { EmptyState, ProfileRepliesTab } from "./ProfileRepliesTab";
 import type { TabPost, TabType } from "./profile-types";
 
@@ -53,11 +53,7 @@ export function ProfilePostsTab({
       <div>
         <PostFeed posts={posts} currentUserId={currentUserId} hidePinnedIndicator={false} onUpdate={onUpdate} session={session} />
         {hasMore && (
-          <div className="text-center pt-8">
-            <Button onClick={onLoadMore} disabled={loading} variant="secondary" size="lg">
-              {loading ? "Loading..." : "Load More"}
-            </Button>
-          </div>
+          <LoadMoreButton loading={loading} onClick={onLoadMore} className="pt-8" />
         )}
       </div>
     );

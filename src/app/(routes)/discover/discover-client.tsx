@@ -7,7 +7,8 @@ import Image from "next/image";
 import { FollowButton } from "@/components/ui/FollowButton";
 import { ProfileTooltip } from "@/components/profile/ProfileTooltip";
 import { ProfileTypeLabel } from "@/components/profile/ProfileTypeLabel";
-import { iconBox, surface, ui } from "@/components/ui/design-system";
+import { FeedbackState } from "@/components/ui/FeedbackState";
+import { surface, ui } from "@/components/ui/design-system";
 
 type ProfileType = "all" | "DEVELOPER" | "CLIENT" | "INFLUENCER" | "STUDIO" | "INVESTOR";
 
@@ -352,23 +353,23 @@ export function DiscoverClient({
           </div>
         </>
       ) : (
-        <div className={surface("empty", "py-16 text-center")}>
-          <div className={iconBox("muted", "mx-auto mb-6 h-20 w-20")}>
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-[var(--muted-foreground)]">
+        <FeedbackState
+          title="No profiles found"
+          description={
+            selectedFilter === "all"
+              ? "New community members will appear here as they join."
+              : `No ${filters.find(f => f.value === selectedFilter)?.label.toLowerCase()} match this view yet.`
+          }
+          className="py-16"
+          icon={
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
               <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" strokeLinecap="round" strokeLinejoin="round"/>
               <circle cx="9" cy="7" r="4"/>
               <path d="M23 21v-2a4 4 0 0 0-3-3.87" strokeLinecap="round" strokeLinejoin="round"/>
               <path d="M16 3.13a4 4 0 0 1 0 7.75" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
-          </div>
-          <h3 className="text-xl font-semibold text-white mb-2">No profiles found</h3>
-          <p className="text-[var(--muted-foreground)]">
-            {selectedFilter === "all" 
-              ? "No users have joined yet. Be the first!"
-              : `No ${filters.find(f => f.value === selectedFilter)?.label.toLowerCase()} have joined yet.`
-            }
-          </p>
-        </div>
+          }
+        />
       )}
       </div>
     </div>

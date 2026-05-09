@@ -2,7 +2,8 @@
 
 import Image from "next/image";
 import { PostFeed } from "@/components/feed/PostFeed";
-import { iconBox, surface } from "@/components/ui/design-system";
+import { FeedbackState, LoadMoreButton } from "@/components/ui/FeedbackState";
+import { surface } from "@/components/ui/design-system";
 import type { TabPost, TabType } from "./profile-types";
 
 interface ProfileRepliesTabProps {
@@ -183,15 +184,7 @@ export function ProfileRepliesTab({
     <div className="space-y-6">
       {posts.map(renderReplyWithPreview)}
       {hasMore && (
-        <div className="text-center pt-4">
-          <button
-            onClick={onLoadMore}
-            disabled={loading}
-            className="px-6 py-2.5 text-sm font-medium text-white/80 bg-white/[0.055] hover:bg-white/[0.09] rounded-lg border border-white/[0.09] transition-colors disabled:opacity-50"
-          >
-            {loading ? "Loading..." : "Load More"}
-          </button>
-        </div>
+        <LoadMoreButton loading={loading} onClick={onLoadMore} className="pt-4" />
       )}
     </div>
   );
@@ -238,10 +231,11 @@ export function EmptyState({ tab, icon }: EmptyStateProps) {
   const { title, description } = messages[tab];
 
   return (
-    <div className={surface("empty", "px-6 py-14 text-center text-[var(--muted-foreground)]")}>
-      <div className={iconBox("muted", "mx-auto mb-4 h-16 w-16 text-white/45 [&>svg]:h-8 [&>svg]:w-8")}>{icon}</div>
-      <p className="text-lg font-semibold text-white mb-2">{title}</p>
-      {description && <p className="text-sm">{description}</p>}
-    </div>
+    <FeedbackState
+      title={title}
+      description={description}
+      icon={icon}
+      className="px-6 py-14 [&_svg]:h-8 [&_svg]:w-8"
+    />
   );
 }
