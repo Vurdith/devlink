@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, ReactNode } from "react";
+import { createContext, useContext, ReactNode, useMemo } from "react";
 import { useToast, ToastOptions } from "@/hooks/useToast";
 import { Toast } from "@/components/ui/Toast";
 
@@ -13,11 +13,11 @@ const ToastContext = createContext<ToastContextType | undefined>(undefined);
 
 export function ToastProvider({ children }: { children: ReactNode }) {
   const { toast, dismiss, toasts } = useToast();
+  const value = useMemo(() => ({ toast, dismiss }), [toast, dismiss]);
 
   return (
-    <ToastContext.Provider value={{ toast, dismiss }}>
+    <ToastContext.Provider value={value}>
       {children}
-      {/* Render all toasts */}
       {toasts.map((toast) => (
         <Toast
           key={toast.id}

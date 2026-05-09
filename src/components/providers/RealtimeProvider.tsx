@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, useCallback, useMemo, ReactNode } from "react";
 import { connectRustRealtime } from "@/lib/realtime/rust-realtime-client";
 
 interface SessionUser {
@@ -21,6 +21,12 @@ const RealtimeContext = createContext<RealtimeContextType>({
   subscribe: () => () => {},
 });
 
+const EVENT_NAMES = {
+  presence: "devlink:presence-updated",
+  message_receipt: "devlink:message-receipt",
+  profile_update: "devlink:profile-updated",
+} as const;
+
 export function useRealtime() {
   return useContext(RealtimeContext);
 }
@@ -30,29 +36,26 @@ interface RealtimeProviderProps {
   session?: Session | null;
 }
 
-/**
- * Provider that manages Rust Realtime connections and presence heartbeats.
- */
 export function RealtimeProvider({ children, session }: RealtimeProviderProps) {
   const [isConnected, setIsConnected] = useState(false);
+  const userId = session?.user?.id;
 
-  // Track connection status and subscribe to realtime events.
+  const handleStatus = useCallback((status: "connected" | "disconnected" | "error") => {
+    setIsConnected(status === "connected");
+  }, []);
+
+  const handleEvent = useCallback((event: { type: string; payload: Record<string, unknown> }) => {
+    const eventName = EVENT_NAMES[event.type as keyof typeof EVENT_NAMES];
+    if (eventName) {
+      window.dispatchEvent(new CustomEvent(eventName, { detail: event.payload }));
+    }
+  }, []);
+
   useEffect(() => {
     const connection = connectRustRealtime({
-      userId: session?.user?.id,
-      onStatus: (status) => setIsConnected(status === "connected"),
-      onEvent: (event) => {
-        if (typeof window === "undefined") return;
-        if (event.type === "presence") {
-          window.dispatchEvent(new CustomEvent("devlink:presence-updated", { detail: event.payload }));
-        }
-        if (event.type === "message_receipt") {
-          window.dispatchEvent(new CustomEvent("devlink:message-receipt", { detail: event.payload }));
-        }
-        if (event.type === "profile_update") {
-          window.dispatchEvent(new CustomEvent("devlink:profile-updated", { detail: event.payload }));
-        }
-      },
+      userId,
+      onStatus: handleStatus,
+      onEvent: handleEvent,
     });
 
     if (!connection) {
@@ -60,10 +63,10 @@ export function RealtimeProvider({ children, session }: RealtimeProviderProps) {
     }
 
     return () => connection?.close();
-  }, [session?.user?.id]);
+  }, [handleEvent, handleStatus, userId]);
 
   useEffect(() => {
-    if (!session?.user?.id) return;
+    if (!userId) return;
 
     let stopped = false;
     const heartbeat = async () => {
@@ -94,25 +97,22 @@ export function RealtimeProvider({ children, session }: RealtimeProviderProps) {
         cache: "no-store",
       }).catch(() => undefined);
     };
-  }, [session?.user?.id]);
+  }, [userId]);
 
-  // Reserved for typed channel subscriptions.
   const subscribe = useCallback((channelName: string, callback: (payload: unknown) => void) => {
     void channelName;
     void callback;
     return () => {};
   }, []);
+  const value = useMemo(() => ({ isConnected, subscribe }), [isConnected, subscribe]);
 
   return (
-    <RealtimeContext.Provider value={{ isConnected, subscribe }}>
+    <RealtimeContext.Provider value={value}>
       {children}
     </RealtimeContext.Provider>
   );
 }
 
-/**
- * Hook to listen for profile updates for a specific user
- */
 export function useProfileRealtimeListener(
   userId: string | undefined,
   onUpdate: (profile: Record<string, unknown>) => void

@@ -9,7 +9,7 @@ interface PerformanceProviderProps {
 
 export function PerformanceProvider({ children }: PerformanceProviderProps) {
   useDevicePerformance();
-  
+
   useEffect(() => {
     if (typeof window === "undefined") return;
 
@@ -19,7 +19,7 @@ export function PerformanceProvider({ children }: PerformanceProviderProps) {
       "https://avatars.githubusercontent.com",
     ];
 
-    preconnectLinks.forEach(href => {
+    preconnectLinks.forEach((href) => {
       if (!document.querySelector(`link[href="${href}"]`)) {
         const link = document.createElement("link");
         link.rel = "preconnect";
@@ -29,23 +29,16 @@ export function PerformanceProvider({ children }: PerformanceProviderProps) {
       }
     });
 
-    requestAnimationFrame(() => {
+    const frameId = requestAnimationFrame(() => {
       document.documentElement.style.scrollBehavior = "smooth";
     });
 
     return () => {
+      cancelAnimationFrame(frameId);
       document.documentElement.style.scrollBehavior = "";
     };
   }, []);
-  
+
   return <>{children}</>;
 }
-
-
-
-
-
-
-
-
 

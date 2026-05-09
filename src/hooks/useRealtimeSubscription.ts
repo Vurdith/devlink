@@ -18,19 +18,6 @@ interface UseRealtimeOptions<T = Record<string, unknown>> {
   enabled?: boolean;
 }
 
-/**
- * Hook for subscribing to Supabase Realtime database changes.
- * 
- * @example
- * // Subscribe to profile updates for a specific user
- * useRealtimeSubscription({
- *   table: "Profile",
- *   filter: `userId=eq.${userId}`,
- *   onUpdate: ({ new: profile }) => {
- *     setProfile(profile);
- *   },
- * });
- */
 export function useRealtimeSubscription<T = Record<string, unknown>>({
   table,
   schema = "public",
@@ -44,7 +31,6 @@ export function useRealtimeSubscription<T = Record<string, unknown>>({
 }: UseRealtimeOptions<T>) {
   const channelRef = useRef<RealtimeChannel | null>(null);
 
-  // Store callbacks in refs to avoid subscription churn
   const onInsertRef = useRef(onInsert);
   const onUpdateRef = useRef(onUpdate);
   const onDeleteRef = useRef(onDelete);
@@ -55,7 +41,7 @@ export function useRealtimeSubscription<T = Record<string, unknown>>({
     onUpdateRef.current = onUpdate;
     onDeleteRef.current = onDelete;
     onChangeRef.current = onChange;
-  });
+  }, [onInsert, onUpdate, onDelete, onChange]);
 
   useEffect(() => {
     if (!enabled || !isRealtimeAvailable() || !supabase) {
@@ -63,27 +49,24 @@ export function useRealtimeSubscription<T = Record<string, unknown>>({
     }
 
     const channelName = `${schema}:${table}:${filter || "all"}:${Date.now()}`;
-    
+
     const channel = supabase.channel(channelName);
-    
-    // Build the subscription config
+
     const subscriptionConfig = {
       event,
       schema,
       table,
-      filter: filter || undefined
+      filter: filter || undefined,
     };
-    
+
     channel
       .on(
         // @ts-expect-error Supabase overload types don't match at compile time
         "postgres_changes",
         subscriptionConfig,
         (payload: { eventType: string; new: T; old: T }) => {
-          // Call general onChange handler
           onChangeRef.current?.(payload);
 
-          // Call specific handlers based on event type
           switch (payload.eventType) {
             case "INSERT":
               onInsertRef.current?.(payload.new as T);
@@ -116,9 +99,6 @@ export function useRealtimeSubscription<T = Record<string, unknown>>({
   return;
 }
 
-/**
- * Hook for subscribing to profile changes (avatar, banner, bio, etc.)
- */
 export function useProfileRealtime(
   userId: string | undefined,
   onProfileUpdate: (profile: Record<string, unknown>) => void
@@ -134,9 +114,6 @@ export function useProfileRealtime(
   });
 }
 
-/**
- * Hook for subscribing to new posts in a feed
- */
 export function usePostsRealtime(
   onNewPost: (post: Record<string, unknown>) => void,
   onPostUpdate?: (post: Record<string, unknown>) => void,
@@ -151,9 +128,6 @@ export function usePostsRealtime(
   });
 }
 
-/**
- * Hook for subscribing to likes on a specific post
- */
 export function usePostLikesRealtime(
   postId: string,
   onLikeChange: (delta: number, userId: string) => void
@@ -168,9 +142,6 @@ export function usePostLikesRealtime(
   });
 }
 
-/**
- * Hook for subscribing to follower changes
- */
 export function useFollowersRealtime(
   userId: string | undefined,
   onFollowerChange: (delta: number, followerId: string) => void
