@@ -50,7 +50,7 @@ export const ComposerActionButton = memo(function ComposerActionButton({
         <div className="flex items-center gap-2 whitespace-nowrap">
           <span className="text-xs font-bold text-white tracking-tight">{title}</span>
           {shortcut ? (
-            <kbd className="px-1.5 py-0.5 text-[10px] font-bold text-[var(--color-accent)] bg-[var(--color-accent)]/10 border border-[var(--color-accent)]/20 rounded-md">
+            <kbd className="rounded-md border border-white/[0.08] bg-white/[0.045] px-1.5 py-0.5 text-[10px] font-bold text-[var(--color-accent-2)]">
               {shortcut}
             </kbd>
           ) : null}
@@ -73,10 +73,10 @@ export const ComposerActionButton = memo(function ComposerActionButton({
         onMouseEnter={handleMouseEnter}
         onMouseLeave={() => setShowTooltip(false)}
         className={cn(
-          "icon-btn p-2.5 rounded-xl transition-all relative",
+          "relative rounded-lg border p-2.5 transition-all duration-200 active:scale-[0.98]",
           active
             ? ui.active.cyan
-            : "text-gray-400 hover:text-[var(--color-accent)] hover:bg-[rgba(var(--color-accent-rgb),0.1)]"
+            : "border-transparent text-[var(--muted-foreground)] hover:border-white/[0.10] hover:bg-white/[0.045] hover:text-white"
         )}
         style={{ animationDelay: `${delay * 0.05}s` }}
       >

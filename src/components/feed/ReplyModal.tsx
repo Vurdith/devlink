@@ -317,7 +317,7 @@ export const ReplyModal = memo(function ReplyModal({
       contentClassName="px-4 py-4"
     >
       {/* Original post preview */}
-      <div className="flex gap-3 mb-4">
+      <div className={surface("panelMuted", "mb-4 flex gap-3 p-3")}>
         <div className="flex flex-col items-center">
         <div className="h-10 w-10 flex-shrink-0 overflow-hidden rounded-full border border-white/[0.08] sm:h-12 sm:w-12">
           {post.user.profile?.avatarUrl ? (
@@ -350,13 +350,13 @@ export const ReplyModal = memo(function ReplyModal({
             </svg>
           )}
           <span className="text-[var(--muted-foreground)] text-sm">@{post.user.username}</span>
-          <span className="text-[var(--muted-foreground)] text-sm opacity-50">·</span>
+          <span className="text-[var(--muted-foreground)] text-sm opacity-50">/</span>
           <TimeAgo date={post.createdAt} className="text-[var(--muted-foreground)] text-sm" />
         </div>
         <p className="text-white/70 text-sm whitespace-pre-wrap break-words line-clamp-3 leading-relaxed">
           {post.content}
         </p>
-        <p className="text-[var(--muted-foreground)] text-xs mt-3 flex items-center gap-1.5">
+        <p className="mt-3 flex items-center gap-1.5 text-xs text-[var(--muted-foreground)]">
           Replying to <span className="text-[var(--color-accent)] font-bold">@{post.user.username}</span>
         </p>
       </div>
@@ -424,7 +424,7 @@ export const ReplyModal = memo(function ReplyModal({
                 />
                 {scheduledFor && (
                   <Tooltip content="Clear scheduled time">
-                    <button type="button" onClick={() => setScheduledFor("")} className="p-2 text-[var(--color-accent)] hover:bg-[var(--color-accent)]/10 rounded-lg">✕</button>
+                    <button type="button" onClick={() => setScheduledFor("")} className="rounded-lg p-2 text-[var(--muted-foreground)] transition-colors hover:bg-white/[0.055] hover:text-white">x</button>
                   </Tooltip>
                 )}
               </div>
@@ -460,7 +460,7 @@ export const ReplyModal = memo(function ReplyModal({
                     <span key={i} className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-cyan-500/30 bg-cyan-500/10 text-sm">
                       <a href={u} target="_blank" rel="noreferrer" className="text-cyan-400 hover:underline truncate max-w-[200px]">{u}</a>
                       <Tooltip content="Remove link">
-                        <button type="button" onClick={() => setEmbedUrls(prev => prev.filter((_, idx) => idx !== i))} className="text-[var(--color-accent)] hover:text-[var(--color-accent)]">✕</button>
+                        <button type="button" onClick={() => setEmbedUrls(prev => prev.filter((_, idx) => idx !== i))} className="text-[var(--muted-foreground)] transition-colors hover:text-white">x</button>
                       </Tooltip>
                     </span>
                   ))}

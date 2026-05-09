@@ -7,7 +7,7 @@ import { getInitials } from "@/lib/user-display";
 import type { FeedPost } from "@/types/post";
 import { PostActionsMenu } from "./PostActionsMenu";
 
-const avatarFrameClass = "w-10 h-10 sm:w-12 sm:h-12 rounded-full border border-white/[0.08] transition-all duration-300 hover:border-white/[0.18]";
+const avatarFrameClass = "w-10 h-10 sm:w-12 sm:h-12 rounded-full border border-white/[0.10] transition-all duration-300 hover:border-[rgba(var(--color-accent-2-rgb),0.34)]";
 
 interface PostDetailHeaderProps {
   post: FeedPost;
@@ -41,9 +41,10 @@ export function PostDetailHeader({
   onDelete,
 }: PostDetailHeaderProps) {
   return (
-    <div className="flex items-start space-x-2 sm:space-x-3 mb-3 sm:mb-4">
+    <div className="relative mb-3 flex items-start gap-3 sm:mb-4">
       <ProfileTooltip user={post.user} currentUserId={currentUserId}>
-        <div onClick={onNavigateToProfile} className="relative cursor-pointer flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12">
+        <div onClick={onNavigateToProfile} className="relative h-10 w-10 flex-shrink-0 cursor-pointer sm:h-12 sm:w-12">
+          <div className="absolute -inset-1 rounded-full border border-white/[0.06] bg-white/[0.025]" />
           {!avatarError && displayAvatarUrl ? (
             displayAvatarUrl.startsWith("blob:") ? (
               <img
@@ -88,13 +89,13 @@ export function PostDetailHeader({
             </svg>
           )}
           <span className="text-[var(--muted-foreground)] text-xs sm:text-sm">@{post.user.username}</span>
-          <span className="text-[var(--muted-foreground)] text-xs sm:text-sm hidden min-[400px]:inline opacity-50">&bull;</span>
+          <span className="text-[var(--muted-foreground)] text-xs sm:text-sm hidden min-[400px]:inline opacity-50">/</span>
           <TimeAgo date={post.createdAt} className="text-[var(--muted-foreground)] text-xs sm:text-sm hidden min-[400px]:inline" />
-          {post.updatedAt > post.createdAt && <span className="text-[var(--muted-foreground)] text-xs sm:text-sm hidden sm:inline opacity-50">&bull; Edited</span>}
-          {post.isPinned && showPinnedTag && <span className="text-[var(--muted-foreground)] text-xs sm:text-sm hidden sm:inline opacity-50">&bull; Pinned</span>}
+          {post.updatedAt > post.createdAt && <span className="text-[var(--muted-foreground)] text-xs sm:text-sm hidden sm:inline opacity-50">/ Edited</span>}
+          {post.isPinned && showPinnedTag && <span className="text-[var(--muted-foreground)] text-xs sm:text-sm hidden sm:inline opacity-50">/ Pinned</span>}
         </div>
 
-        <div className="mt-1">
+        <div className="mt-2 rounded-lg border border-transparent pr-1">
           <ContentRenderer content={post.content} className="text-sm sm:text-base text-[var(--foreground)] whitespace-pre-wrap break-words leading-relaxed" currentUserId={currentUserId} />
         </div>
       </div>

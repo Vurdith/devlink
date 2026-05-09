@@ -62,7 +62,8 @@ export const CreatePoll = memo(function CreatePoll({ onSubmit, onCancel }: Creat
   const canSubmit = question.trim() && validOptions && !isSubmitting;
 
   return (
-    <div className={surface("panel", "animate-slide-up p-6")}>
+    <div className={surface("panel", "noise-overlay relative animate-slide-up overflow-hidden p-5 sm:p-6")}>
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.34)] to-transparent" />
       <div className="flex items-center gap-3 mb-6">
         <div className={iconBox("cyan", "h-10 w-10")}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -71,14 +72,14 @@ export const CreatePoll = memo(function CreatePoll({ onSubmit, onCancel }: Creat
           </svg>
         </div>
         <div>
-          <h3 className="text-xl font-bold text-white">Create Poll</h3>
+          <h3 className="text-xl font-bold text-white">Create poll</h3>
           <p className="text-sm text-[var(--muted-foreground)]">Engage your community with a question</p>
         </div>
       </div>
       
       <div className="space-y-4">
         <div>
-          <label htmlFor="poll-question" className="block text-sm font-medium mb-2 text-[var(--accent)]">Question</label>
+          <label htmlFor="poll-question" className="mb-2 block text-sm font-semibold text-white">Question</label>
           <div className="relative">
             <input
               id="poll-question"
@@ -97,7 +98,7 @@ export const CreatePoll = memo(function CreatePoll({ onSubmit, onCancel }: Creat
         </div>
 
         <div>
-          <label id="poll-options-label" className="block text-sm font-medium mb-3 text-[var(--accent)]">Options</label>
+          <label id="poll-options-label" className="mb-3 block text-sm font-semibold text-white">Options</label>
           <div className="space-y-3" role="group" aria-labelledby="poll-options-label">
             {options.map((option, index) => (
               <div
@@ -155,7 +156,7 @@ export const CreatePoll = memo(function CreatePoll({ onSubmit, onCancel }: Creat
                   <path d="M9 12l2 2 4-4M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z" stroke="currentColor" strokeWidth="2"/>
                 </svg>
               </div>
-              <label htmlFor="isMultiple" className="text-sm font-medium text-[var(--accent)]">Multiple Choice</label>
+              <label htmlFor="isMultiple" className="text-sm font-semibold text-white">Multiple choice</label>
             </div>
             <div className="flex items-center gap-2">
               <input
@@ -176,7 +177,7 @@ export const CreatePoll = memo(function CreatePoll({ onSubmit, onCancel }: Creat
                   <path d="M12 2v6m0 0l2-2m-2 2l-2-2M12 22v-6m0 0l2 2m-2-2l-2 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </div>
-              <label className="text-sm font-medium text-[var(--accent)]">Expiration</label>
+              <label className="text-sm font-semibold text-white">Expiration</label>
             </div>
             <input
               type="datetime-local"
@@ -196,7 +197,7 @@ export const CreatePoll = memo(function CreatePoll({ onSubmit, onCancel }: Creat
               "flex-1 py-3 px-6 rounded-lg font-medium transition-all",
               canSubmit 
                 ? ui.control.gradient
-                : "bg-[var(--accent)]/30 cursor-not-allowed"
+                : "cursor-not-allowed border border-white/[0.08] bg-white/[0.035] text-[var(--muted-foreground)]"
             )}
             onClick={handleSubmit}
           >
@@ -211,7 +212,7 @@ export const CreatePoll = memo(function CreatePoll({ onSubmit, onCancel }: Creat
                   <path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z" stroke="currentColor" strokeWidth="2"/>
                   <path d="M9 12l2 2 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
-                Create Poll
+                Create poll
               </div>
             )}
           </button>

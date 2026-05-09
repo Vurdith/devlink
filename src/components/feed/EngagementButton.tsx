@@ -4,11 +4,11 @@ import { memo, useState, type MouseEvent, type ReactNode } from "react";
 import { cn } from "@/lib/cn";
 
 const colorClasses = {
-  red: { active: "text-red-500", hover: "hover:text-red-500 hover:bg-red-500/10", particle: "bg-red-500" },
-  green: { active: "text-green-500", hover: "hover:text-green-500 hover:bg-green-500/10", particle: "bg-green-500" },
-  blue: { active: "text-blue-500", hover: "hover:text-blue-500 hover:bg-blue-500/10", particle: "bg-blue-500" },
-  yellow: { active: "text-yellow-500", hover: "hover:text-yellow-500 hover:bg-yellow-500/10", particle: "bg-yellow-500" },
-  gray: { active: "text-[var(--muted-foreground)]", hover: "hover:text-white hover:bg-white/5", particle: "bg-gray-400" },
+  red: { active: "border-rose-400/22 bg-rose-500/10 text-rose-300", hover: "hover:border-rose-400/22 hover:bg-rose-500/10 hover:text-rose-300", particle: "bg-rose-400" },
+  green: { active: "border-emerald-400/22 bg-emerald-500/10 text-emerald-300", hover: "hover:border-emerald-400/22 hover:bg-emerald-500/10 hover:text-emerald-300", particle: "bg-emerald-400" },
+  blue: { active: "border-[rgba(var(--color-accent-2-rgb),0.26)] bg-[rgba(var(--color-accent-2-rgb),0.10)] text-[var(--color-accent-2)]", hover: "hover:border-[rgba(var(--color-accent-2-rgb),0.24)] hover:bg-[rgba(var(--color-accent-2-rgb),0.09)] hover:text-[var(--color-accent-2)]", particle: "bg-[var(--color-accent-2)]" },
+  yellow: { active: "border-amber-300/24 bg-amber-400/10 text-amber-200", hover: "hover:border-amber-300/22 hover:bg-amber-400/10 hover:text-amber-200", particle: "bg-amber-300" },
+  gray: { active: "border-white/[0.08] bg-white/[0.035] text-[var(--muted-foreground)]", hover: "hover:border-white/[0.12] hover:bg-white/[0.055] hover:text-white", particle: "bg-gray-400" },
 };
 
 interface EngagementButtonProps {
@@ -57,8 +57,8 @@ export const EngagementButton = memo(function EngagementButton({
       aria-label={ariaLabel || label}
       aria-pressed={isActive}
       className={cn(
-        "group flex items-center gap-1.5 px-2 py-1.5 rounded-lg transition-all duration-200 active:scale-90",
-        isActive ? colors.active : "text-[var(--muted-foreground)]",
+        "group flex min-h-9 items-center gap-1.5 rounded-lg border border-transparent px-2.5 py-1.5 text-[var(--muted-foreground)] transition-all duration-200 active:scale-[0.96]",
+        isActive && colors.active,
         colors.hover,
         disabled && "opacity-50 cursor-not-allowed"
       )}

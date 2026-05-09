@@ -35,7 +35,7 @@ export function PostEngagementBar({
   onSave,
 }: PostEngagementBarProps) {
   return (
-    <div className="flex items-center gap-1 sm:gap-2 mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-white/5">
+    <div className="mt-4 flex flex-wrap items-center gap-1.5 border-t border-white/[0.06] pt-3 sm:mt-6 sm:gap-2 sm:pt-4">
       {!isOnPostPage && (
         <EngagementButton onClick={onReply} isActive={replyCount > 0} activeColor="blue" count={replyCount} ariaLabel="Reply to this post">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

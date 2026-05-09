@@ -169,7 +169,7 @@ export const NavbarSearch = memo(function NavbarSearch({ currentUserId }: { curr
       <form onSubmit={onSubmit} className="relative">
         <div className={cn(
           "relative flex items-center transition-all duration-150",
-          focused ? "w-96" : "w-80"
+          focused ? "w-[min(24rem,calc(100vw-5.5rem))]" : "w-[min(20rem,calc(100vw-5.5rem))]"
         )}>
           <div className="absolute left-4 text-[var(--muted-foreground)] pointer-events-none z-10">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none">

@@ -31,7 +31,7 @@ export function PostActionsMenu({
         aria-haspopup="true"
         aria-controls="post-actions-menu"
         aria-label="Post actions"
-        className={cn("group rounded-xl p-2 transition-colors", ui.control.ghost)}
+        className={cn("group rounded-lg p-2 transition-all duration-200 active:scale-[0.98]", ui.control.icon)}
       >
         <svg className="w-5 h-5 text-[var(--muted-foreground)] group-hover:text-white transition-colors" fill="currentColor" viewBox="0 0 20 20">
           <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
@@ -43,8 +43,11 @@ export function PostActionsMenu({
           id="post-actions-menu"
           role="menu"
           aria-orientation="vertical"
-          className={menuPanel("absolute right-0 top-full z-50 mt-2 w-48 animate-pop-in")}
+          className={menuPanel("absolute right-0 top-full z-50 mt-2 w-52 animate-pop-in p-1")}
         >
+          <div className="border-b border-white/[0.06] px-3 py-2">
+            <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--muted-foreground)]">Post actions</div>
+          </div>
           <div className="py-1">
             <a href={`/p/${postId}/analytics`} role="menuitem" className={menuItem("w-full text-left text-sm text-[var(--foreground)]")}>
               <svg className="w-4 h-4 text-[var(--muted-foreground)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">

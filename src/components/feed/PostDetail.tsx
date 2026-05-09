@@ -426,10 +426,11 @@ export const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPag
 
   return (
     <article 
-      className={surface("panelMuted", "group relative mb-3 overflow-hidden p-3 transition-all duration-200 hover:border-white/[0.16] hover:bg-[rgba(16,21,30,0.72)] sm:mb-5 sm:p-5")}
+      className={surface("panelMuted", "noise-overlay group relative mb-3 overflow-hidden p-3 transition-all duration-200 hover:border-[rgba(var(--color-accent-2-rgb),0.18)] hover:bg-[rgba(14,19,27,0.72)] sm:mb-5 sm:p-5")}
       onClick={handlePostClick}
       style={{ cursor: isOnPostPage ? 'default' : 'pointer' }}
     >
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.10] to-transparent transition-opacity duration-200 group-hover:via-[rgba(var(--color-accent-2-rgb),0.35)]" />
       <PostDetailHeader
         post={post}
         currentUserId={session?.user?.id}

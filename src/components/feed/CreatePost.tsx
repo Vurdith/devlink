@@ -3,7 +3,7 @@ import { useState, useRef, memo, useCallback, lazy, Suspense } from "react";
 import { Button } from "@/components/ui/Button";
 import { Avatar } from "@/components/ui/Avatar";
 import { Toast } from "@/components/ui/Toast";
-import { surface } from "@/components/ui/design-system";
+import { iconBox, surface } from "@/components/ui/design-system";
 import { cn } from "@/lib/cn";
 import { ComposerActionButton } from "./composer/ComposerActionButton";
 import { ComposerLoadingPlaceholder } from "./composer/ComposerLoadingPlaceholder";
@@ -213,31 +213,34 @@ export const CreatePost = memo(function CreatePost({
   if (!isOpen) {
     return (
       <div 
-        className={surface("panelMuted", "create-post-collapsed group relative mb-6 cursor-pointer overflow-hidden p-4 transition-all duration-300 hover:border-white/20")}
+        className={surface("panelMuted", "create-post-collapsed noise-overlay group relative mb-6 cursor-pointer overflow-hidden p-4 transition-all duration-300 hover:border-[rgba(var(--color-accent-2-rgb),0.24)] hover:bg-[rgba(13,18,26,0.76)] sm:p-5")}
         onClick={() => setIsOpen(true)}
       >
-        {/* Shimmer effect - covers entire cell on hover */}
-        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none overflow-hidden rounded-xl">
-          <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out bg-gradient-to-r from-transparent via-white/5 to-transparent skew-x-12" />
-        </div>
-        
-        {/* Glow effect on hover */}
-        <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-[var(--color-accent)]/0 via-[rgba(var(--color-accent-rgb),0.03)] to-[rgba(var(--color-accent-rgb),0)] opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.5)] to-transparent opacity-60" />
+        <div className="pointer-events-none absolute -right-20 -top-24 h-48 w-48 rounded-full bg-[rgba(var(--color-accent-2-rgb),0.08)] blur-3xl transition-opacity duration-300 group-hover:opacity-90" />
         
         <div className="relative z-10 flex items-center gap-4">
-          <div className="scale-hover">
-            <Avatar src={currentUserProfile.avatarUrl} size={44} className="border border-white/[0.08]" />
+          <div className="relative">
+            <div className="absolute -inset-1 rounded-full border border-[rgba(var(--color-accent-2-rgb),0.16)] bg-[rgba(var(--color-accent-2-rgb),0.05)]" />
+            <Avatar src={currentUserProfile.avatarUrl} size={46} className="relative border border-white/[0.10]" />
           </div>
-          <div className="flex-1">
-            <div className="text-sm font-bold text-white mb-1 group-hover:text-[var(--color-accent)] transition-colors tracking-tight">
-              {replyToId ? "Reply to this post" : "Create a new post"}
+          <div className="min-w-0 flex-1">
+            <div className="mb-1 flex items-center gap-2 text-sm font-semibold text-white tracking-tight">
+              <span>{replyToId ? "Write a reply" : "Share an update"}</span>
+              <span className="hidden rounded-full border border-white/[0.08] bg-white/[0.035] px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.12em] text-[var(--muted-foreground)] sm:inline-flex">
+                Feed
+              </span>
             </div>
-            <div className="text-sm text-[var(--muted-foreground)] opacity-70 group-hover:opacity-100 transition-opacity leading-relaxed">
+            <div className="truncate text-sm leading-relaxed text-[var(--muted-foreground)] transition-colors group-hover:text-white/72">
               {placeholder}
             </div>
           </div>
-          <button className="icon-btn p-3 rounded-xl text-[var(--color-accent)] group-hover:bg-[var(--color-accent)]/10 transition-all">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" className="rotate-hover">
+          <button
+            type="button"
+            aria-label={replyToId ? "Open reply composer" : "Open post composer"}
+            className="rounded-lg border border-[rgba(var(--color-accent-2-rgb),0.22)] bg-[rgba(var(--color-accent-2-rgb),0.08)] p-3 text-[var(--color-accent-2)] transition-all duration-200 hover:border-[rgba(var(--color-accent-2-rgb),0.4)] hover:bg-[rgba(var(--color-accent-2-rgb),0.14)] active:scale-[0.98]"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
               <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </button>
@@ -249,20 +252,28 @@ export const CreatePost = memo(function CreatePost({
   // Expanded state - with slide animations
   return (
     <>
-      <div className={surface("panel", "create-post-expanded relative mb-6 overflow-hidden p-5 animate-fade-in")}>
+      <div className={surface("panel", "create-post-expanded noise-overlay relative mb-6 overflow-hidden p-4 animate-fade-in sm:p-5")}>
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.46)] to-transparent" />
         <form onSubmit={handleSubmit} className="relative space-y-4">
-          {/* Icon Buttons Row - with stagger animation */}
-          <div className={surface("toolbar", "stagger-in flex items-center gap-2 p-2")}>
-            <ComposerActionButton onClick={() => fileInputRef.current?.click()} title="Add Media" shortcut="⌘I" badge={formData.mediaUrls.length || undefined} delay={1}>
+          <div className="flex items-start gap-3">
+            <Avatar src={currentUserProfile.avatarUrl} size={42} className="border border-white/[0.10]" />
+            <div className="min-w-0 flex-1">
+              <div className="text-sm font-semibold text-white">{replyToId ? "Replying" : "New post"}</div>
+              <div className="text-xs text-[var(--muted-foreground)]">@{currentUserProfile.username}</div>
+            </div>
+          </div>
+
+          <div className={surface("toolbar", "stagger-in flex flex-wrap items-center gap-2 p-2")}>
+            <ComposerActionButton onClick={() => fileInputRef.current?.click()} title="Add Media" shortcut="Ctrl I" badge={formData.mediaUrls.length || undefined} delay={1}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M21 19V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2z" stroke="currentColor" strokeWidth="2"/><circle cx="8.5" cy="8.5" r="1.5" stroke="currentColor" strokeWidth="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" stroke="currentColor" strokeWidth="2"/></svg>
             </ComposerActionButton>
-            <ComposerActionButton onClick={() => setShowPoll(!showPoll)} active={showPoll} title="Create Poll" shortcut="⌘P" delay={2}>
+            <ComposerActionButton onClick={() => setShowPoll(!showPoll)} active={showPoll} title="Create Poll" shortcut="Ctrl P" delay={2}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" strokeWidth="2"/><path d="M9 9h6M9 12h4M9 15h5" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
             </ComposerActionButton>
-            <ComposerActionButton onClick={() => setShowEmbedInput(v => !v)} active={showEmbedInput} title="Embed Link" shortcut="⌘L" delay={3}>
+            <ComposerActionButton onClick={() => setShowEmbedInput(v => !v)} active={showEmbedInput} title="Embed Link" shortcut="Ctrl L" delay={3}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
             </ComposerActionButton>
-            <ComposerActionButton onClick={() => setShowEmojiPicker(v => !v)} active={showEmojiPicker} title="Emoji" shortcut="⌘E" delay={4}>
+            <ComposerActionButton onClick={() => setShowEmojiPicker(v => !v)} active={showEmojiPicker} title="Emoji" shortcut="Ctrl E" delay={4}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/><path d="M8 14s1.5 2 4 2 4-2 4-2" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/><circle cx="9" cy="9" r="1" fill="currentColor"/><circle cx="15" cy="9" r="1" fill="currentColor"/></svg>
             </ComposerActionButton>
             <ComposerActionButton onClick={() => setShowSchedule(s => !s)} active={showSchedule} title="Schedule Post" delay={5}>
@@ -285,7 +296,7 @@ export const CreatePost = memo(function CreatePost({
           {showSchedule && (
             <div className={surface("empty", "animate-slide-down p-4")}>
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-[rgba(var(--color-accent-rgb),0.2)] rounded-lg">
+                <div className={iconBox("cyan", "h-9 w-9")}>
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-[var(--color-accent)]">
                     <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
                     <path d="M12 6v6l4 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
@@ -297,7 +308,7 @@ export const CreatePost = memo(function CreatePost({
                   onChange={(e) => setScheduledFor(e.target.value)} 
                   className="flex-1 rounded-lg border border-white/[0.10] bg-white/[0.035] px-3 py-2 text-sm transition-colors focus:border-[rgba(var(--color-accent-2-rgb),0.42)] focus:outline-none"
                 />
-                {scheduledFor && <button type="button" onClick={() => setScheduledFor("")} className="icon-btn p-2 text-[var(--color-accent)] hover:bg-[rgba(var(--color-accent-rgb),0.1)] rounded-lg">✕</button>}
+                {scheduledFor && <button type="button" onClick={() => setScheduledFor("")} className="rounded-lg p-2 text-[var(--muted-foreground)] transition-colors hover:bg-white/[0.055] hover:text-white" aria-label="Clear schedule">x</button>}
               </div>
             </div>
           )}
@@ -305,14 +316,14 @@ export const CreatePost = memo(function CreatePost({
           {showLocationInput && (
             <div className={surface("empty", "animate-slide-down p-4")}>
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-emerald-500/20 rounded-lg">
+                <div className={iconBox("cyan", "h-9 w-9")}>
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-emerald-400">
                     <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" stroke="currentColor" strokeWidth="2"/>
                     <circle cx="12" cy="10" r="3" stroke="currentColor" strokeWidth="2"/>
                   </svg>
                 </div>
                 <input value={location} onChange={(e) => setLocation(e.target.value)} placeholder="Add location" className="flex-1 rounded-lg border border-white/[0.10] bg-white/[0.035] px-3 py-2 text-sm transition-colors focus:border-[rgba(var(--color-accent-2-rgb),0.42)] focus:outline-none" />
-                {location && <button type="button" onClick={() => setLocation("")} className="icon-btn p-2 text-[var(--color-accent)] hover:bg-[rgba(var(--color-accent-rgb),0.1)] rounded-lg">✕</button>}
+                {location && <button type="button" onClick={() => setLocation("")} className="rounded-lg p-2 text-[var(--muted-foreground)] transition-colors hover:bg-white/[0.055] hover:text-white" aria-label="Clear location">x</button>}
               </div>
             </div>
           )}
@@ -320,21 +331,21 @@ export const CreatePost = memo(function CreatePost({
           {showEmbedInput && (
             <div className={surface("empty", "animate-slide-down space-y-3 p-4")}>
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-cyan-500/20 rounded-lg">
+                <div className={iconBox("cyan", "h-9 w-9")}>
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-cyan-400">
                     <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
                     <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
                   </svg>
                 </div>
                 <input value={embedInput} onChange={(e) => setEmbedInput(e.target.value)} placeholder="Paste a link to embed" className="flex-1 rounded-lg border border-white/[0.10] bg-white/[0.035] px-3 py-2 text-sm transition-colors focus:border-[rgba(var(--color-accent-2-rgb),0.42)] focus:outline-none" />
-                <button type="button" onClick={addEmbedUrl} className="btn-press px-4 py-2 bg-cyan-500/20 text-cyan-400 rounded-lg text-sm font-medium hover:bg-cyan-500/30 transition-colors">Add</button>
+                <button type="button" onClick={addEmbedUrl} className="rounded-lg border border-[rgba(var(--color-accent-2-rgb),0.26)] bg-[rgba(var(--color-accent-2-rgb),0.10)] px-4 py-2 text-sm font-semibold text-[var(--color-accent-2)] transition-colors hover:bg-[rgba(var(--color-accent-2-rgb),0.16)]">Add</button>
               </div>
               {embedUrls.length > 0 && (
                 <div className="flex flex-wrap gap-2">
                   {embedUrls.map((u, i) => (
                     <span key={i} className="animate-pop-in inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-cyan-500/30 bg-cyan-500/10 text-sm">
                       <a href={u} target="_blank" rel="noreferrer" className="text-cyan-400 hover:underline truncate max-w-[200px]">{u}</a>
-                      <button type="button" onClick={() => setEmbedUrls(prev => prev.filter((_, idx) => idx !== i))} className="text-[var(--color-accent)] hover:text-[var(--color-accent)]">✕</button>
+                      <button type="button" onClick={() => setEmbedUrls(prev => prev.filter((_, idx) => idx !== i))} className="text-[var(--muted-foreground)] transition-colors hover:text-white" aria-label="Remove embed">x</button>
                     </span>
                   ))}
                 </div>
@@ -366,9 +377,9 @@ export const CreatePost = memo(function CreatePost({
               placeholder={replyToId ? "Write your reply..." : "What's on your mind? Share updates, ideas, or projects..."}
               aria-describedby="post-hint post-count"
             />
-            <div className="flex items-center justify-between mt-2">
+            <div className="mt-2 flex items-center justify-between gap-3">
               <span id="post-hint" className="text-xs text-[var(--muted-foreground)] opacity-60">
-                Use @username to mention • #tag for topics
+                Use @username to mention / #tag for topics
               </span>
               <span id="post-count" className={cn("text-xs font-bold transition-colors", formData.content.length > 280 ? "text-[var(--color-accent)]" : "text-[var(--muted-foreground)] opacity-60")} aria-live="polite">
                 {formData.content.length}/500
@@ -401,7 +412,7 @@ export const CreatePost = memo(function CreatePost({
                   <div className="w-2 h-2 bg-[var(--color-accent)] rounded-full animate-glow-pulse" />
                   <span className="text-sm font-medium text-[var(--color-accent)]">Media ({formData.mediaUrls.length}/10)</span>
                 </div>
-                <button type="button" onClick={() => removeMedia()} className="icon-btn text-xs text-[var(--color-accent)] hover:bg-[rgba(var(--color-accent-rgb),0.1)] px-3 py-1.5 rounded-lg transition-colors">Remove All</button>
+                <button type="button" onClick={() => removeMedia()} className="rounded-lg px-3 py-1.5 text-xs font-semibold text-[var(--muted-foreground)] transition-colors hover:bg-white/[0.055] hover:text-white">Remove all</button>
               </div>
               <ComposerMediaGrid mediaUrls={formData.mediaUrls} onRemove={removeMedia} />
             </div>

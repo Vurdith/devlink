@@ -112,7 +112,8 @@ export const PollDisplay = memo(function PollDisplay({ poll, onVote }: PollDispl
   };
 
   return (
-    <div className={surface("panelMuted", "p-5")}>
+    <div className={surface("panelMuted", "noise-overlay relative overflow-hidden p-4 sm:p-5")}>
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.28)] to-transparent" />
       <div className="flex items-center gap-3 mb-4">
         <div className={iconBox("cyan", "h-8 w-8")}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-[var(--color-accent)]">
@@ -121,8 +122,8 @@ export const PollDisplay = memo(function PollDisplay({ poll, onVote }: PollDispl
         </div>
         <h3 className="font-semibold text-white flex-1">{poll.question}</h3>
         {poll.isMultiple && (
-          <span className="text-xs px-2.5 py-1 bg-[var(--color-accent)]/20 text-[var(--color-accent)] rounded-full border border-[var(--color-accent)]/30 font-medium">
-            Multiple Choice
+          <span className="rounded-md border border-[rgba(var(--color-accent-2-rgb),0.22)] bg-[rgba(var(--color-accent-2-rgb),0.08)] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-[var(--color-accent-2)]">
+            Multiple
           </span>
         )}
       </div>
@@ -146,8 +147,8 @@ export const PollDisplay = memo(function PollDisplay({ poll, onVote }: PollDispl
             <div
               key={option.id}
               className={cn(
-                "relative p-4 rounded-xl border-2 cursor-pointer transition-all duration-150",
-                "hover:scale-[1.01] active:scale-[0.99]",
+                "relative cursor-pointer rounded-lg border p-4 transition-all duration-150",
+                "active:scale-[0.99]",
                 isSelected
                   ? ui.active.cyan
                   : cn(ui.surface.empty, "hover:border-[rgba(var(--color-accent-2-rgb),0.28)] hover:bg-white/[0.045]")
@@ -178,7 +179,7 @@ export const PollDisplay = memo(function PollDisplay({ poll, onVote }: PollDispl
               {shouldShowResults && (
                 <div className="relative ml-8 h-2 overflow-hidden rounded-full border border-white/[0.08] bg-white/[0.035]">
                   <div
-                    className="h-full bg-gradient-to-r from-accent to-accent-hover rounded-full transition-all duration-500 ease-out"
+                    className="h-full rounded-full bg-[linear-gradient(90deg,var(--color-accent),rgba(var(--color-accent-2-rgb),0.92))] transition-all duration-500 ease-out"
                     style={{ width: `${percentage}%` }}
                   />
                 </div>
@@ -221,7 +222,7 @@ export const PollDisplay = memo(function PollDisplay({ poll, onVote }: PollDispl
           </Button>
 
           {poll.isMultiple && selectedOptions.length > 0 && (
-            <div className="text-sm text-[var(--color-accent)] self-center px-3 py-1.5 bg-[var(--color-accent)]/10 rounded-lg border border-[var(--color-accent)]/20">
+            <div className="self-center rounded-lg border border-[rgba(var(--color-accent-2-rgb),0.22)] bg-[rgba(var(--color-accent-2-rgb),0.08)] px-3 py-1.5 text-sm text-[var(--color-accent-2)]">
               {selectedOptions.length} selected
             </div>
           )}
