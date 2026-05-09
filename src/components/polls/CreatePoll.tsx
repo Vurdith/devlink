@@ -163,7 +163,7 @@ export const CreatePoll = memo(function CreatePoll({ onSubmit, onCancel }: Creat
                 id="isMultiple"
                 checked={isMultiple}
                 onChange={(e) => setIsMultiple(e.target.checked)}
-                className="w-5 h-5 text-[var(--accent)] bg-black/30 border-[var(--accent)]/30 rounded focus:ring-[var(--accent)]/50"
+                className="h-5 w-5 rounded border-[rgba(var(--color-accent-2-rgb),0.34)] bg-white/[0.035] text-[var(--color-accent-2)] focus:ring-[rgba(var(--color-accent-2-rgb),0.35)]"
               />
               <span className="text-sm text-[var(--muted-foreground)]">Allow users to select multiple options</span>
             </div>

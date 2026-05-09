@@ -192,7 +192,7 @@ export const NavbarSearch = memo(function NavbarSearch({ currentUserId }: { curr
               "w-full h-11 rounded-xl bg-white/5 border pl-11 pr-16 text-sm outline-none placeholder:text-[var(--muted-foreground)] text-white transition-all duration-150",
               focused 
                 ? ui.active.cyan
-                : "border-white/10 hover:border-white/20"
+                : "border-white/[0.10] hover:border-white/[0.18]"
             )}
             aria-autocomplete="list"
             aria-expanded={open && hasResults}
@@ -201,8 +201,8 @@ export const NavbarSearch = memo(function NavbarSearch({ currentUserId }: { curr
           />
           
           <div className="absolute right-3 flex items-center gap-1 text-[var(--muted-foreground)] pointer-events-none">
-            <kbd className="hidden md:inline-flex h-5 items-center gap-1 rounded border border-white/20 bg-white/5 px-1.5 text-[10px] font-medium">
-              <span className="text-xs">⌘</span>K
+            <kbd className="hidden h-5 items-center gap-1 rounded-md border border-white/[0.12] bg-white/[0.045] px-1.5 text-[10px] font-medium md:inline-flex">
+              Ctrl K
             </kbd>
           </div>
         </div>
@@ -256,7 +256,7 @@ export const NavbarSearch = memo(function NavbarSearch({ currentUserId }: { curr
                   <div className="flex-1 min-w-0">
                     <div className="text-sm font-semibold text-white">{hashtag.tag}</div>
                     <div className="text-xs text-[var(--muted-foreground)]">
-                      {hashtag.postCount} {hashtag.postCount === 1 ? 'post' : 'posts'} • {hashtag.projectCount} {hashtag.projectCount === 1 ? 'project' : 'projects'}
+                      {hashtag.postCount} {hashtag.postCount === 1 ? 'post' : 'posts'} / {hashtag.projectCount} {hashtag.projectCount === 1 ? 'project' : 'projects'}
                     </div>
                   </div>
                   <svg className="w-4 h-4 text-[var(--muted-foreground)] opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -270,7 +270,7 @@ export const NavbarSearch = memo(function NavbarSearch({ currentUserId }: { curr
           {/* User Suggestions */}
           {suggestions.length > 0 && (
             <div className="mb-2">
-              {hashtagSuggestions.length > 0 && <div className="h-px bg-white/10 my-2" />}
+              {hashtagSuggestions.length > 0 && <div className="my-2 h-px bg-white/[0.08]" />}
               <div className="flex items-center gap-2 px-3 py-2 text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider">
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -334,7 +334,7 @@ export const NavbarSearch = memo(function NavbarSearch({ currentUserId }: { curr
           {/* Project Suggestions */}
           {projectSuggestions.length > 0 && (
             <div>
-              {(suggestions.length > 0 || hashtagSuggestions.length > 0) && <div className="h-px bg-white/10 my-2" />}
+              {(suggestions.length > 0 || hashtagSuggestions.length > 0) && <div className="my-2 h-px bg-white/[0.08]" />}
               <div className="flex items-center gap-2 px-3 py-2 text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider">
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
@@ -369,12 +369,12 @@ export const NavbarSearch = memo(function NavbarSearch({ currentUserId }: { curr
 
           {/* Search tip */}
           {hasResults && (
-            <div className="mt-2 pt-2 border-t border-white/10">
+            <div className="mt-2 border-t border-white/[0.08] pt-2">
               <div className="px-3 py-2 text-xs text-[var(--muted-foreground)] flex items-center gap-2">
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                Press <kbd className="px-1 py-0.5 rounded bg-white/10 text-[10px]">Enter</kbd> to search all
+                Press <kbd className="rounded bg-white/[0.06] px-1 py-0.5 text-[10px]">Enter</kbd> to search all
               </div>
             </div>
           )}

@@ -48,7 +48,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       ),
       ghost: cn(
         "bg-transparent text-[var(--muted-foreground)]",
-        "hover:bg-white/10 hover:text-white"
+        "hover:bg-white/[0.045] hover:text-white"
       ),
       destructive: cn(
         "bg-gradient-to-r from-red-500 to-red-600 text-white",
@@ -62,8 +62,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       ),
       outline: cn(
         "bg-transparent text-white",
-        "border border-white/30",
-        "hover:bg-white/10 hover:border-white/50"
+        "border border-white/[0.16]",
+        "hover:bg-white/[0.045] hover:border-white/[0.24]"
       ),
       glow: cn(
         "text-white border border-[rgba(var(--color-accent-2-rgb),0.36)]",

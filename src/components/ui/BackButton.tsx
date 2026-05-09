@@ -1,6 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { Button } from "./Button";
+import { cn } from "@/lib/cn";
 
 interface BackButtonProps {
   fallbackPath?: string;
@@ -31,7 +32,7 @@ export function BackButton({ fallbackPath = "/home", className = "", onClick }: 
       onClick={handleBack}
       variant="ghost"
       size="sm"
-      className={`text-white/70 hover:text-white hover:bg-white/10 transition-all duration-200 ${className}`}
+      className={cn("text-white/70 hover:text-white", className)}
     >
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="mr-2">
         <path 

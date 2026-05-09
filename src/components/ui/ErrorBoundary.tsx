@@ -1,7 +1,8 @@
 "use client";
 
 import React from 'react';
-import { iconBox, surface } from "./design-system";
+import { cn } from "@/lib/cn";
+import { iconBox, surface, ui } from "./design-system";
 
 interface ErrorBoundaryState {
   hasError: boolean;
@@ -82,13 +83,13 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <button
                 onClick={this.resetError}
-                className="px-6 py-2.5 bg-white text-black font-bold rounded-xl hover:bg-white/90 transition-all active:scale-95"
+                className={cn("rounded-lg px-6 py-2.5 text-sm font-bold", ui.control.gradient, ui.motion.press)}
               >
                 Try Again
               </button>
               <button
                 onClick={() => window.location.reload()}
-                className="px-6 py-2.5 bg-white/5 text-white font-bold rounded-xl hover:bg-white/10 transition-all border border-white/10 active:scale-95"
+                className={cn("rounded-lg px-6 py-2.5 text-sm font-bold text-white", ui.control.ghost, ui.motion.press)}
               >
                 Refresh
               </button>
@@ -100,7 +101,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
                   <div className="w-1.5 h-1.5 rounded-full bg-[var(--color-accent)]" />
                   Technical Details
                 </summary>
-                <div className="mt-3 p-4 rounded-xl bg-black/40 border border-white/5 backdrop-blur-sm overflow-hidden">
+                <div className={surface("panelMuted", "mt-3 overflow-hidden p-4")}>
                   <pre className="text-[10px] text-[var(--color-accent)]/80 font-mono overflow-x-auto whitespace-pre-wrap max-h-[200px] scrollbar-hide">
                     {process.env.NODE_ENV === 'development'
                       ? `${this.state.error.toString()}\n\n${this.state.error.stack ?? ""}`
