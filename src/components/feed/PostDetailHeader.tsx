@@ -7,6 +7,8 @@ import { getInitials } from "@/lib/user-display";
 import type { FeedPost } from "@/types/post";
 import { PostActionsMenu } from "./PostActionsMenu";
 
+const avatarFrameClass = "w-10 h-10 sm:w-12 sm:h-12 rounded-full border border-white/[0.08] transition-all duration-300 hover:border-white/[0.18]";
+
 interface PostDetailHeaderProps {
   post: FeedPost;
   currentUserId?: string;
@@ -47,7 +49,7 @@ export function PostDetailHeader({
               <img
                 src={displayAvatarUrl}
                 alt={post.user.name || post.user.username}
-                className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover border border-white/10 hover:border-white/30 transition-all duration-300"
+                className={`${avatarFrameClass} object-cover`}
               />
             ) : (
               <Image
@@ -55,14 +57,14 @@ export function PostDetailHeader({
                 alt={post.user.name || post.user.username}
                 width={48}
                 height={48}
-                className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover border border-white/10 hover:border-white/30 transition-all duration-300"
+                className={`${avatarFrameClass} object-cover`}
                 loading="lazy"
                 referrerPolicy="no-referrer"
                 onError={onAvatarError}
               />
             )
           ) : (
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border border-white/10 bg-gradient-to-br from-[var(--color-accent)] to-pink-500 flex items-center justify-center hover:opacity-90 transition-opacity">
+            <div className={`${avatarFrameClass} flex items-center justify-center bg-gradient-to-br from-[var(--color-accent)] to-pink-500 hover:opacity-90`}>
               <span className="text-white font-semibold text-xs sm:text-sm">{getInitials(post.user.name, post.user.username)}</span>
             </div>
           )}

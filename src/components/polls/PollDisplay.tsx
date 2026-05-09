@@ -150,14 +150,14 @@ export const PollDisplay = memo(function PollDisplay({ poll, onVote }: PollDispl
                 "hover:scale-[1.01] active:scale-[0.99]",
                 isSelected
                   ? ui.active.cyan
-                  : "border-white/10 hover:border-[var(--color-accent)]/40 hover:bg-white/5"
+                  : cn(ui.surface.empty, "hover:border-[rgba(var(--color-accent-2-rgb),0.28)] hover:bg-white/[0.045]")
               )}
               onClick={() => handleOptionClick(option.id)}
             >
               {/* Selection indicator */}
               <div className={cn(
                 "absolute top-4 left-4 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all",
-                isSelected ? "border-[var(--color-accent)] bg-[var(--color-accent)]" : "border-white/30"
+                isSelected ? "border-[var(--color-accent-2)] bg-[var(--color-accent-2)]" : "border-white/[0.24]"
               )}>
                 {isSelected && (
                   <svg className="w-3 h-3 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
@@ -176,7 +176,7 @@ export const PollDisplay = memo(function PollDisplay({ poll, onVote }: PollDispl
               </div>
 
               {shouldShowResults && (
-                <div className="relative h-2 bg-white/10 rounded-full overflow-hidden ml-8">
+                <div className="relative ml-8 h-2 overflow-hidden rounded-full border border-white/[0.08] bg-white/[0.035]">
                   <div
                     className="h-full bg-gradient-to-r from-accent to-accent-hover rounded-full transition-all duration-500 ease-out"
                     style={{ width: `${percentage}%` }}
@@ -228,7 +228,7 @@ export const PollDisplay = memo(function PollDisplay({ poll, onVote }: PollDispl
         </div>
       )}
 
-      <div className="flex items-center justify-center gap-3 text-sm text-[var(--muted-foreground)] mt-4 pt-3 border-t border-white/10">
+      <div className="mt-4 flex items-center justify-center gap-3 border-t border-white/[0.08] pt-3 text-sm text-[var(--muted-foreground)]">
         <span>{localTotalVotes} vote{localTotalVotes !== 1 ? 's' : ''} total</span>
         {!hasVoted && !isExpired && (
           <button

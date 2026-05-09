@@ -40,7 +40,7 @@ export function PostBodyAttachments({
       {mediaItems.length > 0 && (
         <div className="mt-4">
           <Suspense fallback={<div className="h-48 bg-white/5 rounded-xl animate-pulse" />}>
-            <MediaViewer media={mediaItems} isSlideshow={isSlideshow} alt={`${authorName}'s post`} className="border border-white/10" />
+            <MediaViewer media={mediaItems} isSlideshow={isSlideshow} alt={`${authorName}'s post`} className="border border-white/[0.08]" />
           </Suspense>
         </div>
       )}

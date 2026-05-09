@@ -226,7 +226,7 @@ export const CreatePost = memo(function CreatePost({
         
         <div className="relative z-10 flex items-center gap-4">
           <div className="scale-hover">
-            <Avatar src={currentUserProfile.avatarUrl} size={44} className="border border-white/10" />
+            <Avatar src={currentUserProfile.avatarUrl} size={44} className="border border-white/[0.08]" />
           </div>
           <div className="flex-1">
             <div className="text-sm font-bold text-white mb-1 group-hover:text-[var(--color-accent)] transition-colors tracking-tight">
