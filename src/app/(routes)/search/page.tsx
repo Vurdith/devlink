@@ -8,6 +8,7 @@ import { useSearchParams } from "next/navigation";
 import { getProfileTypeConfig, ProfileTypeIcon } from "@/types/profile";
 import { ProfileTooltip } from "@/components/profile/ProfileTooltip";
 import { useSession } from "next-auth/react";
+import { cn } from "@/lib/cn";
 
 type SearchType = "all" | "profiles" | "hashtags" | "projects";
 
@@ -172,11 +173,11 @@ function SearchContent() {
             <button
               key={filter.value}
               onClick={() => setSelectedType(filter.value)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 ${
+              className={cn("flex items-center gap-2 rounded-lg border px-4 py-2 transition-all duration-200",
                 selectedType === filter.value
                   ? ui.active.cyan
-                  : "bg-white/5 text-[var(--muted-foreground)] hover:bg-white/10 hover:text-white border border-transparent"
-              }`}
+                  : "border-transparent text-[var(--muted-foreground)] hover:border-white/[0.08] hover:bg-white/[0.045] hover:text-white"
+              )}
             >
                 <div className={`rounded p-1 ${
                 selectedType === filter.value
@@ -274,13 +275,13 @@ function SearchContent() {
                         <span className="font-medium truncate text-[var(--accent)]">{hashtag.tag}</span>
                       </div>
                       <div className="text-xs text-[var(--muted-foreground)] truncate">
-                        {hashtag.postCount} {hashtag.postCount === 1 ? 'post' : 'posts'} • {hashtag.projectCount} {hashtag.projectCount === 1 ? 'project' : 'projects'}
+                        {hashtag.postCount} {hashtag.postCount === 1 ? 'post' : 'posts'} / {hashtag.projectCount} {hashtag.projectCount === 1 ? 'project' : 'projects'}
                       </div>
                     </div>
                     <div className="relative z-20 pointer-events-auto">
                       <Link 
                         href={`/hashtag/${hashtag.tag.replace('#', '')}`}
-                        className="px-3 py-1 bg-[var(--accent)]/10 text-[var(--accent)] rounded-lg hover:bg-[var(--accent)]/20 transition-colors text-sm"
+                        className={cn("rounded-lg px-3 py-1 text-sm text-[var(--accent)] transition-colors", ui.control.ghost)}
                       >
                         View
                       </Link>
@@ -313,7 +314,7 @@ function SearchContent() {
                       </div>
                       <Link 
                         href={`/projects/${project.id}`}
-                        className="px-3 py-1 bg-[var(--accent)]/10 text-[var(--accent)] rounded-lg hover:bg-[var(--accent)]/20 transition-colors"
+                        className={cn("rounded-lg px-3 py-1 text-[var(--accent)] transition-colors", ui.control.ghost)}
                       >
                         View
                       </Link>

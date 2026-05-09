@@ -43,7 +43,7 @@ function DiscoverSkeleton() {
                 <div className="h-3 w-full bg-white/10 rounded" />
                 <div className="h-3 w-4/5 bg-white/10 rounded" />
               </div>
-              <div className="mt-4 pt-3 border-t border-white/10 flex items-center gap-4">
+              <div className="mt-4 flex items-center gap-4 border-t border-white/[0.08] pt-3">
                 <div className="h-3 w-28 bg-white/10 rounded" />
                 <div className="h-3 w-28 bg-white/10 rounded" />
               </div>

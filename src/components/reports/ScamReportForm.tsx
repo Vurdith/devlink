@@ -104,7 +104,7 @@ export const ScamReportForm = memo(function ScamReportForm({ targetUserId, targe
                       "p-4 text-left rounded-lg border transition-all active:scale-98 animate-slide-up",
                       reportType === type.value
                         ? ui.active.cyan
-                        : "border-white/10 hover:border-white/20 hover:bg-white/5"
+                        : cn(ui.surface.empty, "hover:border-white/[0.14] hover:bg-white/[0.045]")
                     )}
                     style={{ animationDelay: `${index * 0.03}s` }}
                   >
