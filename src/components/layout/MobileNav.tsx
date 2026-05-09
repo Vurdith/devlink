@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, memo } from "react";
+import { useState, useEffect, memo, useCallback, useMemo } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/cn";
@@ -67,6 +67,13 @@ export const MobileNav = memo(function MobileNav({ session }: MobileNavProps) {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
   const isAuthenticated = !!session;
+  const closeMenu = useCallback(() => setIsOpen(false), []);
+  const toggleMenu = useCallback(() => setIsOpen((current) => !current), []);
+  const isProfileActive = pathname.startsWith("/u/") || pathname === "/me";
+  const bottomItems = useMemo(
+    () => navigation.map((item) => ({ item, isActive: pathname === item.href })),
+    [pathname]
+  );
 
   // Close menu on route change
   useEffect(() => {
@@ -77,9 +84,8 @@ export const MobileNav = memo(function MobileNav({ session }: MobileNavProps) {
 
   return (
     <>
-      {/* Hamburger Button - Fixed in top left, vertically centered in navbar (h-16 = 64px, button ~44px) */}
       <button
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={toggleMenu}
         className={cn("fixed left-4 top-[10px] z-50 p-2.5 md:hidden", ui.control.icon)}
         aria-label={isOpen ? "Close menu" : "Open menu"}
         aria-expanded={isOpen}
@@ -116,21 +122,19 @@ export const MobileNav = memo(function MobileNav({ session }: MobileNavProps) {
       {isOpen && (
         <div
           className="md:hidden fixed inset-0 bg-black/82 z-40"
-          onClick={() => setIsOpen(false)}
+          onClick={closeMenu}
         />
       )}
 
-      {/* Slide-out Menu - Exact same styling as desktop Sidebar */}
       <div
         className={cn(
-          "fixed left-0 top-0 z-50 h-full w-72 transform border-0 border-r border-white/[0.08] bg-[rgba(7,9,13,0.94)] transition-transform duration-300 ease-out md:hidden",
+          "fixed left-0 top-0 z-50 h-full w-72 transform-gpu border-0 border-r border-white/[0.08] bg-[rgba(7,9,13,0.94)] transition-transform duration-300 ease-out will-change-transform md:hidden",
           isOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
         <div className="relative flex flex-col h-full">
-          {/* Logo Section - matching Sidebar */}
           <div className="p-6 border-b border-white/5">
-            <Link href="/" className="flex items-center gap-3 group" onClick={() => setIsOpen(false)}>
+            <Link href="/" className="flex items-center gap-3 group" onClick={closeMenu}>
               <ThemeLogoImg className="w-10 h-10 object-contain" />
               <div>
                 <h1 className="text-xl font-bold text-white font-[var(--font-space-grotesk)] tracking-tight">
@@ -143,29 +147,25 @@ export const MobileNav = memo(function MobileNav({ session }: MobileNavProps) {
             </Link>
           </div>
 
-          {/* Back Button - matching Sidebar */}
           <div className="px-4 pt-4">
             <BackButton
               className="w-full justify-start bg-white/[0.035] hover:bg-white/[0.065] rounded-lg text-[var(--muted-foreground)] hover:text-white border border-white/8"
-              onClick={() => setIsOpen(false)}
+              onClick={closeMenu}
             />
           </div>
 
-          {/* Main Navigation - matching Sidebar */}
           <nav className="flex-1 overflow-y-auto px-4 py-4 space-y-1">
-            {/* Primary nav */}
             <div className="space-y-1">
               {navigation.map((item) => (
                 <NavLink
                   key={item.name}
                   item={item}
                   isActive={pathname === item.href}
-                  onClick={() => setIsOpen(false)}
+                  onClick={closeMenu}
                 />
               ))}
             </div>
 
-            {/* User section (only show if authenticated) - matching Sidebar */}
             {isAuthenticated && (
               <>
                 <div className="py-4">
@@ -186,14 +186,13 @@ export const MobileNav = memo(function MobileNav({ session }: MobileNavProps) {
                         (item.href === "/me" && pathname.startsWith("/u/")) ||
                         (item.href === "/settings" && pathname.startsWith("/settings"))
                       }
-                      onClick={() => setIsOpen(false)}
+                      onClick={closeMenu}
                     />
                   ))}
                 </div>
               </>
             )}
 
-            {/* Auth buttons for non-authenticated users */}
             {!isAuthenticated && (
               <>
                 <div className="py-4">
@@ -207,7 +206,7 @@ export const MobileNav = memo(function MobileNav({ session }: MobileNavProps) {
                 <div className="space-y-2">
                   <Link
                     href="/login"
-                    onClick={() => setIsOpen(false)}
+                    onClick={closeMenu}
                     className={cn("flex w-full items-center justify-center gap-2 rounded-lg py-3 text-white transition-colors", ui.control.ghost)}
                   >
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -217,7 +216,7 @@ export const MobileNav = memo(function MobileNav({ session }: MobileNavProps) {
                   </Link>
                   <Link
                     href="/register"
-                    onClick={() => setIsOpen(false)}
+                    onClick={closeMenu}
                     className="flex w-full items-center justify-center gap-2 rounded-xl border border-[rgba(var(--color-accent-2-rgb),0.34)] bg-[linear-gradient(135deg,var(--color-accent),rgba(var(--color-accent-2-rgb),0.92))] py-3 font-medium text-white transition-all hover:-translate-y-0.5 hover:brightness-110 active:translate-y-0 active:scale-[0.98]"
                   >
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -239,8 +238,7 @@ export const MobileNav = memo(function MobileNav({ session }: MobileNavProps) {
       {/* Bottom Navigation Bar */}
       <nav className="safe-area-bottom fixed bottom-0 left-0 right-0 z-40 max-w-[100vw] overflow-hidden border-0 border-t border-white/[0.08] bg-[rgba(7,9,13,0.92)] md:hidden">
         <div className="flex h-16 w-full min-w-0 items-center px-1">
-          {navigation.map((item) => {
-            const isActive = pathname === item.href;
+          {bottomItems.map(({ item, isActive }) => {
             return (
               <Link
                 key={item.name}
@@ -269,14 +267,14 @@ export const MobileNav = memo(function MobileNav({ session }: MobileNavProps) {
               href="/me"
               className={cn(
                 "flex min-w-0 flex-1 flex-col items-center gap-1 rounded-xl px-1 py-2 transition-all duration-150",
-                pathname.startsWith("/u/") || pathname === "/me"
+                isProfileActive
                   ? "text-[var(--color-accent-2)]"
                   : "text-[var(--muted-foreground)] hover:text-white active:scale-95"
               )}
             >
               <div className={cn(
                 "p-1.5 rounded-lg transition-all",
-                (pathname.startsWith("/u/") || pathname === "/me") && "bg-[rgba(var(--color-accent-2-rgb),0.12)] scale-110"
+                isProfileActive && "bg-[rgba(var(--color-accent-2-rgb),0.12)] scale-110"
               )}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                   <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />

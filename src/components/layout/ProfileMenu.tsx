@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef, memo } from "react";
+import { useCallback, useEffect, useState, useRef, memo } from "react";
 import Link from "next/link";
 import { signOut } from "next-auth/react";
 import { Avatar } from "@/components/ui/Avatar";
@@ -42,20 +42,19 @@ const menuItems = [
 
 export const ProfileMenu = memo(function ProfileMenu({ username, avatarUrl: initialAvatarUrl, name, profileType }: ProfileMenuProps) {
   const [open, setOpen] = useState(false);
-  const [currentAvatarUrl, setCurrentAvatarUrl] = useState<string | undefined>(initialAvatarUrl);
+  const [updatedAvatarUrl, setUpdatedAvatarUrl] = useState<string | undefined>();
   const menuRef = useRef<HTMLDivElement>(null);
+  const currentAvatarUrl = updatedAvatarUrl ?? initialAvatarUrl;
 
-  // Update avatar when prop changes
   useEffect(() => {
-    setCurrentAvatarUrl(initialAvatarUrl);
+    setUpdatedAvatarUrl(undefined);
   }, [initialAvatarUrl]);
 
-  // Listen for profile updates for instant avatar updates
   useEffect(() => {
     const handleProfileUpdate = (event: CustomEvent) => {
       const { avatarUrl: newAvatar } = event.detail || {};
       if (newAvatar !== undefined) {
-        setCurrentAvatarUrl(newAvatar);
+        setUpdatedAvatarUrl(newAvatar);
       }
     };
 
@@ -86,6 +85,9 @@ export const ProfileMenu = memo(function ProfileMenu({ username, avatarUrl: init
     };
   }, [open]);
 
+  const closeMenu = useCallback(() => setOpen(false), []);
+  const toggleMenu = useCallback(() => setOpen((current) => !current), []);
+
   const handleSignOut = async () => {
     setOpen(false);
     await signOut({ callbackUrl: "/" });
@@ -101,7 +103,7 @@ export const ProfileMenu = memo(function ProfileMenu({ username, avatarUrl: init
             ? ui.active.cyan
             : ui.control.ghost
         )}
-        onClick={() => setOpen(!open)}
+        onClick={toggleMenu}
       >
         <Avatar size={36} src={currentAvatarUrl} />
         <div className="hidden sm:block text-left">
@@ -163,7 +165,7 @@ export const ProfileMenu = memo(function ProfileMenu({ username, avatarUrl: init
             <Link
               key={item.href}
               href={item.href}
-              onClick={() => setOpen(false)}
+              onClick={closeMenu}
               className={menuItem()}
             >
               <div className={iconBox("cyan", "h-9 w-9 transition-colors group-hover:border-[rgba(var(--color-accent-2-rgb),0.28)] group-hover:bg-[rgba(var(--color-accent-2-rgb),0.13)]")}>

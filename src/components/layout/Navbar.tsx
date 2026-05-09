@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { ProfileMenu } from "@/components/layout/ProfileMenu";
 import { NavbarSearch } from "./NavbarSearch";
-import { useEffect, useState, memo, useCallback } from "react";
+import { useEffect, useState, memo, useCallback, useRef } from "react";
 import { cn } from "@/lib/cn";
 import { ui } from "@/components/ui/design-system";
 
@@ -33,6 +33,16 @@ function safeSessionStorageRemove(key: string) {
   }
 }
 
+interface NavbarProfileData {
+  user?: {
+    name?: string | null;
+    profile?: {
+      avatarUrl?: string | null;
+      profileType?: string | null;
+    } | null;
+  } | null;
+}
+
 export const Navbar = memo(function Navbar({ session }: { session?: { user?: { id?: string; username?: string; name?: string; image?: string } } | null }) {
   const pathname = usePathname();
   const username = session?.user?.username;
@@ -43,6 +53,18 @@ export const Navbar = memo(function Navbar({ session }: { session?: { user?: { i
   const [profileType, setProfileType] = useState<string | undefined>();
   const [scrolled, setScrolled] = useState(false);
   const [unread, setUnread] = useState<number>(0);
+  const scrolledRef = useRef(false);
+  const scrollFrameRef = useRef<number | null>(null);
+
+  const applyProfileData = useCallback((data: NavbarProfileData, preferSessionImage = false) => {
+    const nextAvatar = data.user?.profile?.avatarUrl ?? undefined;
+    const nextName = data.user?.name ?? undefined;
+    const nextType = data.user?.profile?.profileType ?? undefined;
+
+    if (nextAvatar && !preferSessionImage) setAvatarUrl((current) => (current === nextAvatar ? current : nextAvatar));
+    if (nextName) setDisplayName((current) => (current === nextName ? current : nextName));
+    if (nextType) setProfileType((current) => (current === nextType ? current : nextType));
+  }, []);
 
   const fetchUnread = useCallback(async () => {
     if (!username) return;
@@ -54,77 +76,67 @@ export const Navbar = memo(function Navbar({ session }: { session?: { user?: { i
     } catch { }
   }, [username]);
 
-  // Function to fetch fresh profile data - only when needed (bypass cache)
   const fetchProfile = useCallback(async () => {
     if (!username) return;
 
-    // Check cache first
     const cacheKey = `navbar-profile-${username}`;
     const cached = safeSessionStorageGet(cacheKey);
     if (cached) {
       try {
-        const data = JSON.parse(cached);
-        if (data.user?.profile?.avatarUrl) setAvatarUrl(data.user.profile.avatarUrl);
-        if (data.user?.name) setDisplayName(data.user.name);
-        if (data.user?.profile?.profileType) setProfileType(data.user.profile.profileType);
+        applyProfileData(JSON.parse(cached) as NavbarProfileData);
         return;
       } catch { }
     }
 
     try {
       const res = await fetch(`/api/user/${username}`, { cache: 'no-store' });
-      const data = await res.json();
+      if (!res.ok) return;
+      const data = await res.json() as NavbarProfileData;
 
-      // Update cache
       safeSessionStorageSet(cacheKey, JSON.stringify(data));
-
-      if (data.user?.profile?.avatarUrl) {
-        setAvatarUrl(data.user.profile.avatarUrl);
-      }
-      if (data.user?.name) {
-        setDisplayName(data.user.name);
-      }
-      if (data.user?.profile?.profileType) {
-        setProfileType(data.user.profile.profileType);
-      }
+      applyProfileData(data);
     } catch (error) {
       console.error('Failed to fetch profile:', error);
     }
-  }, [username]);
+  }, [applyProfileData, username]);
 
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 10);
+      if (scrollFrameRef.current !== null) return;
+      scrollFrameRef.current = window.requestAnimationFrame(() => {
+        scrollFrameRef.current = null;
+        const nextScrolled = window.scrollY > 10;
+        if (scrolledRef.current !== nextScrolled) {
+          scrolledRef.current = nextScrolled;
+          setScrolled(nextScrolled);
+        }
+      });
     };
     window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
+    handleScroll();
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      if (scrollFrameRef.current !== null) window.cancelAnimationFrame(scrollFrameRef.current);
+    };
   }, []);
 
-  // Initial: use session data immediately, then check cache
   useEffect(() => {
     if (username) {
-      // Use session image immediately
       if (googleImage) {
-        setAvatarUrl(googleImage);
+        setAvatarUrl((current) => (current === googleImage ? current : googleImage));
       }
-      // Check cache for profile type (only fetch if not cached)
       const cacheKey = `navbar-profile-${username}`;
       const cached = safeSessionStorageGet(cacheKey);
       if (cached) {
         try {
-          const data = JSON.parse(cached);
-          if (data.user?.profile?.avatarUrl && !googleImage) setAvatarUrl(data.user.profile.avatarUrl);
-          if (data.user?.name) setDisplayName(data.user.name);
-          if (data.user?.profile?.profileType) setProfileType(data.user.profile.profileType);
-          return; // Don't fetch if cached
+          applyProfileData(JSON.parse(cached) as NavbarProfileData, Boolean(googleImage));
+          return;
         } catch { }
       }
-      // Only fetch if not cached
       fetchProfile();
     }
-  }, [username, googleImage, fetchProfile]);
+  }, [applyProfileData, username, googleImage, fetchProfile]);
 
-  // Poll unread notifications count with visibility check
   useEffect(() => {
     if (!username) return;
 
@@ -144,7 +156,6 @@ export const Navbar = memo(function Navbar({ session }: { session?: { user?: { i
     };
   }, [username, fetchUnread]);
 
-  // Refresh unread count on demand (e.g. after marking read)
   useEffect(() => {
     if (!username) return;
     const onUpdate = () => fetchUnread();
@@ -152,17 +163,14 @@ export const Navbar = memo(function Navbar({ session }: { session?: { user?: { i
     return () => window.removeEventListener("devlink:notifications-updated", onUpdate as EventListener);
   }, [username, fetchUnread]);
 
-  // Listen for profile updates (from any component)
   useEffect(() => {
     const handleProfileUpdate = (event: CustomEvent) => {
       const { avatarUrl: newAvatar, name: newName, profileType: newType } = event.detail || {};
 
-      // Clear cache immediately
       if (username) {
         safeSessionStorageRemove(`navbar-profile-${username}`);
       }
 
-      // Update state immediately with new values
       if (newAvatar !== undefined) setAvatarUrl(newAvatar);
       if (newName !== undefined) setDisplayName(newName);
       if (newType !== undefined) setProfileType(newType);

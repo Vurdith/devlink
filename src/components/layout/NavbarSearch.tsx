@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, memo } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, memo } from "react";
 import { useRouter } from "next/navigation";
 import { Avatar } from "@/components/ui/Avatar";
 import { FollowButton } from "@/components/ui/FollowButton";
@@ -38,85 +38,92 @@ interface ProjectSearchResult {
   };
 }
 
+interface SearchResults {
+  users: UserSearchResult[];
+  hashtags: HashtagSearchResult[];
+  projects: ProjectSearchResult[];
+}
+
+const EMPTY_RESULTS: SearchResults = { users: [], hashtags: [], projects: [] };
+const MIN_QUERY_LENGTH = 2;
+const MAX_PREVIEW_RESULTS = 5;
+
 export const NavbarSearch = memo(function NavbarSearch({ currentUserId }: { currentUserId?: string }) {
   const [value, setValue] = useState("");
-  const [suggestions, setSuggestions] = useState<UserSearchResult[]>([]);
-  const [hashtagSuggestions, setHashtagSuggestions] = useState<HashtagSearchResult[]>([]);
-  const [projectSuggestions, setProjectSuggestions] = useState<ProjectSearchResult[]>([]);
+  const [results, setResults] = useState<SearchResults>(EMPTY_RESULTS);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [focused, setFocused] = useState(false);
   const router = useRouter();
   const dropdownRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const searchTerm = value.trim();
+  const queryMode = useMemo(() => {
+    const isHashtag = searchTerm.startsWith("#");
+    const isUser = searchTerm.startsWith("@");
+    const isProject = searchTerm.startsWith("!");
+
+    return {
+      isHashtag,
+      isUser,
+      isProject,
+      isGeneral: !isHashtag && !isUser && !isProject,
+      userQuery: isUser ? searchTerm.slice(1) : searchTerm,
+      projectQuery: isProject ? searchTerm.slice(1) : searchTerm,
+    };
+  }, [searchTerm]);
 
   useEffect(() => {
     const controller = new AbortController();
+    let active = true;
 
     async function fetchIt() {
-      if (value.length < 2) {
-        setSuggestions([]);
-        setHashtagSuggestions([]);
-        setProjectSuggestions([]);
+      if (searchTerm.length < MIN_QUERY_LENGTH) {
+        setResults(EMPTY_RESULTS);
+        setLoading(false);
         setOpen(false);
         return;
       }
       setLoading(true);
       try {
-        const searchTerm = value.trim();
-        const isHashtagSearch = searchTerm.startsWith('#');
-        const isUserSearch = searchTerm.startsWith('@');
-        const isProjectSearch = searchTerm.startsWith('!');
-        const isGeneralSearch = !isHashtagSearch && !isUserSearch && !isProjectSearch;
+        const [users, hashtags, projects] = await Promise.all([
+          queryMode.isUser || queryMode.isGeneral
+            ? fetch(`/api/search/users?q=${encodeURIComponent(queryMode.userQuery)}`, { signal: controller.signal })
+                .then((res) => (res.ok ? res.json() : null))
+                .then((data) => (data?.users ?? []) as UserSearchResult[])
+            : Promise.resolve([]),
+          queryMode.isHashtag || queryMode.isGeneral
+            ? fetch(`/api/search/hashtags?q=${encodeURIComponent(searchTerm)}`, { signal: controller.signal })
+                .then((res) => (res.ok ? res.json() : null))
+                .then((data) => (data?.hashtags ?? []) as HashtagSearchResult[])
+            : Promise.resolve([]),
+          queryMode.isProject || queryMode.isGeneral
+            ? fetch(`/api/search/projects?q=${encodeURIComponent(queryMode.projectQuery)}`, { signal: controller.signal })
+                .then((res) => (res.ok ? res.json() : null))
+                .then((data) => (data?.projects ?? []) as ProjectSearchResult[])
+            : Promise.resolve([]),
+        ]);
 
-        setSuggestions([]);
-        setHashtagSuggestions([]);
-        setProjectSuggestions([]);
-
-        const promises: Promise<void>[] = [];
-
-        if (isUserSearch || isGeneralSearch) {
-          const userQuery = isUserSearch ? searchTerm.slice(1) : searchTerm;
-          promises.push(
-            fetch(`/api/search/users?q=${encodeURIComponent(userQuery)}`, { signal: controller.signal })
-              .then(res => res.ok ? res.json() : null)
-              .then(data => { if (data) setSuggestions(data.users || []); })
-          );
+        if (active) {
+          setResults({ users, hashtags, projects });
+          setOpen(true);
         }
-
-        if (isHashtagSearch || isGeneralSearch) {
-          promises.push(
-            fetch(`/api/search/hashtags?q=${encodeURIComponent(searchTerm)}`, { signal: controller.signal })
-              .then(res => res.ok ? res.json() : null)
-              .then(data => { if (data) setHashtagSuggestions(data.hashtags || []); })
-          );
-        }
-
-        if (isProjectSearch || isGeneralSearch) {
-          const projectQuery = isProjectSearch ? searchTerm.slice(1) : searchTerm;
-          promises.push(
-            fetch(`/api/search/projects?q=${encodeURIComponent(projectQuery)}`, { signal: controller.signal })
-              .then(res => res.ok ? res.json() : null)
-              .then(data => { if (data) setProjectSuggestions(data.projects || []); })
-          );
-        }
-
-        await Promise.all(promises);
-        setOpen(true);
       } catch (error) {
-        if (error instanceof Error && error.name !== 'AbortError') {
-          setSuggestions([]);
-          setHashtagSuggestions([]);
-          setProjectSuggestions([]);
+        if (active && error instanceof Error && error.name !== 'AbortError') {
+          setResults(EMPTY_RESULTS);
         }
       } finally {
-        setLoading(false);
+        if (active) setLoading(false);
       }
     }
 
     const t = setTimeout(fetchIt, 200);
-    return () => { clearTimeout(t); controller.abort(); };
-  }, [value]);
+    return () => {
+      active = false;
+      clearTimeout(t);
+      controller.abort();
+    };
+  }, [queryMode, searchTerm]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -144,25 +151,34 @@ export const NavbarSearch = memo(function NavbarSearch({ currentUserId }: { curr
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+  const closeDropdown = useCallback(() => {
+    setOpen(false);
+  }, []);
+
+  const onSubmit = useCallback((e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     let term = value.trim();
     
     if (term.startsWith("@")) {
       term = term.slice(1);
-      if (term) { router.push(`/search?q=${encodeURIComponent(term)}&type=profiles`); setOpen(false); return; }
+      if (term) { router.push(`/search?q=${encodeURIComponent(term)}&type=profiles`); closeDropdown(); return; }
     }
     if (term.startsWith("#")) {
-      if (term) { router.push(`/search?q=${encodeURIComponent(term)}&type=hashtags`); setOpen(false); return; }
+      if (term) { router.push(`/search?q=${encodeURIComponent(term)}&type=hashtags`); closeDropdown(); return; }
     }
     if (term.startsWith("!")) {
       term = term.slice(1);
-      if (term) { router.push(`/search?q=${encodeURIComponent(term)}&type=projects`); setOpen(false); return; }
+      if (term) { router.push(`/search?q=${encodeURIComponent(term)}&type=projects`); closeDropdown(); return; }
     }
-    if (term) { router.push(`/search?q=${encodeURIComponent(term)}`); setOpen(false); }
-  }
+    if (term) { router.push(`/search?q=${encodeURIComponent(term)}`); closeDropdown(); }
+  }, [closeDropdown, router, value]);
 
-  const hasResults = suggestions.length > 0 || hashtagSuggestions.length > 0 || projectSuggestions.length > 0;
+  const visibleResults = useMemo(() => ({
+    users: results.users.slice(0, MAX_PREVIEW_RESULTS),
+    hashtags: results.hashtags.slice(0, MAX_PREVIEW_RESULTS),
+    projects: results.projects.slice(0, MAX_PREVIEW_RESULTS),
+  }), [results]);
+  const hasResults = results.users.length > 0 || results.hashtags.length > 0 || results.projects.length > 0;
 
   return (
     <div className="relative" ref={dropdownRef}>
@@ -186,7 +202,7 @@ export const NavbarSearch = memo(function NavbarSearch({ currentUserId }: { curr
             placeholder="Search DevLink..."
             value={value}
             onChange={(e) => setValue(e.target.value)}
-            onFocus={() => { setFocused(true); if (value.length >= 2) setOpen(true); }}
+            onFocus={() => { setFocused(true); if (searchTerm.length >= MIN_QUERY_LENGTH) setOpen(true); }}
             onBlur={() => !open && setFocused(false)}
             className={cn(
               "w-full h-11 rounded-xl bg-white/5 border pl-11 pr-16 text-sm outline-none placeholder:text-[var(--muted-foreground)] text-white transition-all duration-150",
@@ -209,7 +225,7 @@ export const NavbarSearch = memo(function NavbarSearch({ currentUserId }: { curr
       </form>
 
       {/* Results dropdown - CSS only animation */}
-      {open && (hasResults || loading || value.trim().length >= 2) && (
+      {open && (hasResults || loading || searchTerm.length >= MIN_QUERY_LENGTH) && (
         <div 
           id="search-results"
           role="listbox"
@@ -222,7 +238,7 @@ export const NavbarSearch = memo(function NavbarSearch({ currentUserId }: { curr
             </div>
           )}
 
-          {!loading && !hasResults && value.length >= 2 && (
+          {!loading && !hasResults && searchTerm.length >= MIN_QUERY_LENGTH && (
             <div className="py-8 text-center">
                 <div className={iconBox("muted", "mx-auto mb-2 h-12 w-12 rounded-xl")}>
                 <svg className="w-6 h-6 text-[var(--muted-foreground)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -236,7 +252,7 @@ export const NavbarSearch = memo(function NavbarSearch({ currentUserId }: { curr
           )}
 
           {/* Hashtag Suggestions */}
-          {hashtagSuggestions.length > 0 && (
+          {visibleResults.hashtags.length > 0 && (
             <div className="mb-2">
               <div className="flex items-center gap-2 px-3 py-2 text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider">
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -244,11 +260,11 @@ export const NavbarSearch = memo(function NavbarSearch({ currentUserId }: { curr
                 </svg>
                 Hashtags
               </div>
-              {hashtagSuggestions.map((hashtag) => (
+              {visibleResults.hashtags.map((hashtag) => (
                 <Link
                   key={hashtag.tag}
                   href={`/hashtag/${hashtag.tag.replace('#', '')}`}
-                  onClick={() => setOpen(false)}
+                  onClick={closeDropdown}
                   className={menuItem()}
                 >
                   <div className={iconBox("cyan", "h-10 w-10")}>
@@ -269,20 +285,20 @@ export const NavbarSearch = memo(function NavbarSearch({ currentUserId }: { curr
           )}
 
           {/* User Suggestions */}
-          {suggestions.length > 0 && (
+          {visibleResults.users.length > 0 && (
             <div className="mb-2">
-              {hashtagSuggestions.length > 0 && <div className="my-2 h-px bg-white/[0.08]" />}
+              {visibleResults.hashtags.length > 0 && <div className="my-2 h-px bg-white/[0.08]" />}
               <div className="flex items-center gap-2 px-3 py-2 text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider">
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
                 Users
               </div>
-              {suggestions.map((user) => (
+              {visibleResults.users.map((user) => (
                 <Link
                   key={user.id}
                   href={`/u/${user.username}`}
-                  onClick={() => setOpen(false)}
+                  onClick={closeDropdown}
                   className={menuItem()}
                 >
                   <ProfileTooltip
@@ -330,20 +346,20 @@ export const NavbarSearch = memo(function NavbarSearch({ currentUserId }: { curr
           )}
 
           {/* Project Suggestions */}
-          {projectSuggestions.length > 0 && (
+          {visibleResults.projects.length > 0 && (
             <div>
-              {(suggestions.length > 0 || hashtagSuggestions.length > 0) && <div className="my-2 h-px bg-white/[0.08]" />}
+              {(visibleResults.users.length > 0 || visibleResults.hashtags.length > 0) && <div className="my-2 h-px bg-white/[0.08]" />}
               <div className="flex items-center gap-2 px-3 py-2 text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider">
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
                 </svg>
                 Projects
               </div>
-              {projectSuggestions.map((project) => (
+              {visibleResults.projects.map((project) => (
                 <Link
                   key={project.id}
                   href={`/projects/${project.id}`}
-                  onClick={() => setOpen(false)}
+                  onClick={closeDropdown}
                   className={menuItem()}
                 >
                   <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-emerald-300/20 bg-emerald-400/10 text-emerald-200">
