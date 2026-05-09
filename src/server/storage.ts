@@ -3,6 +3,11 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { writeFile, mkdir } from "fs/promises";
 import path from "path";
 import { randomUUID } from "crypto";
+import {
+  type AllowedUploadMimeType,
+  getUploadExtension,
+  isAllowedUploadMimeType,
+} from "@/lib/file-validation";
 
 // Initialize S3 Client if env vars are present
 const s3Client = (process.env.S3_ENDPOINT && process.env.S3_ACCESS_KEY_ID && process.env.S3_SECRET_ACCESS_KEY) 
@@ -26,12 +31,23 @@ interface UploadResult {
 }
 
 export async function uploadFile(file: File): Promise<UploadResult> {
+  if (!isAllowedUploadMimeType(file.type)) {
+    throw new Error("Unsupported upload content type");
+  }
+
   const buffer = Buffer.from(await file.arrayBuffer());
-  const originalName = file.name || "file";
-  const ext = (originalName.split(".").pop() || "bin").toLowerCase();
-  const filename = `${randomUUID()}.${ext}`;
-  
-  // S3 / R2 Upload
+  return uploadBuffer({
+    buffer,
+    contentType: file.type,
+  });
+}
+
+export async function uploadBuffer(params: {
+  buffer: Buffer;
+  contentType: AllowedUploadMimeType;
+}): Promise<UploadResult> {
+  const filename = `${randomUUID()}.${getUploadExtension(params.contentType)}`;
+
   if (s3Client) {
     try {
       const key = `uploads/${filename}`;
@@ -39,13 +55,11 @@ export async function uploadFile(file: File): Promise<UploadResult> {
       await s3Client.send(new PutObjectCommand({
         Bucket: BUCKET_NAME,
         Key: key,
-        Body: buffer,
-        ContentType: file.type,
-        ACL: "public-read", // Warning: Adjust based on bucket policy
+        Body: params.buffer,
+        ContentType: params.contentType,
+        ACL: "public-read",
       }));
 
-      // If a custom public URL base is set (e.g. Cloudflare CDN), use it.
-      // Otherwise, construct standard S3 URL (this might vary by provider).
       const url = PUBLIC_URL_BASE 
         ? `${PUBLIC_URL_BASE}/${key}`
         : `${process.env.S3_ENDPOINT}/${BUCKET_NAME}/${key}`;
@@ -57,16 +71,15 @@ export async function uploadFile(file: File): Promise<UploadResult> {
     }
   }
 
-  // Fallback: Local Storage (Only for dev/testing)
   if (process.env.NODE_ENV === "production") {
-    console.warn("WARNING: Using local storage in production. Set S3_ variables to enable cloud storage.");
+    console.warn("Upload storage is falling back to local disk in production. Set S3_ variables to enable cloud storage.");
   }
 
   const uploadDir = path.join(process.cwd(), "public", "uploads");
   await mkdir(uploadDir, { recursive: true });
   const filepath = path.join(uploadDir, filename);
   
-  await writeFile(filepath, buffer);
+  await writeFile(filepath, params.buffer);
   
   return { 
     url: `/uploads/${filename}`,
@@ -76,15 +89,14 @@ export async function uploadFile(file: File): Promise<UploadResult> {
 
 export async function createSignedUploadUrl(params: {
   filename: string;
-  contentType: string;
+  contentType: AllowedUploadMimeType;
   expiresInSeconds?: number;
 }) {
   if (!s3Client) {
     throw new Error("Signed URLs require S3-compatible storage configuration.");
   }
 
-  const ext = (params.filename.split(".").pop() || "bin").toLowerCase();
-  const key = `uploads/${randomUUID()}.${ext}`;
+  const key = `uploads/${randomUUID()}.${getUploadExtension(params.contentType)}`;
   const command = new PutObjectCommand({
     Bucket: BUCKET_NAME,
     Key: key,

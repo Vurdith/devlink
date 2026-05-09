@@ -1,85 +1,195 @@
-const FILE_SIGNATURES: Record<string, Buffer> = {
-  "image/jpeg": Buffer.from([0xff, 0xd8, 0xff]),
-  "image/png": Buffer.from([0x89, 0x50, 0x4e, 0x47]),
-  "image/gif": Buffer.from([0x47, 0x49, 0x46, 0x38]),
-  "image/webp": Buffer.from([0x52, 0x49, 0x46, 0x46]),
-  "video/mp4": Buffer.from([0x00, 0x00, 0x00]),
-  "video/webm": Buffer.from([0x1a, 0x45, 0xdf, 0xa3]),
+import { fileTypeFromBuffer } from "file-type";
+
+export const MAX_UPLOAD_SIZE_BYTES = 5 * 1024 * 1024;
+
+export const ALLOWED_UPLOAD_MIME_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/gif",
+  "image/webp",
+  "image/svg+xml",
+  "video/mp4",
+  "video/webm",
+] as const;
+
+export type AllowedUploadMimeType = (typeof ALLOWED_UPLOAD_MIME_TYPES)[number];
+
+export type UploadValidationResult =
+  | {
+      valid: true;
+      buffer: Buffer;
+      contentType: AllowedUploadMimeType;
+      extension: string;
+    }
+  | {
+      valid: false;
+      status: number;
+      error: string;
+    };
+
+const MIME_EXTENSION_MAP: Record<AllowedUploadMimeType, string> = {
+  "image/jpeg": "jpg",
+  "image/png": "png",
+  "image/gif": "gif",
+  "image/webp": "webp",
+  "image/svg+xml": "svg",
+  "video/mp4": "mp4",
+  "video/webm": "webm",
 };
 
-const MAX_FILE_SIZE = 50 * 1024 * 1024;
+const DANGEROUS_FILENAME_EXTENSIONS = new Set([
+  "exe",
+  "bat",
+  "cmd",
+  "com",
+  "scr",
+  "sh",
+  "ps1",
+  "js",
+  "mjs",
+  "jar",
+]);
 
-export function validateFileType(buffer: Buffer, declaredType: string): { valid: boolean; detectedType?: string } {
-  const header = buffer.slice(0, 12);
+export function isAllowedUploadMimeType(
+  contentType: string | undefined
+): contentType is AllowedUploadMimeType {
+  return ALLOWED_UPLOAD_MIME_TYPES.includes(contentType as AllowedUploadMimeType);
+}
 
-  for (const [mimeType, signature] of Object.entries(FILE_SIGNATURES)) {
-    if (header.includes(signature)) {
-      if (mimeType === declaredType || mimeType.split("/")[0] === declaredType.split("/")[0]) {
-        return { valid: true, detectedType: mimeType };
-      }
-      return { valid: false, detectedType: mimeType };
+export function getUploadExtension(contentType: AllowedUploadMimeType): string {
+  return MIME_EXTENSION_MAP[contentType];
+}
+
+export function validateUploadSize(size: number): string | null {
+  if (!Number.isFinite(size) || size <= 0) {
+    return "Choose a non-empty file to upload.";
+  }
+
+  if (size > MAX_UPLOAD_SIZE_BYTES) {
+    return "Files must be 5MB or smaller.";
+  }
+
+  return null;
+}
+
+export function validateUploadFilename(filename: string | undefined): string | null {
+  const trimmed = filename?.trim() ?? "";
+
+  if (!trimmed) {
+    return "File name is required.";
+  }
+
+  if (trimmed.length > 255) {
+    return "File name must be 255 characters or fewer.";
+  }
+
+  if (/[\\/]/.test(trimmed)) {
+    return "File name cannot contain path separators.";
+  }
+
+  const extension = getFilenameExtension(trimmed);
+  if (extension && DANGEROUS_FILENAME_EXTENSIONS.has(extension)) {
+    return "That file extension is not allowed.";
+  }
+
+  return null;
+}
+
+export function validateUploadContentType(contentType: string | undefined): string | null {
+  if (!contentType) {
+    return "File content type is required.";
+  }
+
+  if (!isAllowedUploadMimeType(contentType)) {
+    return "Upload an image or video file in JPG, PNG, GIF, WebP, SVG, MP4, or WebM format.";
+  }
+
+  return null;
+}
+
+export async function validateUploadFile(file: File): Promise<UploadValidationResult> {
+  const filenameError = validateUploadFilename(file.name);
+  if (filenameError) {
+    return { valid: false, status: 400, error: filenameError };
+  }
+
+  const sizeError = validateUploadSize(file.size);
+  if (sizeError) {
+    return { valid: false, status: 400, error: sizeError };
+  }
+
+  const contentTypeError = validateUploadContentType(file.type);
+  if (contentTypeError) {
+    return { valid: false, status: 400, error: contentTypeError };
+  }
+
+  if (!isAllowedUploadMimeType(file.type)) {
+    return {
+      valid: false,
+      status: 400,
+      error: "Unsupported upload content type.",
+    };
+  }
+
+  const contentType = file.type;
+  const buffer = Buffer.from(await file.arrayBuffer());
+  const detectedType = await fileTypeFromBuffer(new Uint8Array(buffer));
+
+  if (contentType === "image/svg+xml") {
+    if (!looksLikeSvg(buffer)) {
+      return {
+        valid: false,
+        status: 400,
+        error: "SVG uploads must contain SVG markup.",
+      };
     }
+
+    return {
+      valid: true,
+      buffer,
+      contentType,
+      extension: getUploadExtension(contentType),
+    };
   }
 
-  if (declaredType.startsWith("image/") || declaredType.startsWith("video/")) {
-    return { valid: false };
+  if (!detectedType) {
+    return {
+      valid: false,
+      status: 400,
+      error: "Could not verify the uploaded file type.",
+    };
   }
 
-  return { valid: true, detectedType: declaredType };
+  if (detectedType.mime !== contentType) {
+    return {
+      valid: false,
+      status: 400,
+      error: `File type mismatch: uploaded as ${contentType}, detected ${detectedTypeLabel(detectedType.mime)}.`,
+    };
+  }
+
+  return {
+    valid: true,
+    buffer,
+    contentType,
+    extension: getUploadExtension(contentType),
+  };
 }
 
-export function validateFileSize(size: number): { valid: boolean; error?: string } {
-  if (size > MAX_FILE_SIZE) {
-    return { valid: false, error: `File size exceeds ${MAX_FILE_SIZE / 1024 / 1024}MB limit` };
+function getFilenameExtension(filename: string): string {
+  const lastDot = filename.lastIndexOf(".");
+  if (lastDot === -1 || lastDot === filename.length - 1) {
+    return "";
   }
-  return { valid: true };
+
+  return filename.slice(lastDot + 1).toLowerCase();
 }
 
-export function validateFilename(filename: string): { valid: boolean; error?: string } {
-  const sanitized = filename.replace(/[^a-zA-Z0-9._-]/g, "");
-  
-  if (sanitized.length === 0) {
-    return { valid: false, error: "Invalid filename" };
-  }
-  
-  if (sanitized.length > 255) {
-    return { valid: false, error: "Filename too long" };
-  }
-  
-  const dangerousExtensions = [".exe", ".bat", ".cmd", ".sh", ".ps1", ".js", ".jar"];
-  const ext = sanitized.toLowerCase().slice(sanitized.lastIndexOf("."));
-  
-  if (dangerousExtensions.includes(ext)) {
-    return { valid: false, error: "File type not allowed" };
-  }
-  
-  return { valid: true };
+function looksLikeSvg(buffer: Buffer): boolean {
+  const text = buffer.toString("utf8", 0, Math.min(buffer.length, 512)).trimStart();
+  return text.startsWith("<svg") || (text.startsWith("<?xml") && text.includes("<svg"));
 }
 
-export async function validateUpload(
-  file: File,
-  buffer: Buffer
-): Promise<{ valid: boolean; errors: string[] }> {
-  const errors: string[] = [];
-
-  const sizeValidation = validateFileSize(file.size);
-  if (!sizeValidation.valid) {
-    errors.push(sizeValidation.error!);
-  }
-
-  const filenameValidation = validateFilename(file.name);
-  if (!filenameValidation.valid) {
-    errors.push(filenameValidation.error!);
-  }
-
-  const typeValidation = validateFileType(buffer, file.type);
-  if (!typeValidation.valid) {
-    if (typeValidation.detectedType) {
-      errors.push(`File type mismatch: declared ${file.type}, detected ${typeValidation.detectedType}`);
-    } else {
-      errors.push("Could not verify file type");
-    }
-  }
-
-  return { valid: errors.length === 0, errors };
+function detectedTypeLabel(mimeType: string): string {
+  return isAllowedUploadMimeType(mimeType) ? mimeType : "an unsupported file type";
 }

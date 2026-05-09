@@ -1,18 +1,17 @@
 import { NextResponse } from "next/server";
 import { getAuthSession } from "@/server/auth";
-import { uploadFile } from "@/server/storage";
+import { validateUploadFile } from "@/lib/file-validation";
+import { uploadBuffer } from "@/server/storage";
 import { checkRateLimit } from "@/server/rate-limit";
 import { processMediaWithRust } from "@/server/services/hotpath-client";
 
 export async function POST(req: Request) {
   try {
-    // Authentication check - REQUIRED for uploads
     const session = await getAuthSession();
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Rate limiting: 20 uploads per minute per user
     const rateLimit = await checkRateLimit(`upload:${session.user.id}`, 20, 60);
     if (!rateLimit.success) {
       return NextResponse.json({ 
@@ -21,37 +20,26 @@ export async function POST(req: Request) {
     }
 
     const form = await req.formData();
-    const file = form.get("file") as File | null;
-    if (!file) {
+    const file = form.get("file");
+    if (!(file instanceof File)) {
       return NextResponse.json({ error: "Missing file" }, { status: 400 });
     }
-    
-    // Support both images and videos
-    if (!file.type.startsWith("image/") && !file.type.startsWith("video/")) {
-      return NextResponse.json({ error: "Only image and video uploads allowed" }, { status: 400 });
+
+    const validation = await validateUploadFile(file);
+    if (!validation.valid) {
+      return NextResponse.json(
+        { error: validation.error },
+        { status: validation.status }
+      );
     }
 
-    // Check file size (5MB limit)
-    if (file.size > 5 * 1024 * 1024) {
-      return NextResponse.json({ error: "File size must be less than 5MB" }, { status: 400 });
-    }
-
-    // Server-side magic byte validation to prevent spoofed MIME types
-    const { fileTypeFromBuffer } = await import('file-type');
-    const buffer = Buffer.from(await file.arrayBuffer());
-    const detectedType = await fileTypeFromBuffer(new Uint8Array(buffer));
-    const ALLOWED_MIMES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml', 'video/mp4', 'video/webm'];
-    // Only block when detectedType exists AND is not in the allowlist
-    // (SVG files won't be detected by file-type since they're XML-based)
-    if (detectedType && !ALLOWED_MIMES.includes(detectedType.mime)) {
-      return NextResponse.json({ error: "Invalid file type detected" }, { status: 400 });
-    }
-
-    // Use the abstracted upload function (S3 or Local)
-    const { url } = await uploadFile(file);
+    const { url } = await uploadBuffer({
+      buffer: validation.buffer,
+      contentType: validation.contentType,
+    });
     await processMediaWithRust({
       mediaId: crypto.randomUUID(),
-      mediaType: file.type.startsWith("video/") ? "video" : "image",
+      mediaType: validation.contentType.startsWith("video/") ? "video" : "image",
       url,
     });
 
