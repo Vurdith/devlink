@@ -91,7 +91,7 @@ export function CardFooter({ className, ...props }: HTMLAttributes<HTMLDivElemen
   return (
     <div 
       className={cn(
-        "mt-4 pt-4 border-t border-white/10 flex items-center justify-between",
+        "mt-4 flex items-center justify-between border-t border-white/[0.08] pt-4",
         className
       )} 
       {...props} 

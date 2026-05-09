@@ -245,7 +245,7 @@ export const BaseModal = memo(function BaseModal({
       >
         {/* Header */}
         {(title || showCloseButton || headerRight) && (
-          <div className="flex-shrink-0 flex items-center justify-between px-5 py-4 border-b border-white/10">
+          <div className="flex flex-shrink-0 items-center justify-between border-b border-white/[0.08] px-5 py-4">
             <div className="flex items-center gap-3">
               {showCloseButton && (
                 <button
@@ -276,7 +276,7 @@ export const BaseModal = memo(function BaseModal({
         
         {/* Footer */}
         {footer && (
-          <div className="flex-shrink-0 px-5 py-4 border-t border-white/10 bg-black/20">
+          <div className="flex-shrink-0 border-t border-white/[0.08] bg-white/[0.018] px-5 py-4">
             {footer}
           </div>
         )}

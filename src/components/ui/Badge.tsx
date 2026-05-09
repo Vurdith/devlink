@@ -14,7 +14,7 @@ export function Badge({ className, variant = "accent", ...props }: BadgeProps) {
     outline:
       "bg-transparent text-[var(--foreground)] border border-white/15",
     muted:
-      "bg-[var(--muted)] text-[var(--muted-foreground)] border border-white/10",
+      "bg-[var(--muted)] text-[var(--muted-foreground)] border border-white/[0.08]",
   };
   return (
     <span

@@ -22,7 +22,7 @@ export const Avatar = memo(function Avatar({ src, alt = "", size, className, pri
   return (
     <div
       className={cn(
-        "relative overflow-hidden rounded-full bg-[var(--muted)] border border-white/10",
+        "relative overflow-hidden rounded-full border border-white/[0.08] bg-[var(--muted)]",
         // Only add default size if no explicit size or className sizing is provided
         !size && !className?.includes('w-') && !className?.includes('h-') && "w-9 h-9",
         className
