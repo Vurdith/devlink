@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAuthSession } from "@/server/auth";
 import { prisma } from "@/server/db";
+import { jobApplicationSelect } from "@/server/jobs/selects";
 
 export async function PATCH(
   req: Request,
@@ -23,7 +24,7 @@ export async function PATCH(
 
   const application = await prisma.jobApplication.findUnique({
     where: { id: applicationId },
-    include: { job: true },
+    select: { job: { select: { userId: true } } },
   });
 
   if (!application) {
@@ -37,10 +38,7 @@ export async function PATCH(
   const updated = await prisma.jobApplication.update({
     where: { id: applicationId },
     data: { status },
-    include: {
-      job: { include: { user: true } },
-      applicant: { include: { profile: true } },
-    },
+    select: jobApplicationSelect,
   });
 
   const response = NextResponse.json(updated);

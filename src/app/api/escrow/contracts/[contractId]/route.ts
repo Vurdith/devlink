@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { EscrowStatus } from "@prisma/client";
 import { getAuthSession } from "@/server/auth";
 import { prisma } from "@/server/db";
+import { escrowContractSelect } from "@/server/escrow/selects";
 
 const ESCROW_TRANSITION_POLICY: Record<
   EscrowStatus,
@@ -54,12 +55,7 @@ export async function GET(
     const { contractId } = await params;
     const contract = await prisma.escrowContract.findUnique({
       where: { id: contractId },
-      include: {
-        client: { include: { profile: true } },
-        developer: { include: { profile: true } },
-        milestone: true,
-        job: true,
-      },
+      select: escrowContractSelect,
     });
 
     if (!contract) {
@@ -92,7 +88,10 @@ export async function PATCH(
     }
 
     const { contractId } = await params;
-    const contract = await prisma.escrowContract.findUnique({ where: { id: contractId } });
+    const contract = await prisma.escrowContract.findUnique({
+      where: { id: contractId },
+      select: { clientId: true, developerId: true, status: true },
+    });
     if (!contract) {
       return NextResponse.json({ error: "Contract not found" }, { status: 404 });
     }
@@ -129,12 +128,7 @@ export async function PATCH(
     const updated = await prisma.escrowContract.update({
       where: { id: contractId },
       data: nextStatus ? { status: nextStatus } : {},
-      include: {
-        client: { include: { profile: true } },
-        developer: { include: { profile: true } },
-        milestone: true,
-        job: true,
-      },
+      select: escrowContractSelect,
     });
 
     const response = NextResponse.json(updated);

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAuthSession } from "@/server/auth";
 import { prisma } from "@/server/db";
+import { jobApplicationWithJobSelect } from "@/server/jobs/selects";
 
 export async function GET() {
   const session = await getAuthSession();
@@ -12,9 +13,7 @@ export async function GET() {
 
   const applications = await prisma.jobApplication.findMany({
     where: { applicantId: userId },
-    include: {
-      job: { include: { user: { include: { profile: true } } } },
-    },
+    select: jobApplicationWithJobSelect,
     orderBy: { createdAt: "desc" },
   });
 

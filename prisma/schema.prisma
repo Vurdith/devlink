@@ -461,7 +461,9 @@ model EscrowContract {
   milestone   EscrowMilestone?
 
   @@index([clientId])
+  @@index([clientId, createdAt])
   @@index([developerId])
+  @@index([developerId, createdAt])
   @@index([status])
   @@index([jobId])
 }

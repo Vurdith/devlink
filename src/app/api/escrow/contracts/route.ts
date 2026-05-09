@@ -1,10 +1,17 @@
 import { NextResponse } from "next/server";
 import { getAuthSession } from "@/server/auth";
 import { prisma } from "@/server/db";
+import { escrowContractSelect } from "@/server/escrow/selects";
 import { checkRateLimit } from "@/server/rate-limit";
 import { validateEscrowAmount, validateCurrency } from "@/lib/validation";
 
 const DEFAULT_LIMIT = 20;
+
+function parseLimit(value: string | null) {
+  const parsed = Number(value || DEFAULT_LIMIT);
+  if (!Number.isFinite(parsed) || parsed < 1) return DEFAULT_LIMIT;
+  return Math.min(Math.floor(parsed), 50);
+}
 
 export async function GET(req: Request) {
   try {
@@ -16,39 +23,14 @@ export async function GET(req: Request) {
     }
 
     const { searchParams } = new URL(req.url);
-    const limit = Math.min(parseInt(searchParams.get("limit") || String(DEFAULT_LIMIT)), 50);
+    const limit = parseLimit(searchParams.get("limit"));
     const cursor = searchParams.get("cursor");
 
     const contracts = await prisma.escrowContract.findMany({
       where: { OR: [{ clientId: userId }, { developerId: userId }] },
       take: limit + 1,
       ...(cursor ? { skip: 1, cursor: { id: cursor } } : {}),
-      select: {
-        id: true,
-        amount: true,
-        currency: true,
-        status: true,
-        createdAt: true,
-        updatedAt: true,
-        client: {
-          select: {
-            id: true,
-            username: true,
-            name: true,
-            profile: { select: { avatarUrl: true, verified: true } }
-          }
-        },
-        developer: {
-          select: {
-            id: true,
-            username: true,
-            name: true,
-            profile: { select: { avatarUrl: true, verified: true } }
-          }
-        },
-        milestone: { select: { id: true, title: true, amount: true, status: true } },
-        job: { select: { id: true, title: true } },
-      },
+      select: escrowContractSelect,
       orderBy: { createdAt: "desc" },
     });
 
@@ -105,7 +87,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: currencyValidation.errors[0] }, { status: 400 });
     }
 
-    const developer = await prisma.user.findUnique({ where: { id: developerId } });
+    const developer = await prisma.user.findUnique({ where: { id: developerId }, select: { id: true } });
     if (!developer) {
       return NextResponse.json({ error: "Developer not found" }, { status: 404 });
     }
@@ -144,12 +126,7 @@ export async function POST(req: Request) {
           },
         },
       },
-      include: {
-        client: { include: { profile: true } },
-        developer: { include: { profile: true } },
-        milestone: true,
-        job: true,
-      },
+      select: escrowContractSelect,
     });
 
     const response = NextResponse.json(contract, { status: 201 });

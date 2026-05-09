@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAuthSession } from "@/server/auth";
 import { prisma } from "@/server/db";
+import { jobApplicationSelect } from "@/server/jobs/selects";
 
 export async function GET(
   req: Request,
@@ -14,7 +15,7 @@ export async function GET(
   }
 
   const { jobId } = await params;
-  const job = await prisma.job.findUnique({ where: { id: jobId } });
+  const job = await prisma.job.findUnique({ where: { id: jobId }, select: { userId: true } });
   if (!job) {
     return NextResponse.json({ error: "Job not found" }, { status: 404 });
   }
@@ -24,9 +25,7 @@ export async function GET(
 
   const applications = await prisma.jobApplication.findMany({
     where: { jobId },
-    include: {
-      applicant: { include: { profile: true } },
-    },
+    select: jobApplicationSelect,
     orderBy: { createdAt: "desc" },
   });
 

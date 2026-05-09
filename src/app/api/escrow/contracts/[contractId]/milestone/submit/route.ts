@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAuthSession } from "@/server/auth";
 import { prisma } from "@/server/db";
+import { escrowContractSelect } from "@/server/escrow/selects";
 
 export async function POST(
   req: Request,
@@ -17,7 +18,10 @@ export async function POST(
     const { contractId } = await params;
     const contract = await prisma.escrowContract.findUnique({
       where: { id: contractId },
-      include: { milestone: true },
+      select: {
+        developerId: true,
+        milestone: { select: { status: true } },
+      },
     });
 
     if (!contract || !contract.milestone) {
@@ -32,7 +36,7 @@ export async function POST(
       return NextResponse.json({ error: "Milestone cannot be submitted" }, { status: 400 });
     }
 
-    await prisma.$transaction([
+    const [, updatedContract] = await prisma.$transaction([
       prisma.escrowMilestone.update({
         where: { contractId },
         data: { status: "SUBMITTED", submittedAt: new Date() },
@@ -40,17 +44,9 @@ export async function POST(
       prisma.escrowContract.update({
         where: { id: contractId },
         data: { status: "SUBMITTED" },
+        select: escrowContractSelect,
       }),
     ]);
-
-    const updatedContract = await prisma.escrowContract.findUnique({
-      where: { id: contractId },
-      include: {
-        client: { include: { profile: true } },
-        developer: { include: { profile: true } },
-        milestone: true,
-      },
-    });
 
     const response = NextResponse.json({ contract: updatedContract });
     response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAuthSession } from "@/server/auth";
 import { prisma } from "@/server/db";
+import { jobSummarySelect } from "@/server/jobs/selects";
 import { validateJobTitle, validateJobDescription, validateCurrency } from "@/lib/validation";
 
 export async function GET(
@@ -13,8 +14,8 @@ export async function GET(
 
   const job = await prisma.job.findUnique({
     where: { id: jobId },
-    include: {
-      user: { include: { profile: true } },
+    select: {
+      ...jobSummarySelect,
       _count: { select: { applications: true } },
       applications: userId
         ? {
@@ -50,7 +51,7 @@ export async function PATCH(
   }
 
   const { jobId } = await params;
-  const job = await prisma.job.findUnique({ where: { id: jobId } });
+  const job = await prisma.job.findUnique({ where: { id: jobId }, select: { userId: true } });
   if (!job) {
     return NextResponse.json({ error: "Job not found" }, { status: 404 });
   }
@@ -102,10 +103,7 @@ export async function PATCH(
       skills: typeof skills === "string" ? skills.trim() : undefined,
       location: typeof location === "string" ? location.trim() : undefined,
     },
-    include: {
-      user: { include: { profile: true } },
-      _count: { select: { applications: true } },
-    },
+    select: jobSummarySelect,
   });
 
   return NextResponse.json(updated);
@@ -123,7 +121,7 @@ export async function DELETE(
   }
 
   const { jobId } = await params;
-  const job = await prisma.job.findUnique({ where: { id: jobId } });
+  const job = await prisma.job.findUnique({ where: { id: jobId }, select: { userId: true } });
   if (!job) {
     return NextResponse.json({ error: "Job not found" }, { status: 404 });
   }

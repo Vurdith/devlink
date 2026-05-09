@@ -1,16 +1,23 @@
 import { NextResponse } from "next/server";
 import { getAuthSession } from "@/server/auth";
 import { prisma } from "@/server/db";
+import { jobSummarySelect } from "@/server/jobs/selects";
 import { checkRateLimit } from "@/server/rate-limit";
 import { validateJobTitle, validateJobDescription, validateCurrency } from "@/lib/validation";
 
 const DEFAULT_LIMIT = 20;
 
+function parseLimit(value: string | null) {
+  const parsed = Number(value || DEFAULT_LIMIT);
+  if (!Number.isFinite(parsed) || parsed < 1) return DEFAULT_LIMIT;
+  return Math.min(Math.floor(parsed), 50);
+}
+
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const statusParam = searchParams.get("status");
   const userId = searchParams.get("userId");
-  const limit = Math.min(Number(searchParams.get("limit") || DEFAULT_LIMIT), 50);
+  const limit = parseLimit(searchParams.get("limit"));
   const cursor = searchParams.get("cursor");
 
   const status = statusParam === "closed" ? "CLOSED" : statusParam === "open" ? "OPEN" : undefined;
@@ -24,10 +31,7 @@ export async function GET(req: Request) {
     take: limit + 1,
     ...(cursor ? { skip: 1, cursor: { id: cursor } } : {}),
     orderBy: { createdAt: "desc" },
-    include: {
-      user: { include: { profile: true } },
-      _count: { select: { applications: true } },
-    },
+    select: jobSummarySelect,
   });
 
   const hasMore = jobs.length > limit;
@@ -94,10 +98,7 @@ export async function POST(req: Request) {
       skills: typeof skills === "string" ? skills.trim() : null,
       location: typeof location === "string" ? location.trim() : null,
     },
-    include: {
-      user: { include: { profile: true } },
-      _count: { select: { applications: true } },
-    },
+    select: jobSummarySelect,
   });
 
   return NextResponse.json(job, { status: 201 });
