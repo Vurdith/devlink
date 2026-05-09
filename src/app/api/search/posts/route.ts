@@ -3,6 +3,7 @@ import { prismaRead } from "@/server/db-read";
 import { responseCache } from "@/server/cache";
 import { getAuthSession } from "@/server/auth";
 import { searchPostsIndex } from "@/server/search";
+import { normalizeSearchQuery, searchCacheKeyPart } from "@/server/search/query-utils";
 import { attachPostEngagement, fetchPostEngagementSummary, getPostPollIds } from "@/server/posts/post-engagement";
 import { postListSelect } from "@/server/posts/post-selects";
 
@@ -17,11 +18,16 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ posts: [] });
     }
 
+    const query = normalizeSearchQuery(q);
+    if (!query) {
+      return NextResponse.json({ posts: [] });
+    }
+
     const session = await getAuthSession();
     const currentUserId = session?.user?.id;
 
     // Cache key includes user ID for personalized engagement flags
-    const cacheKey = `search:posts:${q.toLowerCase()}:${currentUserId || 'anon'}`;
+    const cacheKey = `search:posts:${searchCacheKeyPart(query)}:${currentUserId || "anon"}`;
     
     // Try cache first
     const cached = await responseCache.get<unknown[]>(cacheKey);
@@ -32,7 +38,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Use search index when configured; fallback to Prisma filtering.
-    const indexedPostIds = await searchPostsIndex(q, 20);
+    const indexedPostIds = await searchPostsIndex(query, 20);
 
     // Search for posts by indexed IDs or direct content fallback.
     const posts = await prismaRead.post.findMany({
@@ -42,7 +48,7 @@ export async function GET(request: NextRequest) {
           ? { id: { in: indexedPostIds } }
           : {
               content: {
-                contains: q,
+                contains: query,
                 mode: "insensitive",
               },
             }),

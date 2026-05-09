@@ -1,12 +1,17 @@
 import { getAuthSession } from "@/server/auth";
-import { fetchDiscoverUsers, getFollowingStatus } from "@/server/discover/fetch-discover-users";
+import {
+  fetchDiscoverUsers,
+  getFollowingStatus,
+  normalizeDiscoverCursor,
+  normalizeDiscoverProfileType,
+} from "@/server/discover/fetch-discover-users";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
-    const profileType = searchParams.get("type") || "all";
-    const cursor = searchParams.get("cursor") || undefined;
+    const profileType = normalizeDiscoverProfileType(searchParams.get("type"));
+    const cursor = normalizeDiscoverCursor(searchParams.get("cursor"));
     const [session, result] = await Promise.all([
       getAuthSession(),
       fetchDiscoverUsers(profileType, cursor),

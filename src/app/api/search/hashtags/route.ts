@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/server/db";
+import { prismaRead } from "@/server/db-read";
 import { responseCache } from "@/server/cache";
+import { normalizeSearchQuery, searchCacheKeyPart } from "@/server/search/query-utils";
 
 const HASHTAG_CACHE_TTL = 300; // Cache for 5 minutes (hashtags don't change often)
 
@@ -14,8 +15,12 @@ export async function GET(request: NextRequest) {
     }
 
     // Remove # if present
-    const searchTerm = q.startsWith("#") ? q.slice(1) : q;
-    const cacheKey = `search:hashtags:${searchTerm.toLowerCase()}`;
+    const searchTerm = normalizeSearchQuery(q, "#").toLowerCase();
+    if (!searchTerm) {
+      return NextResponse.json({ hashtags: [] });
+    }
+
+    const cacheKey = `search:hashtags:${searchCacheKeyPart(searchTerm)}`;
     
     // Try cache first
     const cached = await responseCache.get<unknown[]>(cacheKey);
@@ -24,7 +29,7 @@ export async function GET(request: NextRequest) {
     }
     
     // Search for hashtags that contain the search term
-    const hashtags = await prisma.hashtag.findMany({
+    const hashtags = await prismaRead.hashtag.findMany({
       where: {
         name: {
           contains: searchTerm.toLowerCase()

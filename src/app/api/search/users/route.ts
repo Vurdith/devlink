@@ -1,8 +1,8 @@
-import { prisma } from "@/server/db";
 import { prismaRead } from "@/server/db-read";
 import { NextResponse } from "next/server";
 import { getAuthSession } from "@/server/auth";
 import { responseCache } from "@/server/cache";
+import { normalizeSearchQuery, searchCacheKeyPart } from "@/server/search/query-utils";
 
 const SEARCH_CACHE_TTL = 120; // Cache search results for 2 minutes
 
@@ -19,8 +19,10 @@ export async function GET(req: Request) {
   if (!q) return NextResponse.json({ users: [] });
   
   // allow leading @
-  const term = q.startsWith("@") ? q.slice(1) : q;
-  const cacheKey = `search:users:${term.toLowerCase()}`;
+  const term = normalizeSearchQuery(q, "@");
+  if (!term) return NextResponse.json({ users: [] });
+
+  const cacheKey = `search:users:${searchCacheKeyPart(term)}`;
   
   // Try cache first for the base user data
   let users = await responseCache.get<SearchUser[]>(cacheKey);
@@ -59,7 +61,7 @@ export async function GET(req: Request) {
   let followingIds = new Set<string>();
   
   if (currentUserId && users.length > 0) {
-    const relations = await prisma.follower.findMany({
+    const relations = await prismaRead.follower.findMany({
       where: { followerId: currentUserId, followingId: { in: users.map(u => u.id) } },
       select: { followingId: true },
     });

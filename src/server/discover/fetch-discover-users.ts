@@ -1,8 +1,15 @@
-import { prisma } from "@/server/db";
 import { responseCache } from "@/server/cache";
+import { prismaRead } from "@/server/db-read";
 
 const PAGE_SIZE = 24;
 const CACHE_TTL = 120; // 2 minutes cache for faster loads
+const DISCOVER_PROFILE_TYPES = new Set([
+  "DEVELOPER",
+  "CLIENT",
+  "INFLUENCER",
+  "STUDIO",
+  "INVESTOR",
+]);
 
 export interface DiscoverUser {
   id: string;
@@ -28,6 +35,17 @@ export interface DiscoverResult {
   hasMore: boolean;
 }
 
+export function normalizeDiscoverProfileType(profileType?: string | null) {
+  if (!profileType || profileType === "all") return "all";
+  const normalized = profileType.toUpperCase();
+  return DISCOVER_PROFILE_TYPES.has(normalized) ? normalized : "all";
+}
+
+export function normalizeDiscoverCursor(cursor?: string | null) {
+  const normalized = cursor?.trim();
+  return normalized && normalized.length <= 128 ? normalized : undefined;
+}
+
 /**
  * Fetch users for the discover page with caching
  * Optimized for server-side rendering
@@ -36,7 +54,9 @@ export async function fetchDiscoverUsers(
   profileType: string = "all",
   cursor?: string
 ): Promise<DiscoverResult> {
-  const cacheKey = `discover:v2:${profileType}:${cursor || "initial"}`;
+  const normalizedProfileType = normalizeDiscoverProfileType(profileType);
+  const normalizedCursor = normalizeDiscoverCursor(cursor);
+  const cacheKey = `discover:v3:${normalizedProfileType}:${normalizedCursor || "initial"}`;
 
   // Try cache first
   const cached = await responseCache.get<DiscoverResult>(cacheKey);
@@ -46,12 +66,12 @@ export async function fetchDiscoverUsers(
 
   // Build where clause
   const where: { profile?: { profileType: string } } = {};
-  if (profileType && profileType !== "all") {
-    where.profile = { profileType };
+  if (normalizedProfileType !== "all") {
+    where.profile = { profileType: normalizedProfileType };
   }
 
   // Optimized query - fetch only what's needed
-  const users = await prisma.user.findMany({
+  const users = await prismaRead.user.findMany({
     where,
     select: {
       id: true,
@@ -80,9 +100,9 @@ export async function fetchDiscoverUsers(
       { createdAt: "desc" },
     ],
     take: PAGE_SIZE + 1,
-    ...(cursor && {
+    ...(normalizedCursor && {
       skip: 1,
-      cursor: { id: cursor },
+      cursor: { id: normalizedCursor },
     }),
   });
 
@@ -113,7 +133,7 @@ export async function getFollowingStatus(
     return new Set();
   }
 
-  const following = await prisma.follower.findMany({
+  const following = await prismaRead.follower.findMany({
     where: {
       followerId: currentUserId,
       followingId: { in: userIds },

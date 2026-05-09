@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/server/db";
 import { responseCache } from "@/server/cache";
+import { prismaRead } from "@/server/db-read";
 
 // Cache user profiles for 60 seconds to reduce DB load
 const USER_CACHE_TTL = 60;
@@ -21,7 +21,7 @@ export async function GET(
       });
     }
 
-    const user = await prisma.user.findUnique({
+    const user = await prismaRead.user.findUnique({
       where: { username },
       select: {
         id: true,
