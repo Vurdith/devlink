@@ -4,6 +4,7 @@ import { Avatar } from "../ui/Avatar";
 import { TimeAgo } from "../ui/TimeAgo";
 import { ProfileTooltip } from "../profile/ProfileTooltip";
 import { cn } from "@/lib/cn";
+import { surface, ui } from "@/components/ui/design-system";
 
 // Derive sentiment from rating
 function getSentiment(rating: number): "positive" | "negative" | "neutral" {
@@ -91,7 +92,7 @@ export function Review({ review, currentUserId, onEdit, onDelete }: ReviewProps)
   };
 
   return (
-    <div className="group bg-white/[0.02] hover:bg-white/[0.03] rounded-2xl border border-white/5 hover:border-white/10 transition-all duration-200 p-6">
+    <div className={surface("panelMuted", "group p-6 transition-colors hover:border-white/[0.16] hover:bg-white/[0.04]")}>
       {/* User Info Row */}
       <div className="flex items-start gap-4 mb-4">
         <ProfileTooltip user={userProfileData} currentUserId={currentUserId} position="top">
@@ -141,7 +142,7 @@ export function Review({ review, currentUserId, onEdit, onDelete }: ReviewProps)
         
         {/* Sentiment Badge */}
         <span className={cn(
-          "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium",
+          "inline-flex items-center gap-1 rounded-lg border px-2 py-0.5 text-xs font-semibold",
           sentiment === "positive" 
             ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"
             : sentiment === "neutral"
@@ -174,10 +175,10 @@ export function Review({ review, currentUserId, onEdit, onDelete }: ReviewProps)
 
       {/* Action Buttons */}
       {canEdit && (
-        <div className="flex items-center gap-4 mt-4 pt-4 border-t border-white/5 opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="mt-4 flex items-center gap-3 border-t border-white/[0.06] pt-4 opacity-0 transition-opacity group-hover:opacity-100">
           <button
             onClick={() => onEdit?.(review.id)}
-            className="flex items-center gap-2 text-sm font-medium text-[var(--color-accent)] hover:text-[var(--color-accent)] transition-colors"
+            className={cn("flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-sm font-semibold text-[var(--color-accent-2)] transition-colors", ui.control.ghost)}
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
@@ -187,7 +188,7 @@ export function Review({ review, currentUserId, onEdit, onDelete }: ReviewProps)
           </button>
           <button
             onClick={() => onDelete?.(review.id)}
-            className="flex items-center gap-2 text-sm font-medium text-[var(--color-accent)] hover:text-[var(--color-accent)] transition-colors"
+            className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-sm font-semibold text-rose-300 transition-colors hover:bg-rose-500/10"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />

@@ -160,7 +160,7 @@ export function ProfileTypeCard() {
           {isLoading ? (
             // Loading skeleton
             [...Array(6)].map((_, i) => (
-              <div key={i} className="p-4 rounded-xl bg-white/5 border border-white/10 animate-pulse">
+              <div key={i} className={surface("panelMuted", "p-4 animate-pulse")}>
                 <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-white/10" />
                 <div className="w-10 h-10 rounded-lg bg-white/10 mb-3" />
                 <div className="h-5 w-20 bg-white/10 rounded mb-2" />
@@ -212,7 +212,7 @@ export function ProfileTypeCard() {
                   "w-10 h-10 rounded-lg flex items-center justify-center mb-3 transition-all",
                   isActive 
                     ? `bg-gradient-to-br ${profileType.gradient} text-white`
-                    : "bg-white/10 text-[var(--muted-foreground)] group-hover:bg-white/15"
+                    : "bg-white/[0.045] text-[var(--muted-foreground)] group-hover:bg-white/[0.075]"
                 )}>
                   {profileType.icon}
                 </div>

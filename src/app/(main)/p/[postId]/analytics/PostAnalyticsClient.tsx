@@ -4,6 +4,7 @@ import { useEffect, useState, useMemo } from "react";
 import { formatDistanceToNowStrict, differenceInHours, differenceInDays } from "date-fns";
 import Link from "next/link";
 import { BackButton } from "@/components/ui/BackButton";
+import { surface } from "@/components/ui/design-system";
 import { calculateFallbackScore, DEFAULT_WEIGHTS, type AnalyticsEngagement } from "./analytics-scoring";
 
 import type { ScoreBreakdown as RustScoreBreakdown } from "@/server/services/hotpath-client";
@@ -251,31 +252,31 @@ export function PostAnalyticsClient({
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-              <div className="col-span-2 sm:col-span-1 glass rounded-2xl p-4 border border-white/5 flex flex-col justify-center bg-black/20 relative overflow-hidden group">
+              <div className={surface("panelMuted", "group relative col-span-2 flex flex-col justify-center overflow-hidden p-4 sm:col-span-1")}>
                 <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity" />
                 <div className="text-white/40 mb-2 flex items-center gap-2 relative z-10"><EyeIcon/></div>
                 <div className="text-2xl font-space-grotesk font-bold text-white relative z-10">{viewCount.toLocaleString()}</div>
                 <div className="text-[10px] uppercase tracking-wider text-white/40 mt-1 font-semibold relative z-10">Views</div>
               </div>
-              <div className="glass rounded-2xl p-4 border border-white/5 flex flex-col justify-center relative overflow-hidden group">
+              <div className={surface("panelMuted", "group relative flex flex-col justify-center overflow-hidden p-4")}>
                 <div className="absolute inset-0 bg-rose-500/10 opacity-0 group-hover:opacity-100 transition-opacity" />
                 <div className="text-rose-400/70 mb-2 flex items-center gap-2 relative z-10"><HeartIcon/></div>
                 <div className="text-2xl font-space-grotesk font-bold text-white relative z-10">{engagement.likes.toLocaleString()}</div>
                 <div className="text-[10px] uppercase tracking-wider text-white/40 mt-1 font-semibold relative z-10">Likes</div>
               </div>
-              <div className="glass rounded-2xl p-4 border border-white/5 flex flex-col justify-center relative overflow-hidden group">
+              <div className={surface("panelMuted", "group relative flex flex-col justify-center overflow-hidden p-4")}>
                 <div className="absolute inset-0 bg-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity" />
                 <div className="text-blue-400/70 mb-2 flex items-center gap-2 relative z-10"><MessageIcon/></div>
                 <div className="text-2xl font-space-grotesk font-bold text-white relative z-10">{engagement.replies.toLocaleString()}</div>
                 <div className="text-[10px] uppercase tracking-wider text-white/40 mt-1 font-semibold relative z-10">Replies</div>
               </div>
-              <div className="glass rounded-2xl p-4 border border-white/5 flex flex-col justify-center relative overflow-hidden group">
+              <div className={surface("panelMuted", "group relative flex flex-col justify-center overflow-hidden p-4")}>
                 <div className="absolute inset-0 bg-green-500/10 opacity-0 group-hover:opacity-100 transition-opacity" />
                 <div className="text-green-400/70 mb-2 flex items-center gap-2 relative z-10"><RepostIcon/></div>
                 <div className="text-2xl font-space-grotesk font-bold text-white relative z-10">{engagement.reposts.toLocaleString()}</div>
                 <div className="text-[10px] uppercase tracking-wider text-white/40 mt-1 font-semibold relative z-10">Reposts</div>
               </div>
-              <div className="glass rounded-2xl p-4 border border-white/5 flex flex-col justify-center relative overflow-hidden group">
+              <div className={surface("panelMuted", "group relative flex flex-col justify-center overflow-hidden p-4")}>
                 <div className="absolute inset-0 bg-amber-500/10 opacity-0 group-hover:opacity-100 transition-opacity" />
                 <div className="text-amber-400/70 mb-2 flex items-center gap-2 relative z-10"><BookmarkIcon/></div>
                 <div className="text-2xl font-space-grotesk font-bold text-white relative z-10">{engagement.saves.toLocaleString()}</div>
@@ -471,7 +472,7 @@ export function PostAnalyticsClient({
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {breakdown.penaltyReasons.map((reason, i) => (
-                  <div key={i} className="bg-[rgba(12,16,23,0.72)] rounded-2xl border border-red-500/20 p-5 font-mono text-sm flex justify-between items-center">
+                  <div key={i} className="flex items-center justify-between rounded-xl border border-red-500/20 bg-[rgba(12,16,23,0.72)] p-5 font-mono text-sm">
                     <span className="text-white/70">{reason}</span>
                     <span className="text-red-400 font-bold tracking-wider">DETECTED</span>
                   </div>
@@ -479,7 +480,7 @@ export function PostAnalyticsClient({
               </div>
               
               <div className="mt-6 flex justify-end">
-                <div className="inline-flex items-center gap-4 px-6 py-3 rounded-2xl bg-red-500/10 border border-red-500/20 font-mono">
+                <div className="inline-flex items-center gap-4 rounded-xl border border-red-500/20 bg-red-500/10 px-6 py-3 font-mono">
                   <span className="text-red-300/70 uppercase text-xs font-bold tracking-widest">Total Reduction</span>
                   <span className="text-2xl text-red-400 font-bold">-{breakdown.penalties.toFixed(1)} pts</span>
                 </div>

@@ -9,6 +9,7 @@ import { ProfileHubTabs } from "./ProfileHubTabs";
 import { ProfileSection, type ProfileData } from "./ProfileSection";
 import { SkillEditModal } from "./SkillEditModal";
 import { UserSkillsPanel } from "./UserSkillsPanel";
+import { iconBox } from "@/components/ui/design-system";
 import type { Skill, UserSkill } from "./profile-hub-types";
 
 export default function ProfileHubPage() {
@@ -257,7 +258,7 @@ export default function ProfileHubPage() {
         {/* Header */}
         <div className="mb-8">
           <div className="inline-flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 grid place-items-center text-white/80">
+            <div className={iconBox("cyan", "h-10 w-10")}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <path d="M12 20h9" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
                 <path d="M16.5 3.5 20.5 7.5 8 20H4v-4L16.5 3.5Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>

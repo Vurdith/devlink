@@ -150,7 +150,7 @@ export function ProfileSection({
                   <div
                     className={cn(
                       "w-10 h-10 rounded-lg flex items-center justify-center mb-3 transition-all",
-                      isActive ? `bg-gradient-to-br ${profileType.gradient} text-white` : "bg-white/10 text-[var(--muted-foreground)] group-hover:bg-white/15"
+                      isActive ? `bg-gradient-to-br ${profileType.gradient} text-white` : "bg-white/[0.045] text-[var(--muted-foreground)] group-hover:bg-white/[0.075]"
                     )}
                   >
                     {profileType.icon}

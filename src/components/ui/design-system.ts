@@ -31,6 +31,8 @@ export const ui = {
   control: {
     ghost: "border border-transparent hover:border-white/[0.08] hover:bg-white/[0.045]",
     gradient: "border border-[rgba(var(--color-accent-2-rgb),0.32)] bg-[linear-gradient(135deg,var(--color-accent),rgba(var(--color-accent-2-rgb),0.92))] text-white hover:brightness-110",
+    icon: "rounded-lg border border-white/[0.08] bg-white/[0.045] text-white/75 transition-all duration-200 hover:border-white/[0.14] hover:bg-white/[0.075] hover:text-white active:scale-[0.98] disabled:opacity-40 disabled:hover:scale-100",
+    field: "w-full rounded-lg border border-white/[0.10] bg-white/[0.035] px-3 py-2 text-sm text-white outline-none transition-colors placeholder:text-white/35 focus:border-[rgba(var(--color-accent-2-rgb),0.42)] focus:bg-white/[0.05]",
   },
 };
 

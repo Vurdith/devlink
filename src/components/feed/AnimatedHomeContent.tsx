@@ -4,6 +4,7 @@ import { CreatePost } from "./CreatePost";
 import { PostFeed } from "./PostFeed";
 import { ThemeLogoImg } from "@/components/ui/ThemeLogo";
 import { cn } from "@/lib/cn";
+import { iconBox, surface } from "@/components/ui/design-system";
 import type { FeedPost } from "@/types/post";
 
 interface UserProfile {
@@ -50,19 +51,19 @@ const FEATURE_STYLES: Record<
   { panel: string; icon: string; titleHover: string; glow: string }
 > = {
   blue: {
-    panel: "glass-soft border-blue-400/20 hover:border-blue-400/40 hover:bg-blue-500/5",
+    panel: "border-blue-400/20 bg-[rgba(12,16,23,0.58)] hover:border-blue-400/40 hover:bg-blue-500/[0.06]",
     icon: "text-blue-400 bg-blue-500/10 border border-blue-400/20",
     titleHover: "group-hover/card:text-blue-300",
     glow: "rgba(59, 130, 246, 0.4)",
   },
   green: {
-    panel: "glass-soft border-emerald-400/20 hover:border-emerald-400/40 hover:bg-emerald-500/5",
+    panel: "border-emerald-400/20 bg-[rgba(12,16,23,0.58)] hover:border-emerald-400/40 hover:bg-emerald-500/[0.06]",
     icon: "text-emerald-400 bg-emerald-500/10 border border-emerald-400/20",
     titleHover: "group-hover/card:text-emerald-300",
     glow: "rgba(16, 185, 129, 0.4)",
   },
   red: {
-    panel: "glass-soft border-rose-400/20 hover:border-rose-400/40 hover:bg-rose-500/5",
+    panel: "border-rose-400/20 bg-[rgba(12,16,23,0.58)] hover:border-rose-400/40 hover:bg-rose-500/[0.06]",
     icon: "text-rose-400 bg-rose-500/10 border border-rose-400/20",
     titleHover: "group-hover/card:text-rose-300",
     glow: "rgba(244, 63, 94, 0.4)",
@@ -203,7 +204,7 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
                 return (
                   <div
                     key={item.title}
-                    className={cn("group/card relative overflow-hidden rounded-3xl p-8 transition-all duration-500 hover:-translate-y-2 cursor-pointer border", style.panel)}
+                    className={cn("group/card relative cursor-pointer overflow-hidden rounded-xl border p-8 transition-all duration-300 hover:-translate-y-1", style.panel)}
                     style={{ animationDelay: `${0.3 + index * 0.15}s` }}
                   >
                     <div
@@ -217,7 +218,7 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
                     <div className="relative z-10">
                       <div
                         className={cn(
-                          "w-16 h-16 rounded-2xl flex items-center justify-center mb-8 mx-auto group-hover/card:scale-110 group-hover/card:rotate-[-5deg] transition-all duration-500",
+                          "mx-auto mb-8 flex h-16 w-16 items-center justify-center rounded-lg transition-all duration-300 group-hover/card:scale-105",
                           style.icon
                         )}
                       >
@@ -266,14 +267,14 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
             {/* Animated glow background */}
             <div className="absolute -inset-1 bg-gradient-to-r from-[var(--color-accent)]/10 via-cyan-500/10 to-[var(--color-accent)]/10 rounded-3xl opacity-30 group-hover:opacity-50 transition-opacity duration-500 animate-glow-pulse"></div>
 
-            <div className="relative glass-soft rounded-2xl p-6 border border-white/10 group-hover:border-white/20 transition-all duration-300 overflow-hidden">
+            <div className={surface("panel", "relative overflow-hidden p-6 transition-colors group-hover:border-white/[0.16]")}>
               {/* Subtle shimmer effect */}
               <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
                 <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out bg-gradient-to-r from-transparent via-white/5 to-transparent skew-x-12" />
               </div>
 
               <div className="relative flex items-center gap-4 mb-6">
-                <div className="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center border border-white/10 group-hover:border-[var(--color-accent)]/30 transition-colors">
+                <div className={iconBox("cyan", "h-10 w-10 transition-colors group-hover:border-[rgba(var(--color-accent-2-rgb),0.34)]")}>
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-[var(--color-accent)] group-hover:scale-110 transition-transform">
                     <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>

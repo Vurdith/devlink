@@ -5,6 +5,7 @@ import { Review } from "./Review";
 import { CreateReview } from "./CreateReview";
 import { ConfirmModal } from "../ui/BaseModal";
 import { cn } from "@/lib/cn";
+import { iconBox, surface, ui } from "@/components/ui/design-system";
 
 interface ReviewsSectionProps {
   targetUserId: string;
@@ -178,7 +179,7 @@ export const ReviewsSection = memo(function ReviewsSection({ targetUserId, targe
           <div className="h-6 bg-white/5 rounded-lg w-1/4" />
           <div className="space-y-6 mt-8">
             {[1, 2].map((i) => (
-              <div key={i} className="rounded-2xl p-8 bg-white/[0.02] border border-white/5">
+              <div key={i} className={surface("panelMuted", "p-8")}>
                 <div className="flex gap-5">
                   <div className="w-14 h-14 bg-white/5 rounded-full flex-shrink-0" />
                   <div className="flex-1 space-y-4">
@@ -215,7 +216,7 @@ export const ReviewsSection = memo(function ReviewsSection({ targetUserId, targe
         {canUserReview && !showCreateForm && (
           <button
             onClick={() => setShowCreateForm(true)}
-            className="flex-shrink-0 flex items-center gap-2.5 px-6 py-3 rounded-xl font-semibold text-sm bg-gradient-to-r from-[var(--color-accent-hover)] to-blue-600 text-white hover:from-[var(--color-accent)] hover:to-blue-500 transition-all duration-200 hover:scale-105 active:scale-95"
+            className={cn("flex flex-shrink-0 items-center gap-2.5 rounded-lg px-6 py-3 text-sm font-semibold transition-all", ui.control.gradient, ui.motion.press)}
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 5v14M5 12h14" />
@@ -231,10 +232,10 @@ export const ReviewsSection = memo(function ReviewsSection({ targetUserId, targe
           <button
             onClick={() => setSentimentFilter("all")}
             className={cn(
-              "px-4 py-2 rounded-full text-sm font-medium transition-all",
+              "rounded-lg border px-4 py-2 text-sm font-semibold transition-all",
               sentimentFilter === "all"
-                ? "bg-white/10 text-white border border-white/20"
-                : "text-white/50 hover:text-white/80 hover:bg-white/5"
+                ? ui.active.cyanStrong
+                : "border-transparent text-white/50 hover:border-white/[0.08] hover:bg-white/[0.045] hover:text-white/80"
             )}
           >
             All
@@ -243,7 +244,7 @@ export const ReviewsSection = memo(function ReviewsSection({ targetUserId, targe
           <button
             onClick={() => setSentimentFilter("positive")}
             className={cn(
-              "px-4 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-1.5",
+              "flex items-center gap-1.5 rounded-lg border px-4 py-2 text-sm font-semibold transition-all",
               sentimentFilter === "positive"
                 ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
                 : "text-white/50 hover:text-emerald-400 hover:bg-emerald-500/10"
@@ -260,7 +261,7 @@ export const ReviewsSection = memo(function ReviewsSection({ targetUserId, targe
           <button
             onClick={() => setSentimentFilter("neutral")}
             className={cn(
-              "px-4 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-1.5",
+              "flex items-center gap-1.5 rounded-lg border px-4 py-2 text-sm font-semibold transition-all",
               sentimentFilter === "neutral"
                 ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
                 : "text-white/50 hover:text-amber-400 hover:bg-amber-500/10"
@@ -277,7 +278,7 @@ export const ReviewsSection = memo(function ReviewsSection({ targetUserId, targe
           <button
             onClick={() => setSentimentFilter("negative")}
             className={cn(
-              "px-4 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-1.5",
+              "flex items-center gap-1.5 rounded-lg border px-4 py-2 text-sm font-semibold transition-all",
               sentimentFilter === "negative"
                 ? "bg-red-500/20 text-red-400 border border-red-500/30"
                 : "text-white/50 hover:text-red-400 hover:bg-red-500/10"
@@ -310,8 +311,8 @@ export const ReviewsSection = memo(function ReviewsSection({ targetUserId, targe
       {/* Reviews List */}
       <div className="space-y-6">
         {reviews.length === 0 ? (
-          <div className="text-center py-20 px-6">
-            <div className="w-20 h-20 mx-auto mb-8 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center">
+          <div className={surface("empty", "px-6 py-20 text-center")}>
+            <div className={iconBox("amber", "mx-auto mb-8 h-20 w-20")}>
               <svg className="w-10 h-10 text-amber-400/30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
               </svg>
@@ -323,16 +324,16 @@ export const ReviewsSection = memo(function ReviewsSection({ targetUserId, targe
             {canUserReview && !showCreateForm && (
               <button
                 onClick={() => setShowCreateForm(true)}
-                className="px-6 py-3 rounded-xl font-semibold text-sm bg-gradient-to-r from-[var(--color-accent-hover)] to-blue-600 text-white hover:from-[var(--color-accent)] hover:to-blue-500 transition-all"
+                className={cn("rounded-lg px-6 py-3 text-sm font-semibold transition-all", ui.control.gradient)}
               >
                 Write the first review
               </button>
             )}
           </div>
         ) : filteredReviews.length === 0 ? (
-          <div className="text-center py-16 px-6">
+          <div className={surface("empty", "px-6 py-16 text-center")}>
             <div className={cn(
-              "w-16 h-16 mx-auto mb-6 rounded-2xl flex items-center justify-center",
+              "mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-lg",
               sentimentFilter === "positive" 
                 ? "bg-emerald-500/10 border border-emerald-500/20" 
                 : sentimentFilter === "neutral"

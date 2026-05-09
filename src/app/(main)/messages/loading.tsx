@@ -1,3 +1,5 @@
+import { surface } from "@/components/ui/design-system";
+
 function MessagesSkeleton() {
   return (
     <div className="max-w-4xl mx-auto">
@@ -5,7 +7,7 @@ function MessagesSkeleton() {
         <div className="h-8 w-32 bg-white/10 rounded animate-pulse" />
       </div>
 
-      <div className="glass-soft border border-white/10 rounded-2xl overflow-hidden">
+      <div className={surface("panel", "overflow-hidden")}>
         <div className="p-4 border-b border-white/10">
           <div className="h-10 bg-white/5 rounded-xl animate-pulse" />
         </div>

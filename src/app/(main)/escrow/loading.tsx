@@ -1,3 +1,5 @@
+import { surface } from "@/components/ui/design-system";
+
 function EscrowSkeleton() {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -7,7 +9,7 @@ function EscrowSkeleton() {
       </div>
 
       {[1, 2].map((i) => (
-        <div key={i} className="glass-soft border border-white/10 rounded-2xl p-5">
+        <div key={i} className={surface("panelMuted", "p-5")}>
           <div className="flex items-start justify-between mb-4">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-full bg-white/10 animate-pulse" />

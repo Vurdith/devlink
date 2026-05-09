@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { cn } from "@/lib/cn";
 import { safeJson } from "@/lib/safe-json";
+import { ui } from "@/components/ui/design-system";
 import { MessageList } from "../_components/MessageList";
 import { ProfilePreviewCard } from "../_components/ProfilePreviewCard";
 import { MessageThreadHeader } from "../_components/MessageThreadHeader";
@@ -401,7 +402,8 @@ export default function MessageThreadPage() {
               rows={1}
               disabled={pendingRequest && hasSentRequestMsg}
               className={cn(
-                "w-full bg-white/[0.04] border border-white/[0.1] rounded-2xl px-4 py-2.5 text-[15px] text-white placeholder:text-white/30 resize-none focus:outline-none focus:border-[var(--color-accent)]/40 transition-colors min-h-[42px] max-h-[150px] scrollbar-hide leading-snug",
+                ui.control.field,
+                "min-h-[42px] max-h-[150px] resize-none rounded-xl px-4 py-2.5 text-[15px] leading-snug scrollbar-hide",
                 pendingRequest && hasSentRequestMsg && "opacity-40 cursor-not-allowed"
               )}
             />

@@ -2,6 +2,7 @@
 
 import { useState, memo } from "react";
 import { cn } from "@/lib/cn";
+import { surface, ui } from "@/components/ui/design-system";
 
 interface CreateReviewProps {
   targetUserId: string;
@@ -19,7 +20,7 @@ export const CreateReview = memo(function CreateReview({ targetUserId, targetUse
 
   if (!currentUserId) {
     return (
-      <div className="rounded-2xl p-8 bg-white/[0.02] border border-white/5 text-center">
+      <div className={surface("empty", "p-8 text-center")}>
         <p className="text-white/50 text-lg">Please log in to leave a review.</p>
       </div>
     );
@@ -102,7 +103,7 @@ export const CreateReview = memo(function CreateReview({ targetUserId, targetUse
   };
 
   return (
-    <div className="rounded-2xl bg-white/[0.02] border border-white/5 p-8">
+    <div className={surface("panel", "p-8")}>
       {/* Header */}
       <div className="mb-8">
         <h3 className="text-xl font-bold text-white mb-2">Write a Review</h3>
@@ -135,7 +136,7 @@ export const CreateReview = memo(function CreateReview({ targetUserId, targetUse
             value={text}
             onChange={(e) => setText(e.target.value)}
             placeholder="Tell others about your experience..."
-            className="w-full px-5 py-4 rounded-xl resize-none bg-white/[0.03] border border-white/10 text-white placeholder-white/30 focus:outline-none focus:border-[var(--color-accent)]/50 transition-colors text-base"
+            className={cn(ui.control.field, "min-h-[140px] resize-none px-5 py-4 text-base")}
             rows={5}
             maxLength={500}
           />
@@ -152,8 +153,8 @@ export const CreateReview = memo(function CreateReview({ targetUserId, targetUse
             className={cn(
               "flex-1 px-6 py-4 rounded-xl font-semibold text-white transition-all",
               rating === 0 
-                ? "bg-white/10 cursor-not-allowed" 
-                : "bg-gradient-to-r from-[var(--color-accent-hover)] to-blue-600 hover:from-[var(--color-accent)] hover:to-blue-500"
+                ? "cursor-not-allowed border border-white/[0.08] bg-white/[0.045] text-white/45"
+                : ui.control.gradient
             )}
           >
             {isSubmitting ? "Submitting..." : "Submit Review"}
@@ -164,7 +165,7 @@ export const CreateReview = memo(function CreateReview({ targetUserId, targetUse
               type="button"
               onClick={onCancel}
               disabled={isSubmitting}
-              className="px-6 py-4 rounded-xl font-semibold text-white/60 bg-white/5 border border-white/10 hover:bg-white/10 transition-colors"
+              className={cn("rounded-lg px-6 py-4 font-semibold text-white/70 transition-colors", ui.control.ghost)}
             >
               Cancel
             </button>

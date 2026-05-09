@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { cn } from "@/lib/cn";
 import { safeJson } from "@/lib/safe-json";
+import { iconBox, surface, ui } from "@/components/ui/design-system";
 import type { VerificationRequest } from "@/types/api";
 
 const verificationTypes = [
@@ -80,24 +81,31 @@ export default function VerificationPage() {
 
   return (
     <main className="max-w-4xl mx-auto px-4 pb-24 pt-8">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold tracking-tight text-white">Verification</h1>
-        <p className="text-sm text-[var(--muted-foreground)] mt-2">
-          Submit verification requests to build trust on DevLink.
-        </p>
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight text-white">Verification</h1>
+          <p className="mt-2 text-sm text-[var(--muted-foreground)]">
+            Submit verification requests to build trust on DevLink.
+          </p>
+        </div>
+        <div className={iconBox("cyan", "h-11 w-11")}>
+          <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 12l2 2 4-4m5-2.5V12c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V7.5L12 4l8 3.5z" />
+          </svg>
+        </div>
       </div>
 
       {!userId ? (
-        <div className="text-sm text-[var(--muted-foreground)]">Sign in to request verification.</div>
+        <div className={surface("empty", "p-5 text-sm text-[var(--muted-foreground)]")}>Sign in to request verification.</div>
       ) : (
         <>
-          <div className="glass-soft border border-white/10 rounded-2xl p-4 mb-6">
-            <h2 className="text-sm font-semibold text-white mb-3">New request</h2>
+          <div className={surface("panel", "mb-6 p-4")}>
+            <h2 className="mb-3 text-sm font-semibold text-white">New request</h2>
             <div className="grid gap-3">
               <select
                 value={form.type}
                 onChange={(e) => setForm((prev) => ({ ...prev, type: e.target.value }))}
-                className="bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white"
+                className={ui.control.field}
               >
                 {verificationTypes.map((type) => (
                   <option key={type.value} value={type.value} className="bg-[#0b0f14]">
@@ -109,20 +117,21 @@ export default function VerificationPage() {
                 value={form.documentUrl}
                 onChange={(e) => setForm((prev) => ({ ...prev, documentUrl: e.target.value }))}
                 placeholder="Document URL (optional)"
-                className="bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white"
+                className={ui.control.field}
               />
               <textarea
                 value={form.notes}
                 onChange={(e) => setForm((prev) => ({ ...prev, notes: e.target.value }))}
                 placeholder="Notes for the review team (optional)"
-                className="bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white min-h-[100px]"
+                className={cn(ui.control.field, "min-h-[100px] resize-y")}
               />
             </div>
             <button
               onClick={submitRequest}
               disabled={submitting}
               className={cn(
-                "mt-4 px-4 py-2 rounded-xl text-sm font-semibold bg-[var(--color-accent)] text-white",
+                "mt-4 rounded-lg px-4 py-2 text-sm font-semibold transition-all",
+                ui.control.gradient,
                 submitting && "opacity-60 cursor-not-allowed"
               )}
             >
@@ -130,8 +139,8 @@ export default function VerificationPage() {
             </button>
           </div>
 
-          <div className="glass-soft border border-white/10 rounded-2xl p-4">
-            <h2 className="text-sm font-semibold text-white mb-3">My requests</h2>
+          <div className={surface("panel", "p-4")}>
+            <h2 className="mb-3 text-sm font-semibold text-white">My requests</h2>
             {loading ? (
               <div className="text-sm text-[var(--muted-foreground)]">Loading requests...</div>
             ) : requests.length === 0 ? (
@@ -139,10 +148,10 @@ export default function VerificationPage() {
             ) : (
               <div className="grid gap-3">
                 {requests.map((request) => (
-                  <div key={request.id} className="rounded-xl border border-white/10 p-3 bg-white/5">
+                  <div key={request.id} className={surface("panelMuted", "p-3")}>
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-white">{request.type}</span>
-                      <span className="text-[10px] text-white/60">{request.status}</span>
+                      <span className="rounded-md border border-white/[0.08] bg-white/[0.04] px-2 py-0.5 text-[10px] font-semibold text-white/60">{request.status}</span>
                     </div>
                     {request.notes && (
                       <p className="text-xs text-white/70 mt-2">{request.notes}</p>

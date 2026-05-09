@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/Button";
-import { iconBox } from "@/components/ui/design-system";
+import { iconBox, surface } from "@/components/ui/design-system";
 import { useSession } from "next-auth/react";
 import { cn } from "@/lib/cn";
 
@@ -159,7 +159,7 @@ export default function AccountLinking() {
         {isInitialLoading ? (
           // Loading skeleton
           [...Array(3)].map((_, i) => (
-            <div key={i} className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/10 animate-pulse">
+            <div key={i} className={surface("panelMuted", "flex items-center justify-between p-4 animate-pulse")}>
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 rounded-lg bg-white/10" />
                 <div>

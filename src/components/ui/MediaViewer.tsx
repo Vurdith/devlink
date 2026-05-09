@@ -232,7 +232,7 @@ export function MediaViewer({
             {media.length > 1 && (
               <button
                 onClick={goToPrevious}
-                className="p-2.5 bg-white/10 hover:bg-white/15 text-white rounded-xl transition-all duration-200 hover:scale-105"
+                className={cn("p-2.5", ui.control.icon)}
                 title="Previous (←)"
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -243,7 +243,7 @@ export function MediaViewer({
 
             {/* Media Counter */}
             {media.length > 1 && (
-              <div className="px-3 py-1 bg-white/10 rounded-lg font-medium min-w-[60px] text-center">
+              <div className="min-w-[60px] rounded-lg border border-white/[0.08] bg-white/[0.045] px-3 py-1 text-center font-medium">
                 {currentIndex + 1} / {media.length}
               </div>
             )}
@@ -252,7 +252,7 @@ export function MediaViewer({
             {media.length > 1 && (
               <button
                 onClick={goToNext}
-                className="p-2.5 bg-white/10 hover:bg-white/15 text-white rounded-xl transition-all duration-200 hover:scale-105"
+                className={cn("p-2.5", ui.control.icon)}
                 title="Next (→)"
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -269,7 +269,7 @@ export function MediaViewer({
               <>
                 <button
                   onClick={() => handleZoomChange(Math.max(zoomLevel - 0.5, 0.5))}
-                  className="p-2.5 bg-white/10 hover:bg-white/15 text-white rounded-xl transition-all duration-200 hover:scale-105 disabled:opacity-40 disabled:hover:scale-100"
+                  className={cn("p-2.5", ui.control.icon)}
                   disabled={zoomLevel <= 0.5}
                   title="Zoom out (-)"
                 >
@@ -280,13 +280,13 @@ export function MediaViewer({
                   </svg>
                 </button>
 
-                <div className="px-3 py-1 bg-white/10 rounded-lg font-medium min-w-[60px] text-center">
+                <div className="min-w-[60px] rounded-lg border border-white/[0.08] bg-white/[0.045] px-3 py-1 text-center font-medium">
                   {Math.round(zoomLevel * 100)}%
                 </div>
 
                 <button
                   onClick={() => handleZoomChange(Math.min(zoomLevel + 0.5, 5))}
-                  className="p-2.5 bg-white/10 hover:bg-white/15 text-white rounded-xl transition-all duration-200 hover:scale-105 disabled:opacity-40 disabled:hover:scale-100"
+                  className={cn("p-2.5", ui.control.icon)}
                   disabled={zoomLevel >= 5}
                   title="Zoom in (+)"
                 >
@@ -299,7 +299,7 @@ export function MediaViewer({
 
                 <button
                   onClick={() => { setZoomLevel(1); setPanPosition({ x: 0, y: 0 }); }}
-                  className="p-2.5 bg-white/10 hover:bg-white/15 text-white rounded-xl transition-all duration-200 hover:scale-105"
+                  className={cn("p-2.5", ui.control.icon)}
                   title="Reset zoom (0)"
                 >
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none">

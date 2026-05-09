@@ -140,17 +140,17 @@ export function PortfolioMediaModal({
 
         <div className={surface("toolbar", "absolute bottom-6 left-1/2 flex -translate-x-1/2 items-center justify-center gap-3 px-5 py-3 text-sm text-white")}>
           {mediaUrls.length > 1 && (
-            <button onClick={onPrevious} className="p-2.5 bg-white/10 hover:bg-white/15 text-white rounded-xl transition-all duration-200 hover:scale-105" title="Previous">
+            <button onClick={onPrevious} className={cn("p-2.5", ui.control.icon)} title="Previous">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                 <path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </button>
           )}
 
-          {mediaUrls.length > 1 && <div className="px-3 py-1 bg-white/10 rounded-lg font-medium min-w-[60px] text-center">{currentMediaIndex + 1} / {mediaUrls.length}</div>}
+          {mediaUrls.length > 1 && <div className="min-w-[60px] rounded-lg border border-white/[0.08] bg-white/[0.045] px-3 py-1 text-center font-medium">{currentMediaIndex + 1} / {mediaUrls.length}</div>}
 
           {mediaUrls.length > 1 && (
-            <button onClick={onNext} className="p-2.5 bg-white/10 hover:bg-white/15 text-white rounded-xl transition-all duration-200 hover:scale-105" title="Next">
+            <button onClick={onNext} className={cn("p-2.5", ui.control.icon)} title="Next">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                 <path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
@@ -161,7 +161,7 @@ export function PortfolioMediaModal({
 
           <button
             onClick={() => setZoomAndClamp(Math.max(zoomLevel - 0.5, 0.5))}
-            className="p-2.5 bg-white/10 hover:bg-white/15 text-white rounded-xl transition-all duration-200 hover:scale-105 disabled:opacity-40 disabled:hover:scale-100"
+            className={cn("p-2.5", ui.control.icon)}
             disabled={zoomLevel <= 0.5}
             title="Zoom out (-)"
           >
@@ -172,11 +172,11 @@ export function PortfolioMediaModal({
             </svg>
           </button>
 
-          <div className="px-3 py-1 bg-white/10 rounded-lg font-medium min-w-[60px] text-center">{Math.round(zoomLevel * 100)}%</div>
+          <div className="min-w-[60px] rounded-lg border border-white/[0.08] bg-white/[0.045] px-3 py-1 text-center font-medium">{Math.round(zoomLevel * 100)}%</div>
 
           <button
             onClick={() => setZoomAndClamp(Math.min(zoomLevel + 0.5, 5))}
-            className="p-2.5 bg-white/10 hover:bg-white/15 text-white rounded-xl transition-all duration-200 hover:scale-105 disabled:opacity-40 disabled:hover:scale-100"
+            className={cn("p-2.5", ui.control.icon)}
             disabled={zoomLevel >= 5}
             title="Zoom in (+)"
           >
@@ -192,7 +192,7 @@ export function PortfolioMediaModal({
               onZoomLevelChange(1);
               onPanPositionChange({ x: 0, y: 0 });
             }}
-            className="p-2.5 bg-white/10 hover:bg-white/15 text-white rounded-xl transition-all duration-200 hover:scale-105"
+            className={cn("p-2.5", ui.control.icon)}
             title="Reset zoom (0)"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
