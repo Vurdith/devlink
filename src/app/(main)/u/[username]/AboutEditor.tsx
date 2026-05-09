@@ -12,10 +12,10 @@ export function AboutEditor({ editable }: {
   if (!editable) return null;
 
   return (
-    <div className="absolute right-3 top-3 sm:right-4 sm:top-4 group z-10">
+    <div className="group absolute right-3 top-3 z-10 sm:right-4 sm:top-4">
       <Link
         href="/profile-hub"
-        className="relative inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-white/12 bg-[rgba(7,10,15,0.82)] px-3 text-sm font-semibold text-white backdrop-blur-md transition-all duration-200 hover:border-[rgba(var(--color-accent-2-rgb),0.42)] hover:bg-[rgba(11,16,23,0.92)]"
+        className="relative inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-white/[0.10] bg-[rgba(7,10,15,0.74)] px-3 text-sm font-semibold text-white backdrop-blur-md transition-all duration-200 hover:-translate-y-0.5 hover:border-[rgba(var(--color-accent-2-rgb),0.42)] hover:bg-[rgba(11,16,23,0.94)]"
         aria-label="Profile Hub"
       >
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" className="text-[var(--color-accent-2)]">

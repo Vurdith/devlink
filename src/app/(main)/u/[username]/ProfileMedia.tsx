@@ -47,7 +47,7 @@ export function ProfileBanner({ initialBannerUrl, isOwnProfile }: ProfileBannerP
   const isBlob = bannerUrl?.startsWith('blob:');
 
   return (
-    <div className="relative z-0 h-48 sm:h-72 w-full group">
+    <div className="group relative z-0 h-48 w-full sm:h-72">
       {bannerUrl ? (
         // Use regular img for blob URLs (instant local preview), next/image for remote URLs
         isBlob ? (
@@ -69,7 +69,8 @@ export function ProfileBanner({ initialBannerUrl, isOwnProfile }: ProfileBannerP
       ) : (
         <div className="h-full w-full bg-[linear-gradient(135deg,rgba(15,23,42,0.95),rgba(var(--color-accent-rgb),0.28)_45%,rgba(var(--color-accent-2-rgb),0.24))]" />
       )}
-      <div className="absolute inset-0 bg-gradient-to-t from-[rgb(10,13,19)] via-black/28 to-black/5" />
+      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.08)_0%,rgba(0,0,0,0.12)_42%,rgba(7,10,15,0.92)_100%)]" />
+      <div className="absolute inset-x-0 bottom-0 h-28 bg-[radial-gradient(900px_180px_at_22%_100%,rgba(var(--color-accent-2-rgb),0.18),transparent_68%)]" />
       <BannerEditOverlay editable={isOwnProfile} />
     </div>
   );
@@ -81,12 +82,11 @@ export function ProfileAvatar({ initialAvatarUrl, isOwnProfile }: ProfileAvatarP
 
   return (
     <div className="relative z-20">
-      <div className="relative w-24 h-24 sm:w-32 sm:h-32 group">
-        {/* Subtle glow behind avatar */}
-        <div className="absolute -inset-1 bg-gradient-to-br from-white/12 via-[rgba(var(--color-accent-2-rgb),0.2)] to-[rgba(var(--color-accent-rgb),0.14)] rounded-full opacity-70" />
-        <div className="relative w-full h-full rounded-full border-4 border-[rgb(10,13,19)] overflow-hidden flex items-center justify-center">
+      <div className="group relative h-24 w-24 sm:h-32 sm:w-32">
+        <div className="absolute -inset-1.5 rounded-[1.8rem] bg-[linear-gradient(135deg,rgba(255,255,255,0.20),rgba(var(--color-accent-2-rgb),0.24),rgba(var(--color-accent-rgb),0.12))] opacity-90" />
+        <div className="relative flex h-full w-full items-center justify-center overflow-hidden rounded-[1.55rem] border border-white/[0.16] bg-[rgb(8,11,16)] p-1">
           <Avatar 
-            className="w-full h-full object-cover" 
+            className="h-full w-full rounded-[1.25rem] object-cover"
             src={avatarUrl || undefined} 
             key={avatarUrl || 'no-avatar'}
           />

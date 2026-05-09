@@ -148,7 +148,7 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
           isOwnProfile={isOwnProfile}
         />
         
-        <div className="relative -mt-16 px-4 pb-5 sm:-mt-20 sm:px-6 sm:pb-7 lg:px-8">
+        <div className="relative -mt-20 px-4 pb-5 sm:-mt-24 sm:px-6 sm:pb-7 lg:px-8">
           <AboutEditor
             initialBio={user.profile?.bio}
             initialLocation={user.profile?.location}
@@ -158,67 +158,79 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
             editable={isOwnProfile}
           />
 
-          <div className={surface("toolbar", "grid gap-5 bg-[rgba(7,10,15,0.78)] p-4 backdrop-blur-md sm:grid-cols-[auto_1fr_auto] sm:items-end sm:p-5")}>
-            <ProfileAvatar
-              initialAvatarUrl={user.profile?.avatarUrl}
-              isOwnProfile={isOwnProfile}
+          <div className={surface("toolbar", "relative overflow-hidden bg-[rgba(7,10,15,0.82)] p-4 backdrop-blur-md sm:p-5")}>
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0 opacity-70"
+              style={{
+                background:
+                  "radial-gradient(720px 180px at 12% 0%, rgba(var(--color-accent-2-rgb),0.12), transparent 62%), radial-gradient(520px 180px at 96% 18%, rgba(var(--color-accent-rgb),0.10), transparent 66%)",
+              }}
             />
+            <div className="relative grid gap-5 lg:grid-cols-[auto_1fr_auto] lg:items-start">
+              <ProfileAvatar
+                initialAvatarUrl={user.profile?.avatarUrl}
+                isOwnProfile={isOwnProfile}
+              />
 
-            <div className="min-w-0">
-              <div className="flex flex-wrap items-center gap-2">
-                <h1 className="text-2xl font-semibold text-white truncate tracking-tight sm:text-3xl">
-                  {user.name ?? user.username}
-                </h1>
-                {user.profile?.verified && (
-                  <span className="inline-flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full border border-blue-400/40 bg-blue-500/25">
-                    <svg className="h-3 w-3 text-blue-300" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                      <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
-                    </svg>
-                  </span>
-                )}
-              </div>
-
-              <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-[var(--muted-foreground)]">
-                <span className="truncate">@{user.username}</span>
-                <span className="hidden text-white/20 sm:inline">/</span>
-                <Link href={`/u/${user.username}/followers`} className="transition-colors hover:text-white">
-                  <span className="font-medium text-white">{user?._count?.followers ?? 0}</span>{" "}
-                  followers
-                </Link>
-                <span className="hidden text-white/20 sm:inline">/</span>
-                <Link href={`/u/${user.username}/following`} className="transition-colors hover:text-white">
-                  <span className="font-medium text-white">{user?._count?.following ?? 0}</span>{" "}
-                  following
-                </Link>
-                {rating !== "-" && (
-                  <>
-                    <span className="hidden text-white/20 sm:inline">/</span>
-                    <span className="text-amber-200/90">
-                      <span className="font-medium text-amber-200">{rating}</span>{" "}
-                      rating
+              <div className="min-w-0 self-center">
+                <div className="flex flex-wrap items-center gap-3">
+                  <h1 className="truncate text-2xl font-semibold tracking-tight text-white sm:text-3xl">
+                    {user.name ?? user.username}
+                  </h1>
+                  {user.profile?.verified && (
+                    <span className="inline-flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full border border-blue-400/40 bg-blue-500/25">
+                      <svg className="h-3 w-3 text-blue-300" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                      </svg>
                     </span>
-                  </>
+                  )}
+                  {profileTypeConfig && profileType && (
+                    <span
+                      className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-[11px] font-bold uppercase tracking-wide ring-1 ring-inset ring-white/[0.04] ${profileTypeConfig.bgColor} ${profileTypeConfig.color}`}
+                    >
+                      <ProfileTypeIcon profileType={profileType} size={12} />
+                      {profileTypeConfig.label}
+                    </span>
+                  )}
+                </div>
+
+                <div className="mt-2 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-sm text-[var(--muted-foreground)]">
+                  <span className="truncate">@{user.username}</span>
+                  <span className="text-white/18">/</span>
+                  <Link href={`/u/${user.username}/followers`} className="transition-colors hover:text-white">
+                    <span className="font-semibold text-white">{user?._count?.followers ?? 0}</span>{" "}
+                    followers
+                  </Link>
+                  <span className="text-white/18">/</span>
+                  <Link href={`/u/${user.username}/following`} className="transition-colors hover:text-white">
+                    <span className="font-semibold text-white">{user?._count?.following ?? 0}</span>{" "}
+                    following
+                  </Link>
+                  {rating !== "-" && (
+                    <>
+                      <span className="text-white/18">/</span>
+                      <span className="text-amber-200/90">
+                        <span className="font-semibold text-amber-200">{rating}</span>{" "}
+                        rating
+                      </span>
+                    </>
+                  )}
+                </div>
+
+                {user.profile?.bio && (
+                  <div className="mt-4 max-w-3xl rounded-xl border border-white/[0.08] bg-white/[0.035] px-4 py-3">
+                    <p className="border-l-2 border-[rgba(var(--color-accent-2-rgb),0.52)] pl-4 text-[15px] font-semibold leading-relaxed text-white/82 whitespace-pre-wrap">
+                      {user.profile.bio}
+                    </p>
+                  </div>
                 )}
               </div>
 
-              {user.profile?.bio && (
-                <p className="mt-4 max-w-3xl border-l-2 border-[rgba(var(--color-accent-2-rgb),0.42)] pl-4 text-[15px] font-medium text-white/78 whitespace-pre-wrap leading-relaxed">
-                  {user.profile.bio}
-                </p>
-              )}
-            </div>
-
-            <div className="flex flex-wrap items-center gap-2 sm:justify-end">
-              {profileTypeConfig && profileType && (
-                <span
-                  className={`inline-flex items-center gap-1.5 rounded-lg border border-white/12 px-3 py-2 text-xs font-bold uppercase tracking-wide ring-1 ring-inset ring-white/[0.04] ${profileTypeConfig.bgColor} ${profileTypeConfig.color}`}
-                >
-                  <ProfileTypeIcon profileType={profileType} size={13} />
-                  {profileTypeConfig.label}
-                </span>
-              )}
               {!isOwnProfile && (
-                <FollowButton targetUserId={user.id} initialFollowing={initialFollowing} />
+                <div className="flex lg:justify-end">
+                  <FollowButton targetUserId={user.id} initialFollowing={initialFollowing} />
+                </div>
               )}
             </div>
           </div>
