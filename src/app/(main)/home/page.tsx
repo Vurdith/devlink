@@ -1,21 +1,18 @@
 import { getAuthSession } from "@/server/auth";
 import { redirect } from "next/navigation";
 import { AnimatedHomeContent } from "@/components/feed/AnimatedHomeContent";
-import { fetchHomeFeedCandidates, fetchHomeFeedPostDetails } from "@/server/feed/fetch-home-feed";
-import { rankHomeFeedPosts } from "@/server/feed/rank-home-feed";
+import { fetchRankedHomeFeedPosts } from "@/server/feed/home-feed";
 import { attachPostEngagement, fetchPostEngagementSummary, getPostPollIds } from "@/server/posts/post-engagement";
 import { fetchCurrentUserProfile, needsPasswordSetup } from "@/server/users/current-user-profile";
 
 // Cache page for 30 seconds - engagement state is fetched client-side
 export const revalidate = 30;
-const FEED_CANDIDATE_LIMIT = 120;
-const FEED_RENDER_LIMIT = 30;
 
 export default async function HomePage() {
   // Fetch session and posts in parallel (first batch)
-  const [session, candidates] = await Promise.all([
+  const [session, rankedPosts] = await Promise.all([
     getAuthSession(),
-    fetchHomeFeedCandidates(FEED_CANDIDATE_LIMIT),
+    fetchRankedHomeFeedPosts(),
   ]);
 
   // Redirect new OAuth users to set password
@@ -25,12 +22,6 @@ export default async function HomePage() {
 
   const currentUserId = session?.user?.id;
   const username = session?.user?.username;
-
-  // Rank a larger candidate set, then trim to the render size.
-  const rankedCandidates = candidates.length > 0
-    ? (await rankHomeFeedPosts(candidates)).slice(0, FEED_RENDER_LIMIT)
-    : [];
-  const rankedPosts = await fetchHomeFeedPostDetails(rankedCandidates.map((post) => post.id));
 
   const [engagementSummary, currentUserProfile] = await Promise.all([
     rankedPosts.length > 0
