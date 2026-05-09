@@ -9,7 +9,8 @@ import { ProfileHubTabs } from "./ProfileHubTabs";
 import { ProfileSection, type ProfileData } from "./ProfileSection";
 import { SkillEditModal } from "./SkillEditModal";
 import { UserSkillsPanel } from "./UserSkillsPanel";
-import { iconBox, surface } from "@/components/ui/design-system";
+import { cn } from "@/lib/cn";
+import { iconBox, skeleton, surface } from "@/components/ui/design-system";
 import type { Skill, UserSkill } from "./profile-hub-types";
 
 export default function ProfileHubPage() {
@@ -240,11 +241,53 @@ export default function ProfileHubPage() {
     !userSkills.some(us => us.skillId === skill.id)
   );
 
+  const completedProfileFields = [
+    name,
+    profile.headline,
+    profile.bio,
+    profile.location,
+    profile.website,
+  ].filter((value) => Boolean(value && String(value).trim())).length;
+  const profileCompletion = Math.round((completedProfileFields / 5) * 100);
+  const hasPrimarySkill = userSkills.some((skill) => skill.isPrimary);
+
   if (status === "loading" || isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-[var(--color-accent)] border-t-transparent rounded-full animate-spin" />
-      </div>
+      <main className="relative px-4 py-6 sm:py-10">
+        <div className="relative mx-auto max-w-4xl">
+          <div className={surface("panel", "noise-overlay relative mb-6 overflow-hidden p-5 sm:mb-8")}>
+            <div className="flex items-center gap-3">
+              <div className={skeleton("h-10 w-10")} />
+              <div className="min-w-0 flex-1">
+                <div className={skeleton("mb-2 h-3 w-24")} />
+                <div className={skeleton("h-7 w-44")} />
+                <div className={skeleton("mt-2 h-4 w-64 max-w-full")} />
+              </div>
+            </div>
+          </div>
+          <div className={surface("toolbar", "noise-overlay mb-6 flex gap-2 overflow-hidden p-1.5")}>
+            <div className={skeleton("h-10 w-28 flex-shrink-0")} />
+            <div className={skeleton("h-10 w-40 flex-shrink-0")} />
+          </div>
+          <div className={surface("panel", "noise-overlay relative overflow-hidden p-5 sm:p-6")}>
+            <div className="flex items-center gap-3">
+              <div className={skeleton("h-10 w-10")} />
+              <div className="flex-1">
+                <div className={skeleton("h-5 w-36")} />
+                <div className={skeleton("mt-2 h-4 w-48 max-w-full")} />
+              </div>
+            </div>
+            <div className="mt-6 grid gap-4">
+              <div className={skeleton("h-11 w-full")} />
+              <div className={skeleton("h-28 w-full")} />
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className={skeleton("h-11 w-full")} />
+                <div className={skeleton("h-11 w-full")} />
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
     );
   }
 
@@ -252,19 +295,33 @@ export default function ProfileHubPage() {
     <main className="relative px-4 py-6 sm:py-10">
       <div className="relative mx-auto max-w-4xl">
         {/* Header */}
-        <div className={surface("panel", "noise-overlay relative mb-6 overflow-hidden p-5 sm:mb-8")}>
+        <div className={surface("panel", "noise-overlay relative mb-6 overflow-hidden p-5 sm:mb-8 sm:p-6")}>
           <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.42)] to-transparent" />
-          <div className="inline-flex items-center gap-3">
-            <div className={iconBox("cyan", "h-10 w-10")}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M12 20h9" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                <path d="M16.5 3.5 20.5 7.5 8 20H4v-4L16.5 3.5Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
+          <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+            <div className="flex min-w-0 items-start gap-3">
+              <div className={iconBox("cyan", "h-10 w-10 shrink-0")}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M12 20h9" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                  <path d="M16.5 3.5 20.5 7.5 8 20H4v-4L16.5 3.5Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+              <div className="min-w-0">
+                <div className="mb-1 text-[10px] font-bold uppercase tracking-[0.16em] text-[var(--color-accent-2)]">Profile tools</div>
+                <h1 className="font-[var(--font-space-grotesk)] text-2xl font-bold text-white">Profile Hub</h1>
+                <p className="mt-0.5 max-w-xl text-sm leading-relaxed text-[var(--muted-foreground)] sm:text-base">Manage your profile, skills, and services</p>
+              </div>
             </div>
-            <div>
-              <div className="mb-1 text-[10px] font-bold uppercase tracking-[0.16em] text-[var(--color-accent-2)]">Profile tools</div>
-              <h1 className="text-2xl font-bold text-white font-[var(--font-space-grotesk)]">Profile Hub</h1>
-              <p className="text-[var(--muted-foreground)] mt-0.5">Manage your profile, skills, and services</p>
+            <div className="grid grid-cols-2 gap-2 sm:w-[260px]">
+              <div className="rounded-lg border border-white/[0.08] bg-white/[0.035] px-3 py-2">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/42">Profile</p>
+                <p className="mt-1 text-sm font-semibold text-white">{profileCompletion}% ready</p>
+              </div>
+              <div className="rounded-lg border border-white/[0.08] bg-white/[0.035] px-3 py-2">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/42">Skills</p>
+                <p className={cn("mt-1 text-sm font-semibold", hasPrimarySkill ? "text-emerald-300" : "text-white")}>
+                  {userSkills.length}/15 added
+                </p>
+              </div>
             </div>
           </div>
         </div>

@@ -28,14 +28,14 @@ export function AddSkillsPanel({
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.36)] to-transparent" />
       <div
         aria-hidden="true"
-        className="absolute inset-0 pointer-events-none opacity-55"
+        className="pointer-events-none absolute inset-0 opacity-35"
         style={{
           background:
-            "radial-gradient(900px 260px at 20% 0%, rgba(var(--color-accent-rgb),0.10), transparent 62%), radial-gradient(700px 260px at 90% 10%, rgba(var(--color-accent-2-rgb),0.10), transparent 60%)",
+            "linear-gradient(180deg, rgba(var(--color-accent-2-rgb),0.06), transparent 48%)",
         }}
       />
       <div className="relative">
-        <div className="flex items-center gap-3 mb-6">
+        <div className="mb-6 flex items-center gap-3">
           <div className={iconBox("cyan", "h-10 w-10")}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-white">
               <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -49,34 +49,36 @@ export function AddSkillsPanel({
 
         <ModalInput placeholder="Search skills..." value={skillSearch} onChange={(event) => onSkillSearchChange(event.target.value)} className="mb-4" />
 
-        <div className="mb-4 grid max-h-64 grid-cols-1 gap-2 overflow-y-auto sm:grid-cols-2">
+        <div className="mb-4 grid max-h-72 grid-cols-1 gap-2 overflow-y-auto rounded-lg border border-white/[0.06] bg-black/[0.08] p-2 sm:grid-cols-2">
           {filteredSkills.slice(0, 30).map((skill) => (
             <button
               key={skill.id}
+              type="button"
               onClick={() => onAddSkill(skill)}
               disabled={!canAddMore}
               className={cn(
-                "rounded-lg border p-3 text-left outline-none transition-all focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]",
+                "group rounded-lg border p-3 text-left outline-none transition-all duration-200 focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.7)] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(8,11,16)]",
                 ui.surface.empty,
                 "hover:border-[rgba(var(--color-accent-2-rgb),0.28)] hover:bg-[rgba(var(--color-accent-2-rgb),0.06)]",
                 !canAddMore && "opacity-50 cursor-not-allowed"
               )}
             >
-              <p className="font-medium text-white text-sm">{skill.name}</p>
+              <p className="truncate text-sm font-medium text-white">{skill.name}</p>
             </button>
           ))}
 
           {trimmedSearch && filteredSkills.length === 0 && (
             <button
+              type="button"
               onClick={() => onAddCustomSkill(trimmedSearch)}
               disabled={!canAddMore}
               className={cn(
-                "col-span-full rounded-lg border p-3 text-left outline-none transition-all focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]",
+                "col-span-full rounded-lg border p-3 text-left outline-none transition-all focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.7)] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(8,11,16)]",
                 "border-[rgba(var(--color-accent-2-rgb),0.28)] bg-[rgba(var(--color-accent-2-rgb),0.06)] hover:bg-[rgba(var(--color-accent-2-rgb),0.10)]",
                 !canAddMore && "opacity-50 cursor-not-allowed"
               )}
             >
-              <p className="font-medium text-white text-sm flex items-center gap-2">
+              <p className="flex items-center gap-2 text-sm font-medium text-white">
                 <svg className="w-4 h-4 text-[var(--color-accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                 </svg>
@@ -87,11 +89,11 @@ export function AddSkillsPanel({
         </div>
 
         {!trimmedSearch && filteredSkills.length === 0 && (
-          <div className={surface("empty", "px-4 py-5 text-center text-sm text-[var(--muted-foreground)]")}>
+          <div className={surface("empty", "noise-overlay relative overflow-hidden px-4 py-5 text-center text-sm text-[var(--muted-foreground)]")}>
             Skill suggestions will appear here as the catalog loads.
           </div>
         )}
-        {!trimmedSearch && filteredSkills.length > 0 && <p className="text-center text-xs text-white/40">Can&apos;t find your skill? Type it above and add it as a custom skill</p>}
+        {!trimmedSearch && filteredSkills.length > 0 && <p className="text-center text-xs text-white/42">Can&apos;t find your skill? Type it above and add it as a custom skill</p>}
       </div>
     </div>
   );

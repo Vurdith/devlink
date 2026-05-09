@@ -41,14 +41,14 @@ export function ProfileSection({
         <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.36)] to-transparent" />
         <div
           aria-hidden="true"
-          className="absolute inset-0 pointer-events-none opacity-65"
+          className="pointer-events-none absolute inset-0 opacity-45"
           style={{
             background:
-              "radial-gradient(900px 260px at 20% 0%, rgba(var(--color-accent-rgb),0.12), transparent 62%), radial-gradient(700px 260px at 90% 10%, rgba(var(--color-accent-2-rgb),0.10), transparent 60%)",
+              "linear-gradient(180deg, rgba(var(--color-accent-2-rgb),0.06), transparent 48%)",
           }}
         />
         <div className="relative">
-          <div className="flex items-center gap-3 mb-6">
+          <div className="mb-6 flex items-center gap-3">
             <div className={iconBox("cyan", "h-10 w-10")}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-white">
                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -63,11 +63,11 @@ export function ProfileSection({
 
           <div className="grid gap-4">
             <div>
-              <label className="text-sm text-white/60 mb-1.5 block">Display Name</label>
+              <label className="mb-1.5 block text-sm font-medium text-white/68">Display name</label>
               <ModalInput value={name} onChange={(event) => onNameChange(event.target.value)} placeholder="Your name" />
             </div>
             <div>
-              <label className="text-sm text-white/60 mb-1.5 block">Bio</label>
+              <label className="mb-1.5 block text-sm font-medium text-white/68">Bio</label>
               <ModalTextarea
                 value={profile.bio}
                 onChange={(event) => onProfileChange({ ...profile, bio: event.target.value })}
@@ -77,7 +77,7 @@ export function ProfileSection({
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <label className="text-sm text-white/60 mb-1.5 block">Location</label>
+                <label className="mb-1.5 block text-sm font-medium text-white/68">Location</label>
                 <ModalInput
                   value={profile.location}
                   onChange={(event) => onProfileChange({ ...profile, location: event.target.value })}
@@ -85,7 +85,7 @@ export function ProfileSection({
                 />
               </div>
               <div>
-                <label className="text-sm text-white/60 mb-1.5 block">Website</label>
+                <label className="mb-1.5 block text-sm font-medium text-white/68">Website</label>
                 <ModalInput
                   value={profile.website}
                   onChange={(event) => onProfileChange({ ...profile, website: event.target.value })}
@@ -101,14 +101,14 @@ export function ProfileSection({
         <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.36)] to-transparent" />
         <div
           aria-hidden="true"
-          className="absolute inset-0 pointer-events-none opacity-55"
+          className="pointer-events-none absolute inset-0 opacity-35"
           style={{
             background:
-              "radial-gradient(900px 260px at 18% 0%, rgba(var(--color-accent-rgb),0.10), transparent 62%), radial-gradient(700px 260px at 92% 10%, rgba(var(--color-accent-2-rgb),0.10), transparent 60%)",
+              "linear-gradient(180deg, rgba(var(--color-accent-rgb),0.055), transparent 52%)",
           }}
         />
         <div className="relative">
-          <div className="flex items-center gap-3 mb-6">
+          <div className="mb-6 flex items-center gap-3">
             <div className={iconBox("cyan", "h-10 w-10")}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-white">
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -121,7 +121,7 @@ export function ProfileSection({
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {profileTypes.map((profileType) => {
               const isActive = profile.profileType === profileType.value;
               return (
@@ -130,16 +130,16 @@ export function ProfileSection({
                   type="button"
                   onClick={() => onProfileChange({ ...profile, profileType: profileType.value })}
                   className={cn(
-                    "group relative rounded-lg border p-4 text-left outline-none transition-all focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]",
+                    "group relative min-h-[138px] rounded-lg border p-4 text-left outline-none transition-all duration-200 focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.7)] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(8,11,16)]",
                     isActive
-                      ? `${profileType.bgColor} ${profileType.borderColor} ${ui.active.purple}`
+                      ? `${profileType.bgColor} ${profileType.borderColor} text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]`
                       : cn(ui.surface.empty, "hover:border-white/[0.14] hover:bg-white/[0.055]")
                   )}
                 >
                   <div
                     className={cn(
-                      "absolute top-3 right-3 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all",
-                    isActive ? `bg-gradient-to-br ${profileType.gradient} border-transparent` : "border-white/[0.18]"
+                      "absolute right-3 top-3 flex h-5 w-5 items-center justify-center rounded-full border-2 transition-all",
+                      isActive ? `border-transparent bg-gradient-to-br ${profileType.gradient}` : "border-white/[0.18]"
                     )}
                   >
                     {isActive && (
@@ -151,15 +151,15 @@ export function ProfileSection({
 
                   <div
                     className={cn(
-                      "w-10 h-10 rounded-lg flex items-center justify-center mb-3 transition-all",
-                      isActive ? `bg-gradient-to-br ${profileType.gradient} text-white` : "bg-white/[0.045] text-[var(--muted-foreground)] group-hover:bg-white/[0.075]"
+                      "mb-3 flex h-10 w-10 items-center justify-center rounded-lg transition-all",
+                      isActive ? `bg-gradient-to-br ${profileType.gradient} text-white` : "bg-white/[0.045] text-[var(--muted-foreground)] group-hover:bg-white/[0.075] group-hover:text-white/78"
                     )}
                   >
                     {profileType.icon}
                   </div>
 
-                  <div className="font-medium text-white mb-1">{profileType.label}</div>
-                  <div className="text-xs text-[var(--muted-foreground)]">{profileType.description}</div>
+                  <div className="mb-1 font-medium text-white">{profileType.label}</div>
+                  <div className="text-xs leading-relaxed text-[var(--muted-foreground)]">{profileType.description}</div>
                 </button>
               );
             })}

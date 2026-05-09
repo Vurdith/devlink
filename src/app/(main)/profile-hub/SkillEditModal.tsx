@@ -15,12 +15,20 @@ interface SkillEditModalProps {
 export function SkillEditModal({ skill, onSkillChange, onSave, onClose }: SkillEditModalProps) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={onClose} />
-      <div className={surface("panelStrong", "relative max-h-[90vh] w-full max-w-lg overflow-y-auto p-5 sm:p-6")}>
+      <div className="absolute inset-0 bg-black/86 backdrop-blur-sm" onClick={onClose} aria-hidden="true" />
+      <div
+        className={surface("panelStrong", "noise-overlay relative max-h-[90vh] w-full max-w-lg overflow-y-auto p-5 sm:p-6")}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="skill-edit-title"
+      >
         <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.38)] to-transparent" />
-        <div className="flex items-center justify-between mb-6">
-          <h3 className="text-lg font-semibold text-white">Edit {skill.skill.name}</h3>
-          <button onClick={onClose} className={cn("rounded-lg p-2 text-white/60 outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]", ui.control.ghost)}>
+        <div className="mb-6 flex items-center justify-between gap-4">
+          <div className="min-w-0">
+            <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--color-accent-2)]">Skill settings</p>
+            <h3 id="skill-edit-title" className="truncate text-lg font-semibold text-white">Edit {skill.skill.name}</h3>
+          </div>
+          <button type="button" onClick={onClose} aria-label="Close skill editor" className={cn("rounded-lg p-2 text-white/60 outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]", ui.control.ghost)}>
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -34,6 +42,7 @@ export function SkillEditModal({ skill, onSkillChange, onSave, onClose }: SkillE
               {(Object.entries(EXPERIENCE_LEVELS) as [ExperienceLevel, typeof EXPERIENCE_LEVELS[ExperienceLevel]][]).map(([key, config]) => (
                 <button
                   key={key}
+                  type="button"
                   onClick={() => onSkillChange({ ...skill, experienceLevel: key })}
                   className={cn("rounded-lg border p-2 text-xs font-medium outline-none transition-all focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]", skill.experienceLevel === key ? `${config.bgColor} ${config.color}` : cn(ui.surface.empty, "text-white/60 hover:border-white/[0.14] hover:bg-white/[0.045]"))}
                 >
@@ -109,6 +118,7 @@ export function SkillEditModal({ skill, onSkillChange, onSave, onClose }: SkillE
               {(Object.entries(AVAILABILITY_STATUS) as [AvailabilityStatus, typeof AVAILABILITY_STATUS[AvailabilityStatus]][]).map(([key, config]) => (
                 <button
                   key={key}
+                  type="button"
                   onClick={() => onSkillChange({ ...skill, skillAvailability: key })}
                   className={cn(
                     "flex items-center gap-2 rounded-lg border p-2 text-xs font-medium outline-none transition-all focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]",
