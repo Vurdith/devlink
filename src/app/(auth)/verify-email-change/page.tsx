@@ -105,7 +105,7 @@ function VerifyEmailChangeContent() {
           </div>
         </div>
 
-        <div className="relative overflow-hidden glass noise-overlay border border-white/[0.1] rounded-xl p-6 text-center shadow-[var(--shadow-soft)]">
+        <div className="relative overflow-hidden glass noise-overlay border border-white/[0.1] rounded-xl p-6 text-center">
           <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-green-400">
               <path d="M20 6L9 17l-5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>

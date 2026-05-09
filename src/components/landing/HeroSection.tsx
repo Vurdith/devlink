@@ -15,7 +15,7 @@ const PrimaryCTA = ({
 }) => (
   <Link
     href={href}
-    className="group relative inline-flex min-h-12 items-center justify-center gap-2.5 overflow-hidden rounded-xl border border-white/[0.12] bg-[linear-gradient(135deg,var(--color-accent),#5f6cf6_52%,var(--color-accent-2))] px-8 py-3.5 text-sm font-semibold text-white shadow-[0_16px_44px_rgba(124,58,237,0.18)] outline-none transition-all duration-200 hover:border-white/20 hover:brightness-110 active:scale-[0.98] sm:px-10"
+    className="group relative inline-flex min-h-12 items-center justify-center gap-2.5 overflow-hidden rounded-xl border border-white/[0.12] bg-[linear-gradient(135deg,var(--color-accent),#5f6cf6_52%,var(--color-accent-2))] px-8 py-3.5 text-sm font-semibold text-white outline-none transition-all duration-200 hover:border-white/20 hover:brightness-110 active:scale-[0.98] sm:px-10"
   >
     <div className="absolute inset-0 translate-x-[-100%] skew-x-[-25deg] bg-[linear-gradient(to_right,rgba(255,255,255,0)_0%,rgba(255,255,255,0.2)_50%,rgba(255,255,255,0)_100%)] group-hover:animate-[shimmer-sweep_1.2s_infinite]" />
     <span className="relative flex items-center gap-2 text-white">
@@ -82,7 +82,7 @@ export function HeroSection({ isLoggedIn }: { isLoggedIn: boolean }) {
                   {word}
                 </span>
                 <span
-                  className="absolute inset-0 translate-y-1 text-base font-medium leading-[1.65] tracking-normal text-white opacity-0 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-y-0 group-hover:opacity-100 group-hover:drop-shadow-[0_0_12px_rgba(var(--color-accent-2-rgb),0.28)] md:text-xl"
+                  className="absolute inset-0 translate-y-1 text-base font-medium leading-[1.65] tracking-normal text-white opacity-0 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-y-0 group-hover:opacity-100 md:text-xl"
                   style={{ transitionDelay: `${i * 15}ms` }}
                 >
                   {word}

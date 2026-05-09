@@ -27,7 +27,7 @@ export function PrimaryButton({ children, className, ...props }: ButtonProps) {
         >
             {/* Shimmer effect overlay */}
             <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent group-hover:animate-[shimmer-sweep_1s_ease-out]" />
-            <span className="relative z-10 flex items-center gap-2 drop-shadow-sm">{children}</span>
+            <span className="relative z-10 flex items-center gap-2">{children}</span>
         </button>
     );
 }

@@ -172,7 +172,7 @@ export function DiscoverClient({
   return (
     <div className="max-w-6xl mx-auto">
       {/* Header + Filters (single cohesive panel) */}
-      <div className="relative overflow-hidden glass-soft rounded-xl border border-white/[0.1] shadow-[var(--shadow-soft)]">
+      <div className="relative overflow-hidden glass-soft rounded-xl border border-white/[0.1]">
         <div
           aria-hidden="true"
           className="absolute inset-0 pointer-events-none opacity-55"
@@ -196,7 +196,7 @@ export function DiscoverClient({
                 onClick={() => handleFilterChange(filter.value)}
                 className={`flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-2 sm:py-2.5 rounded-lg sm:rounded-xl transition-all duration-200 flex-shrink-0 ${
                   selectedFilter === filter.value
-                    ? "bg-white/[0.08] text-white border border-white/20 shadow-[0_10px_30px_rgba(0,0,0,0.18)]"
+                    ? "bg-white/[0.08] text-white border border-white/20"
                     : "bg-white/[0.03] text-[var(--muted-foreground)] hover:bg-white/[0.06] hover:text-white border border-white/[0.1]"
                 }`}
               >
@@ -241,7 +241,7 @@ export function DiscoverClient({
               return (
                 <div 
                   key={user.id} 
-                  className="relative overflow-hidden glass-soft rounded-xl transition-all duration-200 border border-white/[0.1] hover:border-white/20 flex flex-col h-[340px] sm:h-[390px] shadow-[0_16px_42px_rgba(0,0,0,0.18)]"
+                  className="relative overflow-hidden glass-soft rounded-xl transition-all duration-200 border border-white/[0.1] hover:border-white/20 flex flex-col h-[340px] sm:h-[390px]"
                 >
                   {/* Banner */}
                   <Link href={`/u/${user.username}`} className="block">

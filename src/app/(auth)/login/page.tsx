@@ -94,7 +94,7 @@ function LoginForm() {
         </div>
 
         {/* Form card */}
-        <div className="relative overflow-hidden glass noise-overlay rounded-xl p-6 border border-white/[0.1] shadow-[var(--shadow-soft)] animate-slide-up sm:p-8" style={{ animationDelay: '0.1s' }}>
+        <div className="relative overflow-hidden glass noise-overlay rounded-xl p-6 border border-white/[0.1] animate-slide-up sm:p-8" style={{ animationDelay: '0.1s' }}>
           <form onSubmit={onSubmit} className="space-y-5">
             {/* Email field */}
             <div>

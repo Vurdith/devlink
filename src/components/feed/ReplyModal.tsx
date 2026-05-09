@@ -318,7 +318,7 @@ export const ReplyModal = memo(function ReplyModal({
       {/* Original post preview */}
       <div className="flex gap-3 mb-4">
         <div className="flex flex-col items-center">
-        <div className="w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0 rounded-full overflow-hidden border border-white/10 shadow-lg">
+        <div className="w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0 rounded-full overflow-hidden border border-white/10">
           {post.user.profile?.avatarUrl ? (
             <Image
               src={post.user.profile.avatarUrl}
@@ -363,7 +363,7 @@ export const ReplyModal = memo(function ReplyModal({
     
     {/* Reply input area */}
     <div className="flex gap-3">
-      <div className="w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0 rounded-full overflow-hidden border border-white/10 shadow-lg">
+      <div className="w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0 rounded-full overflow-hidden border border-white/10">
         {currentUserProfile?.avatarUrl ? (
           <Image
             src={currentUserProfile.avatarUrl}

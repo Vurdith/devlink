@@ -51,19 +51,19 @@ const FEATURE_STYLES: Record<
 > = {
   blue: {
     panel: "glass-soft border-blue-400/20 hover:border-blue-400/40 hover:bg-blue-500/5",
-    icon: "text-blue-400 bg-blue-500/10 border border-blue-400/20 shadow-[0_0_15px_rgba(59,130,246,0.2)]",
+    icon: "text-blue-400 bg-blue-500/10 border border-blue-400/20",
     titleHover: "group-hover/card:text-blue-300",
     glow: "rgba(59, 130, 246, 0.4)",
   },
   green: {
     panel: "glass-soft border-emerald-400/20 hover:border-emerald-400/40 hover:bg-emerald-500/5",
-    icon: "text-emerald-400 bg-emerald-500/10 border border-emerald-400/20 shadow-[0_0_15px_rgba(16,185,129,0.2)]",
+    icon: "text-emerald-400 bg-emerald-500/10 border border-emerald-400/20",
     titleHover: "group-hover/card:text-emerald-300",
     glow: "rgba(16, 185, 129, 0.4)",
   },
   red: {
     panel: "glass-soft border-rose-400/20 hover:border-rose-400/40 hover:bg-rose-500/5",
-    icon: "text-rose-400 bg-rose-500/10 border border-rose-400/20 shadow-[0_0_15px_rgba(244,63,94,0.2)]",
+    icon: "text-rose-400 bg-rose-500/10 border border-rose-400/20",
     titleHover: "group-hover/card:text-rose-300",
     glow: "rgba(244, 63, 94, 0.4)",
   },
@@ -183,7 +183,7 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
 
             <div className="flex flex-col items-center justify-center gap-6 mb-10 animate-slide-down">
               <ThemeLogoImg
-                className="w-24 h-24 object-contain drop-shadow-[0_0_20px_rgba(255,255,255,0.2)]"
+                className="w-24 h-24 object-contain"
               />
               <h1
                 className="text-6xl sm:text-7xl lg:text-[6.5rem] font-bold tracking-tighter leading-none bg-clip-text text-transparent bg-gradient-to-br from-white via-white to-white/40"
@@ -266,14 +266,14 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
             {/* Animated glow background */}
             <div className="absolute -inset-1 bg-gradient-to-r from-[var(--color-accent)]/10 via-cyan-500/10 to-[var(--color-accent)]/10 rounded-3xl opacity-30 group-hover:opacity-50 transition-opacity duration-500 animate-glow-pulse"></div>
 
-            <div className="relative glass-soft rounded-2xl p-6 border border-white/10 group-hover:border-white/20 transition-all duration-300 shadow-2xl overflow-hidden">
+            <div className="relative glass-soft rounded-2xl p-6 border border-white/10 group-hover:border-white/20 transition-all duration-300 overflow-hidden">
               {/* Subtle shimmer effect */}
               <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
                 <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out bg-gradient-to-r from-transparent via-white/5 to-transparent skew-x-12" />
               </div>
 
               <div className="relative flex items-center gap-4 mb-6">
-                <div className="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center border border-white/10 shadow-lg group-hover:border-[var(--color-accent)]/30 transition-colors">
+                <div className="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center border border-white/10 group-hover:border-[var(--color-accent)]/30 transition-colors">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-[var(--color-accent)] group-hover:scale-110 transition-transform">
                     <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>

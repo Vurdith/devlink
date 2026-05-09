@@ -167,7 +167,7 @@ function ResetPasswordContent() {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="relative overflow-hidden glass noise-overlay border border-white/[0.1] rounded-xl p-6 space-y-4 shadow-[var(--shadow-soft)]">
+      <form onSubmit={handleSubmit} className="relative overflow-hidden glass noise-overlay border border-white/[0.1] rounded-xl p-6 space-y-4">
         <div>
           <label className="block text-sm mb-1">New Password</label>
           <input

@@ -48,7 +48,7 @@ export function InteractiveTypography() {
 
                     {/* The glowing secret revealed inside the slice */}
                     <span className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-[600ms] ease-[cubic-bezier(0.16,1,0.3,1)] delay-75 z-10 group-hover:scale-110">
-                        <span className="whitespace-nowrap text-[10px] font-bold uppercase text-white drop-shadow-[0_0_18px_rgba(var(--color-accent-2-rgb),0.45)] sm:text-sm md:text-lg md:tracking-[0.28em]">
+                        <span className="whitespace-nowrap text-[10px] font-bold uppercase text-white sm:text-sm md:text-lg md:tracking-[0.28em]">
                             Defy The Standards.
                         </span>
                     </span>

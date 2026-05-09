@@ -56,7 +56,7 @@ function TerminalMathBlock({
   colorClass: string;
 }) {
   return (
-    <div className="bg-[#050505] rounded-[1.25rem] border border-white/5 p-5 font-mono relative overflow-hidden shadow-inner h-full flex flex-col noise-overlay">
+    <div className="bg-[rgba(12,16,23,0.72)] rounded-[1.25rem] border border-white/5 p-5 font-mono relative overflow-hidden h-full flex flex-col noise-overlay">
       <div className="space-y-2 flex-1">
         {rows.map((row, i) => (
           <div key={i} className="flex justify-between items-center text-sm">
@@ -98,9 +98,9 @@ function AnimatedBar({ percentage, gradientClass, mounted }: { percentage: numbe
         <span>Algorithmic Multiplier</span>
         <span className="text-white">{percentage.toFixed(1)}%</span>
       </div>
-      <div className="h-1.5 w-full bg-black/50 rounded-full overflow-hidden border border-white/5 shadow-inner">
+      <div className="h-1.5 w-full bg-black/50 rounded-full overflow-hidden border border-white/5">
         <div 
-          className={`h-full ${gradientClass} transition-all duration-1000 ease-out rounded-full shadow-[0_0_10px_rgba(255,255,255,0.2)]`}
+          className={`h-full ${gradientClass} transition-all duration-1000 ease-out rounded-full`}
           style={{ width: mounted ? `${Math.max(1, percentage)}%` : '0%' }}
         />
       </div>
@@ -212,7 +212,7 @@ export function PostAnalyticsClient({
         </div>
 
         {/* Hero Dashboard */}
-        <div className="glass rounded-[2rem] border border-white/10 p-8 md:p-12 relative overflow-hidden flex flex-col md:flex-row items-center gap-10 md:gap-16 noise-overlay shadow-2xl animate-fade-in">
+        <div className="glass rounded-[2rem] border border-white/10 p-8 md:p-12 relative overflow-hidden flex flex-col md:flex-row items-center gap-10 md:gap-16 noise-overlay animate-fade-in">
           <div
             aria-hidden="true"
             className="pointer-events-none absolute inset-0 opacity-40"
@@ -228,11 +228,11 @@ export function PostAnalyticsClient({
                 strokeDasharray="283" 
                 strokeDashoffset={283 - (283 * breakdown.finalScore) / 100} 
                 strokeLinecap="round"
-                className="text-[var(--color-accent)] transition-all duration-1000 ease-out drop-shadow-[0_0_20px_rgba(var(--color-accent-rgb),0.5)]" 
+                className="text-[var(--color-accent)] transition-all duration-1000 ease-out"
               />
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <span className="text-6xl font-space-grotesk font-bold tracking-tighter text-white drop-shadow-md">
+              <span className="text-6xl font-space-grotesk font-bold tracking-tighter text-white">
                 {breakdown.finalScore.toFixed(0)}
               </span>
               <span className="text-[10px] uppercase tracking-widest text-white/50 mt-1 font-bold">Total Score</span>
@@ -297,7 +297,7 @@ export function PostAnalyticsClient({
           <div className="lg:col-span-2 glass rounded-3xl border border-white/10 flex flex-col lg:flex-row p-1.5 noise-overlay bg-black/20 group hover:border-[var(--color-accent)]/30 transition-colors animate-slide-up" style={{ animationDelay: "0.15s" }}>
             <div className="p-8 lg:p-10 flex flex-col justify-center flex-1 relative z-10">
               <div className="flex items-center gap-4 mb-5">
-                <div className="w-14 h-14 rounded-[1.25rem] bg-rose-500/10 text-rose-400 flex items-center justify-center shadow-[0_0_15px_rgba(244,63,94,0.1)]">
+                <div className="w-14 h-14 rounded-[1.25rem] bg-rose-500/10 text-rose-400 flex items-center justify-center">
                   <HeartIcon />
                 </div>
                 <div>
@@ -330,7 +330,7 @@ export function PostAnalyticsClient({
           <div className="glass rounded-3xl border border-white/10 flex flex-col p-1.5 noise-overlay bg-black/20 group hover:border-[var(--color-accent)]/30 transition-colors animate-slide-up" style={{ animationDelay: "0.2s" }}>
             <div className="p-8 pb-6 flex flex-col justify-center relative z-10">
               <div className="flex items-center gap-4 mb-4">
-                <div className="w-12 h-12 rounded-[1rem] bg-emerald-500/10 text-emerald-400 flex items-center justify-center shadow-[0_0_15px_rgba(16,185,129,0.1)]">
+                <div className="w-12 h-12 rounded-[1rem] bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
                   <ClockIcon />
                 </div>
                 <div>
@@ -362,7 +362,7 @@ export function PostAnalyticsClient({
           <div className="glass rounded-3xl border border-white/10 flex flex-col p-1.5 noise-overlay bg-black/20 group hover:border-[var(--color-accent)]/30 transition-colors animate-slide-up" style={{ animationDelay: "0.25s" }}>
             <div className="p-8 pb-6 flex flex-col justify-center relative z-10">
               <div className="flex items-center gap-4 mb-4">
-                <div className="w-12 h-12 rounded-[1rem] bg-purple-500/10 text-purple-400 flex items-center justify-center shadow-[0_0_15px_rgba(168,85,247,0.1)]">
+                <div className="w-12 h-12 rounded-[1rem] bg-purple-500/10 text-purple-400 flex items-center justify-center">
                   <SearchIcon />
                 </div>
                 <div>
@@ -396,7 +396,7 @@ export function PostAnalyticsClient({
           <div className="glass rounded-3xl border border-white/10 flex flex-col p-1.5 noise-overlay bg-black/20 group hover:border-[var(--color-accent)]/30 transition-colors animate-slide-up" style={{ animationDelay: "0.3s" }}>
             <div className="p-8 pb-6 flex flex-col justify-center relative z-10">
               <div className="flex items-center gap-4 mb-4">
-                <div className="w-12 h-12 rounded-[1rem] bg-orange-500/10 text-orange-400 flex items-center justify-center shadow-[0_0_15px_rgba(249,115,22,0.1)]">
+                <div className="w-12 h-12 rounded-[1rem] bg-orange-500/10 text-orange-400 flex items-center justify-center">
                   <ZapIcon />
                 </div>
                 <div>
@@ -428,7 +428,7 @@ export function PostAnalyticsClient({
           <div className="glass rounded-3xl border border-white/10 flex flex-col p-1.5 noise-overlay bg-black/20 group hover:border-[var(--color-accent)]/30 transition-colors animate-slide-up" style={{ animationDelay: "0.35s" }}>
             <div className="p-8 pb-6 flex flex-col justify-center relative z-10">
               <div className="flex items-center gap-4 mb-4">
-                <div className="w-12 h-12 rounded-[1rem] bg-amber-500/10 text-amber-400 flex items-center justify-center shadow-[0_0_15px_rgba(245,158,11,0.1)]">
+                <div className="w-12 h-12 rounded-[1rem] bg-amber-500/10 text-amber-400 flex items-center justify-center">
                   <CrownIcon />
                 </div>
                 <div>
@@ -460,7 +460,7 @@ export function PostAnalyticsClient({
           {breakdown.penalties > 0 && (
             <div className="lg:col-span-2 glass rounded-3xl border border-red-500/30 flex flex-col p-8 noise-overlay bg-red-500/5 animate-slide-up" style={{ animationDelay: "0.4s" }}>
               <div className="flex items-center gap-4 mb-6">
-                <div className="w-12 h-12 rounded-[1rem] bg-red-500/20 text-red-400 flex items-center justify-center shadow-[0_0_15px_rgba(239,68,68,0.2)]">
+                <div className="w-12 h-12 rounded-[1rem] bg-red-500/20 text-red-400 flex items-center justify-center">
                   <ShieldAlertIcon />
                 </div>
                 <div>
@@ -471,7 +471,7 @@ export function PostAnalyticsClient({
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {breakdown.penaltyReasons.map((reason, i) => (
-                  <div key={i} className="bg-[#050505] rounded-2xl border border-red-500/20 p-5 font-mono text-sm shadow-inner flex justify-between items-center">
+                  <div key={i} className="bg-[rgba(12,16,23,0.72)] rounded-2xl border border-red-500/20 p-5 font-mono text-sm flex justify-between items-center">
                     <span className="text-white/70">{reason}</span>
                     <span className="text-red-400 font-bold tracking-wider">DETECTED</span>
                   </div>
