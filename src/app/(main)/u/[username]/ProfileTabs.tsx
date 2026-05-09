@@ -12,6 +12,15 @@ import { ProfilePortfolioTab } from "./ProfilePortfolioTab";
 import { ProfilePostsTab } from "./ProfilePostsTab";
 import { type UserSkill } from "./ExpandableSkillCard";
 import { getProfileTabs } from "./profile-tab-config";
+import {
+  PROFILE_POST_TABS,
+  buildProfileTabRequest,
+  getProfileTabCacheKey,
+  isEngagementProfileTab,
+  isProfilePostTab,
+  readProfileTabPosts,
+  type ProfilePostTab,
+} from "./profile-tab-data";
 import type { TabType, TabPost } from "./profile-types";
 
 interface ProfileData {
@@ -42,7 +51,6 @@ interface ProfileTabsProps {
 
 const tabDataCache = new Map<string, { data: TabPost[]; timestamp: number }>();
 const CACHE_TTL = 30000;
-const ENGAGEMENT_TABS: readonly TabType[] = ["liked", "reposts", "saved"];
 
 export function ProfileTabs({
   username,
@@ -73,13 +81,13 @@ export function ProfileTabs({
 
   const fetchPosts = useCallback(
     async (
-      tabType: TabType,
+      tabType: ProfilePostTab,
       page: number = 1,
       append: boolean = false,
       forceRefresh: boolean = false
     ) => {
-      const cacheKey = `${userId}:${tabType}:${page}`;
-      const isEngagementTab = ENGAGEMENT_TABS.includes(tabType);
+      const cacheKey = getProfileTabCacheKey(userId, tabType, page);
+      const isEngagementTab = isEngagementProfileTab(tabType);
 
       if (!forceRefresh && !append && !isEngagementTab) {
         const cached = tabDataCache.get(cacheKey);
@@ -93,71 +101,27 @@ export function ProfileTabs({
       setLoading(true);
       setError(null);
       try {
-        let endpoint = `/api/posts`;
-        const params = new URLSearchParams();
-        const skip = (page - 1) * POSTS_PER_PAGE;
         const limit = POSTS_PER_PAGE;
-
-        switch (tabType) {
-          case "posts":
-            params.append("userId", userId);
-            params.append("limit", limit.toString());
-            params.append("skip", skip.toString());
-            break;
-          case "reposts":
-            endpoint = `/api/users/${userId}/reposts`;
-            params.append("page", page.toString());
-            params.append("limit", limit.toString());
-            break;
-          case "liked":
-            endpoint = `/api/users/${userId}/liked`;
-            params.append("page", page.toString());
-            params.append("limit", limit.toString());
-            break;
-          case "replies":
-            endpoint = `/api/users/${userId}/replies`;
-            params.append("page", page.toString());
-            params.append("limit", limit.toString());
-            break;
-          case "saved":
-            endpoint = `/api/posts/save`;
-            params.append("page", page.toString());
-            params.append("limit", limit.toString());
-            break;
-          case "reviews":
-            setPosts([]);
-            setLoading(false);
-            return;
-        }
-
-        if (params.toString()) {
-          endpoint += `?${params.toString()}`;
-        }
+        const endpoint = buildProfileTabRequest({ tab: tabType, userId, page, limit });
 
         const response = await fetch(endpoint);
 
-        if (response.ok) {
-          const data = await response.json();
-          let newPosts: TabPost[] = [];
-
-          if (tabType === "saved") {
-            newPosts =
-              data.savedPosts?.map((saved: { post: TabPost }) => saved.post) ||
-              [];
-          } else {
-            newPosts = data.posts || data;
-          }
-
-          tabDataCache.set(cacheKey, { data: newPosts, timestamp: Date.now() });
-
-          if (append) {
-            setPosts((prev) => [...prev, ...newPosts]);
-          } else {
-            setPosts(newPosts);
-          }
-
-          setHasMore(newPosts.length === limit);
+        if (!response.ok) {
+          throw new Error(`Failed to load ${tabType}`);
         }
+
+        const data = await response.json();
+        const newPosts = readProfileTabPosts(tabType, data);
+
+        tabDataCache.set(cacheKey, { data: newPosts, timestamp: Date.now() });
+
+        if (append) {
+          setPosts((prev) => [...prev, ...newPosts]);
+        } else {
+          setPosts(newPosts);
+        }
+
+        setHasMore(newPosts.length === limit);
       } catch (error) {
         const errorMessage =
           error instanceof Error ? error.message : "Failed to load posts";
@@ -195,8 +159,8 @@ export function ProfileTabs({
   const handlePostUpdate = useCallback(
     (updatedPostInput: unknown) => {
       const updatedPost = updatedPostInput as TabPost;
-      const invalidateCacheFor = (tab: TabType) => {
-        const cacheKey = `${userId}:${tab}:1`;
+      const invalidateCacheFor = (tab: ProfilePostTab) => {
+        const cacheKey = getProfileTabCacheKey(userId, tab, 1);
         tabDataCache.delete(cacheKey);
       };
 
@@ -250,7 +214,7 @@ export function ProfileTabs({
         );
       });
 
-      if (activeTab === "liked" || activeTab === "reposts" || activeTab === "saved") {
+      if (isEngagementProfileTab(activeTab)) {
         setTimeout(() => {
           fetchPosts(activeTab, 1, false, true);
         }, 500);
@@ -265,8 +229,13 @@ export function ProfileTabs({
 
     if (activeTab === "portfolio") {
       fetchPortfolio();
-    } else {
+    } else if (isProfilePostTab(activeTab)) {
       fetchPosts(activeTab, 1, false, false);
+    } else {
+      setLoading(false);
+      setError(null);
+      setPosts([]);
+      setHasMore(false);
     }
   }, [activeTab, userId, fetchPosts, fetchPortfolio]);
 
@@ -275,9 +244,9 @@ export function ProfileTabs({
       const { post, action, liked, reposted, saved } = event.detail;
 
       const clearCaches = () => {
-        ["posts", "reposts", "liked", "saved", "replies"].forEach((tab) => {
+        PROFILE_POST_TABS.forEach((tab) => {
           for (let page = 1; page <= 10; page++) {
-            tabDataCache.delete(`${userId}:${tab}:${page}`);
+            tabDataCache.delete(getProfileTabCacheKey(userId, tab, page));
           }
         });
       };
@@ -336,9 +305,7 @@ export function ProfileTabs({
 
         if (
           isStale &&
-          (activeTab === "liked" ||
-            activeTab === "reposts" ||
-            activeTab === "saved")
+          isEngagementProfileTab(activeTab)
         ) {
           fetchPosts(activeTab, 1, false, true);
         }
@@ -508,7 +475,9 @@ export function ProfileTabs({
             loading={loading}
             onLoadMore={() => {
               setCurrentPage((prev) => prev + 1);
-              fetchPosts(activeTab, currentPage + 1, true);
+              if (isProfilePostTab(activeTab)) {
+                fetchPosts(activeTab, currentPage + 1, true);
+              }
             }}
             onUpdate={handlePostUpdate}
             session={session}
