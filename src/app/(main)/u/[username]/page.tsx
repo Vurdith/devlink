@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { prisma } from "@/server/db";
+import { prismaRead } from "@/server/db-read";
 import { notFound } from "next/navigation";
 import { FollowButton } from "@/components/ui/FollowButton";
 import { surface } from "@/components/ui/design-system";
@@ -10,14 +10,14 @@ import { ProfileLiveEvents } from "./ProfileLiveEvents";
 import { ProfileTabs } from "./ProfileTabs";
 import { ProfileBanner, ProfileAvatar } from "./ProfileMedia";
 import { ProfileTypeLabel } from "@/components/profile/ProfileTypeLabel";
-import { responseCache } from "@/server/cache";
+import { fetchInitialFollowingState, fetchProfilePageData } from "@/server/users/profile-page-data";
 
 // Cache page for 60 seconds - engagement state is fetched client-side
 export const revalidate = 60;
 
 export async function generateMetadata({ params }: { params: Promise<{ username: string }> }): Promise<Metadata> {
   const { username } = await params;
-  const user = await prisma.user.findUnique({
+  const user = await prismaRead.user.findUnique({
     where: { username },
     select: { name: true, username: true, profile: { select: { bio: true, avatarUrl: true } } },
   });
@@ -32,104 +32,21 @@ export async function generateMetadata({ params }: { params: Promise<{ username:
   };
 }
 
-// Cache profile data for faster repeat loads
-async function getProfileData(username: string) {
-  const cacheKey = `profile:page:${username.toLowerCase()}`;
-  
-  const cached = await responseCache.get<Awaited<ReturnType<typeof prisma.user.findUnique>> & { avgRating: number | null }>(cacheKey);
-  if (cached) return cached;
-  
-  // Single query with rating aggregate using raw SQL for efficiency
-  const user = await prisma.user.findUnique({
-    where: { username },
-    select: {
-      id: true,
-      username: true,
-      name: true,
-      profile: {
-        select: {
-          avatarUrl: true,
-          bannerUrl: true,
-          profileType: true,
-          verified: true,
-          bio: true,
-          website: true,
-          location: true,
-          currency: true,
-          availability: true,
-          hourlyRate: true,
-          responseTime: true,
-        }
-      },
-      skills: {
-        select: {
-          id: true,
-          skillId: true,
-          experienceLevel: true,
-          yearsOfExp: true,
-          isPrimary: true,
-          headline: true,
-          rate: true,
-          rateUnit: true,
-          skillAvailability: true,
-          description: true,
-          skill: {
-            select: {
-              id: true,
-              name: true,
-              category: true,
-            }
-          }
-        },
-        orderBy: [
-          { isPrimary: "desc" },
-          { createdAt: "asc" },
-        ],
-      },
-      _count: { select: { followers: true, following: true, reviewsReceived: true } },
-    },
-  });
-  
-  if (!user) return null;
-  
-  // Get average rating if user has reviews (only if needed)
-  let avgRating = null;
-  if (user._count.reviewsReceived > 0) {
-    const ratingAgg = await prisma.review.aggregate({
-      where: { reviewedId: user.id },
-      _avg: { rating: true }
-    });
-    avgRating = ratingAgg._avg.rating;
-  }
-  
-  const userWithRating = { ...user, avgRating };
-  await responseCache.set(cacheKey, userWithRating, 60);
-  return userWithRating;
-}
-
 export default async function UserProfilePage(props: { params: Promise<{ username: string }> }) {
   const { username } = await props.params;
   
   // Fetch session and profile data in parallel
   const [session, user] = await Promise.all([
     getAuthSession(),
-    getProfileData(username)
+    fetchProfilePageData(username),
   ]);
 
   if (!user) notFound();
-  if (!("profile" in user) || !("skills" in user) || !("_count" in user) || !("avgRating" in user)) {
-    notFound();
-  }
   
   const currentUserId = session?.user?.id;
   
   // Fetch following status only if logged in (separate fast query)
-  const initialFollowing = currentUserId
-    ? !!(await prisma.follower.findUnique({ 
-        where: { followerId_followingId: { followerId: currentUserId, followingId: user.id } },
-        select: { id: true }
-      }))
-    : false;
+  const initialFollowing = await fetchInitialFollowingState(currentUserId, user.id);
     
   const rating = user.avgRating ? user.avgRating.toFixed(1) : "-";
 
