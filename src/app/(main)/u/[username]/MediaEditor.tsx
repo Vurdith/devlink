@@ -1,6 +1,8 @@
 "use client";
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { cn } from "@/lib/cn";
+import { ui } from "@/components/ui/design-system";
 
 async function uploadToServer(file: File) {
   const fd = new FormData();
@@ -83,13 +85,15 @@ export function AvatarEditOverlay({ editable }: { editable: boolean }) {
       <button
         type="button"
         onClick={() => inputRef.current?.click()}
-        className="absolute inset-0 rounded-full bg-black/0 hover:bg-black/30 transition flex items-center justify-center opacity-0 group-hover:opacity-100"
+        className="absolute inset-0 flex items-center justify-center rounded-full border border-transparent bg-transparent opacity-0 transition-all hover:border-[rgba(var(--color-accent-2-rgb),0.32)] hover:bg-[rgba(5,8,12,0.42)] group-hover:opacity-100"
         aria-label="Change avatar"
       >
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" className={saving ? "animate-pulse" : ""}>
-          <path d="M4 7h3l2-2h6l2 2h3v12H4V7Z" stroke="white"/>
-          <circle cx="12" cy="13" r="3.5" stroke="white"/>
-        </svg>
+        <span className={cn("flex h-10 w-10 items-center justify-center rounded-lg", ui.control.icon, saving && "animate-pulse")}>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <path d="M4 7h3l2-2h6l2 2h3v12H4V7Z" stroke="currentColor"/>
+            <circle cx="12" cy="13" r="3.5" stroke="currentColor"/>
+          </svg>
+        </span>
       </button>
     </>
   );
@@ -143,13 +147,15 @@ export function BannerEditOverlay({ editable }: { editable: boolean }) {
       <button
         type="button"
         onClick={() => inputRef.current?.click()}
-        className="absolute inset-0 bg-black/0 hover:bg-black/30 transition flex items-center justify-center opacity-0 group-hover:opacity-100 z-10 cursor-pointer pointer-events-none group-hover:pointer-events-auto"
+        className="absolute inset-0 z-10 flex cursor-pointer items-center justify-center border border-transparent bg-transparent opacity-0 transition-all hover:border-[rgba(var(--color-accent-2-rgb),0.28)] hover:bg-[rgba(5,8,12,0.38)] group-hover:pointer-events-auto group-hover:opacity-100 pointer-events-none"
         aria-label="Change banner"
       >
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" className={saving ? "animate-pulse" : ""}>
-          <path d="M4 7h3l2-2h6l2 2h3v12H4V7Z" stroke="white"/>
-          <circle cx="12" cy="13" r="3.5" stroke="white"/>
-        </svg>
+        <span className={cn("flex h-11 w-11 items-center justify-center rounded-lg", ui.control.icon, saving && "animate-pulse")}>
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+            <path d="M4 7h3l2-2h6l2 2h3v12H4V7Z" stroke="currentColor"/>
+            <circle cx="12" cy="13" r="3.5" stroke="currentColor"/>
+          </svg>
+        </span>
       </button>
     </>
   );
