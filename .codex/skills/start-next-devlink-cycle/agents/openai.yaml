@@ -1,0 +1,4 @@
+interface:
+  display_name: "Start Next DevLink Cycle"
+  short_description: "Spawn and coordinate the next DevLink cleanup cycle."
+  default_prompt: "Start the next DevLink cleanup cycle with fresh specialist agents, integrate their branches, verify, and push master."

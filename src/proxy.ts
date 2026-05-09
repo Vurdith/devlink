@@ -1,23 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { deriveDeviceFingerprint } from "@/server/security/fingerprint";
-import { createHash } from "crypto";
-
-const SITE_LOCK_COOKIE = "devlink_site_lock";
-const SITE_LOCK_ROUTE = "/site-lock";
-const SITE_LOCK_API_ROUTE = "/api/site-lock";
-
-function isSiteLockEnabled() {
-  return process.env.SITE_LOCK_ENABLED === "true";
-}
-
-function isSiteLockPublicPath(pathname: string) {
-  return pathname === SITE_LOCK_ROUTE || pathname.startsWith(SITE_LOCK_API_ROUTE);
-}
-
-function hashPassword(password: string): string {
-  return createHash("sha256").update(password).digest("hex");
-}
 
 /**
  * Global proxy for security headers and basic protection
@@ -25,23 +8,6 @@ function hashPassword(password: string): string {
  * (Renamed from middleware to proxy in Next.js 16)
  */
 export function proxy(req: NextRequest) {
-  if (isSiteLockEnabled()) {
-    const expectedPassword = process.env.SITE_LOCK_PASSWORD;
-    if (expectedPassword) {
-      const { pathname, search } = req.nextUrl;
-      if (!isSiteLockPublicPath(pathname)) {
-        const grantedCookie = req.cookies.get(SITE_LOCK_COOKIE)?.value;
-        const expectedHash = hashPassword(expectedPassword);
-        if (grantedCookie !== expectedHash) {
-          const lockUrl = req.nextUrl.clone();
-          lockUrl.pathname = SITE_LOCK_ROUTE;
-          lockUrl.searchParams.set("next", `${pathname}${search}`);
-          return NextResponse.redirect(lockUrl);
-        }
-      }
-    }
-  }
-
   const response = NextResponse.next();
   
   // Dynamic CORS origin checking

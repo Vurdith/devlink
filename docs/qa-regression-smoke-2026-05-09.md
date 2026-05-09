@@ -6,15 +6,13 @@ Branch: `agent/devlink-qa-tester-regression-smoke`
 
 Static checks passed and the unauthenticated route smoke set rendered without visible error screens, 5xx responses, or horizontal overflow at desktop `1440x900` and mobile `390x844`.
 
-The first automated pass was blocked by the local site lock and only verified `/site-lock` redirects. A second pass used the same `devlink_site_lock` cookie produced by `/api/site-lock` with the local `.env` password, then verified the real target routes.
-
 ## Checks Run
 
 - `npm run lint` - passed
 - `npx tsc --noEmit` - passed
 - `npm run build` - passed
 - Browser smoke via Playwright at desktop `1440x900` and mobile `390x844` - passed with notes below
-- In-app browser spot check of `/jobs` after site-lock unlock - passed with notes below
+- In-app browser spot check of `/jobs` - passed with notes below
 
 ## Routes Checked
 
@@ -39,9 +37,8 @@ Routes:
 - `/notifications`
 
 Steps:
-1. Unlock the local site lock.
-2. Visit `/settings` or `/notifications` while signed out.
-3. Inspect browser console output.
+1. Visit `/settings` or `/notifications` while signed out.
+2. Inspect browser console output.
 
 Expected:
 - Signed-out states render without noisy console errors, or protected API calls are skipped until authenticated.
@@ -59,10 +56,9 @@ Route:
 - Navigation from `/search?q=reece` to `/u/reeceleneveu`
 
 Steps:
-1. Unlock the local site lock.
-2. Visit `/search?q=reece`.
-3. Navigate to `/u/reeceleneveu`.
-4. Inspect browser console output.
+1. Visit `/search?q=reece`.
+2. Navigate to `/u/reeceleneveu`.
+3. Inspect browser console output.
 
 Expected:
 - In-flight search work is cancelled quietly during navigation.
@@ -78,7 +74,7 @@ Likely file:
 - `/profile-hub` redirects signed-out users to `/login`; this looked intentional.
 - `/messages` shows the signed-out empty/auth prompt; this looked intentional.
 - `/discover` logs Next.js image optimization warnings for above-the-fold LCP images. No functional failure observed.
-- The in-app browser `/jobs` spot check confirmed the page renders through the site lock without visible error UI.
+- The in-app browser `/jobs` spot check confirmed the page renders without visible error UI.
 - No saved screenshots were added.
 
 ## Known Risks

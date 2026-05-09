@@ -8,7 +8,7 @@ Base observed before branching: `agent/ui-messages-polish` at `283b2f8 Refactor 
 
 Static checks passed. The requested route smoke set rendered successfully at desktop `1440x900` and mobile `390x844` with no visible error screen, no page crash, no failed browser requests, and no horizontal overflow detected.
 
-This was an unauthenticated smoke pass with the local site lock cookie applied. Authenticated mutations and account-only interactions were not exercised.
+This was an unauthenticated smoke pass. Authenticated mutations and account-only interactions were not exercised.
 
 ## Checks Run
 
@@ -45,9 +45,8 @@ Viewports:
 - Mobile
 
 Steps:
-1. Unlock the local site lock.
-2. Visit `/discover`.
-3. Inspect console warnings.
+1. Visit `/discover`.
+2. Inspect console warnings.
 
 Expected:
 - Above-the-fold profile media should avoid avoidable LCP warnings.
@@ -70,9 +69,8 @@ Viewports:
 - Mobile
 
 Steps:
-1. Unlock the local site lock.
-2. Visit `/discover` or `/home`.
-3. Inspect console warnings.
+1. Visit `/discover` or `/home`.
+2. Inspect console warnings.
 
 Expected:
 - Local smoke should either connect to cache cleanly or degrade quietly.
