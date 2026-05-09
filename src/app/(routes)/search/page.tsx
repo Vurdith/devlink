@@ -151,37 +151,48 @@ function SearchContent() {
   const totalResults = users.length + hashtags.length + projects.length;
 
   return (
-    <div className="max-w-4xl mx-auto px-6 py-6">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-4">Search Results</h1>
+    <div className="mx-auto max-w-5xl px-4 py-5 sm:px-6 sm:py-6">
+      <div className={surface("panel", "noise-overlay relative mb-5 overflow-hidden p-5 sm:p-6")}>
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.42)] to-transparent" />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 opacity-60"
+          style={{
+            background:
+              "radial-gradient(760px 220px at 15% 0%, rgba(var(--color-accent-2-rgb),0.10), transparent 62%), radial-gradient(520px 220px at 100% 20%, rgba(var(--color-accent-rgb),0.07), transparent 60%)",
+          }}
+        />
+        <div className="relative">
+          <div className="mb-2 text-[10px] font-bold uppercase tracking-[0.16em] text-[var(--color-accent-2)]">Search</div>
+          <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">Search results</h1>
         {query && (
-            <div className={surface("panelMuted", "mb-6 p-4")}>
-            <div className="text-sm text-[var(--muted-foreground)]">
-              Search results for: <span className="text-[var(--foreground)] font-medium">{query}</span>
+            <div className="mt-3 flex flex-wrap items-center gap-2 text-sm text-[var(--muted-foreground)]">
+              <span>Showing results for</span>
+              <span className="rounded-lg border border-white/[0.08] bg-white/[0.035] px-2.5 py-1 font-semibold text-white">{query}</span>
               {totalResults > 0 && (
-                <span className="ml-2 text-[var(--accent)]">({totalResults} results)</span>
+                <span className="text-[var(--color-accent-2)]">{totalResults} result{totalResults === 1 ? "" : "s"}</span>
               )}
             </div>
-          </div>
         )}
+        </div>
       </div>
 
       {/* Filter Tabs */}
-      <div className="mb-8">
-        <div className="flex flex-wrap gap-2">
+      <div className="mb-5">
+        <div className={surface("toolbar", "flex gap-2 overflow-x-auto p-2")}>
           {filters.map((filter) => (
             <button
               key={filter.value}
               onClick={() => setSelectedType(filter.value)}
-              className={cn("flex items-center gap-2 rounded-lg border px-4 py-2 transition-all duration-200",
+              className={cn("flex flex-shrink-0 items-center gap-2 rounded-lg border px-3 py-2 text-sm font-semibold transition-all duration-200",
                 selectedType === filter.value
-                  ? ui.active.cyan
+                  ? ui.active.cyanStrong
                   : "border-transparent text-[var(--muted-foreground)] hover:border-white/[0.08] hover:bg-white/[0.045] hover:text-white"
               )}
             >
-                <div className={`rounded p-1 ${
+                <div className={`rounded-md p-1 ${
                 selectedType === filter.value
-                  ? "bg-[var(--accent)]/20"
+                  ? "bg-[rgba(var(--color-accent-2-rgb),0.14)]"
                   : "bg-white/5"
               }`}>
                 {filter.icon}
@@ -193,19 +204,23 @@ function SearchContent() {
       </div>
 
       {loading ? (
-        <div className="text-center py-12 text-[var(--muted-foreground)]">
+        <div className={surface("empty", "py-12 text-center text-[var(--muted-foreground)]")}>
           <div className="inline-block h-8 w-8 animate-spin rounded-full border-2 border-[var(--accent)] border-r-transparent"></div>
           <p className="mt-2">Searching...</p>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-5">
           {/* Profile Results */}
           {(selectedType === "all" || selectedType === "profiles") && users.length > 0 && (
-            <div>
-              <h2 className="text-lg font-semibold mb-3 text-[var(--accent)]">Profiles</h2>
-              <div className="space-y-2">
+            <section>
+              <div className="mb-3 flex items-center gap-3">
+                <h2 className="text-sm font-bold uppercase tracking-[0.14em] text-[var(--color-accent-2)]">Profiles</h2>
+                <div className="h-px flex-1 bg-gradient-to-r from-white/[0.10] to-transparent" />
+              </div>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 {users.map((user) => (
-                  <div key={user.id} className={surface("panelMuted", "group relative flex items-center gap-3 p-3 transition-colors hover:border-white/[0.14] hover:bg-white/[0.04]")}>
+                  <div key={user.id} className={surface("panelMuted", "noise-overlay group relative flex min-h-[126px] items-start gap-3 overflow-hidden p-4 transition-colors hover:border-[rgba(var(--color-accent-2-rgb),0.20)] hover:bg-white/[0.04]")}>
+                    <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.10] to-transparent" />
                     <ProfileTooltip
                       user={{
                         id: user.id,
@@ -222,27 +237,27 @@ function SearchContent() {
                     >
                       <Link
                         href={`/u/${user.username}`}
-                        className="flex items-center gap-3 min-w-0 flex-1 relative z-10"
+                        className="relative z-10 flex min-w-0 flex-1 items-start gap-3"
                         aria-label={`View @${user.username}`}
                       >
-                        <Avatar src={user.avatarUrl ?? undefined} size={40} />
+                        <Avatar src={user.avatarUrl ?? undefined} size={44} className="border border-white/[0.10]" />
                         <div className="min-w-0">
-                          <div className="text-sm flex items-center gap-2">
-                            <span className="font-medium text-white hover:underline truncate">{user.name ?? user.username}</span>
+                          <div className="flex min-w-0 flex-wrap items-center gap-2 text-sm">
+                            <span className="truncate font-semibold text-white group-hover:text-[var(--color-accent-2)]">{user.name ?? user.username}</span>
                         {user.verified && (
                           <svg width="14" height="14" viewBox="0 0 24 24" className="text-[var(--accent)]">
                             <path d="M12 3l2.39 2.39L17 6l-.61 2.61L19 12l-2.61.61L15 17l-2.61-.61L12 21l-2.39-2.39L7 17l.61-2.39L5 12l2.61-.61L7 6l2.39-.61L12 3z" fill="currentColor"/>
                           </svg>
                         )}
                         {user.profileType && (
-                          <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium ${getProfileTypeConfig(user.profileType).bgColor} ${getProfileTypeConfig(user.profileType).color}`}>
+                          <span className={`inline-flex items-center gap-1 rounded-md border border-white/[0.08] px-1.5 py-0.5 text-[10px] font-semibold ${getProfileTypeConfig(user.profileType).bgColor} ${getProfileTypeConfig(user.profileType).color}`}>
                             <ProfileTypeIcon profileType={user.profileType} size={10} />
                             {getProfileTypeConfig(user.profileType).label}
                           </span>
                         )}
                       </div>
                           <div className="text-xs text-[var(--muted-foreground)] truncate">@{user.username}</div>
-                          {user.bio && <div className="mt-0.5 text-xs text-[var(--muted-foreground)] truncate">{user.bio}</div>}
+                          {user.bio && <div className="mt-2 line-clamp-2 border-l border-[rgba(var(--color-accent-2-rgb),0.28)] pl-2 text-xs leading-relaxed text-white/62">{user.bio}</div>}
                         </div>
                       </Link>
                     </ProfileTooltip>
@@ -252,16 +267,19 @@ function SearchContent() {
                   </div>
                 ))}
               </div>
-            </div>
+            </section>
           )}
 
           {/* Hashtag Results */}
           {(selectedType === "all" || selectedType === "hashtags") && hashtags.length > 0 && (
-            <div>
-              <h2 className="text-lg font-semibold mb-3 text-[var(--accent)]">Hashtags</h2>
-              <div className="space-y-2">
+            <section>
+              <div className="mb-3 flex items-center gap-3">
+                <h2 className="text-sm font-bold uppercase tracking-[0.14em] text-[var(--color-accent-2)]">Hashtags</h2>
+                <div className="h-px flex-1 bg-gradient-to-r from-white/[0.10] to-transparent" />
+              </div>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 {hashtags.map((hashtag) => (
-                  <div key={hashtag.tag} className={surface("panelMuted", "group relative flex items-center gap-3 p-3 transition-colors hover:border-white/[0.14] hover:bg-white/[0.04]")}>
+                  <div key={hashtag.tag} className={surface("panelMuted", "group relative flex items-center gap-3 p-4 transition-colors hover:border-[rgba(var(--color-accent-2-rgb),0.20)] hover:bg-white/[0.04]")}>
                     <Link href={`/hashtag/${hashtag.tag.replace('#', '')}`} className="absolute inset-0 z-10" aria-label={`View ${hashtag.tag}`}>
                       <span className="sr-only">View {hashtag.tag}</span>
                     </Link>
@@ -272,7 +290,7 @@ function SearchContent() {
                     </div>
                     <div className="min-w-0 flex-1 relative z-10 pointer-events-none">
                       <div className="text-sm flex items-center gap-2">
-                        <span className="font-medium truncate text-[var(--accent)]">{hashtag.tag}</span>
+                        <span className="truncate font-semibold text-white group-hover:text-[var(--color-accent-2)]">{hashtag.tag}</span>
                       </div>
                       <div className="text-xs text-[var(--muted-foreground)] truncate">
                         {hashtag.postCount} {hashtag.postCount === 1 ? 'post' : 'posts'} / {hashtag.projectCount} {hashtag.projectCount === 1 ? 'project' : 'projects'}
@@ -289,21 +307,24 @@ function SearchContent() {
                   </div>
                 ))}
               </div>
-            </div>
+            </section>
           )}
 
           {/* Project Results */}
           {(selectedType === "all" || selectedType === "projects") && projects.length > 0 && (
-            <div>
-              <h2 className="text-lg font-semibold mb-3 text-[var(--accent)]">Projects</h2>
-              <div className="space-y-2">
+            <section>
+              <div className="mb-3 flex items-center gap-3">
+                <h2 className="text-sm font-bold uppercase tracking-[0.14em] text-[var(--color-accent-2)]">Projects</h2>
+                <div className="h-px flex-1 bg-gradient-to-r from-white/[0.10] to-transparent" />
+              </div>
+              <div className="grid grid-cols-1 gap-3">
                 {projects.map((project) => (
-                  <div key={project.id} className={surface("panelMuted", "p-3 transition-colors hover:border-white/[0.14]")}>
+                  <div key={project.id} className={surface("panelMuted", "group p-4 transition-colors hover:border-[rgba(var(--color-accent-2-rgb),0.20)] hover:bg-white/[0.04]")}>
                     <div className="flex items-start gap-3">
                       <div className="flex-1">
-                        <div className="text-lg font-medium">{project.title}</div>
+                        <div className="text-lg font-semibold text-white group-hover:text-[var(--color-accent-2)]">{project.title}</div>
                         {project.description && (
-                          <div className="text-sm text-[var(--muted-foreground)] mt-1">{project.description}</div>
+                          <div className="mt-2 line-clamp-2 border-l border-[rgba(var(--color-accent-2-rgb),0.24)] pl-3 text-sm leading-relaxed text-[var(--muted-foreground)]">{project.description}</div>
                         )}
                         <div className="flex items-center gap-2 mt-2">
                           <Avatar src={project.author.avatarUrl ?? undefined} size={24} />
@@ -322,19 +343,31 @@ function SearchContent() {
                   </div>
                 ))}
               </div>
-            </div>
+            </section>
           )}
 
           {/* No Results */}
           {!query && (
-            <div className="text-center py-12 text-[var(--muted-foreground)]">
+            <div className={surface("empty", "py-12 text-center text-[var(--muted-foreground)]")}>
+              <div className={iconBox("muted", "mx-auto mb-4 h-12 w-12")}>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                  <circle cx="11" cy="11" r="8" />
+                  <path d="M21 21l-4.35-4.35" strokeLinecap="round" />
+                </svg>
+              </div>
               <p>Type a search term above to get started.</p>
               <p className="text-sm mt-1">Search for handles, hashtags, or project names.</p>
             </div>
           )}
 
           {query && totalResults === 0 && !loading && (
-            <div className="text-center py-12 text-[var(--muted-foreground)]">
+            <div className={surface("empty", "py-12 text-center text-[var(--muted-foreground)]")}>
+              <div className={iconBox("muted", "mx-auto mb-4 h-12 w-12")}>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                  <circle cx="11" cy="11" r="8" />
+                  <path d="M21 21l-4.35-4.35" strokeLinecap="round" />
+                </svg>
+              </div>
               <p>No results found for &quot;{query}&quot;</p>
               <p className="text-sm mt-1">Try adjusting your search terms or filters.</p>
             </div>

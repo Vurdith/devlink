@@ -173,7 +173,8 @@ export function DiscoverClient({
   return (
     <div className="max-w-6xl mx-auto">
       {/* Header + Filters (single cohesive panel) */}
-      <div className={surface("panel", "relative overflow-hidden")}>
+      <div className={surface("panel", "noise-overlay relative overflow-hidden")}>
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.42)] to-transparent" />
         <div
           aria-hidden="true"
           className="absolute inset-0 pointer-events-none opacity-55"
@@ -242,8 +243,9 @@ export function DiscoverClient({
               return (
                 <div 
                   key={user.id} 
-                  className={surface("panel", "group relative flex min-h-[350px] flex-col overflow-hidden transition-all duration-200 hover:-translate-y-0.5 hover:border-white/[0.16] hover:bg-[rgba(14,19,27,0.82)] sm:min-h-[390px]")}
+                  className={surface("panel", "noise-overlay group relative flex min-h-[350px] flex-col overflow-hidden transition-all duration-200 hover:-translate-y-0.5 hover:border-[rgba(var(--color-accent-2-rgb),0.22)] hover:bg-[rgba(14,19,27,0.82)] sm:min-h-[390px]")}
                 >
+                  <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-px bg-gradient-to-r from-transparent via-white/[0.12] to-transparent opacity-70" />
                   {/* Banner */}
                   <Link href={`/u/${user.username}`} className="block">
                     <div className="relative h-24 w-full bg-gradient-to-br from-[rgba(var(--color-accent-2-rgb),0.13)] via-white/[0.025] to-black/40 sm:h-28">
@@ -271,10 +273,10 @@ export function DiscoverClient({
                                 alt={user.username}
                                 width={48}
                                 height={48}
-                                className="w-11 h-11 sm:w-12 sm:h-12 rounded-full object-cover border-4 border-[var(--background)]"
+                                className="h-11 w-11 rounded-full border border-white/[0.10] object-cover sm:h-12 sm:w-12"
                               />
                             ) : (
-                              <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-[var(--color-accent-2)] to-[var(--color-accent)] flex items-center justify-center text-white text-lg font-bold border-4 border-[var(--background)]">
+                              <div className="flex h-11 w-11 items-center justify-center rounded-full border border-white/[0.10] bg-gradient-to-br from-[var(--color-accent-2)] to-[var(--color-accent)] text-lg font-bold text-white sm:h-12 sm:w-12">
                                 {user.username.charAt(0).toUpperCase()}
                               </div>
                             )}
@@ -309,7 +311,7 @@ export function DiscoverClient({
                     </div>
 
                     <div className="mt-3 flex items-center gap-2">
-                      <span className={`inline-flex items-center gap-1 rounded-lg border border-white/[0.08] px-2 py-1 text-[11px] font-semibold ${config.bgColor} ${config.color}`}>
+                      <span className={`inline-flex items-center gap-1 rounded-md border border-white/[0.08] px-2 py-1 text-[10px] font-bold uppercase tracking-[0.10em] ${config.bgColor} ${config.color}`}>
                         <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                           <path d={config.icon} />
                         </svg>
