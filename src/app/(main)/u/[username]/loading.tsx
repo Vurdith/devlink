@@ -1,53 +1,53 @@
-import { surface } from "@/components/ui/design-system";
+import { skeleton, surface } from "@/components/ui/design-system";
 
 export default function ProfileLoading() {
   return (
     <main className="mx-auto max-w-5xl px-2 sm:px-4 py-4 sm:py-10">
-      <section className="relative overflow-hidden rounded-xl animate-pulse">
+      <section className="relative overflow-hidden rounded-xl">
         {/* Banner skeleton */}
-        <div className="h-36 sm:h-64 w-full bg-gradient-to-br from-[var(--color-accent-hover)]/30 via-[var(--color-accent)]/20 to-[var(--color-accent-hover)]/30" />
+        <div className={skeleton("h-36 w-full rounded-none border-0 sm:h-64")} />
         
         {/* Profile card skeleton */}
         <div className={surface("panelStrong", "noise-overlay relative overflow-hidden rounded-t-none border-t-0 px-4 pb-4 sm:px-8 sm:pb-8")}>
           {/* Avatar */}
-          <div className="flex justify-between items-start">
+          <div className="flex items-start justify-between">
             <div className="relative -mt-12 sm:-mt-16 z-20">
-              <div className="w-20 h-20 sm:w-28 sm:h-28 rounded-full bg-white/10 border-4 border-[var(--background)]" />
+              <div className={skeleton("h-20 w-20 rounded-full border-4 border-[var(--background)] sm:h-28 sm:w-28")} />
             </div>
             {/* Follow button placeholder */}
-            <div className="mt-3 w-24 h-9 bg-white/10 rounded-lg" />
+            <div className={skeleton("mt-3 h-9 w-24")} />
           </div>
           
           {/* Name & username */}
           <div className="mt-3 space-y-2">
-            <div className="h-6 sm:h-8 w-48 bg-white/10 rounded" />
-            <div className="h-4 w-24 bg-white/5 rounded" />
+            <div className={skeleton("h-6 w-48 sm:h-8")} />
+            <div className={skeleton("h-4 w-24")} />
           </div>
           
           {/* Profile type badge */}
           <div className="mt-2">
-            <div className="h-6 w-20 bg-white/10 rounded-full" />
+            <div className={skeleton("h-6 w-20 rounded-full")} />
           </div>
           
           {/* Stats row */}
           <div className="mt-3 flex gap-2">
-            <div className="h-7 w-24 bg-white/10 rounded-full" />
-            <div className="h-7 w-24 bg-white/10 rounded-full" />
+            <div className={skeleton("h-7 w-24 rounded-full")} />
+            <div className={skeleton("h-7 w-24 rounded-full")} />
           </div>
           
           {/* Bio */}
           <div className="mt-4 space-y-2">
-            <div className="h-4 w-full bg-white/10 rounded" />
-            <div className="h-4 w-3/4 bg-white/10 rounded" />
+            <div className={skeleton("h-4 w-full")} />
+            <div className={skeleton("h-4 w-3/4")} />
           </div>
         </div>
       </section>
       
       {/* Tabs skeleton */}
       <div className="mt-4 sm:mt-8">
-          <div className={surface("toolbar", "mb-6 flex gap-2 p-1.5")}>
+        <div className={surface("toolbar", "mb-6 flex gap-2 p-1.5")}>
           {[1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="h-9 w-20 bg-white/10 rounded-lg" />
+            <div key={i} className={skeleton("h-9 w-20")} />
           ))}
         </div>
         
@@ -56,14 +56,14 @@ export default function ProfileLoading() {
           {[1, 2, 3].map((i) => (
             <div key={i} className={surface("panel", "relative overflow-hidden p-4")}>
               <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-full bg-white/10" />
+                <div className={skeleton("h-10 w-10 rounded-full")} />
                 <div className="flex-1 space-y-2">
                   <div className="flex gap-2">
-                    <div className="h-4 w-24 bg-white/10 rounded" />
-                    <div className="h-4 w-16 bg-white/5 rounded" />
+                    <div className={skeleton("h-4 w-24")} />
+                    <div className={skeleton("h-4 w-16")} />
                   </div>
-                  <div className="h-4 w-full bg-white/10 rounded" />
-                  <div className="h-4 w-3/4 bg-white/10 rounded" />
+                  <div className={skeleton("h-4 w-full")} />
+                  <div className={skeleton("h-4 w-3/4")} />
                 </div>
               </div>
             </div>

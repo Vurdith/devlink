@@ -51,3 +51,7 @@ export function menuItem(className?: string) {
 export function iconBox(kind: keyof typeof ui.icon = "cyan", className?: string) {
   return cn(ui.icon[kind], className);
 }
+
+export function skeleton(className?: string) {
+  return cn("skeleton rounded-lg border border-white/[0.06]", className);
+}

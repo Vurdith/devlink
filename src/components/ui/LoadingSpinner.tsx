@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/cn";
 import { memo } from "react";
-import { surface } from "./design-system";
+import { skeleton, surface } from "./design-system";
 
 interface LoadingSpinnerProps {
   size?: "sm" | "md" | "lg";
@@ -10,9 +10,9 @@ interface LoadingSpinnerProps {
 }
 
 const sizeClasses = {
-  sm: "w-4 h-4",
-  md: "w-6 h-6", 
-  lg: "w-8 h-8"
+  sm: "h-4 w-4",
+  md: "h-6 w-6",
+  lg: "h-8 w-8",
 };
 
 export const LoadingSpinner = memo(function LoadingSpinner({ size = "md", className }: LoadingSpinnerProps) {
@@ -21,7 +21,7 @@ export const LoadingSpinner = memo(function LoadingSpinner({ size = "md", classN
       role="status"
       aria-label="Loading"
       className={cn(
-        "animate-spin rounded-full border-2 border-gray-300 border-t-[var(--color-accent)]",
+        "animate-spin rounded-full border-2 border-white/15 border-t-[var(--color-accent-2)]",
         sizeClasses[size],
         className
       )}
@@ -32,30 +32,28 @@ export const LoadingSpinner = memo(function LoadingSpinner({ size = "md", classN
 });
 
 export const LoadingSkeleton = memo(function LoadingSkeleton({ className }: { className?: string }) {
-  return (
-    <div className={cn("animate-pulse bg-white/10 rounded", className)} />
-  );
+  return <div className={skeleton(className)} />;
 });
 
 export const PostSkeleton = memo(function PostSkeleton() {
   return (
-    <div className={surface("panel", "p-6")}>
+    <div className={surface("panel", "noise-overlay relative overflow-hidden p-6")}>
       <div className="flex items-center gap-3 mb-4">
-        <div className="w-10 h-10 rounded-full bg-white/10 animate-pulse" />
+        <div className={skeleton("h-10 w-10 rounded-full")} />
         <div className="flex-1">
-          <div className="h-4 w-24 mb-2 bg-white/10 rounded animate-pulse" />
-          <div className="h-3 w-16 bg-white/10 rounded animate-pulse" />
+          <div className={skeleton("mb-2 h-4 w-24")} />
+          <div className={skeleton("h-3 w-16")} />
         </div>
       </div>
       <div className="space-y-2 mb-4">
-        <div className="h-4 w-full bg-white/10 rounded animate-pulse" />
-        <div className="h-4 w-3/4 bg-white/10 rounded animate-pulse" />
-        <div className="h-4 w-1/2 bg-white/10 rounded animate-pulse" />
+        <div className={skeleton("h-4 w-full")} />
+        <div className={skeleton("h-4 w-3/4")} />
+        <div className={skeleton("h-4 w-1/2")} />
       </div>
       <div className="flex gap-4">
-        <div className="h-8 w-16 bg-white/10 rounded animate-pulse" />
-        <div className="h-8 w-16 bg-white/10 rounded animate-pulse" />
-        <div className="h-8 w-16 bg-white/10 rounded animate-pulse" />
+        <div className={skeleton("h-8 w-16 rounded-xl")} />
+        <div className={skeleton("h-8 w-16 rounded-xl")} />
+        <div className={skeleton("h-8 w-16 rounded-xl")} />
       </div>
     </div>
   );
