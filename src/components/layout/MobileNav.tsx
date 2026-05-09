@@ -237,8 +237,8 @@ export const MobileNav = memo(function MobileNav({ session }: MobileNavProps) {
       </div>
 
       {/* Bottom Navigation Bar */}
-      <nav className="safe-area-bottom fixed bottom-0 left-0 right-0 z-40 border-0 border-t border-white/[0.08] bg-[rgba(7,9,13,0.92)] md:hidden">
-        <div className="flex justify-around items-center h-16 px-2">
+      <nav className="safe-area-bottom fixed bottom-0 left-0 right-0 z-40 max-w-[100vw] overflow-hidden border-0 border-t border-white/[0.08] bg-[rgba(7,9,13,0.92)] md:hidden">
+        <div className="flex h-16 w-full min-w-0 items-center px-1">
           {navigation.map((item) => {
             const isActive = pathname === item.href;
             return (
@@ -246,7 +246,7 @@ export const MobileNav = memo(function MobileNav({ session }: MobileNavProps) {
                 key={item.name}
                 href={item.href}
                 className={cn(
-                  "flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all duration-150",
+                  "flex min-w-0 flex-1 flex-col items-center gap-1 rounded-xl px-1 py-2 transition-all duration-150",
                   isActive
                     ? "text-[var(--color-accent-2)]"
                     : "text-[var(--muted-foreground)] hover:text-white active:scale-95"
@@ -258,7 +258,7 @@ export const MobileNav = memo(function MobileNav({ session }: MobileNavProps) {
                 )}>
                   {item.icon}
                 </div>
-                <span className="text-[10px] font-medium">{item.name}</span>
+                <span className="max-w-full truncate text-[10px] font-medium">{item.name}</span>
               </Link>
             );
           })}
@@ -268,7 +268,7 @@ export const MobileNav = memo(function MobileNav({ session }: MobileNavProps) {
             <Link
               href="/me"
               className={cn(
-                "flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all duration-150",
+                "flex min-w-0 flex-1 flex-col items-center gap-1 rounded-xl px-1 py-2 transition-all duration-150",
                 pathname.startsWith("/u/") || pathname === "/me"
                   ? "text-[var(--color-accent-2)]"
                   : "text-[var(--muted-foreground)] hover:text-white active:scale-95"
@@ -283,19 +283,19 @@ export const MobileNav = memo(function MobileNav({ session }: MobileNavProps) {
                   <circle cx="12" cy="7" r="4" stroke="currentColor" strokeWidth="2" />
                 </svg>
               </div>
-              <span className="text-[10px] font-medium">Profile</span>
+              <span className="max-w-full truncate text-[10px] font-medium">Profile</span>
             </Link>
           ) : (
             <Link
               href="/login"
-              className="flex flex-col items-center gap-1 px-4 py-2 rounded-xl text-[var(--muted-foreground)] hover:text-white transition-all duration-150 active:scale-95"
+              className="flex min-w-0 flex-1 flex-col items-center gap-1 rounded-xl px-1 py-2 text-[var(--muted-foreground)] transition-all duration-150 hover:text-white active:scale-95"
             >
               <div className="p-1.5 rounded-lg">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                   <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </div>
-              <span className="text-[10px] font-medium">Login</span>
+              <span className="max-w-full truncate text-[10px] font-medium">Login</span>
             </Link>
           )}
         </div>

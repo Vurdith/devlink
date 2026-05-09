@@ -6,11 +6,11 @@ import SettingsNav from "./_components/SettingsNav";
 
 export default function SettingsLayout({ children }: { children: ReactNode }) {
   return (
-    <main className="mx-auto max-w-6xl px-4 py-6 sm:py-8">
-      <div className="grid gap-5 md:grid-cols-[280px_1fr] md:gap-8">
+    <main className="mx-auto w-full max-w-6xl min-w-0 overflow-x-clip px-4 py-6 sm:py-8">
+      <div className="grid min-w-0 gap-5 md:grid-cols-[280px_minmax(0,1fr)] md:gap-8">
         {/* Sidebar */}
-        <aside className="md:sticky md:top-24 md:h-fit">
-          <div className="animate-slide-up">
+        <aside className="min-w-0 md:sticky md:top-24 md:h-fit">
+          <div className="min-w-0 animate-slide-up">
             {/* Navigation card */}
             <div className={surface("panel", "noise-overlay relative overflow-hidden p-3 sm:p-5")}>
               <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.36)] to-transparent" />
@@ -35,7 +35,7 @@ export default function SettingsLayout({ children }: { children: ReactNode }) {
         </aside>
         
         {/* Content */}
-        <section className="min-w-0 space-y-6 animate-slide-up" style={{ animationDelay: '0.05s' }}>
+        <section className="min-w-0 space-y-6 overflow-x-clip animate-slide-up" style={{ animationDelay: '0.05s' }}>
           {children}
         </section>
       </div>

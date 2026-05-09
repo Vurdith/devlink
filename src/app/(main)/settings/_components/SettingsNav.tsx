@@ -73,7 +73,7 @@ export default function SettingsNav() {
 
   return (
     <nav
-      className="flex gap-2 overflow-x-auto pb-0.5 md:block md:space-y-2 md:overflow-visible md:pb-0"
+      className="flex min-w-0 max-w-full gap-2 overflow-x-auto pb-0.5 md:block md:space-y-2 md:overflow-visible md:pb-0"
       style={{
         WebkitOverflowScrolling: "touch",
         scrollbarWidth: "none",
@@ -91,13 +91,13 @@ export default function SettingsNav() {
         return (
           <div
             key={item.href}
-            className="animate-fade-in"
+            className="min-w-0 shrink-0 animate-fade-in md:shrink"
             style={{ animationDelay: `${index * 0.05}s` }}
           >
             <Link
               href={item.href}
               className={cn(
-                "group relative flex min-w-[150px] items-center gap-2 rounded-lg border px-3 py-2.5 outline-none transition-all duration-200 focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)] md:min-w-0 md:gap-3 md:py-3",
+                "group relative flex min-w-[132px] items-center gap-2 rounded-lg border px-3 py-2.5 outline-none transition-all duration-200 focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)] sm:min-w-[150px] md:min-w-0 md:gap-3 md:py-3",
                 isActive 
                   ? ui.active.cyan
                   : ui.control.ghost
