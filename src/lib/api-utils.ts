@@ -5,6 +5,10 @@ export interface ApiErrorInterface {
   status: number;
 }
 
+export type JsonBodyResult<T = unknown> =
+  | { ok: true; data: T }
+  | { ok: false; response: NextResponse<{ error: string }> };
+
 export class ApiError extends Error {
   public status: number;
 
@@ -27,6 +31,20 @@ export function handleApiError(error: unknown): NextResponse {
   }
   
   return NextResponse.json({ error: "Unknown error occurred" }, { status: 500 });
+}
+
+export async function parseJsonBody<T = unknown>(
+  request: Request,
+  invalidMessage = "Invalid JSON body"
+): Promise<JsonBodyResult<T>> {
+  try {
+    return { ok: true, data: (await request.json()) as T };
+  } catch {
+    return {
+      ok: false,
+      response: NextResponse.json({ error: invalidMessage }, { status: 400 }),
+    };
+  }
 }
 
 export function validateInput(data: Record<string, unknown>, schema: Record<string, Record<string, unknown>>): string | null {

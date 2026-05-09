@@ -1,5 +1,13 @@
 import { describe, it, expect } from "vitest";
-import { validateUsername, validateEmail, validatePassword, validateId, validateRating } from "../validation";
+import {
+  normalizePollOptions,
+  validateEmail,
+  validateId,
+  validatePassword,
+  validatePollData,
+  validateRating,
+  validateUsername,
+} from "../validation";
 
 describe("validateUsername", () => {
   it("accepts valid usernames", () => {
@@ -85,5 +93,27 @@ describe("validateRating", () => {
     expect(validateRating(0).isValid).toBe(false);
     expect(validateRating(6).isValid).toBe(false);
     expect(validateRating(-1).isValid).toBe(false);
+  });
+});
+
+describe("validatePollData", () => {
+  it("accepts string poll options used by the polls API", () => {
+    const result = validatePollData({
+      question: "Which stack should we use?",
+      options: ["Next.js", "Remix"],
+    });
+
+    expect(result.isValid).toBe(true);
+    expect(normalizePollOptions(["Next.js", "Remix"])).toEqual(["Next.js", "Remix"]);
+  });
+
+  it("returns validation errors for malformed option entries", () => {
+    const result = validatePollData({
+      question: "Which stack should we use?",
+      options: [null, { text: "Remix" }],
+    });
+
+    expect(result.isValid).toBe(false);
+    expect(result.errors[0]).toBe("Poll option 1 text is required and must be a string");
   });
 });

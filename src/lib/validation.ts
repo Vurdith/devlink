@@ -12,6 +12,29 @@ export interface SanitizedInput {
   original: string;
 }
 
+function validationResult(errors: string[]): ValidationResult {
+  return { isValid: errors.length === 0, errors };
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function getPollOptionText(option: unknown): string | null {
+  if (typeof option === "string") return option;
+  if (isRecord(option) && typeof option.text === "string") return option.text;
+  return null;
+}
+
+export function normalizePollOptions(options: unknown): string[] | null {
+  if (!Array.isArray(options)) return null;
+
+  const optionTexts = options.map(getPollOptionText);
+  if (optionTexts.some((text) => text === null)) return null;
+
+  return optionTexts as string[];
+}
+
 /**
  * Sanitize HTML content to prevent XSS
  */
@@ -284,15 +307,15 @@ export function validatePollData(pollData: unknown): ValidationResult {
   const errors: string[] = [];
   
   if (pollData === null || pollData === undefined) {
-    return { isValid: true, errors: [] };
+    return validationResult(errors);
   }
   
-  if (typeof pollData !== 'object' || !('question' in pollData) || !('options' in pollData)) {
-    errors.push('Invalid poll structure');
-    return { isValid: false, errors };
+  if (!isRecord(pollData) || !('question' in pollData) || !('options' in pollData)) {
+    errors.push('Poll data must include a question and options');
+    return validationResult(errors);
   }
   
-  const poll = pollData as Record<string, unknown>;
+  const poll = pollData;
   
   if (!poll.question || typeof poll.question !== 'string') {
     errors.push('Poll question is required and must be a string');
@@ -302,25 +325,23 @@ export function validatePollData(pollData: unknown): ValidationResult {
     errors.push('Poll question must be at least 3 characters');
   }
   
-  if (!Array.isArray(poll.options) || (poll.options as unknown[]).length === 0) {
+  if (!Array.isArray(poll.options) || poll.options.length === 0) {
     errors.push('Poll must have at least one option');
-  } else if ((poll.options as unknown[]).length > 10) {
+  } else if (poll.options.length > 10) {
     errors.push('Poll must have at most 10 options');
   } else {
-    for (let i = 0; i < (poll.options as unknown[]).length; i++) {
-      const option = (poll.options as Record<string, unknown>[])[i];
-      if (!option.text || typeof option.text !== 'string') {
+    for (let i = 0; i < poll.options.length; i++) {
+      const optionText = getPollOptionText(poll.options[i]);
+
+      if (typeof optionText !== 'string' || optionText.trim().length === 0) {
         errors.push(`Poll option ${i + 1} text is required and must be a string`);
-      } else if ((option.text as string).length > 200) {
+      } else if (optionText.length > 200) {
         errors.push(`Poll option ${i + 1} text must be less than 200 characters`);
       }
     }
   }
   
-  return {
-    isValid: errors.length === 0,
-    errors
-  };
+  return validationResult(errors);
 }
 
 export function validateJobTitle(title: string): ValidationResult {

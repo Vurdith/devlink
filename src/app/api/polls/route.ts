@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/server/db";
 import { getAuthSession } from "@/server/auth";
-import { validateId, validatePollData } from "@/lib/validation";
+import { parseJsonBody } from "@/lib/api-utils";
+import { normalizePollOptions, validateId, validatePollData } from "@/lib/validation";
 
 export async function POST(req: Request) {
   try {
@@ -12,25 +13,44 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { postId, question, options, expiresAt, isMultiple } = await req.json();
+    const parsedBody = await parseJsonBody<Record<string, unknown>>(req);
+    if (!parsedBody.ok) {
+      return parsedBody.response;
+    }
 
-    // Validate postId
+    const { postId, question, options, expiresAt, isMultiple } = parsedBody.data;
+
     if (!postId) {
       return NextResponse.json({ error: "postId is required" }, { status: 400 });
     }
+    if (typeof postId !== "string") {
+      return NextResponse.json({ error: "postId must be a string" }, { status: 400 });
+    }
+
     const idValidation = validateId(postId);
     if (!idValidation.isValid) {
       return NextResponse.json({ error: `Invalid postId: ${idValidation.errors[0]}` }, { status: 400 });
     }
 
-    // Validate poll data
     const pollValidation = validatePollData({ question, options });
     if (!pollValidation.isValid) {
       return NextResponse.json({ error: pollValidation.errors[0] }, { status: 400 });
     }
 
-    // Validate expiresAt if provided
+    if (typeof question !== "string") {
+      return NextResponse.json({ error: "Poll question must be a string" }, { status: 400 });
+    }
+
+    const normalizedOptions = normalizePollOptions(options);
+    if (!normalizedOptions) {
+      return NextResponse.json({ error: "Poll options are invalid" }, { status: 400 });
+    }
+
+    let pollExpiresAt: Date | null = null;
     if (expiresAt) {
+      if (typeof expiresAt !== "string") {
+        return NextResponse.json({ error: "expiresAt must be a string" }, { status: 400 });
+      }
       const expireDate = new Date(expiresAt);
       if (isNaN(expireDate.getTime())) {
         return NextResponse.json({ error: "Invalid expiresAt date format" }, { status: 400 });
@@ -38,14 +58,13 @@ export async function POST(req: Request) {
       if (expireDate < new Date()) {
         return NextResponse.json({ error: "expiresAt must be in the future" }, { status: 400 });
       }
+      pollExpiresAt = expireDate;
     }
 
-    // Validate isMultiple if provided
     if (typeof isMultiple !== 'undefined' && typeof isMultiple !== 'boolean') {
       return NextResponse.json({ error: "isMultiple must be a boolean" }, { status: 400 });
     }
 
-    // Verify the post exists and belongs to the current user
     const post = await prisma.post.findUnique({
       where: { id: postId },
       select: { userId: true }
@@ -59,15 +78,14 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized - post does not belong to you" }, { status: 403 });
     }
 
-    // Create the poll with options
     const poll = await prisma.poll.create({
       data: {
         postId,
         question,
-        expiresAt: expiresAt ? new Date(expiresAt) : null,
+        expiresAt: pollExpiresAt,
         isMultiple,
         options: {
-          create: options.map((text: string) => ({ text }))
+          create: normalizedOptions.map((text) => ({ text }))
         }
       },
       include: {
@@ -106,10 +124,8 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: "Poll not found" }, { status: 404 });
     }
 
-    // Calculate total votes
     const totalVotes = poll.options.reduce((sum, option) => sum + option.votes.length, 0);
 
-    // Format the response
     const formattedPoll = {
       id: poll.id,
       question: poll.question,
