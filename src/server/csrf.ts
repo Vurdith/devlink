@@ -1,8 +1,10 @@
-import { randomBytes } from "crypto";
+import { randomBytes, timingSafeEqual } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthSession } from "@/server/auth";
 
 const CSRF_TOKEN_LENGTH = 32;
+const CSRF_TOKEN_HEX_LENGTH = CSRF_TOKEN_LENGTH * 2;
+const CSRF_TOKEN_PATTERN = /^[a-f0-9]{64}$/i;
 const CSRF_HEADER = "x-csrf-token";
 const CSRF_COOKIE = "csrf-token";
 
@@ -23,7 +25,16 @@ export async function validateCsrfToken(request: NextRequest): Promise<boolean> 
     return false;
   }
 
-  return headerToken === cookieToken;
+  if (
+    headerToken.length !== CSRF_TOKEN_HEX_LENGTH ||
+    cookieToken.length !== CSRF_TOKEN_HEX_LENGTH ||
+    !CSRF_TOKEN_PATTERN.test(headerToken) ||
+    !CSRF_TOKEN_PATTERN.test(cookieToken)
+  ) {
+    return false;
+  }
+
+  return timingSafeEqual(Buffer.from(headerToken, "hex"), Buffer.from(cookieToken, "hex"));
 }
 
 export function requireCsrf(handler: (request: NextRequest) => Promise<NextResponse>) {
