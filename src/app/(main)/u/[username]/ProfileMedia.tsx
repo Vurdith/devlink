@@ -15,20 +15,17 @@ interface ProfileAvatarProps {
   isOwnProfile: boolean;
 }
 
-// Shared hook for listening to profile updates
-function useProfileUpdates() {
-  const [avatarUrl, setAvatarUrl] = useState<string | null | undefined>();
-  const [bannerUrl, setBannerUrl] = useState<string | null | undefined>();
+type ProfileMediaField = "avatarUrl" | "bannerUrl";
+
+function useProfileMediaUpdate(field: ProfileMediaField) {
+  const [url, setUrl] = useState<string | null | undefined>();
 
   useEffect(() => {
     const handleProfileUpdate = (event: CustomEvent) => {
-      const { avatarUrl: newAvatar, bannerUrl: newBanner } = event.detail || {};
-      
-      if (newAvatar !== undefined) {
-        setAvatarUrl(newAvatar);
-      }
-      if (newBanner !== undefined) {
-        setBannerUrl(newBanner);
+      const nextUrl = event.detail?.[field];
+
+      if (nextUrl !== undefined) {
+        setUrl(nextUrl);
       }
     };
 
@@ -36,13 +33,13 @@ function useProfileUpdates() {
     return () => {
       window.removeEventListener('devlink:profile-updated', handleProfileUpdate as EventListener);
     };
-  }, []);
+  }, [field]);
 
-  return { avatarUrl, bannerUrl };
+  return url;
 }
 
 export function ProfileBanner({ initialBannerUrl, isOwnProfile }: ProfileBannerProps) {
-  const { bannerUrl: updatedBannerUrl } = useProfileUpdates();
+  const updatedBannerUrl = useProfileMediaUpdate("bannerUrl");
   const bannerUrl = updatedBannerUrl !== undefined ? updatedBannerUrl : initialBannerUrl;
   const isBlob = bannerUrl?.startsWith('blob:');
 
@@ -63,6 +60,8 @@ export function ProfileBanner({ initialBannerUrl, isOwnProfile }: ProfileBannerP
             fill 
             className="object-cover object-center" 
             priority 
+            sizes="100vw"
+            quality={72}
             key={bannerUrl}
           />
         )
@@ -77,7 +76,7 @@ export function ProfileBanner({ initialBannerUrl, isOwnProfile }: ProfileBannerP
 }
 
 export function ProfileAvatar({ initialAvatarUrl, isOwnProfile }: ProfileAvatarProps) {
-  const { avatarUrl: updatedAvatarUrl } = useProfileUpdates();
+  const updatedAvatarUrl = useProfileMediaUpdate("avatarUrl");
   const avatarUrl = updatedAvatarUrl !== undefined ? updatedAvatarUrl : initialAvatarUrl;
 
   return (

@@ -13,7 +13,6 @@ async function uploadToServer(file: File) {
   return data.url as string;
 }
 
-// Clear all profile caches in sessionStorage
 function clearProfileCaches() {
   if (typeof window === 'undefined') return;
   try {
@@ -25,7 +24,6 @@ function clearProfileCaches() {
   } catch {}
 }
 
-// Dispatch profile update event so all components can update IMMEDIATELY
 function dispatchProfileUpdate(updates: { avatarUrl?: string; bannerUrl?: string; name?: string }) {
   if (typeof window !== 'undefined') {
     clearProfileCaches();
@@ -45,35 +43,28 @@ export function AvatarEditOverlay({ editable }: { editable: boolean }) {
     if (!file) return;
     setSaving(true);
     
-    // OPTIMISTIC UPDATE: Show local preview IMMEDIATELY (no waiting)
     const localPreviewUrl = URL.createObjectURL(file);
     dispatchProfileUpdate({ avatarUrl: localPreviewUrl });
     
     try {
-      // Upload in background
       const url = await uploadToServer(file);
       
-      // Update with real URL once uploaded
       dispatchProfileUpdate({ avatarUrl: url });
       
-      // Save to backend (don't block UI on this)
       fetch("/api/profile", { 
         method: "PATCH", 
         headers: { "Content-Type": "application/json" }, 
         body: JSON.stringify({ avatarUrl: url }) 
       }).then(() => {
-        // Refresh server components after save completes
         router.refresh();
       }).catch(console.error);
       
     } catch (error) {
-      // Rollback on error - revert to previous (will refetch from server)
       console.error('Upload failed:', error);
       dispatchProfileUpdate({ avatarUrl: undefined });
       router.refresh();
     } finally {
       setSaving(false);
-      // Revoke the blob URL to free memory
       URL.revokeObjectURL(localPreviewUrl);
       if (inputRef.current) inputRef.current.value = "";
     }
@@ -111,17 +102,14 @@ export function BannerEditOverlay({ editable }: { editable: boolean }) {
     if (!file) return;
     setSaving(true);
     
-    // OPTIMISTIC UPDATE: Show local preview IMMEDIATELY
     const localPreviewUrl = URL.createObjectURL(file);
     dispatchProfileUpdate({ bannerUrl: localPreviewUrl });
     
     try {
       const url = await uploadToServer(file);
       
-      // Update with real URL
       dispatchProfileUpdate({ bannerUrl: url });
       
-      // Save to backend (don't block UI)
       fetch("/api/profile", { 
         method: "PATCH", 
         headers: { "Content-Type": "application/json" }, 

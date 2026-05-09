@@ -25,6 +25,8 @@ const ComposerMediaItem = memo(function ComposerMediaItem({ url, index, onRemove
       <img
         src={url}
         alt={`Media ${index + 1}`}
+        decoding="async"
+        loading="lazy"
         className={cn(
           "w-full object-cover rounded-lg border border-white/[0.08] transition-colors",
           compact ? "h-full rounded-xl" : "h-24 group-hover:border-[rgba(var(--color-accent-rgb),0.5)]"

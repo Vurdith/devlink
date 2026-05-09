@@ -17,6 +17,9 @@ interface MediaViewerPreviewProps {
   onSelect: (index: number) => void;
 }
 
+const LARGE_MEDIA_STYLE = { height: "400px" };
+const LARGE_PREVIEW_STYLE = { maxHeight: "400px" };
+
 export const MediaViewerPreview = memo(function MediaViewerPreview({
   media,
   currentIndex,
@@ -35,7 +38,7 @@ export const MediaViewerPreview = memo(function MediaViewerPreview({
     return (
       <div
         className={cn("group/media relative w-full cursor-pointer overflow-hidden rounded-xl bg-[rgba(8,11,16,0.72)]", className)}
-        style={{ maxHeight: "400px" }}
+        style={LARGE_PREVIEW_STYLE}
         onClick={() => onOpen(currentIndex)}
       >
         <LargeMedia item={currentMedia} alt={`${alt} - ${currentIndex + 1}`} />
@@ -62,7 +65,7 @@ export const MediaViewerPreview = memo(function MediaViewerPreview({
     return (
       <div
         className={cn("group/media relative w-full cursor-pointer overflow-hidden rounded-xl bg-[rgba(8,11,16,0.72)]", className)}
-        style={{ maxHeight: "400px" }}
+        style={LARGE_PREVIEW_STYLE}
         onClick={() => onOpen(0)}
       >
         <LargeMedia item={media[0]} alt={`${alt} - 1`} hover />
@@ -112,7 +115,7 @@ function LargeMedia({ item, alt, hover = false }: { item: MediaItem; alt: string
   }
 
   return (
-    <div className="relative w-full overflow-hidden rounded-xl" style={{ height: "400px" }}>
+    <div className="relative w-full overflow-hidden rounded-xl" style={LARGE_MEDIA_STYLE}>
       <Image
         src={item.url}
         alt={alt}
@@ -121,6 +124,7 @@ function LargeMedia({ item, alt, hover = false }: { item: MediaItem; alt: string
         className={`object-contain ${hover ? "transition-transform duration-500 ease-out group-hover/media:scale-105" : ""}`}
         quality={72}
         draggable={false}
+        decoding="async"
       />
     </div>
   );
@@ -134,7 +138,7 @@ function GridMediaItem({ item, index, alt, onOpen }: { item: MediaItem; index: n
           <video
             src={item.url}
             className="aspect-video w-full rounded-xl object-cover transition-transform duration-500 ease-out group-hover/media:scale-105"
-            preload="metadata"
+            preload="none"
             playsInline
           />
           <PlayOverlay size="sm" />
@@ -149,6 +153,7 @@ function GridMediaItem({ item, index, alt, onOpen }: { item: MediaItem; index: n
             className="rounded-xl object-cover transition-transform duration-500 ease-out group-hover/media:scale-105"
             quality={70}
             draggable={false}
+            decoding="async"
           />
         </div>
       )}
