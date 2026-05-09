@@ -92,6 +92,7 @@ export function DiscoverClient({
   const [users, setUsers] = useState<User[]>(initialUsers);
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [nextCursor, setNextCursor] = useState<string | null>(initialNextCursor);
   const [hasMore, setHasMore] = useState(initialHasMore);
   const observerRef = useRef<IntersectionObserver | null>(null);
@@ -103,6 +104,7 @@ export function DiscoverClient({
     } else {
       setLoading(true);
     }
+    setError(null);
     
     try {
       let url = filter === "all" 
@@ -123,9 +125,16 @@ export function DiscoverClient({
         }
         setNextCursor(data.nextCursor);
         setHasMore(data.hasMore);
+      } else {
+        throw new Error("Discover request failed");
       }
     } catch (error) {
       console.error("Failed to fetch users:", error);
+      setError(
+        cursor
+          ? "We couldn't load more profiles. Scroll a little and try again."
+          : "We couldn't refresh this discover view. Your previous results are still here if we had them."
+      );
     } finally {
       setLoading(false);
       setLoadingMore(false);
@@ -136,6 +145,7 @@ export function DiscoverClient({
   const handleFilterChange = useCallback((filter: ProfileType) => {
     if (filter === selectedFilter) return;
     setSelectedFilter(filter);
+    setError(null);
     setUsers([]);
     setNextCursor(null);
     setHasMore(false);
@@ -167,6 +177,9 @@ export function DiscoverClient({
         : u
     ));
   };
+
+  const selectedFilterLabel = filters.find((filter) => filter.value === selectedFilter)?.label ?? "profiles";
+  const canShowRetry = error && !loading && users.length === 0;
 
   return (
     <div className="max-w-6xl mx-auto">
@@ -214,7 +227,25 @@ export function DiscoverClient({
       
       {/* Users Grid */}
       <div className="mt-4 sm:mt-6">
-      {loading ? (
+      {canShowRetry ? (
+        <FeedbackState
+          title="Discover could not load"
+          description={error}
+          tone="danger"
+          className="py-16"
+          action={{
+            label: "Try again",
+            onClick: () => fetchUsers(selectedFilter),
+          }}
+          icon={
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
+              <path d="M12 9v4" strokeLinecap="round" />
+              <path d="M12 17h.01" strokeLinecap="round" />
+              <path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z" strokeLinejoin="round" />
+            </svg>
+          }
+        />
+      ) : loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           {[...Array(6)].map((_, i) => (
             <div key={i} className={surface("panelMuted", "relative overflow-hidden animate-pulse")}>
@@ -347,6 +378,15 @@ export function DiscoverClient({
                 <span>Loading more...</span>
               </div>
             )}
+            {error && users.length > 0 && !loadingMore && (
+              <button
+                type="button"
+                onClick={() => fetchUsers(selectedFilter, nextCursor)}
+                className="rounded-lg border border-rose-400/20 bg-rose-500/[0.06] px-4 py-2 text-sm font-semibold text-rose-100 transition-colors hover:bg-rose-500/[0.10] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-300/35"
+              >
+                Retry loading more
+              </button>
+            )}
             {!hasMore && users.length > 0 && (
               <p className="text-[var(--muted-foreground)] text-sm">You&apos;re all caught up.</p>
             )}
@@ -358,9 +398,13 @@ export function DiscoverClient({
           description={
             selectedFilter === "all"
               ? "New community members will appear here as they join."
-              : `No ${filters.find(f => f.value === selectedFilter)?.label.toLowerCase()} match this view yet.`
+              : `No ${selectedFilterLabel.toLowerCase()} match this view yet. Clear the filter to browse everyone.`
           }
           className="py-16"
+          action={selectedFilter === "all" ? undefined : {
+            label: "Show all profiles",
+            onClick: () => handleFilterChange("all"),
+          }}
           icon={
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
               <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" strokeLinecap="round" strokeLinejoin="round"/>

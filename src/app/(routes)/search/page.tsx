@@ -1,10 +1,10 @@
 "use client";
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, Suspense, type FormEvent } from "react";
 import Link from "next/link";
 import { Avatar } from "@/components/ui/Avatar";
 import { FollowButton } from "@/components/ui/FollowButton";
 import { iconBox, surface, ui } from "@/components/ui/design-system";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ProfileTooltip } from "@/components/profile/ProfileTooltip";
 import { ProfileTypeLabel } from "@/components/profile/ProfileTypeLabel";
 import { FeedbackState } from "@/components/ui/FeedbackState";
@@ -22,6 +22,7 @@ interface UserSearchResult {
   profileType: string | null;
   bio: string | null;
   isFollowing: boolean;
+  isYou?: boolean;
 }
 
 interface HashtagResult {
@@ -42,6 +43,7 @@ interface ProjectResult {
 }
 
 function SearchContent() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const query = searchParams.get("q")?.trim() || "";
   const type = (searchParams.get("type") as SearchType) || "all";
@@ -53,44 +55,92 @@ function SearchContent() {
   const [hashtags, setHashtags] = useState<HashtagResult[]>([]);
   const [projects, setProjects] = useState<ProjectResult[]>([]);
   const [loading, setLoading] = useState(!!query);
+  const [error, setError] = useState<string | null>(null);
+  const [searchInput, setSearchInput] = useState(query);
+  const [retryCount, setRetryCount] = useState(0);
 
-  // Real API calls for search functionality
   useEffect(() => {
-    if (!query) return;
+    setSelectedType(type);
+  }, [type]);
+
+  useEffect(() => {
+    setSearchInput(query);
+  }, [query]);
+
+  const updateSearchUrl = (nextQuery: string, nextType: SearchType = selectedType) => {
+    const params = new URLSearchParams();
+    const trimmedQuery = nextQuery.trim();
+
+    if (trimmedQuery) params.set("q", trimmedQuery);
+    if (nextType !== "all") params.set("type", nextType);
+
+    const nextUrl = params.toString() ? `/search?${params.toString()}` : "/search";
+    router.push(nextUrl);
+  };
+
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    updateSearchUrl(searchInput);
+  };
+
+  const handleTypeChange = (nextType: SearchType) => {
+    setSelectedType(nextType);
+    if (query) updateSearchUrl(query, nextType);
+  };
+
+  useEffect(() => {
+    if (!query) {
+      setUsers([]);
+      setHashtags([]);
+      setProjects([]);
+      setError(null);
+      setLoading(false);
+      return;
+    }
     
     setLoading(true);
+    setError(null);
+    const controller = new AbortController();
     
     const searchData = async () => {
       try {
-        // Search users
         if (selectedType === "all" || selectedType === "profiles") {
-          const usersResponse = await fetch(`/api/search/users?q=${encodeURIComponent(query)}`);
+          const usersResponse = await fetch(`/api/search/users?q=${encodeURIComponent(query)}`, {
+            signal: controller.signal,
+          });
           if (usersResponse.ok) {
             const usersData = await usersResponse.json();
             setUsers(usersData.users || []);
+          } else {
+            throw new Error("User search failed");
           }
         } else {
           setUsers([]);
         }
 
-        // Search hashtags (always include in main search)
         if (selectedType === "all" || selectedType === "hashtags") {
-          const hashtagsResponse = await fetch(`/api/search/hashtags?q=${encodeURIComponent(query)}`);
+          const hashtagsResponse = await fetch(`/api/search/hashtags?q=${encodeURIComponent(query)}`, {
+            signal: controller.signal,
+          });
           if (hashtagsResponse.ok) {
             const hashtagsData = await hashtagsResponse.json();
             setHashtags(hashtagsData.hashtags || []);
+          } else {
+            throw new Error("Hashtag search failed");
           }
         } else {
           setHashtags([]);
         }
 
-
-        // Search projects
         if (selectedType === "all" || selectedType === "projects") {
-          const projectsResponse = await fetch(`/api/search/projects?q=${encodeURIComponent(query)}`);
+          const projectsResponse = await fetch(`/api/search/projects?q=${encodeURIComponent(query)}`, {
+            signal: controller.signal,
+          });
           if (projectsResponse.ok) {
             const projectsData = await projectsResponse.json();
             setProjects(projectsData.projects || []);
+          } else {
+            throw new Error("Project search failed");
           }
         } else {
           setProjects([]);
@@ -98,13 +148,17 @@ function SearchContent() {
 
         setLoading(false);
       } catch (error) {
+        if (controller.signal.aborted) return;
         console.error("Search error:", error);
+        setError("Search did not finish. Check your connection and try again.");
         setLoading(false);
       }
     };
 
     searchData();
-  }, [query, selectedType]);
+
+    return () => controller.abort();
+  }, [query, selectedType, retryCount]);
 
   const filters: { value: SearchType; label: string; icon: React.ReactNode }[] = [
     {
@@ -150,6 +204,13 @@ function SearchContent() {
   ];
 
   const totalResults = users.length + hashtags.length + projects.length;
+  const filterCounts: Record<SearchType, number> = {
+    all: totalResults,
+    profiles: users.length,
+    hashtags: hashtags.length,
+    projects: projects.length,
+  };
+  const selectedLabel = filters.find((filter) => filter.value === selectedType)?.label ?? "results";
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-5 sm:px-6 sm:py-6">
@@ -166,15 +227,31 @@ function SearchContent() {
         <div className="relative">
           <div className="mb-2 text-[10px] font-bold uppercase tracking-[0.16em] text-[var(--color-accent-2)]">Search</div>
           <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">Search results</h1>
-        {query && (
+          <form onSubmit={handleSubmit} className="mt-4 flex flex-col gap-2 sm:flex-row">
+            <label htmlFor="search-query" className="sr-only">Search DevLink</label>
+            <input
+              id="search-query"
+              value={searchInput}
+              onChange={(event) => setSearchInput(event.target.value)}
+              placeholder="Search handles, hashtags, or projects"
+              className="min-h-11 flex-1 rounded-lg border border-white/[0.08] bg-black/20 px-3 text-sm font-medium text-white outline-none transition-colors placeholder:text-[var(--muted-foreground)] focus:border-[rgba(var(--color-accent-2-rgb),0.42)] focus:ring-2 focus:ring-[rgba(var(--color-accent-2-rgb),0.18)]"
+            />
+            <button
+              type="submit"
+              className={cn("min-h-11 rounded-lg px-4 text-sm font-semibold text-white transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]", ui.active.cyanStrong)}
+            >
+              Search
+            </button>
+          </form>
+        {query ? (
             <div className="mt-3 flex flex-wrap items-center gap-2 text-sm text-[var(--muted-foreground)]">
               <span>Showing results for</span>
               <span className="rounded-lg border border-white/[0.08] bg-white/[0.035] px-2.5 py-1 font-semibold text-white">{query}</span>
-              {totalResults > 0 && (
+              {!loading && !error && (
                 <span className="text-[var(--color-accent-2)]">{totalResults} result{totalResults === 1 ? "" : "s"}</span>
               )}
             </div>
-        )}
+        ) : null}
         </div>
       </div>
 
@@ -184,7 +261,8 @@ function SearchContent() {
           {filters.map((filter) => (
             <button
               key={filter.value}
-              onClick={() => setSelectedType(filter.value)}
+              onClick={() => handleTypeChange(filter.value)}
+              aria-pressed={selectedType === filter.value}
               className={cn("flex flex-shrink-0 items-center gap-2 rounded-lg border px-3 py-2 text-sm font-semibold transition-all duration-200 outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]",
                 selectedType === filter.value
                   ? ui.active.cyanStrong
@@ -198,13 +276,36 @@ function SearchContent() {
               }`}>
                 {filter.icon}
               </div>
-              {filter.label}
+              <span>{filter.label}</span>
+              {query && !loading && !error ? (
+                <span className="rounded-full bg-white/[0.06] px-1.5 py-0.5 text-[11px] tabular-nums text-white/70">
+                  {filterCounts[filter.value]}
+                </span>
+              ) : null}
             </button>
           ))}
         </div>
       </div>
 
-      {loading ? (
+      {error && !loading ? (
+        <FeedbackState
+          title="Search could not load"
+          description={error}
+          tone="danger"
+          className="py-14"
+          action={{
+            label: "Try again",
+            onClick: () => setRetryCount((count) => count + 1),
+          }}
+          icon={
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+              <path d="M12 9v4" strokeLinecap="round" />
+              <path d="M12 17h.01" strokeLinecap="round" />
+              <path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z" strokeLinejoin="round" />
+            </svg>
+          }
+        />
+      ) : loading ? (
         <div className={surface("empty", "flex items-center justify-center gap-3 py-12 text-sm font-semibold text-[var(--muted-foreground)]")}>
           <div className="h-5 w-5 animate-spin rounded-full border-2 border-[var(--color-accent-2)] border-r-transparent" />
           <span>Searching</span>
@@ -259,9 +360,11 @@ function SearchContent() {
                         </div>
                       </Link>
                     </ProfileTooltip>
-                    <div className="relative z-20 pointer-events-auto">
-                      <FollowButton targetUserId={user.id} initialFollowing={user.isFollowing} compact />
-                    </div>
+                    {currentUserId && !user.isYou && currentUserId !== user.id ? (
+                      <div className="relative z-20 pointer-events-auto">
+                        <FollowButton targetUserId={user.id} initialFollowing={user.isFollowing} compact />
+                      </div>
+                    ) : null}
                   </div>
                 ))}
               </div>
@@ -361,9 +464,17 @@ function SearchContent() {
 
           {query && totalResults === 0 && !loading && (
             <FeedbackState
-              title={`No results for "${query}"`}
-              description="Try a different handle, hashtag, or project name."
+              title={`No ${selectedType === "all" ? "results" : selectedLabel.toLowerCase()} for "${query}"`}
+              description={
+                selectedType === "all"
+                  ? "Try a different handle, hashtag, or project name."
+                  : "Switch back to all results or try a broader search term."
+              }
               className="py-14"
+              action={selectedType === "all" ? undefined : {
+                label: "Show all results",
+                onClick: () => handleTypeChange("all"),
+              }}
               icon={
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
                   <circle cx="11" cy="11" r="8" />
