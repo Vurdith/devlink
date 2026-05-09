@@ -19,7 +19,8 @@ export default function GlobalError({
   return (
     <html>
       <body className="flex min-h-screen items-center justify-center bg-[var(--background)] p-4">
-        <div className={surface("panelStrong", "w-full max-w-md p-8 text-center")}>
+        <div className={surface("panelStrong", "noise-overlay relative w-full max-w-md overflow-hidden p-8 text-center")}>
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.40)] to-transparent" />
           <div className={iconBox("cyan", "mx-auto mb-6 h-16 w-16 rounded-xl")}>
             <svg
               className="w-8 h-8 text-[var(--color-accent)]"
@@ -55,14 +56,14 @@ export default function GlobalError({
               onClick={() => reset()}
               className="rounded-lg border border-[rgba(var(--color-accent-2-rgb),0.32)] bg-[linear-gradient(135deg,var(--color-accent),rgba(var(--color-accent-2-rgb),0.92))] px-6 py-2.5 font-medium text-white transition-all hover:brightness-110 active:scale-[0.98]"
             >
-              Try Again
+            Try again
             </button>
             
             <button
               onClick={() => window.location.href = "/"}
               className="rounded-lg border border-white/[0.10] bg-white/[0.055] px-6 py-2.5 font-medium text-white transition-colors hover:border-white/20 hover:bg-white/[0.09]"
             >
-              Go Home
+            Go home
             </button>
           </div>
         </div>

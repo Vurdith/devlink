@@ -100,7 +100,8 @@ function LoginForm() {
         </div>
 
         {/* Form card */}
-        <div className={surface("panel", "relative overflow-hidden p-6 animate-slide-up sm:p-8")} style={{ animationDelay: '0.1s' }}>
+        <div className={surface("panel", "noise-overlay relative overflow-hidden p-6 animate-slide-up sm:p-8")} style={{ animationDelay: '0.1s' }}>
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.40)] to-transparent" />
           <form onSubmit={onSubmit} className="space-y-5">
             {/* Email field */}
             <div>
@@ -143,7 +144,7 @@ function LoginForm() {
                   id="password"
                   type={showPassword ? "text" : "password"}
                   autoComplete="current-password"
-                  placeholder="••••••••"
+                  placeholder="Password"
                   className={authInputWithBothIconsClass}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -207,7 +208,7 @@ function LoginForm() {
               <div className="w-full border-t border-white/[0.08]" />
             </div>
             <div className="relative flex justify-center">
-              <span className="bg-[var(--color-card)] px-4 text-xs text-[var(--muted-foreground)]">
+              <span className="bg-[rgba(12,16,23,0.96)] px-4 text-xs text-[var(--muted-foreground)]">
                 or continue with
               </span>
             </div>
@@ -261,7 +262,7 @@ function LoginSkeleton() {
           <div className="h-8 w-48 mx-auto mb-2 rounded-lg bg-white/10 animate-pulse" />
           <div className="h-4 w-56 mx-auto rounded bg-white/10 animate-pulse" />
         </div>
-        <div className={surface("panel", "relative overflow-hidden p-6 sm:p-8")}>
+        <div className={surface("panel", "noise-overlay relative overflow-hidden p-6 sm:p-8")}>
           <div className="space-y-5">
             <div className="h-12 rounded-xl bg-white/5 animate-pulse" />
             <div className="h-12 rounded-xl bg-white/5 animate-pulse" />

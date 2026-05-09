@@ -217,7 +217,8 @@ export default function RegisterPage() {
         </div>
 
         {/* Form card */}
-        <div className={surface("panel", "relative overflow-hidden p-6 animate-slide-up sm:p-8")} style={{ animationDelay: '0.1s' }}>
+        <div className={surface("panel", "noise-overlay relative overflow-hidden p-6 animate-slide-up sm:p-8")} style={{ animationDelay: '0.1s' }}>
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.40)] to-transparent" />
           <form onSubmit={onSubmit} className="space-y-5">
             {/* Username field */}
             <div>
@@ -318,7 +319,7 @@ export default function RegisterPage() {
                   id="password"
                   type={showPassword ? "text" : "password"}
                   autoComplete="new-password"
-                  placeholder="••••••••"
+                  placeholder="Password"
                   className={authInputWithBothIconsClass}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -407,7 +408,7 @@ export default function RegisterPage() {
                   id="confirm-password"
                   type={showPassword ? "text" : "password"}
                   autoComplete="new-password"
-                  placeholder="••••••••"
+                  placeholder="Confirm password"
                   className={cn(authInputWithBothIconsClass,
                     confirmPassword && !passwordsMatch
                       ? "border-[var(--color-accent)]/50 focus:border-[var(--color-accent)]"
@@ -481,7 +482,7 @@ export default function RegisterPage() {
               <div className="w-full border-t border-white/[0.08]" />
             </div>
             <div className="relative flex justify-center">
-              <span className="bg-[var(--color-card)] px-4 text-xs text-[var(--muted-foreground)]">
+              <span className="bg-[rgba(12,16,23,0.96)] px-4 text-xs text-[var(--muted-foreground)]">
                 or continue with
               </span>
             </div>
