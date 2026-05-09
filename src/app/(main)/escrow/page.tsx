@@ -61,82 +61,109 @@ export default function EscrowPage() {
     }
 
     setCreating(true);
-    const res = await fetch("/api/escrow/contracts", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        developerId: form.developerId.trim(),
-        jobId: form.jobId.trim() || undefined,
-        amount,
-        currency: form.currency.trim() || "USD",
-        title: form.title.trim(),
-      }),
-    });
-    const data = await safeJson<EscrowContract & { error?: string }>(res);
-    if (res.ok) {
-      if (data) {
-        setContracts((prev) => [data, ...prev]);
-      }
-      setForm({ developerId: "", jobId: "", amount: "", currency: "USD", title: "Milestone 1" });
-      toast({
-        title: "Escrow contract created",
-        description: "The milestone is ready to track from the contracts list.",
-        variant: "success",
+    try {
+      const res = await fetch("/api/escrow/contracts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          developerId: form.developerId.trim(),
+          jobId: form.jobId.trim() || undefined,
+          amount,
+          currency: form.currency.trim() || "USD",
+          title: form.title.trim(),
+        }),
       });
-    } else {
+      const data = await safeJson<EscrowContract & { error?: string }>(res);
+      if (res.ok) {
+        if (data) {
+          setContracts((prev) => [data, ...prev]);
+        }
+        setForm({ developerId: "", jobId: "", amount: "", currency: "USD", title: "Milestone 1" });
+        toast({
+          title: "Escrow contract created",
+          description: "The milestone is ready to track from the contracts list.",
+          variant: "success",
+        });
+      } else {
+        toast({
+          title: "Contract was not created",
+          description: data?.error || "Check the details and try again.",
+          variant: "destructive",
+        });
+      }
+    } catch {
       toast({
         title: "Contract was not created",
-        description: data?.error || "Check the details and try again.",
+        description: "Check your connection and try again.",
         variant: "destructive",
       });
+    } finally {
+      setCreating(false);
     }
-    setCreating(false);
   }
 
   async function submitMilestone(contractId: string) {
     setBusyContractId(contractId);
-    const res = await fetch(`/api/escrow/contracts/${contractId}/milestone/submit`, { method: "POST" });
-    const data = await safeJson<{ contract?: EscrowContract; error?: string }>(res);
-    if (res.ok) {
-      if (data?.contract) {
-        setContracts((prev) => prev.map((c) => (c.id === contractId ? data.contract! : c)));
+    try {
+      const res = await fetch(`/api/escrow/contracts/${contractId}/milestone/submit`, { method: "POST" });
+      const data = await safeJson<{ contract?: EscrowContract; error?: string }>(res);
+      if (res.ok) {
+        if (data?.contract) {
+          setContracts((prev) => prev.map((c) => (c.id === contractId ? data.contract! : c)));
+        }
+        toast({
+          title: "Milestone submitted",
+          description: "The client can now review and release funds.",
+          variant: "success",
+        });
+      } else {
+        toast({
+          title: "Milestone was not submitted",
+          description: data?.error || "Try again in a moment.",
+          variant: "destructive",
+        });
       }
-      toast({
-        title: "Milestone submitted",
-        description: "The client can now review and release funds.",
-        variant: "success",
-      });
-    } else {
+    } catch {
       toast({
         title: "Milestone was not submitted",
-        description: data?.error || "Try again in a moment.",
+        description: "Check your connection and try again.",
         variant: "destructive",
       });
+    } finally {
+      setBusyContractId(null);
     }
-    setBusyContractId(null);
   }
 
   async function releaseMilestone(contractId: string) {
     setBusyContractId(contractId);
-    const res = await fetch(`/api/escrow/contracts/${contractId}/milestone/release`, { method: "POST" });
-    const data = await safeJson<{ contract?: EscrowContract; error?: string }>(res);
-    if (res.ok) {
-      if (data?.contract) {
-        setContracts((prev) => prev.map((c) => (c.id === contractId ? data.contract! : c)));
+    try {
+      const res = await fetch(`/api/escrow/contracts/${contractId}/milestone/release`, { method: "POST" });
+      const data = await safeJson<{ contract?: EscrowContract; error?: string }>(res);
+      if (res.ok) {
+        if (data?.contract) {
+          setContracts((prev) => prev.map((c) => (c.id === contractId ? data.contract! : c)));
+        }
+        toast({
+          title: "Funds released",
+          description: "The milestone is marked as released.",
+          variant: "success",
+        });
+      } else {
+        toast({
+          title: "Funds were not released",
+          description: data?.error || "Try again in a moment.",
+          variant: "destructive",
+        });
       }
-      toast({
-        title: "Funds released",
-        description: "The milestone is marked as released.",
-        variant: "success",
-      });
-    } else {
+    } catch {
       toast({
         title: "Funds were not released",
-        description: data?.error || "Try again in a moment.",
+        description: "Check your connection and try again.",
         variant: "destructive",
       });
+    } finally {
+      setBusyContractId(null);
     }
-    setBusyContractId(null);
   }
 
   return (

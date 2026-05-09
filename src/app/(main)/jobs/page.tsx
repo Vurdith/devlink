@@ -109,79 +109,111 @@ export default function JobsPage() {
       return;
     }
 
-    setSubmitting(true);
-    const payload = {
-      title: form.title.trim(),
-      description: form.description.trim(),
-      budgetMin: form.budgetMin ? Number(form.budgetMin) : undefined,
-      budgetMax: form.budgetMax ? Number(form.budgetMax) : undefined,
-      currency: form.currency.trim() || "USD",
-      skills: form.skills.trim(),
-      location: form.location.trim(),
-    };
-    const res = await fetch("/api/jobs", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-    const data = await safeJson<Job & { error?: string }>(res);
-    if (res.ok) {
-      if (data) {
-        setJobs((prev) => [data, ...prev]);
-        setMyJobs((prev) => [data, ...prev]);
-      }
-      setForm({
-        title: "",
-        description: "",
-        budgetMin: "",
-        budgetMax: "",
-        currency: "USD",
-        skills: "",
-        location: "",
-      });
+    const budgetMin = form.budgetMin ? Number(form.budgetMin) : undefined;
+    const budgetMax = form.budgetMax ? Number(form.budgetMax) : undefined;
+    if (
+      (budgetMin !== undefined && Number.isNaN(budgetMin)) ||
+      (budgetMax !== undefined && Number.isNaN(budgetMax)) ||
+      (budgetMin !== undefined && budgetMax !== undefined && budgetMin > budgetMax)
+    ) {
       toast({
-        title: "Job posted",
-        description: "Your listing is live for developers browsing open roles.",
-        variant: "success",
-      });
-    } else {
-      toast({
-        title: "Job was not posted",
-        description: data?.error || "Try again after checking the required fields.",
+        title: "Check the budget range",
+        description: "Use valid numbers, with the minimum budget lower than the maximum.",
         variant: "destructive",
       });
+      return;
     }
-    setSubmitting(false);
+
+    setSubmitting(true);
+    try {
+      const payload = {
+        title: form.title.trim(),
+        description: form.description.trim(),
+        budgetMin,
+        budgetMax,
+        currency: form.currency.trim() || "USD",
+        skills: form.skills.trim(),
+        location: form.location.trim(),
+      };
+      const res = await fetch("/api/jobs", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const data = await safeJson<Job & { error?: string }>(res);
+      if (res.ok) {
+        if (data) {
+          setJobs((prev) => [data, ...prev]);
+          setMyJobs((prev) => [data, ...prev]);
+        }
+        setForm({
+          title: "",
+          description: "",
+          budgetMin: "",
+          budgetMax: "",
+          currency: "USD",
+          skills: "",
+          location: "",
+        });
+        toast({
+          title: "Job posted",
+          description: "Your listing is live for developers browsing open roles.",
+          variant: "success",
+        });
+      } else {
+        toast({
+          title: "Job was not posted",
+          description: data?.error || "Try again after checking the required fields.",
+          variant: "destructive",
+        });
+      }
+    } catch {
+      toast({
+        title: "Job was not posted",
+        description: "Check your connection and try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   async function applyToJob(jobId: string) {
     if (!userId) return;
     setApplyingJobId(jobId);
-    const message = applicationNotes[jobId]?.trim() || "";
-    const res = await fetch(`/api/jobs/${jobId}/apply`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message }),
-    });
-    const data = await safeJson<JobApplication & { error?: string }>(res);
-    if (!res.ok) {
+    try {
+      const message = applicationNotes[jobId]?.trim() || "";
+      const res = await fetch(`/api/jobs/${jobId}/apply`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message }),
+      });
+      const data = await safeJson<JobApplication & { error?: string }>(res);
+      if (!res.ok) {
+        toast({
+          title: "Application was not sent",
+          description: data?.error || "Try again in a moment.",
+          variant: "destructive",
+        });
+        return;
+      }
+      if (data) setMyApplications((prev) => [data, ...prev]);
+      setOpenApplicationJobId(null);
+      setApplicationNotes((prev) => ({ ...prev, [jobId]: "" }));
+      toast({
+        title: "Application sent",
+        description: "You can track the response in My applications.",
+        variant: "success",
+      });
+    } catch {
       toast({
         title: "Application was not sent",
-        description: data?.error || "Try again in a moment.",
+        description: "Check your connection and try again.",
         variant: "destructive",
       });
+    } finally {
       setApplyingJobId(null);
-      return;
     }
-    if (data) setMyApplications((prev) => [data, ...prev]);
-    setOpenApplicationJobId(null);
-    setApplicationNotes((prev) => ({ ...prev, [jobId]: "" }));
-    toast({
-      title: "Application sent",
-      description: "You can track the response in My applications.",
-      variant: "success",
-    });
-    setApplyingJobId(null);
   }
 
   return (
@@ -204,6 +236,29 @@ export default function JobsPage() {
           </div>
         </div>
       </div>
+
+      {!canCreate && (
+        <div className={surface("toolbar", "mb-8 flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between")}>
+          <div className="min-w-0">
+            <div className="text-sm font-semibold text-white">Want to post a role?</div>
+            <p className="mt-1 text-sm text-[var(--muted-foreground)]">Sign in to create focused job briefs and track applications.</p>
+          </div>
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <Link
+              href="/login"
+              className={cn("inline-flex h-9 items-center justify-center rounded-lg px-4 text-xs font-semibold text-white", ui.control.ghost)}
+            >
+              Log in
+            </Link>
+            <Link
+              href="/register"
+              className={cn("inline-flex h-9 items-center justify-center rounded-lg px-4 text-xs font-semibold", ui.control.gradient)}
+            >
+              Sign up
+            </Link>
+          </div>
+        </div>
+      )}
 
       {canCreate && (
         <div className={surface("panel", "noise-overlay relative mb-10 overflow-hidden p-5 sm:p-6")}>
