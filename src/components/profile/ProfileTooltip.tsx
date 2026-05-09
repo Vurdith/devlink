@@ -4,7 +4,7 @@ import { createPortal } from "react-dom";
 import { Avatar } from "../ui/Avatar";
 import Image from "next/image";
 import { FollowButton } from "../ui/FollowButton";
-import { getProfileTypeConfig, ProfileTypeIcon } from "@/types/profile";
+import { ProfileTypeLabel } from "@/components/profile/ProfileTypeLabel";
 import { cn } from "@/lib/cn";
 import { formatProfileCount, getProfileBorder, getProfileGradient } from "./profile-tooltip-utils";
 
@@ -270,8 +270,6 @@ export const ProfileTooltip = memo(function ProfileTooltip({
   };
 
   const profileType = userData.profile?.profileType ?? null;
-  const profileConfig = profileType ? getProfileTypeConfig(profileType) : null;
-  
   // Use pre-computed lookups instead of recreating functions on every render
   const profileGradient = useMemo(() => getProfileGradient(profileType), [profileType]);
   
@@ -308,7 +306,7 @@ export const ProfileTooltip = memo(function ProfileTooltip({
           )} />
           
           {/* Banner or gradient */}
-          <div className="relative h-20 overflow-hidden">
+          <div className="relative h-28 overflow-hidden">
             {userData.profile?.bannerUrl ? (
               <>
                 <Image 
@@ -339,7 +337,7 @@ export const ProfileTooltip = memo(function ProfileTooltip({
           </div>
           
           {/* Content */}
-          <div className="relative -mt-8 px-4 pb-4">
+          <div className="relative -mt-10 px-4 pb-4">
             {/* Avatar with ring */}
             <div className="mb-3 flex items-end gap-3">
               <button
@@ -383,15 +381,9 @@ export const ProfileTooltip = memo(function ProfileTooltip({
             </div>
             
             {/* Profile type badge */}
-            {profileConfig && profileType && (
+            {profileType && (
               <div className="mb-3">
-                <span className={cn(
-                  "inline-flex items-center gap-1.5",
-                  "text-[10px] font-semibold uppercase tracking-[0.14em] text-white/45"
-                )}>
-                  <ProfileTypeIcon profileType={profileType} size={12} />
-                  {profileConfig.label}
-                </span>
+                <ProfileTypeLabel profileType={profileType} variant="inline" />
               </div>
             )}
             

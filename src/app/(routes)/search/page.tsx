@@ -5,8 +5,8 @@ import { Avatar } from "@/components/ui/Avatar";
 import { FollowButton } from "@/components/ui/FollowButton";
 import { iconBox, surface, ui } from "@/components/ui/design-system";
 import { useSearchParams } from "next/navigation";
-import { getProfileTypeConfig, ProfileTypeIcon } from "@/types/profile";
 import { ProfileTooltip } from "@/components/profile/ProfileTooltip";
+import { ProfileTypeLabel } from "@/components/profile/ProfileTypeLabel";
 import { useSession } from "next-auth/react";
 import { cn } from "@/lib/cn";
 
@@ -250,10 +250,7 @@ function SearchContent() {
                           </svg>
                         )}
                         {user.profileType && (
-                          <span className={`inline-flex items-center gap-1 rounded-md border border-white/[0.08] px-1.5 py-0.5 text-[10px] font-semibold ${getProfileTypeConfig(user.profileType).bgColor} ${getProfileTypeConfig(user.profileType).color}`}>
-                            <ProfileTypeIcon profileType={user.profileType} size={10} />
-                            {getProfileTypeConfig(user.profileType).label}
-                          </span>
+                          <ProfileTypeLabel profileType={user.profileType} variant="compact" />
                         )}
                       </div>
                           <div className="text-xs text-[var(--muted-foreground)] truncate">@{user.username}</div>

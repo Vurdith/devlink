@@ -47,7 +47,7 @@ export function ProfileBanner({ initialBannerUrl, isOwnProfile }: ProfileBannerP
   const isBlob = bannerUrl?.startsWith('blob:');
 
   return (
-    <div className="group relative z-0 h-48 w-full sm:h-72">
+    <div className="group relative z-0 h-56 w-full sm:h-80">
       {bannerUrl ? (
         // Use regular img for blob URLs (instant local preview), next/image for remote URLs
         isBlob ? (

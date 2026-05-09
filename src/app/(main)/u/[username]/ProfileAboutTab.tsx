@@ -67,11 +67,10 @@ export function ProfileAboutTab({ skills, profileData }: ProfileAboutTabProps) {
                     <p className="mt-1 truncate text-xl font-semibold text-white">{primarySkill.skill.name}</p>
                   </div>
                 </div>
-                <div className="rounded-lg border border-white/[0.08] bg-white/[0.025] px-3 py-2 text-left sm:text-right">
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/35">Listed</p>
-                  <p className="text-sm font-semibold text-white">
-                    {skills.length} {skills.length === 1 ? "capability" : "capabilities"}
-                  </p>
+                <div className="flex items-center gap-2 rounded-lg border border-white/[0.08] bg-white/[0.025] px-3 py-2 text-sm font-semibold text-white/72">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-accent-2)]" aria-hidden="true" />
+                  <span className="text-white">{skills.length}</span>
+                  <span>{skills.length === 1 ? "listed strength" : "listed strengths"}</span>
                 </div>
               </div>
             ) : null}

@@ -9,7 +9,7 @@ import { AboutEditor } from "./AboutEditor";
 import { ProfileLiveEvents } from "./ProfileLiveEvents";
 import { ProfileTabs } from "./ProfileTabs";
 import { ProfileBanner, ProfileAvatar } from "./ProfileMedia";
-import { getProfileTypeConfig, ProfileTypeIcon } from "@/types/profile";
+import { ProfileTypeLabel } from "@/components/profile/ProfileTypeLabel";
 import { responseCache } from "@/server/cache";
 
 // Cache page for 60 seconds - engagement state is fetched client-side
@@ -136,7 +136,6 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
 
   const isOwnProfile = session?.user?.email === user.email;
   const profileType = user.profile?.profileType ?? null;
-  const profileTypeConfig = profileType ? getProfileTypeConfig(profileType) : null;
 
   return (
     <main className="mx-auto max-w-6xl px-3 sm:px-5 py-4 sm:py-8">
@@ -185,12 +184,7 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
                       </svg>
                     </span>
                   )}
-                  {profileTypeConfig && profileType && (
-                    <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide ring-1 ring-inset ring-white/[0.04] ${profileTypeConfig.bgColor} ${profileTypeConfig.color}`}>
-                      <ProfileTypeIcon profileType={profileType} size={12} />
-                      {profileTypeConfig.label}
-                    </span>
-                  )}
+                  {profileType ? <ProfileTypeLabel profileType={profileType} variant="hero" /> : null}
                 </div>
 
                 <div className="mt-2 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-sm text-[var(--muted-foreground)]">

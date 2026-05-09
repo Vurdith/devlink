@@ -8,7 +8,7 @@ import { ProfileTooltip } from "@/components/profile/ProfileTooltip";
 import { iconBox, menuItem, menuPanel, ui } from "@/components/ui/design-system";
 import Link from "next/link";
 import { cn } from "@/lib/cn";
-import { getProfileTypeConfig, ProfileTypeIcon } from "@/types/profile";
+import { ProfileTypeLabel } from "@/components/profile/ProfileTypeLabel";
 
 interface UserSearchResult {
   id: string;
@@ -313,10 +313,7 @@ export const NavbarSearch = memo(function NavbarSearch({ currentUserId }: { curr
                         <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-[var(--color-accent)]/20 text-[var(--color-accent)]">You</span>
                       )}
                       {user.profileType && (
-                        <span className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-medium flex-shrink-0 ${getProfileTypeConfig(user.profileType).bgColor} ${getProfileTypeConfig(user.profileType).color}`}>
-                          <ProfileTypeIcon profileType={user.profileType} size={10} />
-                          {getProfileTypeConfig(user.profileType).label}
-                        </span>
+                        <ProfileTypeLabel profileType={user.profileType} variant="compact" />
                       )}
                     </div>
                     <div className="text-xs text-[var(--muted-foreground)]">@{user.username}</div>

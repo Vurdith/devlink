@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { Avatar } from "@/components/ui/Avatar";
 import { FollowButton } from "@/components/ui/FollowButton";
 import { cn } from "@/lib/cn";
-import { getProfileTypeConfig, ProfileTypeIcon } from "@/types/profile";
+import { ProfileTypeLabel } from "@/components/profile/ProfileTypeLabel";
 
 export type ProfilePreviewUser = {
   id?: string;
@@ -41,15 +41,6 @@ const PROFILE_BORDERS: Record<string, string> = {
   INFLUENCER: "border-rose-500/40",
   INVESTOR: "border-amber-500/40",
   DEFAULT: "border-white/20",
-};
-
-const BADGE_CLASSES: Record<string, string> = {
-  DEVELOPER: "bg-blue-500/15 text-blue-300 border-blue-500/30",
-  CLIENT: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30",
-  STUDIO: "bg-purple-500/15 text-purple-300 border-purple-500/30",
-  INFLUENCER: "bg-rose-500/15 text-rose-300 border-rose-500/30",
-  INVESTOR: "bg-amber-500/15 text-amber-300 border-amber-500/30",
-  DEFAULT: "bg-slate-500/15 text-slate-300 border-slate-500/30",
 };
 
 function formatCount(count: number | undefined | null) {
@@ -121,10 +112,8 @@ export function ProfilePreviewCard({
   }, [onClose]);
 
   const profileType = fullUser.profile?.profileType ?? null;
-  const profileConfig = profileType ? getProfileTypeConfig(profileType) : null;
   const profileGradient = PROFILE_GRADIENTS[profileType || "DEFAULT"] || PROFILE_GRADIENTS.DEFAULT;
   const profileBorderColor = PROFILE_BORDERS[profileType || "DEFAULT"] || PROFILE_BORDERS.DEFAULT;
-  const badgeClasses = BADGE_CLASSES[profileType || "DEFAULT"] || BADGE_CLASSES.DEFAULT;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -150,7 +139,7 @@ export function ProfilePreviewCard({
 
         <div className={cn("absolute inset-x-0 top-0 h-32 opacity-40 z-0", `bg-gradient-to-b ${profileGradient} to-transparent`)} />
 
-        <div className="relative h-20 overflow-hidden">
+        <div className="relative h-28 overflow-hidden">
           {fullUser.profile?.bannerUrl ? (
             <>
               <Image src={fullUser.profile.bannerUrl} alt="" fill className="object-cover object-center" loading="lazy" />
@@ -169,7 +158,7 @@ export function ProfilePreviewCard({
           )}
         </div>
 
-        <div className="relative px-4 pb-4 -mt-8">
+        <div className="relative px-4 pb-4 -mt-10">
           <div className="flex items-end gap-3 mb-3">
             <button
               onClick={(event) => {
@@ -214,12 +203,9 @@ export function ProfilePreviewCard({
             </div>
           </div>
 
-          {profileConfig && profileType && (
+          {profileType && (
             <div className="mb-3">
-              <span className={cn("inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg", "text-xs font-medium border", badgeClasses)}>
-                <ProfileTypeIcon profileType={profileType} size={12} />
-                {profileConfig.label}
-              </span>
+              <ProfileTypeLabel profileType={profileType} variant="inline" />
             </div>
           )}
 

@@ -3,7 +3,8 @@ import { Avatar } from "@/components/ui/Avatar";
 import { FollowButton } from "@/components/ui/FollowButton";
 import { surface } from "@/components/ui/design-system";
 import { ProfileTooltip } from "@/components/profile/ProfileTooltip";
-import { getProfileTypeConfig, ProfileTypeIcon } from "@/types/profile";
+import { ProfileTypeLabel } from "@/components/profile/ProfileTypeLabel";
+import { cn } from "@/lib/cn";
 
 interface NetworkUser {
   id: string;
@@ -33,13 +34,13 @@ export function NetworkProfileCard({
   initiallyFollowing,
 }: NetworkProfileCardProps) {
   const profileType = user.profile?.profileType;
-  const typeConfig = profileType ? getProfileTypeConfig(profileType) : null;
+  const hasBanner = Boolean(user.profile?.bannerUrl);
 
   return (
     <div className={surface("panelMuted", "group relative overflow-hidden transition-colors hover:border-white/[0.16] hover:bg-white/[0.035]")}>
       <div
         aria-hidden="true"
-        className="h-16 bg-white/[0.025]"
+        className={cn("bg-white/[0.025]", hasBanner ? "h-24 sm:h-28" : "h-16")}
         style={{
           backgroundImage: user.profile?.bannerUrl
             ? `linear-gradient(180deg, rgba(8,11,16,0.12), rgba(8,11,16,0.74)), url(${user.profile.bannerUrl})`
@@ -49,9 +50,9 @@ export function NetworkProfileCard({
         }}
       />
 
-      <div className="p-4 pt-0">
+        <div className="p-4 pt-0">
         <ProfileTooltip user={user} currentUserId={currentUserId}>
-          <Link href={`/u/${user.username}`} className="relative z-10 -mt-7 flex min-w-0 items-end gap-3">
+          <Link href={`/u/${user.username}`} className={cn("relative z-10 flex min-w-0 items-end gap-3", hasBanner ? "-mt-9" : "-mt-7")}>
             <Avatar src={user.profile?.avatarUrl ?? undefined} size={56} className="border-4 border-[rgb(10,13,18)]" />
             <div className="min-w-0 pb-1">
               <div className="flex min-w-0 items-center gap-2">
@@ -71,12 +72,7 @@ export function NetworkProfileCard({
 
         <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div className="min-w-0">
-            {profileType && typeConfig ? (
-              <div className="mb-3 inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/45">
-                <ProfileTypeIcon profileType={profileType} size={12} />
-                {typeConfig.label}
-              </div>
-            ) : null}
+            {profileType ? <ProfileTypeLabel profileType={profileType} variant="inline" className="mb-3" /> : null}
             {user.profile?.bio ? (
               <p className="line-clamp-2 text-sm leading-relaxed text-white/58">{user.profile.bio}</p>
             ) : (

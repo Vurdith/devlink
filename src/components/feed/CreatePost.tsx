@@ -227,9 +227,6 @@ export const CreatePost = memo(function CreatePost({
           <div className="min-w-0 flex-1">
             <div className="mb-1 flex items-center gap-2 text-sm font-semibold text-white tracking-tight">
               <span>{replyToId ? "Write a reply" : "Share an update"}</span>
-              <span className="hidden rounded-full border border-white/[0.08] bg-white/[0.035] px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.12em] text-[var(--muted-foreground)] sm:inline-flex">
-                Feed
-              </span>
             </div>
             <div className="truncate text-sm leading-relaxed text-[var(--muted-foreground)] transition-colors group-hover:text-white/72">
               {placeholder}

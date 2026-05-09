@@ -6,7 +6,7 @@ import { signOut } from "next-auth/react";
 import { Avatar } from "@/components/ui/Avatar";
 import { iconBox, menuItem, menuPanel, ui } from "@/components/ui/design-system";
 import { cn } from "@/lib/cn";
-import { getProfileTypeConfig, ProfileTypeIcon } from "@/types/profile";
+import { ProfileTypeLabel } from "@/components/profile/ProfileTypeLabel";
 
 interface ProfileMenuProps {
   username: string;
@@ -150,15 +150,7 @@ export const ProfileMenu = memo(function ProfileMenu({ username, avatarUrl: init
               </div>
               {profileType && (
                 <div className="mt-1">
-                  <span className={cn(
-                    "inline-flex items-center gap-1 rounded-lg border px-2 py-1 text-xs font-semibold",
-                    getProfileTypeConfig(profileType).bgColor,
-                    getProfileTypeConfig(profileType).color,
-                    "border-current/30"
-                  )}>
-                    <ProfileTypeIcon profileType={profileType} size={10} />
-                    {getProfileTypeConfig(profileType).label}
-                  </span>
+                  <ProfileTypeLabel profileType={profileType} variant="compact" />
                 </div>
               )}
             </div>
