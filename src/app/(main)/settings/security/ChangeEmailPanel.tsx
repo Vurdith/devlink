@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/Button";
+import { surface } from "@/components/ui/design-system";
 import { SecurityPanel } from "./SecurityPanel";
 
 export interface EmailData {
@@ -40,7 +41,7 @@ export function ChangeEmailPanel({
       <div className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-white mb-2">Current Email</label>
-          <div className="w-full h-11 px-4 rounded-xl bg-white/[0.04] border border-white/10 text-[var(--muted-foreground)] flex items-center">
+          <div className={surface("empty", "flex h-11 w-full items-center px-4 text-[var(--muted-foreground)]")}>
             {currentEmail || "Loading..."}
           </div>
         </div>

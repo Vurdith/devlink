@@ -1,5 +1,7 @@
 import { memo } from "react";
 import { Tooltip } from "@/components/ui/BaseModal";
+import { cn } from "@/lib/cn";
+import { ui } from "@/components/ui/design-system";
 
 interface IndexedItemProps {
   idx: number;
@@ -8,7 +10,7 @@ interface IndexedItemProps {
 
 export const MediaUrlItem = memo(function MediaUrlItem({ url, idx, onRemove }: IndexedItemProps & { url: string }) {
   return (
-    <div className="flex items-center gap-2 px-2.5 py-1.5 bg-white/5 rounded-lg group hover:bg-white/10">
+    <div className="group flex items-center gap-2 rounded-lg border border-white/[0.08] bg-white/[0.035] px-2.5 py-1.5 transition-colors hover:bg-white/[0.055]">
       <span className="text-[11px] text-white/50 truncate flex-1">{url}</span>
       <RemoveButton label="Remove media" onClick={() => onRemove(idx)} size={12} />
     </div>
@@ -17,7 +19,7 @@ export const MediaUrlItem = memo(function MediaUrlItem({ url, idx, onRemove }: I
 
 export const LinkItem = memo(function LinkItem({ link, idx, onRemove }: IndexedItemProps & { link: string }) {
   return (
-    <div className="flex items-center gap-2 px-2.5 py-1.5 bg-white/5 rounded-lg group hover:bg-white/10">
+    <div className="group flex items-center gap-2 rounded-lg border border-white/[0.08] bg-white/[0.035] px-2.5 py-1.5 transition-colors hover:bg-white/[0.055]">
       <span className="text-[11px] text-white/50 truncate flex-1">{link}</span>
       <RemoveButton label="Remove link" onClick={() => onRemove(idx)} size={12} />
     </div>
@@ -26,7 +28,7 @@ export const LinkItem = memo(function LinkItem({ link, idx, onRemove }: IndexedI
 
 export const TagItem = memo(function TagItem({ tag, idx, onRemove }: IndexedItemProps & { tag: string }) {
   return (
-    <div className="flex items-center gap-1 px-2 py-1 bg-[var(--color-accent)]/15 text-[var(--color-accent)] rounded-full border border-[var(--color-accent)]/30 group hover:border-[var(--color-accent)]/50">
+    <div className="group flex items-center gap-1 rounded-lg border border-[rgba(var(--color-accent-2-rgb),0.22)] bg-[rgba(var(--color-accent-2-rgb),0.10)] px-2 py-1 text-[var(--color-accent-2)] transition-colors hover:border-[rgba(var(--color-accent-2-rgb),0.36)]">
       <span className="text-[10px] font-medium">#{tag}</span>
       <RemoveButton label="Remove tag" onClick={() => onRemove(idx)} size={10} rounded />
     </div>
@@ -36,7 +38,7 @@ export const TagItem = memo(function TagItem({ tag, idx, onRemove }: IndexedItem
 export const MediaPreview = memo(function MediaPreview({ url, idx, onRemove }: IndexedItemProps & { url: string }) {
   return (
     <div className="relative group">
-      <div className="aspect-square rounded-lg overflow-hidden bg-white/5">
+      <div className="aspect-square overflow-hidden rounded-lg border border-white/[0.08] bg-white/[0.035]">
         <img
           src={url}
           alt={`Preview ${idx + 1}`}
@@ -51,7 +53,7 @@ export const MediaPreview = memo(function MediaPreview({ url, idx, onRemove }: I
         <button
           type="button"
           onClick={() => onRemove(idx)}
-          className="absolute top-1 right-1 p-1 bg-black/70 text-white rounded-md opacity-0 group-hover:opacity-100 hover:bg-[var(--color-accent)]"
+          className={cn("absolute right-1 top-1 p-1 opacity-0 group-hover:opacity-100", ui.control.icon)}
         >
           <CloseIcon size={10} strokeWidth={2.5} />
         </button>
@@ -67,7 +69,7 @@ function RemoveButton({ label, onClick, size, rounded = false }: { label: string
         type="button"
         onClick={onClick}
         className={[
-          "p-0.5 text-[var(--color-accent)] hover:bg-[var(--color-accent)]/20 opacity-0 group-hover:opacity-100",
+          "p-0.5 text-[var(--color-accent-2)] opacity-0 transition-colors hover:bg-[rgba(var(--color-accent-2-rgb),0.12)] group-hover:opacity-100",
           rounded ? "rounded-full" : "rounded",
         ].join(" ")}
       >

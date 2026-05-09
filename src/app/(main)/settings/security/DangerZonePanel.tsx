@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/Button";
+import { ui } from "@/components/ui/design-system";
 import { cn } from "@/lib/cn";
 import { SecurityPanel } from "./SecurityPanel";
 
@@ -91,7 +92,7 @@ export function DangerZonePanel({
               <label className="block text-sm font-medium text-white mb-2">Your Password</label>
               <input
                 type="password"
-                className="w-full h-11 px-4 rounded-xl bg-white/5 border border-red-500/30 text-white placeholder-[var(--muted-foreground)] focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500 transition-all"
+                className={cn(ui.control.field, "h-11 border-red-500/30 px-4 focus:border-red-500")}
                 placeholder="Enter your password"
                 value={deletePassword}
                 onChange={(event) => onDeletePasswordChange(event.target.value)}
@@ -107,8 +108,9 @@ export function DangerZonePanel({
             <input
               type="text"
               className={cn(
-                "w-full h-11 px-4 rounded-xl bg-white/5 border text-white placeholder-[var(--muted-foreground)] focus:outline-none focus:ring-1 transition-all",
-                deleteConfirmText === "DELETE" ? "border-red-500 focus:border-red-500 focus:ring-red-500" : "border-white/10 focus:border-red-500/50 focus:ring-red-500/50"
+                ui.control.field,
+                "h-11 px-4",
+                deleteConfirmText === "DELETE" ? "border-red-500 focus:border-red-500" : "focus:border-red-500/50"
               )}
               placeholder="Type DELETE"
               value={deleteConfirmText}

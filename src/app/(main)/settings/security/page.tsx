@@ -13,6 +13,7 @@ import { PasswordStrengthMeter } from "./PasswordStrengthMeter";
 import { ResetPasswordPanel } from "./ResetPasswordPanel";
 import { SecurityPanel } from "./SecurityPanel";
 import { getPasswordStrength } from "./password-strength";
+import { ui } from "@/components/ui/design-system";
 
 interface PasswordData {
   currentPassword: string;
@@ -284,8 +285,7 @@ export default function SecuritySettings() {
   };
 
   const passwordStrength = getPasswordStrength(passwordData.newPassword);
-  const inputBase =
-    "w-full h-11 px-4 rounded-xl bg-white/[0.04] border border-white/10 text-white placeholder-[var(--muted-foreground)] focus:border-[var(--accent)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)] transition-all";
+  const inputBase = cn(ui.control.field, "h-11 px-4");
 
   return (
     <div className="space-y-6">
@@ -314,9 +314,9 @@ export default function SecuritySettings() {
           className="animate-pulse"
         >
           <div className="space-y-4">
-            <div className="h-11 bg-white/5 rounded-xl" />
-            <div className="h-11 bg-white/5 rounded-xl" />
-            <div className="h-11 bg-white/10 rounded-xl w-32" />
+            <div className="h-11 rounded-lg border border-white/[0.08] bg-white/[0.035]" />
+            <div className="h-11 rounded-lg border border-white/[0.08] bg-white/[0.035]" />
+            <div className="h-11 w-32 rounded-lg border border-white/[0.08] bg-white/[0.055]" />
           </div>
         </SecurityPanel>
       )}
@@ -337,7 +337,7 @@ export default function SecuritySettings() {
           className="animate-slide-up"
           style={{ animationDelay: '0.05s' } as React.CSSProperties}
         >
-          <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4 mb-6">
+          <div className="mb-6 rounded-xl border border-blue-500/20 bg-blue-500/10 p-4">
             <div className="flex items-start gap-3">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-blue-400 mt-0.5 flex-shrink-0">
                 <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
@@ -369,10 +369,10 @@ export default function SecuritySettings() {
               <input
                 type="password"
                 className={cn(
-                  "w-full h-11 px-4 rounded-xl bg-white/[0.04] border text-white placeholder-[var(--muted-foreground)] focus:outline-none focus:ring-1 transition-all",
+                  inputBase,
                   newPasswordData.confirmPassword && newPasswordData.password !== newPasswordData.confirmPassword
-                    ? "border-[var(--color-accent)]/50 focus:border-[var(--color-accent)] focus:ring-[var(--color-accent)]"
-                    : "border-white/10 focus:border-[var(--accent)] focus:ring-[var(--accent)]"
+                    ? "border-[var(--color-accent)]/50 focus:border-[var(--color-accent)]"
+                    : ""
                 )}
                 placeholder="Confirm your password"
                 value={newPasswordData.confirmPassword}
@@ -446,10 +446,10 @@ export default function SecuritySettings() {
               <input
                 type="password"
                 className={cn(
-                  "w-full h-11 px-4 rounded-xl bg-white/[0.04] border text-white placeholder-[var(--muted-foreground)] focus:outline-none focus:ring-1 transition-all",
+                  inputBase,
                   passwordData.confirmPassword && passwordData.newPassword !== passwordData.confirmPassword
-                    ? "border-[var(--color-accent)]/50 focus:border-[var(--color-accent)] focus:ring-[var(--color-accent)]"
-                    : "border-white/10 focus:border-[var(--accent)] focus:ring-[var(--accent)]"
+                    ? "border-[var(--color-accent)]/50 focus:border-[var(--color-accent)]"
+                    : ""
                 )}
                 value={passwordData.confirmPassword}
                 onChange={(e) => setPasswordData(prev => ({ ...prev, confirmPassword: e.target.value }))}

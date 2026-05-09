@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback, ReactNode, memo, useRef, useId } from "react";
 import { createPortal } from "react-dom";
 import { cn } from "@/lib/cn";
-import { surface } from "./design-system";
+import { surface, ui } from "./design-system";
 import { useBodyScrollLock } from "./useBodyScrollLock";
 import { useFocusTrap } from "./useFocusTrap";
 
@@ -119,10 +119,10 @@ export const ModalActionButton = memo(function ModalActionButton({
       onClick={onClick}
       disabled={disabled}
       className={cn(
-        "relative p-2.5 rounded-xl transition-colors",
+        "relative p-2.5",
         active 
-          ? "bg-[var(--color-accent)]/20 text-[var(--color-accent)]" 
-          : "hover:bg-white/10 text-[var(--muted-foreground)] hover:text-white",
+          ? ui.active.cyanStrong
+          : ui.control.icon,
         disabled && "opacity-50 cursor-not-allowed",
         className
       )}
@@ -250,7 +250,7 @@ export const BaseModal = memo(function BaseModal({
               {showCloseButton && (
                 <button
                   onClick={onClose}
-                  className="p-2 -ml-2 rounded-xl hover:bg-white/10 transition-colors text-white/70 hover:text-white"
+                  className={cn("-ml-2 p-2", ui.control.icon)}
                   aria-label="Close modal"
                 >
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
@@ -307,10 +307,8 @@ export const ModalInput = memo(function ModalInput({
       <input
         {...props}
         className={cn(
-          "w-full h-11 px-4 rounded-xl bg-black/30 border border-white/10 text-white",
-          "placeholder:text-white/30 outline-none",
-          "focus:border-[var(--color-accent)]/50 focus:ring-2 focus:ring-[var(--color-accent)]/20",
-          "transition-all disabled:opacity-50 disabled:cursor-not-allowed",
+          ui.control.field,
+          "h-11 px-4 disabled:cursor-not-allowed disabled:opacity-50",
           props.className
         )}
       />
@@ -333,10 +331,8 @@ export const ModalTextarea = memo(function ModalTextarea({
       <textarea
         {...props}
         className={cn(
-          "w-full px-4 py-3 rounded-xl bg-black/30 border border-white/10 text-white",
-          "placeholder:text-white/30 outline-none resize-none",
-          "focus:border-[var(--color-accent)]/50 focus:ring-2 focus:ring-[var(--color-accent)]/20",
-          "transition-all",
+          ui.control.field,
+          "resize-none px-4 py-3",
           props.className
         )}
       />
@@ -380,7 +376,7 @@ export const ConfirmModal = memo(function ConfirmModal({
           <button
             onClick={onClose}
             disabled={isLoading}
-            className="px-4 py-2.5 rounded-xl text-sm font-medium text-white/70 hover:text-white hover:bg-white/10 transition-colors disabled:opacity-50"
+            className={cn("rounded-lg px-4 py-2.5 text-sm font-medium text-white/70 disabled:opacity-50", ui.control.ghost)}
           >
             {cancelText}
           </button>
@@ -388,10 +384,10 @@ export const ConfirmModal = memo(function ConfirmModal({
             onClick={onConfirm}
             disabled={isLoading}
             className={cn(
-              "px-4 py-2.5 rounded-xl text-sm font-semibold transition-all disabled:opacity-50",
+              "rounded-lg px-4 py-2.5 text-sm font-semibold transition-all disabled:opacity-50",
               isDestructive
-                ? "bg-red-500 hover:bg-red-600 text-white"
-                : "bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] text-white"
+                ? "border border-red-400/25 bg-red-500 text-white hover:bg-red-600"
+                : ui.control.gradient
             )}
           >
             {isLoading ? (

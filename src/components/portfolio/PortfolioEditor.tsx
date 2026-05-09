@@ -3,9 +3,16 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { BaseModal, Tooltip } from "@/components/ui/BaseModal";
 import { Button } from "@/components/ui/Button";
+import { cn } from "@/lib/cn";
+import { surface, ui } from "@/components/ui/design-system";
 import type { PortfolioItem } from "@/types/api";
 import { LinkItem, MediaPreview, MediaUrlItem, TagItem } from "./PortfolioEditorItems";
 import { extractPortfolioSkillIds, parsePortfolioListField } from "./portfolio-editor-utils";
+
+const editorFieldClass = ui.control.field;
+const editorTextareaClass = cn(ui.control.field, "resize-none");
+const addButtonClass = cn("rounded-lg px-3 py-2 text-xs font-semibold transition-all", ui.control.gradient);
+const segmentButtonClass = "rounded-lg border px-3 py-1.5 text-xs font-semibold transition-colors";
 
 interface PortfolioEditorProps {
   isOpen: boolean;
@@ -243,7 +250,7 @@ export function PortfolioEditor({
             type="text"
             defaultValue={existingItem?.title || ""}
             placeholder="Project title"
-            className="w-full px-3 py-2 bg-black/30 border border-white/10 rounded-lg text-sm text-white placeholder-white/30 focus:outline-none focus:border-[var(--color-accent)]/50"
+            className={editorFieldClass}
             required
           />
         </div>
@@ -256,7 +263,7 @@ export function PortfolioEditor({
             defaultValue={existingItem?.description || ""}
             placeholder="Tell us about this item..."
             rows={3}
-            className="w-full px-3 py-2 bg-black/30 border border-white/10 rounded-lg text-sm text-white placeholder-white/30 focus:outline-none focus:border-[var(--color-accent)]/50 resize-none"
+            className={editorTextareaClass}
           />
         </div>
 
@@ -268,11 +275,11 @@ export function PortfolioEditor({
               <button
                 type="button"
                 onClick={() => setMediaInputMethod("url")}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                className={cn(segmentButtonClass,
                   mediaInputMethod === "url"
-                    ? "bg-[var(--color-accent)]/20 text-[var(--color-accent)] border border-[var(--color-accent)]/30"
-                    : "bg-white/5 text-white/50 border border-white/10 hover:bg-white/10"
-                }`}
+                    ? ui.active.cyanStrong
+                    : "border-white/[0.08] bg-white/[0.025] text-white/50 hover:bg-white/[0.055] hover:text-white/80"
+                )}
               >
                 URL
               </button>
@@ -281,11 +288,11 @@ export function PortfolioEditor({
               <button
                 type="button"
                 onClick={() => setMediaInputMethod("upload")}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                className={cn(segmentButtonClass,
                   mediaInputMethod === "upload"
-                    ? "bg-[var(--color-accent)]/20 text-[var(--color-accent)] border border-[var(--color-accent)]/30"
-                    : "bg-white/5 text-white/50 border border-white/10 hover:bg-white/10"
-                }`}
+                    ? ui.active.cyanStrong
+                    : "border-white/[0.08] bg-white/[0.025] text-white/50 hover:bg-white/[0.055] hover:text-white/80"
+                )}
               >
                 Upload
               </button>
@@ -305,13 +312,13 @@ export function PortfolioEditor({
                     }
                   }}
                   placeholder="Paste image URL"
-                  className="flex-1 px-3 py-2 bg-black/30 border border-white/10 rounded-lg text-sm text-white placeholder-white/30 focus:outline-none focus:border-[var(--color-accent)]/50"
+                  className={editorFieldClass}
                 />
                 <Tooltip content="Add URL">
                   <button
                     type="button"
                     onClick={addMediaUrl}
-                    className="px-3 py-2 bg-[var(--color-accent)]/20 text-[var(--color-accent)] hover:bg-[var(--color-accent)]/30 rounded-lg text-xs font-medium"
+                    className={addButtonClass}
                   >
                     Add
                   </button>
@@ -332,10 +339,10 @@ export function PortfolioEditor({
                 onDragLeave={handleDrag}
                 onDragOver={handleDrag}
                 onDrop={handleDrop}
-                className={`flex items-center justify-center w-full px-3 py-4 border border-dashed rounded-lg cursor-pointer transition-colors ${
+                className={`flex w-full cursor-pointer items-center justify-center rounded-lg border border-dashed px-3 py-4 transition-colors ${
                   dragActive
-                    ? "border-[var(--color-accent)] bg-[var(--color-accent)]/10"
-                    : "border-white/20 hover:bg-white/5"
+                    ? "border-[rgba(var(--color-accent-2-rgb),0.42)] bg-[rgba(var(--color-accent-2-rgb),0.10)]"
+                    : "border-white/[0.14] bg-white/[0.025] hover:bg-white/[0.045]"
                 }`}
               >
                 <label className="text-center w-full cursor-pointer">
@@ -368,10 +375,10 @@ export function PortfolioEditor({
               type="text"
               onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addLink(); } }}
               placeholder="Paste URL"
-              className="flex-1 px-3 py-2 bg-black/30 border border-white/10 rounded-lg text-sm text-white placeholder-white/30 focus:outline-none focus:border-[var(--color-accent)]/50"
+              className={editorFieldClass}
             />
             <Tooltip content="Add link">
-              <button type="button" onClick={addLink} className="px-3 py-2 bg-[var(--color-accent)]/20 text-[var(--color-accent)] hover:bg-[var(--color-accent)]/30 rounded-lg text-xs font-medium">
+              <button type="button" onClick={addLink} className={addButtonClass}>
                 Add
               </button>
             </Tooltip>
@@ -394,10 +401,10 @@ export function PortfolioEditor({
               type="text"
               onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addTag(); } }}
               placeholder="Type tag"
-              className="flex-1 px-3 py-2 bg-black/30 border border-white/10 rounded-lg text-sm text-white placeholder-white/30 focus:outline-none focus:border-[var(--color-accent)]/50"
+              className={editorFieldClass}
             />
             <Tooltip content="Add tag">
-              <button type="button" onClick={addTag} className="px-3 py-2 bg-[var(--color-accent)]/20 text-[var(--color-accent)] hover:bg-[var(--color-accent)]/30 rounded-lg text-xs font-medium">
+              <button type="button" onClick={addTag} className={addButtonClass}>
                 Add
               </button>
             </Tooltip>
@@ -423,9 +430,9 @@ export function PortfolioEditor({
               value={skillSearch}
               onChange={(e) => setSkillSearch(e.target.value)}
               placeholder="Search your skills..."
-              className="w-full px-3 py-2 mb-2 bg-black/30 border border-white/10 rounded-lg text-sm text-white placeholder-white/30 focus:outline-none focus:border-[var(--color-accent)]/50"
+              className={cn(editorFieldClass, "mb-2")}
             />
-            <div className="max-h-40 overflow-y-auto rounded-lg border border-white/10 bg-black/20">
+            <div className={surface("panelMuted", "max-h-40 overflow-y-auto rounded-lg")}>
               {userSkills
                 .filter((us) => us.skill.name.toLowerCase().includes(skillSearch.toLowerCase()))
                 .map((us) => {
@@ -433,7 +440,7 @@ export function PortfolioEditor({
                   return (
                     <label
                       key={us.skillId}
-                      className="flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:bg-white/5 cursor-pointer"
+                      className="flex cursor-pointer items-center gap-2 px-3 py-2 text-sm text-white/70 transition-colors hover:bg-white/[0.045]"
                     >
                       <input
                         type="checkbox"
@@ -466,7 +473,7 @@ export function PortfolioEditor({
                   .map((name) => (
                     <span
                       key={name as string}
-                      className="px-2 py-1 bg-white/5 text-white/60 rounded-full border border-white/10 text-[10px]"
+                      className="rounded-lg border border-white/[0.08] bg-white/[0.035] px-2 py-1 text-[10px] text-white/60"
                     >
                       {name}
                     </span>

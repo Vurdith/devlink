@@ -3,6 +3,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/Button";
 import { useToastContext } from "@/components/providers/ToastProvider";
+import { cn } from "@/lib/cn";
+import { surface, ui } from "@/components/ui/design-system";
 
 interface TwoFactorSetupProps {
   onStatusChange?: (enabled: boolean) => void;
@@ -168,14 +170,13 @@ export function TwoFactorSetup({ onStatusChange }: TwoFactorSetupProps) {
     setSetupStep("qr");
   };
 
-  const inputBase =
-    "w-full h-11 px-4 rounded-xl bg-white/[0.04] border border-white/10 text-white placeholder-[var(--muted-foreground)] focus:border-[var(--accent)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)] transition-all text-center text-lg tracking-widest";
+  const inputBase = cn(ui.control.field, "h-11 px-4 text-center text-lg tracking-widest");
 
   if (isLoading) {
     return (
       <div className="space-y-4 animate-pulse">
-        <div className="h-11 bg-white/5 rounded-xl" />
-        <div className="h-11 bg-white/10 rounded-xl w-32" />
+        <div className="h-11 rounded-lg border border-white/[0.08] bg-white/[0.035]" />
+        <div className="h-11 w-32 rounded-lg border border-white/[0.08] bg-white/[0.055]" />
       </div>
     );
   }
@@ -186,7 +187,7 @@ export function TwoFactorSetup({ onStatusChange }: TwoFactorSetupProps) {
         <div className="space-y-6">
           {setupStep === "qr" && qrCode && (
             <>
-              <div className="bg-white/[0.02] border border-white/10 rounded-xl p-6">
+              <div className={surface("panelMuted", "p-6")}>
                 <p className="text-sm text-[var(--muted-foreground)] mb-4 text-center">
                   Scan this QR code with your authenticator app (Google Authenticator, Authy, etc.)
                 </p>
@@ -199,7 +200,7 @@ export function TwoFactorSetup({ onStatusChange }: TwoFactorSetupProps) {
                   <p className="text-xs text-[var(--muted-foreground)] mb-1">
                     Or enter this code manually:
                   </p>
-                  <code className="text-xs bg-white/5 px-3 py-1 rounded-lg font-mono break-all">
+                  <code className="rounded-lg border border-white/[0.08] bg-white/[0.035] px-3 py-1 font-mono text-xs break-all">
                     {secret}
                   </code>
                 </div>
@@ -221,7 +222,7 @@ export function TwoFactorSetup({ onStatusChange }: TwoFactorSetupProps) {
 
           {setupStep === "verify" && (
             <>
-              <div className="bg-white/[0.02] border border-white/10 rounded-xl p-6">
+              <div className={surface("panelMuted", "p-6")}>
                 <p className="text-sm text-[var(--muted-foreground)] mb-4 text-center">
                   Enter the 6-digit code from your authenticator app
                 </p>
@@ -283,7 +284,7 @@ export function TwoFactorSetup({ onStatusChange }: TwoFactorSetupProps) {
                   </p>
                 </div>
               </div>
-              <div className="bg-black/30 rounded-lg p-4 mb-4">
+              <div className="mb-4 rounded-lg border border-white/[0.08] bg-white/[0.035] p-4">
                 <div className="grid grid-cols-2 gap-2 font-mono text-sm">
                   {recoveryCodes.map((code, index) => (
                     <div key={index} className="text-white/80">

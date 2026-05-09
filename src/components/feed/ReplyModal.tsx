@@ -7,6 +7,7 @@ import { BaseModal, ModalActionButton, Tooltip } from "@/components/ui/BaseModal
 import { Button } from "@/components/ui/Button";
 import Image from "next/image";
 import { cn } from "@/lib/cn";
+import { surface, ui } from "@/components/ui/design-system";
 import { ComposerLoadingPlaceholder } from "./composer/ComposerLoadingPlaceholder";
 import { ComposerMediaGrid } from "./composer/ComposerMediaGrid";
 import { ComposerPollSummary } from "./composer/ComposerPollSummary";
@@ -183,7 +184,7 @@ export const ReplyModal = memo(function ReplyModal({
 
   const footer = (
     <div className="flex items-center justify-between">
-      <div className="flex items-center gap-1 p-2 bg-black/30 rounded-xl border border-white/10">
+      <div className={surface("toolbar", "flex items-center gap-1 p-2")}>
         {/* Hidden file input */}
         <input 
           ref={fileInputRef} 
@@ -392,7 +393,7 @@ export const ReplyModal = memo(function ReplyModal({
           
           {/* Conditional panels */}
           {showEmojiPicker && (
-            <div className="mt-3 p-3 bg-black/30 rounded-xl border border-white/10 animate-slide-down">
+            <div className={surface("panelMuted", "mt-3 p-3 animate-slide-down")}>
               <Suspense fallback={<ComposerLoadingPlaceholder />}>
                 <EmojiPicker 
                   onEmojiClick={addEmoji} 
@@ -407,7 +408,7 @@ export const ReplyModal = memo(function ReplyModal({
           )}
 
           {showSchedule && (
-            <div className="mt-3 p-3 bg-black/30 rounded-xl border border-white/10 animate-slide-down">
+            <div className={surface("panelMuted", "mt-3 p-3 animate-slide-down")}>
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-[var(--color-accent)]/20 rounded-lg">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-[var(--color-accent)]">
@@ -419,7 +420,7 @@ export const ReplyModal = memo(function ReplyModal({
                   type="datetime-local" 
                   value={scheduledFor} 
                   onChange={(e) => setScheduledFor(e.target.value)} 
-                  className="flex-1 bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm focus:border-[var(--color-accent)] transition-colors text-white" 
+                  className={cn(ui.control.field, "flex-1")}
                 />
                 {scheduledFor && (
                   <Tooltip content="Clear scheduled time">
@@ -431,7 +432,7 @@ export const ReplyModal = memo(function ReplyModal({
           )}
 
           {showEmbedInput && (
-            <div className="mt-3 p-3 bg-black/30 rounded-xl border border-white/10 animate-slide-down space-y-3">
+            <div className={surface("panelMuted", "mt-3 space-y-3 p-3 animate-slide-down")}>
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-cyan-500/20 rounded-lg">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-cyan-400">
@@ -443,12 +444,12 @@ export const ReplyModal = memo(function ReplyModal({
                   value={embedInput} 
                   onChange={(e) => setEmbedInput(e.target.value)} 
                   placeholder="Paste a link to embed" 
-                  className="flex-1 bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm focus:border-[var(--color-accent)] transition-colors text-white placeholder:text-gray-500" 
+                  className={cn(ui.control.field, "flex-1")}
                 />
                 <button 
                   type="button" 
                   onClick={addEmbedUrl} 
-                  className="px-4 py-2 bg-cyan-500/20 text-cyan-400 rounded-lg text-sm font-medium hover:bg-cyan-500/30 transition-colors"
+                  className={cn("rounded-lg px-4 py-2 text-sm font-semibold transition-all", ui.control.gradient)}
                 >
                   Add
                 </button>
@@ -498,7 +499,7 @@ export const ReplyModal = memo(function ReplyModal({
           
           {/* Upload progress */}
           {Object.keys(uploadProgress).length > 0 && (
-            <div className="mt-3 p-3 bg-black/30 rounded-xl border border-white/10">
+            <div className={surface("panelMuted", "mt-3 p-3")}>
               <div className="flex items-center gap-2 text-sm text-[var(--color-accent)]">
                 <div className="w-4 h-4 border-2 border-[var(--color-accent)]/30 border-t-[var(--color-accent)] rounded-full animate-spin" />
                 <span>Uploading media...</span>
