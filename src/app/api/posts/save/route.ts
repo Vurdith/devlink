@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthSession } from "@/server/auth";
 import { prisma } from "@/server/db";
+import { prismaRead } from "@/server/db-read";
 import { responseCache } from "@/server/cache";
+import { parsePaginationParams } from "@/lib/pagination";
 import { attachPostEngagement, fetchPostEngagementSummary, getPostPollIds } from "@/server/posts/post-engagement";
 import { postListSelect } from "@/server/posts/post-selects";
 
@@ -19,18 +21,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Post ID is required" }, { status: 400 });
     }
 
-    // Get user ID
-    const user = await prisma.user.findUnique({
-      where: { username: session.user.username }
-    });
-
-    if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
-    }
+    const userId = session.user.id;
 
     // Check if post exists
     const post = await prisma.post.findUnique({
-      where: { id: postId }
+      where: { id: postId },
+      select: { id: true },
     });
 
     if (!post) {
@@ -39,21 +35,21 @@ export async function POST(request: NextRequest) {
 
     // Check if already saved
     const existingSave = await prisma.savedPost.findUnique({
-      where: { userId_postId: { userId: user.id, postId } }
+      where: { userId_postId: { userId, postId } }
     });
 
     let saved: boolean;
     if (existingSave) {
       // Unsave the post
       await prisma.savedPost.delete({
-        where: { userId_postId: { userId: user.id, postId } }
+        where: { userId_postId: { userId, postId } }
       });
       saved = false;
     } else {
       // Save the post
       await prisma.savedPost.create({
         data: {
-          userId: user.id,
+          userId,
           postId
         }
       });
@@ -63,10 +59,10 @@ export async function POST(request: NextRequest) {
     // Invalidate ALL relevant caches - MUST await
     await Promise.all([
       responseCache.invalidatePattern(/^feed:/),
-      responseCache.invalidatePattern(new RegExp(`^user:${user.id}:`)),
+      responseCache.invalidatePattern(new RegExp(`^user:${userId}:`)),
       responseCache.invalidatePattern(/^hashtag:/),
       responseCache.invalidatePattern(new RegExp(`^post:${postId}`)),
-      responseCache.invalidatePattern(new RegExp(`^saved-posts:${user.id}:`))
+      responseCache.invalidatePattern(new RegExp(`^saved-posts:${userId}:`))
     ]);
 
     return NextResponse.json({ saved });
@@ -84,27 +80,12 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url);
-    const page = parseInt(searchParams.get("page") || "1");
-    const limit = parseInt(searchParams.get("limit") || "50");
-    const skip = (page - 1) * limit;
+    const { limit, skip } = parsePaginationParams(searchParams, { defaultLimit: 50 });
+    const userId = session.user.id;
 
-    // Get user ID
-    const user = await prisma.user.findUnique({
-      where: { username: session.user.username }
-    });
-
-    if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
-    }
-
-    // IMPORTANT: Do NOT cache saves endpoint
-    // Caching causes stale data to be served after unsave actions
-    // The profile page needs fresh data immediately for instant updates
-
-    // OPTIMIZED: Use select with _count instead of include with full arrays
-    // This reduces payload size by ~95% for posts with many engagements
-    const savedPosts = await prisma.savedPost.findMany({
-      where: { userId: user.id },
+    // Saved-post tabs need fresh data immediately after unsave actions.
+    const savedPosts = await prismaRead.savedPost.findMany({
+      where: { userId },
       select: {
         id: true,
         createdAt: true,

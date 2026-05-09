@@ -6,6 +6,9 @@
 
 import { Prisma } from '@prisma/client';
 
+export const DEFAULT_PAGE_SIZE = 20;
+export const MAX_PAGE_SIZE = 50;
+
 /**
  * Cursor pagination options
  */
@@ -24,6 +27,36 @@ export interface CursorPaginationResult<T> {
   previousCursor?: string;
   hasMore: boolean;
   hasPrevious: boolean;
+}
+
+export interface ParsedPaginationParams {
+  page: number;
+  limit: number;
+  skip: number;
+}
+
+export function parsePaginationParams(
+  searchParams: URLSearchParams,
+  {
+    defaultPage = 1,
+    defaultLimit = DEFAULT_PAGE_SIZE,
+    maxLimit = MAX_PAGE_SIZE,
+  }: { defaultPage?: number; defaultLimit?: number; maxLimit?: number } = {}
+): ParsedPaginationParams {
+  const parsePositiveInteger = (value: string | null, fallback: number) => {
+    const parsed = Number.parseInt(value ?? "", 10);
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+  };
+
+  const page = parsePositiveInteger(searchParams.get("page"), defaultPage);
+  const requestedLimit = parsePositiveInteger(searchParams.get("limit"), defaultLimit);
+  const limit = Math.min(requestedLimit, maxLimit);
+
+  return {
+    page,
+    limit,
+    skip: (page - 1) * limit,
+  };
 }
 
 /**

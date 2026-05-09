@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthSession } from "@/server/auth";
-import { prisma } from "@/server/db";
+import { prismaRead } from "@/server/db-read";
 
 /**
  * Lightweight endpoint to fetch engagement state for multiple posts
@@ -25,27 +25,26 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ engagement: {} });
     }
 
-    // Limit to prevent abuse
-    const limitedPostIds = postIds.slice(0, 100);
+    const limitedPostIds = [
+      ...new Set(postIds.filter((postId): postId is string => typeof postId === "string")),
+    ].slice(0, 100);
     const userId = session.user.id;
 
-    // Batch fetch all engagement data in parallel
     const [likes, reposts, saves] = await Promise.all([
-      prisma.postLike.findMany({
+      prismaRead.postLike.findMany({
         where: { postId: { in: limitedPostIds }, userId },
         select: { postId: true }
       }),
-      prisma.postRepost.findMany({
+      prismaRead.postRepost.findMany({
         where: { postId: { in: limitedPostIds }, userId },
         select: { postId: true }
       }),
-      prisma.savedPost.findMany({
+      prismaRead.savedPost.findMany({
         where: { postId: { in: limitedPostIds }, userId },
         select: { postId: true }
       })
     ]);
 
-    // Build engagement map
     const likedSet = new Set(likes.map(l => l.postId));
     const repostedSet = new Set(reposts.map(r => r.postId));
     const savedSet = new Set(saves.map(s => s.postId));

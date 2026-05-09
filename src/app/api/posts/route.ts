@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthSession } from "@/server/auth";
 import { prisma } from "@/server/db";
+import { prismaRead } from "@/server/db-read";
 import type { Prisma } from "@prisma/client";
 import { parseContent } from "@/lib/content-parser";
+import { parsePaginationParams } from "@/lib/pagination";
 import { CONTENT_LIMITS, COLLECTION_LIMITS } from "@/constants";
 import { checkRateLimit } from "@/server/rate-limit";
 import { createNotification } from "@/server/notifications";
@@ -158,15 +160,6 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Get user ID
-    const user = await prisma.user.findUnique({
-      where: { username: session.user.username }
-    });
-
-    if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
-    }
-
     // Parse content for hashtags and mentions
     const parsedContent = parseContent(sanitizedContent);
 
@@ -174,7 +167,7 @@ export async function POST(request: NextRequest) {
     const postData = {
       content: sanitizedContent,
       replyToId,
-      userId: user.id,
+      userId,
       isSlideshow: isSlideshow || false,
       location: location || undefined,
       embedUrls: embedUrls ? JSON.stringify(embedUrls) : undefined,
@@ -184,26 +177,7 @@ export async function POST(request: NextRequest) {
     
     const post = await prisma.post.create({
       data: postData,
-      include: {
-        user: {
-          select: {
-            id: true,
-            username: true,
-            name: true,
-            profile: {
-              select: {
-                avatarUrl: true,
-                bannerUrl: true,
-                profileType: true,
-                verified: true,
-                bio: true,
-                website: true,
-                location: true
-              }
-            }
-          }
-        }
-      }
+      select: { id: true },
     });
 
     // Parallel processing for auxiliary data
@@ -214,7 +188,7 @@ export async function POST(request: NextRequest) {
       promises.push(
         createNotification({
           recipientId: replyTarget.userId,
-          actorId: user.id,
+          actorId: userId,
           type: "REPLY",
           postId: replyTarget.id,
           sourcePostId: post.id,
@@ -228,29 +202,16 @@ export async function POST(request: NextRequest) {
       const hashtagPromise = (async () => {
         try {
           const uniqueHashtags = [...new Set(parsedContent.hashtags)];
-          
-          const existingHashtags = await prisma.hashtag.findMany({
+
+          await prisma.hashtag.createMany({
+            data: uniqueHashtags.map(name => ({ name })),
+            skipDuplicates: true
+          });
+
+          const allHashtags = await prisma.hashtag.findMany({
             where: { name: { in: uniqueHashtags } },
             select: { id: true, name: true }
           });
-          
-          const existingNames = new Set(existingHashtags.map(h => h.name));
-          const newHashtagNames = uniqueHashtags.filter(name => !existingNames.has(name));
-          
-          let allHashtags = [...existingHashtags];
-          
-          if (newHashtagNames.length > 0) {
-            await prisma.hashtag.createMany({
-              data: newHashtagNames.map(name => ({ name })),
-              skipDuplicates: true
-            });
-            
-            const newHashtags = await prisma.hashtag.findMany({
-              where: { name: { in: newHashtagNames } },
-              select: { id: true, name: true }
-            });
-            allHashtags = [...allHashtags, ...newHashtags];
-          }
           
           await prisma.postHashtag.createMany({
             data: allHashtags.map(h => ({
@@ -270,9 +231,10 @@ export async function POST(request: NextRequest) {
     if (parsedContent.mentions.length > 0) {
       const mentionPromise = (async () => {
         try {
-           // Resolve all usernames to IDs first
+           const uniqueMentions = [...new Set(parsedContent.mentions)];
+
            const users = await prisma.user.findMany({
-             where: { username: { in: parsedContent.mentions } },
+             where: { username: { in: uniqueMentions } },
              select: { id: true }
            });
            
@@ -281,7 +243,8 @@ export async function POST(request: NextRequest) {
                data: users.map(u => ({
                  postId: post.id,
                  userId: u.id
-               }))
+               })),
+               skipDuplicates: true
              });
 
              if (!isScheduled) {
@@ -289,10 +252,10 @@ export async function POST(request: NextRequest) {
                  users.map((u) =>
                    createNotification({
                      recipientId: u.id,
-                     actorId: user.id,
+                     actorId: userId,
                      type: "MENTION",
                      postId: post.id,
-                     dedupeKey: `n:${u.id}:mention:${post.id}:${user.id}`,
+                     dedupeKey: `n:${u.id}:mention:${post.id}:${userId}`,
                    }).catch((e) => console.error("Mention notification error", e))
                  )
                );
@@ -370,15 +333,18 @@ export async function POST(request: NextRequest) {
       }
     });
 
+    if (!postWithMedia) {
+      return NextResponse.json({ error: "Post was created but could not be loaded" }, { status: 500 });
+    }
+
     // Attach parsed embedUrls for response if present
-    const responsePost = postWithMedia || post;
-    let parsedEmbedUrls = responsePost.embedUrls;
+    let parsedEmbedUrls: unknown = postWithMedia.embedUrls;
     if (parsedEmbedUrls && typeof parsedEmbedUrls === 'string') {
       try { parsedEmbedUrls = JSON.parse(parsedEmbedUrls); } catch { /* keep original */ }
     }
 
-    const response: { post: typeof responsePost & { embedUrls?: unknown }; message: string } = {
-      post: { ...responsePost, embedUrls: parsedEmbedUrls },
+    const response = {
+      post: { ...postWithMedia, embedUrls: parsedEmbedUrls },
       message: isScheduled && scheduledFor
         ? `Post scheduled for ${scheduledFor.toLocaleString()}`
         : "Post created successfully!",
@@ -397,9 +363,7 @@ export async function GET(request: NextRequest) {
     const currentUserId = session?.user?.id;
     
     const { searchParams } = new URL(request.url);
-    const page = Math.max(1, parseInt(searchParams.get("page") || "1"));
-    const limit = Math.min(parseInt(searchParams.get("limit") || "20"), 50);
-    const skip = (page - 1) * limit;
+    const { limit, skip } = parsePaginationParams(searchParams);
     const filterUserId = searchParams.get("userId");
 
     if (filterUserId && typeof filterUserId !== 'string') {
@@ -415,8 +379,7 @@ export async function GET(request: NextRequest) {
       ...(filterUserId ? { userId: filterUserId } : {}),
     };
 
-    // OPTIMIZED: Minimal includes, separate queries for user-specific data
-    const posts = await prisma.post.findMany({
+    const posts = await prismaRead.post.findMany({
       where,
       select: postListSelect,
       orderBy: filterUserId ? [

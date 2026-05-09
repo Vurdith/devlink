@@ -4,6 +4,7 @@ import { postListSelect } from "@/server/posts/post-selects";
 import type { Prisma } from "@prisma/client";
 
 const FEED_CACHE_TTL = 30; // Cache feed for 30 seconds - invalidated on engagement actions
+const MAX_HOME_FEED_CANDIDATES = 150;
 
 const feedPostSelect = postListSelect;
 const homeFeedCandidateSelect = {
@@ -33,6 +34,15 @@ export type HomeFeedCandidate = Prisma.PostGetPayload<{ select: typeof homeFeedC
 
 export type FeedPost = SelectedFeedPost & { hashtags: string[] };
 
+function boundHomeFeedLimit(limit: number) {
+  const parsedLimit = Math.trunc(limit);
+  if (!Number.isFinite(parsedLimit)) {
+    return 30;
+  }
+
+  return Math.min(Math.max(parsedLimit, 1), MAX_HOME_FEED_CANDIDATES);
+}
+
 function addFeedDefaults(post: SelectedFeedPost): FeedPost {
   return {
     ...post,
@@ -41,7 +51,8 @@ function addFeedDefaults(post: SelectedFeedPost): FeedPost {
 }
 
 export async function fetchHomeFeedCandidates(limit = 30) {
-  const cacheKey = `feed:home:${limit}`;
+  const boundedLimit = boundHomeFeedLimit(limit);
+  const cacheKey = `feed:home:${boundedLimit}`;
 
   return getOrSetFeedCache(cacheKey, async () => {
     return prismaRead.post.findMany({
@@ -51,7 +62,7 @@ export async function fetchHomeFeedCandidates(limit = 30) {
       },
       select: homeFeedCandidateSelect,
       orderBy: { createdAt: "desc" },
-      take: limit,
+      take: boundedLimit,
     });
   }, FEED_CACHE_TTL);
 }
@@ -74,10 +85,11 @@ export async function fetchHomeFeedPostDetails(postIds: string[]): Promise<FeedP
 }
 
 export async function fetchHomeFeedPosts(limit = 30) {
-  const cacheKey = `feed:home:details:${limit}`;
+  const boundedLimit = boundHomeFeedLimit(limit);
+  const cacheKey = `feed:home:details:${boundedLimit}`;
 
   return getOrSetFeedCache(cacheKey, async () => {
-    const candidates = await fetchHomeFeedCandidates(limit);
+    const candidates = await fetchHomeFeedCandidates(boundedLimit);
     return fetchHomeFeedPostDetails(candidates.map((post) => post.id));
   }, FEED_CACHE_TTL);
 }
