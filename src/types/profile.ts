@@ -11,7 +11,7 @@ export const PROFILE_TYPE_CONFIG = {
     label: "Client",
     color: "text-emerald-400",
     bgColor: "bg-emerald-500/20",
-    icon: "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"
+    icon: "M10 6V5a3 3 0 016 0v1h3a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h5zm2 0h2V5a1 1 0 10-2 0v1zm-7 5h14V8H5v3zm0 2v4h14v-4h-5v1h-4v-1H5z"
   },
   STUDIO: {
     label: "Studio",

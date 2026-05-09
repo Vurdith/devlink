@@ -61,7 +61,7 @@ export default async function FollowersPage({ params }: { params: Promise<{ user
         </div>
       </section>
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid auto-rows-fr gap-4 sm:grid-cols-2">
         {followers.map((f) => {
           return (
             <NetworkProfileCard

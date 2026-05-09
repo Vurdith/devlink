@@ -6,6 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { FollowButton } from "@/components/ui/FollowButton";
 import { ProfileTooltip } from "@/components/profile/ProfileTooltip";
+import { ProfileTypeLabel } from "@/components/profile/ProfileTypeLabel";
 import { iconBox, surface, ui } from "@/components/ui/design-system";
 
 type ProfileType = "all" | "DEVELOPER" | "CLIENT" | "INFLUENCER" | "STUDIO" | "INVESTOR";
@@ -158,10 +159,6 @@ export function DiscoverClient({
     return () => { if (observerRef.current) observerRef.current.disconnect(); };
   }, [hasMore, loadingMore, nextCursor, selectedFilter, fetchUsers]);
 
-  const getProfileConfig = (type: string) => {
-    return PROFILE_TYPE_CONFIG[type as keyof typeof PROFILE_TYPE_CONFIG] || PROFILE_TYPE_CONFIG.GUEST;
-  };
-
   const handleFollowToggle = (userId: string, isFollowing: boolean) => {
     setUsers(prev => prev.map(u => 
       u.id === userId 
@@ -237,7 +234,7 @@ export function DiscoverClient({
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             {users.map((user) => {
-              const config = getProfileConfig(user.profile?.profileType || "GUEST");
+              const profileType = user.profile?.profileType || "GUEST";
               const isCurrentUser = currentUserId === user.id;
               
               return (
@@ -311,12 +308,7 @@ export function DiscoverClient({
                     </div>
 
                     <div className="mt-3 flex items-center gap-2">
-                      <span className={`inline-flex items-center gap-1 rounded-md border border-white/[0.08] px-2 py-1 text-[10px] font-bold uppercase tracking-[0.10em] ${config.bgColor} ${config.color}`}>
-                        <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                          <path d={config.icon} />
-                        </svg>
-                        {config.label}
-                      </span>
+                      <ProfileTypeLabel profileType={profileType} variant="inline" />
                       <div className="h-px flex-1 bg-white/5" />
                     </div>
 
