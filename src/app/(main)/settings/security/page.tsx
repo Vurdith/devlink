@@ -371,7 +371,7 @@ export default function SecuritySettings() {
                 className={cn(
                   inputBase,
                   newPasswordData.confirmPassword && newPasswordData.password !== newPasswordData.confirmPassword
-                    ? "border-[var(--color-accent)]/50 focus:border-[var(--color-accent)]"
+                    ? "border-rose-400/45 focus:border-rose-400"
                     : ""
                 )}
                 placeholder="Confirm your password"
@@ -448,7 +448,7 @@ export default function SecuritySettings() {
                 className={cn(
                   inputBase,
                   passwordData.confirmPassword && passwordData.newPassword !== passwordData.confirmPassword
-                    ? "border-[var(--color-accent)]/50 focus:border-[var(--color-accent)]"
+                    ? "border-rose-400/45 focus:border-rose-400"
                     : ""
                 )}
                 value={passwordData.confirmPassword}

@@ -104,42 +104,45 @@ export default function MessagingSettingsPage() {
                 </div>
               )}
 
-          <div className="space-y-1">
-            {options.map((option, index) => {
-              const isSelected = settings?.allowFrom === option.value;
-              return (
-                <button
-                  key={option.value}
-                  type="button"
-                  disabled={saving}
-                  onClick={() => updateSetting(option.value as MessagingSettings["allowFrom"])}
-                  className={cn(
-                    "flex items-center justify-between p-4 rounded-xl border transition-all animate-slide-up",
-                    isSelected
-                      ? cn(ui.active.cyan, "text-white")
-                      : "bg-white/[0.03] border-white/10 text-[var(--muted-foreground)] hover:bg-white/[0.05] hover:border-white/15",
-                    saving && "opacity-60 cursor-not-allowed"
-                  )}
-                  style={{ animationDelay: `${0.05 + index * 0.03}s` }}
-                >
-                  <div className="flex items-center gap-3">
-                    <div
+              <div className="space-y-1">
+                {options.map((option, index) => {
+                  const isSelected = settings?.allowFrom === option.value;
+                  return (
+                    <button
+                      key={option.value}
+                      type="button"
+                      disabled={saving}
+                      onClick={() => updateSetting(option.value as MessagingSettings["allowFrom"])}
                       className={cn(
-                        "w-2.5 h-2.5 rounded-full border",
+                        "flex items-center justify-between rounded-xl border p-4 transition-all animate-slide-up",
                         isSelected
-                          ? "bg-[var(--color-accent)] border-[var(--color-accent)]"
-                          : "border-white/20"
+                          ? cn(ui.active.cyan, "text-white")
+                          : cn(
+                              ui.surface.empty,
+                              "text-[var(--muted-foreground)] hover:border-white/[0.14] hover:bg-white/[0.045]"
+                            ),
+                        saving && "cursor-not-allowed opacity-60"
                       )}
-                    />
-                    <span className="font-medium">{option.label}</span>
-                  </div>
-                  {isSelected && (
-                    <span className="text-xs text-[var(--color-accent)]">Selected</span>
-                  )}
-                </button>
-              );
-            })}
-          </div>
+                      style={{ animationDelay: `${0.05 + index * 0.03}s` }}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div
+                          className={cn(
+                            "h-2.5 w-2.5 rounded-full border",
+                            isSelected
+                              ? "border-[var(--color-accent)] bg-[var(--color-accent)]"
+                              : "border-white/20"
+                          )}
+                        />
+                        <span className="font-medium">{option.label}</span>
+                      </div>
+                      {isSelected ? (
+                        <span className="text-xs font-semibold text-[var(--color-accent)]">Selected</span>
+                      ) : null}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
 
@@ -155,7 +158,7 @@ export default function MessagingSettingsPage() {
             <div className="relative">
               <h2 className="text-lg font-semibold text-white mb-2">Message requests</h2>
               <p className="text-sm text-[var(--muted-foreground)]">
-                When someone doesn’t match your rules, their message becomes a request you can accept or decline.
+                When someone doesn&apos;t match your rules, their message becomes a request you can accept or decline.
               </p>
             </div>
           </div>
