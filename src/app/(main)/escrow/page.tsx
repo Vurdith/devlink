@@ -1,7 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { useSession } from "next-auth/react";
+import { CheckCircle2, Clock3, DollarSign, FileText, Send, ShieldCheck } from "lucide-react";
+import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
 import { safeJson } from "@/lib/safe-json";
 import { iconBox, surface, ui } from "@/components/ui/design-system";
@@ -48,6 +51,8 @@ export default function EscrowPage() {
   const totalValue = useMemo(() => {
     return contracts.reduce((sum, c) => sum + (c.amount || 0), 0);
   }, [contracts]);
+
+  const totalCurrency = contracts[0]?.currency || form.currency || "USD";
 
   async function createContract() {
     const amount = Number(form.amount);
@@ -179,16 +184,27 @@ export default function EscrowPage() {
           </p>
         </div>
         <div className={iconBox("cyan", "h-11 w-11")}>
-          <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 3l8 4v5c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V7l8-4z" />
-          </svg>
+          <ShieldCheck className="h-5 w-5" aria-hidden="true" />
         </div>
         </div>
       </div>
 
       {!userId ? (
-        <div className={surface("empty", "p-5 text-sm leading-relaxed text-[var(--muted-foreground)]")}>
-          Sign in to create escrow contracts, submit milestones, and release funds from one place.
+        <div className={surface("empty", "flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between")}>
+          <div className="min-w-0">
+            <div className="text-sm font-semibold text-white">Sign in to manage escrow</div>
+            <p className="mt-1 text-sm leading-relaxed text-[var(--muted-foreground)]">
+              Create contracts, submit milestones, and release funds from one place.
+            </p>
+          </div>
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <Link href="/login" className={cn("inline-flex h-9 items-center justify-center rounded-lg px-4 text-xs font-semibold text-white", ui.control.ghost)}>
+              Log in
+            </Link>
+            <Link href="/register" className={cn("inline-flex h-9 items-center justify-center rounded-lg px-4 text-xs font-semibold", ui.control.gradient)}>
+              Sign up
+            </Link>
+          </div>
         </div>
       ) : (
         <>
@@ -203,12 +219,14 @@ export default function EscrowPage() {
                 value={form.developerId}
                 onChange={(e) => setForm((prev) => ({ ...prev, developerId: e.target.value }))}
                 placeholder="Developer user ID"
+                aria-label="Developer user ID"
                 className={ui.control.field}
               />
               <input
                 value={form.jobId}
                 onChange={(e) => setForm((prev) => ({ ...prev, jobId: e.target.value }))}
                 placeholder="Job ID (optional)"
+                aria-label="Job ID optional"
                 className={ui.control.field}
               />
               <input
@@ -216,32 +234,40 @@ export default function EscrowPage() {
                 onChange={(e) => setForm((prev) => ({ ...prev, amount: e.target.value }))}
                 placeholder="Amount"
                 type="number"
+                aria-label="Escrow amount"
                 className={ui.control.field}
               />
               <input
                 value={form.currency}
                 onChange={(e) => setForm((prev) => ({ ...prev, currency: e.target.value.toUpperCase() }))}
                 placeholder="Currency (USD)"
+                aria-label="Currency"
                 className={ui.control.field}
               />
               <input
                 value={form.title}
                 onChange={(e) => setForm((prev) => ({ ...prev, title: e.target.value }))}
                 placeholder="Milestone title"
+                aria-label="Milestone title"
                 className={cn(ui.control.field, "md:col-span-2")}
               />
             </div>
-            <button
+            <div className="mt-4 flex flex-col gap-3 border-t border-white/[0.06] pt-4 sm:flex-row sm:items-center sm:justify-between">
+              <p className="text-xs leading-relaxed text-[var(--muted-foreground)]">
+                Funds stay tracked against one milestone so the next responsible person is visible.
+              </p>
+            <Button
               onClick={createContract}
               disabled={creating}
-              className={cn(
-                "mt-4 rounded-lg px-4 py-2 text-sm font-semibold transition-all",
-                ui.control.gradient,
-                creating && "opacity-60 cursor-not-allowed"
-              )}
+              isLoading={creating}
+              size="sm"
+              variant="glow"
+              className="w-full sm:w-auto"
+              leftIcon={<Send className="h-4 w-4" aria-hidden="true" />}
             >
-              {creating ? "Creating..." : "Create contract"}
-            </button>
+              Create contract
+            </Button>
+            </div>
           </div>
 
           <div className="mb-3 flex items-center justify-between gap-3">
@@ -250,14 +276,32 @@ export default function EscrowPage() {
               <div className="h-px flex-1 bg-gradient-to-r from-white/[0.10] to-transparent" />
             </div>
             <span className="flex-shrink-0 text-xs text-[var(--muted-foreground)]">
-              Total value: {totalValue} {contracts[0]?.currency || "USD"}
+              Total value: {totalValue} {totalCurrency}
             </span>
           </div>
           {loading ? (
-            <div className={surface("empty", "p-5 text-sm text-[var(--muted-foreground)]")}>Loading contracts...</div>
+            <div className={surface("empty", "grid gap-3 p-5")}>
+              {[0, 1].map((item) => (
+                <div key={item} className="flex items-start gap-3">
+                  <div className="skeleton h-10 w-10 rounded-lg" />
+                  <div className="flex-1 space-y-2">
+                    <div className="skeleton h-4 w-2/5" />
+                    <div className="skeleton h-3 w-3/5" />
+                  </div>
+                </div>
+              ))}
+            </div>
           ) : contracts.length === 0 ? (
-            <div className={surface("empty", "p-5 text-sm leading-relaxed text-[var(--muted-foreground)]")}>
-              No escrow contracts yet. Create a milestone above when a client and developer are ready to work.
+            <div className={surface("empty", "flex items-start gap-3 p-5")}>
+              <div className={iconBox("muted", "h-10 w-10 flex-shrink-0")}>
+                <FileText className="h-5 w-5" aria-hidden="true" />
+              </div>
+              <div>
+                <div className="text-sm font-semibold text-white">No escrow contracts yet</div>
+                <p className="mt-1 text-sm leading-relaxed text-[var(--muted-foreground)]">
+                  Create a milestone above when a client and developer have agreed on scope and payment.
+                </p>
+              </div>
             </div>
           ) : (
             <div className="grid gap-3">
@@ -266,6 +310,11 @@ export default function EscrowPage() {
                 const isDeveloper = contract.developerId === userId;
                 const milestoneStatus = contract.milestone?.status || "PENDING";
                 const actionBusy = busyContractId === contract.id;
+                const statusTone = milestoneStatus === "RELEASED"
+                  ? "border-emerald-300/20 bg-emerald-400/10 text-emerald-200"
+                  : milestoneStatus === "SUBMITTED"
+                    ? "border-[rgba(var(--color-accent-2-rgb),0.22)] bg-[rgba(var(--color-accent-2-rgb),0.08)] text-[var(--color-accent-2)]"
+                    : "border-white/[0.08] bg-white/[0.04] text-white/60";
                 const nextStep = isDeveloper && milestoneStatus === "PENDING"
                   ? "Next: submit the milestone when the work is ready."
                   : isClient && milestoneStatus === "SUBMITTED"
@@ -276,45 +325,64 @@ export default function EscrowPage() {
                 return (
                   <div key={contract.id} className={surface("panelMuted", "noise-overlay group relative overflow-hidden p-4 transition-colors hover:border-[rgba(var(--color-accent-2-rgb),0.20)] hover:bg-white/[0.04]")}>
                     <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.10] to-transparent" />
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                      <div className="min-w-0">
                         <div className="text-sm font-semibold text-white">
                           {contract.milestone?.title || "Milestone"}
                         </div>
-                        <p className="text-xs text-[var(--muted-foreground)] mt-1">
-                          {isClient ? "Client" : "Developer"} | {contract.currency} {contract.amount}
+                        <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[var(--muted-foreground)]">
+                          <span>{isClient ? "You are the client" : isDeveloper ? "You are the developer" : "Participant"}</span>
+                          <span className="inline-flex items-center gap-1.5 text-white/70">
+                            <DollarSign className="h-3.5 w-3.5 text-[var(--color-accent-2)]" aria-hidden="true" />
+                            {contract.currency} {contract.amount}
+                          </span>
                         </p>
                       </div>
-                      <span className="rounded-md border border-white/[0.08] bg-white/[0.04] px-2 py-1 text-[10px] font-bold uppercase tracking-[0.10em] text-white/60">{contract.status}</span>
+                      <span className={cn("w-fit rounded-md border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.10em]", statusTone)}>
+                        {formatStatus(milestoneStatus)}
+                      </span>
                     </div>
 
-                    <div className="flex flex-wrap gap-2 mt-3 text-xs text-[var(--muted-foreground)]">
-                      <span>Milestone: {milestoneStatus}</span>
+                    <div className="mt-3 flex flex-wrap gap-2 text-xs text-[var(--muted-foreground)]">
+                      <span>Contract: {formatStatus(contract.status)}</span>
                       <span className="text-white/20">/</span>
                       <span>{contract.jobId ? `Job ${contract.jobId}` : "No linked job"}</span>
                     </div>
-                    <div className="mt-3 rounded-lg border border-white/[0.08] bg-black/15 px-3 py-2 text-xs leading-relaxed text-white/70">
+                    <div className="mt-3 flex items-start gap-2 rounded-lg border border-white/[0.08] bg-black/15 px-3 py-2 text-xs leading-relaxed text-white/70">
+                      {milestoneStatus === "RELEASED" ? (
+                        <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-emerald-200" aria-hidden="true" />
+                      ) : (
+                        <Clock3 className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-[var(--color-accent-2)]" aria-hidden="true" />
+                      )}
                       {nextStep}
                     </div>
 
-                    <div className="flex flex-wrap gap-2 mt-4">
+                    <div className="mt-4 flex flex-col gap-2 sm:flex-row">
                       {isDeveloper && milestoneStatus === "PENDING" && (
-                        <button
+                        <Button
                           onClick={() => submitMilestone(contract.id)}
                           disabled={actionBusy}
-                          className={cn("rounded-lg px-3 py-2 text-xs font-semibold text-white transition-colors", ui.control.ghost)}
+                          isLoading={actionBusy}
+                          size="sm"
+                          variant="secondary"
+                          className="w-full sm:w-auto"
+                          leftIcon={<Send className="h-4 w-4" aria-hidden="true" />}
                         >
-                          {actionBusy ? "Submitting..." : "Submit milestone"}
-                        </button>
+                          Submit milestone
+                        </Button>
                       )}
                       {isClient && milestoneStatus === "SUBMITTED" && (
-                        <button
+                        <Button
                           onClick={() => releaseMilestone(contract.id)}
                           disabled={actionBusy}
-                          className={cn("rounded-lg px-3 py-2 text-xs font-semibold transition-all", ui.control.gradient)}
+                          isLoading={actionBusy}
+                          size="sm"
+                          variant="glow"
+                          className="w-full sm:w-auto"
+                          leftIcon={<CheckCircle2 className="h-4 w-4" aria-hidden="true" />}
                         >
-                          {actionBusy ? "Releasing..." : "Release funds"}
-                        </button>
+                          Release funds
+                        </Button>
                       )}
                     </div>
                   </div>
@@ -326,4 +394,12 @@ export default function EscrowPage() {
       )}
     </main>
   );
+}
+
+function formatStatus(status: string) {
+  return status
+    .toLowerCase()
+    .split("_")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
 }
