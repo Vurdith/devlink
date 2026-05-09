@@ -9,57 +9,60 @@ export async function POST(req: Request) {
   const currentUserId = session?.user?.id;
   
   if (!currentUserId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "Sign in to submit a report." }, { status: 401 });
   }
 
   try {
-    const body = await req.json();
+    const body = await req.json().catch(() => null);
+    if (!body || typeof body !== "object") {
+      return NextResponse.json({ error: "Send report details as valid JSON." }, { status: 400 });
+    }
     const { reportType, description, evidence, targetUserId, postId } = body;
 
     // Validate required fields
     if (!reportType || !description) {
-      return NextResponse.json({ error: "Missing required fields: reportType and description" }, { status: 400 });
+      return NextResponse.json({ error: "Choose an issue type and describe what happened." }, { status: 400 });
     }
 
     if (typeof reportType !== 'string' || typeof description !== 'string') {
-      return NextResponse.json({ error: "reportType and description must be strings" }, { status: 400 });
+      return NextResponse.json({ error: "Report type and description must be text." }, { status: 400 });
     }
 
     // Validate description length
     if (description.length < 10) {
-      return NextResponse.json({ error: "Description must be at least 10 characters" }, { status: 400 });
+      return NextResponse.json({ error: "Add at least 10 characters describing what happened." }, { status: 400 });
     }
     if (description.length > 5000) {
-      return NextResponse.json({ error: "Description must be less than 5000 characters" }, { status: 400 });
+      return NextResponse.json({ error: "Keep the description under 5000 characters." }, { status: 400 });
     }
 
     // Validate report type
     const validReportTypes = ["SCAM", "SPAM", "HARASSMENT", "FAKE_PROFILE", "INAPPROPRIATE_CONTENT", "OTHER"];
     if (!validReportTypes.includes(reportType)) {
-      return NextResponse.json({ error: `Invalid report type. Must be one of: ${validReportTypes.join(', ')}` }, { status: 400 });
+      return NextResponse.json({ error: "Choose a supported issue type." }, { status: 400 });
     }
 
     // Validate IDs if provided
     if (targetUserId) {
       const idValidation = validateId(targetUserId);
       if (!idValidation.isValid) {
-        return NextResponse.json({ error: `Invalid targetUserId: ${idValidation.errors[0]}` }, { status: 400 });
+        return NextResponse.json({ error: "The reported account could not be identified." }, { status: 400 });
       }
       // Check if user is reporting themselves
       if (targetUserId === currentUserId) {
-        return NextResponse.json({ error: "Cannot report yourself" }, { status: 400 });
+        return NextResponse.json({ error: "You cannot report your own account." }, { status: 400 });
       }
     }
     
     if (postId) {
       const idValidation = validateId(postId);
       if (!idValidation.isValid) {
-        return NextResponse.json({ error: `Invalid postId: ${idValidation.errors[0]}` }, { status: 400 });
+        return NextResponse.json({ error: "The reported post could not be identified." }, { status: 400 });
       }
     }
 
     if (!targetUserId && !postId) {
-      return NextResponse.json({ error: "Either targetUserId or postId must be provided" }, { status: 400 });
+      return NextResponse.json({ error: "Open report from the post or profile you want reviewed." }, { status: 400 });
     }
 
     // Check if user has already reported this target recently (within 24 hours)
@@ -120,7 +123,7 @@ export async function GET(req: Request) {
   const currentUserId = session?.user?.id;
   
   if (!currentUserId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "Sign in to view reports." }, { status: 401 });
   }
 
   // Check if user is admin (you can implement your own admin logic here)
@@ -130,7 +133,7 @@ export async function GET(req: Request) {
   });
 
   if (user?.role !== "ADMIN") {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    return NextResponse.json({ error: "Only admins can view reports." }, { status: 403 });
   }
 
   try {
