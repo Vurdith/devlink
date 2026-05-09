@@ -176,7 +176,7 @@ export function MessagesSidebar() {
 
   if (!userId) {
     return (
-      <aside className="w-full md:w-[380px] lg:w-[420px] flex-shrink-0 border-r border-white/[0.06] flex flex-col h-full bg-black/20">
+      <aside className="flex h-full w-full flex-shrink-0 flex-col border-r border-white/[0.06] bg-[rgba(8,11,16,0.58)] md:w-[380px] lg:w-[420px]">
         <div className="flex items-center justify-center h-full text-sm text-[var(--muted-foreground)]">
           Sign in to view messages.
         </div>
@@ -188,18 +188,18 @@ export function MessagesSidebar() {
     <>
       <aside
         className={cn(
-          "w-full md:w-[380px] lg:w-[420px] flex-shrink-0 border-r border-white/[0.06] flex flex-col h-full bg-black/20",
+          "flex h-full w-full flex-shrink-0 flex-col border-r border-white/[0.06] bg-[rgba(8,11,16,0.58)] md:w-[380px] lg:w-[420px]",
           isThreadRoute && "hidden md:flex"
         )}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-4 h-[53px] border-b border-white/[0.06] flex-shrink-0">
+        <div className="flex h-[53px] flex-shrink-0 items-center justify-between border-b border-white/[0.06] px-4">
           <h1 className="text-xl font-bold text-white">Messages</h1>
           <div className="flex items-center gap-1 relative" ref={settingsRef}>
             <button
               onClick={() => setShowSettings((v) => !v)}
               className={cn(
-                "w-9 h-9 rounded-full flex items-center justify-center transition-colors",
+                "flex h-9 w-9 items-center justify-center rounded-lg transition-colors",
                 showSettings
                   ? cn("text-[var(--color-accent-2)]", ui.active.cyan)
                   : cn("text-white/60", ui.control.ghost)
@@ -213,7 +213,7 @@ export function MessagesSidebar() {
             </button>
             <button
               onClick={() => setShowNewMessage(true)}
-              className={cn("flex h-9 w-9 items-center justify-center rounded-full text-white/60 transition-colors", ui.control.ghost)}
+              className={cn("flex h-9 w-9 items-center justify-center text-white/60 transition-colors", ui.control.icon)}
               title="New message"
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
@@ -225,7 +225,7 @@ export function MessagesSidebar() {
             {/* Settings dropdown */}
             {showSettings && (
               <div className={menuPanel("absolute right-0 top-full z-50 mt-1 w-72 animate-in fade-in slide-in-from-top-1 duration-150")}>
-                <div className="px-4 py-3 border-b border-white/[0.06]">
+                <div className="border-b border-white/[0.06] px-4 py-3">
                   <h3 className="text-sm font-bold text-white">Who can message you</h3>
                   <p className="text-[11px] text-white/40 mt-0.5">Others will send a request instead</p>
                 </div>
@@ -238,16 +238,16 @@ export function MessagesSidebar() {
                         onClick={() => updateMsgSetting(opt.value)}
                         disabled={savingSettings}
                         className={cn(
-                          "w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors",
-                          isActive ? "bg-white/[0.05]" : "hover:bg-white/[0.03]",
+                          "flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors",
+                          isActive ? "bg-white/[0.055]" : "hover:bg-white/[0.035]",
                           savingSettings && "opacity-50"
                         )}
                       >
                         <div className={cn(
-                          "w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0",
-                          isActive ? "border-[var(--color-accent)]" : "border-white/20"
+                          "flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full border-2",
+                          isActive ? "border-[var(--color-accent-2)]" : "border-white/20"
                         )}>
-                          {isActive && <div className="w-2 h-2 rounded-full bg-[var(--color-accent)]" />}
+                          {isActive && <div className="h-2 w-2 rounded-full bg-[var(--color-accent-2)]" />}
                         </div>
                         <div className="min-w-0">
                           <div className={cn("text-sm", isActive ? "text-white font-semibold" : "text-white/70")}>{opt.label}</div>
@@ -279,7 +279,7 @@ export function MessagesSidebar() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search Direct Messages"
-              className="w-full bg-white/[0.04] border border-white/[0.08] rounded-full pl-10 pr-4 py-2.5 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[var(--color-accent)]/40 focus:bg-white/[0.06] transition-all"
+              className={cn(ui.control.field, "rounded-full py-2.5 pl-10 pr-4")}
             />
           </div>
         </div>
@@ -297,7 +297,7 @@ export function MessagesSidebar() {
           >
             Inbox
             {activeTab === "inbox" && (
-              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-14 h-[3px] rounded-full bg-[var(--color-accent)]" />
+                <div className="absolute bottom-0 left-1/2 h-[3px] w-14 -translate-x-1/2 rounded-full bg-[var(--color-accent-2)]" />
             )}
           </button>
           <button
@@ -316,7 +316,7 @@ export function MessagesSidebar() {
               </span>
             )}
             {activeTab === "requests" && (
-              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-14 h-[3px] rounded-full bg-[var(--color-accent)]" />
+                <div className="absolute bottom-0 left-1/2 h-[3px] w-14 -translate-x-1/2 rounded-full bg-[var(--color-accent-2)]" />
             )}
           </button>
         </div>
@@ -335,7 +335,7 @@ export function MessagesSidebar() {
                   {incomingRequests.map((request) => {
                     const msgPreview = request.lastMessage?.content || "Sent you a message request";
                     return (
-                      <div key={request.id} className="px-4 py-3 hover:bg-white/[0.03] transition-colors">
+                      <div key={request.id} className="px-4 py-3 transition-colors hover:bg-white/[0.035]">
                         <div className="flex items-start gap-3">
                           <Avatar size={48} src={request.sender?.profile?.avatarUrl || request.sender?.image || undefined} />
                           <div className="flex-1 min-w-0">
@@ -353,20 +353,20 @@ export function MessagesSidebar() {
                             <div className="flex items-center gap-2 mt-2">
                               <button
                                 onClick={() => handleRequest(request.id, "ACCEPTED")}
-                                className="rounded-lg border border-[rgba(var(--color-accent-2-rgb),0.32)] bg-[linear-gradient(135deg,var(--color-accent),rgba(var(--color-accent-2-rgb),0.92))] px-4 py-1.5 text-xs font-bold text-white transition-all hover:-translate-y-0.5 hover:brightness-110 active:translate-y-0"
+                                className={cn("rounded-lg px-4 py-1.5 text-xs font-bold transition-all", ui.control.gradient)}
                               >
                                 Accept
                               </button>
                               <button
                                 onClick={() => handleRequest(request.id, "DECLINED")}
-                                className="rounded-lg border border-white/[0.10] px-4 py-1.5 text-xs font-bold text-white transition-colors hover:border-white/20 hover:bg-white/[0.08]"
+                                className={cn("rounded-lg px-4 py-1.5 text-xs font-bold text-white transition-colors", ui.control.ghost)}
                               >
                                 Decline
                               </button>
                               {request.conversationId && (
                                 <Link
                                   href={`/messages/${request.conversationId}`}
-                                  className="ml-auto rounded-lg px-3 py-1.5 text-xs font-medium text-white/50 transition-colors hover:bg-white/[0.06] hover:text-white/70"
+                                  className={cn("ml-auto rounded-lg px-3 py-1.5 text-xs font-medium text-white/55 transition-colors", ui.control.ghost)}
                                 >
                                   View
                                 </Link>
@@ -409,7 +409,7 @@ export function MessagesSidebar() {
                   </p>
                   <button
                     onClick={() => setShowNewMessage(true)}
-                    className="mt-6 rounded-lg border border-[rgba(var(--color-accent-2-rgb),0.32)] bg-[linear-gradient(135deg,var(--color-accent),rgba(var(--color-accent-2-rgb),0.92))] px-6 py-3 text-sm font-bold text-white transition-all hover:-translate-y-0.5 hover:brightness-110 active:translate-y-0"
+                    className={cn("mt-6 rounded-lg px-6 py-3 text-sm font-bold transition-all", ui.control.gradient)}
                   >
                     Write a message
                   </button>
@@ -435,8 +435,8 @@ export function MessagesSidebar() {
                     className={cn(
                       "flex items-start gap-3 px-4 py-3 transition-colors border-r-2",
                       isActive
-                        ? "bg-white/[0.06] border-r-[var(--color-accent)]"
-                        : "border-r-transparent hover:bg-white/[0.03]"
+                        ? cn("border-r-[var(--color-accent-2)]", ui.active.cyan)
+                        : "border-r-transparent hover:bg-white/[0.035]"
                     )}
                   >
                     <Avatar size={48} src={other?.profile?.avatarUrl || undefined} />

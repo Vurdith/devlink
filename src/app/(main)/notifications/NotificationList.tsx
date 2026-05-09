@@ -2,6 +2,7 @@ import { useRouter } from "next/navigation";
 import { Avatar } from "@/components/ui/Avatar";
 import { Button } from "@/components/ui/Button";
 import { surface, ui } from "@/components/ui/design-system";
+import { cn } from "@/lib/cn";
 import { ProfileTooltip } from "@/components/profile/ProfileTooltip";
 import { TypeIcon, VerifiedBadge, typeBadgeClasses } from "./NotificationIcons";
 import type { NotificationItem, NotificationRow } from "./notification-types";
@@ -245,7 +246,7 @@ function NotificationMeta({ notification: n, onMarkRead }: { notification: Notif
             event.stopPropagation();
             onMarkRead();
           }}
-          className="opacity-0 group-hover:opacity-100 transition-opacity rounded-lg p-1.5 hover:bg-white/10 text-white/65 hover:text-white"
+          className={cn("p-1.5 opacity-0 transition-opacity group-hover:opacity-100", ui.control.icon)}
           aria-label="Mark as read"
         >
           <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -260,12 +261,12 @@ function NotificationMeta({ notification: n, onMarkRead }: { notification: Notif
 function NotificationPreview({ notification: n }: { notification: NotificationItem }) {
   if (n.type === "REPLY" && (n.sourcePost?.content || n.post?.content)) {
     return (
-      <div className="mt-2 relative rounded-xl bg-white/[0.03] border border-white/10 px-3 py-2 pl-5 text-sm text-white/60">
-        <span className="absolute left-2 top-2 bottom-2 w-px bg-white/10" aria-hidden="true" />
+      <div className={surface("empty", "relative mt-2 px-3 py-2 pl-5 text-sm text-white/60")}>
+        <span className="absolute bottom-2 left-2 top-2 w-px bg-white/[0.08]" aria-hidden="true" />
         <span className="absolute left-1.5 top-2 w-2 h-2 rounded-full bg-white/25" aria-hidden="true" />
         {n.sourcePost?.content ? <div className="line-clamp-3 break-words">{compactPreviewText(n.sourcePost.content)}</div> : null}
         {n.post?.content ? (
-          <div className="mt-2 pl-3 border-l border-white/10">
+          <div className="mt-2 border-l border-white/[0.08] pl-3">
             <div className="line-clamp-3 break-words text-white/70">{compactPreviewText(n.post.content)}</div>
           </div>
         ) : null}
@@ -276,7 +277,7 @@ function NotificationPreview({ notification: n }: { notification: NotificationIt
   if (!n.post?.content) return null;
 
   return (
-    <div className="mt-2 rounded-xl bg-white/[0.03] border border-white/10 px-3 py-2 text-sm text-white/60 line-clamp-2 break-words">
+    <div className={surface("empty", "mt-2 line-clamp-2 break-words px-3 py-2 text-sm text-white/60")}>
       {compactPreviewText(n.post.content)}
     </div>
   );

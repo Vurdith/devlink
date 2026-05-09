@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { Avatar } from "@/components/ui/Avatar";
+import { cn } from "@/lib/cn";
+import { ui } from "@/components/ui/design-system";
 import type { MessageThread } from "@/types/api";
 
 interface MessageThreadHeaderProps {
@@ -9,8 +11,8 @@ interface MessageThreadHeaderProps {
 
 export function MessageThreadHeader({ otherUser, onShowProfile }: MessageThreadHeaderProps) {
   return (
-    <div className="flex items-center gap-3 px-4 h-[53px] border-b border-white/[0.06] flex-shrink-0 bg-black/40 backdrop-blur-md">
-      <Link href="/messages" className="md:hidden w-9 h-9 rounded-full flex items-center justify-center text-white/60 hover:bg-white/[0.08] transition-colors">
+    <div className="flex h-[53px] flex-shrink-0 items-center gap-3 border-b border-white/[0.06] bg-[rgba(8,11,16,0.74)] px-4 backdrop-blur-md">
+      <Link href="/messages" className={cn("flex h-9 w-9 items-center justify-center text-white/60 transition-colors md:hidden", ui.control.icon)}>
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
           <path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
@@ -24,8 +26,9 @@ export function MessageThreadHeader({ otherUser, onShowProfile }: MessageThreadH
       <div className="flex items-center gap-0.5">
         <button
           onClick={onShowProfile}
-          className="w-9 h-9 rounded-full flex items-center justify-center text-white/50 hover:bg-white/[0.08] transition-colors"
+          className={cn("flex h-9 w-9 items-center justify-center text-white/50 transition-colors", ui.control.icon)}
           title="View profile"
+          aria-label="View profile"
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
             <circle cx="12" cy="12" r="1.5" fill="currentColor" />
