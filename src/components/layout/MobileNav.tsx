@@ -7,62 +7,14 @@ import { cn } from "@/lib/cn";
 import { BackButton } from "@/components/ui/BackButton";
 import { ThemeLogoImg } from "@/components/ui/ThemeLogo";
 import { ui } from "@/components/ui/design-system";
-import { navigation, userNavigation, type NavItem } from "@/config/navigation";
+import { navigation, userNavigation } from "@/config/navigation";
 import { useBodyScrollLock } from "@/components/ui/useBodyScrollLock";
+import { NavLinkItem } from "@/components/layout/NavLinkItem";
+import { isNavItemActive } from "@/components/layout/nav-state";
 
 interface MobileNavProps {
   session?: { user?: { id?: string; username?: string; name?: string; image?: string } } | null;
 }
-
-// Memoized nav link component matching desktop Sidebar exactly
-const NavLink = memo(function NavLink({ item, isActive, onClick }: { item: NavItem; isActive: boolean; onClick?: () => void }) {
-  return (
-    <Link
-      href={item.href}
-      prefetch={false}
-      onClick={onClick}
-      className={cn(
-        "group relative flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors duration-150",
-        isActive
-          ? cn("text-white", ui.active.cyan)
-          : "border border-transparent text-[var(--muted-foreground)] hover:border-white/[0.08] hover:bg-white/[0.045] hover:text-white"
-      )}
-      title={item.description}
-    >
-      {/* Active indicator */}
-      {isActive && (
-        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-7 bg-[var(--color-accent-2)] rounded-r-full" />
-      )}
-
-      {/* Icon */}
-      <div className={cn(
-        "p-2 rounded-md transition-colors duration-150",
-        isActive
-          ? "bg-[rgba(var(--color-accent-2-rgb),0.10)] text-[var(--color-accent-2)]"
-          : "text-[var(--muted-foreground)] group-hover:text-[var(--color-accent-2)] group-hover:bg-white/[0.04]"
-      )}>
-        {item.icon}
-      </div>
-
-      {/* Text */}
-      <span className="font-medium">{item.name}</span>
-
-      {/* Arrow */}
-      <svg
-        className={cn(
-          "ml-auto w-4 h-4 transition-opacity duration-150",
-          isActive ? "text-[var(--color-accent-2)] opacity-100" : "opacity-0 group-hover:opacity-50"
-        )}
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-        aria-hidden="true"
-      >
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-      </svg>
-    </Link>
-  );
-});
 
 export const MobileNav = memo(function MobileNav({ session }: MobileNavProps) {
   const [isOpen, setIsOpen] = useState(false);
@@ -72,7 +24,7 @@ export const MobileNav = memo(function MobileNav({ session }: MobileNavProps) {
   const toggleMenu = useCallback(() => setIsOpen((current) => !current), []);
   const isProfileActive = pathname.startsWith("/u/") || pathname === "/me";
   const bottomItems = useMemo(
-    () => navigation.map((item) => ({ item, isActive: pathname === item.href })),
+    () => navigation.map((item) => ({ item, isActive: isNavItemActive(pathname, item) })),
     [pathname]
   );
 
@@ -158,10 +110,10 @@ export const MobileNav = memo(function MobileNav({ session }: MobileNavProps) {
           <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4 sm:px-4">
             <div className="space-y-1">
               {navigation.map((item) => (
-                <NavLink
+                <NavLinkItem
                   key={item.name}
                   item={item}
-                  isActive={pathname === item.href}
+                  isActive={isNavItemActive(pathname, item)}
                   onClick={closeMenu}
                 />
               ))}
@@ -179,14 +131,10 @@ export const MobileNav = memo(function MobileNav({ session }: MobileNavProps) {
 
                 <div className="space-y-1">
                   {userNavigation.map((item) => (
-                    <NavLink
+                    <NavLinkItem
                       key={item.name}
                       item={item}
-                      isActive={
-                        pathname === item.href ||
-                        (item.href === "/me" && pathname.startsWith("/u/")) ||
-                        (item.href === "/settings" && pathname.startsWith("/settings"))
-                      }
+                      isActive={isNavItemActive(pathname, item)}
                       onClick={closeMenu}
                     />
                   ))}
@@ -239,8 +187,8 @@ export const MobileNav = memo(function MobileNav({ session }: MobileNavProps) {
       </div>
 
       {/* Bottom Navigation Bar */}
-      <nav className="safe-area-bottom fixed bottom-0 left-0 right-0 z-40 max-w-[100vw] overflow-hidden border-0 border-t border-white/[0.08] bg-[rgba(7,9,13,0.92)] md:hidden">
-        <div className="mx-auto flex h-16 w-full max-w-[34rem] min-w-0 items-center px-1">
+      <nav className="safe-area-bottom fixed bottom-0 left-0 right-0 z-40 max-w-[100vw] overflow-hidden border-0 border-t border-white/[0.08] bg-[rgba(7,9,13,0.94)] backdrop-blur-xl md:hidden">
+        <div className="mx-auto grid h-16 w-full max-w-[34rem] min-w-0 grid-cols-5 items-center gap-0.5 px-1">
           {bottomItems.map(({ item, isActive }) => {
             return (
               <Link
@@ -248,15 +196,16 @@ export const MobileNav = memo(function MobileNav({ session }: MobileNavProps) {
                 href={item.href}
                 prefetch={false}
                 className={cn(
-                  "flex min-w-0 flex-1 flex-col items-center gap-1 rounded-xl px-1 py-2 transition-all duration-150",
+                  "relative flex min-w-0 flex-col items-center gap-1 rounded-lg px-1 py-2 transition-colors duration-150",
                   isActive
                     ? "text-[var(--color-accent-2)]"
                     : "text-[var(--muted-foreground)] hover:text-white active:scale-95"
                 )}
               >
+                <span className={cn("absolute top-1 h-0.5 w-5 rounded-full bg-[var(--color-accent-2)] transition-opacity", isActive ? "opacity-100" : "opacity-0")} />
                 <div className={cn(
-                  "p-1.5 rounded-lg transition-all",
-                  isActive && "bg-[rgba(var(--color-accent-2-rgb),0.12)] scale-110"
+                  "rounded-md p-1.5 transition-colors",
+                  isActive && "bg-[rgba(var(--color-accent-2-rgb),0.12)]"
                 )}>
                   {item.icon}
                 </div>
@@ -271,15 +220,16 @@ export const MobileNav = memo(function MobileNav({ session }: MobileNavProps) {
               href="/me"
               prefetch={false}
               className={cn(
-                "flex min-w-0 flex-1 flex-col items-center gap-1 rounded-xl px-1 py-2 transition-all duration-150",
+                "relative flex min-w-0 flex-col items-center gap-1 rounded-lg px-1 py-2 transition-colors duration-150",
                 isProfileActive
                   ? "text-[var(--color-accent-2)]"
                   : "text-[var(--muted-foreground)] hover:text-white active:scale-95"
               )}
             >
+              <span className={cn("absolute top-1 h-0.5 w-5 rounded-full bg-[var(--color-accent-2)] transition-opacity", isProfileActive ? "opacity-100" : "opacity-0")} />
               <div className={cn(
-                "p-1.5 rounded-lg transition-all",
-                isProfileActive && "bg-[rgba(var(--color-accent-2-rgb),0.12)] scale-110"
+                "rounded-md p-1.5 transition-colors",
+                isProfileActive && "bg-[rgba(var(--color-accent-2-rgb),0.12)]"
               )}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                   <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />

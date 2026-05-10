@@ -97,9 +97,9 @@
 
 body {
   background:
-    radial-gradient(1000px 520px at 18% -10%, rgba(var(--color-accent-rgb), 0.14), transparent 62%),
-    radial-gradient(900px 520px at 90% 8%, rgba(var(--color-accent-2-rgb), 0.08), transparent 60%),
-    linear-gradient(180deg, #080b11 0%, var(--color-background) 38%, #05070a 100%);
+    radial-gradient(980px 500px at 18% -12%, rgba(var(--color-accent-rgb), 0.09), transparent 64%),
+    radial-gradient(900px 520px at 92% 2%, rgba(var(--color-accent-2-rgb), 0.055), transparent 62%),
+    linear-gradient(180deg, #070a10 0%, var(--color-background) 42%, #05070a 100%);
   color: var(--color-foreground);
   font-family: var(--font-sans), system-ui, sans-serif;
   overflow-x: hidden;
@@ -114,10 +114,10 @@ body::before {
   pointer-events: none;
   z-index: -1;
   background:
-    linear-gradient(rgba(255, 255, 255, 0.026) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-  background-size: 56px 56px;
-  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.72), transparent 78%);
+    linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.014) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.58), transparent 72%);
 }
 
 ::selection {
