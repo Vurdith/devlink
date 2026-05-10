@@ -12,19 +12,19 @@ export default function PrivacyPage() {
       title="Privacy Policy"
       description="How DevLink collects, uses, protects, and shares information across profiles, posts, reports, and account services."
       updatedAt="December 1, 2024"
+      sections={["Data we collect", "How we use it", "Sharing", "Security", "Your rights"]}
     >
           <section>
             <h2>1. Introduction</h2>
             <p>
-              DevLink (&quot;we&quot;, &quot;our&quot;, or &quot;us&quot;) is committed to protecting your privacy. This Privacy Policy 
-              explains how we collect, use, disclose, and safeguard your information when you use our platform.
+              DevLink (&quot;we&quot;, &quot;our&quot;, or &quot;us&quot;) uses this policy to explain what we collect, why we collect it, and how we protect it when you use the platform.
             </p>
           </section>
 
           <section>
             <h2>2. Information We Collect</h2>
             <p>
-              We collect information you provide directly to us:
+              We collect the information you add to DevLink or generate while using it:
             </p>
             <ul>
               <li><strong>Account Information:</strong> Email address, username, password, and profile details</li>
@@ -98,8 +98,8 @@ export default function PrivacyPage() {
           <section>
             <h2>8. Cookies and Tracking</h2>
             <p>
-              We use cookies and similar technologies to maintain your session, remember your preferences, 
-              and analyze how you use our platform. Essential cookies are required for the platform to function. 
+              We use cookies and similar technologies to keep you signed in, remember preferences, 
+              and understand how people use DevLink. Essential cookies are required for the platform to function. 
               You can control non-essential cookies through your browser settings.
             </p>
           </section>

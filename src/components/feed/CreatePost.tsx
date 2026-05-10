@@ -1,5 +1,5 @@
 "use client";
-import { useState, useRef, memo, useCallback, lazy, Suspense, useMemo } from "react";
+import { useState, useRef, memo, useCallback, lazy, Suspense, useMemo, type KeyboardEvent } from "react";
 import { Button } from "@/components/ui/Button";
 import { Avatar } from "@/components/ui/Avatar";
 import { Toast } from "@/components/ui/Toast";
@@ -90,6 +90,13 @@ export const CreatePost = memo(function CreatePost({
   const closeComposer = useCallback(() => {
     setIsOpen(false);
   }, []);
+
+  const handleCollapsedKeyDown = useCallback((event: KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      openComposer();
+    }
+  }, [openComposer]);
 
   const clearSchedule = useCallback(() => {
     setScheduledFor("");
@@ -281,6 +288,10 @@ export const CreatePost = memo(function CreatePost({
       <div 
         className={surface("panelMuted", "create-post-collapsed noise-overlay group relative mb-6 cursor-pointer overflow-hidden p-4 transition-all duration-300 hover:border-[rgba(var(--color-accent-2-rgb),0.24)] hover:bg-[rgba(13,18,26,0.76)] sm:p-5")}
         onClick={openComposer}
+        onKeyDown={handleCollapsedKeyDown}
+        role="button"
+        tabIndex={0}
+        aria-label={replyToId ? "Open reply composer" : "Open post composer"}
       >
         <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.5)] to-transparent opacity-60" />
         <div className="pointer-events-none absolute -right-20 -top-24 h-48 w-48 rounded-full bg-[rgba(var(--color-accent-2-rgb),0.08)] blur-3xl transition-opacity duration-300 group-hover:opacity-90" />
@@ -298,15 +309,14 @@ export const CreatePost = memo(function CreatePost({
               {placeholder}
             </div>
           </div>
-          <button
-            type="button"
-            aria-label={replyToId ? "Open reply composer" : "Open post composer"}
+          <span
+            aria-hidden="true"
             className="rounded-lg border border-[rgba(var(--color-accent-2-rgb),0.22)] bg-[rgba(var(--color-accent-2-rgb),0.08)] p-3 text-[var(--color-accent-2)] transition-all duration-200 hover:border-[rgba(var(--color-accent-2-rgb),0.4)] hover:bg-[rgba(var(--color-accent-2-rgb),0.14)] active:scale-[0.98]"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
               <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
-          </button>
+          </span>
         </div>
       </div>
     );
@@ -442,7 +452,7 @@ export const CreatePost = memo(function CreatePost({
             />
             <div className="mt-2 flex items-center justify-between gap-3">
               <span id="post-hint" className="text-xs text-[var(--muted-foreground)] opacity-60">
-                Use @username to mention / #tag for topics
+                Mention @username or add #topics
               </span>
               <span id="post-count" className={cn("text-xs font-bold transition-colors", formData.content.length > 280 ? "text-[var(--color-accent)]" : "text-[var(--muted-foreground)] opacity-60")} aria-live="polite">
                 {formData.content.length}/500
@@ -518,12 +528,12 @@ export const CreatePost = memo(function CreatePost({
           {pollData && !showPoll && <ComposerPollSummary pollData={pollData} onRemove={clearPoll} />}
 
           {/* Submit Buttons */}
-          <div className="flex justify-end items-center gap-3 pt-4 border-t border-white/5">
+          <div className="flex flex-col-reverse gap-3 border-t border-white/5 pt-4 sm:flex-row sm:items-center sm:justify-end">
             <button
               type="button"
               onClick={closeComposer}
               disabled={isSubmitting}
-              className="px-5 py-2.5 rounded-xl text-sm font-bold text-[var(--muted-foreground)] hover:text-white transition-colors"
+              className="min-h-11 rounded-lg px-5 py-2.5 text-sm font-semibold text-[var(--muted-foreground)] transition-colors hover:bg-white/[0.045] hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
             >
               Cancel
             </button>

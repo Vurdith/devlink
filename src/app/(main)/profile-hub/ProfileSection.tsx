@@ -56,8 +56,8 @@ export function ProfileSection({
               </svg>
             </div>
             <div className="min-w-0">
-              <h2 className="text-lg font-semibold text-white">Basic information</h2>
-              <p className="text-sm text-[var(--muted-foreground)]">Your public profile details</p>
+              <h2 className="text-lg font-semibold text-white">Public details</h2>
+              <p className="text-sm text-[var(--muted-foreground)]">Name, bio, location, and website.</p>
             </div>
           </div>
 
@@ -71,7 +71,7 @@ export function ProfileSection({
               <ModalTextarea
                 value={profile.bio}
                 onChange={(event) => onProfileChange({ ...profile, bio: event.target.value })}
-                placeholder="Tell others about yourself..."
+                placeholder="What you build, who you help, and how you work."
                 rows={4}
               />
             </div>
@@ -117,7 +117,7 @@ export function ProfileSection({
             </div>
             <div className="min-w-0">
               <h2 className="text-lg font-semibold text-white">Profile type</h2>
-              <p className="text-sm text-[var(--muted-foreground)]">Choose how you want to use DevLink</p>
+              <p className="text-sm text-[var(--muted-foreground)]">Pick the label that best matches your work.</p>
             </div>
           </div>
 
@@ -168,7 +168,7 @@ export function ProfileSection({
       </div>
 
       <Button onClick={onSaveProfile} disabled={isSaving} className="w-full">
-        {isSaving ? "Saving..." : "Save Profile"}
+        {isSaving ? "Saving..." : "Save profile"}
       </Button>
     </div>
   );

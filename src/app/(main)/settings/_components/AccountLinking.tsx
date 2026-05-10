@@ -160,7 +160,7 @@ export default function AccountLinking() {
           </svg>
         </div>
         <div>
-          <h2 className="text-lg font-semibold text-white">Connected Accounts</h2>
+          <h2 className="text-lg font-semibold text-white">Connected accounts</h2>
           <p className="text-sm text-[var(--muted-foreground)]">Use trusted providers as backup sign-in methods.</p>
         </div>
       </div>
@@ -189,7 +189,7 @@ export default function AccountLinking() {
       )}
 
       <div className="rounded-xl border border-white/[0.08] bg-white/[0.035] p-4 text-sm text-[var(--muted-foreground)]">
-        <span className="font-medium text-white">Before disconnecting:</span> make sure you still have another way to sign in. If this is your only provider, set a password on the Security page first.
+        <span className="font-medium text-white">Before disconnecting:</span> keep at least one way to sign in. If this is your only provider, set a password on Security first.
       </div>
 
       {/* Provider List */}
@@ -250,7 +250,7 @@ export default function AccountLinking() {
                         <span className="text-[var(--color-accent-2)]">Connected</span>
                       </>
                     ) : (
-                      "Available as a sign-in option"
+                      "Ready to connect"
                     )}
                   </div>
                 </div>

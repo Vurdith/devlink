@@ -12,13 +12,10 @@ export default async function RootPage() {
     <div className="relative min-h-screen -my-6 overflow-x-hidden">
       <HeroNetworkBackground />
 
-      {/* Hero Section */}
       <HeroSection isLoggedIn={isLoggedIn} />
 
-      {/* Features Section */}
       <FeaturesSection />
 
-      {/* CTA Section */}
       <CTASection isLoggedIn={isLoggedIn} />
     </div>
   );

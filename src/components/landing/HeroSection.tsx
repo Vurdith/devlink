@@ -5,7 +5,6 @@ import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import { InteractiveTypography } from "./InteractiveTypography";
 
-/* Premium CTA buttons with inline gradient fallbacks */
 const PrimaryCTA = ({
   children,
   href,
@@ -15,7 +14,7 @@ const PrimaryCTA = ({
 }) => (
   <Link
     href={href}
-    className="group relative inline-flex min-h-12 items-center justify-center gap-2.5 overflow-hidden rounded-xl border border-white/[0.12] bg-[linear-gradient(135deg,var(--color-accent),#5f6cf6_52%,var(--color-accent-2))] px-8 py-3.5 text-sm font-semibold text-white outline-none transition-all duration-200 hover:border-white/20 hover:brightness-110 active:scale-[0.98] sm:px-10"
+    className="group relative inline-flex min-h-12 items-center justify-center gap-2.5 overflow-hidden rounded-xl border border-white/[0.12] bg-[linear-gradient(135deg,var(--color-accent),#5f6cf6_52%,var(--color-accent-2))] px-8 py-3.5 text-sm font-semibold text-white outline-none transition-all duration-200 hover:border-white/20 hover:brightness-110 focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.68)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)] active:scale-[0.98] sm:px-10"
   >
     <div className="absolute inset-0 translate-x-[-100%] skew-x-[-25deg] bg-[linear-gradient(to_right,rgba(255,255,255,0)_0%,rgba(255,255,255,0.2)_50%,rgba(255,255,255,0)_100%)] group-hover:animate-[shimmer-sweep_1.2s_infinite]" />
     <span className="relative flex items-center gap-2 text-white">
@@ -33,7 +32,7 @@ const SecondaryCTA = ({
 }) => (
   <Link
     href={href}
-    className="group relative inline-flex min-h-12 items-center justify-center gap-2.5 rounded-xl border border-white/[0.1] bg-white/[0.045] px-8 py-3.5 text-sm font-semibold text-white/90 outline-none transition-all duration-200 hover:border-white/20 hover:bg-white/[0.08] hover:text-white active:scale-[0.98] sm:px-10"
+    className="group relative inline-flex min-h-12 items-center justify-center gap-2.5 rounded-xl border border-white/[0.1] bg-white/[0.045] px-8 py-3.5 text-sm font-semibold text-white/90 outline-none transition-all duration-200 hover:border-white/20 hover:bg-white/[0.08] hover:text-white focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.56)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)] active:scale-[0.98] sm:px-10"
   >
     <span className="relative flex items-center gap-2">{children}</span>
   </Link>
@@ -64,17 +63,15 @@ export function HeroSection({ isLoggedIn }: { isLoggedIn: boolean }) {
         animate="visible"
         className="relative z-10 mx-auto flex w-full max-w-[1120px] flex-col items-center px-5 text-center"
       >
-        {/* Headline - interactive cinematic typography */}
         <motion.div variants={stagger.item}>
           <InteractiveTypography />
         </motion.div>
 
-        {/* Refined Interactive Subtitle */}
         <motion.div
           variants={stagger.item}
           className="group mb-8 flex max-w-2xl cursor-default flex-wrap justify-center gap-x-1.5"
         >
-          {"Beyond the standard portfolio. Find visionary collaborators, showcase your true capabilities, and assemble the team to build the next generation of games."
+          {"Show the Roblox work you are proud of, find trusted collaborators, and move from first message to shipped project with less guesswork."
             .split(" ")
             .map((word, i) => (
               <span key={i} className="relative overflow-visible">
@@ -97,7 +94,7 @@ export function HeroSection({ isLoggedIn }: { isLoggedIn: boolean }) {
           className="flex flex-col items-center gap-3 sm:flex-row"
         >
           <PrimaryCTA href={isLoggedIn ? "/home" : "/register"}>
-            {isLoggedIn ? "Go to Dashboard" : "Create your profile"}
+            {isLoggedIn ? "Open home" : "Create your profile"}
             <ArrowUpRight className="w-5 h-5 opacity-90 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
           </PrimaryCTA>
           <SecondaryCTA href="/discover">Explore developers</SecondaryCTA>

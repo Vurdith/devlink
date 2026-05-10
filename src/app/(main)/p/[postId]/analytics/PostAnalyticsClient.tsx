@@ -57,7 +57,7 @@ function TerminalMathBlock({
   colorClass: string;
 }) {
   return (
-    <div className={surface("panelMuted", "relative flex h-full flex-col overflow-hidden p-5 font-mono")}>
+    <div className={surface("panelMuted", "relative flex h-full flex-col overflow-hidden p-4 font-mono sm:p-5")}>
       <div className="space-y-2 flex-1">
         {rows.map((row, i) => (
           <div key={i} className="flex justify-between items-center text-sm">
@@ -204,8 +204,8 @@ export function PostAnalyticsClient({
   }
   
   return (
-    <div className="min-h-screen pb-24 pt-8 px-6 flex justify-center">
-      <div className="w-full max-w-5xl space-y-8">
+    <div className="flex min-h-screen justify-center px-4 pb-24 pt-6 sm:px-6 sm:pt-8">
+      <div className="w-full max-w-5xl space-y-6 sm:space-y-8">
         
         {/* Navigation */}
         <div className="flex items-center mb-4">
@@ -213,7 +213,7 @@ export function PostAnalyticsClient({
         </div>
 
         {/* Hero Dashboard */}
-        <div className={surface("panel", "relative flex flex-col items-center gap-10 overflow-hidden p-8 animate-fade-in md:flex-row md:gap-16 md:p-12")}>
+        <div className={surface("panel", "relative flex flex-col items-center gap-8 overflow-hidden p-5 animate-fade-in sm:p-8 md:flex-row md:gap-12 lg:gap-16 lg:p-10")}>
           <div
             aria-hidden="true"
             className="pointer-events-none absolute inset-0 opacity-40"
@@ -221,7 +221,7 @@ export function PostAnalyticsClient({
           />
 
           {/* Left: Score Circle */}
-          <div className="relative w-48 h-48 flex-shrink-0 flex items-center justify-center">
+          <div className="relative flex h-40 w-40 flex-shrink-0 items-center justify-center sm:h-48 sm:w-48">
             <svg viewBox="0 0 100 100" className="w-full h-full transform -rotate-90">
               <circle cx="50" cy="50" r="45" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="4" />
               <circle 
@@ -233,21 +233,21 @@ export function PostAnalyticsClient({
               />
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <span className="text-6xl font-space-grotesk font-bold tracking-tighter text-white">
+              <span className="font-space-grotesk text-5xl font-bold tracking-normal text-white sm:text-6xl">
                 {breakdown.finalScore.toFixed(0)}
               </span>
-              <span className="text-[10px] uppercase tracking-widest text-white/50 mt-1 font-bold">Total Score</span>
+              <span className="mt-1 text-[10px] font-bold uppercase tracking-widest text-white/50">Total score</span>
             </div>
           </div>
 
           {/* Right: Author & Stats Grid */}
           <div className="flex-1 w-full flex flex-col gap-8 relative z-10">
-            <div>
-              <h1 className="text-3xl md:text-4xl font-space-grotesk font-bold text-white tracking-tight mb-2">
-                Performance Report
+            <div className="min-w-0">
+              <h1 className="mb-2 font-space-grotesk text-2xl font-bold tracking-normal text-white sm:text-3xl md:text-4xl">
+                Post performance
               </h1>
-              <p className="text-[var(--muted-foreground)]">
-                Analytics for post by <Link href={`/u/${author.username}`} className="text-[var(--color-accent)] hover:text-white transition-colors font-medium">@{author.username}</Link> | {postedDistance}
+              <p className="text-sm leading-6 text-[var(--muted-foreground)] sm:text-base">
+                Posted by <Link href={`/u/${author.username}`} className="font-medium text-[var(--color-accent)] transition-colors hover:text-white">@{author.username}</Link> {postedDistance}
               </p>
             </div>
 
@@ -288,8 +288,8 @@ export function PostAnalyticsClient({
 
         {/* Section Header */}
         <div className="animate-slide-up" style={{ animationDelay: "0.1s" }}>
-          <h2 className="text-2xl font-space-grotesk font-bold text-white tracking-tight">Full Points Breakdown</h2>
-          <p className="text-[var(--muted-foreground)] mt-1">Total transparency into how the algorithm scored your post.</p>
+          <h2 className="font-space-grotesk text-2xl font-bold tracking-normal text-white">Score breakdown</h2>
+          <p className="mt-1 text-[var(--muted-foreground)]">How this post earned its current ranking score.</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mt-4">
@@ -303,11 +303,11 @@ export function PostAnalyticsClient({
                 </div>
                 <div>
                   <h3 className="text-2xl font-space-grotesk font-bold text-white tracking-tight">Engagement</h3>
-                  <div className="text-sm text-white/50 mt-0.5">Primary Ranking Factor</div>
+                  <div className="text-sm text-white/50 mt-0.5">Primary ranking factor</div>
                 </div>
               </div>
               <p className="text-[var(--muted-foreground)] leading-relaxed">
-                Measures the depth and volume of interactions on your post. Because generating organic conversation is critical, <strong className="text-white font-medium">replies hold the highest algorithmic value</strong>, followed by reposts, saves, and standard likes.
+                Measures interaction depth and volume. <strong className="text-white font-medium">Replies carry the most weight</strong>, followed by reposts, saves, and likes.
               </p>
             </div>
             <div className="flex-1 p-3 lg:p-4">
@@ -336,7 +336,7 @@ export function PostAnalyticsClient({
                 </div>
                 <div>
                   <h3 className="text-xl font-space-grotesk font-bold text-white tracking-tight">Freshness</h3>
-                  <div className="text-sm text-white/50 mt-0.5">Recency Bonus</div>
+                  <div className="text-sm text-white/50 mt-0.5">Recency bonus</div>
                 </div>
               </div>
               <p className="text-[var(--muted-foreground)] text-sm leading-relaxed mb-2">
@@ -368,7 +368,7 @@ export function PostAnalyticsClient({
                 </div>
                 <div>
                   <h3 className="text-xl font-space-grotesk font-bold text-white tracking-tight">Discovery</h3>
-                  <div className="text-sm text-white/50 mt-0.5">New Creator Boost</div>
+                  <div className="text-sm text-white/50 mt-0.5">New creator boost</div>
                 </div>
               </div>
               <p className="text-[var(--muted-foreground)] text-sm leading-relaxed mb-2">
@@ -402,11 +402,11 @@ export function PostAnalyticsClient({
                 </div>
                 <div>
                   <h3 className="text-xl font-space-grotesk font-bold text-white tracking-tight">Velocity</h3>
-                  <div className="text-sm text-white/50 mt-0.5">Viral Momentum</div>
+                  <div className="text-sm text-white/50 mt-0.5">Velocity factor</div>
                 </div>
               </div>
               <p className="text-[var(--muted-foreground)] text-sm leading-relaxed mb-2">
-                Rewards rapid engagement relative to the post&apos;s age. Content that blows up quickly receives an exponential algorithmic boost.
+                Rewards fast engagement relative to the post&apos;s age.
               </p>
               <AnimatedBar mounted={mounted} percentage={breakdown.calculation.velocityFactor * 100} gradientClass="bg-gradient-to-r from-[var(--color-accent-3)] to-[var(--color-accent-2)]" />
             </div>
@@ -434,11 +434,11 @@ export function PostAnalyticsClient({
                 </div>
                 <div>
                   <h3 className="text-xl font-space-grotesk font-bold text-white tracking-tight">Authority</h3>
-                  <div className="text-sm text-white/50 mt-0.5">Established Floor</div>
+                  <div className="text-sm text-white/50 mt-0.5">Established floor</div>
                 </div>
               </div>
               <p className="text-[var(--muted-foreground)] text-sm leading-relaxed mb-2">
-                Recognizes established accounts with followings, providing a reliable baseline visibility floor for quality creators.
+                Adds a baseline for established accounts with a follower history.
               </p>
               <AnimatedBar mounted={mounted} percentage={breakdown.calculation.authorityFactor * 100} gradientClass="bg-gradient-to-r from-[var(--color-accent-3)] to-[var(--color-accent-2)]" />
             </div>
@@ -466,7 +466,7 @@ export function PostAnalyticsClient({
                 </div>
                 <div>
                   <h3 className="text-xl font-space-grotesk font-bold text-white tracking-tight">Algorithmic Penalties</h3>
-                  <div className="text-sm text-red-300/70 mt-0.5">Score Reductions Applied</div>
+                  <div className="text-sm text-red-300/70 mt-0.5">Score reductions applied</div>
                 </div>
               </div>
               

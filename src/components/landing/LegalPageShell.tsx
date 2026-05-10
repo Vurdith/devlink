@@ -7,10 +7,11 @@ interface LegalPageShellProps {
   title: string;
   description: string;
   updatedAt: string;
+  sections?: string[];
   children: ReactNode;
 }
 
-export function LegalPageShell({ title, description, updatedAt, children }: LegalPageShellProps) {
+export function LegalPageShell({ title, description, updatedAt, sections = [], children }: LegalPageShellProps) {
   return (
     <main className="relative min-h-screen overflow-x-hidden bg-[var(--background)] px-4 py-8 sm:px-6 sm:py-12">
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 gradient-bg opacity-35" />
@@ -40,8 +41,25 @@ export function LegalPageShell({ title, description, updatedAt, children }: Lega
             </p>
           </header>
 
-          <div className="space-y-7 text-sm leading-7 text-white/64 sm:text-base sm:leading-8 [&_h2]:font-[var(--font-space-grotesk)] [&_h2]:text-xl [&_h2]:font-semibold [&_h2]:tracking-normal [&_h2]:text-white [&_p]:leading-relaxed [&_strong]:font-semibold [&_strong]:text-white/88 [&_ul]:space-y-2 [&_ul]:pl-5 [&_li]:list-disc [&_li]:pl-1">
-            {children}
+          <div className="grid gap-8 lg:grid-cols-[15rem_minmax(0,1fr)]">
+            {sections.length > 0 && (
+              <aside className="lg:sticky lg:top-24 lg:self-start">
+                <div className={surface("empty", "p-4")}>
+                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-white/45">On this page</p>
+                  <ol className="mt-3 space-y-2 text-sm text-white/62">
+                    {sections.map((section) => (
+                      <li key={section} className="leading-5">
+                        {section}
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+              </aside>
+            )}
+
+            <div className="max-w-3xl space-y-7 text-sm leading-7 text-white/64 sm:text-base sm:leading-8 [&_h2]:font-[var(--font-space-grotesk)] [&_h2]:text-xl [&_h2]:font-semibold [&_h2]:tracking-normal [&_h2]:text-white [&_p]:leading-relaxed [&_strong]:font-semibold [&_strong]:text-white/88 [&_ul]:space-y-2 [&_ul]:pl-5 [&_li]:list-disc [&_li]:pl-1">
+              {children}
+            </div>
           </div>
         </article>
       </div>

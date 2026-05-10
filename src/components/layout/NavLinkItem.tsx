@@ -26,12 +26,12 @@ export const NavLinkItem = memo(function NavLinkItem({
       aria-label={item.description}
       onClick={onClick}
       className={cn(
-        "group relative flex min-w-0 items-center gap-3 rounded-lg border px-3 py-2.5 transition-colors duration-150",
+        "group relative flex min-h-11 min-w-0 items-center gap-3 rounded-lg border px-3 py-2.5 transition-colors duration-150",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.62)] focus-visible:ring-offset-2 focus-visible:ring-offset-[#07090d]",
         isActive
           ? "border-[rgba(var(--color-accent-2-rgb),0.24)] bg-[rgba(var(--color-accent-2-rgb),0.105)] text-white"
           : "border-transparent text-[var(--muted-foreground)] hover:border-white/[0.09] hover:bg-white/[0.045] hover:text-white",
-        compact && "py-2"
+        compact && "min-h-10 py-2"
       )}
       title={item.description}
     >

@@ -134,7 +134,7 @@ function ResetPasswordContent() {
       <main className="mx-auto max-w-md px-4 py-16">
         <div className={surface("panel", "noise-overlay relative overflow-hidden p-6 text-center")}>
           <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2 border-[var(--color-accent-2)]" />
-          <p className="text-[var(--muted-foreground)]">Checking reset details...</p>
+          <p className="text-[var(--muted-foreground)]">Checking reset link...</p>
         </div>
       </main>
     );
@@ -155,7 +155,7 @@ function ResetPasswordContent() {
               </div>
               <h1 className="mb-2 text-2xl font-semibold text-white">Check your email</h1>
               <p className="mb-6 text-sm leading-6 text-[var(--muted-foreground)]">
-                If an account exists for <span className="font-medium text-white">{requestEmail.trim()}</span>, a reset link will arrive shortly. It expires after 30 minutes.
+                  If an account exists for <span className="font-medium text-white">{requestEmail.trim()}</span>, a reset link will arrive shortly. The link expires after 30 minutes.
               </p>
               <div className="space-y-3">
                 <Button type="button" variant="secondary" className="w-full" onClick={() => setRequestSent(false)}>
@@ -171,7 +171,7 @@ function ResetPasswordContent() {
               <div className="mb-6">
                 <h1 className="mb-2 text-2xl font-semibold text-white">Reset your password</h1>
                 <p className="text-sm leading-6 text-[var(--muted-foreground)]">
-                  Enter the email on your DevLink account and we&apos;ll send a secure reset link.
+                  Enter the email on your DevLink account. We&apos;ll send a secure reset link.
                 </p>
               </div>
 

@@ -23,7 +23,6 @@ export function CTASection({ isLoggedIn }: { isLoggedIn: boolean }) {
           {/* Layout */}
           <div className="relative grid gap-10 p-8 sm:p-10 md:grid-cols-2 md:p-12 items-center">
 
-            {/* Left - headline */}
             <div>
               <h2 className="text-3xl sm:text-5xl font-bold font-[var(--font-space-grotesk)] tracking-normal leading-[1.08] text-white">
                 Make your work{" "}
@@ -31,13 +30,12 @@ export function CTASection({ isLoggedIn }: { isLoggedIn: boolean }) {
                   className="text-transparent bg-clip-text"
                   style={{ backgroundImage: "linear-gradient(135deg, var(--color-accent-2) 0%, var(--color-accent) 100%)" }}
                 >
-                  impossible
+                  easier
                 </span>{" "}
-                to ignore
+                to trust
               </h2>
               <p className="mt-5 text-base text-white/50 leading-relaxed max-w-md">
-                Create a DevLink profile, showcase projects, collect reviews, and
-                connect with studios that value quality.
+                Add the projects, reviews, and contact details a studio needs before it starts a conversation.
               </p>
             </div>
 
@@ -60,7 +58,7 @@ export function CTASection({ isLoggedIn }: { isLoggedIn: boolean }) {
                 <div className="flex flex-col gap-3">
                   <Link href={isLoggedIn ? "/home" : "/register"} className="block w-full">
                     <PrimaryButton className="w-full justify-center">
-                      {isLoggedIn ? "Go to feed" : "Create free account"}
+                  {isLoggedIn ? "Open home" : "Create free account"}
                     </PrimaryButton>
                   </Link>
                   <Link href="/discover" className="block w-full">

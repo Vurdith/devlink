@@ -259,13 +259,13 @@ export default function JobsPage() {
           <div className="flex flex-col gap-2 sm:flex-row">
             <Link
               href="/login"
-              className={cn("inline-flex h-9 items-center justify-center rounded-lg px-4 text-xs font-semibold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.65)]", ui.control.ghost)}
+              className={cn("inline-flex min-h-11 items-center justify-center rounded-lg px-4 text-xs font-semibold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.65)] sm:min-h-10", ui.control.ghost)}
             >
               Log in
             </Link>
             <Link
               href="/register"
-              className={cn("inline-flex h-9 items-center justify-center rounded-lg px-4 text-xs font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.65)]", ui.control.gradient)}
+              className={cn("inline-flex min-h-11 items-center justify-center rounded-lg px-4 text-xs font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.65)] sm:min-h-10", ui.control.gradient)}
             >
               Sign up
             </Link>

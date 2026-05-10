@@ -49,9 +49,9 @@ export function ProfileAboutTab({ skills, profileData }: ProfileAboutTabProps) {
         <section className={surface("panel", "overflow-hidden")}>
           <div className="border-b border-white/[0.08] p-5 sm:p-6">
             <div>
-              <h3 className="text-lg font-semibold text-white font-[var(--font-space-grotesk)]">Capabilities</h3>
+              <h3 className="text-lg font-semibold text-white font-[var(--font-space-grotesk)]">Skills</h3>
               <p className="mt-1 text-sm text-[var(--muted-foreground)]">
-                Practical strengths, availability, and service focus.
+                The work this profile is best set up to do.
               </p>
             </div>
             {primarySkill ? (
@@ -64,7 +64,7 @@ export function ProfileAboutTab({ skills, profileData }: ProfileAboutTabProps) {
                   </div>
                   <div className="min-w-0">
                     <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/40">
-                      {primarySkill.isPrimary ? "Signature capability" : "Leading capability"}
+                      {primarySkill.isPrimary ? "Primary skill" : "Top skill"}
                     </p>
                     <p className="mt-1 truncate text-xl font-semibold text-white">{primarySkill.skill.name}</p>
                   </div>
@@ -72,7 +72,7 @@ export function ProfileAboutTab({ skills, profileData }: ProfileAboutTabProps) {
                 <div className="flex items-center gap-2 rounded-lg border border-white/[0.08] bg-white/[0.025] px-3 py-2 text-sm font-semibold text-white/72">
                   <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-accent-2)]" aria-hidden="true" />
                   <span className="text-white">{skills.length}</span>
-                  <span>{skills.length === 1 ? "listed strength" : "listed strengths"}</span>
+                  <span>{skills.length === 1 ? "skill" : "skills"}</span>
                 </div>
               </div>
             ) : null}
@@ -103,8 +103,8 @@ export function ProfileAboutTab({ skills, profileData }: ProfileAboutTabProps) {
       {hasProfileDetails && (
         <section className={surface("panelMuted", "h-fit overflow-hidden p-5 sm:p-6")}>
           <div className="mb-4">
-            <h3 className="font-[var(--font-space-grotesk)] text-lg font-semibold text-white">Profile details</h3>
-            <p className="mt-1 text-sm text-[var(--muted-foreground)]">Fast context before opening a conversation.</p>
+            <h3 className="font-[var(--font-space-grotesk)] text-lg font-semibold text-white">Details</h3>
+            <p className="mt-1 text-sm text-[var(--muted-foreground)]">Location and links for quick context.</p>
           </div>
           <div className="divide-y divide-white/[0.07]">
           {profileData.location && (

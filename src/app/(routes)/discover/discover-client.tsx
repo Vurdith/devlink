@@ -95,7 +95,7 @@ function getProfileType(user: User) {
 function getSignal(user: User) {
   if (user.profile?.bio) return user.profile.bio;
   if (user._count.followers > 0) return `${formatCount(user._count.followers)} followers on DevLink`;
-  return "Profile is ready to browse.";
+  return "Open the profile to see their work and network.";
 }
 
 function DiscoverUserRow({
@@ -466,7 +466,7 @@ export function DiscoverClient({
             <section className="mb-4">
               <div className="mb-2 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-white/45">
                 <Users className="h-3.5 w-3.5" aria-hidden="true" />
-                Start here
+                Notable profiles
               </div>
               <div className="grid gap-3 md:grid-cols-3">
                 {featuredUsers.map((user) => (

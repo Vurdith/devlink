@@ -431,7 +431,7 @@ function SearchContent() {
                     <div className="relative z-20 pointer-events-auto">
                       <Link 
                         href={`/hashtag/${hashtag.tag.replace('#', '')}`}
-                        className={cn("rounded-lg px-3 py-1 text-sm text-[var(--accent)] transition-colors", ui.control.ghost)}
+                        className={cn("inline-flex min-h-10 items-center rounded-lg px-3 py-2 text-sm text-[var(--accent)] transition-colors", ui.control.ghost)}
                       >
                         View
                       </Link>
@@ -473,7 +473,7 @@ function SearchContent() {
                       </div>
                       <Link 
                         href={`/projects/${project.id}`}
-                        className={cn("inline-flex min-h-9 items-center justify-center rounded-lg px-3 py-1 text-sm text-[var(--accent)] transition-colors", ui.control.ghost)}
+                        className={cn("inline-flex min-h-10 items-center justify-center rounded-lg px-3 py-2 text-sm text-[var(--accent)] transition-colors", ui.control.ghost)}
                       >
                         View
                       </Link>
@@ -528,7 +528,16 @@ function SearchContent() {
 
 export default function SearchPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+    <Suspense
+      fallback={
+        <div className="flex min-h-dvh items-center justify-center px-4">
+          <div className={surface("empty", "flex items-center gap-3 px-5 py-4 text-sm text-[var(--muted-foreground)]")} role="status">
+            <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/20 border-t-[var(--color-accent-2)]" />
+            Loading search
+          </div>
+        </div>
+      }
+    >
       <SearchContent />
     </Suspense>
   );

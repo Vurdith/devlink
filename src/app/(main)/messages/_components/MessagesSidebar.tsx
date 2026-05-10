@@ -18,7 +18,7 @@ const DM_PERMISSION_OPTIONS = [
   { value: "FOLLOWERS", label: "Followers", desc: "Only your followers" },
   { value: "FOLLOWING", label: "People I follow", desc: "Only people you follow" },
   { value: "MUTUALS", label: "Mutuals only", desc: "Only mutual follows" },
-  { value: "NONE", label: "No one", desc: "All messages become requests" },
+  { value: "NONE", label: "Requests only", desc: "Every new conversation starts as a request" },
 ] as const;
 
 export function MessagesSidebar() {
@@ -232,12 +232,14 @@ export function MessagesSidebar() {
             <button
               onClick={() => setShowSettings((v) => !v)}
               className={cn(
-                "flex h-9 w-9 items-center justify-center rounded-lg transition-colors",
+                "flex h-11 w-11 items-center justify-center rounded-lg transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)] sm:h-9 sm:w-9",
                 showSettings
                   ? cn("text-[var(--color-accent-2)]", ui.active.cyan)
                   : cn("text-white/60", ui.control.ghost)
               )}
               title="Message settings"
+              aria-label="Message settings"
+              aria-expanded={showSettings}
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                 <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.5" />
@@ -246,8 +248,9 @@ export function MessagesSidebar() {
             </button>
             <button
               onClick={() => setShowNewMessage(true)}
-              className={cn("flex h-9 w-9 items-center justify-center text-white/60 transition-colors", ui.control.icon)}
+              className={cn("flex h-11 w-11 items-center justify-center text-white/60 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)] sm:h-9 sm:w-9", ui.control.icon)}
               title="New message"
+              aria-label="New message"
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                 <path d="M4 20h4L18.5 9.5a2.121 2.121 0 0 0-3-3L5 17v3z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -260,7 +263,7 @@ export function MessagesSidebar() {
               <div className={menuPanel("absolute right-0 top-full z-50 mt-1 w-72 animate-in fade-in slide-in-from-top-1 duration-150")}>
                 <div className="border-b border-white/[0.06] px-4 py-3">
                   <h3 className="text-sm font-bold text-white">Who can message you</h3>
-                  <p className="text-[11px] text-white/40 mt-0.5">Others will send a request instead</p>
+                  <p className="text-[11px] text-white/40 mt-0.5">People outside this setting start in requests.</p>
                 </div>
                 <div className="py-1">
                   {DM_PERMISSION_OPTIONS.map((opt) => {
@@ -409,21 +412,21 @@ export function MessagesSidebar() {
                               <button
                                 onClick={() => handleRequest(request.id, "ACCEPTED")}
                                 disabled={!!actingRequestId}
-                                className={cn("rounded-lg px-4 py-1.5 text-xs font-bold transition-all", ui.control.gradient)}
+                                className={cn("inline-flex min-h-10 items-center rounded-lg px-4 py-2 text-xs font-bold transition-all", ui.control.gradient)}
                               >
                                 {isActing ? "Working..." : "Accept"}
                               </button>
                               <button
                                 onClick={() => handleRequest(request.id, "DECLINED")}
                                 disabled={!!actingRequestId}
-                                className={cn("rounded-lg px-4 py-1.5 text-xs font-bold text-white transition-colors disabled:opacity-45", ui.control.ghost)}
+                                className={cn("inline-flex min-h-10 items-center rounded-lg px-4 py-2 text-xs font-bold text-white transition-colors disabled:opacity-45", ui.control.ghost)}
                               >
                                 Decline
                               </button>
                               {request.conversationId && (
                                 <Link
                                   href={`/messages/${request.conversationId}`}
-                                  className={cn("ml-auto rounded-lg px-3 py-1.5 text-xs font-medium text-white/55 transition-colors", ui.control.ghost)}
+                                  className={cn("ml-auto inline-flex min-h-10 items-center rounded-lg px-3 py-2 text-xs font-medium text-white/55 transition-colors", ui.control.ghost)}
                                 >
                                   View
                                 </Link>
@@ -465,15 +468,15 @@ export function MessagesSidebar() {
                 <FeedbackState
                   className="px-4 py-8"
                   icon={<SearchIcon />}
-                  title="No matches"
-                  description="Try a different name or username."
+                  title="No conversations found"
+                  description="Try another name or username."
                 />
               ) : (
                 <FeedbackState
                   className="px-4 py-9"
                   icon={<MessageIcon />}
-                  title="Your inbox is ready"
-                  description="Start a private conversation, share context, or keep a collaboration moving."
+                  title="No conversations yet"
+                  description="Start a private thread with a developer, client, or collaborator."
                   action={{ label: "Write a message", onClick: () => setShowNewMessage(true) }}
                 />
               )}

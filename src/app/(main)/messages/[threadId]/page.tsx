@@ -428,10 +428,11 @@ export default function MessageThreadPage() {
                 onClick={() => imageInputRef.current?.click()}
                 disabled={uploading || sending}
                 className={cn(
-                  "flex h-9 w-9 items-center justify-center rounded-lg border border-transparent text-[var(--color-accent-2)] transition-colors hover:border-white/[0.10] hover:bg-white/[0.045]",
+                  "flex h-11 w-11 items-center justify-center rounded-lg border border-transparent text-[var(--color-accent-2)] transition-colors outline-none hover:border-white/[0.10] hover:bg-white/[0.045] focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)] sm:h-9 sm:w-9",
                   (uploading || sending) && "opacity-40 cursor-not-allowed"
                 )}
                 title="Attach media"
+                aria-label="Attach media"
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                   <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" strokeWidth="1.5" />
@@ -443,10 +444,11 @@ export default function MessageThreadPage() {
                 onClick={() => gifInputRef.current?.click()}
                 disabled={uploading || sending}
                 className={cn(
-                  "flex h-9 w-9 items-center justify-center rounded-lg border border-transparent text-[var(--color-accent-2)] transition-colors hover:border-white/[0.10] hover:bg-white/[0.045]",
+                  "flex h-11 w-11 items-center justify-center rounded-lg border border-transparent text-[var(--color-accent-2)] transition-colors outline-none hover:border-white/[0.10] hover:bg-white/[0.045] focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)] sm:h-9 sm:w-9",
                   (uploading || sending) && "opacity-40 cursor-not-allowed"
                 )}
                 title="Upload GIF"
+                aria-label="Upload GIF"
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                   <rect x="2" y="4" width="20" height="16" rx="2" stroke="currentColor" strokeWidth="1.5" />
@@ -456,12 +458,14 @@ export default function MessageThreadPage() {
               <button
                 onClick={() => setShowEmojiPicker((v) => !v)}
                 className={cn(
-                  "flex h-9 w-9 items-center justify-center rounded-lg border transition-colors",
+                  "flex h-11 w-11 items-center justify-center rounded-lg border transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)] sm:h-9 sm:w-9",
                   showEmojiPicker
                     ? ui.active.cyan
                     : "border-transparent text-[var(--color-accent-2)] hover:border-white/[0.10] hover:bg-white/[0.045]"
                 )}
                 title="Emoji"
+                aria-label="Open emoji picker"
+                aria-expanded={showEmojiPicker}
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                   <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.5" />
@@ -486,7 +490,7 @@ export default function MessageThreadPage() {
               disabled={pendingRequest && hasSentRequestMsg}
               className={cn(
                 ui.control.field,
-                "min-h-[42px] max-h-[150px] resize-none rounded-xl px-4 py-2.5 text-[15px] leading-snug scrollbar-hide",
+                "min-h-11 max-h-[150px] resize-none rounded-xl px-4 py-2.5 text-[15px] leading-snug scrollbar-hide",
                 pendingRequest && hasSentRequestMsg && "opacity-40 cursor-not-allowed"
               )}
             />
@@ -498,12 +502,13 @@ export default function MessageThreadPage() {
               onClick={sendMessage}
               disabled={sending || uploading || !content.trim()}
               className={cn(
-                "flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg border transition-colors",
+                "flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-lg border transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)] sm:h-9 sm:w-9",
                 content.trim() && !uploading
                   ? "border-[rgba(var(--color-accent-2-rgb),0.26)] bg-[rgba(var(--color-accent-2-rgb),0.10)] text-[var(--color-accent-2)] hover:bg-[rgba(var(--color-accent-2-rgb),0.16)]"
                   : "cursor-not-allowed border-transparent text-white/20"
               )}
               title="Send"
+              aria-label="Send message"
             >
               {sending ? (
                 <div className="w-4 h-4 border-2 border-white/20 border-t-[var(--color-accent)] rounded-full animate-spin" />

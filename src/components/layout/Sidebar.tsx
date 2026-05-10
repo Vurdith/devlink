@@ -25,7 +25,7 @@ export const Sidebar = memo(function Sidebar({ session }: SidebarProps) {
     >
       <div className="relative flex flex-col h-full">
         {/* Logo Section */}
-        <div className="p-6 border-b border-white/8">
+        <div className="border-b border-white/[0.08] p-6">
           <Link href="/" className="flex items-center gap-3 group" prefetch={false}>
             <ThemeLogoImg className="w-10 h-10 object-contain" />
             <div>
@@ -33,7 +33,7 @@ export const Sidebar = memo(function Sidebar({ session }: SidebarProps) {
                 DevLink
               </h1>
               <p className="text-[10px] text-[var(--muted-foreground)] uppercase tracking-widest">
-                Roblox Network
+                Creator network
               </p>
             </div>
           </Link>
@@ -41,7 +41,7 @@ export const Sidebar = memo(function Sidebar({ session }: SidebarProps) {
 
         {/* Back Button */}
         <div className="px-4 pt-4">
-          <BackButton className="w-full justify-start bg-white/[0.035] hover:bg-white/[0.065] rounded-lg text-[var(--muted-foreground)] hover:text-white border border-white/8" />
+          <BackButton className="min-h-11 w-full justify-start rounded-lg border border-white/[0.08] bg-white/[0.035] text-[var(--muted-foreground)] hover:bg-white/[0.065] hover:text-white" />
         </div>
 
         {/* Main Navigation */}
@@ -63,7 +63,7 @@ export const Sidebar = memo(function Sidebar({ session }: SidebarProps) {
               <div className="py-4">
                 <div className="flex items-center gap-2">
                   <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-rgb),0.2)] to-transparent" />
-                  <span className="text-[10px] text-[rgba(var(--color-accent-rgb),0.6)] uppercase tracking-widest">Account</span>
+                  <span className="text-[10px] text-[rgba(var(--color-accent-rgb),0.6)] uppercase tracking-widest">Your space</span>
                   <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-rgb),0.2)] to-transparent" />
                 </div>
               </div>

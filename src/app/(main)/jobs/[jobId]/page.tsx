@@ -194,7 +194,7 @@ export default function JobDetailPage() {
             <div className="font-semibold text-white">Job not found</div>
             <p className="mt-1">This listing may have been removed or the link may be out of date.</p>
           </div>
-          <Link href="/jobs" className={cn("inline-flex h-9 items-center justify-center rounded-lg px-4 text-xs font-semibold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.65)]", ui.control.ghost)}>
+          <Link href="/jobs" className={cn("inline-flex min-h-11 items-center justify-center rounded-lg px-4 text-xs font-semibold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.65)] sm:min-h-10", ui.control.ghost)}>
             Back to jobs
           </Link>
         </div>
@@ -246,10 +246,10 @@ export default function JobDetailPage() {
               <p className="mt-1 text-xs leading-relaxed text-[var(--muted-foreground)]">Create an account or log in to send a note to the client.</p>
             </div>
             <div className="flex flex-col gap-2 sm:flex-row">
-              <Link href="/login" className={cn("inline-flex h-9 items-center justify-center rounded-lg px-4 text-xs font-semibold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.65)]", ui.control.ghost)}>
+              <Link href="/login" className={cn("inline-flex min-h-11 items-center justify-center rounded-lg px-4 text-xs font-semibold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.65)] sm:min-h-10", ui.control.ghost)}>
                 Log in
               </Link>
-              <Link href="/register" className={cn("inline-flex h-9 items-center justify-center rounded-lg px-4 text-xs font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.65)]", ui.control.gradient)}>
+              <Link href="/register" className={cn("inline-flex min-h-11 items-center justify-center rounded-lg px-4 text-xs font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.65)] sm:min-h-10", ui.control.gradient)}>
                 Sign up
               </Link>
             </div>

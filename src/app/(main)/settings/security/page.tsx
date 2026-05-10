@@ -104,7 +104,7 @@ export default function SecuritySettings() {
 
       if (response.ok) {
         toast({
-          title: "Password Set!",
+          title: "Password set",
           description: "You can now log in with your email and password.",
           variant: "success",
         });
@@ -305,8 +305,8 @@ export default function SecuritySettings() {
     <div className="space-y-6">
       <SettingsPageHeader
         eyebrow="Security"
-        title="Security Settings"
-        description="Manage your password and account security"
+        title="Security"
+        description="Update sign-in credentials, two-factor authentication, email, and account removal."
         icon={
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
             <rect x="3" y="11" width="18" height="11" rx="2" stroke="currentColor" strokeWidth="2" />
@@ -347,8 +347,8 @@ export default function SecuritySettings() {
       {(status === "loading" || hasPassword === null) && (
         <SecurityPanel
           accent="cyan"
-          title="Loading security settings..."
-          description="Fetching your authentication details."
+          title="Loading security settings"
+          description="Checking your password and two-factor status."
           icon={
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
               <path d="M12 2l8 4v6c0 5-3.4 9.4-8 10-4.6-.6-8-5-8-10V6l8-4z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
@@ -372,7 +372,7 @@ export default function SecuritySettings() {
         <SecurityPanel
           accent="emerald"
           title="Set a password"
-          description="Add email/password login alongside OAuth."
+          description="Add email and password login alongside OAuth."
           icon={
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
               <path d="M12 2L2 7l10 5 10-5-10-5z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -390,14 +390,14 @@ export default function SecuritySettings() {
                 <path d="M12 16v-4m0-4h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
               </svg>
               <p className="text-sm text-[var(--color-accent-2)]">
-                You signed up with Google/GitHub. Set a password to also log in with your email address.
+                You signed up with an OAuth provider. Set a password before changing sensitive account details.
               </p>
             </div>
           </div>
 
           <form onSubmit={handleSetPassword} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-white mb-2">New Password</label>
+              <label className="block text-sm font-medium text-white mb-2">New password</label>
               <input
                 type="password"
                 className={inputBase}
@@ -411,7 +411,7 @@ export default function SecuritySettings() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-white mb-2">Confirm Password</label>
+              <label className="block text-sm font-medium text-white mb-2">Confirm password</label>
               <input
                 type="password"
                 className={cn(
@@ -439,7 +439,7 @@ export default function SecuritySettings() {
               }
               className="w-full"
             >
-              Set Password
+              Set password
             </Button>
           </form>
         </SecurityPanel>
@@ -450,7 +450,7 @@ export default function SecuritySettings() {
         <SecurityPanel
           accent="cyan"
           title="Change password"
-          description="Keep your account secure with a strong password."
+          description="Use a strong password that you do not use elsewhere."
           icon={
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
               <rect x="3" y="11" width="18" height="11" rx="2" stroke="currentColor" strokeWidth="2" />
@@ -463,7 +463,7 @@ export default function SecuritySettings() {
         >
           <form onSubmit={handlePasswordChange} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-white mb-2">Current Password</label>
+              <label className="block text-sm font-medium text-white mb-2">Current password</label>
               <input
                 type="password"
                 className={inputBase}
@@ -475,7 +475,7 @@ export default function SecuritySettings() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-white mb-2">New Password</label>
+              <label className="block text-sm font-medium text-white mb-2">New password</label>
               <input
                 type="password"
                 className={inputBase}
@@ -488,7 +488,7 @@ export default function SecuritySettings() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-white mb-2">Confirm New Password</label>
+              <label className="block text-sm font-medium text-white mb-2">Confirm new password</label>
               <input
                 type="password"
                 className={cn(
@@ -512,7 +512,7 @@ export default function SecuritySettings() {
               disabled={passwordData.newPassword !== passwordData.confirmPassword || passwordStrength < 3}
               className="w-full"
             >
-              Update Password
+              Update password
             </Button>
           </form>
         </SecurityPanel>

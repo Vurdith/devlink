@@ -66,7 +66,7 @@ function ProfileStatLink({
       <span className="block text-base font-semibold leading-none text-white group-hover:text-[var(--color-accent-2)]">
         {value}
       </span>
-      <span className="mt-1 block text-[11px] font-medium uppercase tracking-[0.12em] text-white/42">
+      <span className="mt-1 block text-xs font-medium text-white/48">
         {label}
       </span>
     </Link>
@@ -135,7 +135,7 @@ export default async function UserProfilePage(props: {
           isOwnProfile={isOwnProfile}
         />
         
-        <div className="relative -mt-20 px-3 pb-5 sm:-mt-24 sm:px-6 sm:pb-7 lg:px-8">
+        <div className="relative -mt-16 px-3 pb-5 sm:-mt-24 sm:px-6 sm:pb-7 lg:px-8">
           <AboutEditor
             initialBio={user.profile?.bio}
             initialLocation={user.profile?.location}
@@ -162,8 +162,8 @@ export default async function UserProfilePage(props: {
                 />
                 <div className="min-w-0 pb-1 sm:hidden">
                   <p className="truncate text-sm font-medium text-[var(--muted-foreground)]">@{user.username}</p>
-                  <p className="mt-1 text-xs uppercase tracking-[0.14em] text-white/38">
-                    {isOwnProfile ? "Your public profile" : "Developer profile"}
+                  <p className="mt-1 text-xs font-medium text-white/44">
+                    {isOwnProfile ? "Public profile" : "DevLink profile"}
                   </p>
                 </div>
               </div>
@@ -187,13 +187,13 @@ export default async function UserProfilePage(props: {
                   <span className="min-w-0 max-w-full truncate">@{user.username}</span>
                   {user.profile?.location ? (
                     <>
-                      <span className="text-white/16">|</span>
+                      <span className="text-white/16">/</span>
                       <span className="min-w-0 max-w-full truncate">{user.profile.location}</span>
                     </>
                   ) : null}
                   {hasPublicWebsite ? (
                     <>
-                      <span className="text-white/16">|</span>
+                      <span className="text-white/16">/</span>
                       <a
                         href={user.profile?.website ?? "#"}
                         target="_blank"
@@ -213,10 +213,10 @@ export default async function UserProfilePage(props: {
                     </p>
                   </div>
                 ) : (
-                  <p className="mt-4 max-w-2xl text-sm leading-relaxed text-white/45">
+                  <p className="mt-4 max-w-2xl text-sm leading-relaxed text-white/48">
                     {isOwnProfile
-                      ? "Add a short bio so visitors can understand your focus at a glance."
-                      : "This profile has not added a public bio yet."}
+                      ? "Add a short bio that says what you build and who you help."
+                      : "No public bio yet."}
                   </p>
                 )}
 
@@ -247,7 +247,7 @@ export default async function UserProfilePage(props: {
                   <span className="block text-base font-semibold leading-none text-white group-hover:text-amber-200">
                     {rating}
                   </span>
-                  <span className="mt-1 block text-[11px] font-medium uppercase tracking-[0.12em] text-white/42">
+                  <span className="mt-1 block text-xs font-medium text-white/48">
                     Rating
                   </span>
                 </Link>

@@ -191,7 +191,7 @@ export const BaseModal = memo(function BaseModal({
     setMounted(true);
   }, []);
 
-  useBodyScrollLock(isOpen);
+  useBodyScrollLock(isOpen, true);
 
   useEffect(() => {
     if (!closeOnEscape || !isOpen) return;
@@ -212,27 +212,25 @@ export const BaseModal = memo(function BaseModal({
   }, [closeOnBackdrop, onClose]);
 
   const modalContent = useMemo(() => (
-    <div 
-      className="fixed inset-0 z-[9999] flex items-start justify-center pt-[5vh] sm:pt-[10vh] px-2 sm:px-4"
+    <div
+      className="fixed inset-0 z-[9999] flex items-end justify-center px-2 pb-2 pt-6 sm:items-start sm:px-4 sm:pb-0 sm:pt-[8vh]"
       style={{ contain: 'layout style paint' }}
       role="presentation"
     >
-      {/* Backdrop - solid black, no blur for performance */}
-      <div 
-        className="absolute inset-0 bg-black/90" 
+      <div
+        className="absolute inset-0 bg-black/85"
         onClick={handleBackdropClick}
         aria-hidden="true"
       />
-      
-      {/* Modal container with focus trap */}
-      <div 
+
+      <div
         ref={focusTrapRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby={title ? titleId : undefined}
         tabIndex={-1}
         className={cn(
-          "relative flex max-h-[85vh] w-full flex-col overflow-hidden rounded-xl",
+          "relative flex max-h-[88dvh] w-full flex-col overflow-hidden rounded-xl rounded-b-xl sm:max-h-[84vh]",
           surface("panelStrong"),
           "animate-pop-in",
           sizeClasses[size],
@@ -240,30 +238,31 @@ export const BaseModal = memo(function BaseModal({
         )}
         style={{ contain: 'content' }}
       >
-        {/* Header */}
         {(title || showCloseButton || headerRight) && (
-          <div className="flex flex-shrink-0 items-center justify-between border-b border-white/[0.08] px-5 py-4">
-            <div className="flex items-center gap-3">
+          <div className="flex flex-shrink-0 items-center justify-between gap-3 border-b border-white/[0.08] px-4 py-3 sm:px-5 sm:py-4">
+            <div className="min-w-0">
+              {title && (
+                <h2 id={titleId} className="truncate text-lg font-semibold text-white">{title}</h2>
+              )}
+            </div>
+            <div className="flex shrink-0 items-center gap-2">
+              {headerRight}
               {showCloseButton && (
                 <button
+                  type="button"
                   onClick={onClose}
-                  className={cn("-ml-2 p-2", ui.control.icon)}
-                  aria-label="Close modal"
+                  className={cn("p-2", ui.control.icon)}
+                  aria-label="Close"
                 >
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
                     <path d="M18 6L6 18M6 6l12 12" />
                   </svg>
                 </button>
               )}
-              {title && (
-                <h2 id={titleId} className="text-lg font-semibold text-white">{title}</h2>
-              )}
             </div>
-            {headerRight}
           </div>
         )}
-        
-        {/* Content - scrollable */}
+
         <div className={cn(
           "flex-1 overflow-y-auto min-h-0",
           contentClassName
@@ -271,9 +270,8 @@ export const BaseModal = memo(function BaseModal({
           {children}
         </div>
         
-        {/* Footer */}
         {footer && (
-          <div className="flex-shrink-0 border-t border-white/[0.08] bg-white/[0.018] px-5 py-4">
+          <div className="flex-shrink-0 border-t border-white/[0.08] bg-white/[0.018] px-4 py-3 sm:px-5 sm:py-4">
             {footer}
           </div>
         )}

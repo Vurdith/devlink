@@ -9,8 +9,8 @@ export default function SettingsPage() {
     <div className="space-y-6">
       <SettingsPageHeader
         eyebrow="Account"
-        title="Account Settings"
-        description="Manage your connected accounts and sign-in methods"
+        title="Account"
+        description="Connect trusted sign-in providers and keep a fallback login ready."
         icon={
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -19,9 +19,8 @@ export default function SettingsPage() {
         }
       />
       
-      {/* Account Linking Section */}
       <div 
-        className={surface("panel", "noise-overlay relative overflow-hidden p-6 animate-slide-up")}
+        className={surface("panel", "noise-overlay relative overflow-hidden p-4 animate-slide-up sm:p-6")}
         style={{ animationDelay: '0.05s' }}
       >
         <div

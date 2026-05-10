@@ -144,11 +144,16 @@ export const PollDisplay = memo(function PollDisplay({ poll, onVote }: PollDispl
           const isSelected = selectedOptions.includes(option.id);
 
           return (
-            <div
+            <button
+              type="button"
               key={option.id}
+              disabled={Boolean(isExpired)}
+              aria-pressed={isSelected}
+              aria-label={`${option.text}${shouldShowResults ? `, ${percentage} percent, ${option.votes} votes` : ""}`}
               className={cn(
-                "relative cursor-pointer rounded-lg border p-4 transition-all duration-150",
+                "relative w-full rounded-lg border p-4 text-left transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.7)]",
                 "active:scale-[0.99]",
+                isExpired ? "cursor-default" : "cursor-pointer",
                 isSelected
                   ? ui.active.cyan
                   : cn(ui.surface.empty, "hover:border-[rgba(var(--color-accent-2-rgb),0.28)] hover:bg-white/[0.045]")
@@ -167,10 +172,10 @@ export const PollDisplay = memo(function PollDisplay({ poll, onVote }: PollDispl
                 )}
               </div>
 
-              <div className="flex items-center justify-between mb-2 ml-8">
-                <span className="font-medium text-white">{option.text}</span>
+              <div className="mb-2 ml-8 flex items-center justify-between gap-3">
+                <span className="min-w-0 font-medium text-white">{option.text}</span>
                 {shouldShowResults && (
-                  <span className="text-sm text-[var(--color-accent)] font-medium">
+                  <span className="shrink-0 text-sm font-medium text-[var(--color-accent)]">
                     {percentage}% <span className="text-[var(--muted-foreground)]">({option.votes})</span>
                   </span>
                 )}
@@ -184,13 +189,13 @@ export const PollDisplay = memo(function PollDisplay({ poll, onVote }: PollDispl
                   />
                 </div>
               )}
-            </div>
+            </button>
           );
         })}
       </div>
 
       {!isExpired && (
-        <div className="flex gap-3 mt-4">
+        <div className="mt-4 flex flex-col gap-3 sm:flex-row">
           <Button
             onClick={hasVoted ? handleChangeVote : handleVote}
             disabled={(!hasVoted && selectedOptions.length === 0) || isVoting}
@@ -230,11 +235,12 @@ export const PollDisplay = memo(function PollDisplay({ poll, onVote }: PollDispl
       )}
 
       <div className="mt-4 flex items-center justify-center gap-3 border-t border-white/[0.08] pt-3 text-sm text-[var(--muted-foreground)]">
-        <span>{localTotalVotes} vote{localTotalVotes !== 1 ? 's' : ''} total</span>
+        <span>{localTotalVotes} vote{localTotalVotes !== 1 ? 's' : ''}</span>
         {!hasVoted && !isExpired && (
           <button
+            type="button"
             onClick={() => setShowResults(!showResults)}
-            className="text-[var(--color-accent)] hover:text-[var(--color-accent)] transition-colors"
+            className="min-h-9 rounded-lg px-2 text-[var(--color-accent)] transition-colors hover:bg-white/[0.045] hover:text-[var(--color-accent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.7)]"
           >
             {showResults ? "Hide results" : "View results"}
           </button>

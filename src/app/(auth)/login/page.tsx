@@ -29,10 +29,10 @@ function LoginForm() {
   // Check for registration success or other status messages
   useEffect(() => {
     if (searchParams.get("registered") === "true") {
-      setSuccessMessage("Account created successfully! Please sign in.");
+      setSuccessMessage("Account created. Sign in to continue.");
     }
     if (searchParams.get("reset") === "true") {
-      setSuccessMessage("Password reset successfully! Please sign in with your new password.");
+      setSuccessMessage("Password reset. Use your new password to sign in.");
     }
   }, [searchParams]);
 
@@ -42,7 +42,7 @@ function LoginForm() {
     // Basic validation
     const trimmedEmail = email.trim().toLowerCase();
     if (!trimmedEmail || !password) {
-      setError("Please fill in all fields");
+      setError("Enter your email and password.");
       return;
     }
     
@@ -95,7 +95,7 @@ function LoginForm() {
             Welcome back
           </h1>
           <p className="text-[var(--muted-foreground)]">
-            Sign in to continue to DevLink
+            Open your profile, messages, and saved work.
           </p>
         </div>
 
@@ -154,7 +154,7 @@ function LoginForm() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)] hover:text-white transition-colors"
+                  className="absolute right-1.5 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-lg text-[var(--muted-foreground)] transition-colors hover:bg-white/[0.06] hover:text-white"
                   aria-label={showPassword ? "Hide password" : "Show password"}
                 >
                   {showPassword ? (
@@ -241,7 +241,7 @@ function LoginForm() {
 
         {/* Sign up link */}
         <p className="text-center mt-6 text-[var(--muted-foreground)] animate-fade-in" style={{ animationDelay: '0.2s' }}>
-          Don&apos;t have an account?{" "}
+          New to DevLink?{" "}
           <Link href="/register" className="text-[var(--color-accent-2)] hover:underline font-medium">
             Sign up
           </Link>

@@ -208,7 +208,7 @@ export const NavbarSearch = memo(function NavbarSearch({ currentUserId }: { curr
             id="navbar-search"
             ref={inputRef}
             type="search"
-            placeholder="Search DevLink..."
+            placeholder="Search people, tags, work"
             value={value}
             onChange={(e) => setValue(e.target.value)}
             onFocus={() => { setFocused(true); if (searchTerm.length >= MIN_QUERY_LENGTH) setOpen(true); }}
@@ -255,8 +255,8 @@ export const NavbarSearch = memo(function NavbarSearch({ currentUserId }: { curr
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-4.35-4.35" />
                 </svg>
               </div>
-              <p className="text-sm font-semibold text-white">No results found</p>
-              <p className="mt-1 text-xs text-[var(--muted-foreground)]">Try a username, hashtag, or project name.</p>
+              <p className="text-sm font-semibold text-white">Nothing matched</p>
+              <p className="mt-1 text-xs text-[var(--muted-foreground)]">Try a username, tag, or portfolio project.</p>
             </div>
           )}
 
@@ -267,7 +267,7 @@ export const NavbarSearch = memo(function NavbarSearch({ currentUserId }: { curr
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
                 </svg>
-                Hashtags
+                Tags
               </div>
               {visibleResults.hashtags.map((hashtag) => (
                 <Link
@@ -301,7 +301,7 @@ export const NavbarSearch = memo(function NavbarSearch({ currentUserId }: { curr
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
-                Users
+                People
               </div>
               {visibleResults.users.map((user) => (
                 <Link
@@ -362,7 +362,7 @@ export const NavbarSearch = memo(function NavbarSearch({ currentUserId }: { curr
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
                 </svg>
-                Projects
+                Work
               </div>
               {visibleResults.projects.map((project) => (
                 <Link
@@ -397,7 +397,7 @@ export const NavbarSearch = memo(function NavbarSearch({ currentUserId }: { curr
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                Press <kbd className="rounded bg-white/[0.06] px-1 py-0.5 text-[10px]">Enter</kbd> to search all
+                Press <kbd className="rounded bg-white/[0.06] px-1 py-0.5 text-[10px]">Enter</kbd> to search DevLink
               </div>
             </div>
           )}

@@ -93,7 +93,7 @@ export default function ProfileHubPage() {
           setUserSkills(await userSkillsRes.json());
         }
       } catch {
-        toast({ title: "Error", description: "Failed to load profile data", variant: "destructive" });
+        toast({ title: "Could not load profile", description: "Refresh the page and try again.", variant: "destructive" });
       } finally {
         setIsLoading(false);
       }
@@ -123,9 +123,9 @@ export default function ProfileHubPage() {
       });
 
       if (!res.ok) throw new Error("Failed to save");
-      toast({ title: "Saved!", description: "Your profile has been updated", variant: "success" });
+      toast({ title: "Saved", description: "Profile updated.", variant: "success" });
     } catch {
-      toast({ title: "Error", description: "Failed to save profile", variant: "destructive" });
+      toast({ title: "Could not save profile", description: "Check the fields and try again.", variant: "destructive" });
     } finally {
       setIsSaving(false);
     }
@@ -135,11 +135,11 @@ export default function ProfileHubPage() {
   const handleAddSkill = useCallback(async (skill: Skill) => {
     if (addingSkillId || isAddingCustomSkill) return false;
     if (userSkills.length >= 15) {
-      toast({ title: "Limit reached", description: "Maximum 15 skills allowed", variant: "destructive" });
+      toast({ title: "Skill limit reached", description: "Remove a skill before adding another.", variant: "destructive" });
       return false;
     }
     if (userSkills.some(us => us.skillId === skill.id)) {
-      toast({ title: "Already added", description: `${skill.name} is already in your skills`, variant: "default" });
+      toast({ title: "Already added", description: `${skill.name} is already on your profile.`, variant: "default" });
       return false;
     }
 
@@ -153,10 +153,10 @@ export default function ProfileHubPage() {
       if (!res.ok) throw new Error("Failed to add");
       const newSkill = await res.json();
       setUserSkills(prev => [...prev, { ...newSkill, skill }]);
-      toast({ title: "Added!", description: `${skill.name} added to your skills`, variant: "success" });
+      toast({ title: "Added", description: `${skill.name} added to your profile.`, variant: "success" });
       return true;
     } catch {
-      toast({ title: "Error", description: "Failed to add skill", variant: "destructive" });
+      toast({ title: "Could not add skill", description: "Try again in a moment.", variant: "destructive" });
       return false;
     } finally {
       setAddingSkillId(null);
@@ -167,7 +167,7 @@ export default function ProfileHubPage() {
   const handleAddCustomSkill = useCallback(async (skillName: string) => {
     if (addingSkillId || isAddingCustomSkill) return false;
     if (userSkills.length >= 15) {
-      toast({ title: "Limit reached", description: "Maximum 15 skills allowed", variant: "destructive" });
+      toast({ title: "Skill limit reached", description: "Remove a skill before adding another.", variant: "destructive" });
       return false;
     }
     
@@ -203,10 +203,10 @@ export default function ProfileHubPage() {
       
       const userSkill = await addRes.json();
       setUserSkills(prev => [...prev, { ...userSkill, skill: newSkill }]);
-      toast({ title: "Added!", description: `"${skillName}" created and added to your skills`, variant: "success" });
+      toast({ title: "Added", description: `${skillName} added to your profile.`, variant: "success" });
       return true;
     } catch (error) {
-      toast({ title: "Error", description: error instanceof Error ? error.message : "Failed to create custom skill", variant: "destructive" });
+      toast({ title: "Could not create skill", description: error instanceof Error ? error.message : "Try a different name.", variant: "destructive" });
       return false;
     } finally {
       setIsAddingCustomSkill(false);
@@ -234,9 +234,9 @@ export default function ProfileHubPage() {
             : us
       ));
       setEditingSkill(null);
-      toast({ title: "Updated!", description: "Skill updated successfully", variant: "success" });
+      toast({ title: "Saved", description: "Skill updated.", variant: "success" });
     } catch {
-      toast({ title: "Error", description: "Failed to update skill", variant: "destructive" });
+      toast({ title: "Could not update skill", description: "Try again in a moment.", variant: "destructive" });
     } finally {
       setSavingSkillId(null);
     }
@@ -251,9 +251,9 @@ export default function ProfileHubPage() {
       const res = await fetch(`/api/users/me/skills?id=${id}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Failed to remove");
       setUserSkills(prev => prev.filter(us => us.id !== id));
-      toast({ title: "Removed", description: `${name} removed from your skills`, variant: "success" });
+      toast({ title: "Removed", description: `${name} removed from your profile.`, variant: "success" });
     } catch {
-      toast({ title: "Error", description: "Failed to remove skill", variant: "destructive" });
+      toast({ title: "Could not remove skill", description: "Try again in a moment.", variant: "destructive" });
     } finally {
       setRemovingSkillId(null);
     }
@@ -325,8 +325,8 @@ export default function ProfileHubPage() {
               </div>
               <div className="min-w-0 flex-1">
                 <div className="mb-1 text-[10px] font-bold uppercase tracking-[0.16em] text-[var(--color-accent-2)]">Profile tools</div>
-                <h1 className="font-[var(--font-space-grotesk)] text-2xl font-bold text-white">Profile Hub</h1>
-                <p className="mt-0.5 max-w-xl text-sm leading-relaxed text-[var(--muted-foreground)] sm:text-base">Manage your profile, skills, and services</p>
+                <h1 className="font-[var(--font-space-grotesk)] text-2xl font-bold text-white">Profile hub</h1>
+                <p className="mt-0.5 max-w-xl text-sm leading-relaxed text-[var(--muted-foreground)] sm:text-base">Edit the public details people see before they message you.</p>
               </div>
             </div>
             <div className="grid min-w-0 grid-cols-2 gap-2 sm:w-[260px] sm:flex-shrink-0">

@@ -4,6 +4,7 @@ import { CreatePost } from "@/components/feed/CreatePost";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import type { FeedPost } from "@/types/post";
+import { surface } from "@/components/ui/design-system";
 
 interface PostPageContentProps {
   post: FeedPost;
@@ -53,7 +54,7 @@ export function PostPageContent({ post, replies, currentUserId, currentUserProfi
   }, []);
 
   return (
-    <main className="mx-auto max-w-2xl px-4 py-6">
+    <main className="mx-auto max-w-2xl px-4 py-6 sm:py-8">
       {/* Original post */}
       <PostDetail post={post} isOnPostPage={true} session={session} />
 
@@ -71,8 +72,7 @@ export function PostPageContent({ post, replies, currentUserId, currentUserProfi
       )}
 
       {/* All replies */}
-      {replies.length > 0 && (
-        <section className="mt-6">
+      <section className="mt-6">
           <div className="flex items-center justify-between gap-3 mb-3">
             <h3 className="text-sm font-semibold text-white/80 tracking-wide">
               Replies <span className="text-white/40 font-medium">({replies.length})</span>
@@ -80,22 +80,26 @@ export function PostPageContent({ post, replies, currentUserId, currentUserProfi
             <div className="h-px flex-1 bg-gradient-to-r from-white/10 via-white/5 to-transparent" />
           </div>
 
-          {/* Thread rail + replies */}
-          <div className="relative">
-            <div
-              aria-hidden="true"
-              className="absolute left-4 top-0 bottom-0 w-px bg-gradient-to-b from-white/15 via-white/10 to-transparent"
-            />
-            <div className="space-y-0">
-              {replies.map((reply) => (
-                <div key={reply.id} id={`reply-${reply.id}`} className="relative pl-4">
-                  <PostDetail post={reply} isOnPostPage={false} session={session} />
-                </div>
-              ))}
+          {replies.length > 0 ? (
+            <div className="relative">
+              <div
+                aria-hidden="true"
+                className="absolute bottom-0 left-4 top-0 w-px bg-gradient-to-b from-white/15 via-white/10 to-transparent"
+              />
+              <div className="space-y-0">
+                {replies.map((reply) => (
+                  <div key={reply.id} id={`reply-${reply.id}`} className="relative pl-4">
+                    <PostDetail post={reply} isOnPostPage={false} session={session} />
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className={surface("empty", "p-5 text-sm leading-6 text-white/52")}>
+              No replies yet. Be the first to add context or ask a follow-up.
+            </div>
+          )}
         </section>
-      )}
     </main>
   );
 }

@@ -60,7 +60,7 @@ function VerifyEmailChangeContent() {
       <main className="mx-auto max-w-md px-4 py-16">
         <div className={surface("panel", "relative overflow-hidden p-6 text-center")}>
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--color-accent-2)] mx-auto mb-4"></div>
-          <p className="text-[var(--muted-foreground)]">Verifying email change...</p>
+          <p className="text-[var(--muted-foreground)]">Checking email change...</p>
         </div>
       </main>
     );
@@ -75,8 +75,8 @@ function VerifyEmailChangeContent() {
               <path d="M12 9v4m0 4h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" stroke="currentColor" strokeWidth="2"/>
             </svg>
           </div>
-          <h1 className="text-2xl font-semibold text-white mb-2">Verification Failed</h1>
-          <p className="text-[var(--muted-foreground)] mb-6">
+          <h1 className="mb-2 text-2xl font-semibold text-white">Email change failed</h1>
+          <p className="mb-6 text-[var(--muted-foreground)]">
             {error}
           </p>
           <div className="space-y-3">
@@ -104,8 +104,8 @@ function VerifyEmailChangeContent() {
                 </svg>
               </div>
               <div>
-                <h1 className="text-2xl font-semibold text-white">Email Verified!</h1>
-                <p className="text-sm text-[var(--muted-foreground)]">Your email address has been updated</p>
+                <h1 className="text-2xl font-semibold text-white">Email updated</h1>
+                <p className="text-sm text-[var(--muted-foreground)]">Your sign-in address changed</p>
               </div>
             </div>
           </div>
@@ -118,7 +118,7 @@ function VerifyEmailChangeContent() {
             </svg>
           </div>
           
-          <h2 className="text-xl font-semibold text-white mb-2">Email Change Successful</h2>
+          <h2 className="text-xl font-semibold text-white mb-2">Use this email next time</h2>
           <p className="text-[var(--muted-foreground)] mb-6">
             Your DevLink sign-in email is now <strong className="text-white">{newEmail}</strong>. Use this address the next time you sign in.
           </p>
@@ -129,14 +129,14 @@ function VerifyEmailChangeContent() {
               variant="primary"
               className="w-full"
             >
-              Back to Security Settings
+              Back to security settings
             </Button>
             <Button 
               onClick={() => router.push("/")} 
               variant="ghost"
               className="w-full"
             >
-              Go to Home
+              Go home
             </Button>
           </div>
         </div>

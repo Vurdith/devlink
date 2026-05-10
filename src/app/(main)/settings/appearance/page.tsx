@@ -174,8 +174,8 @@ export default function AppearanceSettingsPage() {
     <div className="max-w-5xl space-y-5 animate-slide-up">
       <SettingsPageHeader
         eyebrow="Appearance"
-        title="Theme Studio"
-        description="Choose one color family for DevLink. The interface, logo, browser icon, and app icon move together."
+        title="Appearance"
+        description="Pick the color family used by DevLink surfaces, logos, and browser icons."
         icon={<SunIcon />}
       />
 
@@ -221,11 +221,11 @@ export default function AppearanceSettingsPage() {
           </div>
         </section>
 
-        <aside className={surface("panel", "noise-overlay relative overflow-hidden p-4")}>
+        <aside className={surface("panel", "noise-overlay relative overflow-hidden p-4 sm:p-5")}>
           <div className="mb-4 flex items-center justify-between gap-3 px-1">
             <div>
-              <h2 className="text-sm font-semibold text-white">Color Families</h2>
-              <p className="mt-1 text-xs text-white/42">Single-hue accents only</p>
+              <h2 className="text-sm font-semibold text-white">Color families</h2>
+              <p className="mt-1 text-xs text-white/42">Theme-safe accent sets</p>
             </div>
             <span className={cn("rounded-lg px-2 py-1 text-[11px] font-semibold text-white/60", ui.surface.empty)}>
               {themes.length}
@@ -247,8 +247,8 @@ export default function AppearanceSettingsPage() {
       <section className={surface("panelMuted", "noise-overlay relative overflow-hidden p-5 sm:p-6")}>
         <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h2 className="text-base font-semibold text-white">Live Surface</h2>
-            <p className="mt-1 text-sm text-white/45">How the selected family reads on real controls.</p>
+            <h2 className="text-base font-semibold text-white">Surface preview</h2>
+            <p className="mt-1 text-sm text-white/45">Controls, borders, and active states with this theme.</p>
           </div>
           <span className="text-xs font-medium uppercase tracking-[0.16em] text-white/30">{selectedTheme.id}</span>
         </div>

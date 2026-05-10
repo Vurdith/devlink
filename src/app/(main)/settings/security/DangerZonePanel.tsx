@@ -50,8 +50,7 @@ export function DangerZonePanel({
       {!showDeleteConfirm ? (
         <div className="space-y-4">
           <p className="text-sm text-[var(--muted-foreground)]">
-            Once you delete your account, there is no going back. All your data, posts, followers, and everything associated with your account will be
-            permanently removed.
+            Deleting your account removes your profile, posts, follows, likes, and saved account data.
           </p>
 
           <Button onClick={onShowDeleteConfirm} variant="secondary" className="w-full border-red-500/30 hover:bg-red-500/20 hover:border-red-500/50 text-red-500">
@@ -64,7 +63,7 @@ export function DangerZonePanel({
                 strokeLinejoin="round"
               />
             </svg>
-            Delete Account
+            Delete account
           </Button>
         </div>
       ) : (
@@ -81,15 +80,15 @@ export function DangerZonePanel({
                 />
               </svg>
               <div>
-                <p className="text-sm text-red-500 font-medium">This action cannot be undone!</p>
-                <p className="text-xs text-red-500/70 mt-1">All your posts, likes, followers, and profile data will be permanently deleted.</p>
+                <p className="text-sm text-red-500 font-medium">This cannot be undone.</p>
+                <p className="text-xs text-red-500/70 mt-1">Your posts, likes, followers, and profile data will be deleted.</p>
               </div>
             </div>
           </div>
 
           {hasPassword && (
             <div>
-              <label className="block text-sm font-medium text-white mb-2">Your Password</label>
+              <label className="block text-sm font-medium text-white mb-2">Your password</label>
               <input
                 type="password"
                 className={cn(ui.control.field, "h-11 border-red-500/30 px-4 focus:border-red-500")}
@@ -129,7 +128,7 @@ export function DangerZonePanel({
               isLoading={isDeleting}
               className="flex-1 bg-[var(--color-accent)] hover:bg-[var(--color-accent)] border-[var(--color-accent)]"
             >
-              Delete Forever
+              Delete account
             </Button>
           </div>
         </div>

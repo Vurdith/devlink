@@ -245,7 +245,7 @@ export const ReviewsSection = memo(function ReviewsSection({
               <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 5v14M5 12h14" />
               </svg>
-              Write Review
+              Write review
             </Button>
           ) : null}
         </div>
@@ -335,8 +335,8 @@ export const ReviewsSection = memo(function ReviewsSection({
         isOpen={deleteConfirm.isOpen}
         onClose={() => setDeleteConfirm({ isOpen: false, reviewId: null })}
         onConfirm={confirmDeleteReview}
-        title="Delete Review"
-        message="Are you sure you want to delete this review? This action cannot be undone."
+        title="Delete review"
+        message="This removes your review from the profile. You cannot undo it."
         confirmText="Delete"
         cancelText="Cancel"
         isDestructive={true}

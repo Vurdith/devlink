@@ -36,7 +36,7 @@ export function NetworkPage({
       <section className="mb-5 border-b border-white/[0.07] pb-5">
         <Link
           href={backHref}
-          className="mb-4 inline-flex items-center gap-2 rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 py-2 text-sm font-semibold text-white/62 transition-colors hover:border-white/[0.14] hover:bg-white/[0.055] hover:text-white"
+          className="mb-4 inline-flex min-h-11 items-center gap-2 rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 text-sm font-semibold text-white/62 transition-colors hover:border-white/[0.14] hover:bg-white/[0.055] hover:text-white"
         >
           <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 18l-6-6 6-6" />

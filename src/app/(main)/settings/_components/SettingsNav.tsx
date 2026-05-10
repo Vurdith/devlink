@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Bell, ChevronRight, KeyRound, MessageCircle, Palette, Puzzle, UserRound } from "lucide-react";
 import { iconBox, ui } from "@/components/ui/design-system";
 import { cn } from "@/lib/cn";
 
@@ -9,62 +10,38 @@ const navItems = [
   { 
     href: "/settings", 
     label: "Account", 
-    description: "Connected accounts & linking",
-    icon: (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        <circle cx="12" cy="7" r="4" stroke="currentColor" strokeWidth="2"/>
-      </svg>
-    ),
-    useAccent: true
+    description: "Sign-in providers",
+    icon: UserRound,
   },
   { 
     href: "/settings/appearance", 
     label: "Appearance", 
-    description: "Theme & color settings",
-    icon: (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-        <circle cx="12" cy="12" r="5" stroke="currentColor" strokeWidth="2"/>
-        <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-      </svg>
-    ),
-    useAccent: true
+    description: "Theme and icon",
+    icon: Palette,
   },
   { 
     href: "/settings/security", 
     label: "Security", 
-    description: "Password & authentication",
-    icon: (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-        <rect x="3" y="11" width="18" height="11" rx="2" ry="2" stroke="currentColor" strokeWidth="2"/>
-        <circle cx="12" cy="16" r="1" stroke="currentColor" strokeWidth="2"/>
-        <path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="currentColor" strokeWidth="2"/>
-      </svg>
-    ),
-    useAccent: true
+    description: "Password and two-factor",
+    icon: KeyRound,
   },
   { 
     href: "/settings/notifications", 
     label: "Notifications", 
-    description: "Email & push alerts",
-    icon: (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M13.73 21a2 2 0 0 1-3.46 0" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-      </svg>
-    ),
-    useAccent: true
+    description: "Email preferences",
+    icon: Bell,
   },
   { 
     href: "/settings/messaging", 
     label: "Messaging", 
-    description: "Message requests & privacy",
-    icon: (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-        <path d="M21 15a4 4 0 0 1-4 4H7l-4 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-      </svg>
-    ),
-    useAccent: true
+    description: "Inbox rules",
+    icon: MessageCircle,
+  },
+  {
+    href: "/settings/skills",
+    label: "Skills",
+    description: "Profile Hub shortcut",
+    icon: Puzzle,
   }
 ];
 
@@ -97,7 +74,7 @@ export default function SettingsNav() {
             <Link
               href={item.href}
               className={cn(
-                "group relative flex min-w-[132px] items-center gap-2 rounded-lg border px-3 py-2.5 outline-none transition-all duration-200 focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)] sm:min-w-[150px] md:min-w-0 md:gap-3 md:py-3",
+                "group relative flex min-h-12 min-w-[136px] items-center gap-2 rounded-lg border px-3 py-2.5 outline-none transition-all duration-200 focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)] sm:min-w-[156px] md:min-w-0 md:gap-3 md:py-3",
                 isActive 
                   ? ui.active.cyan
                   : ui.control.ghost
@@ -115,7 +92,7 @@ export default function SettingsNav() {
                   ? iconBox("cyan")
                   : iconBox("muted", "group-hover:bg-white/[0.07] group-hover:text-white")
               )}>
-                {item.icon}
+                <item.icon size={18} aria-hidden="true" />
               </div>
               
               {/* Text */}
@@ -132,19 +109,15 @@ export default function SettingsNav() {
               </div>
               
               {/* Arrow */}
-              <svg 
+              <ChevronRight
                 className={cn(
                   "hidden h-4 w-4 transition-all duration-200 md:block",
                   isActive 
                     ? "text-[var(--color-accent)] opacity-100" 
                     : "text-[var(--muted-foreground)] opacity-0 group-hover:opacity-50 -translate-x-1 group-hover:translate-x-0"
                 )}
-                fill="none" 
-                stroke="currentColor" 
-                viewBox="0 0 24 24"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
+                aria-hidden="true"
+              />
             </Link>
           </div>
         );

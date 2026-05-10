@@ -39,7 +39,7 @@ export const MobileNav = memo(function MobileNav({ session }: MobileNavProps) {
     <>
       <button
         onClick={toggleMenu}
-        className={cn("fixed left-3 top-[10px] z-50 p-2.5 sm:left-4 md:hidden", ui.control.icon)}
+        className={cn("fixed left-3 top-[10px] z-50 min-h-11 min-w-11 p-2.5 sm:left-4 md:hidden", ui.control.icon)}
         aria-label={isOpen ? "Close menu" : "Open menu"}
         aria-expanded={isOpen}
       >
@@ -94,7 +94,7 @@ export const MobileNav = memo(function MobileNav({ session }: MobileNavProps) {
                   DevLink
                 </h1>
                 <p className="text-[10px] text-[var(--muted-foreground)] uppercase tracking-widest">
-                  Roblox Network
+                  Creator network
                 </p>
               </div>
             </Link>
@@ -102,7 +102,7 @@ export const MobileNav = memo(function MobileNav({ session }: MobileNavProps) {
 
           <div className="px-3 pt-4 sm:px-4">
             <BackButton
-              className="w-full justify-start bg-white/[0.035] hover:bg-white/[0.065] rounded-lg text-[var(--muted-foreground)] hover:text-white border border-white/8"
+              className="min-h-11 w-full justify-start rounded-lg border border-white/[0.08] bg-white/[0.035] text-[var(--muted-foreground)] hover:bg-white/[0.065] hover:text-white"
               onClick={closeMenu}
             />
           </div>
@@ -124,7 +124,7 @@ export const MobileNav = memo(function MobileNav({ session }: MobileNavProps) {
                 <div className="py-4">
                   <div className="flex items-center gap-2">
                     <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-rgb),0.2)] to-transparent" />
-                    <span className="text-[10px] text-[rgba(var(--color-accent-rgb),0.6)] uppercase tracking-widest">Account</span>
+                    <span className="text-[10px] text-[rgba(var(--color-accent-rgb),0.6)] uppercase tracking-widest">Your space</span>
                     <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-rgb),0.2)] to-transparent" />
                   </div>
                 </div>
@@ -147,7 +147,7 @@ export const MobileNav = memo(function MobileNav({ session }: MobileNavProps) {
                 <div className="py-4">
                   <div className="flex items-center gap-2">
                     <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-rgb),0.2)] to-transparent" />
-                    <span className="text-[10px] text-[rgba(var(--color-accent-rgb),0.6)] uppercase tracking-widest">Account</span>
+                    <span className="text-[10px] text-[rgba(var(--color-accent-rgb),0.6)] uppercase tracking-widest">Sign in</span>
                     <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-rgb),0.2)] to-transparent" />
                   </div>
                 </div>
@@ -249,7 +249,7 @@ export const MobileNav = memo(function MobileNav({ session }: MobileNavProps) {
                   <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </div>
-              <span className="max-w-full truncate text-[10px] font-medium">Login</span>
+              <span className="max-w-full truncate text-[10px] font-medium">Sign in</span>
             </Link>
           )}
         </div>

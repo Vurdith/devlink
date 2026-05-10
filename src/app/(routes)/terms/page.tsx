@@ -12,20 +12,21 @@ export default function TermsPage() {
       title="Terms of Service"
       description="The rules for using DevLink as a professional network for Roblox developers, studios, clients, and creators."
       updatedAt="December 1, 2024"
+      sections={["Accounts", "Conduct", "Your content", "Platform rights", "Changes"]}
     >
           <section>
             <h2>1. Acceptance of Terms</h2>
             <p>
-              By accessing or using DevLink (&quot;the Service&quot;), you agree to be bound by these Terms of Service. 
-              If you do not agree to these terms, please do not use the Service.
+              By using DevLink (&quot;the Service&quot;), you agree to these Terms of Service. 
+              If you do not agree, do not use the Service.
             </p>
           </section>
 
           <section>
             <h2>2. Description of Service</h2>
             <p>
-              DevLink is a professional network platform for Roblox developers, clients, studios, and influencers. 
-              The Service allows users to create profiles, share content, connect with other users, and showcase their work.
+              DevLink is a professional network for Roblox developers, clients, studios, and creators. 
+              You can create a profile, share work, connect with other users, and look for opportunities.
             </p>
           </section>
 

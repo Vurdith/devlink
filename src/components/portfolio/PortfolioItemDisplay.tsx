@@ -272,7 +272,7 @@ export function PortfolioItemDisplay({
               {/* Previous Button */}
               <button
                 onClick={(e) => { e.stopPropagation(); goToPrevious(); }}
-                className={cn("absolute left-4 top-1/2 z-10 -translate-y-1/2 p-2.5 opacity-0 transition-all group-hover/media:opacity-100", ui.control.icon)}
+                className={cn("absolute left-3 top-1/2 z-10 flex min-h-11 min-w-11 -translate-y-1/2 items-center justify-center opacity-100 transition-all sm:left-4 sm:opacity-0 sm:group-hover/media:opacity-100", ui.control.icon)}
                 title="Previous"
                 aria-label="Previous media"
               >
@@ -284,7 +284,7 @@ export function PortfolioItemDisplay({
               {/* Next Button */}
               <button
                 onClick={(e) => { e.stopPropagation(); goToNext(); }}
-                className={cn("absolute right-4 top-1/2 z-10 -translate-y-1/2 p-2.5 opacity-0 transition-all group-hover/media:opacity-100", ui.control.icon)}
+                className={cn("absolute right-3 top-1/2 z-10 flex min-h-11 min-w-11 -translate-y-1/2 items-center justify-center opacity-100 transition-all sm:right-4 sm:opacity-0 sm:group-hover/media:opacity-100", ui.control.icon)}
                 title="Next"
                 aria-label="Next media"
               >
@@ -356,8 +356,8 @@ export function PortfolioItemDisplay({
         isOpen={showDeleteConfirm}
         onClose={() => setShowDeleteConfirm(false)}
         onConfirm={handleDelete}
-        title="Delete Portfolio Item?"
-        message={`This action cannot be undone. The portfolio item "${item.title}" will be permanently deleted.`}
+        title="Delete project?"
+        message={`This action cannot be undone. "${item.title}" will be permanently deleted.`}
         confirmText="Delete"
         isLoading={isDeleting}
       />

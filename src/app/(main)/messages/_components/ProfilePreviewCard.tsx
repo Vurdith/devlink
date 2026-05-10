@@ -130,7 +130,8 @@ export function ProfilePreviewCard({
       >
         <button
           onClick={onClose}
-          className="absolute top-2 right-2 z-20 w-7 h-7 rounded-full bg-black/60 backdrop-blur-sm flex items-center justify-center text-white/70 hover:text-white hover:bg-black/80 transition-colors"
+          className="absolute right-2 top-2 z-20 flex h-11 w-11 items-center justify-center rounded-full bg-black/60 text-white/70 outline-none backdrop-blur-sm transition-colors hover:bg-black/80 hover:text-white focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)] sm:h-8 sm:w-8"
+          aria-label="Close profile preview"
         >
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
             <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />

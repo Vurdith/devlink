@@ -43,8 +43,8 @@ export const UserSkillsPanel = memo(function UserSkillsPanel({ userSkills, curre
               </svg>
             </div>
             <div className="min-w-0">
-              <h2 className="truncate text-lg font-semibold text-white">Your skills ({userSkills.length}/15)</h2>
-              <p className="text-sm text-[var(--muted-foreground)]">Click a skill to edit rates and details</p>
+              <h2 className="truncate text-lg font-semibold text-white">Skills ({userSkills.length}/15)</h2>
+              <p className="text-sm text-[var(--muted-foreground)]">Set levels, availability, rates, and notes.</p>
             </div>
           </div>
           <span className="hidden rounded-full border border-white/[0.08] bg-white/[0.035] px-2.5 py-1 text-xs font-semibold text-white/56 sm:inline-flex">
@@ -61,7 +61,7 @@ export const UserSkillsPanel = memo(function UserSkillsPanel({ userSkills, curre
             </div>
             <p className="text-sm font-semibold text-white">No skills added yet</p>
             <p className="mx-auto mt-1 max-w-sm text-sm leading-relaxed text-[var(--muted-foreground)]">
-              Add skills below to show what you offer, your availability, and how people can work with you.
+              Add the skills you want people to hire or contact you for.
             </p>
           </div>
         ) : (

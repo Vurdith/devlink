@@ -21,7 +21,7 @@ export const CreateReview = memo(function CreateReview({ targetUserId, targetUse
   if (!currentUserId) {
     return (
       <div className={surface("empty", "p-8 text-center")}>
-        <p className="text-white/50 text-lg">Please log in to leave a review.</p>
+        <p className="text-lg text-white/50">Sign in to leave feedback.</p>
       </div>
     );
   }
@@ -77,7 +77,8 @@ export const CreateReview = memo(function CreateReview({ targetUserId, targetUse
           onClick={() => setRating(starValue)}
           onMouseEnter={() => setHoveredRating(starValue)}
           onMouseLeave={() => setHoveredRating(0)}
-          className="p-2 transition-transform hover:scale-110 active:scale-95"
+          className="min-h-11 min-w-11 rounded-lg p-2 transition-transform hover:scale-110 hover:bg-white/[0.035] active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300/60"
+          aria-label={`${starValue} star${starValue === 1 ? "" : "s"}`}
         >
           <svg
             width="32"
@@ -103,19 +104,19 @@ export const CreateReview = memo(function CreateReview({ targetUserId, targetUse
   };
 
   return (
-    <div className={surface("panel", "p-8")}>
+    <div className={surface("panel", "p-5 sm:p-6")}>
       {/* Header */}
-      <div className="mb-8">
-        <h3 className="text-xl font-bold text-white mb-2">Write a Review</h3>
+      <div className="mb-6">
+        <h3 className="mb-2 text-xl font-bold text-white">Write a review</h3>
         <p className="text-white/50">
-          Share your experience with <span className="text-[var(--color-accent)] font-medium">@{targetUsername}</span>
+          Tell others what it was like to work with <span className="font-medium text-[var(--color-accent)]">@{targetUsername}</span>.
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-8">
+      <form onSubmit={handleSubmit} className="space-y-6">
         {/* Rating Selection */}
         <div>
-          <label className="block text-sm font-semibold text-white/70 mb-4">Your Rating</label>
+          <label className="mb-3 block text-sm font-semibold text-white/70">Rating</label>
           <div className="flex items-center gap-2">
             <div className="flex items-center">
               {renderStars()}
@@ -129,13 +130,13 @@ export const CreateReview = memo(function CreateReview({ targetUserId, targetUse
         {/* Review Text */}
         <div>
           <label htmlFor="review-text" className="block text-sm font-semibold text-white/70 mb-4">
-            Your Review <span className="text-white/30 font-normal">(optional)</span>
+            Details <span className="font-normal text-white/30">(optional)</span>
           </label>
           <textarea
             id="review-text"
             value={text}
             onChange={(e) => setText(e.target.value)}
-            placeholder="Tell others about your experience..."
+            placeholder="Share what went well, what changed, or what future clients should know."
             className={cn(ui.control.field, "min-h-[140px] resize-none px-5 py-4 text-base")}
             rows={5}
             maxLength={500}
@@ -146,18 +147,18 @@ export const CreateReview = memo(function CreateReview({ targetUserId, targetUse
         </div>
 
         {/* Action Buttons */}
-        <div className="flex items-center gap-4 pt-4">
+        <div className="flex flex-col-reverse gap-3 pt-2 sm:flex-row sm:items-center">
           <button
             type="submit"
             disabled={rating === 0 || isSubmitting}
             className={cn(
-              "flex-1 px-6 py-4 rounded-xl font-semibold text-white transition-all",
+              "min-h-11 flex-1 rounded-lg px-6 py-3 font-semibold text-white transition-all",
               rating === 0 
                 ? "cursor-not-allowed border border-white/[0.08] bg-white/[0.045] text-white/45"
                 : ui.control.gradient
             )}
           >
-            {isSubmitting ? "Submitting..." : "Submit Review"}
+            {isSubmitting ? "Submitting review..." : "Submit review"}
           </button>
           
           {onCancel && (
@@ -165,7 +166,7 @@ export const CreateReview = memo(function CreateReview({ targetUserId, targetUse
               type="button"
               onClick={onCancel}
               disabled={isSubmitting}
-              className={cn("rounded-lg px-6 py-4 font-semibold text-white/70 transition-colors", ui.control.ghost)}
+              className={cn("min-h-11 rounded-lg px-6 py-3 font-semibold text-white/70 transition-colors", ui.control.ghost)}
             >
               Cancel
             </button>

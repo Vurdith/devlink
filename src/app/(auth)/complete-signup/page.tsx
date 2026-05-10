@@ -110,9 +110,9 @@ export default function CompleteSignupPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <h2 className="text-2xl font-bold text-white mb-2">Password Set!</h2>
+            <h2 className="text-2xl font-bold text-white mb-2">Password set</h2>
             <p className="text-[var(--muted-foreground)] mb-4">You can now log in with your email and password.</p>
-            <p className="text-sm text-[var(--muted-foreground)]/70">Redirecting to home...</p>
+            <p className="text-sm text-[var(--muted-foreground)]/70">Taking you to home...</p>
             <Button type="button" variant="secondary" className="mt-5 w-full" onClick={() => router.push("/home")}>
               Go to home now
             </Button>
@@ -130,9 +130,9 @@ export default function CompleteSignupPage() {
           <Link href="/" className="inline-block mb-6">
             <Image src={logoPath} alt="DevLink" width={48} height={48} className="h-12 w-auto mx-auto" />
           </Link>
-          <h1 className="text-3xl font-bold text-white mb-2">Complete Your Account</h1>
+          <h1 className="text-3xl font-bold text-white mb-2">Finish account setup</h1>
           <p className="text-[var(--muted-foreground)]">
-            Set a password to log in with your email in the future
+            Add an email password, or skip and keep using your connected account.
           </p>
         </div>
 
@@ -144,8 +144,8 @@ export default function CompleteSignupPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               <div>
-                <p className="text-sm text-[var(--color-accent-2)] font-medium">Optional but recommended</p>
-                <p className="mt-1 text-xs text-[rgba(var(--color-accent-2-rgb),0.70)]">
+                <p className="text-sm text-[var(--color-accent-2)] font-medium">Useful backup</p>
+                <p className="mt-1 text-xs leading-5 text-[rgba(var(--color-accent-2-rgb),0.70)]">
                   Adding a password lets you log in even if your social account becomes unavailable.
                 </p>
               </div>
@@ -197,7 +197,7 @@ export default function CompleteSignupPage() {
               </button>
               {!password && (
                 <p id="complete-password-help" className="mt-2 text-xs text-[var(--muted-foreground)]">
-                  Use a password you have not used on DevLink before.
+                  Use a password you have not used here before.
                 </p>
               )}
               {password && (
@@ -249,7 +249,7 @@ export default function CompleteSignupPage() {
                 <p id="complete-password-match-error" className="text-xs text-[var(--color-accent)] mt-1">Passwords do not match</p>
               )}
               {passwordConfirm && password === passwordConfirm && passwordConfirm.length >= 8 && (
-                <p className="text-xs text-green-400 mt-1 flex items-center gap-1">
+                <p className="mt-1 flex items-center gap-1 text-xs text-[var(--color-accent-2)]">
                   <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                   </svg>
@@ -280,14 +280,14 @@ export default function CompleteSignupPage() {
               type="button"
               onClick={handleSkip}
               disabled={loading}
-              className="w-full py-3 px-4 rounded-lg bg-white/[0.04] border border-white/[0.1] text-gray-300 font-medium hover:bg-white/[0.08] hover:text-white focus:outline-none focus:ring-2 focus:ring-white/20 transition-all"
+              className="w-full rounded-lg border border-white/[0.1] bg-white/[0.04] px-4 py-3 font-medium text-gray-300 transition-all hover:bg-white/[0.08] hover:text-white focus:outline-none focus:ring-2 focus:ring-white/20 disabled:cursor-not-allowed disabled:opacity-50"
             >
               Skip for now
             </button>
           </form>
 
           <p className="mt-6 text-center text-sm text-gray-500">
-            You can always set a password later in{" "}
+            You can add this later in{" "}
             <Link href="/settings/security" className="text-[var(--color-accent-2)] hover:text-[var(--color-accent-2)]">
               Settings / Security
             </Link>

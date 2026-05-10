@@ -11,8 +11,8 @@ import { extractPortfolioSkillIds, parsePortfolioListField } from "./portfolio-e
 
 const editorFieldClass = ui.control.field;
 const editorTextareaClass = cn(ui.control.field, "resize-none");
-const addButtonClass = cn("rounded-lg px-3 py-2 text-xs font-semibold transition-all", ui.control.gradient);
-const segmentButtonClass = "rounded-lg border px-3 py-1.5 text-xs font-semibold transition-colors";
+const addButtonClass = cn("min-h-11 rounded-lg px-3 text-xs font-semibold transition-all", ui.control.gradient);
+const segmentButtonClass = "min-h-11 rounded-lg border px-3 text-xs font-semibold transition-colors";
 
 interface PortfolioEditorProps {
   isOpen: boolean;
@@ -204,7 +204,7 @@ export function PortfolioEditor({
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || "Failed to save portfolio item");
+        throw new Error(data.error || "Could not save project");
       }
 
       const data = await response.json();
@@ -217,7 +217,7 @@ export function PortfolioEditor({
   }, [links, mediaUrls, tags, selectedSkillIds, isPublic, existingItem, onSave]);
 
   const footer = (
-    <div className="flex gap-3 justify-end">
+    <div className="grid gap-3 sm:flex sm:justify-end">
       <Button variant="ghost" onClick={onClose} size="sm">
         Cancel
       </Button>
@@ -227,7 +227,7 @@ export function PortfolioEditor({
         isLoading={loading}
         size="sm"
       >
-        {existingItem ? "Update" : "Add Item"}
+        {existingItem ? "Save project" : "Add project"}
       </Button>
     </div>
   );
@@ -236,7 +236,7 @@ export function PortfolioEditor({
     <BaseModal
       isOpen={isOpen}
       onClose={onClose}
-      title={existingItem ? "Edit Portfolio Item" : "Add Portfolio Item"}
+      title={existingItem ? "Edit project" : "Add project"}
       size="lg"
       footer={footer}
       contentClassName="px-5 py-4"
@@ -261,7 +261,7 @@ export function PortfolioEditor({
           <textarea
             ref={descriptionRef}
             defaultValue={existingItem?.description || ""}
-            placeholder="Tell us about this item..."
+            placeholder="What changed, what you built, and your role."
             rows={3}
             className={editorTextareaClass}
           />
@@ -301,7 +301,7 @@ export function PortfolioEditor({
 
           {mediaInputMethod === "url" ? (
             <div className="space-y-2">
-              <div className="flex gap-2">
+              <div className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto]">
                 <input
                   ref={newMediaUrlRef}
                   type="text"
@@ -369,7 +369,7 @@ export function PortfolioEditor({
         {/* Links */}
         <div>
           <label className="block text-xs font-medium mb-1.5 text-white/70">Links</label>
-          <div className="flex gap-2 mb-2">
+          <div className="mb-2 grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto]">
             <input
               ref={newLinkRef}
               type="text"
@@ -395,7 +395,7 @@ export function PortfolioEditor({
         {/* Tags */}
         <div>
           <label className="block text-xs font-medium mb-1.5 text-white/70">Tags</label>
-          <div className="flex gap-2 mb-2">
+          <div className="mb-2 grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto]">
             <input
               ref={newTagRef}
               type="text"
@@ -492,16 +492,16 @@ export function PortfolioEditor({
             onChange={(e) => setIsPublic(e.target.checked)}
             className="w-4 h-4 rounded cursor-pointer accent-[var(--color-accent)]"
           />
-          <Tooltip content="When enabled, this item will be visible on your public profile">
+          <Tooltip content="Visible on your public profile">
             <label htmlFor="isPublic" className="text-xs font-medium cursor-pointer text-white/70">
-              Make public
+              Show on public profile
             </label>
           </Tooltip>
         </div>
 
         {/* Error Message */}
         {error && (
-          <div className="p-3 bg-[var(--color-accent)]/10 border border-[var(--color-accent)]/20 rounded-lg text-[var(--color-accent)] text-xs">
+          <div role="alert" className="p-3 bg-[var(--color-accent)]/10 border border-[var(--color-accent)]/20 rounded-lg text-[var(--color-accent)] text-xs">
             {error}
           </div>
         )}

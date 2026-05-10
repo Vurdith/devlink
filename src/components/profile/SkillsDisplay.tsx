@@ -35,7 +35,7 @@ interface SkillsDisplayProps {
 
 function PrimarySkillIcon({ className }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-label="Primary skill">
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
       <path d="M12 3.2l2.6 5.26 5.8.84-4.2 4.1.99 5.77L12 16.45l-5.19 2.72.99-5.77-4.2-4.1 5.8-.84L12 3.2z" />
     </svg>
   );
@@ -56,7 +56,7 @@ export function SkillsDisplay({ skills, compact = false, maxDisplay }: SkillsDis
             <span
               key={userSkill.id}
               className={cn(
-                "inline-flex items-center gap-1 rounded-lg border px-2 py-1 text-xs font-medium",
+                "inline-flex min-h-8 items-center gap-1 rounded-lg border px-2 text-xs font-medium",
                 categoryConfig.bgColor,
                 categoryConfig.color
               )}
@@ -67,7 +67,7 @@ export function SkillsDisplay({ skills, compact = false, maxDisplay }: SkillsDis
           );
         })}
         {remainingCount > 0 && (
-          <span className={cn("inline-flex items-center rounded-lg px-2 py-1 text-xs text-white/50", ui.surface.empty)}>
+          <span className={cn("inline-flex min-h-8 items-center rounded-lg px-2 text-xs text-white/50", ui.surface.empty)}>
             +{remainingCount} more
           </span>
         )}
@@ -76,7 +76,7 @@ export function SkillsDisplay({ skills, compact = false, maxDisplay }: SkillsDis
   }
 
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="grid gap-2 sm:grid-cols-2">
       {displaySkills.map((userSkill) => {
         const levelConfig = EXPERIENCE_LEVELS[userSkill.experienceLevel];
         const categoryConfig = SKILL_CATEGORIES[userSkill.skill.category as SkillCategory];
@@ -84,14 +84,23 @@ export function SkillsDisplay({ skills, compact = false, maxDisplay }: SkillsDis
           <div
             key={userSkill.id}
             className={cn(
-              "group relative inline-flex items-center gap-2 rounded-lg border px-3 py-2 transition-all hover:-translate-y-0.5",
+              "group relative flex min-w-0 items-center gap-3 rounded-lg border px-3 py-3 transition-all hover:-translate-y-0.5",
               levelConfig.bgColor,
               levelConfig.color
             )}
           >
-            {userSkill.isPrimary && <PrimarySkillIcon className="h-3.5 w-3.5 text-amber-300" />}
-            <span className="text-sm font-semibold">{userSkill.skill.name}</span>
-            <span className="rounded-md border border-current/15 bg-black/10 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] opacity-75">
+            <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg border border-current/15 bg-black/10">
+              {userSkill.isPrimary ? (
+                <PrimarySkillIcon className="h-3.5 w-3.5 text-amber-300" />
+              ) : (
+                <span className="h-1.5 w-1.5 rounded-full bg-current opacity-70" aria-hidden="true" />
+              )}
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block truncate text-sm font-semibold">{userSkill.skill.name}</span>
+              <span className="mt-0.5 block truncate text-xs opacity-70">{categoryConfig.label}</span>
+            </span>
+            <span className="rounded-md border border-current/15 bg-black/10 px-2 py-1 text-xs font-semibold opacity-80">
               {levelConfig.label}
             </span>
 
@@ -106,7 +115,7 @@ export function SkillsDisplay({ skills, compact = false, maxDisplay }: SkillsDis
         );
       })}
       {remainingCount > 0 && (
-        <span className={cn("inline-flex items-center rounded-lg px-3 py-2 text-sm text-white/50", ui.surface.empty)}>
+        <span className={cn("inline-flex min-h-11 items-center rounded-lg px-3 text-sm text-white/50", ui.surface.empty)}>
           +{remainingCount} more
         </span>
       )}

@@ -2,6 +2,9 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { Puzzle } from "lucide-react";
+import { SettingsPageHeader } from "../_components/SettingsPageHeader";
+import { surface } from "@/components/ui/design-system";
 
 export default function SkillsSettingsRedirect() {
   const router = useRouter();
@@ -11,10 +14,18 @@ export default function SkillsSettingsRedirect() {
   }, [router]);
 
   return (
-    <div className="flex items-center justify-center h-64">
-      <div className="text-center">
-        <div className="animate-spin w-8 h-8 border-2 border-[var(--color-accent)] border-t-transparent rounded-full mx-auto mb-4" />
-        <p className="text-[var(--muted-foreground)]">Redirecting to Profile Hub...</p>
+    <div className="space-y-5">
+      <SettingsPageHeader
+        eyebrow="Skills"
+        title="Skills"
+        description="Skills live in Profile Hub so your profile and settings stay in sync."
+        icon={<Puzzle size={20} aria-hidden="true" />}
+      />
+      <div className={surface("panel", "flex min-h-40 items-center justify-center p-6 text-center")}>
+        <div>
+          <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-2 border-[var(--color-accent)] border-t-transparent" />
+          <p className="text-sm text-[var(--muted-foreground)]">Opening Profile Hub...</p>
+        </div>
       </div>
     </div>
   );

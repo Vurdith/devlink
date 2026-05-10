@@ -53,9 +53,9 @@ export function ChangeEmailPanel({
         ) : null}
 
         <div>
-          <label className="block text-sm font-medium text-white mb-2">Current Email</label>
+          <label className="block text-sm font-medium text-white mb-2">Current email</label>
           <div className={surface("empty", "flex h-11 w-full items-center px-4 text-[var(--muted-foreground)]")}>
-            {currentEmail || "Loading..."}
+            {currentEmail || "Loading"}
           </div>
         </div>
 
@@ -70,7 +70,7 @@ export function ChangeEmailPanel({
           className="space-y-4"
         >
           <div>
-            <label className="block text-sm font-medium text-white mb-2">New Email Address</label>
+            <label className="block text-sm font-medium text-white mb-2">New email address</label>
             <input
               type="email"
               className={inputClassName}
@@ -85,7 +85,7 @@ export function ChangeEmailPanel({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-white mb-2">Confirm Password</label>
+            <label className="block text-sm font-medium text-white mb-2">Confirm password</label>
             <input
               type="password"
               className={inputClassName}
@@ -99,11 +99,11 @@ export function ChangeEmailPanel({
           </div>
 
           <Button type="submit" variant="gradient" isLoading={isChangingEmail} disabled={!canSubmit} className="w-full">
-            Send Verification Email
+            Send verification email
           </Button>
         </form>
 
-        <p className="text-xs text-[var(--muted-foreground)] text-center">A verification email will be sent to your new address</p>
+        <p className="text-xs text-[var(--muted-foreground)] text-center">We will send a confirmation link to the new address.</p>
       </div>
     </SecurityPanel>
   );

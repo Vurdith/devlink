@@ -2,7 +2,7 @@ import { skeleton, surface } from "@/components/ui/design-system";
 
 function VerificationSkeleton() {
   return (
-    <main className="max-w-4xl mx-auto px-4 pb-24 pt-8">
+    <main className="mx-auto max-w-5xl px-4 pb-24 pt-8">
       <div className="mb-6">
         <div className={skeleton("h-9 w-48")} />
         <div className={skeleton("mt-2 h-5 w-96 max-w-full")} />

@@ -54,7 +54,7 @@ export const PostFeed = memo(function PostFeed({
       <div className={surface("empty", "noise-overlay overflow-hidden p-4 sm:p-5")}>
         <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
           <div className="min-w-0">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--color-accent-2)]">Feed is quiet</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--color-accent-2)]">No updates yet</p>
             <h2 className="mt-2 text-xl font-semibold tracking-normal text-white">Build your first signal lane</h2>
             <p className="mt-2 max-w-xl text-sm leading-6 text-white/52">
               Follow developers, search topics, or post a project update so useful activity starts landing here.

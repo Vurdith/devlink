@@ -112,7 +112,7 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
               <div className="mb-7 flex items-center gap-4">
                 <ThemeLogoImg className="h-14 w-14 object-contain sm:h-16 sm:w-16" />
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--color-accent-2)]">Home feed</p>
+                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--color-accent-2)]">Developer network</p>
                   <h1 className="mt-1 text-5xl font-bold leading-none tracking-normal text-white sm:text-6xl lg:text-7xl" style={{ fontFamily: "var(--font-space-grotesk)" }}>
                     DevLink
                   </h1>
@@ -147,7 +147,7 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
               <div className="mb-4 flex items-center justify-between gap-3">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/38">Live workspace preview</p>
-                  <h2 className="mt-1 text-lg font-semibold tracking-normal text-white">What the home feed does</h2>
+                  <h2 className="mt-1 text-lg font-semibold tracking-normal text-white">What starts here</h2>
                 </div>
                 <Search className="h-5 w-5 text-[var(--color-accent-2)]" />
               </div>
@@ -178,7 +178,7 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
           <main className="min-w-0">
             <div className="mb-5 flex min-w-0 flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
               <div className="min-w-0">
-                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--color-accent-2)]">Home</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--color-accent-2)]">Start here</p>
                 <h1 className="mt-1 text-2xl font-semibold tracking-normal text-white sm:text-3xl">
                   Good to see you, {firstName}
                 </h1>
@@ -229,7 +229,7 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
                 </div>
                 <div className="rounded-lg border border-white/[0.07] bg-white/[0.025] p-3">
                   <div className="text-xl font-semibold text-white">{feedPosts.length}</div>
-                  <div className="mt-1 text-xs text-white/45">feed items</div>
+                  <div className="mt-1 text-xs text-white/45">updates</div>
                 </div>
               </div>
             </section>

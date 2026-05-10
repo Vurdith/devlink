@@ -13,7 +13,13 @@ export function useFocusTrap(isOpen: boolean) {
     if (!container) return;
 
     const getFocusableElements = () =>
-      container.querySelectorAll<HTMLElement>('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+      Array.from(
+        container.querySelectorAll<HTMLElement>('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')
+      ).filter((element) => {
+        const disabled = element.hasAttribute("disabled") || element.getAttribute("aria-disabled") === "true";
+        const hidden = element.getAttribute("aria-hidden") === "true" || element.offsetParent === null;
+        return !disabled && !hidden;
+      });
 
     const focusableElements = getFocusableElements();
     if (focusableElements.length > 0) {

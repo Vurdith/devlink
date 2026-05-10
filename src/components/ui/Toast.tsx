@@ -4,14 +4,17 @@ import { surface } from "@/components/ui/design-system";
 import { cn } from "@/lib/cn";
 
 interface ToastProps {
-  message: string;
+  title?: string;
+  description?: string;
+  message?: string;
   type?: "success" | "error" | "info";
   duration?: number;
   onClose: () => void;
 }
 
-export function Toast({ message, type = "success", duration = 3000, onClose }: ToastProps) {
+export function Toast({ title, description, message, type = "success", duration = 3000, onClose }: ToastProps) {
   const [isVisible, setIsVisible] = useState(true);
+  const visibleTitle = title || message || "Notification";
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -62,20 +65,23 @@ export function Toast({ message, type = "success", duration = 3000, onClose }: T
       aria-live={type === "error" ? "assertive" : "polite"}
       aria-atomic="true"
       className={cn(
-        surface("panelStrong", "fixed right-4 top-4 z-[999999] flex items-center gap-3 px-4 py-3 transition-all duration-300"),
+        surface("panelStrong", "fixed right-3 top-3 z-[999999] flex w-[calc(100vw-1.5rem)] max-w-sm items-start gap-3 px-4 py-3 shadow-2xl shadow-black/30 transition-all duration-300 sm:right-4 sm:top-4 sm:w-auto"),
         getBgColor(),
         isVisible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"
       )}
     >
-      <span aria-hidden="true">{getIcon()}</span>
-      <span className="text-white text-sm font-medium">{message}</span>
+      <span className="mt-0.5 shrink-0" aria-hidden="true">{getIcon()}</span>
+      <span className="min-w-0 flex-1">
+        <span className="block text-sm font-semibold text-white">{visibleTitle}</span>
+        {description ? <span className="mt-0.5 block text-sm leading-5 text-white/68">{description}</span> : null}
+      </span>
       <button
         onClick={() => {
           setIsVisible(false);
           setTimeout(onClose, 300);
         }}
         aria-label="Dismiss notification"
-        className="ml-2 text-white/70 hover:text-white transition-colors"
+        className="-mr-1 -mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-white/70 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]"
       >
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>

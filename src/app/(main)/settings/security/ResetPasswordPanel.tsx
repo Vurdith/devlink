@@ -29,7 +29,7 @@ export function ResetPasswordPanel({ email, isRequestingReset, onPasswordReset }
     >
       <div className="space-y-4">
         <p className="text-sm text-[var(--muted-foreground)]">
-          Forgot your password? We&apos;ll send a secure reset link{email ? ` to ${email}` : " to your email address"}.
+          Send a secure reset link{email ? ` to ${email}` : " to your account email"}.
         </p>
 
         <Button onClick={onPasswordReset} variant="secondary" isLoading={isRequestingReset} disabled={!email} className="w-full">
@@ -37,7 +37,7 @@ export function ResetPasswordPanel({ email, isRequestingReset, onPasswordReset }
             <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" stroke="currentColor" strokeWidth="2" />
             <polyline points="22,6 12,13 2,6" stroke="currentColor" strokeWidth="2" />
           </svg>
-          Send Reset Email
+          Send reset email
         </Button>
       </div>
     </SecurityPanel>

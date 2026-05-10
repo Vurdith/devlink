@@ -46,16 +46,16 @@ export const SkillEditModal = memo(function SkillEditModal({ skill, onSave, onCl
       }
       headerRight={
         <p className="hidden text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--color-accent-2)] sm:block">
-          Skill settings
+          Skill
         </p>
       }
     >
       <div className={surface("empty", "mb-5 px-4 py-3 text-sm text-white/62")}>
-        {isSaving ? "Saving skill details..." : "Set the level, availability, and rate people see for this skill."}
+        {isSaving ? "Saving skill..." : "Set the level, availability, and rate shown on your profile."}
       </div>
         <div className="space-y-4">
           <div>
-            <label className="text-sm text-white/60 mb-2 block">Experience Level</label>
+            <label className="text-sm text-white/60 mb-2 block">Experience level</label>
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
               {(Object.entries(EXPERIENCE_LEVELS) as [ExperienceLevel, typeof EXPERIENCE_LEVELS[ExperienceLevel]][]).map(([key, config]) => (
                 <button
@@ -75,7 +75,7 @@ export const SkillEditModal = memo(function SkillEditModal({ skill, onSave, onCl
           </div>
 
           <div>
-            <label className="text-sm text-white/60 mb-1.5 block">Years of Experience (optional)</label>
+            <label className="text-sm text-white/60 mb-1.5 block">Years of experience (optional)</label>
             <ModalInput
               type="number"
               value={draftSkill.yearsOfExp || ""}
@@ -88,11 +88,11 @@ export const SkillEditModal = memo(function SkillEditModal({ skill, onSave, onCl
           </div>
 
           <div>
-            <label className="text-sm text-white/60 mb-1.5 block">Skill Headline (optional)</label>
+            <label className="text-sm text-white/60 mb-1.5 block">Headline (optional)</label>
             <ModalInput
               value={draftSkill.headline || ""}
               onChange={(event) => updateDraftSkill({ headline: event.target.value })}
-              placeholder={`e.g., Senior ${draftSkill.skill.name} Specialist`}
+              placeholder={`Senior ${draftSkill.skill.name} specialist`}
               disabled={isSaving}
             />
           </div>
@@ -102,7 +102,7 @@ export const SkillEditModal = memo(function SkillEditModal({ skill, onSave, onCl
             <ModalTextarea
               value={draftSkill.description || ""}
               onChange={(event) => updateDraftSkill({ description: event.target.value })}
-              placeholder="What you offer and your approach..."
+              placeholder="What you do with this skill and when to contact you."
               disabled={isSaving}
               rows={3}
             />
@@ -169,8 +169,8 @@ export const SkillEditModal = memo(function SkillEditModal({ skill, onSave, onCl
 
           <div className={surface("empty", "flex items-center justify-between rounded-lg p-3")}>
             <div>
-              <p className="text-sm font-medium text-white">Primary Skill</p>
-              <p className="text-xs text-white/50">Shown prominently on your profile</p>
+              <p className="text-sm font-medium text-white">Primary skill</p>
+              <p className="text-xs text-white/50">Shown first on your profile.</p>
             </div>
             <button
               type="button"

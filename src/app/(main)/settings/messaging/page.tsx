@@ -91,8 +91,8 @@ export default function MessagingSettingsPage() {
     <div className="space-y-6">
       <SettingsPageHeader
         eyebrow="Messaging"
-        title="Messaging Settings"
-        description="Control who can start conversations with you."
+        title="Messaging"
+        description="Choose who can open a new conversation with you."
         icon={
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
             <path d="M21 15a4 4 0 0 1-4 4H7l-4 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -122,7 +122,7 @@ export default function MessagingSettingsPage() {
         </div>
       ) : (
         <>
-          <div className={surface("panel", "noise-overlay relative overflow-hidden p-6 animate-slide-up")}>
+          <div className={surface("panel", "noise-overlay relative overflow-hidden p-4 animate-slide-up sm:p-6")}>
             <div
               aria-hidden="true"
               className="pointer-events-none absolute inset-0 opacity-60"
@@ -139,8 +139,8 @@ export default function MessagingSettingsPage() {
                   </svg>
                 </div>
                 <div>
-                  <h2 className="text-lg font-semibold text-white">Who can message you</h2>
-                  <p className="text-sm text-[var(--muted-foreground)]">New messages from others</p>
+                  <h2 className="text-lg font-semibold text-white">New conversations</h2>
+                  <p className="text-sm text-[var(--muted-foreground)]">First messages from other accounts</p>
                 </div>
               </div>
 
@@ -159,7 +159,7 @@ export default function MessagingSettingsPage() {
 
               {saving || savedMessage ? (
                 <div className="mb-4 rounded-xl border border-white/[0.08] bg-white/[0.035] px-4 py-3 text-sm text-[var(--muted-foreground)]" role="status">
-                  {saving ? "Saving your messaging rule..." : savedMessage}
+                  {saving ? "Saving inbox rule..." : savedMessage}
                 </div>
               ) : null}
 
@@ -224,7 +224,7 @@ export default function MessagingSettingsPage() {
             <div className="relative">
               <h2 className="text-lg font-semibold text-white mb-2">Message requests</h2>
               <p className="text-sm text-[var(--muted-foreground)]">
-                When someone doesn&apos;t match your rules, their message becomes a request you can accept or decline.
+                Messages outside your rule arrive as requests. You can accept the thread or leave it closed.
               </p>
             </div>
           </div>

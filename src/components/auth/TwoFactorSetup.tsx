@@ -64,7 +64,7 @@ export function TwoFactorSetup({ onStatusChange }: TwoFactorSetupProps) {
         setSetupError(data.error || "Failed to start two-factor setup.");
         toast({
           title: "Error",
-          description: data.error || "Failed to start 2FA setup",
+          description: data.error || "Failed to start two-factor setup.",
           variant: "destructive",
         });
       }
@@ -86,7 +86,7 @@ export function TwoFactorSetup({ onStatusChange }: TwoFactorSetupProps) {
       setSetupError("Enter the 6-digit code from your authenticator app.");
       toast({
         title: "Error",
-        description: "Please enter a 6-digit code",
+        description: "Enter the 6-digit code from your authenticator app.",
         variant: "destructive",
       });
       return;
@@ -111,7 +111,7 @@ export function TwoFactorSetup({ onStatusChange }: TwoFactorSetupProps) {
         setSetupError(data.error || "Invalid verification code.");
         toast({
           title: "Error",
-          description: data.error || "Invalid verification code",
+          description: data.error || "Invalid verification code.",
           variant: "destructive",
         });
       }
@@ -133,7 +133,7 @@ export function TwoFactorSetup({ onStatusChange }: TwoFactorSetupProps) {
       setSetupError("Enter the 6-digit code from your authenticator app.");
       toast({
         title: "Error",
-        description: "Please enter a 6-digit code",
+        description: "Enter the 6-digit code from your authenticator app.",
         variant: "destructive",
       });
       return;
@@ -154,7 +154,7 @@ export function TwoFactorSetup({ onStatusChange }: TwoFactorSetupProps) {
         onStatusChange?.(false);
         toast({
           title: "Success",
-          description: "Two-factor authentication has been disabled",
+          description: "Two-factor authentication has been disabled.",
           variant: "success",
         });
       } else {
@@ -162,7 +162,7 @@ export function TwoFactorSetup({ onStatusChange }: TwoFactorSetupProps) {
         setSetupError(data.error || "Failed to disable two-factor authentication.");
         toast({
           title: "Error",
-          description: data.error || "Failed to disable 2FA",
+          description: data.error || "Failed to disable two-factor authentication.",
           variant: "destructive",
         });
       }
@@ -222,16 +222,16 @@ export function TwoFactorSetup({ onStatusChange }: TwoFactorSetupProps) {
             <>
               <div className={surface("panelMuted", "p-6")}>
                 <p className="text-sm text-[var(--muted-foreground)] mb-4 text-center">
-                  Scan this QR code with your authenticator app (Google Authenticator, Authy, etc.)
+                  Scan this QR code with your authenticator app.
                 </p>
                 <div className="flex justify-center">
                   <div className="bg-white p-3 rounded-xl">
-                    <img src={qrCode} alt="2FA QR Code" className="w-48 h-48" />
+                    <img src={qrCode} alt="Two-factor setup QR code" className="w-48 h-48" />
                   </div>
                 </div>
                 <div className="mt-4 text-center">
                   <p className="text-xs text-[var(--muted-foreground)] mb-1">
-                    Or enter this code manually:
+                    Manual setup code
                   </p>
                   <code className="rounded-lg border border-white/[0.08] bg-white/[0.035] px-3 py-1 font-mono text-xs break-all">
                     {secret}
@@ -247,7 +247,7 @@ export function TwoFactorSetup({ onStatusChange }: TwoFactorSetupProps) {
                   variant="gradient"
                   className="flex-1"
                 >
-                  Next
+                  Continue
                 </Button>
               </div>
             </>
@@ -257,7 +257,7 @@ export function TwoFactorSetup({ onStatusChange }: TwoFactorSetupProps) {
             <>
               <div className={surface("panelMuted", "p-6")}>
                 <p className="text-sm text-[var(--muted-foreground)] mb-4 text-center">
-                  Enter the 6-digit code from your authenticator app
+                  Enter the 6-digit code from your authenticator app.
                 </p>
                 <input
                   type="text"
@@ -284,7 +284,7 @@ export function TwoFactorSetup({ onStatusChange }: TwoFactorSetupProps) {
                   disabled={verifyCode.length !== 6}
                   className="flex-1"
                 >
-                  Verify & Enable
+                  Verify and enable
                 </Button>
               </div>
             </>
@@ -310,7 +310,7 @@ export function TwoFactorSetup({ onStatusChange }: TwoFactorSetupProps) {
                 </svg>
                 <div>
                   <p className="text-sm text-[var(--color-accent-2)] font-medium">
-                    Save your recovery codes!
+                    Save your recovery codes
                   </p>
                   <p className="mt-1 text-xs text-[rgba(var(--color-accent-2-rgb),0.70)]">
                     These codes can be used to access your account if you lose your authenticator device.
@@ -331,8 +331,8 @@ export function TwoFactorSetup({ onStatusChange }: TwoFactorSetupProps) {
                   onClick={() => {
                     navigator.clipboard.writeText(recoveryCodes.join("\n"));
                     toast({
-                      title: "Copied!",
-                      description: "Recovery codes copied to clipboard",
+                      title: "Recovery codes copied",
+                      description: "Recovery codes copied to clipboard.",
                       variant: "success",
                     });
                   }}
@@ -349,7 +349,7 @@ export function TwoFactorSetup({ onStatusChange }: TwoFactorSetupProps) {
                   variant="gradient"
                   className="flex-1"
                 >
-                  Done
+                  Finish
                 </Button>
               </div>
             </div>
@@ -392,7 +392,7 @@ export function TwoFactorSetup({ onStatusChange }: TwoFactorSetupProps) {
               disabled={disableCode.length !== 6}
               className="flex-1"
             >
-              Disable 2FA
+              Disable two-factor
             </Button>
           </div>
         </div>
@@ -419,7 +419,7 @@ export function TwoFactorSetup({ onStatusChange }: TwoFactorSetupProps) {
                 Two-factor authentication is enabled
               </p>
               <p className="text-xs text-[rgba(var(--color-accent-2-rgb),0.70)]">
-                Your account is protected with an authenticator app
+                Your account is protected with an authenticator app.
               </p>
             </div>
           </div>
@@ -428,7 +428,7 @@ export function TwoFactorSetup({ onStatusChange }: TwoFactorSetupProps) {
             variant="secondary"
             className="w-full border-[rgba(var(--color-accent-2-rgb),0.30)] hover:bg-[rgba(var(--color-accent-2-rgb),0.10)] text-[var(--color-accent-2)]"
           >
-            Disable 2FA
+            Disable two-factor
           </Button>
         </div>
       ) : (
@@ -442,7 +442,7 @@ export function TwoFactorSetup({ onStatusChange }: TwoFactorSetupProps) {
             isLoading={isSubmitting}
             className="w-full"
           >
-            Enable 2FA
+            Enable two-factor
           </Button>
         </div>
       )}

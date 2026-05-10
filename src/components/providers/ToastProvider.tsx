@@ -21,7 +21,8 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       {toasts.map((toast) => (
         <Toast
           key={toast.id}
-          message={`${toast.title}${toast.description ? ` - ${toast.description}` : ''}`}
+          title={toast.title}
+          description={toast.description}
           type={toast.variant === "destructive" ? "error" : toast.variant === "success" ? "success" : "info"}
           duration={toast.duration}
           onClose={() => dismiss(toast.id)}

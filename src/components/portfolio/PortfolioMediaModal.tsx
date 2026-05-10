@@ -94,7 +94,7 @@ export function PortfolioMediaModal({
               event.stopPropagation();
               onClose();
             }}
-            className={cn("absolute -right-3 -top-3 z-30 flex h-9 w-9 items-center justify-center text-white/80 hover:text-white", ui.control.icon)}
+            className={cn("absolute -right-2 -top-2 z-30 flex h-11 w-11 items-center justify-center text-white/80 hover:text-white sm:-right-3 sm:-top-3", ui.control.icon)}
             title="Close (Esc)"
             aria-label="Close media viewer"
           >
@@ -139,9 +139,9 @@ export function PortfolioMediaModal({
           </div>
         </div>
 
-        <div className={surface("toolbar", "absolute bottom-6 left-1/2 flex -translate-x-1/2 items-center justify-center gap-3 px-5 py-3 text-sm text-white")}>
+        <div className={surface("toolbar", "absolute bottom-4 left-1/2 flex max-w-[calc(100vw-1rem)] -translate-x-1/2 flex-wrap items-center justify-center gap-2 px-3 py-3 text-sm text-white sm:bottom-6 sm:gap-3 sm:px-5")}>
           {mediaUrls.length > 1 && (
-            <button onClick={onPrevious} className={cn("p-2.5", ui.control.icon)} title="Previous">
+            <button onClick={onPrevious} className={cn("flex min-h-11 min-w-11 items-center justify-center", ui.control.icon)} title="Previous" aria-label="Previous media">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                 <path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
@@ -151,7 +151,7 @@ export function PortfolioMediaModal({
           {mediaUrls.length > 1 && <div className="min-w-[60px] rounded-lg border border-white/[0.08] bg-white/[0.045] px-3 py-1 text-center font-medium">{currentMediaIndex + 1} / {mediaUrls.length}</div>}
 
           {mediaUrls.length > 1 && (
-            <button onClick={onNext} className={cn("p-2.5", ui.control.icon)} title="Next">
+            <button onClick={onNext} className={cn("flex min-h-11 min-w-11 items-center justify-center", ui.control.icon)} title="Next" aria-label="Next media">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                 <path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
@@ -162,9 +162,10 @@ export function PortfolioMediaModal({
 
           <button
             onClick={() => setZoomAndClamp(Math.max(zoomLevel - 0.5, 0.5))}
-            className={cn("p-2.5", ui.control.icon)}
+            className={cn("flex min-h-11 min-w-11 items-center justify-center", ui.control.icon)}
             disabled={zoomLevel <= 0.5}
             title="Zoom out (-)"
+            aria-label="Zoom out"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
               <circle cx="11" cy="11" r="8" stroke="currentColor" strokeWidth="2" />
@@ -177,9 +178,10 @@ export function PortfolioMediaModal({
 
           <button
             onClick={() => setZoomAndClamp(Math.min(zoomLevel + 0.5, 5))}
-            className={cn("p-2.5", ui.control.icon)}
+            className={cn("flex min-h-11 min-w-11 items-center justify-center", ui.control.icon)}
             disabled={zoomLevel >= 5}
             title="Zoom in (+)"
+            aria-label="Zoom in"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
               <circle cx="11" cy="11" r="8" stroke="currentColor" strokeWidth="2" />
@@ -193,8 +195,9 @@ export function PortfolioMediaModal({
               onZoomLevelChange(1);
               onPanPositionChange({ x: 0, y: 0 });
             }}
-            className={cn("p-2.5", ui.control.icon)}
+            className={cn("flex min-h-11 min-w-11 items-center justify-center", ui.control.icon)}
             title="Reset zoom (0)"
+            aria-label="Reset zoom"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
               <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />

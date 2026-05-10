@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, memo } from "react";
+import { AlertTriangle } from "lucide-react";
 import { Button } from "../ui/Button";
 import { ScamReportForm } from "./ScamReportForm";
 import { cn } from "@/lib/cn";
@@ -39,8 +40,9 @@ export const ReportButton = memo(function ReportButton({ targetUserId, targetUse
             variant="secondary"
             onClick={() => setShowReportForm(true)}
             className={cn("border-[var(--color-accent)]/30 text-[var(--color-accent)] hover:bg-[var(--color-accent)]/10 hover:border-[var(--color-accent)]/50", className)}
+            leftIcon={<AlertTriangle className="h-4 w-4" aria-hidden="true" />}
           >
-            Report Issue
+            Report issue
           </Button>
         );
       default:
@@ -51,12 +53,9 @@ export const ReportButton = memo(function ReportButton({ targetUserId, targetUse
             onClick={() => setShowReportForm(true)}
             className={cn("p-2 text-[var(--color-accent)] hover:text-[var(--color-accent)] hover:bg-[var(--color-accent)]/10", className)}
             title="Report this content"
+            aria-label="Report this content"
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <line x1="12" y1="9" x2="12" y2="13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <line x1="12" y1="17" x2="12.01" y2="17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
+            <AlertTriangle className="h-4 w-4" aria-hidden="true" />
           </Button>
         );
     }
@@ -68,7 +67,7 @@ export const ReportButton = memo(function ReportButton({ targetUserId, targetUse
       
       {showReportForm && (
         <div
-          className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4 animate-fade-in"
+          className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/70 px-3 py-6 backdrop-blur-sm animate-fade-in sm:items-center sm:p-4"
           style={{ contain: 'layout style paint' }}
           onClick={(e) => {
             if (e.target === e.currentTarget) {
@@ -76,7 +75,7 @@ export const ReportButton = memo(function ReportButton({ targetUserId, targetUse
             }
           }}
         >
-          <div className="animate-pop-in">
+          <div className="w-full animate-pop-in">
             <ScamReportForm
               targetUserId={targetUserId}
               targetUsername={targetUsername}

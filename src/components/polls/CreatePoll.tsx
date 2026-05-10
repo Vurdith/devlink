@@ -73,7 +73,7 @@ export const CreatePoll = memo(function CreatePoll({ onSubmit, onCancel }: Creat
         </div>
         <div>
           <h3 className="text-xl font-bold text-white">Create poll</h3>
-          <p className="text-sm text-[var(--muted-foreground)]">Engage your community with a question</p>
+          <p className="text-sm text-[var(--muted-foreground)]">Ask one clear question and give people real choices.</p>
         </div>
       </div>
       
@@ -123,7 +123,8 @@ export const CreatePoll = memo(function CreatePoll({ onSubmit, onCancel }: Creat
                   <button
                     type="button"
                     onClick={() => removeOption(index)}
-                    className="p-2 text-[var(--color-accent)] hover:text-[var(--color-accent)] hover:bg-[var(--color-accent)]/20 rounded-lg transition-all active:scale-95"
+                  className="min-h-11 min-w-11 rounded-lg p-2 text-[var(--color-accent)] transition-all hover:bg-[var(--color-accent)]/20 hover:text-[var(--color-accent)] active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.7)]"
+                  aria-label={`Remove option ${index + 1}`}
                   >
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                       <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -142,7 +143,7 @@ export const CreatePoll = memo(function CreatePoll({ onSubmit, onCancel }: Creat
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                   <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
-                Add Option
+                Add option
               </button>
             )}
           </div>
@@ -166,7 +167,7 @@ export const CreatePoll = memo(function CreatePoll({ onSubmit, onCancel }: Creat
                 onChange={(e) => setIsMultiple(e.target.checked)}
                 className="h-5 w-5 rounded border-[rgba(var(--color-accent-2-rgb),0.34)] bg-white/[0.035] text-[var(--color-accent-2)] focus:ring-[rgba(var(--color-accent-2-rgb),0.35)]"
               />
-              <span className="text-sm text-[var(--muted-foreground)]">Allow users to select multiple options</span>
+              <span className="text-sm text-[var(--muted-foreground)]">People can choose more than one option.</span>
             </div>
           </div>
 
@@ -185,16 +186,16 @@ export const CreatePoll = memo(function CreatePoll({ onSubmit, onCancel }: Creat
               onChange={(e) => setExpiresAt(e.target.value)}
               className="w-full rounded-lg border border-white/[0.10] bg-white/[0.035] px-3 py-2 transition-all focus:border-[rgba(var(--color-accent-2-rgb),0.42)] focus:outline-none focus:ring-2 focus:ring-[rgba(var(--color-accent-2-rgb),0.20)]"
             />
-            <p className="text-xs text-[var(--muted-foreground)] mt-1">Leave empty for no expiration</p>
+            <p className="text-xs text-[var(--muted-foreground)] mt-1">Leave blank to keep it open.</p>
           </div>
         </div>
 
-        <div className="flex gap-3 pt-6">
+        <div className="flex flex-col-reverse gap-3 pt-6 sm:flex-row">
           <button
             type="button"
             disabled={!canSubmit}
             className={cn(
-              "flex-1 py-3 px-6 rounded-lg font-medium transition-all",
+              "min-h-11 flex-1 rounded-lg px-6 py-3 font-medium transition-all",
               canSubmit 
                 ? ui.control.gradient
                 : "cursor-not-allowed border border-white/[0.08] bg-white/[0.035] text-[var(--muted-foreground)]"
@@ -204,7 +205,7 @@ export const CreatePoll = memo(function CreatePoll({ onSubmit, onCancel }: Creat
             {isSubmitting ? (
               <div className="flex items-center justify-center gap-2">
                 <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                Creating...
+                Creating poll...
               </div>
             ) : (
               <div className="flex items-center justify-center gap-2">
@@ -219,7 +220,7 @@ export const CreatePoll = memo(function CreatePoll({ onSubmit, onCancel }: Creat
           <button
             type="button"
             onClick={onCancel}
-            className="flex-1 rounded-lg border border-white/[0.10] bg-white/[0.055] px-6 py-3 font-medium transition-all hover:border-white/20 hover:bg-white/[0.09] active:scale-[0.98]"
+            className="min-h-11 flex-1 rounded-lg border border-white/[0.10] bg-white/[0.055] px-6 py-3 font-medium transition-all hover:border-white/20 hover:bg-white/[0.09] active:scale-[0.98]"
           >
             Cancel
           </button>
