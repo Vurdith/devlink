@@ -94,7 +94,7 @@ export const MobileNav = memo(function MobileNav({ session }: MobileNavProps) {
                   DevLink
                 </h1>
                 <p className="text-[10px] text-[var(--muted-foreground)] uppercase tracking-widest">
-                  Creator network
+                  Roblox hiring
                 </p>
               </div>
             </Link>

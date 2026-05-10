@@ -33,7 +33,7 @@ export const Sidebar = memo(function Sidebar({ session }: SidebarProps) {
                 DevLink
               </h1>
               <p className="text-[10px] text-[var(--muted-foreground)] uppercase tracking-widest">
-                Creator network
+                Roblox hiring
               </p>
             </div>
           </Link>

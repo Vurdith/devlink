@@ -86,6 +86,15 @@ Goal: bring every DevLink route and reusable UI surface into one premium, consis
 - [x] Run `npm run lint`, `npx tsc --noEmit`, and `npm run build`.
 - [x] Run browser smoke screenshots for every touched route group and record any remaining issues.
 
+## Batch 9: Visible Taste Pass
+- [x] Remove the generic landing hero badge and replace the equal proof-card row with a glass DevLink workflow preview.
+- [x] Replace the sidebar and mobile menu brand tagline with product-specific wording.
+- [ ] Sweep visible route headers for generated-sounding labels that describe the UI instead of the object, person, or action.
+- [ ] Revisit high-traffic route padding at 1440px and 390px: landing, home, discover, profile, profile hub, settings, jobs, messages, notifications.
+- [ ] Check that major page blocks use clear composition instead of centered content plus repeated equal cards.
+- [ ] Tighten button and tab hover/focus/active states where the new visual system has not reached older surfaces.
+- [x] Screenshot-check the public landing page on desktop and mobile after the glass hero change.
+
 ## Next UI/UX Cycle Candidates
 - [ ] Do a dedicated modal-performance pass on add skill, portfolio item, composer, review, new message, report, and media viewer modals.
 - [ ] Run authenticated browser screenshots with a seeded account so profile hub, settings skills, messages, notifications, and composer states can be visually checked beyond redirects.
