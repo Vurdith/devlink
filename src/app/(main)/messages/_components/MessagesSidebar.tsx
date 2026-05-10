@@ -219,7 +219,7 @@ export function MessagesSidebar() {
     <>
       <aside
         className={cn(
-          "flex h-full w-full flex-shrink-0 flex-col border-r border-white/[0.06] bg-[rgba(8,11,16,0.72)] md:w-[380px] lg:w-[420px]",
+          "flex h-full w-full flex-shrink-0 flex-col border-r border-white/[0.06] bg-[rgba(8,11,16,0.92)] md:w-[340px] xl:w-[360px]",
           isThreadRoute && "hidden md:flex"
         )}
       >

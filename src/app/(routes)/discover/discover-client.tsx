@@ -5,7 +5,6 @@ import { PROFILE_TYPE_CONFIG } from "@/types/profile";
 import Link from "next/link";
 import Image from "next/image";
 import { FollowButton } from "@/components/ui/FollowButton";
-import { ProfileTooltip } from "@/components/profile/ProfileTooltip";
 import { ProfileTypeLabel } from "@/components/profile/ProfileTypeLabel";
 import { FeedbackState } from "@/components/ui/FeedbackState";
 import { iconBox, surface, ui } from "@/components/ui/design-system";
@@ -102,12 +101,10 @@ function DiscoverUserRow({
   user,
   currentUserId,
   onFollowToggle,
-  featured = false,
 }: {
   user: User;
   currentUserId?: string;
   onFollowToggle: (userId: string, isFollowing: boolean) => void;
-  featured?: boolean;
 }) {
   const isCurrentUser = currentUserId === user.id;
   const displayName = user.name || user.username;
@@ -115,92 +112,59 @@ function DiscoverUserRow({
   return (
     <div
       className={surface(
-        featured ? "panel" : "panelMuted",
-        cn(
-          "group relative overflow-hidden transition-all duration-200 hover:border-[rgba(var(--color-accent-2-rgb),0.22)] hover:bg-white/[0.045]",
-          featured ? "min-h-[228px]" : "min-h-[128px]"
-        )
+        "panelMuted",
+        "group relative min-h-[128px] overflow-hidden transition-all duration-200 hover:border-[rgba(var(--color-accent-2-rgb),0.22)] hover:bg-white/[0.045]"
       )}
     >
       <Link href={`/u/${user.username}`} className="absolute inset-0 z-0" aria-label={`Open @${user.username}`}>
         <span className="sr-only">Open @{user.username}</span>
       </Link>
 
-      {featured ? (
-        <div className="relative h-20 w-full bg-gradient-to-br from-[rgba(var(--color-accent-2-rgb),0.13)] via-white/[0.025] to-black/40 sm:h-24">
-          {user.profile?.bannerUrl && (
-            <Image
-              src={user.profile.bannerUrl}
-              alt=""
-              fill
-              sizes="(max-width: 640px) 100vw, 360px"
-              className="object-cover object-center"
-            />
-          )}
-          <div className="absolute inset-0 bg-gradient-to-t from-[rgba(8,11,16,0.96)] via-black/20 to-transparent" />
-        </div>
-      ) : null}
-
-      <div className={cn("relative z-10 flex min-w-0 gap-3 p-4", featured ? "-mt-7 flex-col" : "items-start sm:items-center")}>
-        <div className={cn("flex min-w-0 gap-3", featured ? "items-end" : "items-start sm:items-center")}>
-          <ProfileTooltip user={user} currentUserId={currentUserId}>
-            <Link href={`/u/${user.username}`} className="relative flex-shrink-0 rounded-full outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]">
-              {user.profile?.avatarUrl ? (
-                <Image
-                  src={user.profile.avatarUrl}
-                  alt={user.username}
-                  width={featured ? 64 : 52}
-                  height={featured ? 64 : 52}
-                  className={cn(
-                    "rounded-full border border-white/[0.12] object-cover",
-                    featured ? "h-16 w-16 ring-4 ring-[rgba(8,11,16,0.92)]" : "h-12 w-12 sm:h-[52px] sm:w-[52px]"
-                  )}
-                />
-              ) : (
-                <div
-                  className={cn(
-                    "grid place-items-center rounded-full border border-white/[0.12] bg-gradient-to-br from-[var(--color-accent-2)] to-[var(--color-accent)] font-bold text-white",
-                    featured ? "h-16 w-16 text-xl ring-4 ring-[rgba(8,11,16,0.92)]" : "h-12 w-12 text-lg sm:h-[52px] sm:w-[52px]"
-                  )}
-                >
-                  {user.username.charAt(0).toUpperCase()}
-                </div>
-              )}
-              {user.profile?.verified && (
-                <span className="absolute -bottom-0.5 -right-0.5 grid h-5 w-5 place-items-center rounded-full border-2 border-[var(--background)] bg-[var(--color-accent-2)]">
-                  <svg className="h-3 w-3" viewBox="0 0 24 24" fill="white" aria-hidden="true">
-                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
-                  </svg>
-                </span>
-              )}
-            </Link>
-          </ProfileTooltip>
+      <div className="relative z-10 flex min-w-0 gap-3 p-4 items-start sm:items-center">
+        <div className="flex min-w-0 gap-3 items-start sm:items-center">
+          <Link href={`/u/${user.username}`} className="relative flex-shrink-0 rounded-full outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]">
+            {user.profile?.avatarUrl ? (
+              <Image
+                src={user.profile.avatarUrl}
+                alt={user.username}
+                width={52}
+                height={52}
+                className="h-12 w-12 rounded-full border border-white/[0.12] object-cover sm:h-[52px] sm:w-[52px]"
+              />
+            ) : (
+              <div className="grid h-12 w-12 place-items-center rounded-full border border-white/[0.12] bg-gradient-to-br from-[var(--color-accent-2)] to-[var(--color-accent)] text-lg font-bold text-white sm:h-[52px] sm:w-[52px]">
+                {user.username.charAt(0).toUpperCase()}
+              </div>
+            )}
+            {user.profile?.verified && (
+              <span className="absolute -bottom-0.5 -right-0.5 grid h-5 w-5 place-items-center rounded-full border-2 border-[var(--background)] bg-[var(--color-accent-2)]">
+                <svg className="h-3 w-3" viewBox="0 0 24 24" fill="white" aria-hidden="true">
+                  <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                </svg>
+              </span>
+            )}
+          </Link>
 
           <div className="min-w-0 flex-1">
             <div className="flex min-w-0 flex-wrap items-center gap-2">
-              <ProfileTooltip user={user} currentUserId={currentUserId}>
-                <Link
-                  href={`/u/${user.username}`}
-                  className={cn(
-                    "truncate rounded font-semibold text-white outline-none transition-colors group-hover:text-[var(--color-accent-2)] focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]",
-                    featured ? "text-lg" : "text-sm"
-                  )}
-                >
-                  {displayName}
-                </Link>
-              </ProfileTooltip>
+              <Link
+                href={`/u/${user.username}`}
+                className="truncate rounded text-sm font-semibold text-white outline-none transition-colors group-hover:text-[var(--color-accent-2)] focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]"
+              >
+                {displayName}
+              </Link>
               <ProfileTypeLabel profileType={getProfileType(user)} variant="compact" />
             </div>
             <div className="mt-0.5 truncate text-xs text-[var(--muted-foreground)]">@{user.username}</div>
           </div>
         </div>
 
-        <div className={cn("min-w-0 flex-1", featured ? "space-y-4" : "sm:grid sm:grid-cols-[1fr_auto] sm:items-center sm:gap-4")}>
-          <p className={cn("line-clamp-2 text-sm leading-relaxed text-white/68", featured ? "border-l border-[rgba(var(--color-accent-2-rgb),0.28)] pl-3" : "")}>
+        <div className="min-w-0 flex-1 sm:grid sm:grid-cols-[1fr_auto] sm:items-center sm:gap-4">
+          <p className="line-clamp-2 text-sm leading-relaxed text-white/68">
             {getSignal(user)}
           </p>
 
-          <div className={cn("mt-3 flex flex-wrap items-center gap-3 text-xs text-[var(--muted-foreground)] sm:mt-0", featured ? "" : "sm:justify-end")}>
+          <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-[var(--muted-foreground)] sm:mt-0 sm:justify-end">
             <Link href={`/u/${user.username}/followers`} className="relative z-20 rounded outline-none hover:text-white focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]">
               <span className="font-semibold text-white tabular-nums">{formatCount(user._count.followers)}</span> followers
             </Link>
