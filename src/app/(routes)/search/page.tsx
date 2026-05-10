@@ -10,6 +10,7 @@ import { ProfileTypeLabel } from "@/components/profile/ProfileTypeLabel";
 import { FeedbackState } from "@/components/ui/FeedbackState";
 import { useSession } from "next-auth/react";
 import { cn } from "@/lib/cn";
+import { FolderKanban, Hash, Search, Users } from "lucide-react";
 
 type SearchType = "all" | "profiles" | "hashtags" | "projects";
 
@@ -40,6 +41,28 @@ interface ProjectResult {
     name: string | null;
     avatarUrl: string | null;
   };
+}
+
+function formatCount(count: number) {
+  return new Intl.NumberFormat("en", { notation: count > 999 ? "compact" : "standard" }).format(count);
+}
+
+function queryInText(text: string | null | undefined, query: string) {
+  return Boolean(text?.toLowerCase().includes(query.toLowerCase()));
+}
+
+function getProfileMatchLabel(user: UserSearchResult, query: string) {
+  if (queryInText(user.username, query)) return "handle match";
+  if (queryInText(user.name, query)) return "name match";
+  if (queryInText(user.bio, query)) return "bio match";
+  return "profile result";
+}
+
+function getProjectMatchLabel(project: ProjectResult, query: string) {
+  if (queryInText(project.title, query)) return "title match";
+  if (queryInText(project.description, query)) return "description match";
+  if (queryInText(project.author.username, query) || queryInText(project.author.name, query)) return "author match";
+  return "project result";
 }
 
 function SearchContent() {
@@ -160,46 +183,30 @@ function SearchContent() {
     return () => controller.abort();
   }, [query, selectedType, retryCount]);
 
-  const filters: { value: SearchType; label: string; icon: React.ReactNode }[] = [
+  const filters: { value: SearchType; label: string; icon: React.ReactNode; helper: string }[] = [
     {
       value: "all",
-      label: "All Results",
-      icon: (
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-          <circle cx="11" cy="11" r="8" stroke="currentColor" strokeWidth="2"/>
-          <path d="M21 21l-4.35-4.35" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
-      )
+      label: "All",
+      icon: <Search className="h-4 w-4" aria-hidden="true" />,
+      helper: "Profiles, tags, and projects"
     },
     {
       value: "profiles",
       label: "Profiles",
-      icon: (
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-          <circle cx="9" cy="7" r="4" stroke="currentColor" strokeWidth="2"/>
-        </svg>
-      )
+      icon: <Users className="h-4 w-4" aria-hidden="true" />,
+      helper: "People and profile text"
     },
     {
       value: "hashtags",
       label: "Hashtags",
-      icon: (
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-          <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-          <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
-      )
+      icon: <Hash className="h-4 w-4" aria-hidden="true" />,
+      helper: "Topics in posts and projects"
     },
     {
       value: "projects",
       label: "Projects",
-      icon: (
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-          <polyline points="14,2 14,8 20,8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
-      )
+      icon: <FolderKanban className="h-4 w-4" aria-hidden="true" />,
+      helper: "Portfolio and work titles"
     }
   ];
 
@@ -213,8 +220,8 @@ function SearchContent() {
   const selectedLabel = filters.find((filter) => filter.value === selectedType)?.label ?? "results";
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-5 sm:px-6 sm:py-6">
-      <div className={surface("panel", "noise-overlay relative mb-5 overflow-hidden p-5 sm:p-6")}>
+    <div className="mx-auto max-w-6xl px-4 py-5 sm:px-6 sm:py-6">
+      <div className={surface("panel", "noise-overlay relative mb-4 overflow-hidden p-4 sm:p-6")}>
         <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.42)] to-transparent" />
         <div
           aria-hidden="true"
@@ -225,61 +232,68 @@ function SearchContent() {
           }}
         />
         <div className="relative">
-          <div className="mb-2 text-[10px] font-bold uppercase tracking-[0.16em] text-[var(--color-accent-2)]">Search</div>
-          <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">Search results</h1>
-          <form onSubmit={handleSubmit} className="mt-4 flex flex-col gap-2 sm:flex-row">
+          <div className="mb-2 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.16em] text-[var(--color-accent-2)]">
+            <Search className="h-3.5 w-3.5" aria-hidden="true" />
+            Search
+          </div>
+          <h1 className="max-w-3xl text-2xl font-bold tracking-tight text-white sm:text-3xl">
+            {query ? `Results for "${query}"` : "Search people, topics, and projects."}
+          </h1>
+          <form onSubmit={handleSubmit} className="mt-4 grid gap-2 sm:grid-cols-[1fr_auto]">
             <label htmlFor="search-query" className="sr-only">Search DevLink</label>
             <input
               id="search-query"
               value={searchInput}
               onChange={(event) => setSearchInput(event.target.value)}
               placeholder="Search handles, hashtags, or projects"
-              className="min-h-11 flex-1 rounded-lg border border-white/[0.08] bg-black/20 px-3 text-sm font-medium text-white outline-none transition-colors placeholder:text-[var(--muted-foreground)] focus:border-[rgba(var(--color-accent-2-rgb),0.42)] focus:ring-2 focus:ring-[rgba(var(--color-accent-2-rgb),0.18)]"
+              className="min-h-12 rounded-lg border border-white/[0.08] bg-black/20 px-3 text-sm font-medium text-white outline-none transition-colors placeholder:text-[var(--muted-foreground)] focus:border-[rgba(var(--color-accent-2-rgb),0.42)] focus:ring-2 focus:ring-[rgba(var(--color-accent-2-rgb),0.18)]"
             />
             <button
               type="submit"
-              className={cn("min-h-11 rounded-lg px-4 text-sm font-semibold text-white transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]", ui.active.cyanStrong)}
+              className={cn("inline-flex min-h-12 items-center justify-center gap-2 rounded-lg px-4 text-sm font-semibold text-white transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]", ui.active.cyanStrong)}
             >
+              <Search className="h-4 w-4" aria-hidden="true" />
               Search
             </button>
           </form>
         {query ? (
-            <div className="mt-3 flex flex-wrap items-center gap-2 text-sm text-[var(--muted-foreground)]">
-              <span>Showing results for</span>
+            <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-[var(--muted-foreground)] sm:text-sm">
               <span className="rounded-lg border border-white/[0.08] bg-white/[0.035] px-2.5 py-1 font-semibold text-white">{query}</span>
               {!loading && !error && (
-                <span className="text-[var(--color-accent-2)]">{totalResults} result{totalResults === 1 ? "" : "s"}</span>
+                <span className="text-[var(--color-accent-2)]">{formatCount(totalResults)} result{totalResults === 1 ? "" : "s"}</span>
               )}
             </div>
         ) : null}
         </div>
       </div>
 
-      {/* Filter Tabs */}
-      <div className="mb-5">
-        <div className={surface("toolbar", "flex gap-2 overflow-x-auto p-2")}>
+      <div className="mb-4">
+        <div className={surface("toolbar", "grid grid-flow-col auto-cols-max gap-2 overflow-x-auto p-2 md:grid-flow-row md:grid-cols-4")}>
           {filters.map((filter) => (
             <button
               key={filter.value}
               onClick={() => handleTypeChange(filter.value)}
               aria-pressed={selectedType === filter.value}
-              className={cn("flex flex-shrink-0 items-center gap-2 rounded-lg border px-3 py-2 text-sm font-semibold transition-all duration-200 outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]",
+              className={cn("flex min-w-36 items-center gap-2 rounded-lg border px-3 py-2 text-left text-sm font-semibold transition-all duration-200 outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)] md:min-w-0",
                 selectedType === filter.value
                   ? ui.active.cyanStrong
                   : "border-transparent text-[var(--muted-foreground)] hover:border-white/[0.08] hover:bg-white/[0.045] hover:text-white"
               )}
             >
-                <div className={`rounded-md p-1 ${
+                <div className={`grid h-7 w-7 flex-shrink-0 place-items-center rounded-md ${
                 selectedType === filter.value
                   ? "bg-[rgba(var(--color-accent-2-rgb),0.14)]"
                   : "bg-white/5"
               }`}>
                 {filter.icon}
               </div>
-              <span>{filter.label}</span>
+              <span className="min-w-0 flex-1">
+                <span className="block truncate">{filter.label}</span>
+                <span className="hidden truncate text-[11px] font-medium text-white/45 lg:block">{filter.helper}</span>
+              </span>
               {query && !loading && !error ? (
                 <span className="rounded-full bg-white/[0.06] px-1.5 py-0.5 text-[11px] tabular-nums text-white/70">
-                  {filterCounts[filter.value]}
+                  {formatCount(filterCounts[filter.value])}
                 </span>
               ) : null}
             </button>
@@ -306,22 +320,33 @@ function SearchContent() {
           }
         />
       ) : loading ? (
-        <div className={surface("empty", "flex items-center justify-center gap-3 py-12 text-sm font-semibold text-[var(--muted-foreground)]")}>
-          <div className="h-5 w-5 animate-spin rounded-full border-2 border-[var(--color-accent-2)] border-r-transparent" />
-          <span>Searching</span>
+        <div className="space-y-2">
+          {[...Array(5)].map((_, index) => (
+            <div key={index} className={surface("panelMuted", "animate-pulse p-4")}>
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-lg bg-white/10" />
+                <div className="min-w-0 flex-1">
+                  <div className="mb-2 h-4 w-44 max-w-full rounded bg-white/10" />
+                  <div className="h-3 w-72 max-w-full rounded bg-white/10" />
+                </div>
+                <div className="hidden h-8 w-16 rounded bg-white/10 sm:block" />
+              </div>
+            </div>
+          ))}
         </div>
       ) : (
-        <div className="space-y-5">
+        <div className="space-y-4">
           {/* Profile Results */}
           {(selectedType === "all" || selectedType === "profiles") && users.length > 0 && (
             <section>
-              <div className="mb-3 flex items-center gap-3">
-                <h2 className="text-sm font-bold uppercase tracking-[0.14em] text-[var(--color-accent-2)]">Profiles</h2>
+              <div className="mb-2 flex items-center gap-3">
+                <h2 className="text-[11px] font-bold uppercase tracking-[0.14em] text-white/45">Profiles</h2>
                 <div className="h-px flex-1 bg-gradient-to-r from-white/[0.10] to-transparent" />
+                <span className="text-xs text-[var(--muted-foreground)]">{formatCount(users.length)}</span>
               </div>
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div className="space-y-2">
                 {users.map((user) => (
-                  <div key={user.id} className={surface("panelMuted", "noise-overlay group relative flex min-h-[136px] items-start gap-3 overflow-hidden p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-[rgba(var(--color-accent-2-rgb),0.20)] hover:bg-white/[0.04]")}>
+                  <div key={user.id} className={surface("panelMuted", "noise-overlay group relative flex min-h-[118px] items-start gap-3 overflow-hidden p-4 transition-all duration-200 hover:border-[rgba(var(--color-accent-2-rgb),0.20)] hover:bg-white/[0.04]")}>
                     <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.10] to-transparent" />
                     <ProfileTooltip
                       user={{
@@ -339,7 +364,7 @@ function SearchContent() {
                     >
                       <Link
                         href={`/u/${user.username}`}
-                        className="relative z-10 flex min-w-0 flex-1 items-start gap-3"
+                        className="relative z-10 flex min-w-0 flex-1 items-start gap-3 rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]"
                         aria-label={`View @${user.username}`}
                       >
                         <Avatar src={user.avatarUrl ?? undefined} size={44} className="border border-white/[0.10]" />
@@ -356,7 +381,12 @@ function SearchContent() {
                         )}
                       </div>
                           <div className="text-xs text-[var(--muted-foreground)] truncate">@{user.username}</div>
-                          {user.bio && <div className="mt-2 line-clamp-2 border-l border-[rgba(var(--color-accent-2-rgb),0.28)] pl-2 text-xs leading-relaxed text-white/62">{user.bio}</div>}
+                          <div className="mt-2 flex flex-wrap items-center gap-2">
+                            <span className="rounded-md border border-white/[0.08] bg-white/[0.035] px-2 py-0.5 text-[11px] font-semibold text-white/58">
+                              {getProfileMatchLabel(user, query)}
+                            </span>
+                            {user.bio && <span className="line-clamp-1 text-xs leading-relaxed text-white/62">{user.bio}</span>}
+                          </div>
                         </div>
                       </Link>
                     </ProfileTooltip>
@@ -374,11 +404,12 @@ function SearchContent() {
           {/* Hashtag Results */}
           {(selectedType === "all" || selectedType === "hashtags") && hashtags.length > 0 && (
             <section>
-              <div className="mb-3 flex items-center gap-3">
-                <h2 className="text-sm font-bold uppercase tracking-[0.14em] text-[var(--color-accent-2)]">Hashtags</h2>
+              <div className="mb-2 flex items-center gap-3">
+                <h2 className="text-[11px] font-bold uppercase tracking-[0.14em] text-white/45">Hashtags</h2>
                 <div className="h-px flex-1 bg-gradient-to-r from-white/[0.10] to-transparent" />
+                <span className="text-xs text-[var(--muted-foreground)]">{formatCount(hashtags.length)}</span>
               </div>
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                 {hashtags.map((hashtag) => (
                   <div key={hashtag.tag} className={surface("panelMuted", "group relative flex items-center gap-3 p-4 transition-colors hover:border-[rgba(var(--color-accent-2-rgb),0.20)] hover:bg-white/[0.04]")}>
                     <Link href={`/hashtag/${hashtag.tag.replace('#', '')}`} className="absolute inset-0 z-10" aria-label={`View ${hashtag.tag}`}>
@@ -394,7 +425,7 @@ function SearchContent() {
                         <span className="truncate font-semibold text-white group-hover:text-[var(--color-accent-2)]">{hashtag.tag}</span>
                       </div>
                       <div className="text-xs text-[var(--muted-foreground)] truncate">
-                        {hashtag.postCount} {hashtag.postCount === 1 ? 'post' : 'posts'} / {hashtag.projectCount} {hashtag.projectCount === 1 ? 'project' : 'projects'}
+                        {formatCount(hashtag.postCount)} {hashtag.postCount === 1 ? 'post' : 'posts'} / {formatCount(hashtag.projectCount)} {hashtag.projectCount === 1 ? 'project' : 'projects'}
                       </div>
                     </div>
                     <div className="relative z-20 pointer-events-auto">
@@ -414,18 +445,24 @@ function SearchContent() {
           {/* Project Results */}
           {(selectedType === "all" || selectedType === "projects") && projects.length > 0 && (
             <section>
-              <div className="mb-3 flex items-center gap-3">
-                <h2 className="text-sm font-bold uppercase tracking-[0.14em] text-[var(--color-accent-2)]">Projects</h2>
+              <div className="mb-2 flex items-center gap-3">
+                <h2 className="text-[11px] font-bold uppercase tracking-[0.14em] text-white/45">Projects</h2>
                 <div className="h-px flex-1 bg-gradient-to-r from-white/[0.10] to-transparent" />
+                <span className="text-xs text-[var(--muted-foreground)]">{formatCount(projects.length)}</span>
               </div>
-              <div className="grid grid-cols-1 gap-3">
+              <div className="space-y-2">
                 {projects.map((project) => (
                   <div key={project.id} className={surface("panelMuted", "group p-4 transition-colors hover:border-[rgba(var(--color-accent-2-rgb),0.20)] hover:bg-white/[0.04]")}>
-                    <div className="flex items-start gap-3">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
                       <div className="flex-1">
-                        <div className="text-lg font-semibold text-white group-hover:text-[var(--color-accent-2)]">{project.title}</div>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <div className="text-base font-semibold text-white group-hover:text-[var(--color-accent-2)]">{project.title}</div>
+                          <span className="rounded-md border border-white/[0.08] bg-white/[0.035] px-2 py-0.5 text-[11px] font-semibold text-white/58">
+                            {getProjectMatchLabel(project, query)}
+                          </span>
+                        </div>
                         {project.description && (
-                          <div className="mt-2 line-clamp-2 border-l border-[rgba(var(--color-accent-2-rgb),0.24)] pl-3 text-sm leading-relaxed text-[var(--muted-foreground)]">{project.description}</div>
+                          <div className="mt-2 line-clamp-2 text-sm leading-relaxed text-[var(--muted-foreground)]">{project.description}</div>
                         )}
                         <div className="flex items-center gap-2 mt-2">
                           <Avatar src={project.author.avatarUrl ?? undefined} size={24} />
@@ -436,7 +473,7 @@ function SearchContent() {
                       </div>
                       <Link 
                         href={`/projects/${project.id}`}
-                        className={cn("rounded-lg px-3 py-1 text-[var(--accent)] transition-colors", ui.control.ghost)}
+                        className={cn("inline-flex min-h-9 items-center justify-center rounded-lg px-3 py-1 text-sm text-[var(--accent)] transition-colors", ui.control.ghost)}
                       >
                         View
                       </Link>
@@ -450,8 +487,8 @@ function SearchContent() {
           {/* No Results */}
           {!query && (
             <FeedbackState
-              title="Search DevLink"
-              description="Look up handles, hashtags, or project names."
+              title="Start with a handle, topic, or project."
+              description="Try a username, a skill like react, or a project name you remember."
               className="py-14"
               icon={
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
@@ -467,7 +504,7 @@ function SearchContent() {
               title={`No ${selectedType === "all" ? "results" : selectedLabel.toLowerCase()} for "${query}"`}
               description={
                 selectedType === "all"
-                  ? "Try a different handle, hashtag, or project name."
+                  ? "Try a shorter term, remove punctuation, or search a related skill."
                   : "Switch back to all results or try a broader search term."
               }
               className="py-14"
