@@ -105,7 +105,14 @@ export function ProfileTabs({
   session,
   initialTab,
 }: ProfileTabsProps) {
-  const hasAboutContent = skills.length > 0 || profileData.location || profileData.website;
+  const hasAboutContent = Boolean(
+    skills.length > 0 ||
+      profileData.location ||
+      profileData.website ||
+      profileData.availability ||
+      profileData.hourlyRate ||
+      profileData.responseTime
+  );
   const isOwner = currentUserId === userId;
   const visibleInitialTab = initialTab === "saved" && !isOwner ? undefined : initialTab;
   const [activeTab, setActiveTab] = useState<TabType>(

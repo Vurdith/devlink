@@ -54,10 +54,10 @@ export const PostFeed = memo(function PostFeed({
       <div className={surface("empty", "noise-overlay overflow-hidden p-4 sm:p-5")}>
         <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
           <div className="min-w-0">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--color-accent-2)]">Nothing new here</p>
-            <h2 className="mt-2 text-xl font-semibold tracking-normal text-white">Follow builders who post real work</h2>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--color-accent-2)]">Quiet feed</p>
+            <h2 className="mt-2 text-xl font-semibold tracking-normal text-white">Follow Roblox builders and studios</h2>
             <p className="mt-2 max-w-xl text-sm leading-6 text-white/52">
-              Search for a topic, follow a few active profiles, or post the update you want people to notice.
+              New builds, hiring asks, launch notes, and useful replies will appear here once you follow active profiles.
             </p>
           </div>
           <div className="flex flex-col gap-2 sm:w-44">

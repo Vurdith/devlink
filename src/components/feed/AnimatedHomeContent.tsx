@@ -146,8 +146,8 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
               <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.46)] to-transparent" />
               <div className="mb-4 flex items-center justify-between gap-3">
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/38">How posts turn into work</p>
-                  <h2 className="mt-1 text-lg font-semibold tracking-normal text-white">What the home feed does</h2>
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/38">Recent work</p>
+                  <h2 className="mt-1 text-lg font-semibold tracking-normal text-white">Posts that lead somewhere</h2>
                 </div>
                 <Search className="h-5 w-5 text-[var(--color-accent-2)]" />
               </div>
@@ -166,7 +166,7 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
                 ))}
               </div>
               <div className="mt-4 rounded-lg border border-emerald-300/15 bg-emerald-400/[0.06] px-4 py-3 text-sm leading-6 text-emerald-100/78">
-                New posts, job signals, and messages belong in one daily starting point.
+                Open DevLink, check recent work, reply where it matters, then move the right people into messages.
               </div>
             </section>
           </div>

@@ -97,6 +97,89 @@ export function ProfileSection({
         </div>
       </div>
 
+      <div className={surface("panel", "relative overflow-hidden p-4 sm:p-6")}>
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.32)] to-transparent" />
+        <div className="relative">
+          <div className="mb-6 flex min-w-0 items-center gap-3">
+            <div className={iconBox("cyan", "h-10 w-10")}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-white">
+                <path d="M4 7h16M4 12h16M4 17h10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+              </svg>
+            </div>
+            <div className="min-w-0">
+              <h2 className="text-lg font-semibold text-white">Work details</h2>
+              <p className="text-sm text-[var(--muted-foreground)]">Shown on your public profile when someone checks availability.</p>
+            </div>
+          </div>
+
+          <div className="grid gap-4">
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-white/68">Headline</label>
+              <ModalInput
+                value={profile.headline}
+                onChange={(event) => onProfileChange({ ...profile, headline: event.target.value })}
+                placeholder="e.g., Roblox UI engineer building polished game interfaces"
+                maxLength={150}
+              />
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-white/68">Availability</label>
+                <select
+                  value={profile.availability}
+                  onChange={(event) => onProfileChange({ ...profile, availability: event.target.value })}
+                  className={ui.control.field}
+                >
+                  <option value="AVAILABLE">Available</option>
+                  <option value="OPEN_TO_OFFERS">Open to offers</option>
+                  <option value="BUSY">Busy</option>
+                  <option value="NOT_AVAILABLE">Not available</option>
+                </select>
+              </div>
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-white/68">Response time</label>
+                <select
+                  value={profile.responseTime}
+                  onChange={(event) => onProfileChange({ ...profile, responseTime: event.target.value })}
+                  className={ui.control.field}
+                >
+                  <option value="">No estimate</option>
+                  <option value="WITHIN_HOURS">Within hours</option>
+                  <option value="WITHIN_DAY">Within a day</option>
+                  <option value="WITHIN_WEEK">Within a week</option>
+                </select>
+              </div>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_120px]">
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-white/68">Hourly rate</label>
+                <ModalInput
+                  type="number"
+                  min={0}
+                  value={profile.hourlyRate ?? ""}
+                  onChange={(event) =>
+                    onProfileChange({
+                      ...profile,
+                      hourlyRate: event.target.value === "" ? null : Number(event.target.value),
+                    })
+                  }
+                  placeholder="Optional"
+                />
+              </div>
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-white/68">Currency</label>
+                <ModalInput
+                  value={profile.currency}
+                  onChange={(event) => onProfileChange({ ...profile, currency: event.target.value.toUpperCase().slice(0, 3) })}
+                  placeholder="USD"
+                  maxLength={3}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div className={surface("panel", "noise-overlay relative overflow-hidden p-4 sm:p-6")}>
         <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.36)] to-transparent" />
         <div

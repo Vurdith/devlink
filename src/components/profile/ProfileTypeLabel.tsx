@@ -31,7 +31,9 @@ export function ProfileTypeLabel({
   return (
     <span
       className={cn(
-        "inline-flex max-w-full flex-shrink-0 items-center gap-1.5 whitespace-nowrap border border-[rgba(var(--color-accent-2-rgb),0.22)] bg-[rgba(var(--color-accent-2-rgb),0.08)] font-semibold text-[var(--color-accent-2)]",
+        "inline-flex max-w-full flex-shrink-0 items-center gap-1.5 whitespace-nowrap border border-current/20 font-semibold",
+        config.bgColor,
+        config.color,
         variantClasses[variant],
         className
       )}

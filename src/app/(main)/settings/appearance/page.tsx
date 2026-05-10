@@ -117,8 +117,8 @@ function InterfaceSample({ theme }: { theme: ThemeConfig }) {
             <img src={`/logo/logo-${theme.id}.png`} alt="" className="h-full w-full object-contain" />
           </div>
           <div>
-            <div className="text-sm font-semibold text-white">DevLink</div>
-            <div className="text-xs text-white/42">Preview surface</div>
+            <div className="text-sm font-semibold text-white">Profile card</div>
+            <div className="text-xs text-white/42">How this theme feels in the app</div>
           </div>
         </div>
         <div
@@ -128,11 +128,11 @@ function InterfaceSample({ theme }: { theme: ThemeConfig }) {
             background: `linear-gradient(135deg, rgba(${theme.colors.accentRgb},0.70), rgba(${theme.colors.accent2Rgb},0.86))`,
           }}
         >
-          Primary
+          Save changes
         </div>
       </div>
       <div className="relative mt-4 grid gap-2 sm:grid-cols-[1fr_auto]">
-        <div className="rounded-lg border border-white/[0.08] bg-white/[0.035] px-3 py-2 text-sm text-white/55">Input focus, borders, active states</div>
+        <div className="rounded-lg border border-white/[0.08] bg-white/[0.035] px-3 py-2 text-sm text-white/55">Write a profile headline</div>
         <div
           className="rounded-lg border px-3 py-2 text-sm font-medium"
           style={{
@@ -141,7 +141,7 @@ function InterfaceSample({ theme }: { theme: ThemeConfig }) {
             backgroundColor: `rgba(${theme.colors.accent2Rgb},0.08)`,
           }}
         >
-          Accent chip
+          Available
         </div>
       </div>
     </div>
@@ -173,7 +173,7 @@ export default function AppearanceSettingsPage() {
   return (
     <div className="max-w-5xl space-y-5 animate-slide-up">
       <SettingsPageHeader
-        eyebrow="Appearance"
+        eyebrow="Theme"
         title="Appearance"
         description="Pick the color system DevLink uses for surfaces, controls, the logo, and browser icon."
         icon={<SunIcon />}
@@ -208,7 +208,7 @@ export default function AppearanceSettingsPage() {
                 >
                   Active
                 </span>
-                <span className="text-xs font-medium uppercase tracking-[0.16em] text-white/35">App shell</span>
+                <span className="text-xs font-medium uppercase tracking-[0.16em] text-white/35">Current theme</span>
               </div>
               <h2 className="font-[var(--font-space-grotesk)] text-3xl font-bold tracking-normal text-white sm:text-4xl">
                 {selectedTheme.name}
@@ -225,7 +225,7 @@ export default function AppearanceSettingsPage() {
           <div className="mb-4 flex items-center justify-between gap-3 px-1">
             <div>
               <h2 className="text-sm font-semibold text-white">Themes</h2>
-              <p className="mt-1 text-xs text-white/42">Logo and controls update together</p>
+              <p className="mt-1 text-xs text-white/42">Logo, buttons, tabs, and highlights update together.</p>
             </div>
             <span className={cn("rounded-lg px-2 py-1 text-[11px] font-semibold text-white/60", ui.surface.empty)}>
               {themes.length}
@@ -247,8 +247,8 @@ export default function AppearanceSettingsPage() {
       <section className={surface("panelMuted", "noise-overlay relative overflow-hidden p-5 sm:p-6")}>
         <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h2 className="text-base font-semibold text-white">Control preview</h2>
-            <p className="mt-1 text-sm text-white/45">Buttons, panels, and active states in the selected color.</p>
+            <h2 className="text-base font-semibold text-white">In the interface</h2>
+            <p className="mt-1 text-sm text-white/45">A quick check for buttons, fields, panels, and active states.</p>
           </div>
           <span className="text-xs font-medium uppercase tracking-[0.16em] text-white/30">{selectedTheme.id}</span>
         </div>

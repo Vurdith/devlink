@@ -311,7 +311,7 @@ export default function ProfileHubPage() {
 
   return (
     <main className="relative w-full min-w-0 px-0 py-4 sm:px-4 sm:py-10">
-      <div className="relative mx-auto w-full min-w-0 max-w-4xl">
+      <div className="relative mx-auto w-full min-w-0 max-w-6xl">
         {/* Header */}
         <div className={surface("panel", "noise-overlay relative mb-6 overflow-hidden p-5 sm:mb-8 sm:p-6")}>
           <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.42)] to-transparent" />
@@ -329,57 +329,73 @@ export default function ProfileHubPage() {
                 <p className="mt-0.5 max-w-xl text-sm leading-relaxed text-[var(--muted-foreground)] sm:text-base">Edit the public details people see before they message you.</p>
               </div>
             </div>
-            <div className="grid min-w-0 grid-cols-2 gap-2 sm:w-[260px] sm:flex-shrink-0">
-              <div className="rounded-lg border border-white/[0.08] bg-white/[0.035] px-3 py-2">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/42">Profile</p>
-                <p className="mt-1 text-sm font-semibold text-white">{profileCompletion}% ready</p>
-              </div>
-              <div className="rounded-lg border border-white/[0.08] bg-white/[0.035] px-3 py-2">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/42">Skills</p>
-                <p className={cn("mt-1 text-sm font-semibold", hasPrimarySkill ? "text-emerald-300" : "text-white")}>
-                  {userSkills.length}/15 added
-                </p>
-              </div>
-            </div>
           </div>
         </div>
 
-      <ProfileHubTabs activeSection={activeSection} onSectionChange={setActiveSection} />
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px] lg:items-start">
+          <div className="min-w-0">
+            <ProfileHubTabs activeSection={activeSection} onSectionChange={setActiveSection} />
 
-      {activeSection === "profile" && (
-        <ProfileSection
-          name={name}
-          profile={profile}
-          isSaving={isSaving}
-          onNameChange={setName}
-          onProfileChange={setProfile}
-          onSaveProfile={handleSaveProfile}
-        />
-      )}
+            {activeSection === "profile" && (
+              <ProfileSection
+                name={name}
+                profile={profile}
+                isSaving={isSaving}
+                onNameChange={setName}
+                onProfileChange={setProfile}
+                onSaveProfile={handleSaveProfile}
+              />
+            )}
 
-      {/* Skills Section */}
-      {activeSection === "skills" && (
-        <div className="space-y-6">
-          <UserSkillsPanel
-            userSkills={userSkills}
-            currency={profile.currency}
-            onEditSkill={setEditingSkill}
-            onRemoveSkill={handleRemoveSkill}
-            removingSkillId={removingSkillId}
-            isSavingSkill={Boolean(savingSkillId)}
-          />
+            {activeSection === "skills" && (
+              <div className="space-y-6">
+                <UserSkillsPanel
+                  userSkills={userSkills}
+                  currency={profile.currency}
+                  onEditSkill={setEditingSkill}
+                  onRemoveSkill={handleRemoveSkill}
+                  removingSkillId={removingSkillId}
+                  isSavingSkill={Boolean(savingSkillId)}
+                />
 
-          <AddSkillsPanel
-            allSkills={allSkills}
-            userSkills={userSkills}
-            userSkillCount={userSkills.length}
-            onAddSkill={handleAddSkill}
-            onAddCustomSkill={handleAddCustomSkill}
-            addingSkillId={addingSkillId}
-            isAddingCustomSkill={isAddingCustomSkill}
-          />
+                <AddSkillsPanel
+                  allSkills={allSkills}
+                  userSkills={userSkills}
+                  userSkillCount={userSkills.length}
+                  onAddSkill={handleAddSkill}
+                  onAddCustomSkill={handleAddCustomSkill}
+                  addingSkillId={addingSkillId}
+                  isAddingCustomSkill={isAddingCustomSkill}
+                />
+              </div>
+            )}
+          </div>
+
+          <aside className="space-y-3 lg:sticky lg:top-24">
+            <div className={surface("panel", "p-4")}>
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-white/42">Public profile</p>
+              <div className="mt-3 grid grid-cols-2 gap-2">
+                <div className="rounded-lg border border-white/[0.08] bg-white/[0.035] px-3 py-2">
+                  <p className="text-2xl font-semibold text-white">{profileCompletion}%</p>
+                  <p className="mt-1 text-xs text-white/45">complete</p>
+                </div>
+                <div className="rounded-lg border border-white/[0.08] bg-white/[0.035] px-3 py-2">
+                  <p className={cn("text-2xl font-semibold", hasPrimarySkill ? "text-emerald-300" : "text-white")}>{userSkills.length}</p>
+                  <p className="mt-1 text-xs text-white/45">skills</p>
+                </div>
+              </div>
+            </div>
+
+            <div className={surface("panelMuted", "p-4")}>
+              <h2 className="text-sm font-semibold text-white">Before people message you</h2>
+              <div className="mt-3 space-y-2 text-sm leading-6 text-white/55">
+                <p>Add a headline that says what you build.</p>
+                <p>Pick one primary skill so your profile has a clear lead.</p>
+                <p>Keep rates and response time current if you want client messages.</p>
+              </div>
+            </div>
+          </aside>
         </div>
-      )}
 
       {editingSkill && (
         <SkillEditModal

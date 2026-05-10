@@ -6,6 +6,7 @@ import { ExpandableSkillCard, type UserSkill } from "./ExpandableSkillCard";
 import {
   EXPERIENCE_LEVELS,
   AVAILABILITY_STATUS,
+  formatHourlyRate,
   type ExperienceLevel,
   type AvailabilityStatus,
 } from "@/lib/skills";
@@ -25,7 +26,21 @@ interface ProfileAboutTabProps {
 }
 
 export function ProfileAboutTab({ skills, profileData }: ProfileAboutTabProps) {
-  const hasProfileDetails = Boolean(profileData.location || profileData.website);
+  const availabilityConfig = profileData.availability
+    ? AVAILABILITY_STATUS[profileData.availability as AvailabilityStatus]
+    : null;
+  const responseTimeLabels: Record<string, string> = {
+    WITHIN_HOURS: "Within hours",
+    WITHIN_DAY: "Within a day",
+    WITHIN_WEEK: "Within a week",
+  };
+  const hasProfileDetails = Boolean(
+    profileData.location ||
+      profileData.website ||
+      availabilityConfig ||
+      profileData.hourlyRate ||
+      profileData.responseTime
+  );
   const primarySkill = skills.find((skill) => skill.isPrimary) ?? skills[0];
   const supportingSkills = skills.filter((skill) => skill.id !== primarySkill?.id).slice(0, 3);
   const extraSkillCount = Math.max(0, skills.length - 1 - supportingSkills.length);
@@ -114,6 +129,49 @@ export function ProfileAboutTab({ skills, profileData }: ProfileAboutTabProps) {
             <p className="mt-1 text-sm text-[var(--muted-foreground)]">Fast context before opening a conversation.</p>
           </div>
           <div className="divide-y divide-white/[0.07]">
+          {availabilityConfig && (
+            <div className="flex min-w-0 items-center gap-3 py-4 first:pt-0 last:pb-0">
+              <div className={iconBox("cyan", "h-10 w-10")}>
+                <svg className="h-5 w-5 text-[var(--color-accent-2)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 12l4 4L19 6" />
+                </svg>
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs uppercase tracking-[0.14em] text-white/40">Availability</p>
+                <p className={`truncate text-sm font-medium ${availabilityConfig.color}`}>{availabilityConfig.label}</p>
+              </div>
+            </div>
+          )}
+
+          {profileData.responseTime && (
+            <div className="flex min-w-0 items-center gap-3 py-4 first:pt-0 last:pb-0">
+              <div className={iconBox("muted", "h-10 w-10")}>
+                <svg className="h-5 w-5 text-[var(--color-accent-2)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6l4 2" />
+                  <circle cx="12" cy="12" r="9" strokeWidth={2} />
+                </svg>
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs uppercase tracking-[0.14em] text-white/40">Replies</p>
+                <p className="truncate text-sm font-medium text-white/80">{responseTimeLabels[profileData.responseTime] ?? profileData.responseTime}</p>
+              </div>
+            </div>
+          )}
+
+          {profileData.hourlyRate ? (
+            <div className="flex min-w-0 items-center gap-3 py-4 first:pt-0 last:pb-0">
+              <div className={iconBox("muted", "h-10 w-10")}>
+                <svg className="h-5 w-5 text-[var(--color-accent-2)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />
+                </svg>
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs uppercase tracking-[0.14em] text-white/40">Rate</p>
+                <p className="truncate text-sm font-medium text-white/80">{formatHourlyRate(profileData.hourlyRate, profileData.currency || "USD")}</p>
+              </div>
+            </div>
+          ) : null}
+
           {profileData.location && (
             <div className="flex min-w-0 items-center gap-3 py-4 first:pt-0 last:pb-0">
               <div className={iconBox("muted", "h-10 w-10")}>

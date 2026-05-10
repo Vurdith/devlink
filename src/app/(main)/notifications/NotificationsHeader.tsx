@@ -38,7 +38,7 @@ export function NotificationsHeader({ unreadCount, tab, marking, onMarkAllRead, 
                 >
                   {unreadCount}
                 </span>
-                <span>{unreadCount === 1 ? "unread item" : "unread items"}</span>
+                <span>unread</span>
               </div>
             </div>
           </div>
@@ -50,7 +50,7 @@ export function NotificationsHeader({ unreadCount, tab, marking, onMarkAllRead, 
             isLoading={marking}
             className="w-full sm:w-auto"
           >
-            Mark all read
+            Mark read
           </Button>
         </div>
 

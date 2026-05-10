@@ -280,11 +280,10 @@ export const CreatePost = memo(function CreatePost({
   if (!isOpen) {
     return (
       <div 
-        className={surface("panelMuted", "create-post-collapsed noise-overlay group relative mb-6 cursor-pointer overflow-hidden p-4 transition-all duration-300 hover:border-[rgba(var(--color-accent-2-rgb),0.24)] hover:bg-[rgba(13,18,26,0.76)] sm:p-5")}
+        className={surface("panelMuted", "create-post-collapsed group relative mb-6 cursor-pointer overflow-hidden p-4 transition-colors duration-200 hover:border-[rgba(var(--color-accent-2-rgb),0.24)] hover:bg-[rgba(13,18,26,0.76)] sm:p-5")}
         onClick={openComposer}
       >
         <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.5)] to-transparent opacity-60" />
-        <div className="pointer-events-none absolute -right-20 -top-24 h-48 w-48 rounded-full bg-[rgba(var(--color-accent-2-rgb),0.08)] blur-3xl transition-opacity duration-300 group-hover:opacity-90" />
         
         <div className="relative z-10 flex items-center gap-4">
           <div className="relative">
@@ -314,7 +313,7 @@ export const CreatePost = memo(function CreatePost({
   // Expanded state - with slide animations
   return (
     <>
-      <div className={surface("panel", "create-post-expanded noise-overlay relative mb-6 overflow-hidden p-4 animate-fade-in sm:p-5")}>
+      <div className={surface("panel", "create-post-expanded relative mb-6 overflow-hidden p-4 animate-fade-in sm:p-5")}>
         <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.46)] to-transparent" />
         <form onSubmit={handleSubmit} className="relative space-y-4">
           <div className="flex items-start gap-3">
@@ -425,7 +424,7 @@ export const CreatePost = memo(function CreatePost({
               id="post-content"
               value={formData.content}
               onChange={(e) => setFormData(prev => ({ ...prev, content: e.target.value }))}
-              className="w-full resize-none rounded-xl border border-white/[0.10] bg-white/[0.035] px-4 py-3 leading-relaxed text-white outline-none transition-all placeholder:text-white/35 focus:border-[rgba(var(--color-accent-2-rgb),0.42)]"
+              className="w-full resize-none rounded-lg border border-white/[0.10] bg-white/[0.035] px-4 py-3 leading-relaxed text-white outline-none transition-colors placeholder:text-white/35 focus:border-[rgba(var(--color-accent-2-rgb),0.42)]"
               rows={4}
               placeholder={replyToId ? "Add a useful reply..." : "Share a shipped change, blocker, hiring ask, or build note..."}
               aria-describedby="post-hint post-count"
@@ -473,7 +472,7 @@ export const CreatePost = memo(function CreatePost({
 
           {/* Slideshow Toggle */}
           {formData.mediaUrls.length > 1 && (
-            <div className="animate-slide-up p-3 bg-[rgba(var(--color-accent-rgb),0.1)] border border-[rgba(var(--color-accent-rgb),0.2)] rounded-xl flex items-center justify-between">
+            <div className="animate-slide-up flex items-center justify-between rounded-lg border border-[rgba(var(--color-accent-rgb),0.18)] bg-[rgba(var(--color-accent-rgb),0.08)] p-3">
               <div className="flex items-center gap-3">
                 <div className={cn("p-2 rounded-lg transition-colors", isSlideshow ? "bg-[rgba(var(--color-accent-rgb),0.3)]" : "bg-white/10")}>
                   <Film className={cn("h-4.5 w-4.5", isSlideshow ? "text-[var(--color-accent)]" : "text-gray-400")} />
@@ -484,7 +483,7 @@ export const CreatePost = memo(function CreatePost({
                 type="button" 
                 onClick={() => setIsSlideshow(prev => !prev)}
                 className={cn(
-                  "px-3 py-1.5 rounded-lg text-xs font-medium transition-all btn-press",
+                  "btn-press rounded-lg px-3 py-1.5 text-xs font-medium transition-colors",
                   isSlideshow ? "bg-[var(--color-accent)] text-white" : "bg-white/10 text-gray-300 hover:bg-white/20"
                 )}
               >
@@ -510,7 +509,7 @@ export const CreatePost = memo(function CreatePost({
               type="button"
               onClick={closeComposer}
               disabled={isSubmitting}
-              className="px-5 py-2.5 rounded-xl text-sm font-bold text-[var(--muted-foreground)] hover:text-white transition-colors"
+              className="rounded-lg px-5 py-2.5 text-sm font-bold text-[var(--muted-foreground)] transition-colors hover:text-white"
             >
               Cancel
             </button>

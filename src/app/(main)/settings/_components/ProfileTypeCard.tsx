@@ -9,7 +9,7 @@ const profileTypes = [
   { 
     value: "DEVELOPER", 
     label: "Developer", 
-    description: "Showcase portfolio and projects",
+    description: "Show what you build, what you charge, and how clients should contact you.",
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
         <polyline points="16,18 22,12 16,6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -23,7 +23,7 @@ const profileTypes = [
   { 
     value: "CLIENT", 
     label: "Client", 
-    description: "Hire talent and post jobs",
+    description: "Find builders, save profiles, and message people before posting work.",
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
         <path d="M20 7h-4V3H8v4H4v14h16V7zM8 21V7h8v14H8z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -36,7 +36,7 @@ const profileTypes = [
   { 
     value: "STUDIO", 
     label: "Studio", 
-    description: "Team profile with members",
+    description: "Present the team, roles, portfolio, and hiring contact in one profile.",
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
         <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -52,7 +52,7 @@ const profileTypes = [
   { 
     value: "INFLUENCER", 
     label: "Influencer", 
-    description: "Promote and collaborate",
+    description: "Show audience work, brand fit, and collaboration contact.",
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
         <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -65,7 +65,7 @@ const profileTypes = [
   { 
     value: "INVESTOR", 
     label: "Investor", 
-    description: "Fund projects and startups",
+    description: "Show what you fund, advise, or want to see from Roblox teams.",
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
         <line x1="12" y1="1" x2="12" y2="23" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -79,7 +79,7 @@ const profileTypes = [
   { 
     value: "GUEST", 
     label: "Guest", 
-    description: "Browse and explore",
+    description: "Follow work, save profiles, and keep your public profile minimal.",
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
         <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
@@ -149,8 +149,8 @@ export function ProfileTypeCard() {
           </svg>
         </div>
         <div>
-          <h2 className="text-lg font-semibold text-white">Profile Type</h2>
-          <p className="text-sm text-[var(--muted-foreground)]">Choose how you want to use DevLink</p>
+          <h2 className="text-lg font-semibold text-white">Profile type</h2>
+          <p className="text-sm text-[var(--muted-foreground)]">Choose what people should understand first.</p>
         </div>
       </div>
       
@@ -233,7 +233,7 @@ export function ProfileTypeCard() {
             disabled={!type}
             variant="gradient"
           >
-            Save Changes
+            Save profile type
           </Button>
           
           {saved && (

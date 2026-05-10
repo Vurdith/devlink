@@ -45,8 +45,8 @@ export function NotificationsEmpty({ tab }: { tab: NotificationTab }) {
       title={tab === "unread" ? "No unread notifications" : "No notifications yet"}
       description={
         tab === "unread"
-          ? "You are caught up. Mentions, replies, follows, and messages will appear here when they need attention."
-          : "Follows, replies, mentions, messages, and profile updates will collect here."
+          ? "You are caught up. New replies, follows, messages, and job updates will appear here."
+          : "Replies, follows, reviews, messages, and job updates will appear here."
       }
       className="py-12"
     />
@@ -58,7 +58,7 @@ export function NotificationsSignedOut() {
     <FeedbackState
       icon={<BellIcon />}
       title="Sign in to see notifications"
-      description="Sign in to review replies, mentions, follows, messages, and profile updates."
+      description="Sign in to review replies, follows, messages, reviews, and job updates."
       action={{ label: "Sign in", href: "/login?callbackUrl=/notifications" }}
       className="py-12"
     />
