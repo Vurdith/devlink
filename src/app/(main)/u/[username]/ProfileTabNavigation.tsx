@@ -28,11 +28,11 @@ export function ProfileTabNavigation({
     <div
       className={surface(
         "toolbar",
-        "noise-overlay relative mb-4 overflow-hidden p-1 sm:mb-6 sm:p-1.5"
+        "relative mb-4 overflow-hidden p-1 sm:mb-6 sm:p-1.5"
       )}
       style={{
         background:
-          "linear-gradient(180deg, rgba(13,17,24,0.82), rgba(8,11,16,0.72))",
+          "linear-gradient(180deg, rgba(12,16,23,0.72), rgba(8,11,16,0.58))",
       }}
     >
       <div
@@ -54,9 +54,9 @@ export function ProfileTabNavigation({
               aria-pressed={selected}
               aria-current={selected ? "page" : undefined}
               className={cn(
-                "group relative flex min-h-11 flex-shrink-0 snap-start items-center gap-2 whitespace-nowrap rounded-lg border px-3 text-xs font-semibold outline-none transition-all duration-200 focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.7)] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(8,11,16)] sm:px-4 sm:text-sm",
+                "group relative flex min-h-11 flex-shrink-0 snap-start items-center gap-2 whitespace-nowrap rounded-lg border px-3 text-xs font-semibold outline-none transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.7)] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(8,11,16)] sm:px-4 sm:text-sm",
                 selected
-                  ? "border-[rgba(var(--color-accent-2-rgb),0.30)] bg-[rgba(var(--color-accent-2-rgb),0.11)] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
+                  ? "border-[rgba(var(--color-accent-2-rgb),0.30)] bg-[rgba(var(--color-accent-2-rgb),0.11)] text-white shadow-[0_0_24px_rgba(var(--color-accent-2-rgb),0.10),inset_0_1px_0_rgba(255,255,255,0.08)]"
                   : "border-transparent text-white/52 hover:border-white/[0.08] hover:bg-white/[0.04] hover:text-white/86"
               )}
             >

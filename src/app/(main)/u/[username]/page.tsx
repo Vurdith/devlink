@@ -79,12 +79,12 @@ function ProfileStatLink({
   return (
     <Link
       href={href}
-      className="group rounded-lg border border-white/[0.08] bg-white/[0.035] px-3.5 py-3 transition-colors hover:border-[rgba(var(--color-accent-2-rgb),0.26)] hover:bg-white/[0.055]"
+      className="group inline-flex items-baseline gap-1.5 rounded-md px-1 py-1 transition-colors hover:text-[var(--color-accent-2)]"
     >
-      <span className="block text-base font-semibold leading-none text-white group-hover:text-[var(--color-accent-2)]">
+      <span className="text-sm font-semibold leading-none text-white group-hover:text-[var(--color-accent-2)]">
         {value}
       </span>
-      <span className="mt-1 block text-[11px] font-medium uppercase tracking-[0.12em] text-white/42">
+      <span className="text-sm text-white/50 group-hover:text-white/70">
         {label}
       </span>
     </Link>
@@ -108,9 +108,9 @@ function ProfileSignal({
         : "border-white/[0.08] bg-white/[0.028] text-white/68";
 
   return (
-    <span className={`inline-flex min-w-0 items-center gap-2 rounded-lg border px-3 py-2 text-sm ${toneClass}`}>
+    <span className={`inline-flex min-w-0 items-center gap-2 rounded-md border px-2.5 py-1.5 text-xs ${toneClass}`}>
       <span className="h-1.5 w-1.5 flex-shrink-0 rounded-full bg-current opacity-80" aria-hidden="true" />
-      <span className="text-white/42">{label}</span>
+      <span className="text-white/40">{label}</span>
       <span className="min-w-0 truncate font-semibold text-white/86">{value}</span>
     </span>
   );
@@ -148,14 +148,14 @@ export default async function UserProfilePage(props: {
 
   return (
     <main className="mx-auto w-full min-w-0 max-w-6xl px-0 py-2 sm:px-5 sm:py-8">
-      <section className={surface("panelStrong", "relative overflow-hidden rounded-none bg-[rgba(10,13,19,0.86)] sm:rounded-xl")}>
+      <section className={surface("panelStrong", "relative overflow-hidden rounded-none bg-[rgba(9,12,18,0.86)] sm:rounded-xl")}>
         <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent" />
         <ProfileBanner 
           initialBannerUrl={user.profile?.bannerUrl}
           isOwnProfile={isOwnProfile}
         />
         
-        <div className="relative -mt-18 px-3 pb-5 sm:-mt-24 sm:px-6 sm:pb-7 lg:px-8">
+        <div className="relative px-4 pb-6 sm:px-6 sm:pb-7 lg:px-8">
           <AboutEditor
             initialBio={user.profile?.bio}
             initialLocation={user.profile?.location}
@@ -165,17 +165,8 @@ export default async function UserProfilePage(props: {
             editable={isOwnProfile}
           />
 
-          <div className={surface("toolbar", "relative overflow-hidden bg-[rgba(7,10,15,0.94)] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] sm:p-5 lg:p-6")}>
-            <div
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-0 opacity-55"
-              style={{
-                background:
-                  "radial-gradient(640px 150px at 12% 0%, rgba(var(--color-accent-2-rgb),0.10), transparent 64%), radial-gradient(520px 150px at 96% 18%, rgba(var(--color-accent-rgb),0.07), transparent 68%)",
-              }}
-            />
-            <div className="relative grid min-w-0 gap-5 lg:grid-cols-[auto_minmax(0,1fr)_minmax(230px,auto)] lg:items-start">
-              <div className="flex items-end gap-4 sm:items-center lg:block">
+          <div className="grid min-w-0 gap-5 border-b border-white/[0.06] pb-6 sm:grid-cols-[auto_minmax(0,1fr)] sm:gap-6 lg:grid-cols-[auto_minmax(0,1fr)_auto] lg:items-start">
+              <div className="-mt-14 flex items-end gap-4 sm:-mt-16 sm:items-end lg:block">
                 <ProfileAvatar
                   initialAvatarUrl={user.profile?.avatarUrl}
                   isOwnProfile={isOwnProfile}
@@ -192,7 +183,7 @@ export default async function UserProfilePage(props: {
 
               <div className="min-w-0">
                 <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-2">
-                  <h1 className="min-w-0 max-w-full break-words text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+                  <h1 className="min-w-0 max-w-full break-words font-[var(--font-space-grotesk)] text-3xl font-bold tracking-tight text-white sm:text-4xl">
                     {user.name ?? user.username}
                   </h1>
                   {user.profile?.verified ? (
@@ -228,9 +219,23 @@ export default async function UserProfilePage(props: {
                   ) : null}
                 </div>
 
+                <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+                  <ProfileStatLink href={`/u/${user.username}/followers`} label="followers" value={user?._count?.followers ?? 0} />
+                  <span className="text-white/18">/</span>
+                  <ProfileStatLink href={`/u/${user.username}/following`} label="following" value={user?._count?.following ?? 0} />
+                  <span className="text-white/18">/</span>
+                  <Link
+                    href={`/u/${user.username}?tab=reviews`}
+                    className="group inline-flex items-baseline gap-1.5 rounded-md px-1 py-1 transition-colors hover:text-amber-200"
+                  >
+                    <span className="text-sm font-semibold leading-none text-white group-hover:text-amber-200">{rating}</span>
+                    <span className="text-sm text-white/50 group-hover:text-white/70">rating</span>
+                  </Link>
+                </div>
+
                 {user.profile?.bio ? (
-                  <div className="mt-4 max-w-3xl">
-                    <p className="break-words border-l-2 border-[rgba(var(--color-accent-2-rgb),0.46)] pl-4 text-[15px] font-medium leading-relaxed text-white/78 whitespace-pre-wrap">
+                  <div className="mt-5 max-w-3xl">
+                    <p className="break-words text-base font-medium leading-relaxed text-white/78 whitespace-pre-wrap">
                       {user.profile.bio}
                     </p>
                   </div>
@@ -259,28 +264,13 @@ export default async function UserProfilePage(props: {
                 </div>
               </div>
 
-              <div className="grid gap-2.5 sm:grid-cols-3 lg:grid-cols-1">
-                <ProfileStatLink href={`/u/${user.username}/followers`} label="Followers" value={user?._count?.followers ?? 0} />
-                <ProfileStatLink href={`/u/${user.username}/following`} label="Following" value={user?._count?.following ?? 0} />
-                <Link
-                  href={`/u/${user.username}?tab=reviews`}
-                  className="group rounded-lg border border-white/[0.08] bg-white/[0.035] px-3.5 py-3 transition-colors hover:border-amber-300/24 hover:bg-white/[0.055]"
-                >
-                  <span className="block text-base font-semibold leading-none text-white group-hover:text-amber-200">
-                    {rating}
-                  </span>
-                  <span className="mt-1 block text-[11px] font-medium uppercase tracking-[0.12em] text-white/42">
-                    Rating
-                  </span>
-                </Link>
-
-                {!isOwnProfile ? (
-                  <div className="sm:col-span-3 lg:col-span-1">
+              {!isOwnProfile ? (
+                <div className="flex flex-col gap-3 sm:col-span-2 lg:col-span-1 lg:min-w-48 lg:items-end">
+                  <div className="w-full lg:w-auto">
                     <FollowButton targetUserId={user.id} initialFollowing={initialFollowing} />
                   </div>
-                ) : null}
-              </div>
-            </div>
+                </div>
+              ) : null}
           </div>
           
           <ProfileLiveEvents />
