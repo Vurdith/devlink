@@ -205,11 +205,11 @@ export const ReviewsSection = memo(function ReviewsSection({
     );
   }
 
-  const filterTabs: Array<{ id: SentimentFilter; label: string; count: number; className?: string }> = [
+  const filterTabs: Array<{ id: SentimentFilter; label: string; count: number; className?: string; activeHalo?: string }> = [
     { id: "all", label: "All", count: reviews.length },
-    { id: "positive", label: "Positive", count: sentimentCounts.positive, className: "data-[active=true]:border-emerald-500/30 data-[active=true]:bg-emerald-500/16 data-[active=true]:text-emerald-300 hover:text-emerald-300" },
-    { id: "neutral", label: "Neutral", count: sentimentCounts.neutral, className: "data-[active=true]:border-amber-500/30 data-[active=true]:bg-amber-500/16 data-[active=true]:text-amber-300 hover:text-amber-300" },
-    { id: "negative", label: "Critical", count: sentimentCounts.negative, className: "data-[active=true]:border-rose-500/30 data-[active=true]:bg-rose-500/16 data-[active=true]:text-rose-300 hover:text-rose-300" },
+    { id: "positive", label: "Positive", count: sentimentCounts.positive, activeHalo: "accent-halo-emerald", className: "data-[active=true]:border-emerald-500/30 data-[active=true]:bg-emerald-500/16 data-[active=true]:text-emerald-300 hover:text-emerald-300" },
+    { id: "neutral", label: "Neutral", count: sentimentCounts.neutral, activeHalo: "accent-halo-amber", className: "data-[active=true]:border-amber-500/30 data-[active=true]:bg-amber-500/16 data-[active=true]:text-amber-300 hover:text-amber-300" },
+    { id: "negative", label: "Critical", count: sentimentCounts.negative, activeHalo: "accent-halo-rose", className: "data-[active=true]:border-rose-500/30 data-[active=true]:bg-rose-500/16 data-[active=true]:text-rose-300 hover:text-rose-300" },
   ];
 
   return (
@@ -269,6 +269,7 @@ export const ReviewsSection = memo(function ReviewsSection({
                       ? ui.active.cyanStrong
                       : "border-white/[0.10]"
                     : "border-transparent text-white/50 hover:border-white/[0.08] hover:bg-white/[0.045] hover:text-white/80",
+                  active && tab.activeHalo,
                   tab.className
                 )}
               >
