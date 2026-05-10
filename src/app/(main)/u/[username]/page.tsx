@@ -5,7 +5,6 @@ import { FollowButton } from "@/components/ui/FollowButton";
 import { surface } from "@/components/ui/design-system";
 import Link from "next/link";
 import { getAuthSession } from "@/server/auth";
-import { AboutEditor } from "./AboutEditor";
 import { ProfileLiveEvents } from "./ProfileLiveEvents";
 import { ProfileTabs } from "./ProfileTabs";
 import { ProfileBanner, ProfileAvatar } from "./ProfileMedia";
@@ -111,15 +110,6 @@ export default async function UserProfilePage(props: {
         />
         
         <div className="relative px-4 pb-6 sm:px-6 sm:pb-7 lg:px-8">
-          <AboutEditor
-            initialBio={user.profile?.bio}
-            initialLocation={user.profile?.location}
-            initialWebsite={user.profile?.website}
-            initialName={user.name}
-            username={user.username}
-            editable={isOwnProfile}
-          />
-
           <div className="grid min-w-0 gap-5 border-b border-white/[0.06] pb-6 sm:grid-cols-[auto_minmax(0,1fr)] sm:gap-6 lg:grid-cols-[auto_minmax(0,1fr)_minmax(190px,auto)] lg:items-start">
             <div className="-mt-14 sm:-mt-16">
               <ProfileAvatar
@@ -182,6 +172,19 @@ export default async function UserProfilePage(props: {
             </div>
 
             <div className="grid min-w-0 gap-3 sm:col-span-2 sm:grid-cols-3 lg:col-span-1 lg:w-56 lg:grid-cols-1">
+              {isOwnProfile ? (
+                <Link
+                  href="/profile-hub"
+                  className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-white/[0.10] bg-white/[0.025] px-3 text-sm font-semibold text-white transition-colors hover:border-[rgba(var(--color-accent-2-rgb),0.34)] hover:bg-white/[0.05]"
+                  aria-label="Edit profile"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="text-[var(--color-accent-2)]" aria-hidden="true">
+                    <path d="M12 20h9" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                    <path d="M16.5 3.5 20.5 7.5 8 20H4v-4L16.5 3.5Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  Edit profile
+                </Link>
+              ) : null}
               <ProfileStatLink href={`/u/${user.username}/followers`} label="followers" value={user?._count?.followers ?? 0} />
               <ProfileStatLink href={`/u/${user.username}/following`} label="following" value={user?._count?.following ?? 0} />
               <Link
