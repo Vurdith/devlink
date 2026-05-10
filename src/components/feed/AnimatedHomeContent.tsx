@@ -1,12 +1,12 @@
 "use client";
-import { memo, useState, useEffect, useCallback } from "react";
+import { memo } from "react";
 import { CreatePost } from "./CreatePost";
 import { PostFeed } from "./PostFeed";
 import { ThemeLogoImg } from "@/components/ui/ThemeLogo";
 import { cn } from "@/lib/cn";
 import { iconBox, surface } from "@/components/ui/design-system";
 import type { FeedPost } from "@/types/post";
-import { withPostCount } from "./post-engagement-utils";
+import { useHomeFeedPosts } from "./useHomeFeedPosts";
 
 interface UserProfile {
   id: string;
@@ -76,115 +76,10 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
   currentUserProfile,
   postsWithViewCounts
 }: AnimatedHomeContentProps) {
-  // Manage posts state locally so we can update on engagement changes
-  const [feedPosts, setFeedPosts] = useState<FeedPost[]>(postsWithViewCounts || []);
-  // Track when we last made a local update to avoid server overwriting optimistic state
-  const [lastLocalUpdate, setLastLocalUpdate] = useState(0);
-  // Track if we've fetched fresh engagement state
-  const [engagementFetched, setEngagementFetched] = useState(false);
-
-  // Update posts when new data comes from server
-  // BUT don't overwrite if we just made a local update (prevents reverting optimistic state)
-  useEffect(() => {
-    const timeSinceLastUpdate = Date.now() - lastLocalUpdate;
-    // Only sync from server if it's been more than 2 seconds since last local update
-    if (timeSinceLastUpdate > 2000) {
-      setFeedPosts(postsWithViewCounts || []);
-      setEngagementFetched(false); // Need to re-fetch engagement for new posts
-    }
-  }, [postsWithViewCounts, lastLocalUpdate]);
-
-  // Fetch fresh engagement state client-side after mount
-  // This allows the page to be cached while still showing accurate engagement
-  useEffect(() => {
-    if (!session?.user?.id || engagementFetched || feedPosts.length === 0) return;
-
-    const fetchEngagement = async () => {
-      try {
-        const postIds = feedPosts.map(p => p.id);
-        const response = await fetch('/api/posts/engagement', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ postIds })
-        });
-
-        if (!response.ok) return;
-
-        const { engagement } = await response.json();
-        if (!engagement) return;
-
-        // Update posts with fresh engagement state
-        setFeedPosts(prevPosts => prevPosts.map(post => {
-          const postEngagement = engagement[post.id];
-          if (!postEngagement) return post;
-
-          return {
-            ...post,
-            isLiked: postEngagement.isLiked,
-            isReposted: postEngagement.isReposted,
-            isSaved: postEngagement.isSaved
-          };
-        }));
-
-        setEngagementFetched(true);
-      } catch (error) {
-        console.error('Failed to fetch engagement:', error);
-      }
-    };
-
-    // Small delay to not block initial render
-    const timeoutId = setTimeout(fetchEngagement, 100);
-    return () => clearTimeout(timeoutId);
-  }, [session?.user?.id, engagementFetched, feedPosts]);
-
-  // Listen for engagement updates and update posts immediately
-  useEffect(() => {
-    const handleEngagementUpdate = (event: CustomEvent) => {
-      const { post, action, liked, likeCount, reposted, repostCount, saved } = event.detail;
-
-      // Mark that we're making a local update
-      setLastLocalUpdate(Date.now());
-
-      setFeedPosts(prevPosts => prevPosts.map(p => {
-        if (p.id !== post.id) return p;
-
-        // Update the specific engagement state
-        const updates: Partial<FeedPost> = {};
-        if (action === 'like' && liked !== undefined) {
-          updates.isLiked = liked;
-        }
-        if (action === 'repost' && reposted !== undefined) {
-          updates.isReposted = reposted;
-        }
-        if (action === 'save' && saved !== undefined) {
-          updates.isSaved = saved;
-        }
-
-        const updatedPost = { ...p, ...updates };
-
-        if (action === 'like' && typeof likeCount === 'number') {
-          return withPostCount(updatedPost, "likes", likeCount);
-        }
-        if (action === 'repost' && typeof repostCount === 'number') {
-          return withPostCount(updatedPost, "reposts", repostCount);
-        }
-
-        return updatedPost;
-      }));
-    };
-
-    window.addEventListener('postEngagementUpdate', handleEngagementUpdate as EventListener);
-    return () => window.removeEventListener('postEngagementUpdate', handleEngagementUpdate as EventListener);
-  }, []);
-
-  // Handle post updates from child components
-  const handlePostUpdate = useCallback((updatedPostInput: unknown) => {
-    const updatedPost = updatedPostInput as FeedPost;
-    setLastLocalUpdate(Date.now());
-    setFeedPosts(prevPosts => prevPosts.map(p =>
-      p.id === updatedPost.id ? { ...p, ...updatedPost } : p
-    ));
-  }, []);
+  const { feedPosts, handlePostUpdate } = useHomeFeedPosts({
+    initialPosts: postsWithViewCounts,
+    userId: session?.user?.id,
+  });
 
   return (
     <>
@@ -270,15 +165,12 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
         </div>
       )}
 
-      {/* Create Post Section */}
       {session && currentUserProfile && (
         <div className="mb-12 animate-slide-up" style={{ animationDelay: "0.1s" }}>
           <div className="relative group">
-            {/* Animated glow background */}
             <div className="absolute -inset-1 bg-gradient-to-r from-[var(--color-accent)]/10 via-cyan-500/10 to-[var(--color-accent)]/10 rounded-3xl opacity-30 group-hover:opacity-50 transition-opacity duration-500 animate-glow-pulse"></div>
 
             <div className={surface("panel", "relative overflow-hidden p-6 transition-colors group-hover:border-white/[0.16]")}>
-              {/* Subtle shimmer effect */}
               <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
                 <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out bg-gradient-to-r from-transparent via-white/5 to-transparent skew-x-12" />
               </div>

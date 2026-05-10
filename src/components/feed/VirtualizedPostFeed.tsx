@@ -151,6 +151,7 @@ const VirtualPostItem = memo(function VirtualPostItem({
 
 export const VirtualizedPostFeed = memo(function VirtualizedPostFeed({ 
   posts, 
+  currentUserId,
   hidePinnedIndicator = false, 
   isLoading = false, 
   onUpdate,
@@ -160,7 +161,7 @@ export const VirtualizedPostFeed = memo(function VirtualizedPostFeed({
 }: VirtualizedPostFeedProps) {
   const loadMoreRef = useRef<HTMLDivElement>(null);
   const loadMorePendingRef = useRef(false);
-  const userId = session?.user?.id;
+  const userId = session?.user?.id ?? currentUserId;
   
   // Stable callback reference
   const handleUpdate = useCallback((updatedPost: FeedPost) => {

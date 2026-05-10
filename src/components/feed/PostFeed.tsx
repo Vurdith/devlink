@@ -26,16 +26,11 @@ interface PostFeedProps {
 }
 
 /**
- * PostFeed - Now powered by VirtualizedPostFeed
- * 
- * Uses the same virtualization technique as X, Facebook, Instagram:
- * - Only renders posts that are in/near the viewport
- * - Shows skeleton placeholders for off-screen posts
- * - Dramatically improves scroll performance on large feeds
- * - Supports infinite scroll with hasMore/onLoadMore
+ * Feed list wrapper for loading, empty, and virtualized post states.
  */
 export const PostFeed = memo(function PostFeed({ 
   posts, 
+  currentUserId,
   hidePinnedIndicator = false, 
   isLoading = false, 
   onUpdate,
@@ -70,6 +65,7 @@ export const PostFeed = memo(function PostFeed({
   return (
     <VirtualizedPostFeed
       posts={posts}
+      currentUserId={currentUserId}
       hidePinnedIndicator={hidePinnedIndicator}
       isLoading={isLoading}
       onUpdate={handleUpdate}
