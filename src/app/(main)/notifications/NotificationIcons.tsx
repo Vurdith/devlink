@@ -75,7 +75,7 @@ export function typeBadgeClasses(type: NotificationType) {
     case "REPOST":
       return "text-emerald-300 border-emerald-400/50";
     case "REPLY":
-      return "text-blue-300 border-blue-400/50";
+      return "text-[var(--color-accent-2)] border-[rgba(var(--color-accent-2-rgb),0.50)]";
     case "FOLLOW":
       return "text-violet-300 border-violet-400/50";
     case "MENTION":

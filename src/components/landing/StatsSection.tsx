@@ -87,7 +87,7 @@ export function StatsSection({ totalUsers, totalPosts, totalStudios }: StatsSect
                 {
                   label: "Posts",
                   value: totalPosts,
-                  tint: "rgba(34,211,238,0.14)",
+                  tint: "rgba(var(--color-accent-2-rgb),0.14)",
                   icon: (
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h8M8 11h8M8 15h6" />
@@ -98,7 +98,7 @@ export function StatsSection({ totalUsers, totalPosts, totalStudios }: StatsSect
                 {
                   label: "Studios",
                   value: totalStudios,
-                  tint: "rgba(244,114,182,0.14)",
+                  tint: "rgba(var(--color-accent-rgb),0.14)",
                   icon: (
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 21h18" />
@@ -167,7 +167,7 @@ export function StatsSection({ totalUsers, totalPosts, totalStudios }: StatsSect
                               ? "linear-gradient(180deg, rgba(var(--color-accent-rgb),0.75), rgba(var(--color-accent-rgb),0.15))"
                               : idx % 3 === 1
                                 ? "linear-gradient(180deg, rgba(var(--color-accent-2-rgb),0.65), rgba(var(--color-accent-2-rgb),0.12))"
-                                : "linear-gradient(180deg, rgba(244,114,182,0.60), rgba(244,114,182,0.12))",
+                                : "linear-gradient(180deg, rgba(var(--color-accent-3-rgb),0.60), rgba(var(--color-accent-3-rgb),0.12))",
                         }}
                       />
                     </div>

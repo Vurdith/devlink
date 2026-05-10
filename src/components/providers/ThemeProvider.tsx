@@ -1,7 +1,17 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState, useCallback, useMemo, ReactNode } from 'react';
-import { ThemeId, ThemeConfig, getTheme, generateThemeCSSVariables, DEFAULT_THEME, getLogoPath, getFaviconPath } from '@/lib/themes';
+import {
+  ThemeId,
+  ThemeConfig,
+  THEME_IDS,
+  isThemeId,
+  getTheme,
+  generateThemeCSSVariables,
+  DEFAULT_THEME,
+  getLogoPath,
+  getFaviconPath,
+} from '@/lib/themes';
 
 interface ThemeContextValue {
   theme: ThemeConfig;
@@ -17,8 +27,8 @@ const THEME_STORAGE_KEY = 'devlink-theme';
 
 function getStoredTheme(): ThemeId | null {
   try {
-    const stored = localStorage.getItem(THEME_STORAGE_KEY) as ThemeId | null;
-    return stored === 'purple' || stored === 'red' ? stored : null;
+    const stored = localStorage.getItem(THEME_STORAGE_KEY);
+    return isThemeId(stored) ? stored : null;
   } catch {
     return null;
   }
@@ -63,47 +73,69 @@ export function ThemeProvider({ children, defaultTheme = DEFAULT_THEME }: ThemeP
       root.style.setProperty(key, value);
     });
 
-    // Update all favicon-related links
     const faviconPath = getFaviconPath(themeId);
     const logoPath = getLogoPath(themeId);
-    
-    // Update shortcut icon
-    const shortcutIcon = document.querySelector('link[rel="shortcut icon"]') as HTMLLinkElement;
-    if (shortcutIcon) {
-      shortcutIcon.href = faviconPath;
-    }
-    
-    // Update all icon links (Next.js generates multiple)
-    const iconLinks = document.querySelectorAll('link[rel="icon"]');
-    iconLinks.forEach((link) => {
-      const htmlLink = link as HTMLLinkElement;
-      // For sized icons, use the favicon
-      if (htmlLink.sizes?.value) {
-        htmlLink.href = faviconPath;
-      } else {
-        // For generic icons, use logo
-        htmlLink.href = logoPath;
+
+    const ensureIconLink = (rel: string, href: string, type?: string) => {
+      const matches = Array.from(document.querySelectorAll<HTMLLinkElement>(`link[rel="${rel}"]`)).filter(
+        (link) => link.getAttribute('href') === href
+      );
+      const [first, ...duplicates] = matches;
+      duplicates.forEach((link) => link.remove());
+
+      if (first) {
+        if (type) first.type = type;
+        return;
       }
+
+      const link = document.createElement('link');
+      link.rel = rel;
+      link.href = href;
+      if (type) link.type = type;
+      document.head.appendChild(link);
+    };
+
+    const syncThemeIcons = () => {
+      // Next metadata can re-emit default icons after hydration. Replace any
+      // branded icon link so the active theme is the only DevLink icon set.
+      document.querySelectorAll<HTMLLinkElement>('link[rel*="icon"], link[href*="/favicon"], link[href*="/logo/logo"]').forEach((link) => {
+        const href = link.getAttribute('href') ?? '';
+        const isDevLinkIcon = href.includes('/favicon') || href.includes('/logo/logo');
+        const isActiveIcon = href === faviconPath || href === logoPath;
+        if (isDevLinkIcon && !isActiveIcon) {
+          link.remove();
+        }
+      });
+
+      ensureIconLink('icon', faviconPath, 'image/x-icon');
+      ensureIconLink('shortcut icon', faviconPath);
+      ensureIconLink('apple-touch-icon', logoPath);
+    };
+
+    const observer = new MutationObserver(() => {
+      window.requestAnimationFrame(syncThemeIcons);
+    });
+    observer.observe(document.head, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ['href'],
     });
 
-    // Update apple-touch-icon
-    const appleTouchIcon = document.querySelector('link[rel="apple-touch-icon"]') as HTMLLinkElement;
-    if (appleTouchIcon) {
-      appleTouchIcon.href = logoPath;
-    }
-    
-    // Also update the main favicon.ico reference if it exists
-    const mainFavicon = document.querySelector('link[href*="favicon"]') as HTMLLinkElement;
-    if (mainFavicon && mainFavicon.rel === 'icon') {
-      mainFavicon.href = faviconPath;
-    }
+    syncThemeIcons();
+    window.requestAnimationFrame(syncThemeIcons);
+    const iconSyncTimer = window.setTimeout(syncThemeIcons, 150);
 
     // Store in localStorage
     storeTheme(themeId);
 
     // Add theme class to body for Tailwind-based theming
-    document.body.classList.remove('theme-purple', 'theme-red');
+    document.body.classList.remove(...THEME_IDS.map((id) => `theme-${id}`));
     document.body.classList.add(`theme-${themeId}`);
+    return () => {
+      observer.disconnect();
+      window.clearTimeout(iconSyncTimer);
+    };
   }, [themeId, mounted]);
 
   const setTheme = useCallback((newThemeId: ThemeId) => {

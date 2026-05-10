@@ -140,12 +140,12 @@ export default function CompleteSignupPage() {
         <div className={surface("panel", "relative overflow-hidden p-6 sm:p-8")}>
           <div className="mb-6 p-4 rounded-lg bg-[rgba(var(--color-accent-2-rgb),0.1)] border border-[rgba(var(--color-accent-2-rgb),0.2)]">
             <div className="flex items-start gap-3">
-              <svg className="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 text-[var(--color-accent-2)] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               <div>
-                <p className="text-sm text-blue-300 font-medium">Optional but recommended</p>
-                <p className="text-xs text-blue-400/70 mt-1">
+                <p className="text-sm text-[var(--color-accent-2)] font-medium">Optional but recommended</p>
+                <p className="mt-1 text-xs text-[rgba(var(--color-accent-2-rgb),0.70)]">
                   Adding a password lets you log in even if your social account becomes unavailable.
                 </p>
               </div>

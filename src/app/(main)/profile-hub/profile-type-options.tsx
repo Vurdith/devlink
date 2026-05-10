@@ -9,9 +9,9 @@ export const profileTypes = [
         <polyline points="8,6 2,12 8,18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
     ),
-    gradient: "from-blue-500 to-cyan-500",
-    borderColor: "border-blue-500/50",
-    bgColor: "bg-blue-500/10",
+    gradient: "from-[var(--color-accent-3)] via-[var(--color-accent)] to-[var(--color-accent-2)]",
+    borderColor: "border-[rgba(var(--color-accent-2-rgb),0.42)]",
+    bgColor: "bg-[rgba(var(--color-accent-2-rgb),0.10)]",
   },
   {
     value: "CLIENT",
@@ -22,9 +22,9 @@ export const profileTypes = [
         <path d="M20 7h-4V3H8v4H4v14h16V7zM8 21V7h8v14H8z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
     ),
-    gradient: "from-emerald-500 to-green-500",
-    borderColor: "border-emerald-500/50",
-    bgColor: "bg-emerald-500/10",
+    gradient: "from-[var(--color-accent-3)] via-[var(--color-accent)] to-[var(--color-accent-2)]",
+    borderColor: "border-[rgba(var(--color-accent-2-rgb),0.42)]",
+    bgColor: "bg-[rgba(var(--color-accent-2-rgb),0.10)]",
   },
   {
     value: "STUDIO",
@@ -38,9 +38,9 @@ export const profileTypes = [
         <path d="M16 3.13a4 4 0 0 1 0 7.75" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
     ),
-    gradient: "from-purple-500 to-purple-600",
-    borderColor: "border-purple-500/50",
-    bgColor: "bg-purple-500/10",
+    gradient: "from-[var(--color-accent-3)] via-[var(--color-accent)] to-[var(--color-accent-2)]",
+    borderColor: "border-[rgba(var(--color-accent-2-rgb),0.42)]",
+    bgColor: "bg-[rgba(var(--color-accent-2-rgb),0.10)]",
   },
   {
     value: "INFLUENCER",
@@ -51,9 +51,9 @@ export const profileTypes = [
         <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
     ),
-    gradient: "from-rose-500 to-pink-500",
-    borderColor: "border-rose-500/50",
-    bgColor: "bg-rose-500/10",
+    gradient: "from-[var(--color-accent-3)] via-[var(--color-accent)] to-[var(--color-accent-2)]",
+    borderColor: "border-[rgba(var(--color-accent-2-rgb),0.42)]",
+    bgColor: "bg-[rgba(var(--color-accent-2-rgb),0.10)]",
   },
   {
     value: "INVESTOR",
@@ -65,9 +65,9 @@ export const profileTypes = [
         <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
     ),
-    gradient: "from-amber-500 to-yellow-500",
-    borderColor: "border-amber-500/50",
-    bgColor: "bg-amber-500/10",
+    gradient: "from-[var(--color-accent-3)] via-[var(--color-accent)] to-[var(--color-accent-2)]",
+    borderColor: "border-[rgba(var(--color-accent-2-rgb),0.42)]",
+    bgColor: "bg-[rgba(var(--color-accent-2-rgb),0.10)]",
   },
   {
     value: "GUEST",

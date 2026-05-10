@@ -156,7 +156,7 @@ export function AvailabilityBadge({
       </span>
 
       {showRate && hourlyRate && (
-        <span className="inline-flex items-center rounded-full border border-emerald-500/30 bg-emerald-500/15 px-2.5 py-1 text-xs text-emerald-400">
+        <span className="inline-flex items-center rounded-full border border-[rgba(var(--color-accent-2-rgb),0.30)] bg-[rgba(var(--color-accent-2-rgb),0.12)] px-2.5 py-1 text-xs text-[var(--color-accent-2)]">
           {formatHourlyRate(hourlyRate, currency)}
         </span>
       )}

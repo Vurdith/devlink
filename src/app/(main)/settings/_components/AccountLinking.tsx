@@ -180,7 +180,7 @@ export default function AccountLinking() {
       )}
 
       {notice && (
-        <div className="flex items-center gap-2 rounded-xl border border-emerald-400/20 bg-emerald-500/10 p-3 text-sm text-emerald-200 animate-fade-in" role="status">
+        <div className="flex items-center gap-2 rounded-xl border border-[rgba(var(--color-accent-2-rgb),0.20)] bg-[rgba(var(--color-accent-2-rgb),0.10)] p-3 text-sm text-[var(--color-accent-2)] animate-fade-in" role="status">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="shrink-0">
             <path d="M20 6 9 17l-5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
           </svg>

@@ -372,7 +372,7 @@ export const ReplyModal = memo(function ReplyModal({
               loading="lazy"
             />
           ) : (
-            <div className="w-full h-full bg-gradient-to-br from-[var(--color-accent)] to-pink-500 flex items-center justify-center text-white text-sm font-bold">
+            <div className="w-full h-full bg-gradient-to-br from-[var(--color-accent)] to-[var(--color-accent-2)] flex items-center justify-center text-white text-sm font-bold">
               {(post.user.name || post.user.username).charAt(0).toUpperCase()}
             </div>
           )}
@@ -387,7 +387,7 @@ export const ReplyModal = memo(function ReplyModal({
             {post.user.name || post.user.username}
           </span>
           {post.user.profile?.verified && (
-            <svg className="w-3.5 h-3.5 text-blue-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+            <svg className="w-3.5 h-3.5 text-[var(--color-accent-2)] flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
             </svg>
           )}
@@ -417,7 +417,7 @@ export const ReplyModal = memo(function ReplyModal({
             loading="lazy"
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-[var(--color-accent)] to-cyan-500 flex items-center justify-center text-white text-sm font-bold">
+          <div className="w-full h-full bg-gradient-to-br from-[var(--color-accent)] to-[var(--color-accent-2)] flex items-center justify-center text-white text-sm font-bold">
             {(currentUserProfile?.name || currentUserProfile?.username || "U").charAt(0).toUpperCase()}
           </div>
         )}
@@ -476,8 +476,8 @@ export const ReplyModal = memo(function ReplyModal({
           {showEmbedInput && (
             <div className={surface("panelMuted", "mt-3 space-y-3 p-3 animate-slide-down")}>
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-cyan-500/20 rounded-lg">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-cyan-400">
+                <div className="p-2 bg-[rgba(var(--color-accent-2-rgb),0.18)] rounded-lg">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-[var(--color-accent-2)]">
                     <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
                     <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
                   </svg>
@@ -499,8 +499,8 @@ export const ReplyModal = memo(function ReplyModal({
               {embedUrls.length > 0 && (
                 <div className="flex flex-wrap gap-2">
                   {embedUrls.map((u, i) => (
-                    <span key={i} className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-cyan-500/30 bg-cyan-500/10 text-sm">
-                      <a href={u} target="_blank" rel="noreferrer" className="text-cyan-400 hover:underline truncate max-w-[200px]">{u}</a>
+                    <span key={i} className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-[rgba(var(--color-accent-2-rgb),0.30)] bg-[rgba(var(--color-accent-2-rgb),0.10)] text-sm">
+                      <a href={u} target="_blank" rel="noreferrer" className="text-[var(--color-accent-2)] hover:underline truncate max-w-[200px]">{u}</a>
                       <Tooltip content="Remove link">
                         <button type="button" onClick={() => removeEmbedUrl(i)} className="text-[var(--muted-foreground)] transition-colors hover:text-white">x</button>
                       </Tooltip>

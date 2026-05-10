@@ -47,7 +47,7 @@ export function ChangeEmailPanel({
     >
       <div className="space-y-4">
         {!hasPassword ? (
-          <div className="rounded-xl border border-amber-400/25 bg-amber-500/10 p-4 text-sm text-amber-100">
+          <div className="rounded-xl border border-[rgba(var(--color-accent-2-rgb),0.25)] bg-[rgba(var(--color-accent-2-rgb),0.10)] p-4 text-sm text-[var(--color-accent-2)]">
             Set a password first, then return here to confirm sensitive email changes.
           </div>
         ) : null}

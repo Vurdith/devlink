@@ -38,7 +38,7 @@ export function Toast({ message, type = "success", duration = 3000, onClose }: T
         );
       default:
         return (
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="text-blue-400">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="text-[var(--color-accent-2)]">
             <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         );
@@ -48,11 +48,11 @@ export function Toast({ message, type = "success", duration = 3000, onClose }: T
   const getBgColor = () => {
     switch (type) {
       case "success":
-        return "bg-emerald-500/12 border-emerald-400/30";
+        return "bg-[rgba(var(--color-accent-2-rgb),0.12)] border-[rgba(var(--color-accent-2-rgb),0.30)]";
       case "error":
         return "bg-rose-500/12 border-rose-400/30";
       default:
-        return "bg-cyan-500/12 border-cyan-400/30";
+        return "bg-[rgba(var(--color-accent-2-rgb),0.12)] border-[rgba(var(--color-accent-2-rgb),0.30)]";
     }
   };
 

@@ -383,13 +383,13 @@ export default function SecuritySettings() {
           className="animate-slide-up"
           style={{ animationDelay: '0.05s' } as React.CSSProperties}
         >
-          <div className="mb-6 rounded-xl border border-blue-500/20 bg-blue-500/10 p-4">
+          <div className="mb-6 rounded-xl border border-[rgba(var(--color-accent-2-rgb),0.20)] bg-[rgba(var(--color-accent-2-rgb),0.10)] p-4">
             <div className="flex items-start gap-3">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-blue-400 mt-0.5 flex-shrink-0">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-[var(--color-accent-2)] mt-0.5 flex-shrink-0">
                 <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
                 <path d="M12 16v-4m0-4h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
               </svg>
-              <p className="text-sm text-blue-300">
+              <p className="text-sm text-[var(--color-accent-2)]">
                 You signed up with Google/GitHub. Set a password to also log in with your email address.
               </p>
             </div>

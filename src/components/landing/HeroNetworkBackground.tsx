@@ -152,7 +152,7 @@ export function HeroNetworkBackground() {
     return (
         <div className="fixed inset-0 z-0 overflow-hidden bg-[var(--color-background)] pointer-events-none">
             <canvas ref={canvasRef} className="absolute inset-0 h-full w-full opacity-40" />
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(34,211,238,0.08)_0%,rgba(7,9,13,0.34)_42%,var(--color-background)_100%)] opacity-90" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(var(--color-accent-2-rgb),0.08)_0%,rgba(7,9,13,0.34)_42%,var(--color-background)_100%)] opacity-90" />
             <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(7,9,13,0.12),var(--color-background)_96%)]" />
         </div>
     );

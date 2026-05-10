@@ -52,14 +52,14 @@ export function ExpandableSkillCard({
       className={cn(
         "group relative overflow-hidden bg-white/[0.012] transition-colors hover:bg-white/[0.03]",
         skill.isPrimary &&
-          "bg-[linear-gradient(135deg,rgba(251,191,36,0.075),rgba(12,16,23,0.36)_46%,rgba(12,16,23,0.16))]"
+          "bg-[linear-gradient(135deg,rgba(var(--color-accent-2-rgb),0.075),rgba(12,16,23,0.36)_46%,rgba(12,16,23,0.16))]"
       )}
     >
       <div
         aria-hidden="true"
         className={cn(
           "absolute left-0 top-0 h-full w-px bg-white/[0.08]",
-          skill.isPrimary && "bg-amber-300/35"
+          skill.isPrimary && "bg-[rgba(var(--color-accent-2-rgb),0.35)]"
         )}
       />
       <div className="p-5 sm:p-6">
@@ -102,7 +102,7 @@ export function ExpandableSkillCard({
                     skill.skillAvailability === "AVAILABLE"
                       ? "bg-emerald-400"
                       : skill.skillAvailability === "OPEN_TO_OFFERS"
-                        ? "bg-blue-400"
+                        ? "bg-[var(--color-accent-2)]"
                         : skill.skillAvailability === "BUSY"
                           ? "bg-amber-400"
                           : "bg-red-400"

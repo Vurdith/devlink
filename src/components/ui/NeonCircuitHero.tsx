@@ -39,9 +39,17 @@ export function NeonCircuitHero() {
       initParticles();
     };
     
-    const colors = ["#6366f1", "#8b5cf6", "#0ea5e9", "#ec4899"];
+    const readThemeColors = () => {
+      const style = getComputedStyle(document.documentElement);
+      return [
+        style.getPropertyValue("--color-accent").trim() || "#a855f7",
+        style.getPropertyValue("--color-accent-2").trim() || "#c084fc",
+        style.getPropertyValue("--color-accent-3").trim() || "#6b21a8",
+      ];
+    };
     
     const initParticles = () => {
+      const colors = readThemeColors();
       const particles: Particle[] = [];
       const count = Math.floor((width * height) / 8000);
       

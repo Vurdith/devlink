@@ -291,14 +291,14 @@ export function TwoFactorSetup({ onStatusChange }: TwoFactorSetupProps) {
           )}
 
           {setupStep === "recovery" && recoveryCodes.length > 0 && (
-            <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-6">
+            <div className="bg-[rgba(var(--color-accent-2-rgb),0.10)] border border-[rgba(var(--color-accent-2-rgb),0.20)] rounded-xl p-6">
               <div className="flex items-start gap-3 mb-4">
                 <svg
                   width="20"
                   height="20"
                   viewBox="0 0 24 24"
                   fill="none"
-                  className="text-amber-400 mt-0.5 flex-shrink-0"
+                  className="text-[var(--color-accent-2)] mt-0.5 flex-shrink-0"
                 >
                   <path
                     d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
@@ -309,10 +309,10 @@ export function TwoFactorSetup({ onStatusChange }: TwoFactorSetupProps) {
                   />
                 </svg>
                 <div>
-                  <p className="text-sm text-amber-400 font-medium">
+                  <p className="text-sm text-[var(--color-accent-2)] font-medium">
                     Save your recovery codes!
                   </p>
-                  <p className="text-xs text-amber-400/70 mt-1">
+                  <p className="mt-1 text-xs text-[rgba(var(--color-accent-2-rgb),0.70)]">
                     These codes can be used to access your account if you lose your authenticator device.
                   </p>
                 </div>
@@ -398,13 +398,13 @@ export function TwoFactorSetup({ onStatusChange }: TwoFactorSetupProps) {
         </div>
       ) : isEnabled ? (
         <div className="space-y-4">
-          <div className="flex items-center gap-3 p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
+          <div className="flex items-center gap-3 rounded-xl border border-[rgba(var(--color-accent-2-rgb),0.20)] bg-[rgba(var(--color-accent-2-rgb),0.10)] p-4">
             <svg
               width="20"
               height="20"
               viewBox="0 0 24 24"
               fill="none"
-              className="text-emerald-400 flex-shrink-0"
+              className="text-[var(--color-accent-2)] flex-shrink-0"
             >
               <path
                 d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
@@ -415,10 +415,10 @@ export function TwoFactorSetup({ onStatusChange }: TwoFactorSetupProps) {
               />
             </svg>
             <div>
-              <p className="text-sm text-emerald-400 font-medium">
+              <p className="text-sm text-[var(--color-accent-2)] font-medium">
                 Two-factor authentication is enabled
               </p>
-              <p className="text-xs text-emerald-400/70">
+              <p className="text-xs text-[rgba(var(--color-accent-2-rgb),0.70)]">
                 Your account is protected with an authenticator app
               </p>
             </div>
@@ -426,7 +426,7 @@ export function TwoFactorSetup({ onStatusChange }: TwoFactorSetupProps) {
           <Button
             onClick={() => setShowDisable(true)}
             variant="secondary"
-            className="w-full border-amber-500/30 hover:bg-amber-500/10 text-amber-400"
+            className="w-full border-[rgba(var(--color-accent-2-rgb),0.30)] hover:bg-[rgba(var(--color-accent-2-rgb),0.10)] text-[var(--color-accent-2)]"
           >
             Disable 2FA
           </Button>

@@ -76,7 +76,7 @@ function LoginForm() {
 
   return (
     <main className="min-h-screen flex items-center justify-center px-4 py-14 -my-6">
-      <div className="fixed inset-0 pointer-events-none bg-[radial-gradient(circle_at_50%_18%,rgba(34,211,238,0.08),transparent_34%),linear-gradient(180deg,rgba(255,255,255,0.02),transparent_42%)]" />
+      <div className="fixed inset-0 pointer-events-none bg-[radial-gradient(circle_at_50%_18%,rgba(var(--color-accent-2-rgb),0.08),transparent_34%),linear-gradient(180deg,rgba(255,255,255,0.02),transparent_42%)]" />
 
       <div className="relative w-full max-w-md animate-fade-in">
         {/* Header */}
@@ -173,7 +173,7 @@ function LoginForm() {
 
             {/* Success message */}
             {successMessage && (
-              <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm flex items-center gap-2 animate-fade-in">
+              <div className="p-3 rounded-xl bg-[rgba(var(--color-accent-2-rgb),0.10)] border border-[rgba(var(--color-accent-2-rgb),0.20)] text-[var(--color-accent-2)] text-sm flex items-center gap-2 animate-fade-in">
                 <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
@@ -255,7 +255,7 @@ function LoginForm() {
 function LoginSkeleton() {
   return (
     <main className="min-h-screen flex items-center justify-center px-4 py-14 -my-6">
-      <div className="fixed inset-0 pointer-events-none bg-[radial-gradient(circle_at_50%_18%,rgba(34,211,238,0.08),transparent_34%),linear-gradient(180deg,rgba(255,255,255,0.02),transparent_42%)]" />
+      <div className="fixed inset-0 pointer-events-none bg-[radial-gradient(circle_at_50%_18%,rgba(var(--color-accent-2-rgb),0.08),transparent_34%),linear-gradient(180deg,rgba(255,255,255,0.02),transparent_42%)]" />
       <div className="relative w-full max-w-md">
         <div className="text-center mb-8">
           <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-white/10 animate-pulse" />

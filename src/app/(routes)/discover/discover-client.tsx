@@ -167,7 +167,7 @@ function DiscoverUserRow({
                 </div>
               )}
               {user.profile?.verified && (
-                <span className="absolute -bottom-0.5 -right-0.5 grid h-5 w-5 place-items-center rounded-full border-2 border-[var(--background)] bg-blue-500">
+                <span className="absolute -bottom-0.5 -right-0.5 grid h-5 w-5 place-items-center rounded-full border-2 border-[var(--background)] bg-[var(--color-accent-2)]">
                   <svg className="h-3 w-3" viewBox="0 0 24 24" fill="white" aria-hidden="true">
                     <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
                   </svg>

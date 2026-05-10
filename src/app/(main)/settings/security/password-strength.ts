@@ -1,11 +1,11 @@
 export const strengthLabels = ["Very Weak", "Weak", "Fair", "Good", "Strong"] as const;
 
 export const strengthColors = [
-  "bg-[var(--color-accent)]",
-  "bg-orange-500",
-  "bg-yellow-500",
-  "bg-lime-500",
-  "bg-emerald-500",
+  "bg-[rgba(var(--color-accent-rgb),0.36)]",
+  "bg-[rgba(var(--color-accent-rgb),0.52)]",
+  "bg-[rgba(var(--color-accent-rgb),0.68)]",
+  "bg-[rgba(var(--color-accent-2-rgb),0.78)]",
+  "bg-[var(--color-accent-2)]",
 ] as const;
 
 export function getPasswordStrength(password: string) {

@@ -12,12 +12,12 @@ export function CTASection({ isLoggedIn }: { isLoggedIn: boolean }) {
           className={surface("panel", "relative overflow-hidden")}
           style={{
             background:
-              "linear-gradient(135deg, rgba(34,211,238,0.08) 0%, rgba(10,13,18,0.97) 38%, rgba(10,13,18,0.97) 66%, rgba(139,92,246,0.07) 100%)",
+              "linear-gradient(135deg, rgba(var(--color-accent-2-rgb),0.08) 0%, rgba(10,13,18,0.97) 38%, rgba(10,13,18,0.97) 66%, rgba(var(--color-accent-rgb),0.07) 100%)",
             border: "1px solid rgba(255,255,255,0.09)",
           }}
         >
           <div className="absolute top-0 left-[20%] right-[20%] h-px" style={{
-            background: "linear-gradient(90deg, transparent, rgba(34,211,238,0.62), rgba(139,92,246,0.45), transparent)",
+            background: "linear-gradient(90deg, transparent, rgba(var(--color-accent-2-rgb),0.62), rgba(var(--color-accent-rgb),0.45), transparent)",
           }} />
 
           {/* Layout */}
@@ -47,7 +47,7 @@ export function CTASection({ isLoggedIn }: { isLoggedIn: boolean }) {
                 className="absolute -inset-px rounded-xl pointer-events-none"
                 style={{
                   background:
-                    "linear-gradient(135deg, rgba(34,211,238,0.24) 0%, rgba(139,92,246,0.16) 50%, transparent 80%)",
+                    "linear-gradient(135deg, rgba(var(--color-accent-2-rgb),0.24) 0%, rgba(var(--color-accent-rgb),0.16) 50%, transparent 80%)",
                 }}
               />
               <div className={surface("panelMuted", "relative p-6 sm:p-8")}>

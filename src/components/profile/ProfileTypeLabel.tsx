@@ -31,7 +31,7 @@ export function ProfileTypeLabel({
   return (
     <span
       className={cn(
-        "inline-flex max-w-full flex-shrink-0 items-center gap-1.5 whitespace-nowrap border border-white/[0.09] bg-white/[0.035] font-bold uppercase tracking-[0.13em] text-white/70",
+        "inline-flex max-w-full flex-shrink-0 items-center gap-1.5 whitespace-nowrap border border-[rgba(var(--color-accent-2-rgb),0.22)] bg-[rgba(var(--color-accent-2-rgb),0.08)] font-bold uppercase tracking-[0.13em] text-[var(--color-accent-2)]",
         variantClasses[variant],
         className
       )}

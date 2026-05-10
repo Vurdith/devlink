@@ -12,7 +12,7 @@ export function PrimaryButton({ children, className, ...props }: ButtonProps) {
   return (
     <button
       className={cn(
-        "group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-xl border border-[rgba(var(--color-accent-2-rgb),0.34)] bg-[linear-gradient(135deg,var(--color-accent),#6d5dfc_56%,rgba(var(--color-accent-2-rgb),0.92))] px-6 py-3 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:border-[rgba(var(--color-accent-2-rgb),0.50)] hover:brightness-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.68)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)] active:translate-y-0 active:scale-[0.98]",
+        "group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-xl border border-[rgba(var(--color-accent-2-rgb),0.34)] bg-[linear-gradient(135deg,var(--color-accent-3),var(--color-accent)_56%,rgba(var(--color-accent-2-rgb),0.92))] px-6 py-3 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:border-[rgba(var(--color-accent-2-rgb),0.50)] hover:brightness-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.68)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)] active:translate-y-0 active:scale-[0.98]",
         className
       )}
       {...props}

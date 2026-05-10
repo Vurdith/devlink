@@ -165,7 +165,7 @@ export default function RegisterPage() {
     }
     if (usernameStatus === "available") {
       return (
-        <div className="absolute right-3 top-1/2 -translate-y-1/2 text-emerald-400">
+        <div className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--color-accent-2)]">
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
@@ -193,7 +193,7 @@ export default function RegisterPage() {
 
   return (
     <main className="min-h-screen flex items-center justify-center px-4 py-14 -my-6">
-      <div className="fixed inset-0 pointer-events-none bg-[radial-gradient(circle_at_50%_18%,rgba(34,211,238,0.08),transparent_34%),linear-gradient(180deg,rgba(255,255,255,0.02),transparent_42%)]" />
+      <div className="fixed inset-0 pointer-events-none bg-[radial-gradient(circle_at_50%_18%,rgba(var(--color-accent-2-rgb),0.08),transparent_34%),linear-gradient(180deg,rgba(255,255,255,0.02),transparent_42%)]" />
 
       <div className="relative w-full max-w-md animate-fade-in">
         {/* Header */}
@@ -235,7 +235,7 @@ export default function RegisterPage() {
                   placeholder="cooldev123"
                   className={cn(authInputWithBothIconsClass,
                     usernameStatus === "available" 
-                      ? "border-emerald-500/50 focus:border-emerald-500" 
+                      ? "border-[rgba(var(--color-accent-2-rgb),0.50)] focus:border-[var(--color-accent-2)]" 
                       : usernameStatus === "unavailable" && username.trim()
                         ? "border-[var(--color-accent)]/50 focus:border-[var(--color-accent)]"
                         : ""
@@ -257,7 +257,7 @@ export default function RegisterPage() {
                 </p>
               )}
               {usernameStatus === "available" && (
-                <p id="username-success" className="mt-1.5 text-xs text-emerald-400 flex items-center gap-1">
+                <p id="username-success" className="mt-1.5 text-xs text-[var(--color-accent-2)] flex items-center gap-1">
                   <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
@@ -372,7 +372,7 @@ export default function RegisterPage() {
                             key={req.key}
                             role="listitem"
                             className={`flex items-center gap-1.5 transition-colors ${
-                              passed ? "text-emerald-400" : "text-[var(--muted-foreground)]"
+                              passed ? "text-[var(--color-accent-2)]" : "text-[var(--muted-foreground)]"
                             }`}
                           >
                             {passed ? (
@@ -413,7 +413,7 @@ export default function RegisterPage() {
                     confirmPassword && !passwordsMatch
                       ? "border-[var(--color-accent)]/50 focus:border-[var(--color-accent)]"
                       : confirmPassword && passwordsMatch
-                        ? "border-emerald-500/50 focus:border-emerald-500"
+                        ? "border-[rgba(var(--color-accent-2-rgb),0.50)] focus:border-[var(--color-accent-2)]"
                         : ""
                   )}
                   value={confirmPassword}
@@ -423,7 +423,7 @@ export default function RegisterPage() {
                   aria-invalid={confirmPassword ? !passwordsMatch : undefined}
                 />
                 {confirmPassword && (
-                  <div className={`absolute right-3 top-1/2 -translate-y-1/2 ${passwordsMatch ? "text-emerald-400" : "text-[var(--color-accent)]"}`} aria-hidden="true">
+                  <div className={`absolute right-3 top-1/2 -translate-y-1/2 ${passwordsMatch ? "text-[var(--color-accent-2)]" : "text-[var(--color-accent)]"}`} aria-hidden="true">
                     {passwordsMatch ? (
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />

@@ -148,7 +148,7 @@ function ResetPasswordContent() {
 
           {requestSent ? (
             <div className="text-center">
-              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl border border-emerald-500/25 bg-emerald-500/10 text-emerald-300">
+              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl border border-[rgba(var(--color-accent-2-rgb),0.25)] bg-[rgba(var(--color-accent-2-rgb),0.10)] text-[var(--color-accent-2)]">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                   <path d="M20 6 9 17l-5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
@@ -230,8 +230,8 @@ function ResetPasswordContent() {
         <div className={surface("panel", "noise-overlay relative overflow-hidden p-6")}>
           <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.40)] to-transparent" />
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-blue-500/30 bg-gradient-to-br from-blue-500/20 to-[var(--color-accent)]/20">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-blue-300" aria-hidden="true">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-[rgba(var(--color-accent-2-rgb),0.30)] bg-gradient-to-br from-[rgba(var(--color-accent-rgb),0.16)] to-[rgba(var(--color-accent-rgb),0.20)]">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-[var(--color-accent-2)]" aria-hidden="true">
                 <rect x="3" y="11" width="18" height="11" rx="2" ry="2" stroke="currentColor" strokeWidth="2" />
                 <circle cx="12" cy="16" r="1" fill="currentColor" />
                 <path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="currentColor" strokeWidth="2" />
@@ -247,16 +247,16 @@ function ResetPasswordContent() {
 
       <form onSubmit={handleConfirmSubmit} className={surface("panel", "noise-overlay relative overflow-hidden space-y-4 p-6")}>
         {linkError && (
-          <div role="alert" className="rounded-xl border border-amber-400/20 bg-amber-400/10 p-4">
+          <div role="alert" className="rounded-xl border border-[rgba(var(--color-accent-2-rgb),0.20)] bg-[rgba(var(--color-accent-2-rgb),0.10)] p-4">
             <div className="flex gap-3">
-              <div className="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg border border-amber-300/20 bg-amber-400/10 text-amber-200">
+              <div className="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg border border-[rgba(var(--color-accent-2-rgb),0.22)] bg-[rgba(var(--color-accent-2-rgb),0.10)] text-[var(--color-accent-2)]">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                   <path d="M12 9v4m0 4h.01M10.3 4.2 2.8 17a2 2 0 0 0 1.7 3h15a2 2 0 0 0 1.7-3L13.7 4.2a2 2 0 0 0-3.4 0Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </div>
               <div className="min-w-0">
-                <p className="text-sm font-medium text-amber-100">This reset link did not work</p>
-                <p className="mt-1 text-sm leading-6 text-amber-100/75">
+                <p className="text-sm font-medium text-[var(--color-accent-2)]">This reset link did not work</p>
+                <p className="mt-1 text-sm leading-6 text-[rgba(var(--color-accent-2-rgb),0.75)]">
                   {linkError} Request a new link and use the latest email from DevLink.
                 </p>
               </div>
@@ -306,7 +306,7 @@ function ResetPasswordContent() {
                 {PASSWORD_REQUIREMENTS.map((requirement) => {
                   const passed = requirement.test(formData.newPassword);
                   return (
-                    <span key={requirement.key} className={cn("flex items-center gap-1.5", passed ? "text-emerald-400" : "text-[var(--muted-foreground)]")}>
+                    <span key={requirement.key} className={cn("flex items-center gap-1.5", passed ? "text-[var(--color-accent-2)]" : "text-[var(--muted-foreground)]")}>
                       <span aria-hidden="true">{passed ? "OK" : "-"}</span>
                       {requirement.label}
                     </span>

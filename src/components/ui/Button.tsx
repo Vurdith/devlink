@@ -58,7 +58,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       gradient: cn(
         "text-white border border-[rgba(var(--color-accent-rgb),0.36)]",
         "hover:border-[rgba(var(--color-accent-2-rgb),0.48)] hover:brightness-110",
-        "bg-[linear-gradient(135deg,var(--color-accent),#6d5dfc_58%,rgba(var(--color-accent-2-rgb),0.92))]"
+        "bg-[linear-gradient(135deg,var(--color-accent-3),var(--color-accent)_58%,rgba(var(--color-accent-2-rgb),0.92))]"
       ),
       outline: cn(
         "bg-transparent text-white",

@@ -174,8 +174,8 @@ export default async function UserProfilePage(props: {
                     {user.name ?? user.username}
                   </h1>
                   {user.profile?.verified ? (
-                    <span className="inline-flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full border border-blue-400/40 bg-blue-500/22" aria-label="Verified profile">
-                      <svg className="h-3.5 w-3.5 text-blue-300" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <span className="inline-flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full border border-[rgba(var(--color-accent-2-rgb),0.40)] bg-[rgba(var(--color-accent-2-rgb),0.16)]" aria-label="Verified profile">
+                      <svg className="h-3.5 w-3.5 text-[var(--color-accent-2)]" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                         <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
                       </svg>
                     </span>

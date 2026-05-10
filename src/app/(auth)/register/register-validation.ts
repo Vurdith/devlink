@@ -29,8 +29,8 @@ export function getPasswordStrength(password: string) {
 
 export function getStrengthColor(passwordStrength: number) {
   if (passwordStrength === 0) return "bg-gray-600";
-  if (passwordStrength === 1) return "bg-[var(--color-accent)]";
-  if (passwordStrength === 2) return "bg-orange-500";
-  if (passwordStrength === 3) return "bg-yellow-500";
-  return "bg-emerald-500";
+  if (passwordStrength === 1) return "bg-[rgba(var(--color-accent-rgb),0.42)]";
+  if (passwordStrength === 2) return "bg-[rgba(var(--color-accent-rgb),0.62)]";
+  if (passwordStrength === 3) return "bg-[rgba(var(--color-accent-2-rgb),0.72)]";
+  return "bg-[var(--color-accent-2)]";
 }

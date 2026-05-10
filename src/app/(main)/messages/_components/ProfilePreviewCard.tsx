@@ -26,20 +26,20 @@ export type ProfilePreviewUser = {
 };
 
 const PROFILE_GRADIENTS: Record<string, string> = {
-  DEVELOPER: "from-blue-500/20 via-blue-400/10 to-cyan-500/20",
-  CLIENT: "from-emerald-500/20 via-green-400/10 to-teal-500/20",
-  STUDIO: "from-purple-500/20 via-fuchsia-400/10 to-indigo-500/20",
-  INFLUENCER: "from-rose-500/20 via-pink-400/10 to-[var(--color-accent)]/20",
-  INVESTOR: "from-amber-500/20 via-yellow-400/10 to-orange-500/20",
+  DEVELOPER: "from-[rgba(var(--color-accent-rgb),0.18)] via-[rgba(var(--color-accent-2-rgb),0.10)] to-[rgba(var(--color-accent-3-rgb),0.18)]",
+  CLIENT: "from-[rgba(var(--color-accent-rgb),0.18)] via-[rgba(var(--color-accent-2-rgb),0.10)] to-[rgba(var(--color-accent-3-rgb),0.18)]",
+  STUDIO: "from-[rgba(var(--color-accent-rgb),0.18)] via-[rgba(var(--color-accent-2-rgb),0.10)] to-[rgba(var(--color-accent-3-rgb),0.18)]",
+  INFLUENCER: "from-[rgba(var(--color-accent-rgb),0.18)] via-[rgba(var(--color-accent-2-rgb),0.10)] to-[rgba(var(--color-accent-3-rgb),0.18)]",
+  INVESTOR: "from-[rgba(var(--color-accent-rgb),0.18)] via-[rgba(var(--color-accent-2-rgb),0.10)] to-[rgba(var(--color-accent-3-rgb),0.18)]",
   DEFAULT: "from-slate-500/20 via-gray-400/10 to-zinc-500/20",
 };
 
 const PROFILE_BORDERS: Record<string, string> = {
-  DEVELOPER: "border-blue-500/40",
-  CLIENT: "border-emerald-500/40",
-  STUDIO: "border-purple-500/40",
-  INFLUENCER: "border-rose-500/40",
-  INVESTOR: "border-amber-500/40",
+  DEVELOPER: "border-[rgba(var(--color-accent-2-rgb),0.40)]",
+  CLIENT: "border-[rgba(var(--color-accent-2-rgb),0.40)]",
+  STUDIO: "border-[rgba(var(--color-accent-2-rgb),0.40)]",
+  INFLUENCER: "border-[rgba(var(--color-accent-2-rgb),0.40)]",
+  INVESTOR: "border-[rgba(var(--color-accent-2-rgb),0.40)]",
   DEFAULT: "border-white/20",
 };
 
@@ -192,8 +192,8 @@ export function ProfilePreviewCard({
                 </span>
                 {fullUser.profile?.verified && (
                   <div className="flex-shrink-0 relative">
-                    <div className="absolute inset-0 bg-blue-400/50 rounded-full" />
-                    <svg className="relative w-4 h-4 text-blue-400" viewBox="0 0 24 24" fill="currentColor">
+                    <div className="absolute inset-0 bg-[rgba(var(--color-accent-2-rgb),0.50)] rounded-full" />
+                    <svg className="relative w-4 h-4 text-[var(--color-accent-2)]" viewBox="0 0 24 24" fill="currentColor">
                       <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </div>

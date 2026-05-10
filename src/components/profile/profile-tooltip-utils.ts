@@ -1,27 +1,27 @@
 export const PROFILE_GRADIENTS: Record<string, string> = {
-  DEVELOPER: "from-blue-500/20 via-blue-400/10 to-cyan-500/20",
-  CLIENT: "from-emerald-500/20 via-green-400/10 to-teal-500/20",
-  STUDIO: "from-purple-500/20 via-fuchsia-400/10 to-indigo-500/20",
-  INFLUENCER: "from-rose-500/20 via-pink-400/10 to-[var(--color-accent)]/20",
-  INVESTOR: "from-amber-500/20 via-yellow-400/10 to-orange-500/20",
+  DEVELOPER: "from-[rgba(var(--color-accent-rgb),0.18)] via-[rgba(var(--color-accent-2-rgb),0.10)] to-[rgba(var(--color-accent-3-rgb),0.18)]",
+  CLIENT: "from-[rgba(var(--color-accent-rgb),0.18)] via-[rgba(var(--color-accent-2-rgb),0.10)] to-[rgba(var(--color-accent-3-rgb),0.18)]",
+  STUDIO: "from-[rgba(var(--color-accent-rgb),0.18)] via-[rgba(var(--color-accent-2-rgb),0.10)] to-[rgba(var(--color-accent-3-rgb),0.18)]",
+  INFLUENCER: "from-[rgba(var(--color-accent-rgb),0.18)] via-[rgba(var(--color-accent-2-rgb),0.10)] to-[rgba(var(--color-accent-3-rgb),0.18)]",
+  INVESTOR: "from-[rgba(var(--color-accent-rgb),0.18)] via-[rgba(var(--color-accent-2-rgb),0.10)] to-[rgba(var(--color-accent-3-rgb),0.18)]",
   DEFAULT: "from-slate-500/20 via-gray-400/10 to-zinc-500/20",
 };
 
 export const PROFILE_BORDERS: Record<string, string> = {
-  DEVELOPER: "border-blue-500/40",
-  CLIENT: "border-emerald-500/40",
-  STUDIO: "border-purple-500/40",
-  INFLUENCER: "border-rose-500/40",
-  INVESTOR: "border-amber-500/40",
+  DEVELOPER: "border-[rgba(var(--color-accent-2-rgb),0.40)]",
+  CLIENT: "border-[rgba(var(--color-accent-2-rgb),0.40)]",
+  STUDIO: "border-[rgba(var(--color-accent-2-rgb),0.40)]",
+  INFLUENCER: "border-[rgba(var(--color-accent-2-rgb),0.40)]",
+  INVESTOR: "border-[rgba(var(--color-accent-2-rgb),0.40)]",
   DEFAULT: "border-white/20",
 };
 
 export const BADGE_CLASSES: Record<string, string> = {
-  DEVELOPER: "bg-blue-500/15 text-blue-300 border-blue-500/30",
-  CLIENT: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30",
-  STUDIO: "bg-purple-500/15 text-purple-300 border-purple-500/30",
-  INFLUENCER: "bg-rose-500/15 text-rose-300 border-rose-500/30",
-  INVESTOR: "bg-amber-500/15 text-amber-300 border-amber-500/30",
+  DEVELOPER: "bg-[rgba(var(--color-accent-2-rgb),0.12)] text-[var(--color-accent-2)] border-[rgba(var(--color-accent-2-rgb),0.28)]",
+  CLIENT: "bg-[rgba(var(--color-accent-2-rgb),0.12)] text-[var(--color-accent-2)] border-[rgba(var(--color-accent-2-rgb),0.28)]",
+  STUDIO: "bg-[rgba(var(--color-accent-2-rgb),0.12)] text-[var(--color-accent-2)] border-[rgba(var(--color-accent-2-rgb),0.28)]",
+  INFLUENCER: "bg-[rgba(var(--color-accent-2-rgb),0.12)] text-[var(--color-accent-2)] border-[rgba(var(--color-accent-2-rgb),0.28)]",
+  INVESTOR: "bg-[rgba(var(--color-accent-2-rgb),0.12)] text-[var(--color-accent-2)] border-[rgba(var(--color-accent-2-rgb),0.28)]",
   DEFAULT: "bg-slate-500/15 text-slate-300 border-slate-500/30",
 };
 

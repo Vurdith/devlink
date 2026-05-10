@@ -16,7 +16,7 @@ export const ui = {
   icon: {
     cyan: "flex items-center justify-center rounded-lg border border-[rgba(var(--color-accent-2-rgb),0.22)] bg-[rgba(var(--color-accent-2-rgb),0.10)] text-[var(--color-accent-2)]",
     muted: "flex items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.04] text-white/55",
-    amber: "flex items-center justify-center rounded-lg border border-amber-300/20 bg-amber-400/10 text-amber-200",
+    amber: "flex items-center justify-center rounded-lg border border-[rgba(var(--color-accent-2-rgb),0.22)] bg-[rgba(var(--color-accent-2-rgb),0.10)] text-[var(--color-accent-2)]",
     danger: "flex items-center justify-center rounded-lg border border-rose-400/20 bg-rose-500/10 text-rose-300",
   },
   active: {

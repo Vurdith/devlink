@@ -14,19 +14,19 @@ interface SecurityPanelProps {
 
 const accents: Record<SecurityPanelProps["accent"], { glow: string; border: string; iconBg: string }> = {
   cyan: {
-    glow: "radial-gradient(900px 260px at 18% 0%, rgba(34,211,238,0.14), transparent 60%), radial-gradient(800px 240px at 92% 0%, rgba(59,130,246,0.10), transparent 60%)",
+    glow: "radial-gradient(900px 260px at 18% 0%, rgba(var(--color-accent-rgb),0.14), transparent 60%), radial-gradient(800px 240px at 92% 0%, rgba(var(--color-accent-2-rgb),0.10), transparent 60%)",
     border: "border-white/[0.08]",
-    iconBg: "border-cyan-300/20 bg-cyan-400/10 text-cyan-200",
+    iconBg: "border-[rgba(var(--color-accent-2-rgb),0.22)] bg-[rgba(var(--color-accent-2-rgb),0.10)] text-[var(--color-accent-2)]",
   },
   emerald: {
-    glow: "radial-gradient(900px 260px at 18% 0%, rgba(16,185,129,0.14), transparent 60%), radial-gradient(800px 240px at 92% 0%, rgba(34,197,94,0.10), transparent 60%)",
+    glow: "radial-gradient(900px 260px at 18% 0%, rgba(var(--color-accent-rgb),0.14), transparent 60%), radial-gradient(800px 240px at 92% 0%, rgba(var(--color-accent-2-rgb),0.10), transparent 60%)",
     border: "border-white/[0.08]",
-    iconBg: "border-emerald-300/20 bg-emerald-400/10 text-emerald-200",
+    iconBg: "border-[rgba(var(--color-accent-2-rgb),0.22)] bg-[rgba(var(--color-accent-2-rgb),0.10)] text-[var(--color-accent-2)]",
   },
   amber: {
-    glow: "radial-gradient(900px 260px at 18% 0%, rgba(245,158,11,0.14), transparent 60%), radial-gradient(800px 240px at 92% 0%, rgba(249,115,22,0.10), transparent 60%)",
+    glow: "radial-gradient(900px 260px at 18% 0%, rgba(var(--color-accent-rgb),0.14), transparent 60%), radial-gradient(800px 240px at 92% 0%, rgba(var(--color-accent-2-rgb),0.10), transparent 60%)",
     border: "border-white/[0.08]",
-    iconBg: "border-amber-300/20 bg-amber-400/10 text-amber-200",
+    iconBg: "border-[rgba(var(--color-accent-2-rgb),0.22)] bg-[rgba(var(--color-accent-2-rgb),0.10)] text-[var(--color-accent-2)]",
   },
   red: {
     glow: "radial-gradient(900px 260px at 18% 0%, rgba(239,68,68,0.14), transparent 60%), radial-gradient(800px 240px at 92% 0%, rgba(244,63,94,0.10), transparent 60%)",

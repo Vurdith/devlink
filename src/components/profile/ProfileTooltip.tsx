@@ -369,8 +369,8 @@ export const ProfileTooltip = memo(function ProfileTooltip({
                   </span>
                   {userData.profile?.verified && (
                     <div className="flex-shrink-0 relative">
-                      <div className="absolute inset-0 bg-blue-400/50 rounded-full" />
-                      <svg className="relative w-4 h-4 text-blue-400" viewBox="0 0 24 24" fill="currentColor">
+                      <div className="absolute inset-0 bg-[rgba(var(--color-accent-2-rgb),0.50)] rounded-full" />
+                      <svg className="relative w-4 h-4 text-[var(--color-accent-2)]" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                       </svg>
                     </div>

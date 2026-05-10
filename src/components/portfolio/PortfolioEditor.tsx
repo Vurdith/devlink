@@ -454,7 +454,7 @@ export function PortfolioEditor({
                       />
                       <span className="flex-1">{us.skill.name}</span>
                       {us.isPrimary && (
-                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/20">
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-[rgba(var(--color-accent-2-rgb),0.12)] text-[var(--color-accent-2)] border border-[rgba(var(--color-accent-2-rgb),0.20)]">
                           Primary
                         </span>
                       )}

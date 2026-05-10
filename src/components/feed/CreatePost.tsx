@@ -395,7 +395,7 @@ export const CreatePost = memo(function CreatePost({
             <div className={surface("empty", "animate-slide-down space-y-3 p-4")}>
               <div className="flex items-center gap-3">
                 <div className={iconBox("cyan", "h-9 w-9")}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-cyan-400">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-[var(--color-accent-2)]">
                     <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
                     <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
                   </svg>
@@ -406,8 +406,8 @@ export const CreatePost = memo(function CreatePost({
               {embedUrls.length > 0 && (
                 <div className="flex flex-wrap gap-2">
                   {embedUrls.map((u, i) => (
-                    <span key={i} className="animate-pop-in inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-cyan-500/30 bg-cyan-500/10 text-sm">
-                      <a href={u} target="_blank" rel="noreferrer" className="text-cyan-400 hover:underline truncate max-w-[200px]">{u}</a>
+                    <span key={i} className="animate-pop-in inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-[rgba(var(--color-accent-2-rgb),0.30)] bg-[rgba(var(--color-accent-2-rgb),0.10)] text-sm">
+                      <a href={u} target="_blank" rel="noreferrer" className="text-[var(--color-accent-2)] hover:underline truncate max-w-[200px]">{u}</a>
                       <button type="button" onClick={() => removeEmbedUrl(i)} className="text-[var(--muted-foreground)] transition-colors hover:text-white" aria-label="Remove embed">x</button>
                     </span>
                   ))}
@@ -460,7 +460,7 @@ export const CreatePost = memo(function CreatePost({
                     <span className="text-[var(--color-accent)]">{progress}%</span>
                   </div>
                   <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
-                    <div className="h-full bg-gradient-to-r from-[var(--color-accent)] to-cyan-500 rounded-full transition-all duration-300" style={{ width: `${progress}%` }} />
+                    <div className="h-full bg-gradient-to-r from-[var(--color-accent)] to-[var(--color-accent-2)] rounded-full transition-all duration-300" style={{ width: `${progress}%` }} />
                   </div>
                 </div>
               ))}

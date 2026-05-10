@@ -156,7 +156,7 @@ export const SkillEditModal = memo(function SkillEditModal({ skill, onSave, onCl
                     className={cn(
                       "w-2 h-2 rounded-full",
                       key === "AVAILABLE" && "bg-emerald-400",
-                      key === "OPEN_TO_OFFERS" && "bg-blue-400",
+                      key === "OPEN_TO_OFFERS" && "bg-[var(--color-accent-2)]",
                       key === "BUSY" && "bg-amber-400",
                       key === "NOT_AVAILABLE" && "bg-red-400"
                     )}
@@ -180,7 +180,7 @@ export const SkillEditModal = memo(function SkillEditModal({ skill, onSave, onCl
               disabled={isSaving}
               className={cn(
                 "relative h-6 w-11 rounded-full outline-none transition-colors disabled:cursor-not-allowed disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-amber-300/40",
-                draftSkill.isPrimary ? "bg-amber-500" : "bg-white/20"
+                draftSkill.isPrimary ? "bg-[var(--color-accent-2)]" : "bg-white/20"
               )}
             >
               <div className={cn("w-5 h-5 rounded-full bg-white absolute top-0.5 transition-transform", draftSkill.isPrimary ? "translate-x-5" : "translate-x-0.5")} />

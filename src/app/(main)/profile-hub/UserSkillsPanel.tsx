@@ -25,7 +25,7 @@ export const UserSkillsPanel = memo(function UserSkillsPanel({ userSkills, curre
         className="pointer-events-none absolute inset-0 opacity-35"
         style={{
           background:
-            "linear-gradient(180deg, rgba(251,191,36,0.06), transparent 48%)",
+            "linear-gradient(180deg, rgba(var(--color-accent-2-rgb),0.06), transparent 48%)",
         }}
       />
       <div className="relative">
@@ -76,14 +76,14 @@ export const UserSkillsPanel = memo(function UserSkillsPanel({ userSkills, curre
                   key={userSkill.id}
                   className={cn(
                     "group overflow-hidden rounded-lg border transition-all duration-200 focus-within:border-[rgba(var(--color-accent-2-rgb),0.30)]",
-                    userSkill.isPrimary ? "border-amber-500/24 bg-amber-400/[0.045] shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]" : cn(ui.surface.empty, "hover:border-white/[0.12] hover:bg-white/[0.045]")
+                    userSkill.isPrimary ? "border-[rgba(var(--color-accent-2-rgb),0.24)] bg-[rgba(var(--color-accent-2-rgb),0.045)] shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]" : cn(ui.surface.empty, "hover:border-white/[0.12] hover:bg-white/[0.045]")
                   )}
                 >
                   <div className="p-4 sm:p-5">
                     <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                       <div className="flex min-w-0 items-center gap-2">
                         {userSkill.isPrimary && (
-                          <span className="shrink-0 text-amber-400">
+                          <span className="shrink-0 text-[var(--color-accent-2)]">
                             <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
                               <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                             </svg>
@@ -92,7 +92,7 @@ export const UserSkillsPanel = memo(function UserSkillsPanel({ userSkills, curre
                         <h4 className="truncate text-base font-semibold text-white">{userSkill.skill.name}</h4>
                       </div>
 
-                      {userSkill.rate && userSkill.rateUnit && <span className="w-fit max-w-full break-words rounded-md border border-emerald-400/18 bg-emerald-500/10 px-2 py-1 text-xs font-semibold text-emerald-300">{formatRate(userSkill.rate, userSkill.rateUnit, currency)}</span>}
+                      {userSkill.rate && userSkill.rateUnit && <span className="w-fit max-w-full break-words rounded-md border border-[rgba(var(--color-accent-2-rgb),0.18)] bg-[rgba(var(--color-accent-2-rgb),0.10)] px-2 py-1 text-xs font-semibold text-[var(--color-accent-2)]">{formatRate(userSkill.rate, userSkill.rateUnit, currency)}</span>}
                     </div>
 
                     <div className="mb-3 flex flex-wrap items-center gap-3 text-xs text-white/50">
@@ -113,7 +113,7 @@ export const UserSkillsPanel = memo(function UserSkillsPanel({ userSkills, curre
                               className={cn(
                                 "w-1.5 h-1.5 rounded-full",
                                 userSkill.skillAvailability === "AVAILABLE" && "bg-emerald-400",
-                                userSkill.skillAvailability === "OPEN_TO_OFFERS" && "bg-blue-400",
+                                userSkill.skillAvailability === "OPEN_TO_OFFERS" && "bg-[var(--color-accent-2)]",
                                 userSkill.skillAvailability === "BUSY" && "bg-amber-400",
                                 userSkill.skillAvailability === "NOT_AVAILABLE" && "bg-red-400"
                               )}

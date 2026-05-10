@@ -69,7 +69,7 @@ export const ContentRenderer = memo(function ContentRenderer({ content, classNam
         parts.push(
           <span
             key={`hashtag-${match.index}`}
-            className="text-blue-400 hover:text-blue-300 cursor-pointer hover:underline transition-colors"
+            className="text-[var(--color-accent-2)] hover:text-white cursor-pointer hover:underline transition-colors"
             onClick={() => router.push(`/hashtag/${value}`)}
           >
             {fullMatch}

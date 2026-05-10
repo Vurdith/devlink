@@ -12,13 +12,21 @@ function ThemePreview({ theme, isSelected, onSelect }: {
   isSelected: boolean; 
   onSelect: () => void;
 }) {
+  const themeGradient = `linear-gradient(135deg, ${theme.colors.accent3} 0%, ${theme.colors.accent} 54%, ${theme.colors.accent2} 100%)`;
+
   return (
     <button
       onClick={onSelect}
+      style={{
+        borderColor: isSelected ? `rgba(${theme.colors.accentRgb}, 0.55)` : undefined,
+        background: isSelected
+          ? `linear-gradient(180deg, rgba(${theme.colors.accentRgb}, 0.16), rgba(255,255,255,0.035))`
+          : undefined,
+      }}
       className={cn(
-        "noise-overlay group relative w-full overflow-hidden rounded-xl border p-4 text-left outline-none transition-all duration-300 focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]",
+        "noise-overlay group relative w-full overflow-hidden rounded-xl border p-4 text-left outline-none transition-all duration-300 focus-visible:ring-2",
         isSelected
-          ? ui.active.cyanStrong
+          ? "bg-white/[0.045]"
           : cn(ui.surface.empty, "hover:border-white/[0.14] hover:bg-white/[0.055]")
       )}
     >
@@ -27,62 +35,64 @@ function ThemePreview({ theme, isSelected, onSelect }: {
         className="pointer-events-none absolute inset-0 opacity-60"
         style={{
           background: isSelected
-            ? "radial-gradient(700px 200px at 30% 0%, rgba(var(--color-accent-rgb),0.22), transparent 58%), radial-gradient(600px 200px at 90% 0%, rgba(var(--color-accent-2-rgb),0.16), transparent 62%)"
-            : "radial-gradient(700px 200px at 30% 0%, rgba(255,255,255,0.05), transparent 60%)",
+            ? `radial-gradient(680px 220px at 28% 0%, rgba(${theme.colors.accentRgb},0.20), transparent 58%)`
+            : `radial-gradient(600px 180px at 30% 0%, rgba(${theme.colors.accentRgb},0.09), transparent 62%)`,
         }}
       />
-      {/* Selected indicator */}
       {isSelected && (
-        <div className="absolute top-3 right-3 w-6 h-6 rounded-full bg-[var(--color-accent)] flex items-center justify-center">
+        <div
+          className="absolute right-3 top-3 flex h-6 w-6 items-center justify-center rounded-full text-white"
+          style={{ backgroundColor: theme.colors.accent }}
+        >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="text-white">
             <path d="M20 6L9 17l-5-5" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </div>
       )}
 
-      {/* Theme color preview circles */}
-      <div className="flex items-center gap-2 mb-4">
-        <div 
-          className="h-8 w-8 rounded-full border border-white/15"
-          style={{ backgroundColor: theme.colors.accent }}
-        />
-        <div 
-          className="h-6 w-6 rounded-full border border-white/15"
-          style={{ backgroundColor: theme.colors.accent2 }}
-        />
-        <div 
-          className="h-5 w-5 rounded-full border border-white/15"
-          style={{ backgroundColor: theme.colors.accent3 }}
-        />
+      <div className="relative mb-4 flex items-center gap-3">
+        <div
+          className="flex h-14 w-14 items-center justify-center rounded-xl border border-white/[0.10] bg-black/20"
+          style={{ boxShadow: isSelected ? `0 0 0 1px rgba(${theme.colors.accentRgb},0.22) inset` : undefined }}
+        >
+          <img
+            src={`/logo/logo-${theme.id}.png`}
+            alt=""
+            className="h-11 w-11 object-contain"
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = "/logo/logo.png";
+            }}
+          />
+        </div>
+        <div className="min-w-0">
+          <h3 className="truncate text-base font-semibold text-white">{theme.name}</h3>
+          <p className="mt-1 text-xs font-medium uppercase tracking-[0.14em] text-white/38">
+            {isSelected ? "Active theme" : "Available"}
+          </p>
+        </div>
       </div>
 
-      {/* Theme name and description */}
-      <h3 className="text-lg font-semibold text-white mb-1">{theme.name}</h3>
-      <p className="text-sm text-white/60">{theme.description}</p>
+      <p className="min-h-[2.5rem] text-sm leading-relaxed text-white/60">{theme.description}</p>
 
-      {/* Preview bar */}
       <div className="mt-4 h-2 overflow-hidden rounded-full border border-white/[0.08] bg-white/[0.035]">
         <div 
           className="h-full rounded-full transition-all"
           style={{ 
-            background: `linear-gradient(90deg, ${theme.colors.accent} 0%, ${theme.colors.accent2} 50%, ${theme.colors.accent3} 100%)`,
+            background: themeGradient,
             width: isSelected ? '100%' : '60%'
           }}
         />
       </div>
 
-      {/* Logo preview */}
-      <div className="mt-4 flex items-center gap-3">
-        <img 
-          src={`/logo/logo-${theme.id}.png`} 
-          alt={`${theme.name} Logo`}
-          className="w-10 h-10 object-contain"
-          onError={(e) => {
-            // Fallback to default logo if themed logo doesn't exist
-            (e.target as HTMLImageElement).src = '/logo/logo.png';
-          }}
-        />
-        <span className="text-xs text-white/40">Logo preview</span>
+      <div className="mt-4 flex items-center gap-2">
+        {[theme.colors.accent3, theme.colors.accent, theme.colors.accent2].map((color) => (
+          <span
+            key={color}
+            className="h-5 flex-1 rounded-md border border-white/[0.08]"
+            style={{ backgroundColor: color }}
+            aria-hidden="true"
+          />
+        ))}
       </div>
     </button>
   );
@@ -99,10 +109,11 @@ export default function AppearanceSettingsPage() {
 
   if (!mounted) {
     return (
-      <div className="max-w-2xl animate-pulse">
+      <div className="max-w-4xl animate-pulse">
         <div className="h-8 w-48 bg-white/10 rounded-lg mb-2" />
         <div className="h-4 w-96 bg-white/5 rounded mb-8" />
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          <div className="h-48 rounded-xl bg-white/5" />
           <div className="h-48 rounded-xl bg-white/5" />
           <div className="h-48 rounded-xl bg-white/5" />
         </div>
@@ -111,11 +122,11 @@ export default function AppearanceSettingsPage() {
   }
 
   return (
-    <div className="max-w-2xl space-y-6 animate-slide-up">
+    <div className="max-w-4xl space-y-6 animate-slide-up">
       <SettingsPageHeader
         eyebrow="Appearance"
         title="Appearance"
-        description="Customize how DevLink looks for you. Choose a color theme that matches your style."
+        description="Choose a focused accent color. DevLink updates the interface, app icon, and favicon together."
         icon={
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
             <circle cx="12" cy="12" r="5" stroke="currentColor" strokeWidth="2" />
@@ -134,7 +145,7 @@ export default function AppearanceSettingsPage() {
               "radial-gradient(900px 240px at 20% 0%, rgba(var(--color-accent-rgb),0.16), transparent 55%), radial-gradient(800px 240px at 95% 0%, rgba(var(--color-accent-2-rgb),0.12), transparent 60%)",
           }}
         />
-        <div className="flex items-center gap-3 mb-6">
+        <div className="mb-6 flex items-center gap-3">
           <div className={iconBox("cyan", "h-10 w-10")}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-white">
               <circle cx="12" cy="12" r="5" stroke="currentColor" strokeWidth="2"/>
@@ -143,11 +154,11 @@ export default function AppearanceSettingsPage() {
           </div>
           <div>
             <h2 className="text-lg font-semibold text-white">Color Theme</h2>
-            <p className="text-sm text-white/50">Select your preferred accent color</p>
+            <p className="text-sm text-white/50">Seven single-color systems, each with its own icon</p>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {themes.map((theme) => (
             <ThemePreview
               key={theme.id}
@@ -159,7 +170,7 @@ export default function AppearanceSettingsPage() {
         </div>
 
         {/* Info note */}
-        <div className="mt-6 p-4 rounded-xl bg-[var(--color-accent)]/10 border border-[var(--color-accent)]/20">
+        <div className="mt-6 rounded-xl border border-[var(--color-accent)]/20 bg-[var(--color-accent)]/10 p-4">
           <div className="flex items-start gap-3">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-[var(--color-accent)] flex-shrink-0 mt-0.5">
               <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
@@ -167,8 +178,7 @@ export default function AppearanceSettingsPage() {
             </svg>
             <div>
               <p className="text-sm text-white/70">
-                Your theme preference is saved locally and will be remembered when you return.
-                The logo and favicon will also update to match your selected theme.
+                Your theme is saved on this device. The UI accents, navbar logo, browser favicon, and installed app icon all use the same color family.
               </p>
             </div>
           </div>

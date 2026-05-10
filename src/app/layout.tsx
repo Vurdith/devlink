@@ -125,8 +125,9 @@ export default async function RootLayout({
           (function() {
             try {
               var theme = localStorage.getItem('devlink-theme');
-              if (theme && (theme === 'red' || theme === 'purple')) {
-                var existingIcons = document.querySelectorAll('link[rel*="icon"]');
+              var allowedThemes = ['red', 'orange', 'yellow', 'green', 'blue', 'indigo', 'purple'];
+              if (theme && allowedThemes.indexOf(theme) !== -1) {
+                var existingIcons = document.querySelectorAll('link[rel*="icon"], link[href*="/favicon"], link[href*="/logo/logo"]');
                 existingIcons.forEach(function(l) { l.remove(); });
 
                 var favicon = document.createElement('link');
@@ -139,6 +140,11 @@ export default async function RootLayout({
                 shortcut.rel = 'shortcut icon';
                 shortcut.href = '/favicon-' + theme + '.ico';
                 document.head.appendChild(shortcut);
+
+                var apple = document.createElement('link');
+                apple.rel = 'apple-touch-icon';
+                apple.href = '/logo/logo-' + theme + '.png';
+                document.head.appendChild(apple);
               }
             } catch(e) {}
           })();

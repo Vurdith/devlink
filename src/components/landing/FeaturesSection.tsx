@@ -20,7 +20,7 @@ const features = [
     ),
     title: "Connect & Collaborate",
     description: "Find the perfect team members for your next project. Connect with developers, artists, scripters, and builders.",
-    color: "from-[rgba(var(--color-accent-2-rgb),0.22)] to-[rgba(96,165,250,0.18)]",
+    color: "from-[rgba(var(--color-accent-2-rgb),0.22)] to-[rgba(var(--color-accent-rgb),0.18)]",
     glow: "rgba(34, 211, 238, 0.16)",
   },
   {
@@ -31,7 +31,7 @@ const features = [
     ),
     title: "Find Opportunities",
     description: "Discover job postings, commissions, and collaboration requests from studios and clients looking for talent.",
-    color: "from-[rgba(244,114,182,0.18)] to-[rgba(var(--color-accent-rgb),0.14)]",
+    color: "from-[rgba(var(--color-accent-2-rgb),0.18)] to-[rgba(var(--color-accent-rgb),0.14)]",
     glow: "rgba(244, 114, 182, 0.14)",
   },
   {
@@ -42,7 +42,7 @@ const features = [
     ),
     title: "Verified Profiles",
     description: "Build trust with verified badges. Showcase your credentials and establish credibility in the community.",
-    color: "from-[rgba(var(--color-accent-3-rgb),0.2)] to-[rgba(34,211,238,0.12)]",
+    color: "from-[rgba(var(--color-accent-3-rgb),0.20)] to-[rgba(var(--color-accent-2-rgb),0.12)]",
     glow: "rgba(52, 211, 153, 0.14)",
   },
   {
@@ -53,7 +53,7 @@ const features = [
     ),
     title: "Reviews & Ratings",
     description: "Give and receive reviews to build your reputation. Help others find reliable collaborators.",
-    color: "from-[rgba(245,158,11,0.18)] to-[rgba(251,191,36,0.1)]",
+    color: "from-[rgba(var(--color-accent-rgb),0.18)] to-[rgba(var(--color-accent-2-rgb),0.10)]",
     glow: "rgba(245, 158, 11, 0.12)",
   },
   {

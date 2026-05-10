@@ -259,26 +259,26 @@ export function PostAnalyticsClient({
                 <div className="text-[10px] uppercase tracking-wider text-white/40 mt-1 font-semibold relative z-10">Views</div>
               </div>
               <div className={surface("panelMuted", "group relative flex flex-col justify-center overflow-hidden p-4")}>
-                <div className="absolute inset-0 bg-rose-500/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-                <div className="text-rose-400/70 mb-2 flex items-center gap-2 relative z-10"><HeartIcon/></div>
+                <div className="absolute inset-0 bg-[rgba(var(--color-accent-rgb),0.10)] opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="text-[rgba(var(--color-accent-2-rgb),0.78)] mb-2 flex items-center gap-2 relative z-10"><HeartIcon/></div>
                 <div className="text-2xl font-space-grotesk font-bold text-white relative z-10">{engagement.likes.toLocaleString()}</div>
                 <div className="text-[10px] uppercase tracking-wider text-white/40 mt-1 font-semibold relative z-10">Likes</div>
               </div>
               <div className={surface("panelMuted", "group relative flex flex-col justify-center overflow-hidden p-4")}>
-                <div className="absolute inset-0 bg-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-                <div className="text-blue-400/70 mb-2 flex items-center gap-2 relative z-10"><MessageIcon/></div>
+                <div className="absolute inset-0 bg-[rgba(var(--color-accent-2-rgb),0.10)] opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="relative z-10 mb-2 flex items-center gap-2 text-[rgba(var(--color-accent-2-rgb),0.70)]"><MessageIcon/></div>
                 <div className="text-2xl font-space-grotesk font-bold text-white relative z-10">{engagement.replies.toLocaleString()}</div>
                 <div className="text-[10px] uppercase tracking-wider text-white/40 mt-1 font-semibold relative z-10">Replies</div>
               </div>
               <div className={surface("panelMuted", "group relative flex flex-col justify-center overflow-hidden p-4")}>
-                <div className="absolute inset-0 bg-green-500/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-                <div className="text-green-400/70 mb-2 flex items-center gap-2 relative z-10"><RepostIcon/></div>
+                <div className="absolute inset-0 bg-[rgba(var(--color-accent-rgb),0.10)] opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="text-[rgba(var(--color-accent-2-rgb),0.78)] mb-2 flex items-center gap-2 relative z-10"><RepostIcon/></div>
                 <div className="text-2xl font-space-grotesk font-bold text-white relative z-10">{engagement.reposts.toLocaleString()}</div>
                 <div className="text-[10px] uppercase tracking-wider text-white/40 mt-1 font-semibold relative z-10">Reposts</div>
               </div>
               <div className={surface("panelMuted", "group relative flex flex-col justify-center overflow-hidden p-4")}>
-                <div className="absolute inset-0 bg-amber-500/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-                <div className="text-amber-400/70 mb-2 flex items-center gap-2 relative z-10"><BookmarkIcon/></div>
+                <div className="absolute inset-0 bg-[rgba(var(--color-accent-rgb),0.10)] opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="text-[rgba(var(--color-accent-2-rgb),0.78)] mb-2 flex items-center gap-2 relative z-10"><BookmarkIcon/></div>
                 <div className="text-2xl font-space-grotesk font-bold text-white relative z-10">{engagement.saves.toLocaleString()}</div>
                 <div className="text-[10px] uppercase tracking-wider text-white/40 mt-1 font-semibold relative z-10">Saves</div>
               </div>
@@ -298,7 +298,7 @@ export function PostAnalyticsClient({
           <div className={surface("panel", "group flex flex-col p-1.5 transition-colors hover:border-[rgba(var(--color-accent-2-rgb),0.28)] animate-slide-up lg:col-span-2 lg:flex-row")} style={{ animationDelay: "0.15s" }}>
             <div className="p-8 lg:p-10 flex flex-col justify-center flex-1 relative z-10">
               <div className="flex items-center gap-4 mb-5">
-                <div className="w-14 h-14 rounded-[1.25rem] bg-rose-500/10 text-rose-400 flex items-center justify-center">
+                <div className="w-14 h-14 rounded-[1.25rem] bg-[rgba(var(--color-accent-rgb),0.10)] text-rose-400 flex items-center justify-center">
                   <HeartIcon />
                 </div>
                 <div>
@@ -312,7 +312,7 @@ export function PostAnalyticsClient({
             </div>
             <div className="flex-1 p-3 lg:p-4">
                <TerminalMathBlock 
-                 colorClass="text-rose-400"
+                 colorClass="text-[var(--color-accent-2)]"
                  weight={w.components.engagement}
                  finalPoints={breakdown.weighted.engagement}
                  normalizedValue={breakdown.calculation.engagementNormalized}
@@ -331,7 +331,7 @@ export function PostAnalyticsClient({
           <div className={surface("panel", "group flex flex-col p-1.5 transition-colors hover:border-[rgba(var(--color-accent-2-rgb),0.28)] animate-slide-up")} style={{ animationDelay: "0.2s" }}>
             <div className="p-8 pb-6 flex flex-col justify-center relative z-10">
               <div className="flex items-center gap-4 mb-4">
-                <div className="w-12 h-12 rounded-[1rem] bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
+                <div className="w-12 h-12 rounded-[1rem] bg-[rgba(var(--color-accent-2-rgb),0.10)] text-[var(--color-accent-2)] flex items-center justify-center">
                   <ClockIcon />
                 </div>
                 <div>
@@ -342,11 +342,11 @@ export function PostAnalyticsClient({
               <p className="text-[var(--muted-foreground)] text-sm leading-relaxed mb-2">
                 Newer posts receive maximum visibility for the first {w.freshness.peakHours} hours, then decay by 50% every {w.freshness.halfLifeHours} hours.
               </p>
-              <AnimatedBar mounted={mounted} percentage={breakdown.calculation.freshnessMultiplier * 100} gradientClass="bg-gradient-to-r from-emerald-600 to-emerald-400" />
+              <AnimatedBar mounted={mounted} percentage={breakdown.calculation.freshnessMultiplier * 100} gradientClass="bg-gradient-to-r from-[var(--color-accent-3)] to-[var(--color-accent-2)]" />
             </div>
             <div className="p-3 lg:p-4 flex-1">
                <TerminalMathBlock 
-                 colorClass="text-emerald-400"
+                 colorClass="text-[var(--color-accent-2)]"
                  weight={w.components.freshness}
                  finalPoints={breakdown.weighted.freshness}
                  normalizedValue={breakdown.calculation.freshnessMultiplier * 100}
@@ -363,7 +363,7 @@ export function PostAnalyticsClient({
           <div className={surface("panel", "group flex flex-col p-1.5 transition-colors hover:border-[rgba(var(--color-accent-2-rgb),0.28)] animate-slide-up")} style={{ animationDelay: "0.25s" }}>
             <div className="p-8 pb-6 flex flex-col justify-center relative z-10">
               <div className="flex items-center gap-4 mb-4">
-                <div className="w-12 h-12 rounded-[1rem] bg-purple-500/10 text-purple-400 flex items-center justify-center">
+                <div className="w-12 h-12 rounded-[1rem] bg-[rgba(var(--color-accent-2-rgb),0.10)] text-[var(--color-accent-2)] flex items-center justify-center">
                   <SearchIcon />
                 </div>
                 <div>
@@ -376,11 +376,11 @@ export function PostAnalyticsClient({
                   ? "You receive a discovery boost to help your content reach new audiences while you grow your account."
                   : "Your account is established. Discovery boosts help smaller accounts gain initial visibility."}
               </p>
-              <AnimatedBar mounted={mounted} percentage={breakdown.calculation.discoveryFactor * 100} gradientClass="bg-gradient-to-r from-purple-600 to-purple-400" />
+              <AnimatedBar mounted={mounted} percentage={breakdown.calculation.discoveryFactor * 100} gradientClass="bg-gradient-to-r from-[var(--color-accent-3)] to-[var(--color-accent-2)]" />
             </div>
             <div className="p-3 lg:p-4 flex-1">
                <TerminalMathBlock 
-                 colorClass="text-purple-400"
+                 colorClass="text-[var(--color-accent-2)]"
                  weight={w.components.discovery}
                  finalPoints={breakdown.weighted.discovery}
                  normalizedValue={breakdown.calculation.discoveryFactor * 100}
@@ -397,7 +397,7 @@ export function PostAnalyticsClient({
           <div className={surface("panel", "group flex flex-col p-1.5 transition-colors hover:border-[rgba(var(--color-accent-2-rgb),0.28)] animate-slide-up")} style={{ animationDelay: "0.3s" }}>
             <div className="p-8 pb-6 flex flex-col justify-center relative z-10">
               <div className="flex items-center gap-4 mb-4">
-                <div className="w-12 h-12 rounded-[1rem] bg-orange-500/10 text-orange-400 flex items-center justify-center">
+                <div className="w-12 h-12 rounded-[1rem] bg-[rgba(var(--color-accent-2-rgb),0.10)] text-[var(--color-accent-2)] flex items-center justify-center">
                   <ZapIcon />
                 </div>
                 <div>
@@ -408,11 +408,11 @@ export function PostAnalyticsClient({
               <p className="text-[var(--muted-foreground)] text-sm leading-relaxed mb-2">
                 Rewards rapid engagement relative to the post&apos;s age. Content that blows up quickly receives an exponential algorithmic boost.
               </p>
-              <AnimatedBar mounted={mounted} percentage={breakdown.calculation.velocityFactor * 100} gradientClass="bg-gradient-to-r from-orange-600 to-amber-400" />
+              <AnimatedBar mounted={mounted} percentage={breakdown.calculation.velocityFactor * 100} gradientClass="bg-gradient-to-r from-[var(--color-accent-3)] to-[var(--color-accent-2)]" />
             </div>
             <div className="p-3 lg:p-4 flex-1">
                <TerminalMathBlock 
-                 colorClass="text-orange-400"
+                 colorClass="text-[var(--color-accent-2)]"
                  weight={w.components.velocity}
                  finalPoints={breakdown.weighted.velocity}
                  normalizedValue={breakdown.calculation.velocityFactor * 100}
@@ -429,7 +429,7 @@ export function PostAnalyticsClient({
           <div className={surface("panel", "group flex flex-col p-1.5 transition-colors hover:border-[rgba(var(--color-accent-2-rgb),0.28)] animate-slide-up")} style={{ animationDelay: "0.35s" }}>
             <div className="p-8 pb-6 flex flex-col justify-center relative z-10">
               <div className="flex items-center gap-4 mb-4">
-                <div className="w-12 h-12 rounded-[1rem] bg-amber-500/10 text-amber-400 flex items-center justify-center">
+                <div className="w-12 h-12 rounded-[1rem] bg-[rgba(var(--color-accent-rgb),0.10)] text-amber-400 flex items-center justify-center">
                   <CrownIcon />
                 </div>
                 <div>
@@ -440,11 +440,11 @@ export function PostAnalyticsClient({
               <p className="text-[var(--muted-foreground)] text-sm leading-relaxed mb-2">
                 Recognizes established accounts with followings, providing a reliable baseline visibility floor for quality creators.
               </p>
-              <AnimatedBar mounted={mounted} percentage={breakdown.calculation.authorityFactor * 100} gradientClass="bg-gradient-to-r from-amber-600 to-yellow-400" />
+              <AnimatedBar mounted={mounted} percentage={breakdown.calculation.authorityFactor * 100} gradientClass="bg-gradient-to-r from-[var(--color-accent-3)] to-[var(--color-accent-2)]" />
             </div>
             <div className="p-3 lg:p-4 flex-1">
                <TerminalMathBlock 
-                 colorClass="text-amber-400"
+                 colorClass="text-[var(--color-accent-2)]"
                  weight={w.components.authority}
                  finalPoints={breakdown.weighted.authority}
                  normalizedValue={breakdown.calculation.authorityFactor * 100}
