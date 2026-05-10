@@ -37,23 +37,24 @@ export const LoadingSkeleton = memo(function LoadingSkeleton({ className }: { cl
 
 export const PostSkeleton = memo(function PostSkeleton() {
   return (
-    <div className={surface("panel", "noise-overlay relative overflow-hidden p-4 sm:p-6")}>
-      <div className="mb-4 flex min-w-0 items-center gap-3">
-        <div className={skeleton("h-10 w-10 shrink-0 rounded-full")} />
+    <div className={surface("panelMuted", "noise-overlay relative overflow-hidden p-4 sm:p-5")}>
+      <div className="mb-5 flex min-w-0 items-center gap-3">
+        <div className={skeleton("h-11 w-11 shrink-0 rounded-full")} />
         <div className="min-w-0 flex-1">
-          <div className={skeleton("mb-2 h-4 w-24")} />
-          <div className={skeleton("h-3 w-16")} />
+          <div className={skeleton("mb-2 h-4 w-32")} />
+          <div className={skeleton("h-3 w-24")} />
         </div>
       </div>
-      <div className="mb-4 space-y-2">
+      <div className="mb-5 space-y-2">
         <div className={skeleton("h-4 w-full")} />
-        <div className={skeleton("h-4 w-3/4")} />
-        <div className={skeleton("h-4 w-1/2")} />
+        <div className={skeleton("h-4 w-5/6")} />
+        <div className={skeleton("h-4 w-3/5")} />
       </div>
-      <div className="flex flex-wrap gap-3 sm:gap-4">
-        <div className={skeleton("h-8 w-16 rounded-xl")} />
-        <div className={skeleton("h-8 w-16 rounded-xl")} />
-        <div className={skeleton("h-8 w-16 rounded-xl")} />
+      <div className={skeleton("mb-5 h-36 w-full rounded-xl")} />
+      <div className="flex flex-wrap gap-3">
+        <div className={skeleton("h-8 w-20 rounded-lg")} />
+        <div className={skeleton("h-8 w-20 rounded-lg")} />
+        <div className={skeleton("h-8 w-20 rounded-lg")} />
       </div>
     </div>
   );
@@ -61,7 +62,7 @@ export const PostSkeleton = memo(function PostSkeleton() {
 
 export const FeedSkeleton = memo(function FeedSkeleton() {
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <PostSkeleton />
       <PostSkeleton />
       <PostSkeleton />

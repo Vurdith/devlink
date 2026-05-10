@@ -1,10 +1,11 @@
 "use client";
 import dynamic from "next/dynamic";
 import { memo } from "react";
+import Link from "next/link";
+import { ArrowRight, Bell, BriefcaseBusiness, Code2, MessageSquare, Search, Sparkles, Users } from "lucide-react";
 import { PostFeed } from "./PostFeed";
 import { ThemeLogoImg } from "@/components/ui/ThemeLogo";
-import { cn } from "@/lib/cn";
-import { iconBox, skeleton, surface } from "@/components/ui/design-system";
+import { skeleton, surface } from "@/components/ui/design-system";
 import type { FeedPost } from "@/types/post";
 import { useHomeFeedPosts } from "./useHomeFeedPosts";
 
@@ -41,35 +42,29 @@ interface AnimatedHomeContentProps {
   postsWithViewCounts: FeedPost[];
 }
 
-const features = [
-  { icon: "monitor", title: "Developers", desc: "Showcase your work", color: "blue" },
-  { icon: "briefcase", title: "Clients", desc: "Find talent", color: "green" },
-  { icon: "bell", title: "Influencers", desc: "Promote projects", color: "red" }
+const audienceLanes = [
+  {
+    title: "Developers",
+    desc: "Ship notes, portfolio drops, and technical asks.",
+    Icon: Code2,
+  },
+  {
+    title: "Clients",
+    desc: "Find builders through live work and replies.",
+    Icon: BriefcaseBusiness,
+  },
+  {
+    title: "Teams",
+    desc: "Turn feed activity into messages and projects.",
+    Icon: Users,
+  },
 ];
 
-const FEATURE_STYLES: Record<
-  string,
-  { panel: string; icon: string; titleHover: string; glow: string }
-> = {
-  blue: {
-    panel: "border-blue-400/20 bg-[rgba(12,16,23,0.58)] hover:border-blue-400/40 hover:bg-blue-500/[0.06]",
-    icon: "text-blue-400 bg-blue-500/10 border border-blue-400/20",
-    titleHover: "group-hover/card:text-blue-300",
-    glow: "rgba(59, 130, 246, 0.4)",
-  },
-  green: {
-    panel: "border-emerald-400/20 bg-[rgba(12,16,23,0.58)] hover:border-emerald-400/40 hover:bg-emerald-500/[0.06]",
-    icon: "text-emerald-400 bg-emerald-500/10 border border-emerald-400/20",
-    titleHover: "group-hover/card:text-emerald-300",
-    glow: "rgba(16, 185, 129, 0.4)",
-  },
-  red: {
-    panel: "border-rose-400/20 bg-[rgba(12,16,23,0.58)] hover:border-rose-400/40 hover:bg-rose-500/[0.06]",
-    icon: "text-rose-400 bg-rose-500/10 border border-rose-400/20",
-    titleHover: "group-hover/card:text-rose-300",
-    glow: "rgba(244, 63, 94, 0.4)",
-  },
-};
+const workQueue = [
+  { label: "Scan updates", desc: "Recent posts from builders and teams", Icon: Sparkles },
+  { label: "Resume chats", desc: "Jump back into active conversations", Icon: MessageSquare },
+  { label: "Check jobs", desc: "Review new opportunities and signals", Icon: BriefcaseBusiness },
+];
 
 function CreatePostFallback() {
   return (
@@ -103,132 +98,161 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
     userId: session?.user?.id,
   });
 
+  const firstName = currentUserProfile?.name?.split(" ")[0] || currentUserProfile?.username || "there";
+  const feedCountLabel = feedPosts.length === 1 ? "1 update" : `${feedPosts.length} updates`;
+  const followingCount = currentUserProfile?._count.following ?? 0;
+  const followerCount = currentUserProfile?._count.followers ?? 0;
+
   return (
     <>
       {!session && (
-        <div className="pt-24 pb-20 text-center relative w-full h-full flex flex-col items-center justify-center">
-          <div className="relative z-10 w-full max-w-5xl mx-auto px-6">
+        <div className="pb-16 pt-8 sm:pt-12 lg:pb-24 lg:pt-16">
+          <div className="grid min-w-0 gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(360px,0.95fr)] lg:items-center">
+            <section className="min-w-0 animate-slide-up">
+              <div className="mb-7 flex items-center gap-4">
+                <ThemeLogoImg className="h-14 w-14 object-contain sm:h-16 sm:w-16" />
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--color-accent-2)]">Home feed</p>
+                  <h1 className="mt-1 text-5xl font-bold leading-none tracking-normal text-white sm:text-6xl lg:text-7xl" style={{ fontFamily: "var(--font-space-grotesk)" }}>
+                    DevLink
+                  </h1>
+                </div>
+              </div>
 
-            <div className="flex flex-col items-center justify-center gap-6 mb-10 animate-slide-down">
-              <ThemeLogoImg
-                className="w-24 h-24 object-contain"
-              />
-              <h1
-                className="text-6xl sm:text-7xl lg:text-[6.5rem] font-bold tracking-tighter leading-none bg-clip-text text-transparent bg-gradient-to-br from-white via-white to-white/40"
-                style={{ fontFamily: "var(--font-space-grotesk)" }}
-              >
-                DevLink
-              </h1>
-            </div>
+              <p className="max-w-2xl text-xl font-medium leading-tight text-white/82 sm:text-2xl lg:text-3xl">
+                A working feed for Roblox developers, clients, and teams.
+              </p>
+              <p className="mt-5 max-w-xl text-base leading-7 text-white/54">
+                Follow builders, read project updates, spot hiring signals, and turn useful activity into conversations.
+              </p>
 
-            <p className="text-xl md:text-2xl lg:text-3xl text-white/50 font-medium tracking-tight mb-20 max-w-2xl mx-auto leading-relaxed animate-slide-up stagger-1">
-              The pulse of the Roblox development community. <span className="text-white/80">Discover talent, promote projects, and build the future.</span>
-            </p>
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                <Link
+                  href="/register"
+                  className="inline-flex items-center justify-center gap-2 rounded-lg border border-[rgba(var(--color-accent-2-rgb),0.36)] bg-[rgba(var(--color-accent-2-rgb),0.14)] px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-[rgba(var(--color-accent-2-rgb),0.20)]"
+                >
+                  Join DevLink <ArrowRight className="h-4 w-4" />
+                </Link>
+                <Link
+                  href="/login"
+                  className="inline-flex items-center justify-center rounded-lg border border-white/[0.10] bg-white/[0.035] px-5 py-3 text-sm font-semibold text-white/78 transition-colors hover:border-white/[0.18] hover:bg-white/[0.06] hover:text-white"
+                >
+                  Sign in
+                </Link>
+              </div>
+            </section>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-slide-up stagger-2">
-              {features.map((item, index) => {
-                const style = FEATURE_STYLES[item.color] ?? FEATURE_STYLES.blue;
-                return (
-                  <div
-                    key={item.title}
-                    className={cn("group/card relative cursor-pointer overflow-hidden rounded-xl border p-8 transition-all duration-300 hover:-translate-y-1", style.panel)}
-                    style={{ animationDelay: `${0.3 + index * 0.15}s` }}
-                  >
-                    <div
-                      aria-hidden="true"
-                      className="absolute inset-0 opacity-0 group-hover/card:opacity-100 transition-opacity duration-500 pointer-events-none"
-                      style={{
-                        background: `radial-gradient(400px circle at 50% 100%, ${style.glow} 0%, transparent 70%)`
-                      }}
-                    />
+            <section className={surface("panel", "noise-overlay relative min-w-0 overflow-hidden p-4 animate-slide-up stagger-1 sm:p-5")}>
+              <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.46)] to-transparent" />
+              <div className="mb-4 flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/38">Live workspace preview</p>
+                  <h2 className="mt-1 text-lg font-semibold tracking-normal text-white">What the home feed does</h2>
+                </div>
+                <Search className="h-5 w-5 text-[var(--color-accent-2)]" />
+              </div>
 
-                    <div className="relative z-10">
-                      <div
-                        className={cn(
-                          "mx-auto mb-8 flex h-16 w-16 items-center justify-center rounded-lg transition-all duration-300 group-hover/card:scale-105",
-                          style.icon
-                        )}
-                      >
-                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-                          {item.icon === "monitor" && (
-                            <>
-                              <rect x="2" y="3" width="20" height="14" rx="2" ry="2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                              <line x1="8" y1="21" x2="16" y2="21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                              <line x1="12" y1="17" x2="12" y2="21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                            </>
-                          )}
-                          {item.icon === "briefcase" && (
-                            <>
-                              <rect x="2" y="7" width="20" height="14" rx="2" ry="2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                              <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                            </>
-                          )}
-                          {item.icon === "bell" && (
-                            <>
-                              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                              <path d="M13.73 21a2 2 0 0 1-3.46 0" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                            </>
-                          )}
-                        </svg>
-                      </div>
-                      <div className={cn("text-2xl font-bold mb-3 tracking-tight text-white/90 transition-colors duration-300 font-[var(--font-space-grotesk)]", style.titleHover)}>
-                        {item.title}
-                      </div>
-                      <div className="text-white/50 text-base leading-relaxed group-hover/card:text-white/70 transition-colors duration-300">
-                        {item.desc}
-                      </div>
+              <div className="space-y-3">
+                {audienceLanes.map(({ title, desc, Icon }) => (
+                  <div key={title} className="grid grid-cols-[40px_minmax(0,1fr)] gap-3 rounded-lg border border-white/[0.07] bg-white/[0.025] p-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.04] text-[var(--color-accent-2)]">
+                      <Icon className="h-5 w-5" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-sm font-semibold text-white">{title}</div>
+                      <p className="mt-1 text-sm leading-5 text-white/52">{desc}</p>
                     </div>
                   </div>
-                )
-              })}
-            </div>
-
+                ))}
+              </div>
+              <div className="mt-4 rounded-lg border border-emerald-300/15 bg-emerald-400/[0.06] px-4 py-3 text-sm leading-6 text-emerald-100/78">
+                New posts, job signals, and messages belong in one daily starting point.
+              </div>
+            </section>
           </div>
         </div>
       )}
 
       {session && currentUserProfile && (
-        <div className="mb-12 animate-slide-up" style={{ animationDelay: "0.1s" }}>
-          <div className="relative group">
-            <div className="absolute -inset-1 bg-gradient-to-r from-[var(--color-accent)]/10 via-cyan-500/10 to-[var(--color-accent)]/10 rounded-3xl opacity-30 group-hover:opacity-50 transition-opacity duration-500 animate-glow-pulse"></div>
-
-            <div className={surface("panel", "relative overflow-hidden p-6 transition-colors group-hover:border-white/[0.16]")}>
-              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
-                <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out bg-gradient-to-r from-transparent via-white/5 to-transparent skew-x-12" />
+        <div className="grid min-w-0 gap-5 pb-20 pt-4 animate-slide-up lg:grid-cols-[minmax(0,760px)_minmax(280px,1fr)] lg:items-start lg:gap-8 lg:pb-28 lg:pt-8">
+          <main className="min-w-0">
+            <div className="mb-5 flex min-w-0 flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+              <div className="min-w-0">
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--color-accent-2)]">Home</p>
+                <h1 className="mt-1 text-2xl font-semibold tracking-normal text-white sm:text-3xl">
+                  Good to see you, {firstName}
+                </h1>
+                <p className="mt-2 max-w-2xl text-sm leading-6 text-white/52">
+                  Compose once, then scan the latest project updates, replies, and hiring signals.
+                </p>
               </div>
-
-              <div className="relative flex items-center gap-4 mb-6">
-                <div className={iconBox("cyan", "h-10 w-10 transition-colors group-hover:border-[rgba(var(--color-accent-2-rgb),0.34)]")}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-[var(--color-accent)] group-hover:scale-110 transition-transform">
-                    <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                </div>
-                <div>
-                  <h2 className="text-xl font-bold text-white tracking-tight">Create Post</h2>
-                  <p className="text-xs text-[var(--muted-foreground)] opacity-70">Share with the community</p>
-                </div>
+              <div className="inline-flex w-fit items-center gap-2 rounded-lg border border-white/[0.08] bg-white/[0.035] px-3 py-2 text-xs font-semibold text-white/62">
+                <Bell className="h-4 w-4 text-[var(--color-accent-2)]" />
+                {feedCountLabel}
               </div>
+            </div>
 
+            <div className="mb-5">
               <LazyCreatePost currentUserProfile={{
                 avatarUrl: currentUserProfile.profile?.avatarUrl ?? null,
                 name: currentUserProfile.name,
                 username: currentUserProfile.username
               }} />
             </div>
-          </div>
+
+            <PostFeed
+              posts={feedPosts}
+              currentUserId={currentUserProfile?.id}
+              hidePinnedIndicator={true}
+              showNavigationArrow={false}
+              onUpdate={handlePostUpdate}
+              session={session}
+            />
+          </main>
+
+          <aside className="min-w-0 space-y-4 lg:sticky lg:top-24">
+            <section className={surface("toolbar", "noise-overlay p-4")}>
+              <div className="mb-3 flex items-center justify-between gap-3">
+                <div>
+                  <h2 className="text-sm font-semibold text-white">Today&apos;s workspace</h2>
+                  <p className="mt-1 text-xs text-white/45">@{currentUserProfile.username}</p>
+                </div>
+                <div className="rounded-lg border border-white/[0.08] bg-white/[0.04] px-2.5 py-1.5 text-xs font-semibold text-white/62">
+                  {followingCount} following
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div className="rounded-lg border border-white/[0.07] bg-white/[0.025] p-3">
+                  <div className="text-xl font-semibold text-white">{followerCount}</div>
+                  <div className="mt-1 text-xs text-white/45">followers</div>
+                </div>
+                <div className="rounded-lg border border-white/[0.07] bg-white/[0.025] p-3">
+                  <div className="text-xl font-semibold text-white">{feedPosts.length}</div>
+                  <div className="mt-1 text-xs text-white/45">feed items</div>
+                </div>
+              </div>
+            </section>
+
+            <section className={surface("empty", "p-3")}>
+              <h2 className="px-1 pb-2 text-sm font-semibold text-white">Next useful moves</h2>
+              <div className="space-y-1">
+                {workQueue.map(({ label, desc, Icon }) => (
+                  <div key={label} className="grid grid-cols-[34px_minmax(0,1fr)] gap-3 rounded-lg px-2 py-2.5 transition-colors hover:bg-white/[0.035]">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.035] text-white/62">
+                      <Icon className="h-4 w-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-sm font-medium text-white/86">{label}</div>
+                      <p className="mt-0.5 text-xs leading-5 text-white/42">{desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          </aside>
         </div>
       )}
-
-      <div className="mb-32 pb-16 animate-slide-up" style={{ animationDelay: "0.15s" }}>
-        <PostFeed
-          posts={feedPosts}
-          currentUserId={currentUserProfile?.id}
-          hidePinnedIndicator={true}
-          showNavigationArrow={false}
-          onUpdate={handlePostUpdate}
-          session={session}
-        />
-      </div>
     </>
   );
 });

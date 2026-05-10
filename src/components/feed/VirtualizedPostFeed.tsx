@@ -1,8 +1,10 @@
 "use client";
 import { memo, useCallback, useRef, useEffect, useState, useMemo } from "react";
+import Link from "next/link";
+import { Search, Users } from "lucide-react";
 import PostDetail from "./PostDetail";
 import { FeedSkeleton } from "@/components/ui/LoadingSpinner";
-import { iconBox, surface } from "@/components/ui/design-system";
+import { skeleton, surface } from "@/components/ui/design-system";
 import type { FeedPost } from "@/types/post";
 import { getPostCount, getReplyCount } from "./post-engagement-utils";
 
@@ -120,21 +122,27 @@ const VirtualPostItem = memo(function VirtualPostItem({
       ) : (
         // Placeholder with estimated height
         <div 
-          className={surface("panelMuted", "relative mb-3 overflow-hidden p-3 sm:mb-5 sm:p-5")}
+          className={surface("panelMuted", "relative mb-4 overflow-hidden p-4 sm:mb-5 sm:p-5")}
           style={{ minHeight: ESTIMATED_POST_HEIGHT }}
         >
-          <div className="animate-pulse space-y-4">
-            <div className="flex items-start space-x-3">
-              <div className="w-12 h-12 rounded-full bg-white/10" />
-              <div className="flex-1 space-y-2">
-                <div className="h-4 bg-white/10 rounded w-1/4" />
-                <div className="h-3 bg-white/10 rounded w-1/3" />
+          <div className="space-y-5">
+            <div className="flex items-start gap-3">
+              <div className={skeleton("h-11 w-11 shrink-0 rounded-full")} />
+              <div className="min-w-0 flex-1 space-y-2">
+                <div className={skeleton("h-4 w-32")} />
+                <div className={skeleton("h-3 w-24")} />
               </div>
             </div>
             <div className="space-y-2">
-              <div className="h-4 bg-white/10 rounded w-full" />
-              <div className="h-4 bg-white/10 rounded w-5/6" />
-              <div className="h-4 bg-white/10 rounded w-4/6" />
+              <div className={skeleton("h-4 w-full")} />
+              <div className={skeleton("h-4 w-5/6")} />
+              <div className={skeleton("h-4 w-3/5")} />
+            </div>
+            <div className={skeleton("h-36 w-full rounded-xl")} />
+            <div className="flex gap-3">
+              <div className={skeleton("h-8 w-20 rounded-lg")} />
+              <div className={skeleton("h-8 w-20 rounded-lg")} />
+              <div className={skeleton("h-8 w-20 rounded-lg")} />
             </div>
           </div>
         </div>
@@ -203,16 +211,26 @@ export const VirtualizedPostFeed = memo(function VirtualizedPostFeed({
 
   if (posts.length === 0) {
     return (
-      <div className={surface("empty", "px-6 py-14 text-center")}>
-        <div className={iconBox("muted", "mx-auto mb-4 h-16 w-16")}>
-          <svg className="w-10 h-10 text-[var(--muted-foreground)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
-          </svg>
+      <div className={surface("empty", "noise-overlay overflow-hidden p-4 sm:p-5")}>
+        <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
+          <div className="min-w-0">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--color-accent-2)]">Feed is quiet</p>
+            <h2 className="mt-2 text-xl font-semibold tracking-normal text-white">Build your first signal lane</h2>
+            <p className="mt-2 max-w-xl text-sm leading-6 text-white/52">
+              Follow developers or search topics so useful activity starts landing here.
+            </p>
+          </div>
+          <div className="flex flex-col gap-2 sm:w-44">
+            <Link href="/discover" className="inline-flex items-center justify-center gap-2 rounded-lg border border-[rgba(var(--color-accent-2-rgb),0.30)] bg-[rgba(var(--color-accent-2-rgb),0.10)] px-3 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[rgba(var(--color-accent-2-rgb),0.16)]">
+              <Users className="h-4 w-4" />
+              Find people
+            </Link>
+            <Link href="/search" className="inline-flex items-center justify-center gap-2 rounded-lg border border-white/[0.10] bg-white/[0.035] px-3 py-2.5 text-sm font-semibold text-white/74 transition-colors hover:border-white/[0.18] hover:bg-white/[0.06] hover:text-white">
+              <Search className="h-4 w-4" />
+              Search topics
+            </Link>
+          </div>
         </div>
-        <h3 className="text-lg font-semibold text-white mb-2">No posts found</h3>
-        <p className="text-sm text-[var(--muted-foreground)]">
-          Be the first to share something with the community!
-        </p>
       </div>
     );
   }
@@ -232,8 +250,8 @@ export const VirtualizedPostFeed = memo(function VirtualizedPostFeed({
       
       {/* Infinite scroll trigger */}
       {hasMore && (
-        <div ref={loadMoreRef} className="flex justify-center py-4">
-          <div className="flex items-center gap-2 text-[var(--muted-foreground)]">
+        <div ref={loadMoreRef} className="flex justify-center py-5">
+          <div className="flex items-center gap-2 rounded-lg border border-white/[0.08] bg-white/[0.035] px-3 py-2 text-[var(--muted-foreground)]">
             <div className="w-5 h-5 border-2 border-[var(--color-accent)]/30 border-t-[var(--color-accent)] rounded-full animate-spin" />
             <span className="text-sm">Loading more...</span>
           </div>
