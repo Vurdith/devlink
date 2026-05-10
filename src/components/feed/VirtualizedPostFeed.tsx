@@ -214,10 +214,10 @@ export const VirtualizedPostFeed = memo(function VirtualizedPostFeed({
       <div className={surface("empty", "noise-overlay overflow-hidden p-4 sm:p-5")}>
         <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
           <div className="min-w-0">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--color-accent-2)]">Feed is quiet</p>
-            <h2 className="mt-2 text-xl font-semibold tracking-normal text-white">Build your first signal lane</h2>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--color-accent-2)]">Nothing new here</p>
+            <h2 className="mt-2 text-xl font-semibold tracking-normal text-white">Follow builders who post real work</h2>
             <p className="mt-2 max-w-xl text-sm leading-6 text-white/52">
-              Follow developers or search topics so useful activity starts landing here.
+              Search for a topic, follow a few active profiles, or post the update you want people to notice.
             </p>
           </div>
           <div className="flex flex-col gap-2 sm:w-44">
@@ -227,7 +227,7 @@ export const VirtualizedPostFeed = memo(function VirtualizedPostFeed({
             </Link>
             <Link href="/search" className="inline-flex items-center justify-center gap-2 rounded-lg border border-white/[0.10] bg-white/[0.035] px-3 py-2.5 text-sm font-semibold text-white/74 transition-colors hover:border-white/[0.18] hover:bg-white/[0.06] hover:text-white">
               <Search className="h-4 w-4" />
-              Search topics
+              Search tags
             </Link>
           </div>
         </div>

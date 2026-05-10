@@ -19,8 +19,8 @@ export default function MessagesPage() {
           title={isLoggedIn ? "Select a conversation" : "Your messages"}
           description={
             isLoggedIn
-              ? "Choose a thread from the inbox, or start a private conversation with someone on DevLink."
-              : "Log in to send and receive private messages with developers, clients, and collaborators."
+              ? "Choose a thread from the inbox, or start a conversation with a builder, client, or collaborator."
+              : "Log in to read threads, send messages, and review requests."
           }
           action={
             isLoggedIn

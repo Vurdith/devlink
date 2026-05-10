@@ -292,21 +292,17 @@ export const ProfileTooltip = memo(function ProfileTooltip({
       onMouseEnter={handleTooltipEnter}
       onMouseLeave={handleTooltipLeave}
     >
-      {/* Main card */}
       <div className={cn(
-        "relative w-[min(20rem,calc(100vw-1.5rem))] overflow-hidden rounded-xl",
-        "bg-[rgba(12,16,23,0.97)]",
-        "border",
+        "relative w-[min(21rem,calc(100vw-1.5rem))] overflow-hidden rounded-xl bg-[rgba(12,16,23,0.97)] shadow-[0_24px_70px_rgba(0,0,0,0.42)]",
+        "border backdrop-blur-xl",
         profileBorderColor
       )}>
-          {/* Gradient overlay at top */}
           <div className={cn(
-            "absolute inset-x-0 top-0 h-32 opacity-40",
+            "absolute inset-x-0 top-0 h-32 opacity-25",
             `bg-gradient-to-b ${profileGradient} to-transparent`
           )} />
           
-          {/* Banner or gradient */}
-          <div className="relative h-28 overflow-hidden">
+          <div className="relative h-24 overflow-hidden">
             {userData.profile?.bannerUrl ? (
               <>
                 <Image 
@@ -316,29 +312,18 @@ export const ProfileTooltip = memo(function ProfileTooltip({
                   className="object-cover object-center"
                   loading="lazy"
                 />
-                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#0a0e14]" />
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/5 to-[#0a0e14]" />
               </>
             ) : (
               <div className={cn(
                 "absolute inset-0",
                 `bg-gradient-to-br ${profileGradient}`,
-                "opacity-60"
-              )}>
-                {/* Animated pattern overlay */}
-                <div 
-                  className="absolute inset-0 opacity-30" 
-                  style={{
-                    backgroundImage: `radial-gradient(circle at 20% 50%, rgba(255,255,255,0.15) 1px, transparent 1px)`,
-                    backgroundSize: '24px 24px'
-                  }} 
-                />
-              </div>
+                "opacity-45"
+              )} />
             )}
           </div>
           
-          {/* Content */}
-          <div className="relative -mt-10 px-4 pb-4">
-            {/* Avatar with ring */}
+          <div className="relative -mt-9 px-4 pb-4">
             <div className="mb-3 flex items-end gap-3">
               <button
                 onClick={(e) => { e.stopPropagation(); window.location.href = `/u/${userData.username}`; }}
@@ -358,11 +343,10 @@ export const ProfileTooltip = memo(function ProfileTooltip({
                 </div>
               </button>
               
-              {/* Name and username inline with avatar */}
               <div className="min-w-0 flex-1 pb-1">
                 <button
                   onClick={(e) => { e.stopPropagation(); window.location.href = `/u/${userData.username}`; }}
-                  className="group flex items-center gap-1.5"
+                  className="group flex max-w-full items-center gap-1.5"
                 >
                   <span className="truncate font-semibold text-white transition-colors group-hover:text-[var(--color-accent-2)]">
                     {userData.name || userData.username}
@@ -376,25 +360,22 @@ export const ProfileTooltip = memo(function ProfileTooltip({
                     </div>
                   )}
                 </button>
-                <div className="text-sm text-[var(--muted-foreground)]">@{userData.username}</div>
+                <div className="truncate text-sm text-[var(--muted-foreground)]">@{userData.username}</div>
               </div>
             </div>
             
-            {/* Profile type badge */}
             {profileType && (
               <div className="mb-3">
                 <ProfileTypeLabel profileType={profileType} variant="inline" />
               </div>
             )}
             
-            {/* Bio */}
             {userData.profile?.bio && (
               <p className="mb-3 line-clamp-2 border-l border-[rgba(var(--color-accent-2-rgb),0.28)] pl-3 text-sm leading-relaxed text-white/62">
                 {userData.profile?.bio}
               </p>
             )}
             
-            {/* Location and Website */}
             {(userData.profile?.location || userData.profile?.website) && (
               <div className="mb-4 flex flex-wrap gap-x-4 gap-y-1.5 text-xs text-[var(--muted-foreground)]">
                 {userData.profile?.location && (
@@ -423,7 +404,6 @@ export const ProfileTooltip = memo(function ProfileTooltip({
               </div>
             )}
             
-            {/* Stats */}
             {userData._count && (userData._count.followers != null || userData._count.following != null) && (
               <div className="mb-4 grid grid-cols-2 gap-2">
                 <button
@@ -447,7 +427,6 @@ export const ProfileTooltip = memo(function ProfileTooltip({
               </div>
             )}
             
-            {/* Follow Button */}
             {currentUserId && currentUserId !== userData.id && (
               <div className="relative">
                 {isLoadingFollow ? (

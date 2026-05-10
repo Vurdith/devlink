@@ -237,11 +237,11 @@ export default function JobsPage() {
           <div>
             <div className="mb-2 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.16em] text-[var(--color-accent-2)]">
               <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
-              Marketplace
+              Jobs board
             </div>
             <h1 className="text-3xl font-bold tracking-tight text-white font-[var(--font-space-grotesk)]">Jobs</h1>
             <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[var(--muted-foreground)]">
-              Find work or hire Roblox talent with fast, focused listings.
+              Post focused Roblox briefs, compare fit quickly, and keep applications in one place.
             </p>
           </div>
           <div className={iconBox("cyan", "h-11 w-11")}>
@@ -540,7 +540,7 @@ function JobCard({
           </span>
           <span className="inline-flex items-center gap-1.5">
             <Clock3 className="h-3.5 w-3.5" aria-hidden="true" />
-            Open now
+            Accepting applicants
           </span>
         </div>
         {canApply && !applicationOpen ? (

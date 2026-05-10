@@ -113,14 +113,14 @@ export default function SecuritySettings() {
       } else {
         toast({
           title: "Error",
-          description: data.error || "Failed to set password.",
+          description: data.error || "Could not set password.",
           variant: "destructive",
         });
       }
     } catch {
       toast({
         title: "Error",
-        description: "An unexpected error occurred.",
+        description: "Could not reach DevLink. Check your connection and try again.",
         variant: "destructive",
       });
     } finally {
@@ -143,22 +143,22 @@ export default function SecuritySettings() {
 
       if (response.ok) {
         toast({
-          title: "Password Updated",
-          description: "Your password has been changed successfully.",
+          title: "Password updated",
+          description: "Your password has been changed.",
           variant: "success",
         });
         setPasswordData({ currentPassword: "", newPassword: "", confirmPassword: "" });
       } else {
         toast({
           title: "Error",
-          description: data.error || "Failed to change password.",
+          description: data.error || "Could not change password.",
           variant: "destructive",
         });
       }
     } catch {
       toast({
         title: "Error",
-        description: "An unexpected error occurred.",
+        description: "Could not reach DevLink. Check your connection and try again.",
         variant: "destructive",
       });
     } finally {

@@ -29,20 +29,20 @@ const defaultSettings: NotificationSetting[] = [
   },
   {
     id: "email_followers",
-    label: "New followers",
+    label: "New Followers",
     description: "When someone follows your profile",
     enabled: false,
   },
   {
     id: "email_messages",
-    label: "Direct messages",
+    label: "Direct Messages",
     description: "When you receive a new message",
     enabled: true,
   },
   {
     id: "email_updates",
-    label: "Product updates",
-    description: "Important DevLink changes and release notes",
+    label: "Platform Updates",
+    description: "News about new features and improvements",
     enabled: false,
   },
 ];
@@ -83,8 +83,8 @@ export default function NotificationSettings() {
     <div className="space-y-6">
       <SettingsPageHeader
         eyebrow="Notifications"
-        title="Notifications"
-        description="Choose which account events should reach your inbox."
+        title="Notification Settings"
+        description="Choose what notifications you want to receive"
         icon={
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
             <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -115,8 +115,9 @@ export default function NotificationSettings() {
         </div>
       ) : (
         <>
+      {/* Email Notifications */}
       <div
-        className={surface("panel", "noise-overlay relative overflow-hidden p-4 animate-slide-up sm:p-6")}
+        className={surface("panel", "noise-overlay relative overflow-hidden p-6 animate-slide-up")}
         style={{ animationDelay: '0.05s' }}
       >
         <div
@@ -135,8 +136,8 @@ export default function NotificationSettings() {
             </svg>
           </div>
           <div>
-            <h2 className="text-lg font-semibold text-white">Email</h2>
-            <p className="text-sm text-[var(--muted-foreground)]">Messages sent to your account email</p>
+            <h2 className="text-lg font-semibold text-white">Email Notifications</h2>
+            <p className="text-sm text-[var(--muted-foreground)]">Configure email alerts</p>
           </div>
         </div>
 
@@ -160,6 +161,47 @@ export default function NotificationSettings() {
                 checked={setting.enabled} 
                 onChange={() => toggleSetting(setting.id)} 
               />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Push Notifications - Coming Soon */}
+      <div className={surface("panelMuted", "noise-overlay relative overflow-hidden p-6 animate-slide-up")} style={{ animationDelay: '0.1s' }}>
+        {/* Push notifications are not enabled yet. */}
+        <div className="absolute inset-0 z-10 flex items-center justify-center bg-[rgba(5,8,12,0.82)] backdrop-blur-sm">
+          <div className="text-center">
+            <div className={iconBox("muted", "mx-auto mb-3 h-12 w-12")}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-[var(--muted-foreground)]">
+                <path d="M12 22c1.1 0 2-.9 2-2h-4a2 2 0 0 0 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </div>
+            <p className="text-white font-medium">Push Notifications</p>
+            <p className="text-sm text-[var(--muted-foreground)]">Not enabled yet</p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3 mb-6 opacity-50">
+          <div className={iconBox("muted", "h-10 w-10")}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-white">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </div>
+          <div>
+            <h2 className="text-lg font-semibold text-white">Push Notifications</h2>
+            <p className="text-sm text-[var(--muted-foreground)]">Browser and mobile alerts</p>
+          </div>
+        </div>
+
+        <div className="space-y-4 opacity-50">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="flex items-center justify-between p-4 rounded-xl bg-white/5">
+              <div className="flex-1">
+                <div className="h-4 w-24 bg-white/10 rounded" />
+                <div className="h-3 w-40 bg-white/5 rounded mt-2" />
+              </div>
+              <div className="w-11 h-6 bg-white/10 rounded-full" />
             </div>
           ))}
         </div>

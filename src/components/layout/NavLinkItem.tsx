@@ -26,12 +26,12 @@ export const NavLinkItem = memo(function NavLinkItem({
       aria-label={item.description}
       onClick={onClick}
       className={cn(
-        "group relative flex min-h-11 min-w-0 items-center gap-3 rounded-lg border px-3 py-2.5 transition-colors duration-150",
+        "group relative flex min-w-0 items-center gap-3 rounded-lg border px-3 py-2.5 transition-all duration-150 active:scale-[0.985]",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.62)] focus-visible:ring-offset-2 focus-visible:ring-offset-[#07090d]",
         isActive
           ? "border-[rgba(var(--color-accent-2-rgb),0.24)] bg-[rgba(var(--color-accent-2-rgb),0.105)] text-white"
           : "border-transparent text-[var(--muted-foreground)] hover:border-white/[0.09] hover:bg-white/[0.045] hover:text-white",
-        compact && "min-h-10 py-2"
+        compact && "py-2"
       )}
       title={item.description}
     >
@@ -44,7 +44,7 @@ export const NavLinkItem = memo(function NavLinkItem({
       />
       <span
         className={cn(
-          "flex h-9 w-9 shrink-0 items-center justify-center rounded-md border transition-colors duration-150",
+          "flex h-9 w-9 shrink-0 items-center justify-center rounded-md border transition-all duration-150 group-hover:scale-[1.03] group-active:scale-100",
           isActive
             ? "border-[rgba(var(--color-accent-2-rgb),0.20)] bg-[rgba(var(--color-accent-2-rgb),0.12)] text-[var(--color-accent-2)]"
             : "border-transparent bg-transparent text-[var(--muted-foreground)] group-hover:bg-white/[0.04] group-hover:text-[var(--color-accent-2)]"

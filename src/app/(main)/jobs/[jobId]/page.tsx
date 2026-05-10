@@ -204,7 +204,7 @@ export default function JobDetailPage() {
 
   return (
     <main className="mx-auto max-w-4xl px-4 pb-24 pt-8">
-      <Link href="/jobs" className="mb-4 inline-flex items-center gap-2 rounded-lg px-1 py-1 text-xs font-semibold text-[var(--muted-foreground)] transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.65)]">
+      <Link href="/jobs" className="mb-4 inline-flex items-center gap-2 rounded-lg px-1 py-1 text-xs font-semibold text-[var(--muted-foreground)] transition-colors hover:bg-white/[0.035] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.65)]">
         <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
         Back to jobs
       </Link>
@@ -243,7 +243,7 @@ export default function JobDetailPage() {
           <div className={surface("empty", "mt-5 flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between")}>
             <div>
               <div className="text-sm font-semibold text-white">Sign in to apply</div>
-              <p className="mt-1 text-xs leading-relaxed text-[var(--muted-foreground)]">Create an account or log in to send a note to the client.</p>
+              <p className="mt-1 text-xs leading-relaxed text-[var(--muted-foreground)]">Create an account or log in to send your fit, availability, and profile.</p>
             </div>
             <div className="flex flex-col gap-2 sm:flex-row">
               <Link href="/login" className={cn("inline-flex min-h-11 items-center justify-center rounded-lg px-4 text-xs font-semibold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.65)] sm:min-h-10", ui.control.ghost)}>
@@ -293,7 +293,7 @@ export default function JobDetailPage() {
 
         {isOwner ? (
           <div className="mt-5 rounded-lg border border-white/[0.08] bg-white/[0.035] px-3 py-2 text-xs leading-relaxed text-white/65">
-            This is your listing. Review applications below and keep candidates moving with a clear accept or decline.
+            This is your listing. Review applications below and close the loop with each candidate.
           </div>
         ) : null}
 

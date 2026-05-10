@@ -138,12 +138,12 @@ export default function VerificationPage() {
   const selectedType = getTypeCopy(form.type);
 
   return (
-    <main className="mx-auto max-w-5xl px-4 pb-24 pt-8">
+    <main className="mx-auto max-w-4xl px-4 pb-24 pt-8 sm:px-6">
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-white">Verification requests</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-white">Verification</h1>
           <p className="mt-2 text-sm text-[var(--muted-foreground)]">
-            Submit trust checks for your profile and see what still needs review.
+            Request account trust checks and track what is still waiting for review.
           </p>
         </div>
         <div className={iconBox("cyan", "h-11 w-11")}>
@@ -158,10 +158,11 @@ export default function VerificationPage() {
           Checking your session...
         </div>
       ) : !userId ? (
-        <div className={surface("empty", "p-5")}>
+        <div className={surface("panel", "noise-overlay relative overflow-hidden p-5")}>
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.42)] to-transparent" />
           <div className="text-sm font-semibold text-white">Sign in to request verification</div>
-          <p className="mt-1 text-sm leading-6 text-[var(--muted-foreground)]">
-            Verification requests belong to one account. Sign in so the review team can attach the request to your profile.
+          <p className="mt-1 text-sm text-[var(--muted-foreground)]">
+            Verification requests are private to your account. Sign in first so the review team can attach the request to you.
           </p>
           <Link
             href="/login?callbackUrl=/verification"
@@ -183,10 +184,11 @@ export default function VerificationPage() {
             </div>
           )}
 
-          <div className={surface("panel", "mb-6 p-4 sm:p-5")}>
+          <div className={surface("panel", "noise-overlay relative mb-6 overflow-hidden p-4 sm:p-5")}>
+            <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.34)] to-transparent" />
             <div className="mb-4">
               <h2 className="text-sm font-semibold text-white">New request</h2>
-              <p className="mt-1 text-xs leading-5 text-[var(--muted-foreground)]">
+              <p className="mt-1 text-xs text-[var(--muted-foreground)]">
                 Choose the review type and add proof when it helps the reviewer confirm your account.
               </p>
             </div>
@@ -198,7 +200,7 @@ export default function VerificationPage() {
                     type="button"
                     onClick={() => setForm((prev) => ({ ...prev, type: type.value }))}
                     className={cn(
-                      "min-h-[8.5rem] rounded-lg border p-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.56)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)]",
+                      "rounded-lg border p-3 text-left transition-all active:scale-[0.985]",
                       form.type === type.value
                         ? ui.active.cyan
                         : cn(ui.surface.empty, "hover:border-white/[0.14] hover:bg-white/[0.045]")
@@ -213,7 +215,7 @@ export default function VerificationPage() {
                 value={form.documentUrl}
                 onChange={(e) => setForm((prev) => ({ ...prev, documentUrl: e.target.value }))}
                 placeholder={form.type === "PORTFOLIO" ? "Portfolio proof URL (optional)" : "Evidence URL (optional)"}
-                className={cn(ui.control.field, "min-h-11")}
+                className={ui.control.field}
                 aria-label="Evidence URL"
               />
               <p className="text-xs text-[var(--muted-foreground)]">
@@ -222,7 +224,7 @@ export default function VerificationPage() {
               <textarea
                 value={form.notes}
                 onChange={(e) => setForm((prev) => ({ ...prev, notes: e.target.value }))}
-                placeholder="Add context for the reviewer (optional)"
+                placeholder="Notes for the review team (optional)"
                 className={cn(ui.control.field, "min-h-[100px] resize-y")}
                 maxLength={1000}
                 aria-label="Notes for the review team"
@@ -233,7 +235,7 @@ export default function VerificationPage() {
               onClick={submitRequest}
               disabled={submitting || loading}
               className={cn(
-                "mt-4 inline-flex min-h-11 w-full items-center justify-center rounded-lg px-4 py-2 text-sm font-semibold transition-all sm:w-auto",
+                "mt-4 inline-flex min-h-10 w-full items-center justify-center rounded-lg px-4 py-2 text-sm font-semibold transition-all sm:w-auto",
                 ui.control.gradient,
                 submitting && "opacity-60 cursor-not-allowed"
               )}
@@ -242,13 +244,14 @@ export default function VerificationPage() {
             </button>
           </div>
 
-          <div className={surface("panel", "p-4 sm:p-5")}>
-            <h2 className="mb-3 text-sm font-semibold text-white">Your requests</h2>
+          <div className={surface("panel", "noise-overlay relative overflow-hidden p-4 sm:p-5")}>
+            <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.28)] to-transparent" />
+            <h2 className="mb-3 text-sm font-semibold text-white">My requests</h2>
             {loading ? (
               <div className="text-sm text-[var(--muted-foreground)]" role="status">Loading requests...</div>
             ) : requests.length === 0 ? (
               <div className={surface("empty", "p-4 text-sm text-[var(--muted-foreground)]")}>
-                No requests yet. Submit one above when your profile has proof ready for review.
+                No verification requests yet. Submit one above when you are ready for a trust review.
               </div>
             ) : (
               <div className="grid gap-3">

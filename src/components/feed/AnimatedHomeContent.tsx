@@ -61,9 +61,9 @@ const audienceLanes = [
 ];
 
 const workQueue = [
-  { label: "Scan updates", desc: "Recent posts from builders and teams", Icon: Sparkles },
-  { label: "Resume chats", desc: "Jump back into active conversations", Icon: MessageSquare },
-  { label: "Check jobs", desc: "Review new opportunities and signals", Icon: BriefcaseBusiness },
+  { label: "Catch shipped work", desc: "Recent builds, clips, asks, and handoffs", Icon: Sparkles },
+  { label: "Pick up replies", desc: "Threads where a fast answer helps", Icon: MessageSquare },
+  { label: "Spot paid work", desc: "Jobs and client intent from the network", Icon: BriefcaseBusiness },
 ];
 
 function CreatePostFallback() {
@@ -112,7 +112,7 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
               <div className="mb-7 flex items-center gap-4">
                 <ThemeLogoImg className="h-14 w-14 object-contain sm:h-16 sm:w-16" />
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--color-accent-2)]">Developer network</p>
+                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--color-accent-2)]">Home feed</p>
                   <h1 className="mt-1 text-5xl font-bold leading-none tracking-normal text-white sm:text-6xl lg:text-7xl" style={{ fontFamily: "var(--font-space-grotesk)" }}>
                     DevLink
                   </h1>
@@ -146,8 +146,8 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
               <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.46)] to-transparent" />
               <div className="mb-4 flex items-center justify-between gap-3">
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/38">Live workspace preview</p>
-                  <h2 className="mt-1 text-lg font-semibold tracking-normal text-white">What starts here</h2>
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/38">How posts turn into work</p>
+                  <h2 className="mt-1 text-lg font-semibold tracking-normal text-white">What the home feed does</h2>
                 </div>
                 <Search className="h-5 w-5 text-[var(--color-accent-2)]" />
               </div>
@@ -176,17 +176,17 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
       {session && currentUserProfile && (
         <div className="grid min-w-0 gap-5 pb-20 pt-4 animate-slide-up lg:grid-cols-[minmax(0,760px)_minmax(280px,1fr)] lg:items-start lg:gap-8 lg:pb-28 lg:pt-8">
           <main className="min-w-0">
-            <div className="mb-5 flex min-w-0 flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div className="mb-5 grid min-w-0 gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
               <div className="min-w-0">
-                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--color-accent-2)]">Start here</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--color-accent-2)]">Your network is moving</p>
                 <h1 className="mt-1 text-2xl font-semibold tracking-normal text-white sm:text-3xl">
                   Good to see you, {firstName}
                 </h1>
                 <p className="mt-2 max-w-2xl text-sm leading-6 text-white/52">
-                  Compose once, then scan the latest project updates, replies, and hiring signals.
+                  Share the thing you are building, then skim the work, asks, and replies worth acting on.
                 </p>
               </div>
-              <div className="inline-flex w-fit items-center gap-2 rounded-lg border border-white/[0.08] bg-white/[0.035] px-3 py-2 text-xs font-semibold text-white/62">
+              <div className="inline-flex w-fit items-center gap-2 rounded-lg border border-white/[0.08] bg-white/[0.035] px-3 py-2 text-xs font-semibold text-white/62 shadow-[0_10px_30px_rgba(0,0,0,0.16)]">
                 <Bell className="h-4 w-4 text-[var(--color-accent-2)]" />
                 {feedCountLabel}
               </div>
@@ -211,10 +211,10 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
           </main>
 
           <aside className="min-w-0 space-y-4 lg:sticky lg:top-24">
-            <section className={surface("toolbar", "noise-overlay p-4")}>
+            <section className={surface("toolbar", "noise-overlay overflow-hidden p-4")}>
               <div className="mb-3 flex items-center justify-between gap-3">
                 <div>
-                  <h2 className="text-sm font-semibold text-white">Today&apos;s workspace</h2>
+                  <h2 className="text-sm font-semibold text-white">Network pulse</h2>
                   <p className="mt-1 text-xs text-white/45">@{currentUserProfile.username}</p>
                 </div>
                 <div className="rounded-lg border border-white/[0.08] bg-white/[0.04] px-2.5 py-1.5 text-xs font-semibold text-white/62">
@@ -229,16 +229,16 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
                 </div>
                 <div className="rounded-lg border border-white/[0.07] bg-white/[0.025] p-3">
                   <div className="text-xl font-semibold text-white">{feedPosts.length}</div>
-                  <div className="mt-1 text-xs text-white/45">updates</div>
+                  <div className="mt-1 text-xs text-white/45">posts loaded</div>
                 </div>
               </div>
             </section>
 
             <section className={surface("empty", "p-3")}>
-              <h2 className="px-1 pb-2 text-sm font-semibold text-white">Next useful moves</h2>
+              <h2 className="px-1 pb-2 text-sm font-semibold text-white">Useful next moves</h2>
               <div className="space-y-1">
                 {workQueue.map(({ label, desc, Icon }) => (
-                  <div key={label} className="grid grid-cols-[34px_minmax(0,1fr)] gap-3 rounded-lg px-2 py-2.5 transition-colors hover:bg-white/[0.035]">
+                  <div key={label} className="grid grid-cols-[34px_minmax(0,1fr)] gap-3 rounded-lg px-2 py-2.5 transition-all duration-200 hover:translate-x-0.5 hover:bg-white/[0.04]">
                     <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.035] text-white/62">
                       <Icon className="h-4 w-4" />
                     </div>

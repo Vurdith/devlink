@@ -188,25 +188,25 @@ function SearchContent() {
       value: "all",
       label: "All",
       icon: <Search className="h-4 w-4" aria-hidden="true" />,
-      helper: "Profiles, tags, and projects"
+      helper: "People, tags, work"
     },
     {
       value: "profiles",
       label: "Profiles",
       icon: <Users className="h-4 w-4" aria-hidden="true" />,
-      helper: "People and profile text"
+      helper: "Names, handles, bios"
     },
     {
       value: "hashtags",
       label: "Hashtags",
       icon: <Hash className="h-4 w-4" aria-hidden="true" />,
-      helper: "Topics in posts and projects"
+      helper: "Post and project topics"
     },
     {
       value: "projects",
       label: "Projects",
       icon: <FolderKanban className="h-4 w-4" aria-hidden="true" />,
-      helper: "Portfolio and work titles"
+      helper: "Portfolio work"
     }
   ];
 
@@ -237,7 +237,7 @@ function SearchContent() {
             Search
           </div>
           <h1 className="max-w-3xl text-2xl font-bold tracking-tight text-white sm:text-3xl">
-            {query ? `Results for "${query}"` : "Search people, topics, and projects."}
+            {query ? `Results for "${query}"` : "Find people, tags, and portfolio work."}
           </h1>
           <form onSubmit={handleSubmit} className="mt-4 grid gap-2 sm:grid-cols-[1fr_auto]">
             <label htmlFor="search-query" className="sr-only">Search DevLink</label>
@@ -431,7 +431,7 @@ function SearchContent() {
                     <div className="relative z-20 pointer-events-auto">
                       <Link 
                         href={`/hashtag/${hashtag.tag.replace('#', '')}`}
-                        className={cn("inline-flex min-h-10 items-center rounded-lg px-3 py-2 text-sm text-[var(--accent)] transition-colors", ui.control.ghost)}
+                        className={cn("inline-flex min-h-9 items-center rounded-lg px-3 py-1 text-sm font-semibold text-[var(--accent)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]", ui.control.ghost)}
                       >
                         View
                       </Link>
@@ -473,7 +473,7 @@ function SearchContent() {
                       </div>
                       <Link 
                         href={`/projects/${project.id}`}
-                        className={cn("inline-flex min-h-10 items-center justify-center rounded-lg px-3 py-2 text-sm text-[var(--accent)] transition-colors", ui.control.ghost)}
+                        className={cn("inline-flex min-h-9 items-center justify-center rounded-lg px-3 py-1 text-sm font-semibold text-[var(--accent)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]", ui.control.ghost)}
                       >
                         View
                       </Link>
@@ -487,8 +487,8 @@ function SearchContent() {
           {/* No Results */}
           {!query && (
             <FeedbackState
-              title="Start with a handle, topic, or project."
-              description="Try a username, a skill like react, or a project name you remember."
+              title="Search by handle, tag, or project"
+              description="Try a username, a Roblox skill, or a project title."
               className="py-14"
               icon={
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
@@ -504,7 +504,7 @@ function SearchContent() {
               title={`No ${selectedType === "all" ? "results" : selectedLabel.toLowerCase()} for "${query}"`}
               description={
                 selectedType === "all"
-                  ? "Try a shorter term, remove punctuation, or search a related skill."
+                  ? "Try fewer words, remove punctuation, or search a related Roblox skill."
                   : "Switch back to all results or try a broader search term."
               }
               className="py-14"
@@ -528,16 +528,7 @@ function SearchContent() {
 
 export default function SearchPage() {
   return (
-    <Suspense
-      fallback={
-        <div className="flex min-h-dvh items-center justify-center px-4">
-          <div className={surface("empty", "flex items-center gap-3 px-5 py-4 text-sm text-[var(--muted-foreground)]")} role="status">
-            <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/20 border-t-[var(--color-accent-2)]" />
-            Loading search
-          </div>
-        </div>
-      }
-    >
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
       <SearchContent />
     </Suspense>
   );

@@ -28,7 +28,7 @@ export function ProfileTabNavigation({
     <div
       className={surface(
         "toolbar",
-        "noise-overlay relative mb-4 overflow-hidden p-1.5 sm:mb-6"
+        "noise-overlay relative mb-4 overflow-hidden p-1 sm:mb-6 sm:p-1.5"
       )}
       style={{
         background:
@@ -36,7 +36,7 @@ export function ProfileTabNavigation({
       }}
     >
       <div
-        className="flex max-w-full snap-x gap-1 overflow-x-auto overscroll-x-contain"
+        className="flex max-w-full snap-x gap-1 overflow-x-auto overscroll-x-contain pb-px"
         style={{
           WebkitOverflowScrolling: "touch",
           scrollbarWidth: "none",

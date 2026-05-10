@@ -186,8 +186,8 @@ export default function RegisterPage() {
 
   // Get loading message
   const getLoadingMessage = () => {
-    if (step === "registering") return "Creating your account...";
-    if (step === "signing-in") return "Signing you in...";
+    if (step === "registering") return "Creating account...";
+    if (step === "signing-in") return "Signing in...";
     return "Create account";
   };
 
@@ -212,7 +212,7 @@ export default function RegisterPage() {
             Create your account
           </h1>
           <p className="text-[var(--muted-foreground)]">
-            Build a profile clients and collaborators can read quickly.
+            Build a profile clients and collaborators can trust
           </p>
         </div>
 
@@ -331,7 +331,7 @@ export default function RegisterPage() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-1.5 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-lg text-[var(--muted-foreground)] transition-colors hover:bg-white/[0.06] hover:text-white"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 rounded-md p-1 text-[var(--muted-foreground)] transition-all hover:bg-white/[0.06] hover:text-white active:scale-95"
                   aria-label={showPassword ? "Hide password" : "Show password"}
                 >
                   {showPassword ? (
@@ -397,7 +397,7 @@ export default function RegisterPage() {
 
             {/* Confirm Password field */}
             <div>
-              <label htmlFor="confirm-password" className="block text-sm font-medium text-white mb-2">Confirm password</label>
+              <label htmlFor="confirm-password" className="block text-sm font-medium text-white mb-2">Confirm Password</label>
               <div className="relative">
                 <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)]">
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -469,8 +469,8 @@ export default function RegisterPage() {
 
             {/* Terms */}
             <p className="text-xs text-[var(--muted-foreground)] text-center">
-              By creating an account, you agree to the{" "}
-                <Link href="/terms" className="text-[var(--color-accent-2)] hover:underline">Terms</Link>
+              By creating an account, you agree to our{" "}
+                <Link href="/terms" className="text-[var(--color-accent-2)] hover:underline">Terms of Service</Link>
               {" "}and{" "}
                 <Link href="/privacy" className="text-[var(--color-accent-2)] hover:underline">Privacy Policy</Link>
             </p>

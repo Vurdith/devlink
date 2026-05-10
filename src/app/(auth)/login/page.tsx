@@ -32,7 +32,7 @@ function LoginForm() {
       setSuccessMessage("Account created. Sign in to continue.");
     }
     if (searchParams.get("reset") === "true") {
-      setSuccessMessage("Password reset. Use your new password to sign in.");
+      setSuccessMessage("Password reset. Sign in with your new password.");
     }
   }, [searchParams]);
 
@@ -42,7 +42,7 @@ function LoginForm() {
     // Basic validation
     const trimmedEmail = email.trim().toLowerCase();
     if (!trimmedEmail || !password) {
-      setError("Enter your email and password.");
+      setError("Please fill in all fields");
       return;
     }
     
@@ -95,7 +95,7 @@ function LoginForm() {
             Welcome back
           </h1>
           <p className="text-[var(--muted-foreground)]">
-            Open your profile, messages, and saved work.
+            Continue to your DevLink workspace
           </p>
         </div>
 
@@ -154,7 +154,7 @@ function LoginForm() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-1.5 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-lg text-[var(--muted-foreground)] transition-colors hover:bg-white/[0.06] hover:text-white"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 rounded-md p-1 text-[var(--muted-foreground)] transition-all hover:bg-white/[0.06] hover:text-white active:scale-95"
                   aria-label={showPassword ? "Hide password" : "Show password"}
                 >
                   {showPassword ? (
@@ -241,7 +241,7 @@ function LoginForm() {
 
         {/* Sign up link */}
         <p className="text-center mt-6 text-[var(--muted-foreground)] animate-fade-in" style={{ animationDelay: '0.2s' }}>
-          New to DevLink?{" "}
+          Don&apos;t have an account?{" "}
           <Link href="/register" className="text-[var(--color-accent-2)] hover:underline font-medium">
             Sign up
           </Link>

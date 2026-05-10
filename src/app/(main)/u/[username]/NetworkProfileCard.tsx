@@ -33,9 +33,6 @@ export function NetworkProfileCard({
   initiallyFollowing,
 }: NetworkProfileCardProps) {
   const profileType = user.profile?.profileType;
-  const bannerBackground = user.profile?.bannerUrl
-    ? `linear-gradient(180deg, rgba(8,11,16,0.10), rgba(8,11,16,0.74)), url(${user.profile.bannerUrl})`
-    : "linear-gradient(135deg, rgba(var(--color-accent-2-rgb),0.14), rgba(var(--color-accent-rgb),0.07))";
 
   return (
     <div className={surface("panelMuted", "group relative overflow-hidden transition-all duration-200 hover:border-white/[0.16] hover:bg-white/[0.035]")}>
@@ -45,21 +42,23 @@ export function NetworkProfileCard({
       />
       <div
         aria-hidden="true"
-        className="h-20 bg-white/[0.025] sm:absolute sm:inset-y-0 sm:left-0 sm:h-auto sm:w-32"
+        className="absolute inset-y-0 left-0 hidden w-28 bg-white/[0.025] sm:block"
         style={{
-          backgroundImage: bannerBackground,
+          backgroundImage: user.profile?.bannerUrl
+            ? `linear-gradient(180deg, rgba(8,11,16,0.12), rgba(8,11,16,0.74)), url(${user.profile.bannerUrl})`
+            : "linear-gradient(135deg, rgba(var(--color-accent-2-rgb),0.14), rgba(var(--color-accent-rgb),0.07))",
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
       />
 
-      <div className="-mt-10 grid gap-4 p-4 sm:mt-0 sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-center sm:pl-5">
+      <div className="grid gap-4 p-4 sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-center sm:pl-5">
         <ProfileTooltip user={user} currentUserId={currentUserId}>
           <Link
             href={`/u/${user.username}`}
             className="relative z-10 flex min-w-0 items-center gap-3 rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.7)] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(10,13,18)]"
           >
-            <Avatar src={user.profile?.avatarUrl ?? undefined} size={64} className="border-4 border-[rgb(10,13,18)] sm:h-14 sm:w-14" />
+            <Avatar src={user.profile?.avatarUrl ?? undefined} size={56} className="border-4 border-[rgb(10,13,18)]" />
             <div className="min-w-0">
               <div className="flex min-w-0 items-center gap-2">
                 <span className="truncate text-base font-semibold text-white transition-colors group-hover:text-[var(--color-accent-2)]">
@@ -88,7 +87,7 @@ export function NetworkProfileCard({
           {user.profile?.bio ? (
             <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-white/58">{user.profile.bio}</p>
           ) : (
-            <p className="mt-2 text-sm text-white/38">No public bio.</p>
+            <p className="mt-2 text-sm text-white/35">No bio yet</p>
           )}
           <div className="mt-3 flex flex-wrap gap-3 text-xs text-[var(--muted-foreground)]">
             {[

@@ -43,7 +43,7 @@ export function PostDetailHeader({
   return (
     <div className="relative mb-3 flex items-start gap-3 sm:mb-4">
       <ProfileTooltip user={post.user} currentUserId={currentUserId}>
-        <div onClick={onNavigateToProfile} className="relative h-10 w-10 flex-shrink-0 cursor-pointer sm:h-12 sm:w-12">
+        <button type="button" onClick={onNavigateToProfile} className="relative h-10 w-10 flex-shrink-0 cursor-pointer rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.62)] sm:h-12 sm:w-12">
           <div className="absolute -inset-1 rounded-full border border-white/[0.06] bg-white/[0.025]" />
           {!avatarError && displayAvatarUrl ? (
             displayAvatarUrl.startsWith("blob:") ? (
@@ -69,13 +69,13 @@ export function PostDetailHeader({
               <span className="text-white font-semibold text-xs sm:text-sm">{getInitials(post.user.name, post.user.username)}</span>
             </div>
           )}
-        </div>
+        </button>
       </ProfileTooltip>
 
       <div className="flex-1 min-w-0">
         <div className="flex items-center space-x-1 sm:space-x-2 flex-wrap">
           <ProfileTooltip user={post.user} currentUserId={currentUserId}>
-            <a href={`/u/${post.user.username}`} className="font-bold text-sm sm:text-base text-white hover:underline truncate tracking-tight">
+            <a href={`/u/${post.user.username}`} className="truncate rounded-sm text-sm font-bold tracking-tight text-white transition-colors hover:text-[var(--color-accent-2)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.55)] sm:text-base">
               {post.user.name || post.user.username}
             </a>
           </ProfileTooltip>
@@ -88,11 +88,11 @@ export function PostDetailHeader({
               />
             </svg>
           )}
-          <span className="text-[var(--muted-foreground)] text-xs sm:text-sm">@{post.user.username}</span>
+          <span className="text-xs text-[var(--muted-foreground)] sm:text-sm">@{post.user.username}</span>
           <span className="text-[var(--muted-foreground)] text-xs sm:text-sm hidden min-[400px]:inline opacity-50">/</span>
           <TimeAgo date={post.createdAt} className="text-[var(--muted-foreground)] text-xs sm:text-sm hidden min-[400px]:inline" />
-          {post.updatedAt > post.createdAt && <span className="text-[var(--muted-foreground)] text-xs sm:text-sm hidden sm:inline opacity-50">/ Edited</span>}
-          {post.isPinned && showPinnedTag && <span className="text-[var(--muted-foreground)] text-xs sm:text-sm hidden sm:inline opacity-50">/ Pinned</span>}
+          {post.updatedAt > post.createdAt && <span className="hidden rounded-full border border-white/[0.07] bg-white/[0.035] px-2 py-0.5 text-xs text-[var(--muted-foreground)] opacity-70 sm:inline">Edited</span>}
+          {post.isPinned && showPinnedTag && <span className="hidden rounded-full border border-[rgba(var(--color-accent-2-rgb),0.18)] bg-[rgba(var(--color-accent-2-rgb),0.07)] px-2 py-0.5 text-xs text-[var(--color-accent-2)] sm:inline">Pinned</span>}
         </div>
 
         <div className="mt-2 rounded-lg border border-transparent pr-1">

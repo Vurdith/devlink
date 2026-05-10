@@ -111,7 +111,7 @@ export function EditPostModal({ post, isOpen, onClose, onSave }: EditPostModalPr
             <ModalTextarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              placeholder="What's happening in the Roblox dev world?"
+              placeholder="Update the build note, ask, or project context."
               rows={4}
             />
             <div className="flex items-center justify-between mt-2">

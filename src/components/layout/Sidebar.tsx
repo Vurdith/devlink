@@ -21,7 +21,7 @@ export const Sidebar = memo(function Sidebar({ session }: SidebarProps) {
     <aside
       role="navigation"
       aria-label="Main sidebar navigation"
-      className="fixed left-0 top-0 z-50 hidden h-full w-72 flex-col border-0 border-r border-white/[0.08] bg-[rgba(7,9,13,0.88)] md:flex"
+      className="fixed left-0 top-0 z-50 hidden h-full w-72 flex-col border-0 border-r border-white/[0.08] bg-[rgba(7,9,13,0.88)] shadow-[inset_-1px_0_0_rgba(255,255,255,0.03)] backdrop-blur-xl md:flex"
     >
       <div className="relative flex flex-col h-full">
         {/* Logo Section */}
@@ -41,7 +41,7 @@ export const Sidebar = memo(function Sidebar({ session }: SidebarProps) {
 
         {/* Back Button */}
         <div className="px-4 pt-4">
-          <BackButton className="min-h-11 w-full justify-start rounded-lg border border-white/[0.08] bg-white/[0.035] text-[var(--muted-foreground)] hover:bg-white/[0.065] hover:text-white" />
+          <BackButton className="w-full justify-start rounded-lg border border-white/[0.08] bg-white/[0.035] text-[var(--muted-foreground)] transition-all hover:bg-white/[0.065] hover:text-white active:scale-[0.985]" />
         </div>
 
         {/* Main Navigation */}
@@ -63,7 +63,7 @@ export const Sidebar = memo(function Sidebar({ session }: SidebarProps) {
               <div className="py-4">
                 <div className="flex items-center gap-2">
                   <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-rgb),0.2)] to-transparent" />
-                  <span className="text-[10px] text-[rgba(var(--color-accent-rgb),0.6)] uppercase tracking-widest">Your space</span>
+                  <span className="text-[10px] text-[rgba(var(--color-accent-rgb),0.6)] uppercase tracking-widest">Account</span>
                   <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-rgb),0.2)] to-transparent" />
                 </div>
               </div>

@@ -11,6 +11,7 @@ import { ProfileTabs } from "./ProfileTabs";
 import { ProfileBanner, ProfileAvatar } from "./ProfileMedia";
 import { ProfileTypeLabel } from "@/components/profile/ProfileTypeLabel";
 import { fetchInitialFollowingState, fetchProfilePageData } from "@/server/users/profile-page-data";
+import { AVAILABILITY_STATUS, RESPONSE_TIMES, type AvailabilityStatus, type ResponseTime } from "@/lib/skills";
 import type { TabType } from "./profile-types";
 
 // Cache page for 60 seconds - engagement state is fetched client-side
@@ -49,6 +50,23 @@ function readInitialTab(tab?: string | string[]): TabType | undefined {
   return value && profileTabs.has(value as TabType) ? (value as TabType) : undefined;
 }
 
+function formatAvailability(value?: string | null) {
+  if (!value) return null;
+  return AVAILABILITY_STATUS[value as AvailabilityStatus]?.label ?? toTitleLabel(value);
+}
+
+function formatResponseTime(value?: string | null) {
+  if (!value) return null;
+  return RESPONSE_TIMES[value as ResponseTime]?.label ?? toTitleLabel(value);
+}
+
+function toTitleLabel(value: string) {
+  return value
+    .replaceAll("_", " ")
+    .toLowerCase()
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
 function ProfileStatLink({
   href,
   label,
@@ -61,12 +79,12 @@ function ProfileStatLink({
   return (
     <Link
       href={href}
-      className="group rounded-lg border border-white/[0.08] bg-white/[0.035] px-3 py-2 transition-colors hover:border-[rgba(var(--color-accent-2-rgb),0.26)] hover:bg-white/[0.055]"
+      className="group rounded-lg border border-white/[0.08] bg-white/[0.035] px-3.5 py-3 transition-colors hover:border-[rgba(var(--color-accent-2-rgb),0.26)] hover:bg-white/[0.055]"
     >
       <span className="block text-base font-semibold leading-none text-white group-hover:text-[var(--color-accent-2)]">
         {value}
       </span>
-      <span className="mt-1 block text-xs font-medium text-white/48">
+      <span className="mt-1 block text-[11px] font-medium uppercase tracking-[0.12em] text-white/42">
         {label}
       </span>
     </Link>
@@ -125,17 +143,19 @@ export default async function UserProfilePage(props: {
   const initialTab = readInitialTab(searchParams?.tab);
   const hasPublicWebsite = Boolean(user.profile?.website);
   const websiteUrl = user.profile?.website?.replace(/^https?:\/\//, "");
+  const availabilityLabel = formatAvailability(user.profile?.availability);
+  const responseTimeLabel = formatResponseTime(user.profile?.responseTime);
 
   return (
-    <main className="mx-auto w-full min-w-0 max-w-6xl px-0 py-3 sm:px-5 sm:py-8">
-      <section className={surface("panelStrong", "relative overflow-hidden bg-[rgba(10,13,19,0.86)]")}>
+    <main className="mx-auto w-full min-w-0 max-w-6xl px-0 py-2 sm:px-5 sm:py-8">
+      <section className={surface("panelStrong", "relative overflow-hidden rounded-none bg-[rgba(10,13,19,0.86)] sm:rounded-xl")}>
         <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent" />
         <ProfileBanner 
           initialBannerUrl={user.profile?.bannerUrl}
           isOwnProfile={isOwnProfile}
         />
         
-        <div className="relative -mt-16 px-3 pb-5 sm:-mt-24 sm:px-6 sm:pb-7 lg:px-8">
+        <div className="relative -mt-18 px-3 pb-5 sm:-mt-24 sm:px-6 sm:pb-7 lg:px-8">
           <AboutEditor
             initialBio={user.profile?.bio}
             initialLocation={user.profile?.location}
@@ -145,7 +165,7 @@ export default async function UserProfilePage(props: {
             editable={isOwnProfile}
           />
 
-          <div className={surface("toolbar", "relative overflow-hidden bg-[rgba(7,10,15,0.80)] p-4 backdrop-blur-md sm:p-5 lg:p-6")}>
+          <div className={surface("toolbar", "relative overflow-hidden bg-[rgba(7,10,15,0.82)] p-4 shadow-[0_24px_80px_rgba(0,0,0,0.28)] backdrop-blur-md sm:p-5 lg:p-6")}>
             <div
               aria-hidden="true"
               className="pointer-events-none absolute inset-0 opacity-55"
@@ -154,7 +174,7 @@ export default async function UserProfilePage(props: {
                   "radial-gradient(640px 150px at 12% 0%, rgba(var(--color-accent-2-rgb),0.10), transparent 64%), radial-gradient(520px 150px at 96% 18%, rgba(var(--color-accent-rgb),0.07), transparent 68%)",
               }}
             />
-            <div className="relative grid min-w-0 gap-5 lg:grid-cols-[auto_minmax(0,1fr)_minmax(220px,auto)] lg:items-start">
+            <div className="relative grid min-w-0 gap-5 lg:grid-cols-[auto_minmax(0,1fr)_minmax(230px,auto)] lg:items-start">
               <div className="flex items-end gap-4 sm:items-center lg:block">
                 <ProfileAvatar
                   initialAvatarUrl={user.profile?.avatarUrl}
@@ -162,9 +182,11 @@ export default async function UserProfilePage(props: {
                 />
                 <div className="min-w-0 pb-1 sm:hidden">
                   <p className="truncate text-sm font-medium text-[var(--muted-foreground)]">@{user.username}</p>
-                  <p className="mt-1 text-xs font-medium text-white/44">
-                    {isOwnProfile ? "Public profile" : "DevLink profile"}
-                  </p>
+                  {profileType ? (
+                    <div className="mt-2">
+                      <ProfileTypeLabel profileType={profileType} variant="compact" />
+                    </div>
+                  ) : null}
                 </div>
               </div>
 
@@ -180,20 +202,20 @@ export default async function UserProfilePage(props: {
                       </svg>
                     </span>
                   ) : null}
-                  {profileType ? <ProfileTypeLabel profileType={profileType} variant="hero" /> : null}
+                  {profileType ? <ProfileTypeLabel profileType={profileType} variant="hero" className="hidden sm:inline-flex" /> : null}
                 </div>
 
                 <div className="mt-2 hidden min-w-0 flex-wrap items-center gap-x-2.5 gap-y-1 text-sm text-[var(--muted-foreground)] sm:flex">
                   <span className="min-w-0 max-w-full truncate">@{user.username}</span>
                   {user.profile?.location ? (
                     <>
-                      <span className="text-white/16">/</span>
+                      <span className="text-white/16">|</span>
                       <span className="min-w-0 max-w-full truncate">{user.profile.location}</span>
                     </>
                   ) : null}
                   {hasPublicWebsite ? (
                     <>
-                      <span className="text-white/16">/</span>
+                      <span className="text-white/16">|</span>
                       <a
                         href={user.profile?.website ?? "#"}
                         target="_blank"
@@ -213,19 +235,19 @@ export default async function UserProfilePage(props: {
                     </p>
                   </div>
                 ) : (
-                  <p className="mt-4 max-w-2xl text-sm leading-relaxed text-white/48">
+                  <p className="mt-4 max-w-2xl text-sm leading-relaxed text-white/45">
                     {isOwnProfile
-                      ? "Add a short bio that says what you build and who you help."
-                      : "No public bio yet."}
+                      ? "Add a short bio so visitors can understand your focus at a glance."
+                      : "This profile has not added a public bio yet."}
                   </p>
                 )}
 
                 <div className="mt-5 flex flex-wrap gap-2.5">
-                  {user.profile?.availability ? (
-                    <ProfileSignal label="Availability" value={user.profile.availability} tone="cyan" />
+                  {availabilityLabel ? (
+                    <ProfileSignal label="Availability" value={availabilityLabel} tone="cyan" />
                   ) : null}
-                  {user.profile?.responseTime ? (
-                    <ProfileSignal label="Replies" value={user.profile.responseTime} />
+                  {responseTimeLabel ? (
+                    <ProfileSignal label="Replies" value={responseTimeLabel} />
                   ) : null}
                   {user.profile?.hourlyRate ? (
                     <ProfileSignal
@@ -237,17 +259,17 @@ export default async function UserProfilePage(props: {
                 </div>
               </div>
 
-              <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
+              <div className="grid gap-2.5 sm:grid-cols-3 lg:grid-cols-1">
                 <ProfileStatLink href={`/u/${user.username}/followers`} label="Followers" value={user?._count?.followers ?? 0} />
                 <ProfileStatLink href={`/u/${user.username}/following`} label="Following" value={user?._count?.following ?? 0} />
                 <Link
                   href={`/u/${user.username}?tab=reviews`}
-                  className="group rounded-lg border border-white/[0.08] bg-white/[0.035] px-3 py-2 transition-colors hover:border-amber-300/24 hover:bg-white/[0.055]"
+                  className="group rounded-lg border border-white/[0.08] bg-white/[0.035] px-3.5 py-3 transition-colors hover:border-amber-300/24 hover:bg-white/[0.055]"
                 >
                   <span className="block text-base font-semibold leading-none text-white group-hover:text-amber-200">
                     {rating}
                   </span>
-                  <span className="mt-1 block text-xs font-medium text-white/48">
+                  <span className="mt-1 block text-[11px] font-medium uppercase tracking-[0.12em] text-white/42">
                     Rating
                   </span>
                 </Link>

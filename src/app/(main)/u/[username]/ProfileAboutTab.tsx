@@ -27,6 +27,8 @@ interface ProfileAboutTabProps {
 export function ProfileAboutTab({ skills, profileData }: ProfileAboutTabProps) {
   const hasProfileDetails = Boolean(profileData.location || profileData.website);
   const primarySkill = skills.find((skill) => skill.isPrimary) ?? skills[0];
+  const supportingSkills = skills.filter((skill) => skill.id !== primarySkill?.id).slice(0, 3);
+  const extraSkillCount = Math.max(0, skills.length - 1 - supportingSkills.length);
 
   if (skills.length === 0 && !hasProfileDetails) {
     return (
@@ -51,28 +53,33 @@ export function ProfileAboutTab({ skills, profileData }: ProfileAboutTabProps) {
             <div>
               <h3 className="text-lg font-semibold text-white font-[var(--font-space-grotesk)]">Skills</h3>
               <p className="mt-1 text-sm text-[var(--muted-foreground)]">
-                The work this profile is best set up to do.
+                The strongest signals first, with notes where this profile added context.
               </p>
             </div>
             {primarySkill ? (
-              <div className="mt-5 grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
+              <div className="mt-5 grid gap-4 rounded-xl border border-white/[0.08] bg-white/[0.025] p-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
                 <div className="flex min-w-0 items-center gap-3">
-                  <div className={iconBox(primarySkill.isPrimary ? "amber" : "cyan", "h-11 w-11")}>
+                  <div className={iconBox(primarySkill.isPrimary ? "amber" : "cyan", "h-11 w-11 flex-shrink-0")}>
                     <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M13 10V3L4 14h7v7l9-11h-7z" />
                     </svg>
                   </div>
                   <div className="min-w-0">
                     <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/40">
-                      {primarySkill.isPrimary ? "Primary skill" : "Top skill"}
+                      {primarySkill.isPrimary ? "Primary skill" : "Lead skill"}
                     </p>
                     <p className="mt-1 truncate text-xl font-semibold text-white">{primarySkill.skill.name}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 rounded-lg border border-white/[0.08] bg-white/[0.025] px-3 py-2 text-sm font-semibold text-white/72">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-accent-2)]" aria-hidden="true" />
-                  <span className="text-white">{skills.length}</span>
-                  <span>{skills.length === 1 ? "skill" : "skills"}</span>
+                <div className="min-w-0 text-sm text-white/62 sm:text-right">
+                  {supportingSkills.length > 0 ? (
+                    <p className="truncate">
+                      Also: {supportingSkills.map((skill) => skill.skill.name).join(", ")}
+                      {extraSkillCount > 0 ? `, +${extraSkillCount}` : ""}
+                    </p>
+                  ) : (
+                    <p>Focused profile</p>
+                  )}
                 </div>
               </div>
             ) : null}
@@ -103,8 +110,8 @@ export function ProfileAboutTab({ skills, profileData }: ProfileAboutTabProps) {
       {hasProfileDetails && (
         <section className={surface("panelMuted", "h-fit overflow-hidden p-5 sm:p-6")}>
           <div className="mb-4">
-            <h3 className="font-[var(--font-space-grotesk)] text-lg font-semibold text-white">Details</h3>
-            <p className="mt-1 text-sm text-[var(--muted-foreground)]">Location and links for quick context.</p>
+            <h3 className="font-[var(--font-space-grotesk)] text-lg font-semibold text-white">Profile details</h3>
+            <p className="mt-1 text-sm text-[var(--muted-foreground)]">Fast context before opening a conversation.</p>
           </div>
           <div className="divide-y divide-white/[0.07]">
           {profileData.location && (

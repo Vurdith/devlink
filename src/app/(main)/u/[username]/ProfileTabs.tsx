@@ -52,12 +52,12 @@ interface ProfileTabsProps {
 
 const tabIntros: Record<TabType, { eyebrow: string; title: string; description: string }> = {
   about: {
-    eyebrow: "Profile proof",
-    title: "Capabilities and context",
-    description: "Skills, working style, links, and practical details visitors use to decide whether this person fits the work.",
+    eyebrow: "About",
+    title: "Skills and working context",
+    description: "A quick read on what this profile does, how they work, and where to keep the conversation going.",
   },
   posts: {
-    eyebrow: "Public activity",
+    eyebrow: "Activity",
     title: "Recent posts",
     description: "Original updates and project notes from this profile.",
   },
@@ -67,17 +67,17 @@ const tabIntros: Record<TabType, { eyebrow: string; title: string; description: 
     description: "Where this profile joins technical discussions and community threads.",
   },
   reposts: {
-    eyebrow: "Shared signal",
+    eyebrow: "Shared",
     title: "Reposts",
     description: "Work, ideas, and updates this profile has chosen to amplify.",
   },
   liked: {
-    eyebrow: "Interest map",
+    eyebrow: "Liked",
     title: "Liked posts",
     description: "Posts this profile has marked as useful or interesting.",
   },
   saved: {
-    eyebrow: "Private library",
+    eyebrow: "Saved",
     title: "Saved posts",
     description: "Your saved reference posts are visible only to you.",
   },
@@ -478,7 +478,7 @@ export function ProfileTabs({
   };
 
   return (
-    <div className="mt-5 sm:mt-7">
+    <div className="mt-5 px-3 sm:mt-7 sm:px-0">
       <ProfileTabNavigation
         tabs={tabs}
         activeTab={activeTab}

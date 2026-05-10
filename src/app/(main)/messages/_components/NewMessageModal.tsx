@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Avatar } from "@/components/ui/Avatar";
+import { ProfileTypeLabel } from "@/components/profile/ProfileTypeLabel";
 import { menuItem, surface, ui } from "@/components/ui/design-system";
 import { cn } from "@/lib/cn";
 import { safeJson } from "@/lib/safe-json";
@@ -115,10 +116,10 @@ export function NewMessageModal({ onClose, onThreadCreated, onRequestSent }: New
       <div className={surface("panelStrong", "noise-overlay relative flex max-h-[78vh] w-full max-w-[600px] flex-col overflow-hidden")}>
         <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.42)] to-transparent" />
         {/* Header */}
-        <div className="flex h-[56px] flex-shrink-0 items-center gap-3 border-b border-white/[0.06] px-4">
+        <div className="flex h-[53px] flex-shrink-0 items-center gap-3 border-b border-white/[0.06] px-4">
           <button
             onClick={onClose}
-            className={cn("flex h-11 w-11 items-center justify-center rounded-lg text-white/60 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)] sm:h-9 sm:w-9", ui.control.ghost)}
+            className={cn("flex h-9 w-9 items-center justify-center rounded-lg text-white/60 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]", ui.control.ghost)}
             aria-label="Close new message"
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
@@ -127,7 +128,7 @@ export function NewMessageModal({ onClose, onThreadCreated, onRequestSent }: New
           </button>
           <h2 className="text-base font-bold text-white flex-1">New message</h2>
           <span className="hidden rounded-lg border border-white/[0.08] bg-white/[0.035] px-3 py-1.5 text-xs font-semibold text-white/45 sm:inline-flex">
-            People
+            People search
           </span>
         </div>
 
@@ -141,7 +142,6 @@ export function NewMessageModal({ onClose, onThreadCreated, onRequestSent }: New
               setRequestSentTo(null);
             }}
             placeholder="Name or username"
-            aria-label="Recipient name or username"
             className={cn(ui.control.field, "flex-1 py-2.5")}
             autoFocus
             disabled={creating}
@@ -192,7 +192,7 @@ export function NewMessageModal({ onClose, onThreadCreated, onRequestSent }: New
               <div className={surface("empty", "px-5 py-8 text-center")}>
                 <div className="text-sm font-semibold text-white/70">No people found</div>
                 <p className="mt-1 text-xs leading-relaxed text-white/35">
-                  Nothing matched &ldquo;{query}&rdquo;. Try a name or username.
+                  Nothing matched &ldquo;{query}&rdquo;. Try a full handle or display name.
                 </p>
               </div>
             </div>
@@ -201,9 +201,9 @@ export function NewMessageModal({ onClose, onThreadCreated, onRequestSent }: New
           {!searching && !query.trim() && (
             <div className="p-4">
               <div className={surface("empty", "px-5 py-8 text-center")}>
-                <div className="text-sm font-semibold text-white/70">Choose a recipient</div>
+                <div className="text-sm font-semibold text-white/70">Find someone to message</div>
                 <p className="mt-1 text-xs leading-relaxed text-white/35">
-                  Search by name or username to start a private thread.
+                  Search by name or username to start a thread.
                 </p>
               </div>
             </div>
@@ -218,7 +218,7 @@ export function NewMessageModal({ onClose, onThreadCreated, onRequestSent }: New
             >
               <Avatar size={44} src={user.avatarUrl || undefined} />
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-1.5">
+                <div className="flex min-w-0 flex-wrap items-center gap-1.5">
                   <span className="text-[15px] font-bold text-white truncate">
                     {user.name || user.username}
                   </span>
@@ -226,6 +226,9 @@ export function NewMessageModal({ onClose, onThreadCreated, onRequestSent }: New
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="var(--color-accent)" className="flex-shrink-0">
                       <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
+                  )}
+                  {user.profileType && (
+                    <ProfileTypeLabel profileType={user.profileType} variant="compact" />
                   )}
                 </div>
                 <div className="text-sm text-white/40 truncate">@{user.username}</div>

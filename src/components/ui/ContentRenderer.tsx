@@ -67,13 +67,14 @@ export const ContentRenderer = memo(function ContentRenderer({ content, classNam
 
       if (isHashtag) {
         parts.push(
-          <span
+          <button
+            type="button"
             key={`hashtag-${match.index}`}
-            className="text-[var(--color-accent-2)] hover:text-white cursor-pointer hover:underline transition-colors"
+            className="inline rounded-sm text-[var(--color-accent-2)] transition-colors hover:text-white hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.55)]"
             onClick={() => router.push(`/hashtag/${value}`)}
           >
             {fullMatch}
-          </span>
+          </button>
         );
       } else {
         // Render mention with ProfileTooltip
@@ -87,25 +88,27 @@ export const ContentRenderer = memo(function ContentRenderer({ content, classNam
               currentUserId={currentUserId}
               position="bottom"
             >
-              <span
-                className="text-white hover:text-[var(--color-accent)] cursor-pointer hover:underline transition-colors"
+              <button
+                type="button"
+                className="inline rounded-sm text-white transition-colors hover:text-[var(--color-accent)] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-rgb),0.45)]"
                 onClick={() => router.push(`/u/${value}`)}
                 onMouseEnter={() => fetchUserData(value)}
               >
                 {fullMatch}
-              </span>
+              </button>
             </ProfileTooltip>
           );
         } else {
           parts.push(
-            <span
+            <button
+              type="button"
               key={`mention-${match.index}`}
-              className="text-white hover:text-[var(--color-accent)] cursor-pointer hover:underline transition-colors"
+              className="inline rounded-sm text-white transition-colors hover:text-[var(--color-accent)] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-rgb),0.45)]"
               onClick={() => router.push(`/u/${value}`)}
               onMouseEnter={() => fetchUserData(value)}
             >
               {fullMatch}
-            </span>
+            </button>
           );
         }
       }

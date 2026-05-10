@@ -39,7 +39,7 @@ export const MobileNav = memo(function MobileNav({ session }: MobileNavProps) {
     <>
       <button
         onClick={toggleMenu}
-        className={cn("fixed left-3 top-[10px] z-50 min-h-11 min-w-11 p-2.5 sm:left-4 md:hidden", ui.control.icon)}
+        className={cn("fixed left-3 top-[10px] z-50 p-2.5 sm:left-4 md:hidden", ui.control.icon)}
         aria-label={isOpen ? "Close menu" : "Open menu"}
         aria-expanded={isOpen}
       >
@@ -81,7 +81,7 @@ export const MobileNav = memo(function MobileNav({ session }: MobileNavProps) {
 
       <div
         className={cn(
-          "fixed left-0 top-0 z-50 h-full w-[min(18rem,calc(100vw-1rem))] transform-gpu border-0 border-r border-white/[0.08] bg-[rgba(7,9,13,0.94)] transition-transform duration-300 ease-out will-change-transform md:hidden",
+          "fixed left-0 top-0 z-50 h-full w-[min(18rem,calc(100vw-1rem))] transform-gpu border-0 border-r border-white/[0.08] bg-[rgba(7,9,13,0.94)] shadow-[inset_-1px_0_0_rgba(255,255,255,0.03)] backdrop-blur-xl transition-transform duration-300 ease-out will-change-transform md:hidden",
           isOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
@@ -102,7 +102,7 @@ export const MobileNav = memo(function MobileNav({ session }: MobileNavProps) {
 
           <div className="px-3 pt-4 sm:px-4">
             <BackButton
-              className="min-h-11 w-full justify-start rounded-lg border border-white/[0.08] bg-white/[0.035] text-[var(--muted-foreground)] hover:bg-white/[0.065] hover:text-white"
+              className="w-full justify-start rounded-lg border border-white/[0.08] bg-white/[0.035] text-[var(--muted-foreground)] transition-all hover:bg-white/[0.065] hover:text-white active:scale-[0.985]"
               onClick={closeMenu}
             />
           </div>
@@ -124,7 +124,7 @@ export const MobileNav = memo(function MobileNav({ session }: MobileNavProps) {
                 <div className="py-4">
                   <div className="flex items-center gap-2">
                     <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-rgb),0.2)] to-transparent" />
-                    <span className="text-[10px] text-[rgba(var(--color-accent-rgb),0.6)] uppercase tracking-widest">Your space</span>
+                    <span className="text-[10px] text-[rgba(var(--color-accent-rgb),0.6)] uppercase tracking-widest">Account</span>
                     <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-rgb),0.2)] to-transparent" />
                   </div>
                 </div>
@@ -147,7 +147,7 @@ export const MobileNav = memo(function MobileNav({ session }: MobileNavProps) {
                 <div className="py-4">
                   <div className="flex items-center gap-2">
                     <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-rgb),0.2)] to-transparent" />
-                    <span className="text-[10px] text-[rgba(var(--color-accent-rgb),0.6)] uppercase tracking-widest">Sign in</span>
+                    <span className="text-[10px] text-[rgba(var(--color-accent-rgb),0.6)] uppercase tracking-widest">Account</span>
                     <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-rgb),0.2)] to-transparent" />
                   </div>
                 </div>
@@ -187,7 +187,7 @@ export const MobileNav = memo(function MobileNav({ session }: MobileNavProps) {
       </div>
 
       {/* Bottom Navigation Bar */}
-      <nav className="safe-area-bottom fixed bottom-0 left-0 right-0 z-40 max-w-[100vw] overflow-hidden border-0 border-t border-white/[0.08] bg-[rgba(7,9,13,0.94)] backdrop-blur-xl md:hidden">
+      <nav className="safe-area-bottom fixed bottom-0 left-0 right-0 z-40 max-w-[100vw] overflow-hidden border-0 border-t border-white/[0.08] bg-[rgba(7,9,13,0.94)] shadow-[inset_0_1px_0_rgba(255,255,255,0.035)] backdrop-blur-xl md:hidden">
         <div className="mx-auto grid h-16 w-full max-w-[34rem] min-w-0 grid-cols-5 items-center gap-0.5 px-1">
           {bottomItems.map(({ item, isActive }) => {
             return (
@@ -196,10 +196,10 @@ export const MobileNav = memo(function MobileNav({ session }: MobileNavProps) {
                 href={item.href}
                 prefetch={false}
                 className={cn(
-                  "relative flex min-w-0 flex-col items-center gap-1 rounded-lg px-1 py-2 transition-colors duration-150",
+                  "relative flex min-w-0 flex-col items-center gap-1 rounded-lg px-1 py-2 transition-all duration-150 active:scale-95",
                   isActive
                     ? "text-[var(--color-accent-2)]"
-                    : "text-[var(--muted-foreground)] hover:text-white active:scale-95"
+                    : "text-[var(--muted-foreground)] hover:bg-white/[0.035] hover:text-white"
                 )}
               >
                 <span className={cn("absolute top-1 h-0.5 w-5 rounded-full bg-[var(--color-accent-2)] transition-opacity", isActive ? "opacity-100" : "opacity-0")} />
@@ -220,10 +220,10 @@ export const MobileNav = memo(function MobileNav({ session }: MobileNavProps) {
               href="/me"
               prefetch={false}
               className={cn(
-                "relative flex min-w-0 flex-col items-center gap-1 rounded-lg px-1 py-2 transition-colors duration-150",
+                "relative flex min-w-0 flex-col items-center gap-1 rounded-lg px-1 py-2 transition-all duration-150 active:scale-95",
                 isProfileActive
                   ? "text-[var(--color-accent-2)]"
-                  : "text-[var(--muted-foreground)] hover:text-white active:scale-95"
+                  : "text-[var(--muted-foreground)] hover:bg-white/[0.035] hover:text-white"
               )}
             >
               <span className={cn("absolute top-1 h-0.5 w-5 rounded-full bg-[var(--color-accent-2)] transition-opacity", isProfileActive ? "opacity-100" : "opacity-0")} />
@@ -242,14 +242,14 @@ export const MobileNav = memo(function MobileNav({ session }: MobileNavProps) {
             <Link
               href="/login"
               prefetch={false}
-              className="flex min-w-0 flex-1 flex-col items-center gap-1 rounded-xl px-1 py-2 text-[var(--muted-foreground)] transition-all duration-150 hover:text-white active:scale-95"
+              className="flex min-w-0 flex-1 flex-col items-center gap-1 rounded-xl px-1 py-2 text-[var(--muted-foreground)] transition-all duration-150 hover:bg-white/[0.035] hover:text-white active:scale-95"
             >
               <div className="p-1.5 rounded-lg">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                   <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </div>
-              <span className="max-w-full truncate text-[10px] font-medium">Sign in</span>
+              <span className="max-w-full truncate text-[10px] font-medium">Login</span>
             </Link>
           )}
         </div>

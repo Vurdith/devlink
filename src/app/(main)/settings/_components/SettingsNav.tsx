@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Bell, ChevronRight, KeyRound, MessageCircle, Palette, Puzzle, UserRound } from "lucide-react";
+import { Bell, ChevronRight, Lock, MessageSquare, Palette, UserRound } from "lucide-react";
 import { iconBox, ui } from "@/components/ui/design-system";
 import { cn } from "@/lib/cn";
 
@@ -10,38 +10,37 @@ const navItems = [
   { 
     href: "/settings", 
     label: "Account", 
-    description: "Sign-in providers",
-    icon: UserRound,
+    description: "Linked accounts",
+    icon: <UserRound className="h-[18px] w-[18px]" aria-hidden="true" />,
+    useAccent: true
   },
   { 
     href: "/settings/appearance", 
     label: "Appearance", 
-    description: "Theme and icon",
-    icon: Palette,
+    description: "Theme and app icon",
+    icon: <Palette className="h-[18px] w-[18px]" aria-hidden="true" />,
+    useAccent: true
   },
   { 
     href: "/settings/security", 
     label: "Security", 
-    description: "Password and two-factor",
-    icon: KeyRound,
+    description: "Password and 2FA",
+    icon: <Lock className="h-[18px] w-[18px]" aria-hidden="true" />,
+    useAccent: true
   },
   { 
     href: "/settings/notifications", 
     label: "Notifications", 
-    description: "Email preferences",
-    icon: Bell,
+    description: "Email and product alerts",
+    icon: <Bell className="h-[18px] w-[18px]" aria-hidden="true" />,
+    useAccent: true
   },
   { 
     href: "/settings/messaging", 
     label: "Messaging", 
-    description: "Inbox rules",
-    icon: MessageCircle,
-  },
-  {
-    href: "/settings/skills",
-    label: "Skills",
-    description: "Profile Hub shortcut",
-    icon: Puzzle,
+    description: "Requests and privacy",
+    icon: <MessageSquare className="h-[18px] w-[18px]" aria-hidden="true" />,
+    useAccent: true
   }
 ];
 
@@ -74,7 +73,7 @@ export default function SettingsNav() {
             <Link
               href={item.href}
               className={cn(
-                "group relative flex min-h-12 min-w-[136px] items-center gap-2 rounded-lg border px-3 py-2.5 outline-none transition-all duration-200 focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)] sm:min-w-[156px] md:min-w-0 md:gap-3 md:py-3",
+                "group relative flex min-w-[132px] items-center gap-2 rounded-lg border px-3 py-2.5 outline-none transition-all duration-200 active:scale-[0.985] focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)] sm:min-w-[150px] md:min-w-0 md:gap-3 md:py-3",
                 isActive 
                   ? ui.active.cyan
                   : ui.control.ghost
@@ -87,12 +86,12 @@ export default function SettingsNav() {
               
               {/* Icon */}
               <div className={cn(
-                "h-8 w-8 shrink-0 transition-all duration-200 md:h-9 md:w-9",
+                  "h-8 w-8 shrink-0 transition-all duration-200 group-hover:scale-[1.03] md:h-9 md:w-9",
                 isActive 
                   ? iconBox("cyan")
                   : iconBox("muted", "group-hover:bg-white/[0.07] group-hover:text-white")
               )}>
-                <item.icon size={18} aria-hidden="true" />
+                {item.icon}
               </div>
               
               {/* Text */}

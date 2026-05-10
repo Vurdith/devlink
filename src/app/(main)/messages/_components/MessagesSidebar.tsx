@@ -11,6 +11,7 @@ import { safeJson } from "@/lib/safe-json";
 import { Avatar } from "@/components/ui/Avatar";
 import { useMessagesRealtime } from "@/hooks/useMessagesRealtime";
 import { NewMessageModal } from "./NewMessageModal";
+import { PenLine, Search, Settings2 } from "lucide-react";
 import type { MessageRequest, MessageThread, MessagingSettings } from "@/types/api";
 
 const DM_PERMISSION_OPTIONS = [
@@ -18,7 +19,7 @@ const DM_PERMISSION_OPTIONS = [
   { value: "FOLLOWERS", label: "Followers", desc: "Only your followers" },
   { value: "FOLLOWING", label: "People I follow", desc: "Only people you follow" },
   { value: "MUTUALS", label: "Mutuals only", desc: "Only mutual follows" },
-  { value: "NONE", label: "Requests only", desc: "Every new conversation starts as a request" },
+  { value: "NONE", label: "No one", desc: "All messages become requests" },
 ] as const;
 
 export function MessagesSidebar() {
@@ -206,7 +207,7 @@ export function MessagesSidebar() {
             className="w-full px-5 py-9"
             icon={<MessageIcon />}
             title="Sign in to view messages"
-            description="Your private conversations, requests, and message settings live here."
+            description="Log in to read threads, review requests, and control who can message you."
             action={{ label: "Log in", href: "/login" }}
           />
         </div>
@@ -232,30 +233,23 @@ export function MessagesSidebar() {
             <button
               onClick={() => setShowSettings((v) => !v)}
               className={cn(
-                "flex h-11 w-11 items-center justify-center rounded-lg transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)] sm:h-9 sm:w-9",
+                "flex h-9 w-9 items-center justify-center rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]",
                 showSettings
                   ? cn("text-[var(--color-accent-2)]", ui.active.cyan)
                   : cn("text-white/60", ui.control.ghost)
               )}
               title="Message settings"
               aria-label="Message settings"
-              aria-expanded={showSettings}
             >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.5" />
-                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
+              <Settings2 className="h-[18px] w-[18px]" aria-hidden="true" />
             </button>
             <button
               onClick={() => setShowNewMessage(true)}
-              className={cn("flex h-11 w-11 items-center justify-center text-white/60 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)] sm:h-9 sm:w-9", ui.control.icon)}
+              className={cn("flex h-9 w-9 items-center justify-center text-white/60 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]", ui.control.icon)}
               title="New message"
               aria-label="New message"
             >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                <path d="M4 20h4L18.5 9.5a2.121 2.121 0 0 0-3-3L5 17v3z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                <path d="M13.5 6.5l3 3" stroke="currentColor" strokeWidth="1.5" />
-              </svg>
+              <PenLine className="h-[18px] w-[18px]" aria-hidden="true" />
             </button>
 
             {/* Settings dropdown */}
@@ -263,7 +257,7 @@ export function MessagesSidebar() {
               <div className={menuPanel("absolute right-0 top-full z-50 mt-1 w-72 animate-in fade-in slide-in-from-top-1 duration-150")}>
                 <div className="border-b border-white/[0.06] px-4 py-3">
                   <h3 className="text-sm font-bold text-white">Who can message you</h3>
-                  <p className="text-[11px] text-white/40 mt-0.5">People outside this setting start in requests.</p>
+                  <p className="text-[11px] text-white/40 mt-0.5">People outside this setting land in requests.</p>
                 </div>
                 <div className="py-1">
                   {DM_PERMISSION_OPTIONS.map((opt) => {
@@ -301,16 +295,10 @@ export function MessagesSidebar() {
         {/* Search */}
         <div className="flex-shrink-0 px-4 py-3">
           <div className="relative">
-            <svg
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30 pointer-events-none"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-            >
-              <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2" />
-              <path d="M20 20l-3.5-3.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-            </svg>
+            <Search
+              className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/30"
+              aria-hidden="true"
+            />
             <input
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -325,7 +313,7 @@ export function MessagesSidebar() {
           <button
             onClick={() => setActiveTab("inbox")}
             className={cn(
-              "relative flex-1 rounded-lg border px-3 py-2.5 text-center text-sm font-semibold transition-all duration-200",
+              "relative flex-1 rounded-lg border px-3 py-2.5 text-center text-sm font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]",
               activeTab === "inbox"
                 ? cn("text-white", ui.active.cyanStrong)
                 : "border-transparent text-white/45 hover:border-white/[0.08] hover:bg-white/[0.045] hover:text-white/75"
@@ -336,7 +324,7 @@ export function MessagesSidebar() {
           <button
             onClick={() => setActiveTab("requests")}
             className={cn(
-              "relative flex-1 rounded-lg border px-3 py-2.5 text-center text-sm font-semibold transition-all duration-200",
+              "relative flex-1 rounded-lg border px-3 py-2.5 text-center text-sm font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]",
               activeTab === "requests"
                 ? cn("text-white", ui.active.cyanStrong)
                 : "border-transparent text-white/45 hover:border-white/[0.08] hover:bg-white/[0.045] hover:text-white/75"
@@ -412,21 +400,21 @@ export function MessagesSidebar() {
                               <button
                                 onClick={() => handleRequest(request.id, "ACCEPTED")}
                                 disabled={!!actingRequestId}
-                                className={cn("inline-flex min-h-10 items-center rounded-lg px-4 py-2 text-xs font-bold transition-all", ui.control.gradient)}
+                                className={cn("rounded-lg px-4 py-1.5 text-xs font-bold transition-all", ui.control.gradient)}
                               >
                                 {isActing ? "Working..." : "Accept"}
                               </button>
                               <button
                                 onClick={() => handleRequest(request.id, "DECLINED")}
                                 disabled={!!actingRequestId}
-                                className={cn("inline-flex min-h-10 items-center rounded-lg px-4 py-2 text-xs font-bold text-white transition-colors disabled:opacity-45", ui.control.ghost)}
+                                className={cn("rounded-lg px-4 py-1.5 text-xs font-bold text-white transition-colors disabled:opacity-45", ui.control.ghost)}
                               >
                                 Decline
                               </button>
                               {request.conversationId && (
                                 <Link
                                   href={`/messages/${request.conversationId}`}
-                                  className={cn("ml-auto inline-flex min-h-10 items-center rounded-lg px-3 py-2 text-xs font-medium text-white/55 transition-colors", ui.control.ghost)}
+                                  className={cn("ml-auto rounded-lg px-3 py-1.5 text-xs font-medium text-white/55 transition-colors", ui.control.ghost)}
                                 >
                                   View
                                 </Link>
@@ -468,15 +456,15 @@ export function MessagesSidebar() {
                 <FeedbackState
                   className="px-4 py-8"
                   icon={<SearchIcon />}
-                  title="No conversations found"
-                  description="Try another name or username."
+                  title="No matches"
+                  description="Try the full handle, display name, or clear the search."
                 />
               ) : (
                 <FeedbackState
                   className="px-4 py-9"
                   icon={<MessageIcon />}
                   title="No conversations yet"
-                  description="Start a private thread with a developer, client, or collaborator."
+                  description="Start a thread with a client, builder, or collaborator."
                   action={{ label: "Write a message", onClick: () => setShowNewMessage(true) }}
                 />
               )}

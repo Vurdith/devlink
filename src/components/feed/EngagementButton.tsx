@@ -57,7 +57,7 @@ export const EngagementButton = memo(function EngagementButton({
       aria-label={ariaLabel || label}
       aria-pressed={isActive}
       className={cn(
-        "group flex min-h-11 items-center gap-1.5 rounded-lg border border-transparent px-3 py-2 text-[var(--muted-foreground)] transition-all duration-200 active:scale-[0.96]",
+        "group flex min-h-9 items-center gap-1.5 rounded-lg border border-transparent px-2.5 py-1.5 text-[var(--muted-foreground)] transition-all duration-200 hover:-translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.55)] active:translate-y-0 active:scale-[0.96]",
         isActive && colors.active,
         colors.hover,
         disabled && "opacity-50 cursor-not-allowed"

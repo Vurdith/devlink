@@ -44,7 +44,6 @@ export function ExpandableSkillCard({
   const experienceLabel = [
     levelConfig?.label,
     skill.yearsOfExp ? `${skill.yearsOfExp}+ years` : null,
-    skill.skill.category,
   ].filter(Boolean);
 
   return (
@@ -62,7 +61,7 @@ export function ExpandableSkillCard({
           skill.isPrimary && "bg-[rgba(var(--color-accent-2-rgb),0.35)]"
         )}
       />
-      <div className="p-5 sm:p-6">
+      <div className="p-4 sm:p-5">
         <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start">
           <div className="flex min-w-0 items-start gap-4">
             <div className={iconBox(skill.isPrimary ? "amber" : "cyan", "mt-0.5 h-10 w-10 flex-shrink-0")}>
@@ -83,7 +82,7 @@ export function ExpandableSkillCard({
                 </h4>
               </div>
               <p className="mt-1 text-xs leading-relaxed text-white/45">
-                {experienceLabel.join(" / ")}
+                {experienceLabel.join(" · ")}
               </p>
             </div>
           </div>
@@ -124,7 +123,7 @@ export function ExpandableSkillCard({
       {hasExpandableContent && (
         <button
           type="button"
-          className="flex w-full items-center justify-between gap-2 border-t border-white/[0.06] bg-white/[0.018] px-5 py-3 text-left outline-none transition-colors hover:bg-white/[0.04] focus-visible:bg-white/[0.045] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.55)] sm:px-6"
+          className="flex w-full items-center justify-between gap-2 border-t border-white/[0.06] bg-white/[0.018] px-4 py-3 text-left outline-none transition-colors hover:bg-white/[0.04] focus-visible:bg-white/[0.045] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.55)] sm:px-5"
           onClick={() => setExpanded(!expanded)}
           aria-expanded={expanded}
         >
@@ -148,7 +147,7 @@ export function ExpandableSkillCard({
       )}
 
       {expanded && skill.description && (
-        <div className="border-t border-white/[0.06] bg-black/[0.08] px-5 py-4 sm:px-6">
+        <div className="border-t border-white/[0.06] bg-black/[0.08] px-4 py-4 sm:px-5">
           <p className="text-sm leading-relaxed text-white/56">
             {skill.description}
           </p>

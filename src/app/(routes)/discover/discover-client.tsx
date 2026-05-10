@@ -45,35 +45,35 @@ const filters: { value: ProfileType; label: string; shortLabel: string; icon: st
     label: "All profiles",
     shortLabel: "All",
     icon: "M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z",
-    intent: "Browse the full community"
+    intent: "Scan every public profile"
   },
   {
     value: "DEVELOPER",
     label: PROFILE_TYPE_CONFIG.DEVELOPER.label + "s",
     shortLabel: "Developers",
     icon: PROFILE_TYPE_CONFIG.DEVELOPER.icon,
-    intent: "Find builders to follow or hire"
+    intent: "Find builders with Roblox work"
   },
   {
     value: "CLIENT",
     label: PROFILE_TYPE_CONFIG.CLIENT.label + "s",
     shortLabel: "Clients",
     icon: PROFILE_TYPE_CONFIG.CLIENT.icon,
-    intent: "Spot people posting work"
+    intent: "Find clients posting roles"
   },
   {
     value: "STUDIO",
     label: PROFILE_TYPE_CONFIG.STUDIO.label + "s",
     shortLabel: "Studios",
     icon: PROFILE_TYPE_CONFIG.STUDIO.icon,
-    intent: "Compare teams and agencies"
+    intent: "Compare teams and studios"
   },
   {
     value: "INFLUENCER",
     label: PROFILE_TYPE_CONFIG.INFLUENCER.label + "s",
     shortLabel: "Influencers",
     icon: PROFILE_TYPE_CONFIG.INFLUENCER.icon,
-    intent: "Track community voices"
+    intent: "Follow creators with reach"
   },
   {
     value: "INVESTOR",
@@ -95,7 +95,7 @@ function getProfileType(user: User) {
 function getSignal(user: User) {
   if (user.profile?.bio) return user.profile.bio;
   if (user._count.followers > 0) return `${formatCount(user._count.followers)} followers on DevLink`;
-  return "Open the profile to see their work and network.";
+  return "No bio yet. Open the profile for posts, portfolio, and network.";
 }
 
 function DiscoverUserRow({
@@ -347,10 +347,10 @@ export function DiscoverClient({
               Discover
             </div>
             <h1 className="max-w-2xl text-2xl font-bold tracking-tight text-white sm:text-3xl">
-              Find the next person worth following.
+              Browse Roblox builders, clients, studios, and backers.
             </h1>
             <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[var(--muted-foreground)] sm:text-base">
-              Browse people by role, compare profile signals quickly, then open the profiles that deserve a closer look.
+              Filter by role, check the profile signal, then open the people who match what you need.
             </p>
           </div>
 
@@ -466,7 +466,7 @@ export function DiscoverClient({
             <section className="mb-4">
               <div className="mb-2 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-white/45">
                 <Users className="h-3.5 w-3.5" aria-hidden="true" />
-                Notable profiles
+                High-signal profiles
               </div>
               <div className="grid gap-3 md:grid-cols-3">
                 {featuredUsers.map((user) => (
@@ -492,7 +492,7 @@ export function DiscoverClient({
             {loadingMore && (
               <div className="flex items-center gap-3 text-[var(--muted-foreground)]">
                 <div className="w-5 h-5 border-2 border-current border-r-transparent rounded-full animate-spin" />
-                <span>Loading more...</span>
+                <span>Loading more profiles</span>
               </div>
             )}
             {error && users.length > 0 && !loadingMore && (

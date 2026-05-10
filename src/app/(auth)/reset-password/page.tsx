@@ -351,7 +351,7 @@ function ResetPasswordContent() {
         )}
 
         <Button type="submit" isLoading={isLoading} disabled={!!linkError || !passwordValid || !passwordsMatch || isLoading} className="w-full" variant="gradient">
-          {isLoading ? "Saving new password..." : "Reset password"}
+          {isLoading ? "Saving password..." : "Reset password"}
         </Button>
 
         <div className="text-center">
@@ -366,7 +366,7 @@ function ResetPasswordContent() {
 
 export default function ResetPasswordPage() {
   return (
-    <Suspense fallback={<main className="mx-auto max-w-md px-4 py-16"><div className={surface("panel", "p-6 text-center text-sm text-[var(--muted-foreground)]")}>Loading password reset...</div></main>}>
+    <Suspense fallback={<main className="mx-auto max-w-md px-4 py-16"><div className={surface("panel", "p-6 text-center text-sm text-[var(--muted-foreground)]")}>Loading reset form...</div></main>}>
       <ResetPasswordContent />
     </Suspense>
   );

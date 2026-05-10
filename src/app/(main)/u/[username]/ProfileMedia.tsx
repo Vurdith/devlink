@@ -44,7 +44,7 @@ export function ProfileBanner({ initialBannerUrl, isOwnProfile }: ProfileBannerP
   const isBlob = bannerUrl?.startsWith('blob:');
 
   return (
-    <div className="group relative z-0 h-52 w-full sm:h-72 lg:h-80">
+    <div className="group relative z-0 h-52 w-full sm:h-80">
       {bannerUrl ? (
         // Use regular img for blob URLs (instant local preview), next/image for remote URLs
         isBlob ? (
@@ -68,7 +68,7 @@ export function ProfileBanner({ initialBannerUrl, isOwnProfile }: ProfileBannerP
       ) : (
         <div className="h-full w-full bg-[linear-gradient(135deg,rgba(15,23,42,0.95),rgba(var(--color-accent-rgb),0.28)_45%,rgba(var(--color-accent-2-rgb),0.24))]" />
       )}
-      <div className="absolute inset-0 bg-gradient-to-t from-[rgb(10,13,19)] via-black/24 to-black/5" />
+      <div className="absolute inset-0 bg-gradient-to-t from-[rgb(10,13,19)] via-black/30 to-black/5" />
       <div className="absolute inset-x-0 bottom-0 h-24 bg-[radial-gradient(800px_160px_at_18%_100%,rgba(var(--color-accent-2-rgb),0.12),transparent_68%)]" />
       <BannerEditOverlay editable={isOwnProfile} />
     </div>

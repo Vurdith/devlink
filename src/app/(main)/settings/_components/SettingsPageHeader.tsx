@@ -32,8 +32,8 @@ export function SettingsPageHeader({
         <div className={iconBox("cyan", "h-10 w-10 shrink-0 text-white")}>{icon}</div>
         <div className="min-w-0">
           <div className="mb-1 text-[10px] font-bold uppercase tracking-[0.16em] text-[var(--color-accent-2)]">{eyebrow}</div>
-          <h1 className="font-[var(--font-space-grotesk)] text-2xl font-bold tracking-normal text-white">{title}</h1>
-          <p className="mt-1 max-w-2xl text-sm leading-6 text-[var(--muted-foreground)]">{description}</p>
+          <h1 className="font-[var(--font-space-grotesk)] text-2xl font-bold leading-tight text-white">{title}</h1>
+          <p className="mt-1 text-sm leading-relaxed text-[var(--muted-foreground)] sm:text-base">{description}</p>
         </div>
       </div>
     </div>

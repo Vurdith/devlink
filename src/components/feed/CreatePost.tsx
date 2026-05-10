@@ -1,5 +1,6 @@
 "use client";
-import { useState, useRef, memo, useCallback, lazy, Suspense, useMemo, type KeyboardEvent } from "react";
+import { useState, useRef, memo, useCallback, lazy, Suspense, useMemo } from "react";
+import { BarChart3, CalendarClock, Clock3, Film, ImagePlus, Link2, MapPin, Plus, Smile, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Avatar } from "@/components/ui/Avatar";
 import { Toast } from "@/components/ui/Toast";
@@ -30,7 +31,7 @@ interface CreatePostProps {
 export const CreatePost = memo(function CreatePost({ 
   currentUserProfile, 
   replyToId, 
-  placeholder = "What's happening in the Roblox development world?", 
+  placeholder = "Share a build note, blocker, clip, or hiring ask.", 
   buttonText = "Post",
   onPostCreated
 }: CreatePostProps) {
@@ -90,13 +91,6 @@ export const CreatePost = memo(function CreatePost({
   const closeComposer = useCallback(() => {
     setIsOpen(false);
   }, []);
-
-  const handleCollapsedKeyDown = useCallback((event: KeyboardEvent<HTMLDivElement>) => {
-    if (event.key === "Enter" || event.key === " ") {
-      event.preventDefault();
-      openComposer();
-    }
-  }, [openComposer]);
 
   const clearSchedule = useCallback(() => {
     setScheduledFor("");
@@ -288,10 +282,6 @@ export const CreatePost = memo(function CreatePost({
       <div 
         className={surface("panelMuted", "create-post-collapsed noise-overlay group relative mb-6 cursor-pointer overflow-hidden p-4 transition-all duration-300 hover:border-[rgba(var(--color-accent-2-rgb),0.24)] hover:bg-[rgba(13,18,26,0.76)] sm:p-5")}
         onClick={openComposer}
-        onKeyDown={handleCollapsedKeyDown}
-        role="button"
-        tabIndex={0}
-        aria-label={replyToId ? "Open reply composer" : "Open post composer"}
       >
         <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.5)] to-transparent opacity-60" />
         <div className="pointer-events-none absolute -right-20 -top-24 h-48 w-48 rounded-full bg-[rgba(var(--color-accent-2-rgb),0.08)] blur-3xl transition-opacity duration-300 group-hover:opacity-90" />
@@ -309,14 +299,13 @@ export const CreatePost = memo(function CreatePost({
               {placeholder}
             </div>
           </div>
-          <span
-            aria-hidden="true"
-            className="rounded-lg border border-[rgba(var(--color-accent-2-rgb),0.22)] bg-[rgba(var(--color-accent-2-rgb),0.08)] p-3 text-[var(--color-accent-2)] transition-all duration-200 hover:border-[rgba(var(--color-accent-2-rgb),0.4)] hover:bg-[rgba(var(--color-accent-2-rgb),0.14)] active:scale-[0.98]"
+          <button
+            type="button"
+            aria-label={replyToId ? "Open reply composer" : "Open post composer"}
+            className="rounded-lg border border-[rgba(var(--color-accent-2-rgb),0.22)] bg-[rgba(var(--color-accent-2-rgb),0.08)] p-3 text-[var(--color-accent-2)] transition-all duration-200 hover:border-[rgba(var(--color-accent-2-rgb),0.4)] hover:bg-[rgba(var(--color-accent-2-rgb),0.14)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.55)] active:scale-[0.98]"
           >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-              <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </span>
+            <Plus className="h-5 w-5" />
+          </button>
         </div>
       </div>
     );
@@ -337,23 +326,23 @@ export const CreatePost = memo(function CreatePost({
           </div>
 
           <div className={surface("toolbar", "stagger-in flex flex-wrap items-center gap-2 p-2")}>
-            <ComposerActionButton onClick={openMediaPicker} title="Add Media" shortcut="Ctrl I" badge={formData.mediaUrls.length || undefined} delay={1}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M21 19V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2z" stroke="currentColor" strokeWidth="2"/><circle cx="8.5" cy="8.5" r="1.5" stroke="currentColor" strokeWidth="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" stroke="currentColor" strokeWidth="2"/></svg>
+            <ComposerActionButton onClick={openMediaPicker} title="Add media" shortcut="Ctrl I" badge={formData.mediaUrls.length || undefined} delay={1}>
+              <ImagePlus className="h-5 w-5" />
             </ComposerActionButton>
-            <ComposerActionButton onClick={togglePoll} active={showPoll} title="Create Poll" shortcut="Ctrl P" delay={2}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" strokeWidth="2"/><path d="M9 9h6M9 12h4M9 15h5" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
+            <ComposerActionButton onClick={togglePoll} active={showPoll} title="Add poll" shortcut="Ctrl P" delay={2}>
+              <BarChart3 className="h-5 w-5" />
             </ComposerActionButton>
-            <ComposerActionButton onClick={toggleEmbedInput} active={showEmbedInput} title="Embed Link" shortcut="Ctrl L" delay={3}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
+            <ComposerActionButton onClick={toggleEmbedInput} active={showEmbedInput} title="Add link" shortcut="Ctrl L" delay={3}>
+              <Link2 className="h-5 w-5" />
             </ComposerActionButton>
             <ComposerActionButton onClick={toggleEmojiPicker} active={showEmojiPicker} title="Emoji" shortcut="Ctrl E" delay={4}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/><path d="M8 14s1.5 2 4 2 4-2 4-2" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/><circle cx="9" cy="9" r="1" fill="currentColor"/><circle cx="15" cy="9" r="1" fill="currentColor"/></svg>
+              <Smile className="h-5 w-5" />
             </ComposerActionButton>
-            <ComposerActionButton onClick={toggleSchedule} active={showSchedule} title="Schedule Post" delay={5}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" strokeWidth="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/><circle cx="12" cy="15" r="2" stroke="currentColor" strokeWidth="2"/></svg>
+            <ComposerActionButton onClick={toggleSchedule} active={showSchedule} title="Schedule" delay={5}>
+              <CalendarClock className="h-5 w-5" />
             </ComposerActionButton>
-            <ComposerActionButton onClick={toggleLocationInput} active={showLocationInput} title="Add Location" delay={6}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" stroke="currentColor" strokeWidth="2"/><circle cx="12" cy="10" r="3" stroke="currentColor" strokeWidth="2"/></svg>
+            <ComposerActionButton onClick={toggleLocationInput} active={showLocationInput} title="Add location" delay={6}>
+              <MapPin className="h-5 w-5" />
             </ComposerActionButton>
           </div>
 
@@ -370,10 +359,7 @@ export const CreatePost = memo(function CreatePost({
             <div className={surface("empty", "animate-slide-down p-4")}>
               <div className="flex items-center gap-3">
                 <div className={iconBox("cyan", "h-9 w-9")}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-[var(--color-accent)]">
-                    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
-                    <path d="M12 6v6l4 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                  </svg>
+                  <Clock3 className="h-4.5 w-4.5 text-[var(--color-accent)]" />
                 </div>
                 <input 
                   type="datetime-local" 
@@ -381,7 +367,7 @@ export const CreatePost = memo(function CreatePost({
                   onChange={(e) => setScheduledFor(e.target.value)} 
                   className="flex-1 rounded-lg border border-white/[0.10] bg-white/[0.035] px-3 py-2 text-sm transition-colors focus:border-[rgba(var(--color-accent-2-rgb),0.42)] focus:outline-none"
                 />
-                {scheduledFor && <button type="button" onClick={clearSchedule} className="rounded-lg p-2 text-[var(--muted-foreground)] transition-colors hover:bg-white/[0.055] hover:text-white" aria-label="Clear schedule">x</button>}
+                {scheduledFor && <button type="button" onClick={clearSchedule} className="rounded-lg p-2 text-[var(--muted-foreground)] transition-colors hover:bg-white/[0.055] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.55)]" aria-label="Clear schedule"><X className="h-4 w-4" /></button>}
               </div>
             </div>
           )}
@@ -390,13 +376,10 @@ export const CreatePost = memo(function CreatePost({
             <div className={surface("empty", "animate-slide-down p-4")}>
               <div className="flex items-center gap-3">
                 <div className={iconBox("cyan", "h-9 w-9")}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-emerald-400">
-                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" stroke="currentColor" strokeWidth="2"/>
-                    <circle cx="12" cy="10" r="3" stroke="currentColor" strokeWidth="2"/>
-                  </svg>
+                  <MapPin className="h-4.5 w-4.5 text-emerald-400" />
                 </div>
                 <input value={location} onChange={(e) => setLocation(e.target.value)} placeholder="Add location" className="flex-1 rounded-lg border border-white/[0.10] bg-white/[0.035] px-3 py-2 text-sm transition-colors focus:border-[rgba(var(--color-accent-2-rgb),0.42)] focus:outline-none" />
-                {location && <button type="button" onClick={clearLocation} className="rounded-lg p-2 text-[var(--muted-foreground)] transition-colors hover:bg-white/[0.055] hover:text-white" aria-label="Clear location">x</button>}
+                {location && <button type="button" onClick={clearLocation} className="rounded-lg p-2 text-[var(--muted-foreground)] transition-colors hover:bg-white/[0.055] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.55)]" aria-label="Clear location"><X className="h-4 w-4" /></button>}
               </div>
             </div>
           )}
@@ -405,10 +388,7 @@ export const CreatePost = memo(function CreatePost({
             <div className={surface("empty", "animate-slide-down space-y-3 p-4")}>
               <div className="flex items-center gap-3">
                 <div className={iconBox("cyan", "h-9 w-9")}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-[var(--color-accent-2)]">
-                    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                  </svg>
+                  <Link2 className="h-4.5 w-4.5 text-[var(--color-accent-2)]" />
                 </div>
                 <input value={embedInput} onChange={(e) => setEmbedInput(e.target.value)} placeholder="Paste a link to embed" className="flex-1 rounded-lg border border-white/[0.10] bg-white/[0.035] px-3 py-2 text-sm transition-colors focus:border-[rgba(var(--color-accent-2-rgb),0.42)] focus:outline-none" />
                 <button type="button" onClick={addEmbedUrl} className="rounded-lg border border-[rgba(var(--color-accent-2-rgb),0.26)] bg-[rgba(var(--color-accent-2-rgb),0.10)] px-4 py-2 text-sm font-semibold text-[var(--color-accent-2)] transition-colors hover:bg-[rgba(var(--color-accent-2-rgb),0.16)]">Add</button>
@@ -418,7 +398,7 @@ export const CreatePost = memo(function CreatePost({
                   {embedUrls.map((u, i) => (
                     <span key={i} className="animate-pop-in inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-[rgba(var(--color-accent-2-rgb),0.30)] bg-[rgba(var(--color-accent-2-rgb),0.10)] text-sm">
                       <a href={u} target="_blank" rel="noreferrer" className="text-[var(--color-accent-2)] hover:underline truncate max-w-[200px]">{u}</a>
-                      <button type="button" onClick={() => removeEmbedUrl(i)} className="text-[var(--muted-foreground)] transition-colors hover:text-white" aria-label="Remove embed">x</button>
+                      <button type="button" onClick={() => removeEmbedUrl(i)} className="text-[var(--muted-foreground)] transition-colors hover:text-white" aria-label="Remove embed"><X className="h-3.5 w-3.5" /></button>
                     </span>
                   ))}
                 </div>
@@ -439,7 +419,7 @@ export const CreatePost = memo(function CreatePost({
           {/* Main textarea */}
           <div className="animate-slide-up stagger-2">
             <label htmlFor="post-content" className="sr-only">
-              {replyToId ? "Write your reply" : "What's on your mind?"}
+              {replyToId ? "Write your reply" : "Write a post"}
             </label>
             <textarea
               id="post-content"
@@ -447,7 +427,7 @@ export const CreatePost = memo(function CreatePost({
               onChange={(e) => setFormData(prev => ({ ...prev, content: e.target.value }))}
               className="w-full resize-none rounded-xl border border-white/[0.10] bg-white/[0.035] px-4 py-3 leading-relaxed text-white outline-none transition-all placeholder:text-white/35 focus:border-[rgba(var(--color-accent-2-rgb),0.42)]"
               rows={4}
-              placeholder={replyToId ? "Write your reply..." : "What's on your mind? Share updates, ideas, or projects..."}
+              placeholder={replyToId ? "Add a useful reply..." : "Share a shipped change, blocker, hiring ask, or build note..."}
               aria-describedby="post-hint post-count"
             />
             <div className="mt-2 flex items-center justify-between gap-3">
@@ -496,12 +476,9 @@ export const CreatePost = memo(function CreatePost({
             <div className="animate-slide-up p-3 bg-[rgba(var(--color-accent-rgb),0.1)] border border-[rgba(var(--color-accent-rgb),0.2)] rounded-xl flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className={cn("p-2 rounded-lg transition-colors", isSlideshow ? "bg-[rgba(var(--color-accent-rgb),0.3)]" : "bg-white/10")}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className={cn(isSlideshow ? "text-[var(--color-accent)]" : "text-gray-400")}>
-                    <rect x="2" y="4" width="20" height="16" rx="2" stroke="currentColor" strokeWidth="2"/>
-                    <path d="M6 4v16M18 4v16" stroke="currentColor" strokeWidth="2"/>
-                  </svg>
+                  <Film className={cn("h-4.5 w-4.5", isSlideshow ? "text-[var(--color-accent)]" : "text-gray-400")} />
                 </div>
-                <span className="text-sm font-medium text-[var(--color-accent)]">{isSlideshow ? "Slideshow Mode" : "Grid Mode"}</span>
+                <span className="text-sm font-medium text-[var(--color-accent)]">{isSlideshow ? "Swipeable media" : "Media grid"}</span>
               </div>
               <button 
                 type="button" 
@@ -528,12 +505,12 @@ export const CreatePost = memo(function CreatePost({
           {pollData && !showPoll && <ComposerPollSummary pollData={pollData} onRemove={clearPoll} />}
 
           {/* Submit Buttons */}
-          <div className="flex flex-col-reverse gap-3 border-t border-white/5 pt-4 sm:flex-row sm:items-center sm:justify-end">
+          <div className="flex justify-end items-center gap-3 pt-4 border-t border-white/5">
             <button
               type="button"
               onClick={closeComposer}
               disabled={isSubmitting}
-              className="min-h-11 rounded-lg px-5 py-2.5 text-sm font-semibold text-[var(--muted-foreground)] transition-colors hover:bg-white/[0.045] hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+              className="px-5 py-2.5 rounded-xl text-sm font-bold text-[var(--muted-foreground)] hover:text-white transition-colors"
             >
               Cancel
             </button>

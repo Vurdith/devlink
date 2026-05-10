@@ -73,7 +73,7 @@ export const ComposerActionButton = memo(function ComposerActionButton({
         onMouseEnter={handleMouseEnter}
         onMouseLeave={() => setShowTooltip(false)}
         className={cn(
-          "relative rounded-lg border p-2.5 transition-all duration-200 active:scale-[0.98]",
+          "relative rounded-lg border p-2.5 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.62)] active:scale-[0.98]",
           active
             ? ui.active.cyan
             : "border-transparent text-[var(--muted-foreground)] hover:border-white/[0.10] hover:bg-white/[0.045] hover:text-white"
