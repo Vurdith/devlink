@@ -1,10 +1,10 @@
 "use client";
+import dynamic from "next/dynamic";
 import { memo } from "react";
-import { CreatePost } from "./CreatePost";
 import { PostFeed } from "./PostFeed";
 import { ThemeLogoImg } from "@/components/ui/ThemeLogo";
 import { cn } from "@/lib/cn";
-import { iconBox, surface } from "@/components/ui/design-system";
+import { iconBox, skeleton, surface } from "@/components/ui/design-system";
 import type { FeedPost } from "@/types/post";
 import { useHomeFeedPosts } from "./useHomeFeedPosts";
 
@@ -71,6 +71,28 @@ const FEATURE_STYLES: Record<
   },
 };
 
+function CreatePostFallback() {
+  return (
+    <div className={surface("panelMuted", "create-post-collapsed noise-overlay relative mb-6 overflow-hidden p-4 sm:p-5")}>
+      <div className="flex items-center gap-4">
+        <div className={skeleton("h-[46px] w-[46px] rounded-full")} />
+        <div className="min-w-0 flex-1 space-y-2">
+          <div className={skeleton("h-4 w-28 rounded")} />
+          <div className={skeleton("h-3 w-full max-w-md rounded")} />
+        </div>
+        <div className={skeleton("h-11 w-11 rounded-lg")} />
+      </div>
+    </div>
+  );
+}
+
+const LazyCreatePost = dynamic(
+  () => import("./CreatePost").then((module) => module.CreatePost),
+  {
+    ssr: false,
+    loading: CreatePostFallback,
+  }
+);
 export const AnimatedHomeContent = memo(function AnimatedHomeContent({
   session,
   currentUserProfile,
@@ -187,7 +209,7 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
                 </div>
               </div>
 
-              <CreatePost currentUserProfile={{
+              <LazyCreatePost currentUserProfile={{
                 avatarUrl: currentUserProfile.profile?.avatarUrl ?? null,
                 name: currentUserProfile.name,
                 username: currentUserProfile.username

@@ -4,13 +4,13 @@ import { useState, useRef, useEffect, memo, useCallback, useMemo, lazy, Suspense
 import { useRouter } from "next/navigation";
 import { surface } from "@/components/ui/design-system";
 import type { FeedPost } from "@/types/post";
-import { DeletePostDialog } from "./DeletePostDialog";
 import { getPostMediaItems, PostBodyAttachments } from "./PostBodyAttachments";
 import { PostEngagementBar } from "./PostEngagementBar";
 import { PostDetailHeader } from "./PostDetailHeader";
 import { getPostCount, getReplyCount, withPostCount } from "./post-engagement-utils";
 // Lazy load heavy components - only loaded when needed
 const ReplyModal = lazy(() => import("./ReplyModal").then(m => ({ default: m.ReplyModal })));
+const DeletePostDialog = lazy(() => import("./DeletePostDialog").then(m => ({ default: m.DeletePostDialog })));
 
 interface PostDetailProps {
   post: FeedPost;
@@ -498,7 +498,11 @@ export const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPag
       />
 
 
-      {showDeleteConfirm && <DeletePostDialog onClose={() => setShowDeleteConfirm(false)} onConfirm={confirmDelete} />}
+      {showDeleteConfirm && (
+        <Suspense fallback={null}>
+          <DeletePostDialog onClose={() => setShowDeleteConfirm(false)} onConfirm={confirmDelete} />
+        </Suspense>
+      )}
       
       {/* Reply Modal - Lazy loaded */}
       {showReplyModal && (
