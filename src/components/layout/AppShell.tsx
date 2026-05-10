@@ -21,17 +21,17 @@ export function AppShell({ children, session }: AppShellProps) {
   const isLandingPage = pathname === "/";
 
   return (
-    <div className="min-h-[100dvh] bg-transparent text-[var(--color-foreground)]">
+    <div className="min-h-[100dvh] overflow-x-clip bg-transparent text-[var(--color-foreground)]">
       <Sidebar session={session} />
       <MobileNav session={session} />
 
       {/* Main Content Area */}
-      <div className={cn("w-full transition-all duration-300", "md:pl-72")}>
+      <div className={cn("w-full min-w-0 transition-all duration-300", "md:pl-72")}>
         <Navbar session={session} />
 
         <main id="main-content" className="relative isolate" role="main">
           <div className={cn(
-            "mx-auto w-full relative z-10",
+            "relative z-10 mx-auto w-full min-w-0",
             !isLandingPage ? "max-w-[1380px] p-4 md:p-6 pt-16 md:pt-6 pb-24 md:pb-8" : "pt-0"
           )}>
             {children}

@@ -18,7 +18,7 @@ export const UserSkillsPanel = memo(function UserSkillsPanel({ userSkills, curre
   const isBusy = isSavingSkill || isRemovingSkill;
 
   return (
-    <div className={surface("panel", "noise-overlay relative overflow-hidden p-5 sm:p-6")}>
+    <div className={surface("panel", "noise-overlay relative overflow-hidden p-4 sm:p-6")}>
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.36)] to-transparent" />
       <div
         aria-hidden="true"
@@ -29,7 +29,7 @@ export const UserSkillsPanel = memo(function UserSkillsPanel({ userSkills, curre
         }}
       />
       <div className="relative">
-        <div className="mb-6 flex items-center justify-between gap-4">
+        <div className="mb-6 flex min-w-0 items-center justify-between gap-4">
           <div className="flex min-w-0 items-center gap-3">
             <div className={iconBox("amber", "h-10 w-10")}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-white">
@@ -43,7 +43,7 @@ export const UserSkillsPanel = memo(function UserSkillsPanel({ userSkills, curre
               </svg>
             </div>
             <div className="min-w-0">
-              <h2 className="text-lg font-semibold text-white">Your skills ({userSkills.length}/15)</h2>
+              <h2 className="truncate text-lg font-semibold text-white">Your skills ({userSkills.length}/15)</h2>
               <p className="text-sm text-[var(--muted-foreground)]">Click a skill to edit rates and details</p>
             </div>
           </div>
@@ -79,7 +79,7 @@ export const UserSkillsPanel = memo(function UserSkillsPanel({ userSkills, curre
                     userSkill.isPrimary ? "border-amber-500/24 bg-amber-400/[0.045] shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]" : cn(ui.surface.empty, "hover:border-white/[0.12] hover:bg-white/[0.045]")
                   )}
                 >
-                  <div className="p-5">
+                  <div className="p-4 sm:p-5">
                     <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                       <div className="flex min-w-0 items-center gap-2">
                         {userSkill.isPrimary && (
@@ -92,7 +92,7 @@ export const UserSkillsPanel = memo(function UserSkillsPanel({ userSkills, curre
                         <h4 className="truncate text-base font-semibold text-white">{userSkill.skill.name}</h4>
                       </div>
 
-                      {userSkill.rate && userSkill.rateUnit && <span className="w-fit rounded-md border border-emerald-400/18 bg-emerald-500/10 px-2 py-1 text-xs font-semibold text-emerald-300">{formatRate(userSkill.rate, userSkill.rateUnit, currency)}</span>}
+                      {userSkill.rate && userSkill.rateUnit && <span className="w-fit max-w-full break-words rounded-md border border-emerald-400/18 bg-emerald-500/10 px-2 py-1 text-xs font-semibold text-emerald-300">{formatRate(userSkill.rate, userSkill.rateUnit, currency)}</span>}
                     </div>
 
                     <div className="mb-3 flex flex-wrap items-center gap-3 text-xs text-white/50">
@@ -124,11 +124,11 @@ export const UserSkillsPanel = memo(function UserSkillsPanel({ userSkills, curre
                       )}
                     </div>
 
-                    {userSkill.headline && <p className="border-l border-[rgba(var(--color-accent-2-rgb),0.24)] pl-3 text-sm leading-relaxed text-white/62">{userSkill.headline}</p>}
-                    {userSkill.description && <p className="mt-2 line-clamp-2 pl-3 text-xs leading-relaxed text-white/42">{userSkill.description}</p>}
+                    {userSkill.headline && <p className="break-words border-l border-[rgba(var(--color-accent-2-rgb),0.24)] pl-3 text-sm leading-relaxed text-white/62">{userSkill.headline}</p>}
+                    {userSkill.description && <p className="mt-2 line-clamp-2 break-words pl-3 text-xs leading-relaxed text-white/42">{userSkill.description}</p>}
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-2 border-t border-white/[0.06] bg-white/[0.018] px-5 py-3">
+                  <div className="flex flex-wrap items-center gap-2 border-t border-white/[0.06] bg-white/[0.018] px-4 py-3 sm:px-5">
                     <button
                       type="button"
                       onClick={() => onEditSkill(userSkill)}

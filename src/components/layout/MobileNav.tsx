@@ -87,7 +87,7 @@ export const MobileNav = memo(function MobileNav({ session }: MobileNavProps) {
     <>
       <button
         onClick={toggleMenu}
-        className={cn("fixed left-4 top-[10px] z-50 p-2.5 md:hidden", ui.control.icon)}
+        className={cn("fixed left-3 top-[10px] z-50 p-2.5 sm:left-4 md:hidden", ui.control.icon)}
         aria-label={isOpen ? "Close menu" : "Open menu"}
         aria-expanded={isOpen}
       >
@@ -129,12 +129,12 @@ export const MobileNav = memo(function MobileNav({ session }: MobileNavProps) {
 
       <div
         className={cn(
-          "fixed left-0 top-0 z-50 h-full w-72 transform-gpu border-0 border-r border-white/[0.08] bg-[rgba(7,9,13,0.94)] transition-transform duration-300 ease-out will-change-transform md:hidden",
+          "fixed left-0 top-0 z-50 h-full w-[min(18rem,calc(100vw-1rem))] transform-gpu border-0 border-r border-white/[0.08] bg-[rgba(7,9,13,0.94)] transition-transform duration-300 ease-out will-change-transform md:hidden",
           isOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
         <div className="relative flex flex-col h-full">
-          <div className="p-6 border-b border-white/5">
+          <div className="border-b border-white/5 p-5 sm:p-6">
             <Link href="/" className="flex items-center gap-3 group" onClick={closeMenu} prefetch={false}>
               <ThemeLogoImg className="w-10 h-10 object-contain" />
               <div>
@@ -148,14 +148,14 @@ export const MobileNav = memo(function MobileNav({ session }: MobileNavProps) {
             </Link>
           </div>
 
-          <div className="px-4 pt-4">
+          <div className="px-3 pt-4 sm:px-4">
             <BackButton
               className="w-full justify-start bg-white/[0.035] hover:bg-white/[0.065] rounded-lg text-[var(--muted-foreground)] hover:text-white border border-white/8"
               onClick={closeMenu}
             />
           </div>
 
-          <nav className="flex-1 overflow-y-auto px-4 py-4 space-y-1">
+          <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4 sm:px-4">
             <div className="space-y-1">
               {navigation.map((item) => (
                 <NavLink
@@ -240,7 +240,7 @@ export const MobileNav = memo(function MobileNav({ session }: MobileNavProps) {
 
       {/* Bottom Navigation Bar */}
       <nav className="safe-area-bottom fixed bottom-0 left-0 right-0 z-40 max-w-[100vw] overflow-hidden border-0 border-t border-white/[0.08] bg-[rgba(7,9,13,0.92)] md:hidden">
-        <div className="flex h-16 w-full min-w-0 items-center px-1">
+        <div className="mx-auto flex h-16 w-full max-w-[34rem] min-w-0 items-center px-1">
           {bottomItems.map(({ item, isActive }) => {
             return (
               <Link

@@ -271,8 +271,8 @@ export default function ProfileHubPage() {
 
   if (status === "loading" || isLoading) {
     return (
-      <main className="relative px-4 py-6 sm:py-10">
-        <div className="relative mx-auto max-w-4xl">
+      <main className="relative w-full min-w-0 px-0 py-4 sm:px-4 sm:py-10">
+        <div className="relative mx-auto w-full min-w-0 max-w-4xl">
           <div className={surface("panel", "noise-overlay relative mb-6 overflow-hidden p-5 sm:mb-8")}>
             <div className="flex items-center gap-3">
               <div className={skeleton("h-10 w-10")} />
@@ -310,12 +310,12 @@ export default function ProfileHubPage() {
   }
 
   return (
-    <main className="relative px-4 py-6 sm:py-10">
-      <div className="relative mx-auto max-w-4xl">
+    <main className="relative w-full min-w-0 px-0 py-4 sm:px-4 sm:py-10">
+      <div className="relative mx-auto w-full min-w-0 max-w-4xl">
         {/* Header */}
         <div className={surface("panel", "noise-overlay relative mb-6 overflow-hidden p-5 sm:mb-8 sm:p-6")}>
           <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.42)] to-transparent" />
-          <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+          <div className="flex min-w-0 flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
             <div className="flex min-w-0 items-start gap-3">
               <div className={iconBox("cyan", "h-10 w-10 shrink-0")}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -323,13 +323,13 @@ export default function ProfileHubPage() {
                   <path d="M16.5 3.5 20.5 7.5 8 20H4v-4L16.5 3.5Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </div>
-              <div className="min-w-0">
+              <div className="min-w-0 flex-1">
                 <div className="mb-1 text-[10px] font-bold uppercase tracking-[0.16em] text-[var(--color-accent-2)]">Profile tools</div>
                 <h1 className="font-[var(--font-space-grotesk)] text-2xl font-bold text-white">Profile Hub</h1>
                 <p className="mt-0.5 max-w-xl text-sm leading-relaxed text-[var(--muted-foreground)] sm:text-base">Manage your profile, skills, and services</p>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-2 sm:w-[260px]">
+            <div className="grid min-w-0 grid-cols-2 gap-2 sm:w-[260px] sm:flex-shrink-0">
               <div className="rounded-lg border border-white/[0.08] bg-white/[0.035] px-3 py-2">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/42">Profile</p>
                 <p className="mt-1 text-sm font-semibold text-white">{profileCompletion}% ready</p>

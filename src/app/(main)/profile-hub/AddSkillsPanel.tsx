@@ -45,7 +45,7 @@ export const AddSkillsPanel = memo(function AddSkillsPanel({
   }, [allSkills, normalizedSearch, userSkillIds]);
 
   return (
-    <div className={surface("panel", "noise-overlay relative overflow-hidden p-5 sm:p-6")}>
+    <div className={surface("panel", "noise-overlay relative overflow-hidden p-4 sm:p-6")}>
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.36)] to-transparent" />
       <div
         aria-hidden="true"
@@ -56,13 +56,13 @@ export const AddSkillsPanel = memo(function AddSkillsPanel({
         }}
       />
       <div className="relative">
-        <div className="mb-6 flex items-center gap-3">
+        <div className="mb-6 flex min-w-0 items-center gap-3">
           <div className={iconBox("cyan", "h-10 w-10")}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-white">
               <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </div>
-          <div>
+          <div className="min-w-0">
             <h2 className="text-lg font-semibold text-white">Add skills</h2>
             <p className="text-sm text-[var(--muted-foreground)]">Search from 200+ skills or add your own</p>
           </div>
@@ -77,7 +77,7 @@ export const AddSkillsPanel = memo(function AddSkillsPanel({
           className="mb-4"
         />
 
-        <div className="mb-4 grid max-h-72 grid-cols-1 gap-2 overflow-y-auto rounded-lg border border-white/[0.06] bg-black/[0.08] p-2 sm:grid-cols-2">
+        <div className="mb-4 grid max-h-72 min-w-0 grid-cols-1 gap-2 overflow-y-auto rounded-lg border border-white/[0.06] bg-black/[0.08] p-2 sm:grid-cols-2">
           {visibleSkills.map((skill) => {
             const isAddingThisSkill = addingSkillId === skill.id;
 
@@ -92,7 +92,7 @@ export const AddSkillsPanel = memo(function AddSkillsPanel({
                 disabled={!canAddMore || isBusy}
                 aria-busy={isAddingThisSkill}
                 className={cn(
-                  "group rounded-lg border p-3 text-left outline-none transition-all duration-200 focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.7)] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(8,11,16)]",
+                  "group min-w-0 rounded-lg border p-3 text-left outline-none transition-all duration-200 focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.7)] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(8,11,16)]",
                   ui.surface.empty,
                   "hover:border-[rgba(var(--color-accent-2-rgb),0.28)] hover:bg-[rgba(var(--color-accent-2-rgb),0.06)]",
                   (!canAddMore || isBusy) && "opacity-50 cursor-not-allowed"
@@ -118,7 +118,7 @@ export const AddSkillsPanel = memo(function AddSkillsPanel({
               disabled={!canAddMore || isBusy}
               aria-busy={isAddingCustomSkill}
               className={cn(
-                "col-span-full rounded-lg border p-3 text-left outline-none transition-all focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.7)] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(8,11,16)]",
+                "col-span-full min-w-0 rounded-lg border p-3 text-left outline-none transition-all focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.7)] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(8,11,16)]",
                 "border-[rgba(var(--color-accent-2-rgb),0.28)] bg-[rgba(var(--color-accent-2-rgb),0.06)] hover:bg-[rgba(var(--color-accent-2-rgb),0.10)]",
                 (!canAddMore || isBusy) && "opacity-50 cursor-not-allowed"
               )}

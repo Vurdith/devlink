@@ -204,7 +204,7 @@ export const Navbar = memo(function Navbar({ session }: { session?: { user?: { i
       )}
     >
 
-      <div className="relative w-full px-4 md:px-6 h-16 flex items-center gap-3">
+      <div className="relative flex h-16 w-full min-w-0 items-center gap-2 px-3 sm:gap-3 sm:px-4 md:px-6">
         {/* Spacer for mobile hamburger - matches button size (p-2.5 + icon 20px = ~44px) */}
         <div className="w-[44px] h-[44px] md:hidden flex-shrink-0" />
 
@@ -214,12 +214,12 @@ export const Navbar = memo(function Navbar({ session }: { session?: { user?: { i
         )}
 
         {/* Search bar */}
-        <div className="flex items-center flex-1">
+        <div className="flex min-w-0 flex-1 items-center">
           {pathname !== "/" && <NavbarSearch currentUserId={session?.user?.id} />}
         </div>
 
         {/* Right side actions */}
-        <div className="flex items-center gap-2 md:gap-3">
+        <div className="flex min-w-0 shrink-0 items-center gap-2 md:gap-3">
           {/* Quick action buttons for logged-in users */}
           {username && (
             <div className="hidden md:flex items-center gap-2">

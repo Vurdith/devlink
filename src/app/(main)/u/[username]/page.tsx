@@ -54,7 +54,7 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
   const profileType = user.profile?.profileType ?? null;
 
   return (
-    <main className="mx-auto max-w-6xl px-3 sm:px-5 py-4 sm:py-8">
+    <main className="mx-auto w-full min-w-0 max-w-6xl px-0 py-4 sm:px-5 sm:py-8">
       <section className={surface("panelStrong", "relative overflow-hidden bg-[rgba(10,13,19,0.82)]")}>
         <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent" />
         {/* Banner */}
@@ -63,7 +63,7 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
           isOwnProfile={isOwnProfile}
         />
         
-        <div className="relative -mt-16 px-4 pb-5 sm:-mt-20 sm:px-6 sm:pb-7 lg:px-8">
+        <div className="relative -mt-16 px-3 pb-5 sm:-mt-20 sm:px-6 sm:pb-7 lg:px-8">
           <AboutEditor
             initialBio={user.profile?.bio}
             initialLocation={user.profile?.location}
@@ -82,15 +82,15 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
                   "radial-gradient(640px 150px at 12% 0%, rgba(var(--color-accent-2-rgb),0.10), transparent 64%), radial-gradient(520px 150px at 96% 18%, rgba(var(--color-accent-rgb),0.07), transparent 68%)",
               }}
             />
-            <div className="relative grid gap-4 sm:grid-cols-[auto_1fr] sm:items-center lg:grid-cols-[auto_1fr_auto]">
+            <div className="relative grid min-w-0 gap-4 sm:grid-cols-[auto_minmax(0,1fr)] sm:items-center lg:grid-cols-[auto_minmax(0,1fr)_auto]">
               <ProfileAvatar
                 initialAvatarUrl={user.profile?.avatarUrl}
                 isOwnProfile={isOwnProfile}
               />
 
               <div className="min-w-0 self-center">
-                <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-                  <h1 className="truncate text-2xl font-semibold tracking-tight text-white sm:text-3xl">
+                <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-2">
+                  <h1 className="min-w-0 max-w-full truncate text-2xl font-semibold tracking-tight text-white sm:text-3xl">
                     {user.name ?? user.username}
                   </h1>
                   {user.profile?.verified && (
@@ -103,8 +103,8 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
                   {profileType ? <ProfileTypeLabel profileType={profileType} variant="hero" /> : null}
                 </div>
 
-                <div className="mt-2 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-sm text-[var(--muted-foreground)]">
-                  <span className="truncate">@{user.username}</span>
+                <div className="mt-2 flex min-w-0 flex-wrap items-center gap-x-2.5 gap-y-1 text-sm text-[var(--muted-foreground)]">
+                  <span className="min-w-0 max-w-full truncate">@{user.username}</span>
                   <span className="text-white/16">|</span>
                   <Link href={`/u/${user.username}/followers`} className="transition-colors hover:text-white">
                     <span className="font-semibold text-white">{user?._count?.followers ?? 0}</span>{" "}
@@ -128,7 +128,7 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
 
                 {user.profile?.bio && (
                   <div className="mt-4 max-w-3xl">
-                    <p className="border-l-2 border-[rgba(var(--color-accent-2-rgb),0.46)] pl-4 text-[15px] font-medium leading-relaxed text-white/78 whitespace-pre-wrap">
+                    <p className="break-words border-l-2 border-[rgba(var(--color-accent-2-rgb),0.46)] pl-4 text-[15px] font-medium leading-relaxed text-white/78 whitespace-pre-wrap">
                       {user.profile.bio}
                     </p>
                   </div>

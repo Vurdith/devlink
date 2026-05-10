@@ -37,7 +37,7 @@ export function ProfileSection({
 }: ProfileSectionProps) {
   return (
     <div className="space-y-6">
-      <div className={surface("panel", "noise-overlay relative overflow-hidden p-5 sm:p-6")}>
+      <div className={surface("panel", "noise-overlay relative overflow-hidden p-4 sm:p-6")}>
         <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.36)] to-transparent" />
         <div
           aria-hidden="true"
@@ -48,14 +48,14 @@ export function ProfileSection({
           }}
         />
         <div className="relative">
-          <div className="mb-6 flex items-center gap-3">
+          <div className="mb-6 flex min-w-0 items-center gap-3">
             <div className={iconBox("cyan", "h-10 w-10")}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-white">
                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                 <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </div>
-            <div>
+            <div className="min-w-0">
               <h2 className="text-lg font-semibold text-white">Basic information</h2>
               <p className="text-sm text-[var(--muted-foreground)]">Your public profile details</p>
             </div>
@@ -97,7 +97,7 @@ export function ProfileSection({
         </div>
       </div>
 
-      <div className={surface("panel", "noise-overlay relative overflow-hidden p-5 sm:p-6")}>
+      <div className={surface("panel", "noise-overlay relative overflow-hidden p-4 sm:p-6")}>
         <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.36)] to-transparent" />
         <div
           aria-hidden="true"
@@ -108,14 +108,14 @@ export function ProfileSection({
           }}
         />
         <div className="relative">
-          <div className="mb-6 flex items-center gap-3">
+          <div className="mb-6 flex min-w-0 items-center gap-3">
             <div className={iconBox("cyan", "h-10 w-10")}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-white">
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                 <circle cx="12" cy="7" r="4" stroke="currentColor" strokeWidth="2" />
               </svg>
             </div>
-            <div>
+            <div className="min-w-0">
               <h2 className="text-lg font-semibold text-white">Profile type</h2>
               <p className="text-sm text-[var(--muted-foreground)]">Choose how you want to use DevLink</p>
             </div>
@@ -130,7 +130,7 @@ export function ProfileSection({
                   type="button"
                   onClick={() => onProfileChange({ ...profile, profileType: profileType.value })}
                   className={cn(
-                    "group relative min-h-[138px] rounded-lg border p-4 text-left outline-none transition-all duration-200 focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.7)] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(8,11,16)]",
+                    "group relative min-h-[138px] min-w-0 rounded-lg border p-4 text-left outline-none transition-all duration-200 focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.7)] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(8,11,16)]",
                     isActive
                       ? `${profileType.bgColor} ${profileType.borderColor} text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]`
                       : cn(ui.surface.empty, "hover:border-white/[0.14] hover:bg-white/[0.055]")
@@ -158,8 +158,8 @@ export function ProfileSection({
                     {profileType.icon}
                   </div>
 
-                  <div className="mb-1 font-medium text-white">{profileType.label}</div>
-                  <div className="text-xs leading-relaxed text-[var(--muted-foreground)]">{profileType.description}</div>
+                  <div className="mb-1 break-words font-medium text-white">{profileType.label}</div>
+                  <div className="break-words text-xs leading-relaxed text-[var(--muted-foreground)]">{profileType.description}</div>
                 </button>
               );
             })}
