@@ -375,7 +375,17 @@ export async function getOrSetFeedCache<T>(
   fetcher: () => Promise<T>,
   ttlSeconds = 30
 ) {
-  return responseCache.getOrSet<T>(namespacedCacheKey("feed", key), fetcher, ttlSeconds);
+  const namespacedKey = namespacedCacheKey("feed", key);
+  const cached = await responseCache.get<T>(namespacedKey);
+  if (cached !== null) return cached;
+
+  const data = await fetcher();
+
+  void responseCache.set(namespacedKey, data, ttlSeconds).catch((error) => {
+    console.error("[Cache] Feed cache set error:", error);
+  });
+
+  return data;
 }
 
 export async function setSessionCache<T>(key: string, value: T, ttlSeconds = 60 * 15) {

@@ -66,6 +66,7 @@ type AnalyticsResponse = {
 };
 
 const HOTPATH_BASE_URL = process.env.RUST_HOTPATH_SERVICE_URL;
+const DEFAULT_RANK_FEED_TIMEOUT_MS = 750;
 
 function getHotpathBaseUrl(): string | null {
   return HOTPATH_BASE_URL ?? null;
@@ -74,6 +75,9 @@ function getHotpathBaseUrl(): string | null {
 export async function rankFeedWithRust(input: RankFeedRequest): Promise<RankFeedResponse | null> {
   const baseUrl = getHotpathBaseUrl();
   if (!baseUrl) return null;
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), DEFAULT_RANK_FEED_TIMEOUT_MS);
 
   try {
     const response = await fetch(`${baseUrl}/rank-feed`, {
@@ -87,14 +91,21 @@ export async function rankFeedWithRust(input: RankFeedRequest): Promise<RankFeed
         })),
       }),
       cache: "no-store",
+      signal: controller.signal,
     });
     if (!response.ok) return null;
     const data = (await response.json()) as { ordered_post_ids?: string[] };
     if (!Array.isArray(data.ordered_post_ids)) return null;
     return { orderedPostIds: data.ordered_post_ids };
   } catch (error) {
+    if (controller.signal.aborted) {
+      console.warn(`[HotpathClient] rank-feed timed out after ${DEFAULT_RANK_FEED_TIMEOUT_MS}ms`);
+      return null;
+    }
     console.error("[HotpathClient] rank-feed failed:", error);
     return null;
+  } finally {
+    clearTimeout(timeout);
   }
 }
 
