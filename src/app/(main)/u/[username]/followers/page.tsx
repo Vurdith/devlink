@@ -32,6 +32,7 @@ export default async function FollowersPage({ params }: { params: Promise<{ user
       }
       emptyTitle="No followers yet"
       emptyDescription="People who follow this profile will appear here."
+      backHref={`/u/${user.username}`}
       emptyIcon={
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M9 20H4v-2a3 3 0 015.356-1.857M15 7a3 3 0 11-6 0 3 3 0 016 0z" />

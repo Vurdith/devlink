@@ -180,34 +180,34 @@ interface EmptyStateProps {
 
 export function EmptyState({ tab, icon }: EmptyStateProps) {
   const messages: Record<TabType, { title: string; description: string }> = {
-    about: { title: "No about info", description: "" },
+    about: { title: "No profile context yet", description: "Skills, links, and work details will appear here once this profile is filled out." },
     posts: {
-      title: "No posts yet",
-      description: "When you post, it will appear here.",
+      title: "No original posts yet",
+      description: "Project updates, technical notes, and public work logs from this profile will appear here.",
     },
     replies: {
-      title: "No replies yet",
-      description: "When you reply to posts, they will appear here.",
+      title: "No replies in view",
+      description: "Replies will show how this profile contributes to discussions and answers other developers.",
     },
     reposts: {
-      title: "No reposts yet",
-      description: "When you repost something, it will appear here.",
+      title: "No reposted signal yet",
+      description: "When this profile shares useful posts from others, they will collect here.",
     },
     liked: {
-      title: "No liked posts",
-      description: "Posts you like will appear here.",
+      title: "No liked posts yet",
+      description: "Liked posts can reveal tools, ideas, and references this profile finds useful.",
     },
     saved: {
-      title: "No saved posts",
-      description: "Posts you save will appear here.",
+      title: "No saved references yet",
+      description: "Saved posts are private to you and work best as a lightweight technical library.",
     },
     portfolio: {
-      title: "No portfolio items",
-      description: "This user hasn't shared their portfolio yet.",
+      title: "No public case studies",
+      description: "Portfolio work will appear here once this profile publishes selected projects.",
     },
     reviews: {
       title: "No reviews yet",
-      description: "Reviews will appear here.",
+      description: "Peer feedback will appear here after collaborators or clients leave reviews.",
     },
   };
 

@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import Link from "next/link";
 import { FeedbackState } from "@/components/ui/FeedbackState";
 import { iconBox, surface } from "@/components/ui/design-system";
 import { NetworkProfileCard, type NetworkUser } from "./NetworkProfileCard";
@@ -11,6 +12,7 @@ interface NetworkPageProps {
   emptyTitle: string;
   emptyDescription: string;
   emptyIcon: ReactNode;
+  backHref: string;
   users: NetworkUser[];
   currentUserId?: string;
   followingIds: Set<string>;
@@ -24,13 +26,24 @@ export function NetworkPage({
   emptyTitle,
   emptyDescription,
   emptyIcon,
+  backHref,
   users,
   currentUserId,
   followingIds,
 }: NetworkPageProps) {
   return (
-    <main className="mx-auto max-w-5xl px-3 py-6 sm:px-5 sm:py-10">
-      <section className={surface("panelStrong", "noise-overlay relative mb-5 overflow-hidden p-5 sm:p-6")}>
+    <main className="mx-auto max-w-4xl px-3 py-5 sm:px-5 sm:py-9">
+      <section className="mb-5 border-b border-white/[0.07] pb-5">
+        <Link
+          href={backHref}
+          className="mb-4 inline-flex items-center gap-2 rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 py-2 text-sm font-semibold text-white/62 transition-colors hover:border-white/[0.14] hover:bg-white/[0.055] hover:text-white"
+        >
+          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 18l-6-6 6-6" />
+          </svg>
+          Profile
+        </Link>
+        <div className={surface("panelStrong", "noise-overlay relative overflow-hidden p-5 sm:p-6")}>
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 opacity-60"
@@ -49,9 +62,10 @@ export function NetworkPage({
           </div>
           <div className={iconBox("cyan", "h-11 w-11 flex-shrink-0 sm:h-12 sm:w-12")}>{headerIcon}</div>
         </div>
+        </div>
       </section>
 
-      <div className="grid auto-rows-fr gap-4 sm:grid-cols-2">
+      <div className="space-y-3">
         {users.map((user) => (
           <NetworkProfileCard
             key={user.id}

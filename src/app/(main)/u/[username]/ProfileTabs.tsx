@@ -47,7 +47,51 @@ interface ProfileTabsProps {
       username?: string;
     };
   } | null;
+  initialTab?: TabType;
 }
+
+const tabIntros: Record<TabType, { eyebrow: string; title: string; description: string }> = {
+  about: {
+    eyebrow: "Profile proof",
+    title: "Capabilities and context",
+    description: "Skills, working style, links, and practical details visitors use to decide whether this person fits the work.",
+  },
+  posts: {
+    eyebrow: "Public activity",
+    title: "Recent posts",
+    description: "Original updates and project notes from this profile.",
+  },
+  replies: {
+    eyebrow: "Conversation",
+    title: "Replies",
+    description: "Where this profile joins technical discussions and community threads.",
+  },
+  reposts: {
+    eyebrow: "Shared signal",
+    title: "Reposts",
+    description: "Work, ideas, and updates this profile has chosen to amplify.",
+  },
+  liked: {
+    eyebrow: "Interest map",
+    title: "Liked posts",
+    description: "Posts this profile has marked as useful or interesting.",
+  },
+  saved: {
+    eyebrow: "Private library",
+    title: "Saved posts",
+    description: "Your saved reference posts are visible only to you.",
+  },
+  portfolio: {
+    eyebrow: "Selected work",
+    title: "Portfolio",
+    description: "Case studies and artifacts that show what this developer can actually ship.",
+  },
+  reviews: {
+    eyebrow: "Peer trust",
+    title: "Peer feedback",
+    description: "Feedback from people who have worked with or evaluated this profile.",
+  },
+};
 
 const tabDataCache = new Map<string, { data: TabPost[]; timestamp: number }>();
 const CACHE_TTL = 30000;
@@ -59,10 +103,13 @@ export function ProfileTabs({
   skills = [],
   profileData = {},
   session,
+  initialTab,
 }: ProfileTabsProps) {
   const hasAboutContent = skills.length > 0 || profileData.location || profileData.website;
+  const isOwner = currentUserId === userId;
+  const visibleInitialTab = initialTab === "saved" && !isOwner ? undefined : initialTab;
   const [activeTab, setActiveTab] = useState<TabType>(
-    hasAboutContent ? "about" : "posts"
+    visibleInitialTab ?? (hasAboutContent ? "about" : "posts")
   );
   const [posts, setPosts] = useState<TabPost[]>([]);
   const [portfolioItems, setPortfolioItems] = useState<PortfolioItem[]>([]);
@@ -75,8 +122,6 @@ export function ProfileTabs({
   const { toast } = useToast();
 
   const POSTS_PER_PAGE = 20;
-  const isOwner = currentUserId === userId;
-
   const tabs = getProfileTabs(Boolean(hasAboutContent));
 
   const fetchPosts = useCallback(
@@ -343,6 +388,7 @@ export function ProfileTabs({
   };
 
   const canSeePrivateTabs = currentUserId === userId;
+  const activeIntro = tabIntros[activeTab];
 
   const renderEmptyIcon = () => {
     switch (activeTab) {
@@ -439,6 +485,25 @@ export function ProfileTabs({
         onTabChange={setActiveTab}
         canSeePrivateTabs={canSeePrivateTabs}
       />
+
+      <section className="mb-4 grid gap-3 border-b border-white/[0.06] pb-4 sm:mb-5 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
+        <div className="min-w-0">
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--color-accent-2)]">
+            {activeIntro.eyebrow}
+          </p>
+          <h2 className="mt-1 font-[var(--font-space-grotesk)] text-xl font-semibold tracking-tight text-white sm:text-2xl">
+            {activeIntro.title}
+          </h2>
+          <p className="mt-1 max-w-2xl text-sm leading-relaxed text-[var(--muted-foreground)]">
+            {activeIntro.description}
+          </p>
+        </div>
+        {activeTab === "portfolio" && portfolioItems.length > 0 ? (
+          <span className="inline-flex rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 py-2 text-sm font-semibold text-white/72">
+            {portfolioItems.length} {portfolioItems.length === 1 ? "case study" : "case studies"}
+          </span>
+        ) : null}
+      </section>
 
       <div className="min-h-[400px]">
         {loading ? (

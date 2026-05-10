@@ -44,7 +44,7 @@ export function ProfileAboutTab({ skills, profileData }: ProfileAboutTabProps) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="grid gap-5 lg:grid-cols-[minmax(0,1.45fr)_minmax(280px,0.55fr)]">
       {skills.length > 0 && (
         <section className={surface("panel", "overflow-hidden")}>
           <div className="border-b border-white/[0.08] p-5 sm:p-6">
@@ -101,14 +101,14 @@ export function ProfileAboutTab({ skills, profileData }: ProfileAboutTabProps) {
       )}
 
       {hasProfileDetails && (
-        <section className={surface("panel", "overflow-hidden p-5 sm:p-6")}>
+        <section className={surface("panelMuted", "h-fit overflow-hidden p-5 sm:p-6")}>
           <div className="mb-4">
             <h3 className="font-[var(--font-space-grotesk)] text-lg font-semibold text-white">Profile details</h3>
-            <p className="mt-1 text-sm text-[var(--muted-foreground)]">Location and public links for quick context.</p>
+            <p className="mt-1 text-sm text-[var(--muted-foreground)]">Fast context before opening a conversation.</p>
           </div>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div className="divide-y divide-white/[0.07]">
           {profileData.location && (
-            <div className={surface("empty", "flex min-w-0 items-center gap-3 p-4 transition-colors hover:border-white/[0.12] hover:bg-white/[0.04]")}>
+            <div className="flex min-w-0 items-center gap-3 py-4 first:pt-0 last:pb-0">
               <div className={iconBox("muted", "h-10 w-10")}>
                 <svg
                   className="w-5 h-5 text-[var(--color-accent-2)]"
@@ -146,7 +146,7 @@ export function ProfileAboutTab({ skills, profileData }: ProfileAboutTabProps) {
               href={profileData.website}
               target="_blank"
               rel="noreferrer"
-              className={surface("empty", "group flex min-w-0 items-center gap-3 p-4 outline-none transition-colors hover:border-[rgba(var(--color-accent-2-rgb),0.34)] hover:bg-white/[0.04] focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.62)] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(12,16,23)]")}
+              className="group flex min-w-0 items-center gap-3 py-4 outline-none transition-colors hover:text-white focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.62)] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(12,16,23)] first:pt-0 last:pb-0"
             >
               <div className={iconBox("cyan", "h-10 w-10 transition-colors group-hover:bg-[rgba(var(--color-accent-2-rgb),0.13)]")}>
                 <svg
