@@ -24,6 +24,14 @@ function formatBudget(job: Pick<Job, "budgetMin" | "budgetMax" | "currency">) {
   return "Budget flexible";
 }
 
+function splitSkills(skills: string | null) {
+  return (skills || "")
+    .split(",")
+    .map((skill) => skill.trim())
+    .filter(Boolean)
+    .slice(0, 6);
+}
+
 function statusLabel(status: string) {
   return status
     .toLowerCase()
@@ -87,6 +95,7 @@ export default function JobDetailPage() {
 
   const isOwner = userId === job?.userId;
   const viewerApplication = useMemo(() => job?.applications?.[0] || null, [job?.applications]);
+  const jobSkills = useMemo(() => splitSkills(job?.skills ?? null), [job?.skills]);
   const canApply = Boolean(userId && job && !isOwner && job.status === "OPEN" && !viewerApplication);
 
   async function apply() {
@@ -227,8 +236,18 @@ export default function JobDetailPage() {
           </span>
         </div>
         <p className="mt-5 whitespace-pre-wrap border-l border-[rgba(var(--color-accent-2-rgb),0.26)] pl-4 text-sm leading-relaxed text-white/78">{job.description}</p>
-        <div className="mt-5 grid gap-2 rounded-lg border border-white/[0.07] bg-black/10 p-3 text-xs text-[var(--muted-foreground)] sm:grid-cols-3">
-          <span className="min-w-0 truncate rounded-md border border-white/[0.08] bg-white/[0.035] px-2.5 py-2 text-white/70">{job.skills || "Skills flexible"}</span>
+        <div className="mt-5 grid gap-2 rounded-lg border border-white/[0.07] bg-black/10 p-3 text-xs text-[var(--muted-foreground)] sm:grid-cols-[minmax(0,1.3fr)_auto_auto]">
+          <div className="flex min-w-0 flex-wrap gap-2">
+            {jobSkills.length > 0 ? (
+              jobSkills.map((skill) => (
+                <span key={skill} className="rounded-md border border-white/[0.08] bg-white/[0.035] px-2.5 py-2 text-white/70">
+                  {skill}
+                </span>
+              ))
+            ) : (
+              <span className="rounded-md border border-white/[0.08] bg-white/[0.035] px-2.5 py-2 text-white/55">Skills flexible</span>
+            )}
+          </div>
           <span className="inline-flex items-center gap-1.5 rounded-md border border-white/[0.08] bg-white/[0.035] px-2.5 py-2">
             <DollarSign className="h-3.5 w-3.5 text-[var(--color-accent-2)]" aria-hidden="true" />
             {formatBudget(job)}

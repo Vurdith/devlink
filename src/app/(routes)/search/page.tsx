@@ -52,17 +52,17 @@ function queryInText(text: string | null | undefined, query: string) {
 }
 
 function getProfileMatchLabel(user: UserSearchResult, query: string) {
-  if (queryInText(user.username, query)) return "handle match";
-  if (queryInText(user.name, query)) return "name match";
-  if (queryInText(user.bio, query)) return "bio match";
-  return "profile result";
+  if (queryInText(user.bio, query)) return "Bio matched";
+  if (queryInText(user.name, query)) return "Name matched";
+  if (queryInText(user.username, query)) return null;
+  return null;
 }
 
 function getProjectMatchLabel(project: ProjectResult, query: string) {
-  if (queryInText(project.title, query)) return "title match";
-  if (queryInText(project.description, query)) return "description match";
-  if (queryInText(project.author.username, query) || queryInText(project.author.name, query)) return "author match";
-  return "project result";
+  if (queryInText(project.description, query)) return "Description matched";
+  if (queryInText(project.author.username, query) || queryInText(project.author.name, query)) return "Author matched";
+  if (queryInText(project.title, query)) return null;
+  return null;
 }
 
 function SearchContent() {
@@ -333,8 +333,10 @@ function SearchContent() {
                 <span className="text-xs text-[var(--muted-foreground)]">{formatCount(users.length)}</span>
               </div>
               <div className="space-y-2">
-                {users.map((user) => (
-                  <div key={user.id} className={surface("panelMuted", "noise-overlay group relative flex min-h-[118px] items-start gap-3 overflow-hidden p-4 transition-all duration-200 hover:border-[rgba(var(--color-accent-2-rgb),0.20)] hover:bg-white/[0.04]")}>
+                {users.map((user) => {
+                  const matchLabel = getProfileMatchLabel(user, query);
+                  return (
+                  <div key={user.id} className={surface("panelMuted", "group relative flex min-h-[118px] items-start gap-3 overflow-hidden p-4 transition-colors duration-200 hover:border-[rgba(var(--color-accent-2-rgb),0.20)] hover:bg-white/[0.04]")}>
                     <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.10] to-transparent" />
                     <ProfileTooltip
                       user={{
@@ -370,9 +372,11 @@ function SearchContent() {
                       </div>
                           <div className="text-xs text-[var(--muted-foreground)] truncate">@{user.username}</div>
                           <div className="mt-2 flex flex-wrap items-center gap-2">
-                            <span className="rounded-md border border-white/[0.08] bg-white/[0.035] px-2 py-0.5 text-[11px] font-semibold text-white/58">
-                              {getProfileMatchLabel(user, query)}
-                            </span>
+                            {matchLabel ? (
+                              <span className="rounded-md border border-white/[0.08] bg-white/[0.035] px-2 py-0.5 text-[11px] font-semibold text-white/58">
+                                {matchLabel}
+                              </span>
+                            ) : null}
                             {user.bio && <span className="line-clamp-1 text-xs leading-relaxed text-white/62">{user.bio}</span>}
                           </div>
                         </div>
@@ -384,7 +388,8 @@ function SearchContent() {
                       </div>
                     ) : null}
                   </div>
-                ))}
+                  );
+                })}
               </div>
             </section>
           )}
@@ -439,15 +444,19 @@ function SearchContent() {
                 <span className="text-xs text-[var(--muted-foreground)]">{formatCount(projects.length)}</span>
               </div>
               <div className="space-y-2">
-                {projects.map((project) => (
+                {projects.map((project) => {
+                  const matchLabel = getProjectMatchLabel(project, query);
+                  return (
                   <div key={project.id} className={surface("panelMuted", "group p-4 transition-colors hover:border-[rgba(var(--color-accent-2-rgb),0.20)] hover:bg-white/[0.04]")}>
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
                       <div className="flex-1">
                         <div className="flex flex-wrap items-center gap-2">
                           <div className="text-base font-semibold text-white group-hover:text-[var(--color-accent-2)]">{project.title}</div>
-                          <span className="rounded-md border border-white/[0.08] bg-white/[0.035] px-2 py-0.5 text-[11px] font-semibold text-white/58">
-                            {getProjectMatchLabel(project, query)}
-                          </span>
+                          {matchLabel ? (
+                            <span className="rounded-md border border-white/[0.08] bg-white/[0.035] px-2 py-0.5 text-[11px] font-semibold text-white/58">
+                              {matchLabel}
+                            </span>
+                          ) : null}
                         </div>
                         {project.description && (
                           <div className="mt-2 line-clamp-2 text-sm leading-relaxed text-[var(--muted-foreground)]">{project.description}</div>
@@ -467,7 +476,8 @@ function SearchContent() {
                       </Link>
                     </div>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             </section>
           )}
@@ -516,7 +526,30 @@ function SearchContent() {
 
 export default function SearchPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+    <Suspense
+      fallback={
+        <div className="mx-auto max-w-6xl px-4 py-5 sm:px-6 sm:py-6">
+          <div className={surface("panel", "mb-4 p-4 sm:p-6")}>
+            <div className="skeleton mb-3 h-4 w-24 rounded-lg" />
+            <div className="skeleton h-8 w-80 max-w-full rounded-lg" />
+            <div className="skeleton mt-4 h-12 w-full rounded-lg" />
+          </div>
+          <div className="space-y-2">
+            {[...Array(4)].map((_, index) => (
+              <div key={index} className={surface("panelMuted", "p-4")}>
+                <div className="flex items-center gap-3">
+                  <div className="skeleton h-10 w-10 rounded-lg" />
+                  <div className="min-w-0 flex-1">
+                    <div className="skeleton mb-2 h-4 w-44 max-w-full rounded" />
+                    <div className="skeleton h-3 w-72 max-w-full rounded" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      }
+    >
       <SearchContent />
     </Suspense>
   );

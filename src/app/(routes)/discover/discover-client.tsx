@@ -94,7 +94,7 @@ function getProfileType(user: User) {
 function getSignal(user: User) {
   if (user.profile?.bio) return user.profile.bio;
   if (user._count.followers > 0) return `${formatCount(user._count.followers)} followers on DevLink`;
-  return "No bio yet. Open the profile for posts, portfolio, and network.";
+  return "No bio added";
 }
 
 function DiscoverUserRow({
@@ -120,8 +120,8 @@ function DiscoverUserRow({
         <span className="sr-only">Open @{user.username}</span>
       </Link>
 
-      <div className="relative z-10 flex min-w-0 gap-3 p-4 items-start sm:items-center">
-        <div className="flex min-w-0 gap-3 items-start sm:items-center">
+      <div className="relative z-10 grid min-w-0 gap-3 p-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
+        <div className="flex min-w-0 gap-3">
           <Link href={`/u/${user.username}`} className="relative flex-shrink-0 rounded-full outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]">
             {user.profile?.avatarUrl ? (
               <Image
@@ -156,15 +156,19 @@ function DiscoverUserRow({
               <ProfileTypeLabel profileType={getProfileType(user)} variant="compact" />
             </div>
             <div className="mt-0.5 truncate text-xs text-[var(--muted-foreground)]">@{user.username}</div>
+            <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-white/68 sm:hidden">
+              {getSignal(user)}
+            </p>
           </div>
         </div>
 
-        <div className="min-w-0 flex-1 sm:grid sm:grid-cols-[1fr_auto] sm:items-center sm:gap-4">
-          <p className="line-clamp-2 text-sm leading-relaxed text-white/68">
+        <div className="hidden min-w-0 sm:block">
+          <p className="line-clamp-2 max-w-xl text-sm leading-relaxed text-white/68">
             {getSignal(user)}
           </p>
+        </div>
 
-          <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-[var(--muted-foreground)] sm:mt-0 sm:justify-end">
+        <div className="flex flex-wrap items-center gap-3 border-t border-white/[0.06] pt-3 text-xs text-[var(--muted-foreground)] sm:border-t-0 sm:pt-0 sm:justify-end">
             <Link href={`/u/${user.username}/followers`} className="relative z-20 rounded outline-none hover:text-white focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]">
               <span className="font-semibold text-white tabular-nums">{formatCount(user._count.followers)}</span> followers
             </Link>
@@ -181,7 +185,6 @@ function DiscoverUserRow({
                 />
               </span>
             ) : null}
-          </div>
         </div>
       </div>
     </div>

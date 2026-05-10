@@ -31,8 +31,20 @@ export function NetworkPage({
   currentUserId,
   followingIds,
 }: NetworkPageProps) {
+  const profileHandle = backHref.split("/").filter(Boolean).at(-1);
+  const verifiedCount = users.filter((user) => user.profile?.verified).length;
+  const roleCounts = users.reduce<Record<string, number>>((counts, user) => {
+    const role = user.profile?.profileType;
+    if (!role) return counts;
+    counts[role] = (counts[role] ?? 0) + 1;
+    return counts;
+  }, {});
+  const topRoles = Object.entries(roleCounts)
+    .sort(([, a], [, b]) => b - a)
+    .slice(0, 3);
+
   return (
-    <main className="mx-auto max-w-4xl px-3 py-5 sm:px-5 sm:py-9">
+    <main className="mx-auto max-w-6xl px-3 py-5 sm:px-5 sm:py-9">
       <section className="mb-5 border-b border-white/[0.07] pb-5">
         <Link
           href={backHref}
@@ -41,7 +53,7 @@ export function NetworkPage({
           <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 18l-6-6 6-6" />
           </svg>
-          Profile
+          {profileHandle ? `Back to @${profileHandle}` : "Back to profile"}
         </Link>
         <div className={surface("panelStrong", "noise-overlay relative overflow-hidden p-5 sm:p-6")}>
         <div
@@ -65,7 +77,34 @@ export function NetworkPage({
         </div>
       </section>
 
-      <div className="space-y-3">
+      {users.length > 0 ? (
+        <div className="mb-4 grid gap-2 sm:grid-cols-3">
+          <div className={surface("empty", "px-4 py-3")}>
+            <div className="text-xl font-semibold text-white tabular-nums">{users.length}</div>
+            <div className="mt-1 text-xs text-[var(--muted-foreground)]">profiles</div>
+          </div>
+          <div className={surface("empty", "px-4 py-3")}>
+            <div className="text-xl font-semibold text-white tabular-nums">{verifiedCount}</div>
+            <div className="mt-1 text-xs text-[var(--muted-foreground)]">verified</div>
+          </div>
+          <div className={surface("empty", "px-4 py-3")}>
+            <div className="flex min-w-0 flex-wrap gap-2">
+              {topRoles.length > 0 ? (
+                topRoles.map(([role, count]) => (
+                  <span key={role} className="rounded-md border border-white/[0.08] bg-white/[0.035] px-2 py-1 text-xs font-semibold text-white/66">
+                    {role.toLowerCase()} {count}
+                  </span>
+                ))
+              ) : (
+                <span className="text-sm text-white/45">No profile types yet</span>
+              )}
+            </div>
+            <div className="mt-2 text-xs text-[var(--muted-foreground)]">roles</div>
+          </div>
+        </div>
+      ) : null}
+
+      <div className="grid gap-3 lg:grid-cols-2">
         {users.map((user) => (
           <NetworkProfileCard
             key={user.id}
