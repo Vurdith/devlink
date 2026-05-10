@@ -7,7 +7,6 @@ import { ToastProvider } from "@/components/providers/ToastProvider";
 import { PerformanceProvider } from "@/components/providers/PerformanceProvider";
 import { RealtimeProvider } from "@/components/providers/RealtimeProvider";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
-import { ThemeFavicon } from "@/components/ui/ThemeFavicon";
 import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
 import { AnimatedBackground } from "@/components/ui/AnimatedBackground";
 import { getAuthSession } from "@/server/auth";
@@ -109,7 +108,7 @@ export default async function RootLayout({
   const session = await getAuthSession();
 
   return (
-    <html lang="en" className="dark">
+    <html lang="en" className="dark" data-scroll-behavior="smooth">
       <head>
         {/* Preconnect to critical external origins */}
         <link rel="preconnect" href="https://cdn.devlink.ink" crossOrigin="anonymous" />
@@ -127,21 +126,18 @@ export default async function RootLayout({
             try {
               var theme = localStorage.getItem('devlink-theme');
               if (theme && (theme === 'red' || theme === 'purple')) {
-                // Remove ALL existing favicon/icon links first
                 var existingIcons = document.querySelectorAll('link[rel*="icon"]');
                 existingIcons.forEach(function(l) { l.remove(); });
-                
-                // Create new favicon link with cache-busting
+
                 var favicon = document.createElement('link');
                 favicon.rel = 'icon';
                 favicon.type = 'image/x-icon';
-                favicon.href = '/favicon-' + theme + '.ico?t=' + Date.now();
+                favicon.href = '/favicon-' + theme + '.ico';
                 document.head.appendChild(favicon);
-                
-                // Create shortcut icon too (for older browsers)
+
                 var shortcut = document.createElement('link');
                 shortcut.rel = 'shortcut icon';
-                shortcut.href = '/favicon-' + theme + '.ico?t=' + Date.now();
+                shortcut.href = '/favicon-' + theme + '.ico';
                 document.head.appendChild(shortcut);
               }
             } catch(e) {}
@@ -179,7 +175,6 @@ export default async function RootLayout({
         />
 
         <ThemeProvider>
-          <ThemeFavicon />
           <ToastProvider>
             <SessionProvider session={session}>
               <RealtimeProvider session={session}>

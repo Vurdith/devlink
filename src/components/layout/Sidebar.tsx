@@ -18,7 +18,7 @@ const NavLink = memo(function NavLink({ item, isActive }: { item: NavItem; isAct
   return (
     <Link
       href={item.href}
-      prefetch={true}
+      prefetch={false}
       aria-current={isActive ? "page" : undefined}
       aria-label={item.description}
       className={cn(
@@ -76,7 +76,7 @@ export const Sidebar = memo(function Sidebar({ session }: SidebarProps) {
       <div className="relative flex flex-col h-full">
         {/* Logo Section */}
         <div className="p-6 border-b border-white/8">
-          <Link href="/" className="flex items-center gap-3 group" prefetch={true}>
+          <Link href="/" className="flex items-center gap-3 group" prefetch={false}>
             <ThemeLogoImg className="w-10 h-10 object-contain" />
             <div>
               <h1 className="text-xl font-bold text-white font-[var(--font-space-grotesk)] tracking-tight">

@@ -13,22 +13,6 @@ export function PerformanceProvider({ children }: PerformanceProviderProps) {
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    const preconnectLinks = [
-      "https://cdn.devlink.ink",
-      "https://lh3.googleusercontent.com",
-      "https://avatars.githubusercontent.com",
-    ];
-
-    preconnectLinks.forEach((href) => {
-      if (!document.querySelector(`link[href="${href}"]`)) {
-        const link = document.createElement("link");
-        link.rel = "preconnect";
-        link.href = href;
-        link.crossOrigin = "anonymous";
-        document.head.appendChild(link);
-      }
-    });
-
     const frameId = requestAnimationFrame(() => {
       document.documentElement.style.scrollBehavior = "smooth";
     });

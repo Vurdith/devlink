@@ -3,11 +3,17 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/Button";
-import { ProfileMenu } from "@/components/layout/ProfileMenu";
 import { NavbarSearch } from "./NavbarSearch";
 import { useEffect, useState, memo, useCallback, useRef } from "react";
 import { cn } from "@/lib/cn";
 import { ui } from "@/components/ui/design-system";
+import dynamic from "next/dynamic";
+import { scheduleAfterInitialLoad } from "@/lib/browser/idle";
+
+const ProfileMenu = dynamic(
+  () => import("@/components/layout/ProfileMenu").then((mod) => mod.ProfileMenu),
+  { ssr: false }
+);
 
 function safeSessionStorageGet(key: string) {
   try {
@@ -128,13 +134,16 @@ export const Navbar = memo(function Navbar({ session }: { session?: { user?: { i
       const cacheKey = `navbar-profile-${username}`;
       const cached = safeSessionStorageGet(cacheKey);
       if (cached) {
-        try {
-          applyProfileData(JSON.parse(cached) as NavbarProfileData, Boolean(googleImage));
-          return;
-        } catch { }
-      }
-      fetchProfile();
+      try {
+        applyProfileData(JSON.parse(cached) as NavbarProfileData, Boolean(googleImage));
+        return;
+      } catch { }
     }
+      return scheduleAfterInitialLoad(() => {
+        void fetchProfile();
+      }, 1800);
+    }
+    return undefined;
   }, [applyProfileData, username, googleImage, fetchProfile]);
 
   useEffect(() => {
@@ -146,11 +155,12 @@ export const Navbar = memo(function Navbar({ session }: { session?: { user?: { i
       }
     };
 
-    fetchUnreadIfVisible();
+    const cancelSchedule = scheduleAfterInitialLoad(fetchUnreadIfVisible, 2200);
     const id = window.setInterval(fetchUnreadIfVisible, 30000);
     document.addEventListener('visibilitychange', fetchUnreadIfVisible);
 
     return () => {
+      cancelSchedule();
       window.clearInterval(id);
       document.removeEventListener('visibilitychange', fetchUnreadIfVisible);
     };

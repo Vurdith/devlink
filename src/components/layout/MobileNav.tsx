@@ -19,6 +19,7 @@ const NavLink = memo(function NavLink({ item, isActive, onClick }: { item: NavIt
   return (
     <Link
       href={item.href}
+      prefetch={false}
       onClick={onClick}
       className={cn(
         "group relative flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors duration-150",
@@ -134,7 +135,7 @@ export const MobileNav = memo(function MobileNav({ session }: MobileNavProps) {
       >
         <div className="relative flex flex-col h-full">
           <div className="p-6 border-b border-white/5">
-            <Link href="/" className="flex items-center gap-3 group" onClick={closeMenu}>
+            <Link href="/" className="flex items-center gap-3 group" onClick={closeMenu} prefetch={false}>
               <ThemeLogoImg className="w-10 h-10 object-contain" />
               <div>
                 <h1 className="text-xl font-bold text-white font-[var(--font-space-grotesk)] tracking-tight">
@@ -206,6 +207,7 @@ export const MobileNav = memo(function MobileNav({ session }: MobileNavProps) {
                 <div className="space-y-2">
                   <Link
                     href="/login"
+                    prefetch={false}
                     onClick={closeMenu}
                     className={cn("flex w-full items-center justify-center gap-2 rounded-lg py-3 text-white transition-colors", ui.control.ghost)}
                   >
@@ -216,6 +218,7 @@ export const MobileNav = memo(function MobileNav({ session }: MobileNavProps) {
                   </Link>
                   <Link
                     href="/register"
+                    prefetch={false}
                     onClick={closeMenu}
                     className="flex w-full items-center justify-center gap-2 rounded-xl border border-[rgba(var(--color-accent-2-rgb),0.34)] bg-[linear-gradient(135deg,var(--color-accent),rgba(var(--color-accent-2-rgb),0.92))] py-3 font-medium text-white transition-all hover:-translate-y-0.5 hover:brightness-110 active:translate-y-0 active:scale-[0.98]"
                   >
@@ -243,6 +246,7 @@ export const MobileNav = memo(function MobileNav({ session }: MobileNavProps) {
               <Link
                 key={item.name}
                 href={item.href}
+                prefetch={false}
                 className={cn(
                   "flex min-w-0 flex-1 flex-col items-center gap-1 rounded-xl px-1 py-2 transition-all duration-150",
                   isActive
@@ -265,6 +269,7 @@ export const MobileNav = memo(function MobileNav({ session }: MobileNavProps) {
           {isAuthenticated ? (
             <Link
               href="/me"
+              prefetch={false}
               className={cn(
                 "flex min-w-0 flex-1 flex-col items-center gap-1 rounded-xl px-1 py-2 transition-all duration-150",
                 isProfileActive
@@ -286,6 +291,7 @@ export const MobileNav = memo(function MobileNav({ session }: MobileNavProps) {
           ) : (
             <Link
               href="/login"
+              prefetch={false}
               className="flex min-w-0 flex-1 flex-col items-center gap-1 rounded-xl px-1 py-2 text-[var(--muted-foreground)] transition-all duration-150 hover:text-white active:scale-95"
             >
               <div className="p-1.5 rounded-lg">

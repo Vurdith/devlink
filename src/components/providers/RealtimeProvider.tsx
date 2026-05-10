@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, useCallback, useMemo, ReactNode } from "react";
 import { connectRustRealtime } from "@/lib/realtime/rust-realtime-client";
+import { scheduleAfterInitialLoad } from "@/lib/browser/idle";
 
 interface SessionUser {
   id: string;
@@ -52,23 +53,31 @@ export function RealtimeProvider({ children, session }: RealtimeProviderProps) {
   }, []);
 
   useEffect(() => {
-    const connection = connectRustRealtime({
-      userId,
-      onStatus: handleStatus,
-      onEvent: handleEvent,
+    let connection: ReturnType<typeof connectRustRealtime> | null = null;
+
+    const cancelSchedule = scheduleAfterInitialLoad(() => {
+      connection = connectRustRealtime({
+        userId,
+        onStatus: handleStatus,
+        onEvent: handleEvent,
+      });
+
+      if (!connection) {
+        setIsConnected(false);
+      }
     });
 
-    if (!connection) {
-      setIsConnected(false);
-    }
-
-    return () => connection?.close();
+    return () => {
+      cancelSchedule();
+      connection?.close();
+    };
   }, [handleEvent, handleStatus, userId]);
 
   useEffect(() => {
     if (!userId) return;
 
     let stopped = false;
+    let interval: ReturnType<typeof setInterval> | undefined;
     const heartbeat = async () => {
       if (stopped) return;
       try {
@@ -81,8 +90,11 @@ export function RealtimeProvider({ children, session }: RealtimeProviderProps) {
       }
     };
 
-    void heartbeat();
-    const interval = setInterval(heartbeat, 25_000);
+    const cancelSchedule = scheduleAfterInitialLoad(() => {
+      void heartbeat();
+      interval = setInterval(heartbeat, 25_000);
+    }, 2000);
+
     const onUnload = () => {
       navigator.sendBeacon?.("/api/realtime/presence");
     };
@@ -90,7 +102,8 @@ export function RealtimeProvider({ children, session }: RealtimeProviderProps) {
 
     return () => {
       stopped = true;
-      clearInterval(interval);
+      cancelSchedule();
+      if (interval) clearInterval(interval);
       window.removeEventListener("beforeunload", onUnload);
       void fetch("/api/realtime/presence", {
         method: "DELETE",

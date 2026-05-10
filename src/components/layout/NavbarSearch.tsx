@@ -3,12 +3,21 @@
 import { useCallback, useEffect, useMemo, useRef, useState, memo } from "react";
 import { useRouter } from "next/navigation";
 import { Avatar } from "@/components/ui/Avatar";
-import { FollowButton } from "@/components/ui/FollowButton";
-import { ProfileTooltip } from "@/components/profile/ProfileTooltip";
 import { iconBox, menuItem, menuPanel, ui } from "@/components/ui/design-system";
 import Link from "next/link";
 import { cn } from "@/lib/cn";
 import { ProfileTypeLabel } from "@/components/profile/ProfileTypeLabel";
+import dynamic from "next/dynamic";
+
+const FollowButton = dynamic(
+  () => import("@/components/ui/FollowButton").then((mod) => mod.FollowButton),
+  { ssr: false }
+);
+
+const ProfileTooltip = dynamic(
+  () => import("@/components/profile/ProfileTooltip").then((mod) => mod.ProfileTooltip),
+  { ssr: false }
+);
 
 interface UserSearchResult {
   id: string;
