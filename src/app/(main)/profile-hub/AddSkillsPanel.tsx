@@ -85,7 +85,10 @@ export const AddSkillsPanel = memo(function AddSkillsPanel({
               <button
                 key={skill.id}
                 type="button"
-                onClick={() => onAddSkill(skill)}
+                onClick={async () => {
+                  const didAdd = await onAddSkill(skill);
+                  if (didAdd) setSkillSearch("");
+                }}
                 disabled={!canAddMore || isBusy}
                 aria-busy={isAddingThisSkill}
                 className={cn(

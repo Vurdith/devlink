@@ -32,6 +32,7 @@ export const SkillEditModal = memo(function SkillEditModal({ skill, onSave, onCl
       size="lg"
       closeOnBackdrop={!isSaving}
       closeOnEscape={!isSaving}
+      showCloseButton={!isSaving}
       contentClassName="p-5 sm:p-6"
       footer={
         <div className="grid gap-3 sm:grid-cols-2">
