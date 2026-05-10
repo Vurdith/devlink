@@ -1,106 +1,157 @@
 "use client";
 
+import { useEffect, useMemo, useState } from "react";
 import { useTheme } from "@/components/providers/ThemeProvider";
-import { iconBox, surface, ui } from "@/components/ui/design-system";
+import { surface, ui } from "@/components/ui/design-system";
 import { cn } from "@/lib/cn";
-import { getAllThemes, ThemeId, ThemeConfig } from "@/lib/themes";
-import { useState, useEffect } from "react";
+import { getAllThemes, type ThemeConfig, type ThemeId } from "@/lib/themes";
 import { SettingsPageHeader } from "../_components/SettingsPageHeader";
 
-function ThemePreview({ theme, isSelected, onSelect }: { 
-  theme: ThemeConfig; 
-  isSelected: boolean; 
+function SunIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle cx="12" cy="12" r="4.5" stroke="currentColor" strokeWidth="2" />
+      <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function CheckIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M20 6 9 17l-5-5" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function ThemeRailButton({
+  theme,
+  selected,
+  onSelect,
+}: {
+  theme: ThemeConfig;
+  selected: boolean;
   onSelect: () => void;
 }) {
-  const themeGradient = `linear-gradient(135deg, ${theme.colors.accent3} 0%, ${theme.colors.accent} 54%, ${theme.colors.accent2} 100%)`;
+  const gradient = `linear-gradient(135deg, ${theme.colors.accent3}, ${theme.colors.accent} 52%, ${theme.colors.accent2})`;
 
   return (
     <button
+      type="button"
       onClick={onSelect}
-      style={{
-        borderColor: isSelected ? `rgba(${theme.colors.accentRgb}, 0.55)` : undefined,
-        background: isSelected
-          ? `linear-gradient(180deg, rgba(${theme.colors.accentRgb}, 0.16), rgba(255,255,255,0.035))`
-          : undefined,
-      }}
+      aria-pressed={selected}
       className={cn(
-        "noise-overlay group relative w-full overflow-hidden rounded-xl border p-4 text-left outline-none transition-all duration-300 focus-visible:ring-2",
-        isSelected
-          ? "bg-white/[0.045]"
-          : cn(ui.surface.empty, "hover:border-white/[0.14] hover:bg-white/[0.055]")
+        "group grid grid-cols-[44px_1fr_auto] items-center gap-3 rounded-xl border p-3 text-left transition-all duration-200 active:scale-[0.99]",
+        selected
+          ? "border-[rgba(var(--color-accent-2-rgb),0.36)] bg-[rgba(var(--color-accent-2-rgb),0.09)]"
+          : "border-white/[0.08] bg-white/[0.025] hover:border-white/[0.15] hover:bg-white/[0.045]"
       )}
+      style={{
+        boxShadow: selected ? `inset 0 1px 0 rgba(255,255,255,0.07), 0 0 0 1px rgba(${theme.colors.accentRgb},0.08)` : undefined,
+      }}
     >
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 opacity-60"
-        style={{
-          background: isSelected
-            ? `radial-gradient(680px 220px at 28% 0%, rgba(${theme.colors.accentRgb},0.20), transparent 58%)`
-            : `radial-gradient(600px 180px at 30% 0%, rgba(${theme.colors.accentRgb},0.09), transparent 62%)`,
-        }}
-      />
-      {isSelected && (
-        <div
-          className="absolute right-3 top-3 flex h-6 w-6 items-center justify-center rounded-full text-white"
-          style={{ backgroundColor: theme.colors.accent }}
-        >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="text-white">
-            <path d="M20 6L9 17l-5-5" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-        </div>
-      )}
-
-      <div className="relative mb-4 flex items-center gap-3">
-        <div
-          className="flex h-14 w-14 items-center justify-center rounded-xl border border-white/[0.10] bg-black/20"
-          style={{ boxShadow: isSelected ? `0 0 0 1px rgba(${theme.colors.accentRgb},0.22) inset` : undefined }}
-        >
-          <img
-            src={`/logo/logo-${theme.id}.png`}
-            alt=""
-            className="h-11 w-11 object-contain"
-            onError={(e) => {
-              (e.target as HTMLImageElement).src = "/logo/logo.png";
-            }}
-          />
-        </div>
-        <div className="min-w-0">
-          <h3 className="truncate text-base font-semibold text-white">{theme.name}</h3>
-          <p className="mt-1 text-xs font-medium uppercase tracking-[0.14em] text-white/38">
-            {isSelected ? "Active theme" : "Available"}
-          </p>
-        </div>
-      </div>
-
-      <p className="min-h-[2.5rem] text-sm leading-relaxed text-white/60">{theme.description}</p>
-
-      <div className="mt-4 h-2 overflow-hidden rounded-full border border-white/[0.08] bg-white/[0.035]">
-        <div 
-          className="h-full rounded-full transition-all"
-          style={{ 
-            background: themeGradient,
-            width: isSelected ? '100%' : '60%'
+      <span className="relative flex h-11 w-11 items-center justify-center overflow-hidden rounded-lg border border-white/[0.10] bg-black/20">
+        <span className="absolute inset-0 opacity-80" style={{ background: gradient }} />
+        <img
+          src={`/logo/logo-${theme.id}.png`}
+          alt=""
+          className="relative h-9 w-9 object-contain drop-shadow-[0_6px_14px_rgba(0,0,0,0.45)]"
+          onError={(event) => {
+            event.currentTarget.src = "/logo/logo.png";
           }}
         />
-      </div>
-
-      <div className="mt-4 flex items-center gap-2">
-        {[theme.colors.accent3, theme.colors.accent, theme.colors.accent2].map((color) => (
-          <span
-            key={color}
-            className="h-5 flex-1 rounded-md border border-white/[0.08]"
-            style={{ backgroundColor: color }}
-            aria-hidden="true"
-          />
-        ))}
-      </div>
+      </span>
+      <span className="min-w-0">
+        <span className="block truncate text-sm font-semibold text-white">{theme.name.replace("Signal ", "")}</span>
+        <span className="mt-0.5 block text-xs text-white/45">{theme.colors.accent}</span>
+      </span>
+      <span
+        className={cn(
+          "flex h-7 w-7 items-center justify-center rounded-full border transition-colors",
+          selected ? "border-white/15 text-white" : "border-white/[0.08] text-transparent group-hover:border-white/[0.14]"
+        )}
+        style={selected ? { backgroundColor: theme.colors.accent } : undefined}
+      >
+        <CheckIcon />
+      </span>
     </button>
+  );
+}
+
+function SwatchStack({ theme }: { theme: ThemeConfig }) {
+  return (
+    <div className="grid grid-cols-3 gap-2">
+      {[
+        ["Deep", theme.colors.accent3],
+        ["Core", theme.colors.accent],
+        ["Light", theme.colors.accent2],
+      ].map(([label, color]) => (
+        <div key={label} className="min-w-0 rounded-lg border border-white/[0.08] bg-white/[0.025] p-2">
+          <div className="h-9 rounded-md border border-white/[0.10]" style={{ backgroundColor: color }} />
+          <div className="mt-2 truncate text-[11px] font-medium text-white/45">{label}</div>
+          <div className="truncate text-xs font-semibold text-white/78">{color}</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function InterfaceSample({ theme }: { theme: ThemeConfig }) {
+  return (
+    <div className="relative overflow-hidden rounded-xl border border-white/[0.08] bg-[rgba(8,11,16,0.72)] p-4">
+      <div
+        aria-hidden="true"
+        className="absolute inset-x-0 top-0 h-px"
+        style={{ background: `linear-gradient(90deg, transparent, rgba(${theme.colors.accent2Rgb},0.55), transparent)` }}
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 opacity-70"
+        style={{
+          background: `radial-gradient(520px 150px at 18% 0%, rgba(${theme.colors.accentRgb},0.14), transparent 62%)`,
+        }}
+      />
+      <div className="relative flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className="h-10 w-10 rounded-lg border border-white/[0.10] bg-black/20 p-1.5">
+            <img src={`/logo/logo-${theme.id}.png`} alt="" className="h-full w-full object-contain" />
+          </div>
+          <div>
+            <div className="text-sm font-semibold text-white">DevLink</div>
+            <div className="text-xs text-white/42">Preview surface</div>
+          </div>
+        </div>
+        <div
+          className="rounded-lg border px-3 py-1.5 text-xs font-semibold text-white"
+          style={{
+            borderColor: `rgba(${theme.colors.accent2Rgb},0.28)`,
+            background: `linear-gradient(135deg, rgba(${theme.colors.accentRgb},0.70), rgba(${theme.colors.accent2Rgb},0.86))`,
+          }}
+        >
+          Primary
+        </div>
+      </div>
+      <div className="relative mt-4 grid gap-2 sm:grid-cols-[1fr_auto]">
+        <div className="rounded-lg border border-white/[0.08] bg-white/[0.035] px-3 py-2 text-sm text-white/55">Input focus, borders, active states</div>
+        <div
+          className="rounded-lg border px-3 py-2 text-sm font-medium"
+          style={{
+            color: theme.colors.accent2,
+            borderColor: `rgba(${theme.colors.accent2Rgb},0.24)`,
+            backgroundColor: `rgba(${theme.colors.accent2Rgb},0.08)`,
+          }}
+        >
+          Accent chip
+        </div>
+      </div>
+    </div>
   );
 }
 
 export default function AppearanceSettingsPage() {
   const { themeId, setTheme } = useTheme();
-  const themes = getAllThemes();
+  const themes = useMemo(() => getAllThemes(), []);
+  const selectedTheme = useMemo(() => themes.find((theme) => theme.id === themeId) ?? themes[0], [themes, themeId]);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -109,98 +160,100 @@ export default function AppearanceSettingsPage() {
 
   if (!mounted) {
     return (
-      <div className="max-w-4xl animate-pulse">
-        <div className="h-8 w-48 bg-white/10 rounded-lg mb-2" />
-        <div className="h-4 w-96 bg-white/5 rounded mb-8" />
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          <div className="h-48 rounded-xl bg-white/5" />
-          <div className="h-48 rounded-xl bg-white/5" />
-          <div className="h-48 rounded-xl bg-white/5" />
+      <div className="max-w-5xl animate-pulse space-y-5">
+        <div className="h-28 rounded-xl bg-white/[0.05]" />
+        <div className="grid gap-4 lg:grid-cols-[1fr_360px]">
+          <div className="h-96 rounded-xl bg-white/[0.04]" />
+          <div className="h-96 rounded-xl bg-white/[0.04]" />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl space-y-6 animate-slide-up">
+    <div className="max-w-5xl space-y-5 animate-slide-up">
       <SettingsPageHeader
         eyebrow="Appearance"
-        title="Appearance"
-        description="Choose a focused accent color. DevLink updates the interface, app icon, and favicon together."
-        icon={
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <circle cx="12" cy="12" r="5" stroke="currentColor" strokeWidth="2" />
-            <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-          </svg>
-        }
+        title="Theme Studio"
+        description="Choose one color family for DevLink. The interface, logo, browser icon, and app icon move together."
+        icon={<SunIcon />}
       />
 
-      {/* Theme Selection */}
-      <div className={surface("panel", "noise-overlay relative overflow-hidden p-6")}>
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 opacity-60"
-          style={{
-            background:
-              "radial-gradient(900px 240px at 20% 0%, rgba(var(--color-accent-rgb),0.16), transparent 55%), radial-gradient(800px 240px at 95% 0%, rgba(var(--color-accent-2-rgb),0.12), transparent 60%)",
-          }}
-        />
-        <div className="mb-6 flex items-center gap-3">
-          <div className={iconBox("cyan", "h-10 w-10")}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-white">
-              <circle cx="12" cy="12" r="5" stroke="currentColor" strokeWidth="2"/>
-              <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-            </svg>
-          </div>
-          <div>
-            <h2 className="text-lg font-semibold text-white">Color Theme</h2>
-            <p className="text-sm text-white/50">Seven single-color systems, each with its own icon</p>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {themes.map((theme) => (
-            <ThemePreview
-              key={theme.id}
-              theme={theme}
-              isSelected={themeId === theme.id}
-              onSelect={() => setTheme(theme.id as ThemeId)}
-            />
-          ))}
-        </div>
-
-        {/* Info note */}
-        <div className="mt-6 rounded-xl border border-[var(--color-accent)]/20 bg-[var(--color-accent)]/10 p-4">
-          <div className="flex items-start gap-3">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-[var(--color-accent)] flex-shrink-0 mt-0.5">
-              <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
-              <path d="M12 16v-4M12 8h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-            </svg>
-            <div>
-              <p className="text-sm text-white/70">
-                Your theme is saved on this device. The UI accents, navbar logo, browser favicon, and installed app icon all use the same color family.
-              </p>
+      <div className="grid gap-5">
+        <section className={surface("panel", "noise-overlay relative overflow-hidden p-5 sm:p-6")}>
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 opacity-75"
+            style={{
+              background: `radial-gradient(900px 260px at 18% 0%, rgba(${selectedTheme.colors.accentRgb},0.18), transparent 58%), radial-gradient(680px 240px at 92% 0%, rgba(${selectedTheme.colors.accent2Rgb},0.10), transparent 64%)`,
+            }}
+          />
+          <div className="relative grid gap-6 xl:grid-cols-[220px_1fr] xl:items-center">
+            <div className="flex min-h-[220px] items-center justify-center rounded-xl border border-white/[0.08] bg-black/20 p-8">
+              <img
+                src={`/logo/logo-${selectedTheme.id}.png`}
+                alt={`${selectedTheme.name} DevLink icon`}
+                className="max-h-44 w-full object-contain drop-shadow-[0_24px_45px_rgba(0,0,0,0.46)]"
+              />
+            </div>
+            <div className="min-w-0">
+              <div className="mb-3 flex flex-wrap items-center gap-2">
+                <span
+                  className="rounded-full border px-3 py-1 text-xs font-bold uppercase tracking-[0.16em]"
+                  style={{
+                    color: selectedTheme.colors.accent2,
+                    borderColor: `rgba(${selectedTheme.colors.accent2Rgb},0.28)`,
+                    backgroundColor: `rgba(${selectedTheme.colors.accent2Rgb},0.08)`,
+                  }}
+                >
+                  Active
+                </span>
+                <span className="text-xs font-medium uppercase tracking-[0.16em] text-white/35">Icon + UI</span>
+              </div>
+              <h2 className="font-[var(--font-space-grotesk)] text-3xl font-bold tracking-normal text-white sm:text-4xl">
+                {selectedTheme.name}
+              </h2>
+              <p className="mt-3 max-w-xl text-sm leading-6 text-white/58">{selectedTheme.description}</p>
+              <div className="mt-6">
+                <SwatchStack theme={selectedTheme} />
+              </div>
             </div>
           </div>
-        </div>
+        </section>
+
+        <aside className={surface("panel", "noise-overlay relative overflow-hidden p-4")}>
+          <div className="mb-4 flex items-center justify-between gap-3 px-1">
+            <div>
+              <h2 className="text-sm font-semibold text-white">Color Families</h2>
+              <p className="mt-1 text-xs text-white/42">Single-hue accents only</p>
+            </div>
+            <span className={cn("rounded-lg px-2 py-1 text-[11px] font-semibold text-white/60", ui.surface.empty)}>
+              {themes.length}
+            </span>
+          </div>
+          <div className="grid gap-2 sm:grid-cols-2">
+            {themes.map((theme) => (
+              <ThemeRailButton
+                key={theme.id}
+                theme={theme}
+                selected={themeId === theme.id}
+                onSelect={() => setTheme(theme.id as ThemeId)}
+              />
+            ))}
+          </div>
+        </aside>
       </div>
 
-      {/* Future: More appearance settings */}
-      <div className={surface("panelMuted", "noise-overlay relative overflow-hidden p-6 opacity-50")}>
-        <div className="flex items-center gap-3">
-          <div className={iconBox("muted", "h-10 w-10 rounded-xl")}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-white/50">
-              <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" strokeWidth="2"/>
-              <path d="M3 9h18M9 21V9" stroke="currentColor" strokeWidth="2"/>
-            </svg>
-          </div>
+      <section className={surface("panelMuted", "noise-overlay relative overflow-hidden p-5 sm:p-6")}>
+        <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h2 className="text-lg font-semibold text-white/50">Layout Settings</h2>
-            <p className="text-sm text-white/30">Coming soon - customize your feed layout</p>
+            <h2 className="text-base font-semibold text-white">Live Surface</h2>
+            <p className="mt-1 text-sm text-white/45">How the selected family reads on real controls.</p>
           </div>
+          <span className="text-xs font-medium uppercase tracking-[0.16em] text-white/30">{selectedTheme.id}</span>
         </div>
-      </div>
+        <InterfaceSample theme={selectedTheme} />
+      </section>
     </div>
   );
 }
-
