@@ -61,12 +61,12 @@ function ProfileStatLink({
   return (
     <Link
       href={href}
-      className="group inline-flex items-baseline gap-1.5 rounded-md px-1 py-1 transition-colors hover:text-[var(--color-accent-2)]"
+      className="group rounded-lg border border-white/[0.08] bg-white/[0.025] px-3 py-2 transition-colors hover:border-[rgba(var(--color-accent-2-rgb),0.24)] hover:bg-white/[0.045]"
     >
-      <span className="text-sm font-semibold leading-none text-white group-hover:text-[var(--color-accent-2)]">
+      <span className="block text-base font-semibold leading-none text-white group-hover:text-[var(--color-accent-2)]">
         {value}
       </span>
-      <span className="text-sm text-white/50 group-hover:text-white/70">
+      <span className="mt-1 block text-xs text-white/45 group-hover:text-white/65">
         {label}
       </span>
     </Link>
@@ -103,7 +103,7 @@ export default async function UserProfilePage(props: {
 
   return (
     <main className="mx-auto w-full min-w-0 max-w-6xl px-3 py-4 sm:px-5 sm:py-8">
-      <section className={surface("panelStrong", "relative overflow-hidden bg-[rgba(9,12,18,0.86)]")}>
+      <section className={surface("panelStrong", "relative overflow-hidden bg-[rgba(9,12,18,0.88)]")}>
         <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent" />
         <ProfileBanner 
           initialBannerUrl={user.profile?.bannerUrl}
@@ -120,97 +120,83 @@ export default async function UserProfilePage(props: {
             editable={isOwnProfile}
           />
 
-          <div className="grid min-w-0 gap-5 border-b border-white/[0.06] pb-6 sm:grid-cols-[auto_minmax(0,1fr)] sm:gap-6 lg:grid-cols-[auto_minmax(0,1fr)_auto] lg:items-start">
-              <div className="-mt-14 flex items-end gap-4 sm:-mt-16 sm:items-end lg:block">
-                <ProfileAvatar
-                  initialAvatarUrl={user.profile?.avatarUrl}
-                  isOwnProfile={isOwnProfile}
-                />
-                <div className="min-w-0 pb-1 sm:hidden">
-                  <p className="truncate text-sm font-medium text-[var(--muted-foreground)]">@{user.username}</p>
-                  {profileType ? (
-                    <div className="mt-2">
-                      <ProfileTypeLabel profileType={profileType} variant="compact" />
-                    </div>
-                  ) : null}
-                </div>
+          <div className="grid min-w-0 gap-5 border-b border-white/[0.06] pb-6 sm:grid-cols-[auto_minmax(0,1fr)] sm:gap-6 lg:grid-cols-[auto_minmax(0,1fr)_minmax(190px,auto)] lg:items-start">
+            <div className="-mt-14 sm:-mt-16">
+              <ProfileAvatar
+                initialAvatarUrl={user.profile?.avatarUrl}
+                isOwnProfile={isOwnProfile}
+              />
+            </div>
+
+            <div className="min-w-0">
+              <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-2">
+                <h1 className="min-w-0 max-w-full break-words font-[var(--font-space-grotesk)] text-3xl font-bold tracking-tight text-white sm:text-4xl">
+                  {user.name ?? user.username}
+                </h1>
+                {user.profile?.verified ? (
+                  <span className="inline-flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full border border-[rgba(var(--color-accent-2-rgb),0.40)] bg-[rgba(var(--color-accent-2-rgb),0.16)]" aria-label="Verified profile">
+                    <svg className="h-3.5 w-3.5 text-[var(--color-accent-2)]" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                      <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                    </svg>
+                  </span>
+                ) : null}
+                {profileType ? <ProfileTypeLabel profileType={profileType} variant="hero" /> : null}
               </div>
 
-              <div className="min-w-0">
-                <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-2">
-                  <h1 className="min-w-0 max-w-full break-words font-[var(--font-space-grotesk)] text-3xl font-bold tracking-tight text-white sm:text-4xl">
-                    {user.name ?? user.username}
-                  </h1>
-                  {user.profile?.verified ? (
-                    <span className="inline-flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full border border-[rgba(var(--color-accent-2-rgb),0.40)] bg-[rgba(var(--color-accent-2-rgb),0.16)]" aria-label="Verified profile">
-                      <svg className="h-3.5 w-3.5 text-[var(--color-accent-2)]" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
-                      </svg>
-                    </span>
-                  ) : null}
-                  {profileType ? <ProfileTypeLabel profileType={profileType} variant="hero" className="hidden sm:inline-flex" /> : null}
-                </div>
+              <div className="mt-2 flex min-w-0 flex-wrap items-center gap-x-2.5 gap-y-1 text-sm text-[var(--muted-foreground)]">
+                <span className="min-w-0 max-w-full truncate">@{user.username}</span>
+                {user.profile?.location ? (
+                  <>
+                    <span className="text-white/16">/</span>
+                    <span className="min-w-0 max-w-full truncate">{user.profile.location}</span>
+                  </>
+                ) : null}
+                {hasPublicWebsite ? (
+                  <>
+                    <span className="text-white/16">/</span>
+                    <a
+                      href={user.profile?.website ?? "#"}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="min-w-0 max-w-full truncate text-[var(--color-accent-2)] transition-colors hover:text-white"
+                    >
+                      {websiteUrl}
+                    </a>
+                  </>
+                ) : null}
+              </div>
 
-                <div className="mt-2 hidden min-w-0 flex-wrap items-center gap-x-2.5 gap-y-1 text-sm text-[var(--muted-foreground)] sm:flex">
-                  <span className="min-w-0 max-w-full truncate">@{user.username}</span>
-                  {user.profile?.location ? (
-                    <>
-                      <span className="text-white/16">|</span>
-                      <span className="min-w-0 max-w-full truncate">{user.profile.location}</span>
-                    </>
-                  ) : null}
-                  {hasPublicWebsite ? (
-                    <>
-                      <span className="text-white/16">|</span>
-                      <a
-                        href={user.profile?.website ?? "#"}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="min-w-0 max-w-full truncate text-[var(--color-accent-2)] transition-colors hover:text-white"
-                      >
-                        {websiteUrl}
-                      </a>
-                    </>
-                  ) : null}
-                </div>
-
-                <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
-                  <ProfileStatLink href={`/u/${user.username}/followers`} label="followers" value={user?._count?.followers ?? 0} />
-                  <span className="text-white/18">/</span>
-                  <ProfileStatLink href={`/u/${user.username}/following`} label="following" value={user?._count?.following ?? 0} />
-                  <span className="text-white/18">/</span>
-                  <Link
-                    href={`/u/${user.username}?tab=reviews`}
-                    className="group inline-flex items-baseline gap-1.5 rounded-md px-1 py-1 transition-colors hover:text-amber-200"
-                  >
-                    <span className="text-sm font-semibold leading-none text-white group-hover:text-amber-200">{rating}</span>
-                    <span className="text-sm text-white/50 group-hover:text-white/70">rating</span>
-                  </Link>
-                </div>
-
-                {user.profile?.bio ? (
-                  <div className="mt-5 max-w-3xl">
-                    <p className="break-words text-base font-medium leading-relaxed text-white/78 whitespace-pre-wrap">
-                      {user.profile.bio}
-                    </p>
-                  </div>
-                ) : (
-                  <p className="mt-4 max-w-2xl text-sm leading-relaxed text-white/45">
-                    {isOwnProfile
-                      ? "Add a short bio so visitors can understand your focus at a glance."
-                      : "This profile has not added a public bio yet."}
+              {user.profile?.bio ? (
+                <div className="mt-5 max-w-3xl">
+                  <p className="break-words text-base font-medium leading-relaxed text-white/78 whitespace-pre-wrap">
+                    {user.profile.bio}
                   </p>
-                )}
+                </div>
+              ) : (
+                <p className="mt-4 max-w-2xl text-sm leading-relaxed text-white/45">
+                  {isOwnProfile
+                    ? "Add a short bio so visitors can understand your focus at a glance."
+                    : "This profile has not added a public bio yet."}
+                </p>
+              )}
+            </div>
 
-              </div>
-
+            <div className="grid min-w-0 gap-3 sm:col-span-2 sm:grid-cols-3 lg:col-span-1 lg:w-56 lg:grid-cols-1">
+              <ProfileStatLink href={`/u/${user.username}/followers`} label="followers" value={user?._count?.followers ?? 0} />
+              <ProfileStatLink href={`/u/${user.username}/following`} label="following" value={user?._count?.following ?? 0} />
+              <Link
+                href={`/u/${user.username}?tab=reviews`}
+                className="group rounded-lg border border-white/[0.08] bg-white/[0.025] px-3 py-2 transition-colors hover:border-amber-300/24 hover:bg-white/[0.045]"
+              >
+                <span className="block text-base font-semibold leading-none text-white group-hover:text-amber-200">{rating}</span>
+                <span className="mt-1 block text-xs text-white/45 group-hover:text-white/65">rating</span>
+              </Link>
               {!isOwnProfile ? (
-                <div className="flex flex-col gap-3 sm:col-span-2 lg:col-span-1 lg:min-w-48 lg:items-end">
-                  <div className="w-full lg:w-auto">
-                    <FollowButton targetUserId={user.id} initialFollowing={initialFollowing} />
-                  </div>
+                <div className="sm:col-span-3 lg:col-span-1">
+                  <FollowButton targetUserId={user.id} initialFollowing={initialFollowing} />
                 </div>
               ) : null}
+            </div>
           </div>
           
           <ProfileLiveEvents />
