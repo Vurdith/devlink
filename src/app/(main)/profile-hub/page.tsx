@@ -313,8 +313,8 @@ export default function ProfileHubPage() {
     <main className="relative w-full min-w-0 px-0 py-4 sm:px-4 sm:py-10">
       <div className="relative mx-auto w-full min-w-0 max-w-6xl">
         {/* Header */}
-        <div className={surface("panel", "noise-overlay relative mb-6 overflow-hidden p-5 sm:mb-8 sm:p-6")}>
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.42)] to-transparent" />
+        <div className={surface("panel", "relative mb-6 overflow-hidden p-5 sm:mb-8 sm:p-6")}>
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-white/[0.08]" />
           <div className="flex min-w-0 flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
             <div className="flex min-w-0 items-start gap-3">
               <div className={iconBox("cyan", "h-10 w-10 shrink-0")}>
@@ -324,7 +324,6 @@ export default function ProfileHubPage() {
                 </svg>
               </div>
               <div className="min-w-0 flex-1">
-                <div className="mb-1 text-[10px] font-bold uppercase tracking-[0.16em] text-[var(--color-accent-2)]">Profile</div>
                 <h1 className="font-[var(--font-space-grotesk)] text-2xl font-bold text-white">Edit your public profile</h1>
                 <p className="mt-0.5 max-w-xl text-sm leading-relaxed text-[var(--muted-foreground)] sm:text-base">Edit the public details people see before they message you.</p>
               </div>

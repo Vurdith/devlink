@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
-import { BriefcaseBusiness, CheckCircle2, DollarSign, FileText, MapPin, Send, Sparkles, Users } from "lucide-react";
+import { BriefcaseBusiness, CheckCircle2, DollarSign, FileText, MapPin, Send, Users } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { iconBox, surface, ui } from "@/components/ui/design-system";
 import { useToastContext } from "@/components/providers/ToastProvider";
@@ -215,7 +215,7 @@ export default function JobsPage() {
       setApplicationNotes((prev) => ({ ...prev, [jobId]: "" }));
       toast({
         title: "Application sent",
-        description: "You can track the response in My applications.",
+        description: "You can track the response in Applications sent.",
         variant: "success",
       });
     } catch {
@@ -236,12 +236,12 @@ export default function JobsPage() {
         <div className="relative flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <div className="mb-2 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.16em] text-[var(--color-accent-2)]">
-              <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
-              Jobs board
+              <BriefcaseBusiness className="h-3.5 w-3.5" aria-hidden="true" />
+              Jobs
             </div>
-            <h1 className="text-3xl font-bold tracking-tight text-white font-[var(--font-space-grotesk)]">Jobs</h1>
+            <h1 className="text-3xl font-bold tracking-tight text-white font-[var(--font-space-grotesk)]">Open Roblox work</h1>
             <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[var(--muted-foreground)]">
-              Post focused Roblox briefs, compare fit quickly, and keep applications in one place.
+              Post a clear brief, review applicants, and keep each role moving.
             </p>
           </div>
           <div className={iconBox("cyan", "h-11 w-11")}>
@@ -254,7 +254,7 @@ export default function JobsPage() {
         <div className={surface("toolbar", "mb-8 flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between")}>
           <div className="min-w-0">
             <div className="text-sm font-semibold text-white">Want to post a role?</div>
-            <p className="mt-1 text-sm text-[var(--muted-foreground)]">Sign in to create focused job briefs and track applications.</p>
+            <p className="mt-1 text-sm text-[var(--muted-foreground)]">Sign in to post a brief and track applications.</p>
           </div>
           <div className="flex flex-col gap-2 sm:flex-row">
             <Link
@@ -278,9 +278,9 @@ export default function JobsPage() {
           <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.12] to-transparent" />
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
             <div>
-              <h2 className="text-lg font-semibold text-white font-[var(--font-space-grotesk)]">Post a job</h2>
+              <h2 className="text-lg font-semibold text-white font-[var(--font-space-grotesk)]">Write the brief</h2>
               <p className="mt-1 text-sm text-[var(--muted-foreground)]">
-                Add the role, budget, deadline, and skills candidates need before they apply.
+                Give candidates the role, budget, location, and skills before they apply.
               </p>
             </div>
             <span className="inline-flex max-w-full items-center gap-1.5 rounded-lg border border-[rgba(var(--color-accent-2-rgb),0.22)] bg-[rgba(var(--color-accent-2-rgb),0.08)] px-3 py-1.5 text-xs font-bold text-[var(--color-accent-2)]">
@@ -292,13 +292,13 @@ export default function JobsPage() {
             <input
               value={form.title}
               onChange={(e) => setForm((prev) => ({ ...prev, title: e.target.value }))}
-              placeholder="Job title"
+              placeholder="Role title"
               className={fieldClass}
             />
             <textarea
               value={form.description}
               onChange={(e) => setForm((prev) => ({ ...prev, description: e.target.value }))}
-              placeholder="Describe the work, goals, and expectations"
+              placeholder="Describe the work, goals, timeline, and review process"
               className={cn(fieldClass, "min-h-[140px] resize-y")}
             />
             <div className="grid gap-3 md:grid-cols-2">
@@ -339,7 +339,7 @@ export default function JobsPage() {
             />
           </div>
           <div className="mt-4 flex flex-col gap-3 border-t border-white/[0.06] pt-4 sm:flex-row sm:items-center">
-            <span className="text-xs text-[var(--muted-foreground)]">Visible to everyone browsing open roles.</span>
+            <span className="text-xs text-[var(--muted-foreground)]">Visible to everyone browsing jobs.</span>
             <Button
               onClick={createJob}
               disabled={submitting}
@@ -358,7 +358,7 @@ export default function JobsPage() {
       <div className="grid gap-6">
         <section>
           <div className="mb-3 flex items-center gap-3">
-            <h2 className="text-sm font-bold uppercase tracking-[0.14em] text-[var(--color-accent-2)]">Open roles</h2>
+            <h2 className="text-sm font-bold uppercase tracking-[0.14em] text-[var(--color-accent-2)]">Open jobs</h2>
             <div className="h-px flex-1 bg-gradient-to-r from-white/[0.10] to-transparent" />
           </div>
           {loading ? (
@@ -419,7 +419,7 @@ export default function JobsPage() {
             <div className={surface("panelMuted", "noise-overlay p-4")}>
               <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-white">
                 <BriefcaseBusiness className="h-4 w-4 text-[var(--color-accent-2)]" aria-hidden="true" />
-                My jobs
+                Posted by you
               </div>
               {myJobs.length === 0 ? (
                 <div className="text-xs leading-relaxed text-[var(--muted-foreground)]">
@@ -442,7 +442,7 @@ export default function JobsPage() {
             <div className={surface("panelMuted", "noise-overlay p-4")}>
               <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-white">
                 <CheckCircle2 className="h-4 w-4 text-[var(--color-accent-2)]" aria-hidden="true" />
-                My applications
+                Applications sent
               </div>
               {myApplications.length === 0 ? (
                 <div className="text-xs leading-relaxed text-[var(--muted-foreground)]">
@@ -492,7 +492,7 @@ function JobCard({
   const skills = splitSkills(job.skills);
 
   return (
-    <article className={surface("panelMuted", "noise-overlay group relative overflow-hidden p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-[rgba(var(--color-accent-2-rgb),0.24)] hover:bg-white/[0.04] focus-within:border-[rgba(var(--color-accent-2-rgb),0.30)] sm:p-5")}>
+    <article className={surface("panelMuted", "group relative overflow-hidden p-4 transition-colors duration-200 hover:border-[rgba(var(--color-accent-2-rgb),0.24)] hover:bg-white/[0.04] focus-within:border-[rgba(var(--color-accent-2-rgb),0.30)] sm:p-5")}>
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.10] to-transparent" />
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
@@ -548,7 +548,7 @@ function JobCard({
 
       {alreadyApplied ? (
         <div className="mt-4 rounded-lg border border-[rgba(var(--color-accent-2-rgb),0.18)] bg-[rgba(var(--color-accent-2-rgb),0.06)] px-3 py-2 text-xs text-[var(--color-accent-2)]">
-          Application sent. Watch My applications for status changes.
+          Application sent. Watch Applications sent for status changes.
         </div>
       ) : null}
 

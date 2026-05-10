@@ -52,15 +52,15 @@ function queryInText(text: string | null | undefined, query: string) {
 }
 
 function getProfileMatchLabel(user: UserSearchResult, query: string) {
-  if (queryInText(user.bio, query)) return "Bio matched";
-  if (queryInText(user.name, query)) return "Name matched";
+  if (queryInText(user.bio, query)) return "Bio";
+  if (queryInText(user.name, query)) return "Name";
   if (queryInText(user.username, query)) return null;
   return null;
 }
 
 function getProjectMatchLabel(project: ProjectResult, query: string) {
-  if (queryInText(project.description, query)) return "Description matched";
-  if (queryInText(project.author.username, query) || queryInText(project.author.name, query)) return "Author matched";
+  if (queryInText(project.description, query)) return "Description";
+  if (queryInText(project.author.username, query) || queryInText(project.author.name, query)) return "Author";
   if (queryInText(project.title, query)) return null;
   return null;
 }
@@ -176,25 +176,25 @@ function SearchContent() {
       value: "all",
       label: "All",
       icon: <Search className="h-4 w-4" aria-hidden="true" />,
-      helper: "People, tags, work"
+      helper: "Profiles, tags, projects"
     },
     {
       value: "profiles",
       label: "Profiles",
       icon: <Users className="h-4 w-4" aria-hidden="true" />,
-      helper: "Names, handles, bios"
+      helper: "Names and bios"
     },
     {
       value: "hashtags",
       label: "Hashtags",
       icon: <Hash className="h-4 w-4" aria-hidden="true" />,
-      helper: "Post and project topics"
+      helper: "Topics in posts"
     },
     {
       value: "projects",
       label: "Projects",
       icon: <FolderKanban className="h-4 w-4" aria-hidden="true" />,
-      helper: "Portfolio work"
+      helper: "Portfolio entries"
     }
   ];
 
@@ -222,10 +222,10 @@ function SearchContent() {
         <div className="relative">
           <div className="mb-2 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.16em] text-[var(--color-accent-2)]">
             <Search className="h-3.5 w-3.5" aria-hidden="true" />
-            Search
+            Find
           </div>
           <h1 className="max-w-3xl text-2xl font-bold tracking-tight text-white sm:text-3xl">
-            {query ? `Results for "${query}"` : "Find people, tags, and portfolio work."}
+              {query ? `Search results for "${query}"` : "Search DevLink"}
           </h1>
           <form onSubmit={handleSubmit} className="mt-4 grid gap-2 sm:grid-cols-[1fr_auto]">
             <label htmlFor="search-query" className="sr-only">Search DevLink</label>
@@ -233,7 +233,7 @@ function SearchContent() {
               id="search-query"
               value={searchInput}
               onChange={(event) => setSearchInput(event.target.value)}
-              placeholder="Search handles, hashtags, or projects"
+              placeholder="Handle, hashtag, skill, or project"
               className="min-h-12 rounded-lg border border-white/[0.08] bg-black/20 px-3 text-sm font-medium text-white outline-none transition-colors placeholder:text-[var(--muted-foreground)] focus:border-[rgba(var(--color-accent-2-rgb),0.42)] focus:ring-2 focus:ring-[rgba(var(--color-accent-2-rgb),0.18)]"
             />
             <button
@@ -241,14 +241,14 @@ function SearchContent() {
               className={cn("inline-flex min-h-12 items-center justify-center gap-2 rounded-lg px-4 text-sm font-semibold text-white transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]", ui.active.cyanStrong)}
             >
               <Search className="h-4 w-4" aria-hidden="true" />
-              Search
+              Run search
             </button>
           </form>
         {query ? (
             <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-[var(--muted-foreground)] sm:text-sm">
               <span className="rounded-lg border border-white/[0.08] bg-white/[0.035] px-2.5 py-1 font-semibold text-white">{query}</span>
               {!loading && !error && (
-                <span className="text-[var(--color-accent-2)]">{formatCount(totalResults)} result{totalResults === 1 ? "" : "s"}</span>
+                <span className="text-[var(--color-accent-2)]">{formatCount(totalResults)} found</span>
               )}
             </div>
         ) : null}
@@ -328,7 +328,7 @@ function SearchContent() {
           {(selectedType === "all" || selectedType === "profiles") && users.length > 0 && (
             <section>
               <div className="mb-2 flex items-center gap-3">
-                <h2 className="text-[11px] font-bold uppercase tracking-[0.14em] text-white/45">Profiles</h2>
+                <h2 className="text-sm font-semibold text-white">Profiles</h2>
                 <div className="h-px flex-1 bg-gradient-to-r from-white/[0.10] to-transparent" />
                 <span className="text-xs text-[var(--muted-foreground)]">{formatCount(users.length)}</span>
               </div>
@@ -374,7 +374,7 @@ function SearchContent() {
                           <div className="mt-2 flex flex-wrap items-center gap-2">
                             {matchLabel ? (
                               <span className="rounded-md border border-white/[0.08] bg-white/[0.035] px-2 py-0.5 text-[11px] font-semibold text-white/58">
-                                {matchLabel}
+                                {matchLabel} hit
                               </span>
                             ) : null}
                             {user.bio && <span className="line-clamp-1 text-xs leading-relaxed text-white/62">{user.bio}</span>}
@@ -398,15 +398,15 @@ function SearchContent() {
           {(selectedType === "all" || selectedType === "hashtags") && hashtags.length > 0 && (
             <section>
               <div className="mb-2 flex items-center gap-3">
-                <h2 className="text-[11px] font-bold uppercase tracking-[0.14em] text-white/45">Hashtags</h2>
+                <h2 className="text-sm font-semibold text-white">Hashtags</h2>
                 <div className="h-px flex-1 bg-gradient-to-r from-white/[0.10] to-transparent" />
                 <span className="text-xs text-[var(--muted-foreground)]">{formatCount(hashtags.length)}</span>
               </div>
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                 {hashtags.map((hashtag) => (
                   <div key={hashtag.tag} className={surface("panelMuted", "group relative flex items-center gap-3 p-4 transition-colors hover:border-[rgba(var(--color-accent-2-rgb),0.20)] hover:bg-white/[0.04]")}>
-                    <Link href={`/hashtag/${hashtag.tag.replace('#', '')}`} className="absolute inset-0 z-10" aria-label={`View ${hashtag.tag}`}>
-                      <span className="sr-only">View {hashtag.tag}</span>
+                    <Link href={`/hashtag/${hashtag.tag.replace('#', '')}`} className="absolute inset-0 z-10" aria-label={`Open ${hashtag.tag}`}>
+                      <span className="sr-only">Open {hashtag.tag}</span>
                     </Link>
                     <div className="pointer-events-none">
                       <div className={iconBox("cyan", "h-12 w-12")}>
@@ -426,7 +426,7 @@ function SearchContent() {
                         href={`/hashtag/${hashtag.tag.replace('#', '')}`}
                         className={cn("inline-flex min-h-9 items-center rounded-lg px-3 py-1 text-sm font-semibold text-[var(--accent)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]", ui.control.ghost)}
                       >
-                        View
+                        Open tag
                       </Link>
                     </div>
                   </div>
@@ -439,7 +439,7 @@ function SearchContent() {
           {(selectedType === "all" || selectedType === "projects") && projects.length > 0 && (
             <section>
               <div className="mb-2 flex items-center gap-3">
-                <h2 className="text-[11px] font-bold uppercase tracking-[0.14em] text-white/45">Projects</h2>
+                <h2 className="text-sm font-semibold text-white">Projects</h2>
                 <div className="h-px flex-1 bg-gradient-to-r from-white/[0.10] to-transparent" />
                 <span className="text-xs text-[var(--muted-foreground)]">{formatCount(projects.length)}</span>
               </div>
@@ -454,7 +454,7 @@ function SearchContent() {
                           <div className="text-base font-semibold text-white group-hover:text-[var(--color-accent-2)]">{project.title}</div>
                           {matchLabel ? (
                             <span className="rounded-md border border-white/[0.08] bg-white/[0.035] px-2 py-0.5 text-[11px] font-semibold text-white/58">
-                              {matchLabel}
+                              {matchLabel} hit
                             </span>
                           ) : null}
                         </div>
@@ -472,7 +472,7 @@ function SearchContent() {
                         href={`/projects/${project.id}`}
                         className={cn("inline-flex min-h-9 items-center justify-center rounded-lg px-3 py-1 text-sm font-semibold text-[var(--accent)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]", ui.control.ghost)}
                       >
-                        View
+                        Open project
                       </Link>
                     </div>
                   </div>
@@ -485,8 +485,8 @@ function SearchContent() {
           {/* No Results */}
           {!query && (
             <FeedbackState
-              title="Search by handle, tag, or project"
-              description="Try a username, a Roblox skill, or a project title."
+              title="Start with a handle, tag, or project"
+              description="Try a username, Roblox skill, or portfolio title."
               className="py-14"
               icon={
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">

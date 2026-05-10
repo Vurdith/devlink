@@ -221,7 +221,7 @@ export default function JobDetailPage() {
         <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.40)] to-transparent" />
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0">
-            <div className="mb-2 text-[10px] font-bold uppercase tracking-[0.16em] text-[var(--color-accent-2)]">Job brief</div>
+            <div className="mb-2 text-[10px] font-bold uppercase tracking-[0.16em] text-[var(--color-accent-2)]">Job</div>
             <h1 className="text-2xl font-bold text-white">{job.title}</h1>
             <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[var(--muted-foreground)]">
               <span className="text-white/70">@{job.user?.username || "unknown"}</span>
@@ -277,7 +277,7 @@ export default function JobDetailPage() {
 
         {viewerApplication ? (
           <div className="mt-5 rounded-lg border border-[rgba(var(--color-accent-2-rgb),0.18)] bg-[rgba(var(--color-accent-2-rgb),0.06)] px-3 py-2 text-xs leading-relaxed text-[var(--color-accent-2)]">
-            Application {statusLabel(viewerApplication.status).toLowerCase()}. Track updates from My applications on the jobs page.
+            Application {statusLabel(viewerApplication.status).toLowerCase()}. Track updates from Applications sent on the jobs page.
           </div>
         ) : null}
 
@@ -327,8 +327,8 @@ export default function JobDetailPage() {
         <div className={surface("panel", "noise-overlay mt-6 p-5 sm:p-6")}>
           <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <h2 className="text-lg font-semibold text-white">Applications</h2>
-              <p className="mt-1 text-xs text-[var(--muted-foreground)]">Accept candidates you want to move forward with, or decline to close the loop.</p>
+              <h2 className="text-lg font-semibold text-white">Applicants</h2>
+              <p className="mt-1 text-xs text-[var(--muted-foreground)]">Accept candidates you want to move forward with, or decline the rest.</p>
             </div>
             <span className="text-xs text-[var(--muted-foreground)]">{applications.length} total</span>
           </div>

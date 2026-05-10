@@ -11,7 +11,6 @@ import { ProfileTabs } from "./ProfileTabs";
 import { ProfileBanner, ProfileAvatar } from "./ProfileMedia";
 import { ProfileTypeLabel } from "@/components/profile/ProfileTypeLabel";
 import { fetchInitialFollowingState, fetchProfilePageData } from "@/server/users/profile-page-data";
-import { AVAILABILITY_STATUS, RESPONSE_TIMES, type AvailabilityStatus, type ResponseTime } from "@/lib/skills";
 import type { TabType } from "./profile-types";
 
 // Cache page for 60 seconds - engagement state is fetched client-side
@@ -50,23 +49,6 @@ function readInitialTab(tab?: string | string[]): TabType | undefined {
   return value && profileTabs.has(value as TabType) ? (value as TabType) : undefined;
 }
 
-function formatAvailability(value?: string | null) {
-  if (!value) return null;
-  return AVAILABILITY_STATUS[value as AvailabilityStatus]?.label ?? toTitleLabel(value);
-}
-
-function formatResponseTime(value?: string | null) {
-  if (!value) return null;
-  return RESPONSE_TIMES[value as ResponseTime]?.label ?? toTitleLabel(value);
-}
-
-function toTitleLabel(value: string) {
-  return value
-    .replaceAll("_", " ")
-    .toLowerCase()
-    .replace(/\b\w/g, (letter) => letter.toUpperCase());
-}
-
 function ProfileStatLink({
   href,
   label,
@@ -88,31 +70,6 @@ function ProfileStatLink({
         {label}
       </span>
     </Link>
-  );
-}
-
-function ProfileSignal({
-  label,
-  value,
-  tone = "muted",
-}: {
-  label: string;
-  value: string;
-  tone?: "muted" | "cyan" | "amber";
-}) {
-  const toneClass =
-    tone === "cyan"
-      ? "border-[rgba(var(--color-accent-2-rgb),0.18)] bg-[rgba(var(--color-accent-2-rgb),0.075)] text-[var(--color-accent-2)]"
-      : tone === "amber"
-        ? "border-amber-300/18 bg-amber-300/[0.07] text-amber-200"
-        : "border-white/[0.08] bg-white/[0.028] text-white/68";
-
-  return (
-    <span className={`inline-flex min-w-0 items-center gap-2 rounded-md border px-2.5 py-1.5 text-xs ${toneClass}`}>
-      <span className="h-1.5 w-1.5 flex-shrink-0 rounded-full bg-current opacity-80" aria-hidden="true" />
-      <span className="text-white/40">{label}</span>
-      <span className="min-w-0 truncate font-semibold text-white/86">{value}</span>
-    </span>
   );
 }
 
@@ -143,12 +100,10 @@ export default async function UserProfilePage(props: {
   const initialTab = readInitialTab(searchParams?.tab);
   const hasPublicWebsite = Boolean(user.profile?.website);
   const websiteUrl = user.profile?.website?.replace(/^https?:\/\//, "");
-  const availabilityLabel = formatAvailability(user.profile?.availability);
-  const responseTimeLabel = formatResponseTime(user.profile?.responseTime);
 
   return (
-    <main className="mx-auto w-full min-w-0 max-w-6xl px-0 py-2 sm:px-5 sm:py-8">
-      <section className={surface("panelStrong", "relative overflow-hidden rounded-none bg-[rgba(9,12,18,0.86)] sm:rounded-xl")}>
+    <main className="mx-auto w-full min-w-0 max-w-6xl px-3 py-4 sm:px-5 sm:py-8">
+      <section className={surface("panelStrong", "relative overflow-hidden bg-[rgba(9,12,18,0.86)]")}>
         <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent" />
         <ProfileBanner 
           initialBannerUrl={user.profile?.bannerUrl}
@@ -247,21 +202,6 @@ export default async function UserProfilePage(props: {
                   </p>
                 )}
 
-                <div className="mt-5 flex flex-wrap gap-2.5">
-                  {availabilityLabel ? (
-                    <ProfileSignal label="Availability" value={availabilityLabel} tone="cyan" />
-                  ) : null}
-                  {responseTimeLabel ? (
-                    <ProfileSignal label="Replies" value={responseTimeLabel} />
-                  ) : null}
-                  {user.profile?.hourlyRate ? (
-                    <ProfileSignal
-                      label="Rate"
-                      value={`${user.profile.currency ?? "USD"} ${user.profile.hourlyRate}/hr`}
-                      tone="amber"
-                    />
-                  ) : null}
-                </div>
               </div>
 
               {!isOwnProfile ? (

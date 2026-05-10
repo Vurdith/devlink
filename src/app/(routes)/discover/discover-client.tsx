@@ -44,42 +44,42 @@ const filters: { value: ProfileType; label: string; shortLabel: string; icon: st
     label: "All profiles",
     shortLabel: "All",
     icon: "M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z",
-    intent: "Scan every public profile"
+    intent: "Browse public profiles"
   },
   {
     value: "DEVELOPER",
     label: PROFILE_TYPE_CONFIG.DEVELOPER.label + "s",
     shortLabel: "Developers",
     icon: PROFILE_TYPE_CONFIG.DEVELOPER.icon,
-    intent: "Find builders with Roblox work"
+    intent: "Find Roblox builders"
   },
   {
     value: "CLIENT",
     label: PROFILE_TYPE_CONFIG.CLIENT.label + "s",
     shortLabel: "Clients",
     icon: PROFILE_TYPE_CONFIG.CLIENT.icon,
-    intent: "Find clients posting roles"
+    intent: "Find teams hiring"
   },
   {
     value: "STUDIO",
     label: PROFILE_TYPE_CONFIG.STUDIO.label + "s",
     shortLabel: "Studios",
     icon: PROFILE_TYPE_CONFIG.STUDIO.icon,
-    intent: "Compare teams and studios"
+    intent: "Compare studios"
   },
   {
     value: "INFLUENCER",
     label: PROFILE_TYPE_CONFIG.INFLUENCER.label + "s",
     shortLabel: "Influencers",
     icon: PROFILE_TYPE_CONFIG.INFLUENCER.icon,
-    intent: "Follow creators with reach"
+    intent: "Find audience-led creators"
   },
   {
     value: "INVESTOR",
     label: PROFILE_TYPE_CONFIG.INVESTOR.label + "s",
     shortLabel: "Investors",
     icon: PROFILE_TYPE_CONFIG.INVESTOR.icon,
-    intent: "Find capital and advisors"
+    intent: "Find backers and advisors"
   }
 ];
 
@@ -113,14 +113,14 @@ function DiscoverUserRow({
     <div
       className={surface(
         "panelMuted",
-        "group relative min-h-[128px] overflow-hidden transition-all duration-200 hover:border-[rgba(var(--color-accent-2-rgb),0.22)] hover:bg-white/[0.045]"
+        "group relative min-h-[128px] overflow-hidden transition-colors duration-200 hover:border-[rgba(var(--color-accent-2-rgb),0.22)] hover:bg-white/[0.045]"
       )}
     >
       <Link href={`/u/${user.username}`} className="absolute inset-0 z-0" aria-label={`Open @${user.username}`}>
         <span className="sr-only">Open @{user.username}</span>
       </Link>
 
-      <div className="relative z-10 grid min-w-0 gap-3 p-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
+      <div className="relative z-10 grid min-w-0 gap-3 p-4 md:grid-cols-[minmax(0,1fr)_minmax(14rem,0.8fr)_auto] md:items-center">
         <div className="flex min-w-0 gap-3">
           <Link href={`/u/${user.username}`} className="relative flex-shrink-0 rounded-full outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]">
             {user.profile?.avatarUrl ? (
@@ -156,19 +156,19 @@ function DiscoverUserRow({
               <ProfileTypeLabel profileType={getProfileType(user)} variant="compact" />
             </div>
             <div className="mt-0.5 truncate text-xs text-[var(--muted-foreground)]">@{user.username}</div>
-            <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-white/68 sm:hidden">
+            <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-white/68 md:hidden">
               {getSignal(user)}
             </p>
           </div>
         </div>
 
-        <div className="hidden min-w-0 sm:block">
+        <div className="hidden min-w-0 md:block">
           <p className="line-clamp-2 max-w-xl text-sm leading-relaxed text-white/68">
             {getSignal(user)}
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3 border-t border-white/[0.06] pt-3 text-xs text-[var(--muted-foreground)] sm:border-t-0 sm:pt-0 sm:justify-end">
+        <div className="flex flex-wrap items-center gap-3 border-t border-white/[0.06] pt-3 text-xs text-[var(--muted-foreground)] md:border-t-0 md:pt-0 md:justify-end">
             <Link href={`/u/${user.username}/followers`} className="relative z-20 rounded outline-none hover:text-white focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]">
               <span className="font-semibold text-white tabular-nums">{formatCount(user._count.followers)}</span> followers
             </Link>
@@ -294,7 +294,7 @@ export function DiscoverClient({
   const verifiedCount = users.filter((user) => user.profile?.verified).length;
 
   return (
-    <div className="mx-auto max-w-6xl">
+    <div className="mx-auto max-w-6xl px-4 py-5 sm:px-6 sm:py-6">
       <div className={surface("panel", "noise-overlay relative overflow-hidden")}>
         <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.42)] to-transparent" />
         <div
@@ -309,20 +309,20 @@ export function DiscoverClient({
           <div>
             <div className="mb-2 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.16em] text-[var(--color-accent-2)]">
               <Compass className="h-3.5 w-3.5" aria-hidden="true" />
-              Discover
+              Community
             </div>
             <h1 className="max-w-2xl text-2xl font-bold tracking-tight text-white sm:text-3xl">
-              Find Roblox people by role.
+              Browse Roblox creators by role.
             </h1>
             <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[var(--muted-foreground)] sm:text-base">
-              Pick a role, scan the profile, then open the people who fit the work.
+              Filter by profile type, scan current bios, and open the people worth a closer look.
             </p>
           </div>
 
           <div className="grid grid-cols-3 gap-2 rounded-xl border border-white/[0.08] bg-black/15 p-2 text-center">
             <div className="min-w-0 rounded-lg bg-white/[0.035] px-2 py-2">
               <div className="text-base font-semibold text-white tabular-nums">{formatCount(users.length)}</div>
-              <div className="truncate text-[11px] text-[var(--muted-foreground)]">profiles</div>
+              <div className="truncate text-[11px] text-[var(--muted-foreground)]">shown</div>
             </div>
             <div className="min-w-0 rounded-lg bg-white/[0.035] px-2 py-2">
               <div className="text-base font-semibold text-white tabular-nums">{formatCount(verifiedCount)}</div>
@@ -339,7 +339,7 @@ export function DiscoverClient({
       <div className="mt-4 grid gap-4 lg:grid-cols-[236px_1fr]">
         <aside className="lg:sticky lg:top-24 lg:self-start">
           <div className={surface("toolbar", "p-2")}>
-            <div className="mb-2 hidden px-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-white/45 lg:block">Browse by role</div>
+            <div className="mb-2 hidden px-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-white/45 lg:block">Roles</div>
             <div className="flex gap-2 overflow-x-auto pb-1 lg:flex-col lg:overflow-visible lg:pb-0">
               {filters.map((filter) => (
                 <button
@@ -376,7 +376,7 @@ export function DiscoverClient({
               href="/search"
               className="mt-3 inline-flex rounded-lg border border-white/[0.08] px-3 py-2 text-xs font-semibold text-white/75 transition-colors hover:bg-white/[0.045] hover:text-white"
             >
-              Open search
+              Search profiles
             </Link>
           </div>
         </aside>
@@ -423,7 +423,7 @@ export function DiscoverClient({
               <p className="mt-0.5 text-xs text-[var(--muted-foreground)]">{selectedFilterIntent}</p>
             </div>
             <div className="text-xs text-[var(--muted-foreground)]">
-              Showing <span className="font-semibold text-white tabular-nums">{users.length}</span>
+              <span className="font-semibold text-white tabular-nums">{users.length}</span> shown
             </div>
           </div>
 
@@ -450,7 +450,7 @@ export function DiscoverClient({
               </button>
             )}
             {!hasMore && users.length > 0 && (
-              <p className="text-sm text-[var(--muted-foreground)]">End of this role view.</p>
+              <p className="text-sm text-[var(--muted-foreground)]">No more profiles in this role.</p>
             )}
           </div>
         </>

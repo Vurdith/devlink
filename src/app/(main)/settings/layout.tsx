@@ -12,16 +12,15 @@ export default function SettingsLayout({ children }: { children: ReactNode }) {
         {/* Sidebar */}
         <aside className="min-w-0 md:sticky md:top-24 md:h-fit">
           <div className="min-w-0 animate-slide-up">
-            <div className={surface("panel", "noise-overlay relative overflow-hidden p-3 sm:p-5")}>
-              <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.36)] to-transparent" />
+            <div className={surface("panel", "relative overflow-hidden p-3 sm:p-5")}>
+              <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-white/[0.08]" />
               <div className="mb-3 hidden items-center gap-3 border-b border-white/10 pb-4 sm:mb-6 sm:flex">
                 <div className={iconBox("cyan", "h-10 w-10")}>
                   <Settings className="h-5 w-5" aria-hidden="true" />
                 </div>
                 <div>
-                  <div className="mb-1 text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--color-accent-2)]">Account</div>
                   <h2 className="text-lg font-semibold text-white">Settings</h2>
-                  <p className="text-xs text-[var(--muted-foreground)]">Profile, privacy, and access</p>
+                  <p className="text-xs text-[var(--muted-foreground)]">Access, alerts, and privacy</p>
                 </div>
               </div>
               

@@ -35,7 +35,7 @@ export function NetworkProfileCard({
   const profileType = user.profile?.profileType;
 
   return (
-    <div className={surface("panelMuted", "group relative overflow-hidden transition-all duration-200 hover:border-white/[0.16] hover:bg-white/[0.035]")}>
+    <div className={surface("panelMuted", "group relative overflow-hidden transition-colors duration-200 hover:border-white/[0.16] hover:bg-white/[0.035]")}>
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-x-0 top-0 z-10 h-px bg-gradient-to-r from-transparent via-white/22 to-transparent opacity-0 transition-opacity group-hover:opacity-100"
@@ -52,7 +52,7 @@ export function NetworkProfileCard({
         }}
       />
 
-      <div className="grid gap-4 p-4 sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-center sm:pl-5">
+      <div className="grid gap-4 p-4 sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-center sm:p-5">
         <ProfileTooltip user={user} currentUserId={currentUserId}>
           <Link
             href={`/u/${user.username}`}
@@ -75,7 +75,7 @@ export function NetworkProfileCard({
           </Link>
         </ProfileTooltip>
 
-        <div className="min-w-0">
+        <div className="min-w-0 border-t border-white/[0.06] pt-3 sm:border-t-0 sm:pt-0">
           <div className="flex flex-wrap items-center gap-2">
             {profileType ? <ProfileTypeLabel profileType={profileType} variant="inline" /> : null}
             {user.profile?.location ? (
@@ -86,9 +86,7 @@ export function NetworkProfileCard({
           </div>
           {user.profile?.bio ? (
             <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-white/58">{user.profile.bio}</p>
-          ) : (
-            <p className="mt-2 text-sm text-white/35">No bio yet</p>
-          )}
+          ) : null}
           <div className="mt-3 flex flex-wrap gap-3 text-xs text-[var(--muted-foreground)]">
             {[
               ["followers", user._count.followers],

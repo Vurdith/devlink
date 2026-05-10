@@ -53,8 +53,8 @@ interface ProfileTabsProps {
 const tabIntros: Record<TabType, { eyebrow: string; title: string; description: string }> = {
   about: {
     eyebrow: "About",
-    title: "Skills, links, and availability",
-    description: "What this profile can help with and how to contact them.",
+    title: "Work focus and contact details",
+    description: "Skills, rates, links, and reply expectations this profile chose to publish.",
   },
   posts: {
     eyebrow: "Activity",
@@ -83,13 +83,13 @@ const tabIntros: Record<TabType, { eyebrow: string; title: string; description: 
   },
   portfolio: {
     eyebrow: "Portfolio",
-    title: "Portfolio",
-    description: "Published work and project proof.",
+    title: "Published work",
+    description: "Projects with enough context to judge the role, result, and fit.",
   },
   reviews: {
     eyebrow: "Reviews",
     title: "Reviews",
-    description: "Feedback from clients and collaborators.",
+    description: "Feedback left by people who have worked with this profile.",
   },
 };
 
@@ -108,10 +108,7 @@ export function ProfileTabs({
   const hasAboutContent = Boolean(
     skills.length > 0 ||
       profileData.location ||
-      profileData.website ||
-      profileData.availability ||
-      profileData.hourlyRate ||
-      profileData.responseTime
+      profileData.website
   );
   const isOwner = currentUserId === userId;
   const visibleInitialTab = initialTab === "saved" && !isOwner ? undefined : initialTab;
@@ -485,7 +482,7 @@ export function ProfileTabs({
   };
 
   return (
-    <div className="mt-5 px-3 sm:mt-7 sm:px-0">
+    <div className="mt-4 px-3 sm:mt-7 sm:px-0">
       <ProfileTabNavigation
         tabs={tabs}
         activeTab={activeTab}
@@ -493,7 +490,7 @@ export function ProfileTabs({
         canSeePrivateTabs={canSeePrivateTabs}
       />
 
-      <section className="mb-4 grid gap-3 border-b border-white/[0.06] pb-4 sm:mb-5 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
+      <section className="mb-4 grid gap-3 border-b border-white/[0.06] px-1 pb-4 sm:mb-5 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end sm:px-0">
         <div className="min-w-0">
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--color-accent-2)]">
             {activeIntro.eyebrow}

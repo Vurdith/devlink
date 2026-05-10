@@ -416,7 +416,7 @@ export function MessagesSidebar() {
                                   href={`/messages/${request.conversationId}`}
                                   className={cn("ml-auto rounded-lg px-3 py-1.5 text-xs font-medium text-white/55 transition-colors", ui.control.ghost)}
                                 >
-                                  View
+                                  Open thread
                                 </Link>
                               )}
                             </div>
@@ -486,7 +486,7 @@ export function MessagesSidebar() {
                     key={thread.id}
                     href={`/messages/${thread.id}`}
                     className={cn(
-                      "flex items-start gap-3 rounded-xl border px-3 py-3 transition-all duration-200",
+                      "flex items-start gap-3 rounded-xl border px-3 py-3 transition-colors duration-200",
                       isActive
                         ? cn("border-[rgba(var(--color-accent-2-rgb),0.32)]", ui.active.cyan)
                         : "border-white/[0.06] bg-white/[0.018] hover:border-white/[0.12] hover:bg-white/[0.04]"

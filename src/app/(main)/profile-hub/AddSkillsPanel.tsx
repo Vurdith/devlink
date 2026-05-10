@@ -45,16 +45,8 @@ export const AddSkillsPanel = memo(function AddSkillsPanel({
   }, [allSkills, normalizedSearch, userSkillIds]);
 
   return (
-    <div className={surface("panel", "noise-overlay relative overflow-hidden p-4 sm:p-6")}>
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.36)] to-transparent" />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 opacity-35"
-        style={{
-          background:
-            "linear-gradient(180deg, rgba(var(--color-accent-2-rgb),0.06), transparent 48%)",
-        }}
-      />
+    <div className={surface("panel", "relative overflow-hidden p-4 sm:p-6")}>
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-white/[0.08]" />
       <div className="relative">
         <div className="mb-6 flex min-w-0 items-center gap-3">
           <div className={iconBox("cyan", "h-10 w-10")}>
@@ -64,7 +56,7 @@ export const AddSkillsPanel = memo(function AddSkillsPanel({
           </div>
           <div className="min-w-0">
             <h2 className="text-lg font-semibold text-white">Add skills</h2>
-            <p className="text-sm text-[var(--muted-foreground)]">Search from 200+ skills or add your own</p>
+            <p className="text-sm text-[var(--muted-foreground)]">Search the catalog or add a custom skill.</p>
           </div>
         </div>
 
@@ -144,10 +136,10 @@ export const AddSkillsPanel = memo(function AddSkillsPanel({
 
         {!trimmedSearch && visibleSkills.length === 0 && (
           <div className={surface("empty", "noise-overlay relative overflow-hidden px-4 py-5 text-center text-sm text-[var(--muted-foreground)]")}>
-            Skill suggestions will appear here as the catalog loads.
+            Skill suggestions appear here once the catalog loads.
           </div>
         )}
-        {!trimmedSearch && visibleSkills.length > 0 && <p className="text-center text-xs text-white/42">Can&apos;t find your skill? Type it above and add it as a custom skill</p>}
+        {!trimmedSearch && visibleSkills.length > 0 && <p className="text-center text-xs text-white/42">Can&apos;t find it? Type the skill name above.</p>}
       </div>
     </div>
   );

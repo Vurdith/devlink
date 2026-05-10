@@ -18,16 +18,8 @@ export const UserSkillsPanel = memo(function UserSkillsPanel({ userSkills, curre
   const isBusy = isSavingSkill || isRemovingSkill;
 
   return (
-    <div className={surface("panel", "noise-overlay relative overflow-hidden p-4 sm:p-6")}>
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.36)] to-transparent" />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 opacity-35"
-        style={{
-          background:
-            "linear-gradient(180deg, rgba(var(--color-accent-2-rgb),0.06), transparent 48%)",
-        }}
-      />
+    <div className={surface("panel", "relative overflow-hidden p-4 sm:p-6")}>
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-white/[0.08]" />
       <div className="relative">
         <div className="mb-6 flex min-w-0 items-center justify-between gap-4">
           <div className="flex min-w-0 items-center gap-3">
@@ -44,7 +36,7 @@ export const UserSkillsPanel = memo(function UserSkillsPanel({ userSkills, curre
             </div>
             <div className="min-w-0">
               <h2 className="truncate text-lg font-semibold text-white">Skills ({userSkills.length}/15)</h2>
-              <p className="text-sm text-[var(--muted-foreground)]">Set levels, availability, rates, and notes.</p>
+              <p className="text-sm text-[var(--muted-foreground)]">Set levels, rates, availability, and notes.</p>
             </div>
           </div>
           <span className="hidden rounded-full border border-white/[0.08] bg-white/[0.035] px-2.5 py-1 text-xs font-semibold text-white/56 sm:inline-flex">
@@ -59,9 +51,9 @@ export const UserSkillsPanel = memo(function UserSkillsPanel({ userSkills, curre
                 <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </div>
-            <p className="text-sm font-semibold text-white">No skills added yet</p>
+            <p className="text-sm font-semibold text-white">No skills yet</p>
             <p className="mx-auto mt-1 max-w-sm text-sm leading-relaxed text-[var(--muted-foreground)]">
-              Add the skills you want people to hire or contact you for.
+              Add the work you want to be contacted for.
             </p>
           </div>
         ) : (

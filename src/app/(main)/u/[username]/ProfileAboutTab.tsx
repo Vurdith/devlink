@@ -6,7 +6,6 @@ import { ExpandableSkillCard, type UserSkill } from "./ExpandableSkillCard";
 import {
   EXPERIENCE_LEVELS,
   AVAILABILITY_STATUS,
-  formatHourlyRate,
   type ExperienceLevel,
   type AvailabilityStatus,
 } from "@/lib/skills";
@@ -26,21 +25,7 @@ interface ProfileAboutTabProps {
 }
 
 export function ProfileAboutTab({ skills, profileData }: ProfileAboutTabProps) {
-  const availabilityConfig = profileData.availability
-    ? AVAILABILITY_STATUS[profileData.availability as AvailabilityStatus]
-    : null;
-  const responseTimeLabels: Record<string, string> = {
-    WITHIN_HOURS: "Within hours",
-    WITHIN_DAY: "Within a day",
-    WITHIN_WEEK: "Within a week",
-  };
-  const hasProfileDetails = Boolean(
-    profileData.location ||
-      profileData.website ||
-      availabilityConfig ||
-      profileData.hourlyRate ||
-      profileData.responseTime
-  );
+  const hasProfileDetails = Boolean(profileData.location || profileData.website);
   const primarySkill = skills.find((skill) => skill.isPrimary) ?? skills[0];
   const supportingSkills = skills.filter((skill) => skill.id !== primarySkill?.id).slice(0, 3);
   const extraSkillCount = Math.max(0, skills.length - 1 - supportingSkills.length);
@@ -49,7 +34,7 @@ export function ProfileAboutTab({ skills, profileData }: ProfileAboutTabProps) {
     return (
       <FeedbackState
         title="No about details yet"
-        description="Skills, links, and profile details will appear here."
+        description="Skills, location, and links will appear here once published."
         className="py-14"
         icon={
           <svg className="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -61,18 +46,18 @@ export function ProfileAboutTab({ skills, profileData }: ProfileAboutTabProps) {
   }
 
   return (
-    <div className="grid gap-5 lg:grid-cols-[minmax(0,1.45fr)_minmax(280px,0.55fr)]">
+    <div className="grid gap-4 sm:gap-5 lg:grid-cols-[minmax(0,1.45fr)_minmax(280px,0.55fr)]">
       {skills.length > 0 && (
         <section className={surface("panel", "overflow-hidden")}>
-          <div className="border-b border-white/[0.08] p-5 sm:p-6">
+          <div className="border-b border-white/[0.08] p-4 sm:p-6">
             <div>
               <h3 className="text-lg font-semibold text-white font-[var(--font-space-grotesk)]">Skills</h3>
               <p className="mt-1 text-sm text-[var(--muted-foreground)]">
-                The strongest signals first, with notes where this profile added context.
+                Primary skill first, then supporting skills with level, rate, and notes.
               </p>
             </div>
             {primarySkill ? (
-              <div className="mt-5 grid gap-4 rounded-xl border border-white/[0.08] bg-white/[0.025] p-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
+              <div className="mt-5 grid gap-4 rounded-lg border border-white/[0.08] bg-white/[0.025] p-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
                 <div className="flex min-w-0 items-center gap-3">
                   <div className={iconBox(primarySkill.isPrimary ? "amber" : "cyan", "h-11 w-11 flex-shrink-0")}>
                     <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -93,7 +78,7 @@ export function ProfileAboutTab({ skills, profileData }: ProfileAboutTabProps) {
                       {extraSkillCount > 0 ? `, +${extraSkillCount}` : ""}
                     </p>
                   ) : (
-                    <p>Focused profile</p>
+                    <p>Single-skill profile</p>
                   )}
                 </div>
               </div>
@@ -123,55 +108,12 @@ export function ProfileAboutTab({ skills, profileData }: ProfileAboutTabProps) {
       )}
 
       {hasProfileDetails && (
-        <section className={surface("panelMuted", "h-fit overflow-hidden p-5 sm:p-6")}>
+        <section className={surface("panelMuted", "h-fit overflow-hidden p-4 sm:p-6")}>
           <div className="mb-4">
-            <h3 className="font-[var(--font-space-grotesk)] text-lg font-semibold text-white">Profile details</h3>
-            <p className="mt-1 text-sm text-[var(--muted-foreground)]">Fast context before opening a conversation.</p>
+            <h3 className="font-[var(--font-space-grotesk)] text-lg font-semibold text-white">Contact details</h3>
+            <p className="mt-1 text-sm text-[var(--muted-foreground)]">Website and location.</p>
           </div>
           <div className="divide-y divide-white/[0.07]">
-          {availabilityConfig && (
-            <div className="flex min-w-0 items-center gap-3 py-4 first:pt-0 last:pb-0">
-              <div className={iconBox("cyan", "h-10 w-10")}>
-                <svg className="h-5 w-5 text-[var(--color-accent-2)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 12l4 4L19 6" />
-                </svg>
-              </div>
-              <div className="min-w-0">
-                <p className="text-xs uppercase tracking-[0.14em] text-white/40">Availability</p>
-                <p className={`truncate text-sm font-medium ${availabilityConfig.color}`}>{availabilityConfig.label}</p>
-              </div>
-            </div>
-          )}
-
-          {profileData.responseTime && (
-            <div className="flex min-w-0 items-center gap-3 py-4 first:pt-0 last:pb-0">
-              <div className={iconBox("muted", "h-10 w-10")}>
-                <svg className="h-5 w-5 text-[var(--color-accent-2)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6l4 2" />
-                  <circle cx="12" cy="12" r="9" strokeWidth={2} />
-                </svg>
-              </div>
-              <div className="min-w-0">
-                <p className="text-xs uppercase tracking-[0.14em] text-white/40">Replies</p>
-                <p className="truncate text-sm font-medium text-white/80">{responseTimeLabels[profileData.responseTime] ?? profileData.responseTime}</p>
-              </div>
-            </div>
-          )}
-
-          {profileData.hourlyRate ? (
-            <div className="flex min-w-0 items-center gap-3 py-4 first:pt-0 last:pb-0">
-              <div className={iconBox("muted", "h-10 w-10")}>
-                <svg className="h-5 w-5 text-[var(--color-accent-2)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />
-                </svg>
-              </div>
-              <div className="min-w-0">
-                <p className="text-xs uppercase tracking-[0.14em] text-white/40">Rate</p>
-                <p className="truncate text-sm font-medium text-white/80">{formatHourlyRate(profileData.hourlyRate, profileData.currency || "USD")}</p>
-              </div>
-            </div>
-          ) : null}
-
           {profileData.location && (
             <div className="flex min-w-0 items-center gap-3 py-4 first:pt-0 last:pb-0">
               <div className={iconBox("muted", "h-10 w-10")}>

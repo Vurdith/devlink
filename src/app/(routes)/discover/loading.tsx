@@ -2,7 +2,7 @@ import { skeleton, surface } from "@/components/ui/design-system";
 
 function DiscoverSkeleton() {
   return (
-    <div className="mx-auto max-w-6xl space-y-4">
+    <div className="mx-auto max-w-6xl space-y-4 px-4 py-5 sm:px-6 sm:py-6">
       <div className={surface("panel", "relative overflow-hidden p-4 sm:p-6")}>
         <div className={skeleton("mb-3 h-4 w-28")} />
         <div className={skeleton("mb-3 h-8 w-72 max-w-full")} />

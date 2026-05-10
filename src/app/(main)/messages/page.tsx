@@ -19,7 +19,7 @@ export default function MessagesPage() {
           title={isLoggedIn ? "Select a conversation" : "Your messages"}
           description={
             isLoggedIn
-              ? "Choose a thread from the inbox, or start a conversation with a builder, client, or collaborator."
+              ? "Pick a thread from the inbox or start a new one."
               : "Log in to read threads, send messages, and review requests."
           }
           action={

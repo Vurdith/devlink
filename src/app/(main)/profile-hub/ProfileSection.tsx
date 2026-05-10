@@ -37,16 +37,8 @@ export function ProfileSection({
 }: ProfileSectionProps) {
   return (
     <div className="space-y-6">
-      <div className={surface("panel", "noise-overlay relative overflow-hidden p-4 sm:p-6")}>
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.36)] to-transparent" />
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 opacity-45"
-          style={{
-            background:
-              "linear-gradient(180deg, rgba(var(--color-accent-2-rgb),0.06), transparent 48%)",
-          }}
-        />
+      <div className={surface("panel", "relative overflow-hidden p-4 sm:p-6")}>
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-white/[0.08]" />
         <div className="relative">
           <div className="mb-6 flex min-w-0 items-center gap-3">
             <div className={iconBox("cyan", "h-10 w-10")}>
@@ -98,7 +90,7 @@ export function ProfileSection({
       </div>
 
       <div className={surface("panel", "relative overflow-hidden p-4 sm:p-6")}>
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.32)] to-transparent" />
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-white/[0.08]" />
         <div className="relative">
           <div className="mb-6 flex min-w-0 items-center gap-3">
             <div className={iconBox("cyan", "h-10 w-10")}>
@@ -180,16 +172,8 @@ export function ProfileSection({
         </div>
       </div>
 
-      <div className={surface("panel", "noise-overlay relative overflow-hidden p-4 sm:p-6")}>
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.36)] to-transparent" />
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 opacity-35"
-          style={{
-            background:
-              "linear-gradient(180deg, rgba(var(--color-accent-rgb),0.055), transparent 52%)",
-          }}
-        />
+      <div className={surface("panel", "relative overflow-hidden p-4 sm:p-6")}>
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-white/[0.08]" />
         <div className="relative">
           <div className="mb-6 flex min-w-0 items-center gap-3">
             <div className={iconBox("cyan", "h-10 w-10")}>

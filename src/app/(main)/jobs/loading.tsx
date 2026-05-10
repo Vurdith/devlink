@@ -2,7 +2,7 @@ import { skeleton, surface } from "@/components/ui/design-system";
 
 function JobsSkeleton() {
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
+    <div className="mx-auto max-w-5xl space-y-6 px-4 pb-24 pt-6 sm:pt-8">
       <div className="flex items-center justify-between">
         <div className={skeleton("h-8 w-32")} />
         <div className={skeleton("h-10 w-32 rounded-xl")} />

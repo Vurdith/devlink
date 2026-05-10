@@ -12,9 +12,9 @@ export async function generateMetadata({ params }: { params: Promise<{ jobId: st
       user: { select: { username: true } },
     },
   });
-  if (!job) return { title: "Job Not Found — DevLink" };
-  const title = `${job.title} — DevLink Jobs`;
-  const description = job.description?.slice(0, 160) || `${job.title} — posted on DevLink.`;
+  if (!job) return { title: "Job Not Found - DevLink" };
+  const title = `${job.title} - DevLink Jobs`;
+  const description = job.description?.slice(0, 160) || `${job.title} - posted on DevLink.`;
   return {
     title,
     description,

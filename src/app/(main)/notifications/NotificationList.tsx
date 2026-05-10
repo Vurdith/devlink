@@ -46,7 +46,7 @@ export function NotificationList({ rows, currentUserId, hasMore, loadingMore, on
           loading={loadingMore}
           onClick={onFetchMore}
           label="Load older notifications"
-          loadingLabel="Loading older notifications..."
+          loadingLabel="Loading older notifications"
           className="pt-5"
         />
       ) : null}
@@ -128,7 +128,7 @@ function NotificationCard({
       className={[
         surface(
           "panelMuted",
-          "group relative cursor-pointer overflow-hidden p-4 outline-none transition-all duration-200 hover:-translate-y-0.5 hover:border-white/[0.16] hover:bg-white/[0.045] focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.55)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)] active:translate-y-0 sm:p-5"
+          "group relative cursor-pointer overflow-hidden p-4 outline-none transition-colors duration-200 hover:border-white/[0.16] hover:bg-white/[0.045] focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.55)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)] sm:p-5"
         ),
         n.readAt ? "" : ui.active.cyan,
       ].join(" ")}

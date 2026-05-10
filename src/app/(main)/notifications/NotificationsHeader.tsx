@@ -15,10 +15,10 @@ interface NotificationsHeaderProps {
 export function NotificationsHeader({ unreadCount, tab, marking, onMarkAllRead, onTabChange }: NotificationsHeaderProps) {
   return (
     <div className="sticky top-0 z-20 -mx-4 mb-4 bg-[rgba(5,5,8,0.94)] px-4 pb-3 pt-2 sm:-mx-6 sm:px-6">
-      <div className={surface("panelStrong", "noise-overlay relative overflow-hidden p-4 sm:p-5")}>
+      <div className={surface("panelStrong", "relative overflow-hidden p-4 sm:p-5")}>
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.42)] to-transparent"
+          className="pointer-events-none absolute inset-x-0 top-0 h-px bg-white/[0.08]"
         />
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex min-w-0 items-center gap-3">

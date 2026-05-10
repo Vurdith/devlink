@@ -137,7 +137,7 @@ export default function NotificationSettings() {
           </div>
           <div>
             <h2 className="text-lg font-semibold text-white">Email Notifications</h2>
-            <p className="text-sm text-[var(--muted-foreground)]">Configure email alerts</p>
+            <p className="text-sm text-[var(--muted-foreground)]">Choose which email alerts DevLink sends.</p>
           </div>
         </div>
 
@@ -146,7 +146,7 @@ export default function NotificationSettings() {
             <div
               key={setting.id}
               className={cn(
-                "flex items-center justify-between gap-4 rounded-xl border p-4 transition-all animate-slide-up",
+                "flex items-center justify-between gap-4 rounded-xl border p-4 transition-colors animate-slide-up",
                 setting.enabled
                   ? ui.active.cyan
                   : cn(ui.surface.empty, "hover:border-white/[0.14] hover:bg-white/[0.045]")

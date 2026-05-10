@@ -57,7 +57,7 @@ export function ProfilePortfolioTab({
                 </h3>
                 <p className="text-sm text-[var(--muted-foreground)]">
                   {portfolioItems.length === 0
-                    ? "Curate the work visitors should judge you by."
+                    ? "Pick projects that show your role, result, and taste."
                     : `${portfolioItems.length} ${portfolioItems.length === 1 ? "case study" : "case studies"} published`}
                 </p>
               </div>
@@ -128,7 +128,7 @@ export function ProfilePortfolioTab({
           <p className="relative mx-auto max-w-md text-sm leading-relaxed">
             {isOwner
               ? "Show the result, your role, and why the work mattered. One polished project is better than five loose links."
-              : "This user has not shared portfolio work yet."}
+              : "No projects have been published yet."}
           </p>
           {isOwner && (
             <Button

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { FeedbackState } from "@/components/ui/FeedbackState";
 import { iconBox, surface } from "@/components/ui/design-system";
 import { NetworkProfileCard, type NetworkUser } from "./NetworkProfileCard";
+import { getProfileTypeConfig } from "@/types/profile";
 
 interface NetworkPageProps {
   title: string;
@@ -81,25 +82,29 @@ export function NetworkPage({
         <div className="mb-4 grid gap-2 sm:grid-cols-3">
           <div className={surface("empty", "px-4 py-3")}>
             <div className="text-xl font-semibold text-white tabular-nums">{users.length}</div>
-            <div className="mt-1 text-xs text-[var(--muted-foreground)]">profiles</div>
+            <div className="mt-1 text-xs text-[var(--muted-foreground)]">people listed</div>
           </div>
           <div className={surface("empty", "px-4 py-3")}>
             <div className="text-xl font-semibold text-white tabular-nums">{verifiedCount}</div>
-            <div className="mt-1 text-xs text-[var(--muted-foreground)]">verified</div>
+            <div className="mt-1 text-xs text-[var(--muted-foreground)]">verified accounts</div>
           </div>
           <div className={surface("empty", "px-4 py-3")}>
             <div className="flex min-w-0 flex-wrap gap-2">
               {topRoles.length > 0 ? (
-                topRoles.map(([role, count]) => (
-                  <span key={role} className="rounded-md border border-white/[0.08] bg-white/[0.035] px-2 py-1 text-xs font-semibold text-white/66">
-                    {role.toLowerCase()} {count}
-                  </span>
-                ))
+                topRoles.map(([role, count]) => {
+                  const config = getProfileTypeConfig(role);
+
+                  return (
+                    <span key={role} className="rounded-md border border-white/[0.08] bg-white/[0.035] px-2 py-1 text-xs font-semibold text-white/66">
+                      {config.label} {count}
+                    </span>
+                  );
+                })
               ) : (
-                <span className="text-sm text-white/45">No profile types yet</span>
+                <span className="text-sm text-white/45">No roles shown</span>
               )}
             </div>
-            <div className="mt-2 text-xs text-[var(--muted-foreground)]">roles</div>
+            <div className="mt-2 text-xs text-[var(--muted-foreground)]">profile roles</div>
           </div>
         </div>
       ) : null}

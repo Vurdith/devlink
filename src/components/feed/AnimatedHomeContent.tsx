@@ -112,7 +112,7 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
               <div className="mb-7 flex items-center gap-4">
                 <ThemeLogoImg className="h-14 w-14 object-contain sm:h-16 sm:w-16" />
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--color-accent-2)]">Home feed</p>
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--color-accent-2)]">Network feed</p>
                   <h1 className="mt-1 text-5xl font-bold leading-none tracking-normal text-white sm:text-6xl lg:text-7xl" style={{ fontFamily: "var(--font-space-grotesk)" }}>
                     DevLink
                   </h1>
@@ -178,7 +178,6 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
           <main className="min-w-0">
             <div className="mb-5 grid min-w-0 gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
               <div className="min-w-0">
-                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--color-accent-2)]">Home</p>
                 <h1 className="mt-1 text-2xl font-semibold tracking-normal text-white sm:text-3xl">
                   Good to see you, {firstName}
                 </h1>
