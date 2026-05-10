@@ -10,7 +10,7 @@ import { ProfileTypeLabel } from "@/components/profile/ProfileTypeLabel";
 import { FeedbackState } from "@/components/ui/FeedbackState";
 import { iconBox, surface, ui } from "@/components/ui/design-system";
 import { cn } from "@/lib/cn";
-import { Compass, Search, Users } from "lucide-react";
+import { Compass, Search } from "lucide-react";
 
 type ProfileType = "all" | "DEVELOPER" | "CLIENT" | "INFLUENCER" | "STUDIO" | "INVESTOR";
 
@@ -323,8 +323,6 @@ export function DiscoverClient({
   const selectedFilterLabel = filters.find((filter) => filter.value === selectedFilter)?.label ?? "profiles";
   const selectedFilterIntent = filters.find((filter) => filter.value === selectedFilter)?.intent ?? "Browse the community";
   const canShowRetry = error && !loading && users.length === 0;
-  const featuredUsers = users.slice(0, 3);
-  const remainingUsers = users.slice(3);
   const totalFollowers = users.reduce((count, user) => count + user._count.followers, 0);
   const verifiedCount = users.filter((user) => user.profile?.verified).length;
 
@@ -347,17 +345,17 @@ export function DiscoverClient({
               Discover
             </div>
             <h1 className="max-w-2xl text-2xl font-bold tracking-tight text-white sm:text-3xl">
-              Browse Roblox builders, clients, studios, and backers.
+              Find Roblox people by role.
             </h1>
             <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[var(--muted-foreground)] sm:text-base">
-              Filter by role, check the profile signal, then open the people who match what you need.
+              Pick a role, scan the profile, then open the people who fit the work.
             </p>
           </div>
 
           <div className="grid grid-cols-3 gap-2 rounded-xl border border-white/[0.08] bg-black/15 p-2 text-center">
             <div className="min-w-0 rounded-lg bg-white/[0.035] px-2 py-2">
               <div className="text-base font-semibold text-white tabular-nums">{formatCount(users.length)}</div>
-              <div className="truncate text-[11px] text-[var(--muted-foreground)]">shown</div>
+              <div className="truncate text-[11px] text-[var(--muted-foreground)]">profiles</div>
             </div>
             <div className="min-w-0 rounded-lg bg-white/[0.035] px-2 py-2">
               <div className="text-base font-semibold text-white tabular-nums">{formatCount(verifiedCount)}</div>
@@ -462,31 +460,11 @@ export function DiscoverClient({
             </div>
           </div>
 
-          {featuredUsers.length > 0 ? (
-            <section className="mb-4">
-              <div className="mb-2 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-white/45">
-                <Users className="h-3.5 w-3.5" aria-hidden="true" />
-                High-signal profiles
-              </div>
-              <div className="grid gap-3 md:grid-cols-3">
-                {featuredUsers.map((user) => (
-                  <DiscoverUserRow key={user.id} user={user} currentUserId={currentUserId} onFollowToggle={handleFollowToggle} featured />
-                ))}
-              </div>
-            </section>
-          ) : null}
-
-          {remainingUsers.length > 0 ? (
-            <section className="space-y-2">
-              <div className="mb-2 flex items-center gap-3">
-                <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-white/45">More profiles</div>
-                <div className="h-px flex-1 bg-white/[0.06]" />
-              </div>
-              {remainingUsers.map((user) => (
+          <section className="space-y-2">
+              {users.map((user) => (
                 <DiscoverUserRow key={user.id} user={user} currentUserId={currentUserId} onFollowToggle={handleFollowToggle} />
               ))}
-            </section>
-          ) : null}
+          </section>
           
           <div ref={loadMoreRef} className="py-8 flex justify-center">
             {loadingMore && (

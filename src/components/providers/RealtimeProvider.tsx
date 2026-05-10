@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState, useCallback, useMemo, ReactNode } from "react";
+import { usePathname } from "next/navigation";
 import { connectRustRealtime } from "@/lib/realtime/rust-realtime-client";
 import { scheduleAfterInitialLoad } from "@/lib/browser/idle";
 
@@ -28,6 +29,14 @@ const EVENT_NAMES = {
   profile_update: "devlink:profile-updated",
 } as const;
 
+const REALTIME_ROUTE_PREFIXES = [
+  "/home",
+  "/messages",
+  "/notifications",
+  "/profile-hub",
+  "/u/",
+];
+
 export function useRealtime() {
   return useContext(RealtimeContext);
 }
@@ -40,6 +49,8 @@ interface RealtimeProviderProps {
 export function RealtimeProvider({ children, session }: RealtimeProviderProps) {
   const [isConnected, setIsConnected] = useState(false);
   const userId = session?.user?.id;
+  const pathname = usePathname();
+  const shouldRunRealtime = Boolean(userId && REALTIME_ROUTE_PREFIXES.some((prefix) => pathname.startsWith(prefix)));
 
   const handleStatus = useCallback((status: "connected" | "disconnected" | "error") => {
     setIsConnected(status === "connected");
@@ -53,6 +64,11 @@ export function RealtimeProvider({ children, session }: RealtimeProviderProps) {
   }, []);
 
   useEffect(() => {
+    if (!shouldRunRealtime) {
+      setIsConnected(false);
+      return;
+    }
+
     let connection: ReturnType<typeof connectRustRealtime> | null = null;
 
     const cancelSchedule = scheduleAfterInitialLoad(() => {
@@ -71,10 +87,10 @@ export function RealtimeProvider({ children, session }: RealtimeProviderProps) {
       cancelSchedule();
       connection?.close();
     };
-  }, [handleEvent, handleStatus, userId]);
+  }, [handleEvent, handleStatus, shouldRunRealtime, userId]);
 
   useEffect(() => {
-    if (!userId) return;
+    if (!userId || !shouldRunRealtime) return;
 
     let stopped = false;
     let interval: ReturnType<typeof setInterval> | undefined;
@@ -110,7 +126,7 @@ export function RealtimeProvider({ children, session }: RealtimeProviderProps) {
         cache: "no-store",
       }).catch(() => undefined);
     };
-  }, [userId]);
+  }, [shouldRunRealtime, userId]);
 
   const subscribe = useCallback((channelName: string, callback: (payload: unknown) => void) => {
     void channelName;

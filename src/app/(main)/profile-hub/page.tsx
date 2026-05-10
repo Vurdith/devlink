@@ -324,8 +324,8 @@ export default function ProfileHubPage() {
                 </svg>
               </div>
               <div className="min-w-0 flex-1">
-                <div className="mb-1 text-[10px] font-bold uppercase tracking-[0.16em] text-[var(--color-accent-2)]">Profile tools</div>
-                <h1 className="font-[var(--font-space-grotesk)] text-2xl font-bold text-white">Profile hub</h1>
+                <div className="mb-1 text-[10px] font-bold uppercase tracking-[0.16em] text-[var(--color-accent-2)]">Profile</div>
+                <h1 className="font-[var(--font-space-grotesk)] text-2xl font-bold text-white">Edit your public profile</h1>
                 <p className="mt-0.5 max-w-xl text-sm leading-relaxed text-[var(--muted-foreground)] sm:text-base">Edit the public details people see before they message you.</p>
               </div>
             </div>

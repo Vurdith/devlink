@@ -81,7 +81,7 @@ export const MobileNav = memo(function MobileNav({ session }: MobileNavProps) {
 
       <div
         className={cn(
-          "fixed left-0 top-0 z-50 h-full w-[min(18rem,calc(100vw-1rem))] transform-gpu border-0 border-r border-white/[0.08] bg-[rgba(7,9,13,0.94)] shadow-[inset_-1px_0_0_rgba(255,255,255,0.03)] backdrop-blur-xl transition-transform duration-300 ease-out will-change-transform md:hidden",
+          "fixed left-0 top-0 z-50 h-full w-[min(18rem,calc(100vw-1rem))] transform-gpu border-0 border-r border-white/[0.08] bg-[rgba(7,9,13,0.98)] shadow-[inset_-1px_0_0_rgba(255,255,255,0.03)] transition-transform duration-300 ease-out will-change-transform md:hidden",
           isOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
@@ -187,7 +187,7 @@ export const MobileNav = memo(function MobileNav({ session }: MobileNavProps) {
       </div>
 
       {/* Bottom Navigation Bar */}
-      <nav className="safe-area-bottom fixed bottom-0 left-0 right-0 z-40 max-w-[100vw] overflow-hidden border-0 border-t border-white/[0.08] bg-[rgba(7,9,13,0.94)] shadow-[inset_0_1px_0_rgba(255,255,255,0.035)] backdrop-blur-xl md:hidden">
+      <nav className="safe-area-bottom fixed bottom-0 left-0 right-0 z-40 max-w-[100vw] overflow-hidden border-0 border-t border-white/[0.08] bg-[rgba(7,9,13,0.98)] shadow-[inset_0_1px_0_rgba(255,255,255,0.035)] md:hidden">
         <div className="mx-auto grid h-16 w-full max-w-[34rem] min-w-0 grid-cols-5 items-center gap-0.5 px-1">
           {bottomItems.map(({ item, isActive }) => {
             return (

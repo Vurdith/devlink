@@ -13,12 +13,9 @@ export function PerformanceProvider({ children }: PerformanceProviderProps) {
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    const frameId = requestAnimationFrame(() => {
-      document.documentElement.style.scrollBehavior = "smooth";
-    });
+    document.documentElement.style.scrollBehavior = "auto";
 
     return () => {
-      cancelAnimationFrame(frameId);
       document.documentElement.style.scrollBehavior = "";
     };
   }, []);

@@ -294,7 +294,7 @@ export const ProfileTooltip = memo(function ProfileTooltip({
     >
       <div className={cn(
         "relative w-[min(21rem,calc(100vw-1.5rem))] overflow-hidden rounded-xl bg-[rgba(12,16,23,0.97)] shadow-[0_24px_70px_rgba(0,0,0,0.42)]",
-        "border backdrop-blur-xl",
+        "border",
         profileBorderColor
       )}>
           <div className={cn(

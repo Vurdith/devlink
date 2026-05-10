@@ -8,7 +8,7 @@ interface DeletePostDialogProps {
 
 export function DeletePostDialog({ onClose, onConfirm }: DeletePostDialogProps) {
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/80 p-3 backdrop-blur-sm sm:items-center" onClick={onClose} role="presentation">
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/85 p-3 sm:items-center" onClick={onClose} role="presentation">
       <div className={surface("panelStrong", "noise-overlay relative mx-4 w-[min(92vw,480px)] overflow-hidden p-6")} onClick={(event) => event.stopPropagation()}>
         <div className="flex items-center gap-3 mb-4">
           <div className={iconBox("danger", "h-10 w-10")}>

@@ -56,7 +56,7 @@ export function ProfileSection({
               </svg>
             </div>
             <div className="min-w-0">
-              <h2 className="text-lg font-semibold text-white">Public details</h2>
+              <h2 className="text-lg font-semibold text-white">Identity</h2>
               <p className="text-sm text-[var(--muted-foreground)]">Name, bio, location, and website.</p>
             </div>
           </div>

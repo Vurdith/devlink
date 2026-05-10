@@ -190,7 +190,7 @@ export function EmptyState({ tab, icon }: EmptyStateProps) {
       description: "Replies will show how this profile contributes to discussions and answers other developers.",
     },
     reposts: {
-      title: "No reposted signal yet",
+      title: "No reposts yet",
       description: "When this profile shares useful posts from others, they will collect here.",
     },
     liked: {

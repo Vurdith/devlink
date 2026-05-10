@@ -127,47 +127,35 @@ function SearchContent() {
     
     const searchData = async () => {
       try {
-        if (selectedType === "all" || selectedType === "profiles") {
-          const usersResponse = await fetch(`/api/search/users?q=${encodeURIComponent(query)}`, {
-            signal: controller.signal,
-          });
-          if (usersResponse.ok) {
-            const usersData = await usersResponse.json();
-            setUsers(usersData.users || []);
-          } else {
-            throw new Error("User search failed");
-          }
-        } else {
-          setUsers([]);
-        }
+        const encodedQuery = encodeURIComponent(query);
+        const shouldFetchUsers = selectedType === "all" || selectedType === "profiles";
+        const shouldFetchHashtags = selectedType === "all" || selectedType === "hashtags";
+        const shouldFetchProjects = selectedType === "all" || selectedType === "projects";
 
-        if (selectedType === "all" || selectedType === "hashtags") {
-          const hashtagsResponse = await fetch(`/api/search/hashtags?q=${encodeURIComponent(query)}`, {
-            signal: controller.signal,
-          });
-          if (hashtagsResponse.ok) {
-            const hashtagsData = await hashtagsResponse.json();
-            setHashtags(hashtagsData.hashtags || []);
-          } else {
-            throw new Error("Hashtag search failed");
-          }
-        } else {
-          setHashtags([]);
-        }
+        const [usersData, hashtagsData, projectsData] = await Promise.all([
+          shouldFetchUsers
+            ? fetch(`/api/search/users?q=${encodedQuery}`, { signal: controller.signal }).then(async (response) => {
+                if (!response.ok) throw new Error("User search failed");
+                return response.json();
+              })
+            : Promise.resolve({ users: [] }),
+          shouldFetchHashtags
+            ? fetch(`/api/search/hashtags?q=${encodedQuery}`, { signal: controller.signal }).then(async (response) => {
+                if (!response.ok) throw new Error("Hashtag search failed");
+                return response.json();
+              })
+            : Promise.resolve({ hashtags: [] }),
+          shouldFetchProjects
+            ? fetch(`/api/search/projects?q=${encodedQuery}`, { signal: controller.signal }).then(async (response) => {
+                if (!response.ok) throw new Error("Project search failed");
+                return response.json();
+              })
+            : Promise.resolve({ projects: [] }),
+        ]);
 
-        if (selectedType === "all" || selectedType === "projects") {
-          const projectsResponse = await fetch(`/api/search/projects?q=${encodeURIComponent(query)}`, {
-            signal: controller.signal,
-          });
-          if (projectsResponse.ok) {
-            const projectsData = await projectsResponse.json();
-            setProjects(projectsData.projects || []);
-          } else {
-            throw new Error("Project search failed");
-          }
-        } else {
-          setProjects([]);
-        }
+        setUsers(usersData.users || []);
+        setHashtags(hashtagsData.hashtags || []);
+        setProjects(projectsData.projects || []);
 
         setLoading(false);
       } catch (error) {

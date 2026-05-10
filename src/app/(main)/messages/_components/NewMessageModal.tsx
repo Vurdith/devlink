@@ -108,7 +108,7 @@ export function NewMessageModal({ onClose, onThreadCreated, onRequestSent }: New
     <div className="fixed inset-0 z-50 flex items-start justify-center px-3 pt-[8vh] sm:pt-[10vh]">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/75"
         onClick={onClose}
       />
 

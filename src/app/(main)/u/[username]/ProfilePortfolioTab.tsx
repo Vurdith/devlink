@@ -53,7 +53,7 @@ export function ProfilePortfolioTab({
               </div>
               <div>
                 <h3 className="text-base font-semibold text-white font-[var(--font-space-grotesk)]">
-                  Portfolio studio
+                  Portfolio
                 </h3>
                 <p className="text-sm text-[var(--muted-foreground)]">
                   {portfolioItems.length === 0

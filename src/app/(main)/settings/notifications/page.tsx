@@ -169,7 +169,7 @@ export default function NotificationSettings() {
       {/* Push Notifications - Coming Soon */}
       <div className={surface("panelMuted", "noise-overlay relative overflow-hidden p-6 animate-slide-up")} style={{ animationDelay: '0.1s' }}>
         {/* Push notifications are not enabled yet. */}
-        <div className="absolute inset-0 z-10 flex items-center justify-center bg-[rgba(5,8,12,0.82)] backdrop-blur-sm">
+        <div className="absolute inset-0 z-10 flex items-center justify-center bg-[rgba(5,8,12,0.90)]">
           <div className="text-center">
             <div className={iconBox("muted", "mx-auto mb-3 h-12 w-12")}>
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-[var(--muted-foreground)]">

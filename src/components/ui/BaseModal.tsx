@@ -232,7 +232,7 @@ export const BaseModal = memo(function BaseModal({
         className={cn(
           "relative flex max-h-[88dvh] w-full flex-col overflow-hidden rounded-xl rounded-b-xl sm:max-h-[84vh]",
           surface("panelStrong"),
-          "animate-pop-in",
+          "motion-safe:animate-pop-in",
           sizeClasses[size],
           className
         )}

@@ -85,35 +85,9 @@ export function useDevicePerformance() {
         });
       }
 
-      let frameCount = 0;
-      let lastTime = performance.now();
-      let rafId: number;
-
-      const measureFrameRate = (currentTime: number) => {
-        frameCount++;
-
-        if (currentTime - lastTime >= 1000) {
-          const fps = frameCount;
-          frameCount = 0;
-          lastTime = currentTime;
-
-          if (fps < 30 && !isLowEnd) {
-            document.documentElement.classList.add("low-end-device");
-            isLowEnd = true;
-          }
-
-          return;
-        }
-
-        rafId = requestAnimationFrame(measureFrameRate);
-      };
-
-      rafId = requestAnimationFrame(measureFrameRate);
-
       cleanup = () => {
         didCancel = true;
         cleanupBatteryListeners?.();
-        if (rafId) cancelAnimationFrame(rafId);
       };
     }, 2500);
 

@@ -14,7 +14,7 @@ interface NotificationsHeaderProps {
 
 export function NotificationsHeader({ unreadCount, tab, marking, onMarkAllRead, onTabChange }: NotificationsHeaderProps) {
   return (
-    <div className="sticky top-0 z-20 -mx-4 mb-4 px-4 pb-3 pt-2 backdrop-blur-xl sm:-mx-6 sm:px-6">
+    <div className="sticky top-0 z-20 -mx-4 mb-4 bg-[rgba(5,5,8,0.94)] px-4 pb-3 pt-2 sm:-mx-6 sm:px-6">
       <div className={surface("panelStrong", "noise-overlay relative overflow-hidden p-4 sm:p-5")}>
         <div
           aria-hidden="true"

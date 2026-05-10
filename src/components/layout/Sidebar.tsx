@@ -21,7 +21,7 @@ export const Sidebar = memo(function Sidebar({ session }: SidebarProps) {
     <aside
       role="navigation"
       aria-label="Main sidebar navigation"
-      className="fixed left-0 top-0 z-50 hidden h-full w-72 flex-col border-0 border-r border-white/[0.08] bg-[rgba(7,9,13,0.88)] shadow-[inset_-1px_0_0_rgba(255,255,255,0.03)] backdrop-blur-xl md:flex"
+      className="fixed left-0 top-0 z-50 hidden h-full w-72 flex-col border-0 border-r border-white/[0.08] bg-[rgba(7,9,13,0.96)] shadow-[inset_-1px_0_0_rgba(255,255,255,0.03)] md:flex"
     >
       <div className="relative flex flex-col h-full">
         {/* Logo Section */}

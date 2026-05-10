@@ -369,7 +369,7 @@ export default function MessageThreadPage() {
       )}
 
       {/* Input area */}
-      <div className="flex-shrink-0 border-t border-white/[0.06] bg-[rgba(8,11,16,0.72)] px-4 py-3 backdrop-blur-md">
+      <div className="flex-shrink-0 border-t border-white/[0.06] bg-[rgba(8,11,16,0.94)] px-4 py-3">
         {/* Hidden file inputs for uploads */}
         <input
           ref={imageInputRef}

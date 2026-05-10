@@ -48,7 +48,7 @@ export const UserSkillsPanel = memo(function UserSkillsPanel({ userSkills, curre
             </div>
           </div>
           <span className="hidden rounded-full border border-white/[0.08] bg-white/[0.035] px-2.5 py-1 text-xs font-semibold text-white/56 sm:inline-flex">
-            {15 - userSkills.length} slots left
+            {userSkills.length}/15 added
           </span>
         </div>
 

@@ -61,9 +61,9 @@ const audienceLanes = [
 ];
 
 const workQueue = [
-  { label: "Catch shipped work", desc: "Recent builds, clips, asks, and handoffs", Icon: Sparkles },
-  { label: "Pick up replies", desc: "Threads where a fast answer helps", Icon: MessageSquare },
-  { label: "Spot paid work", desc: "Jobs and client intent from the network", Icon: BriefcaseBusiness },
+  { label: "New work", desc: "Builds, clips, and project updates", Icon: Sparkles },
+  { label: "Replies", desc: "Threads waiting for an answer", Icon: MessageSquare },
+  { label: "Jobs", desc: "Open briefs from clients and teams", Icon: BriefcaseBusiness },
 ];
 
 function CreatePostFallback() {
@@ -178,7 +178,7 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
           <main className="min-w-0">
             <div className="mb-5 grid min-w-0 gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
               <div className="min-w-0">
-                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--color-accent-2)]">Your network is moving</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--color-accent-2)]">Home</p>
                 <h1 className="mt-1 text-2xl font-semibold tracking-normal text-white sm:text-3xl">
                   Good to see you, {firstName}
                 </h1>
@@ -214,7 +214,7 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
             <section className={surface("toolbar", "noise-overlay overflow-hidden p-4")}>
               <div className="mb-3 flex items-center justify-between gap-3">
                 <div>
-                  <h2 className="text-sm font-semibold text-white">Network pulse</h2>
+                  <h2 className="text-sm font-semibold text-white">Your profile</h2>
                   <p className="mt-1 text-xs text-white/45">@{currentUserProfile.username}</p>
                 </div>
                 <div className="rounded-lg border border-white/[0.08] bg-white/[0.04] px-2.5 py-1.5 text-xs font-semibold text-white/62">
@@ -235,7 +235,7 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
             </section>
 
             <section className={surface("empty", "p-3")}>
-              <h2 className="px-1 pb-2 text-sm font-semibold text-white">Useful next moves</h2>
+              <h2 className="px-1 pb-2 text-sm font-semibold text-white">Shortcuts</h2>
               <div className="space-y-1">
                 {workQueue.map(({ label, desc, Icon }) => (
                   <div key={label} className="grid grid-cols-[34px_minmax(0,1fr)] gap-3 rounded-lg px-2 py-2.5 transition-all duration-200 hover:translate-x-0.5 hover:bg-white/[0.04]">

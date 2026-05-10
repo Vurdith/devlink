@@ -88,7 +88,7 @@ export function HeroSection({ isLoggedIn }: { isLoggedIn: boolean }) {
 
         <motion.div variants={stagger.item} className="relative mt-4 w-full max-w-[410px] justify-self-start lg:mt-0">
           <div className="absolute -inset-8 rounded-[2.25rem] bg-[radial-gradient(circle_at_18%_20%,rgba(var(--color-accent-2-rgb),0.30),transparent_31%),radial-gradient(circle_at_86%_70%,rgba(var(--color-accent-rgb),0.28),transparent_40%)] blur-2xl" />
-          <div className="relative min-h-[430px] overflow-hidden rounded-[2rem] border border-white/[0.12] bg-[rgba(8,11,17,0.54)] p-4 backdrop-blur-2xl shadow-[inset_0_1px_0_rgba(255,255,255,0.12)]">
+          <div className="relative min-h-[430px] overflow-hidden rounded-[2rem] border border-white/[0.12] bg-[rgba(8,11,17,0.82)] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.12)]">
             <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/35 to-transparent" />
             <div className="absolute -right-10 top-8 h-40 w-40 rounded-full border border-white/[0.08] bg-[rgba(var(--color-accent-rgb),0.08)] blur-sm" />
 
@@ -130,7 +130,7 @@ export function HeroSection({ isLoggedIn }: { isLoggedIn: boolean }) {
               </div>
             </div>
 
-            <div className="relative ml-auto mt-4 w-[88%] rounded-[1.35rem] border border-white/[0.10] bg-[rgba(255,255,255,0.055)] p-4 backdrop-blur-xl">
+            <div className="relative ml-auto mt-4 w-[88%] rounded-[1.35rem] border border-white/[0.10] bg-[rgba(22,24,32,0.90)] p-4">
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <div className="text-sm font-bold text-white">Studio Developers</div>
@@ -144,7 +144,7 @@ export function HeroSection({ isLoggedIn }: { isLoggedIn: boolean }) {
               </div>
             </div>
 
-            <div className="relative mt-4 w-[78%] rounded-[1.35rem] border border-white/[0.10] bg-[rgba(3,5,10,0.58)] p-4 backdrop-blur-xl">
+            <div className="relative mt-4 w-[78%] rounded-[1.35rem] border border-white/[0.10] bg-[rgba(3,5,10,0.86)] p-4">
               <div className="flex items-center justify-between gap-4">
                 <div>
                   <div className="text-sm font-bold text-white">Open Roblox UI contract</div>

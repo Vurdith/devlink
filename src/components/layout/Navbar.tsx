@@ -156,7 +156,7 @@ export const Navbar = memo(function Navbar({ session }: { session?: { user?: { i
     };
 
     const cancelSchedule = scheduleAfterInitialLoad(fetchUnreadIfVisible, 2200);
-    const id = window.setInterval(fetchUnreadIfVisible, 30000);
+    const id = window.setInterval(fetchUnreadIfVisible, 120000);
     document.addEventListener('visibilitychange', fetchUnreadIfVisible);
 
     return () => {

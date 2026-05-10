@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
-import { BriefcaseBusiness, CheckCircle2, Clock3, DollarSign, FileText, MapPin, Send, Sparkles, Users } from "lucide-react";
+import { BriefcaseBusiness, CheckCircle2, DollarSign, FileText, MapPin, Send, Sparkles, Users } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { iconBox, surface, ui } from "@/components/ui/design-system";
 import { useToastContext } from "@/components/providers/ToastProvider";
@@ -280,7 +280,7 @@ export default function JobsPage() {
             <div>
               <h2 className="text-lg font-semibold text-white font-[var(--font-space-grotesk)]">Post a job</h2>
               <p className="mt-1 text-sm text-[var(--muted-foreground)]">
-                Keep the brief tight so candidates can judge fit quickly.
+                Add the role, budget, deadline, and skills candidates need before they apply.
               </p>
             </div>
             <span className="inline-flex max-w-full items-center gap-1.5 rounded-lg border border-[rgba(var(--color-accent-2-rgb),0.22)] bg-[rgba(var(--color-accent-2-rgb),0.08)] px-3 py-1.5 text-xs font-bold text-[var(--color-accent-2)]">
@@ -537,10 +537,6 @@ function JobCard({
           <span className="inline-flex items-center gap-1.5">
             <Users className="h-3.5 w-3.5" aria-hidden="true" />
             {job._count?.applications ?? 0} applicants
-          </span>
-          <span className="inline-flex items-center gap-1.5">
-            <Clock3 className="h-3.5 w-3.5" aria-hidden="true" />
-            Accepting applicants
           </span>
         </div>
         {canApply && !applicationOpen ? (

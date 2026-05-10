@@ -112,16 +112,6 @@ export function ThemeProvider({ children, defaultTheme = DEFAULT_THEME }: ThemeP
       ensureIconLink('apple-touch-icon', logoPath);
     };
 
-    const observer = new MutationObserver(() => {
-      window.requestAnimationFrame(syncThemeIcons);
-    });
-    observer.observe(document.head, {
-      childList: true,
-      subtree: true,
-      attributes: true,
-      attributeFilter: ['href'],
-    });
-
     syncThemeIcons();
     window.requestAnimationFrame(syncThemeIcons);
     const iconSyncTimer = window.setTimeout(syncThemeIcons, 150);
@@ -133,7 +123,6 @@ export function ThemeProvider({ children, defaultTheme = DEFAULT_THEME }: ThemeP
     document.body.classList.remove(...THEME_IDS.map((id) => `theme-${id}`));
     document.body.classList.add(`theme-${themeId}`);
     return () => {
-      observer.disconnect();
       window.clearTimeout(iconSyncTimer);
     };
   }, [themeId, mounted]);

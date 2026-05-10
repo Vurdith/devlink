@@ -165,7 +165,7 @@ export default async function UserProfilePage(props: {
             editable={isOwnProfile}
           />
 
-          <div className={surface("toolbar", "relative overflow-hidden bg-[rgba(7,10,15,0.82)] p-4 shadow-[0_24px_80px_rgba(0,0,0,0.28)] backdrop-blur-md sm:p-5 lg:p-6")}>
+          <div className={surface("toolbar", "relative overflow-hidden bg-[rgba(7,10,15,0.94)] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] sm:p-5 lg:p-6")}>
             <div
               aria-hidden="true"
               className="pointer-events-none absolute inset-0 opacity-55"

@@ -53,8 +53,8 @@ interface ProfileTabsProps {
 const tabIntros: Record<TabType, { eyebrow: string; title: string; description: string }> = {
   about: {
     eyebrow: "About",
-    title: "Skills and working context",
-    description: "A quick read on what this profile does, how they work, and where to keep the conversation going.",
+    title: "Skills, links, and availability",
+    description: "What this profile can help with and how to contact them.",
   },
   posts: {
     eyebrow: "Activity",
@@ -82,14 +82,14 @@ const tabIntros: Record<TabType, { eyebrow: string; title: string; description: 
     description: "Your saved reference posts are visible only to you.",
   },
   portfolio: {
-    eyebrow: "Selected work",
+    eyebrow: "Portfolio",
     title: "Portfolio",
-    description: "Case studies and artifacts that show what this developer can actually ship.",
+    description: "Published work and project proof.",
   },
   reviews: {
-    eyebrow: "Peer trust",
-    title: "Peer feedback",
-    description: "Feedback from people who have worked with or evaluated this profile.",
+    eyebrow: "Reviews",
+    title: "Reviews",
+    description: "Feedback from clients and collaborators.",
   },
 };
 

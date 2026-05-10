@@ -12,7 +12,7 @@ interface MessageThreadHeaderProps {
 
 export function MessageThreadHeader({ otherUser, onShowProfile }: MessageThreadHeaderProps) {
   return (
-    <div className={surface("toolbar", "noise-overlay flex h-[64px] flex-shrink-0 items-center gap-3 rounded-none border-x-0 border-t-0 px-3 backdrop-blur-md sm:px-4")}>
+    <div className={surface("toolbar", "noise-overlay flex h-[64px] flex-shrink-0 items-center gap-3 rounded-none border-x-0 border-t-0 px-3 sm:px-4")}>
       <Link href="/messages" className={cn("flex h-9 w-9 items-center justify-center text-white/60 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)] md:hidden", ui.control.icon)} aria-label="Back to messages">
         <ArrowLeft className="h-[18px] w-[18px]" aria-hidden="true" />
       </Link>
