@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback, ReactNode, memo, useRef, useId } from "react";
+import { useEffect, useState, useCallback, ReactNode, memo, useRef, useId, useMemo } from "react";
 import { createPortal } from "react-dom";
 import { cn } from "@/lib/cn";
 import { surface, ui } from "./design-system";
@@ -193,12 +193,11 @@ export const BaseModal = memo(function BaseModal({
 
   useBodyScrollLock(isOpen);
 
-  // Close on escape key
   useEffect(() => {
-    if (!closeOnEscape) return;
+    if (!closeOnEscape || !isOpen) return;
     
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen) {
+      if (e.key === 'Escape') {
         onClose();
       }
     };
@@ -212,9 +211,7 @@ export const BaseModal = memo(function BaseModal({
     }
   }, [closeOnBackdrop, onClose]);
 
-  if (!mounted || !isOpen) return null;
-
-  const modalContent = (
+  const modalContent = useMemo(() => (
     <div 
       className="fixed inset-0 z-[9999] flex items-start justify-center pt-[5vh] sm:pt-[10vh] px-2 sm:px-4"
       style={{ contain: 'layout style paint' }}
@@ -282,7 +279,9 @@ export const BaseModal = memo(function BaseModal({
         )}
       </div>
     </div>
-  );
+  ), [children, className, contentClassName, footer, handleBackdropClick, headerRight, onClose, showCloseButton, size, title, titleId, focusTrapRef]);
+
+  if (!mounted || !isOpen) return null;
 
   return createPortal(modalContent, document.body);
 });

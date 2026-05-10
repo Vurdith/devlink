@@ -1,5 +1,6 @@
+import { memo, useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
-import { ModalInput, ModalTextarea } from "@/components/ui/BaseModal";
+import { BaseModal, ModalInput, ModalTextarea } from "@/components/ui/BaseModal";
 import { surface, ui } from "@/components/ui/design-system";
 import { AVAILABILITY_STATUS, EXPERIENCE_LEVELS, RATE_UNITS, type AvailabilityStatus, type ExperienceLevel, type RateUnit } from "@/lib/skills";
 import { cn } from "@/lib/cn";
@@ -7,34 +8,50 @@ import type { UserSkill } from "./profile-hub-types";
 
 interface SkillEditModalProps {
   skill: UserSkill;
-  onSkillChange: (skill: UserSkill | null) => void;
-  onSave: (skill: UserSkill) => void;
+  onSave: (skill: UserSkill) => void | Promise<void>;
   onClose: () => void;
+  isSaving?: boolean;
 }
 
-export function SkillEditModal({ skill, onSkillChange, onSave, onClose }: SkillEditModalProps) {
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/86 backdrop-blur-sm" onClick={onClose} aria-hidden="true" />
-      <div
-        className={surface("panelStrong", "noise-overlay relative max-h-[90vh] w-full max-w-lg overflow-y-auto p-5 sm:p-6")}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="skill-edit-title"
-      >
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.38)] to-transparent" />
-        <div className="mb-6 flex items-center justify-between gap-4">
-          <div className="min-w-0">
-            <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--color-accent-2)]">Skill settings</p>
-            <h3 id="skill-edit-title" className="truncate text-lg font-semibold text-white">Edit {skill.skill.name}</h3>
-          </div>
-          <button type="button" onClick={onClose} aria-label="Close skill editor" className={cn("rounded-lg p-2 text-white/60 outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]", ui.control.ghost)}>
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
+export const SkillEditModal = memo(function SkillEditModal({ skill, onSave, onClose, isSaving = false }: SkillEditModalProps) {
+  const [draftSkill, setDraftSkill] = useState(skill);
 
+  useEffect(() => {
+    setDraftSkill(skill);
+  }, [skill]);
+
+  const updateDraftSkill = useCallback((updates: Partial<UserSkill>) => {
+    setDraftSkill((current) => ({ ...current, ...updates }));
+  }, []);
+
+  return (
+    <BaseModal
+      isOpen
+      onClose={onClose}
+      title={`Edit ${draftSkill.skill.name}`}
+      size="lg"
+      closeOnBackdrop={!isSaving}
+      closeOnEscape={!isSaving}
+      contentClassName="p-5 sm:p-6"
+      footer={
+        <div className="grid gap-3 sm:grid-cols-2">
+          <Button variant="secondary" onClick={onClose} disabled={isSaving} className="flex-1">
+            Cancel
+          </Button>
+          <Button onClick={() => onSave(draftSkill)} isLoading={isSaving} className="flex-1">
+            {isSaving ? "Saving..." : "Save changes"}
+          </Button>
+        </div>
+      }
+      headerRight={
+        <p className="hidden text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--color-accent-2)] sm:block">
+          Skill settings
+        </p>
+      }
+    >
+      <div className={surface("empty", "mb-5 px-4 py-3 text-sm text-white/62")}>
+        {isSaving ? "Saving skill details..." : "Set the level, availability, and rate people see for this skill."}
+      </div>
         <div className="space-y-4">
           <div>
             <label className="text-sm text-white/60 mb-2 block">Experience Level</label>
@@ -43,8 +60,12 @@ export function SkillEditModal({ skill, onSkillChange, onSave, onClose }: SkillE
                 <button
                   key={key}
                   type="button"
-                  onClick={() => onSkillChange({ ...skill, experienceLevel: key })}
-                  className={cn("rounded-lg border p-2 text-xs font-medium outline-none transition-all focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]", skill.experienceLevel === key ? `${config.bgColor} ${config.color}` : cn(ui.surface.empty, "text-white/60 hover:border-white/[0.14] hover:bg-white/[0.045]"))}
+                  onClick={() => updateDraftSkill({ experienceLevel: key })}
+                  disabled={isSaving}
+                  className={cn(
+                    "rounded-lg border p-2 text-xs font-medium outline-none transition-all disabled:cursor-not-allowed disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]",
+                    draftSkill.experienceLevel === key ? `${config.bgColor} ${config.color}` : cn(ui.surface.empty, "text-white/60 hover:border-white/[0.14] hover:bg-white/[0.045]")
+                  )}
                 >
                   {config.label}
                 </button>
@@ -56,9 +77,10 @@ export function SkillEditModal({ skill, onSkillChange, onSave, onClose }: SkillE
             <label className="text-sm text-white/60 mb-1.5 block">Years of Experience (optional)</label>
             <ModalInput
               type="number"
-              value={skill.yearsOfExp || ""}
-              onChange={(event) => onSkillChange({ ...skill, yearsOfExp: event.target.value ? parseInt(event.target.value) : null })}
+              value={draftSkill.yearsOfExp || ""}
+              onChange={(event) => updateDraftSkill({ yearsOfExp: event.target.value ? parseInt(event.target.value) : null })}
               placeholder="e.g., 3"
+              disabled={isSaving}
               min={0}
               max={50}
             />
@@ -67,18 +89,20 @@ export function SkillEditModal({ skill, onSkillChange, onSave, onClose }: SkillE
           <div>
             <label className="text-sm text-white/60 mb-1.5 block">Skill Headline (optional)</label>
             <ModalInput
-              value={skill.headline || ""}
-              onChange={(event) => onSkillChange({ ...skill, headline: event.target.value })}
-              placeholder={`e.g., Senior ${skill.skill.name} Specialist`}
+              value={draftSkill.headline || ""}
+              onChange={(event) => updateDraftSkill({ headline: event.target.value })}
+              placeholder={`e.g., Senior ${draftSkill.skill.name} Specialist`}
+              disabled={isSaving}
             />
           </div>
 
           <div>
             <label className="text-sm text-white/60 mb-1.5 block">Description (optional)</label>
             <ModalTextarea
-              value={skill.description || ""}
-              onChange={(event) => onSkillChange({ ...skill, description: event.target.value })}
+              value={draftSkill.description || ""}
+              onChange={(event) => updateDraftSkill({ description: event.target.value })}
               placeholder="What you offer and your approach..."
+              disabled={isSaving}
               rows={3}
             />
           </div>
@@ -88,20 +112,21 @@ export function SkillEditModal({ skill, onSkillChange, onSave, onClose }: SkillE
             <div className="grid gap-2 sm:grid-cols-[1fr_auto]">
               <ModalInput
                 type="number"
-                value={skill.rate ? skill.rate / 100 : ""}
+                value={draftSkill.rate ? draftSkill.rate / 100 : ""}
                 onChange={(event) =>
-                  onSkillChange({
-                    ...skill,
+                  updateDraftSkill({
                     rate: event.target.value ? Math.round(parseFloat(event.target.value) * 100) : null,
                   })
                 }
                 placeholder="50"
+                disabled={isSaving}
                 className="flex-1"
               />
               <select
-                value={skill.rateUnit || "HOURLY"}
-                onChange={(event) => onSkillChange({ ...skill, rateUnit: event.target.value as RateUnit })}
-                className="cursor-pointer appearance-none rounded-lg border border-white/[0.10] bg-[rgba(8,11,16,0.78)] bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23888%22%20stroke-width%3D%222%22%3E%3Cpath%20d%3D%22M6%209l6%206%206-6%22%2F%3E%3C%2Fsvg%3E')] bg-[right_0.5rem_center] bg-no-repeat px-3 py-2 pr-8 text-sm text-white outline-none transition-colors hover:border-white/[0.18] focus:border-[rgba(var(--color-accent-2-rgb),0.42)]"
+                value={draftSkill.rateUnit || "HOURLY"}
+                onChange={(event) => updateDraftSkill({ rateUnit: event.target.value as RateUnit })}
+                disabled={isSaving}
+                className="cursor-pointer appearance-none rounded-lg border border-white/[0.10] bg-[rgba(8,11,16,0.78)] bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23888%22%20stroke-width%3D%222%22%3E%3Cpath%20d%3D%22M6%209l6%206%206-6%22%2F%3E%3C%2Fsvg%3E')] bg-[right_0.5rem_center] bg-no-repeat px-3 py-2 pr-8 text-sm text-white outline-none transition-colors hover:border-white/[0.18] focus:border-[rgba(var(--color-accent-2-rgb),0.42)] disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {(Object.entries(RATE_UNITS) as [RateUnit, typeof RATE_UNITS[RateUnit]][]).map(([key, config]) => (
                   <option key={key} value={key} className="bg-[#1a1a24] text-white">
@@ -119,10 +144,11 @@ export function SkillEditModal({ skill, onSkillChange, onSave, onClose }: SkillE
                 <button
                   key={key}
                   type="button"
-                  onClick={() => onSkillChange({ ...skill, skillAvailability: key })}
+                  onClick={() => updateDraftSkill({ skillAvailability: key })}
+                  disabled={isSaving}
                   className={cn(
-                    "flex items-center gap-2 rounded-lg border p-2 text-xs font-medium outline-none transition-all focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]",
-                    skill.skillAvailability === key ? `${config.bgColor} ${config.color}` : cn(ui.surface.empty, "text-white/60 hover:border-white/[0.14] hover:bg-white/[0.045]")
+                    "flex items-center gap-2 rounded-lg border p-2 text-xs font-medium outline-none transition-all disabled:cursor-not-allowed disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]",
+                    draftSkill.skillAvailability === key ? `${config.bgColor} ${config.color}` : cn(ui.surface.empty, "text-white/60 hover:border-white/[0.14] hover:bg-white/[0.045]")
                   )}
                 >
                   <div
@@ -148,24 +174,18 @@ export function SkillEditModal({ skill, onSkillChange, onSave, onClose }: SkillE
             <button
               type="button"
               role="switch"
-              aria-checked={skill.isPrimary}
-              onClick={() => onSkillChange({ ...skill, isPrimary: !skill.isPrimary })}
-              className={cn("relative h-6 w-11 rounded-full outline-none transition-colors focus-visible:ring-2 focus-visible:ring-amber-300/40", skill.isPrimary ? "bg-amber-500" : "bg-white/20")}
+              aria-checked={draftSkill.isPrimary}
+              onClick={() => updateDraftSkill({ isPrimary: !draftSkill.isPrimary })}
+              disabled={isSaving}
+              className={cn(
+                "relative h-6 w-11 rounded-full outline-none transition-colors disabled:cursor-not-allowed disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-amber-300/40",
+                draftSkill.isPrimary ? "bg-amber-500" : "bg-white/20"
+              )}
             >
-              <div className={cn("w-5 h-5 rounded-full bg-white absolute top-0.5 transition-transform", skill.isPrimary ? "translate-x-5" : "translate-x-0.5")} />
+              <div className={cn("w-5 h-5 rounded-full bg-white absolute top-0.5 transition-transform", draftSkill.isPrimary ? "translate-x-5" : "translate-x-0.5")} />
             </button>
           </div>
         </div>
-
-        <div className="mt-6 grid gap-3 sm:grid-cols-2">
-          <Button variant="secondary" onClick={onClose} className="flex-1">
-            Cancel
-          </Button>
-          <Button onClick={() => onSave(skill)} className="flex-1">
-            Save Changes
-          </Button>
-        </div>
-      </div>
-    </div>
+    </BaseModal>
   );
-}
+});

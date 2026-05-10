@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useToastContext } from "@/components/providers/ToastProvider";
@@ -41,8 +41,11 @@ export default function ProfileHubPage() {
   // Skills data
   const [allSkills, setAllSkills] = useState<Skill[]>([]);
   const [userSkills, setUserSkills] = useState<UserSkill[]>([]);
-  const [skillSearch, setSkillSearch] = useState("");
   const [editingSkill, setEditingSkill] = useState<UserSkill | null>(null);
+  const [addingSkillId, setAddingSkillId] = useState<string | null>(null);
+  const [isAddingCustomSkill, setIsAddingCustomSkill] = useState(false);
+  const [savingSkillId, setSavingSkillId] = useState<string | null>(null);
+  const [removingSkillId, setRemovingSkillId] = useState<string | null>(null);
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -99,7 +102,7 @@ export default function ProfileHubPage() {
   }, [status, toast]);
 
   // Save profile
-  const handleSaveProfile = async () => {
+  const handleSaveProfile = useCallback(async () => {
     setIsSaving(true);
     try {
       const res = await fetch("/api/profile", {
@@ -126,19 +129,21 @@ export default function ProfileHubPage() {
     } finally {
       setIsSaving(false);
     }
-  };
+  }, [name, profile, toast]);
 
   // Add skill
-  const handleAddSkill = async (skill: Skill) => {
+  const handleAddSkill = useCallback(async (skill: Skill) => {
+    if (addingSkillId || isAddingCustomSkill) return false;
     if (userSkills.length >= 15) {
       toast({ title: "Limit reached", description: "Maximum 15 skills allowed", variant: "destructive" });
-      return;
+      return false;
     }
     if (userSkills.some(us => us.skillId === skill.id)) {
       toast({ title: "Already added", description: `${skill.name} is already in your skills`, variant: "default" });
-      return;
+      return false;
     }
 
+    setAddingSkillId(skill.id);
     try {
       const res = await fetch("/api/users/me/skills", {
         method: "POST",
@@ -149,27 +154,31 @@ export default function ProfileHubPage() {
       const newSkill = await res.json();
       setUserSkills(prev => [...prev, { ...newSkill, skill }]);
       toast({ title: "Added!", description: `${skill.name} added to your skills`, variant: "success" });
+      return true;
     } catch {
       toast({ title: "Error", description: "Failed to add skill", variant: "destructive" });
+      return false;
+    } finally {
+      setAddingSkillId(null);
     }
-  };
+  }, [addingSkillId, isAddingCustomSkill, toast, userSkills]);
 
   // Add custom skill
-  const handleAddCustomSkill = async (skillName: string) => {
+  const handleAddCustomSkill = useCallback(async (skillName: string) => {
+    if (addingSkillId || isAddingCustomSkill) return false;
     if (userSkills.length >= 15) {
       toast({ title: "Limit reached", description: "Maximum 15 skills allowed", variant: "destructive" });
-      return;
+      return false;
     }
     
-    // Check if skill name already exists (case insensitive)
+    // Reuse catalog skills when the name already exists.
     const existingSkill = allSkills.find(s => s.name.toLowerCase() === skillName.toLowerCase());
     if (existingSkill) {
-      handleAddSkill(existingSkill);
-      return;
+      return handleAddSkill(existingSkill);
     }
 
+    setIsAddingCustomSkill(true);
     try {
-      // First create the custom skill
       const createRes = await fetch("/api/skills", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -184,7 +193,6 @@ export default function ProfileHubPage() {
       const newSkill = await createRes.json();
       setAllSkills(prev => [...prev, newSkill]);
       
-      // Then add it to user's skills
       const addRes = await fetch("/api/users/me/skills", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -195,17 +203,21 @@ export default function ProfileHubPage() {
       
       const userSkill = await addRes.json();
       setUserSkills(prev => [...prev, { ...userSkill, skill: newSkill }]);
-      setSkillSearch("");
       toast({ title: "Added!", description: `"${skillName}" created and added to your skills`, variant: "success" });
+      return true;
     } catch (error) {
       toast({ title: "Error", description: error instanceof Error ? error.message : "Failed to create custom skill", variant: "destructive" });
+      return false;
+    } finally {
+      setIsAddingCustomSkill(false);
     }
-  };
+  }, [addingSkillId, allSkills, handleAddSkill, isAddingCustomSkill, toast, userSkills.length]);
 
   // Update skill
-  const handleUpdateSkill = async (skillData: Partial<UserSkill>) => {
-    if (!editingSkill) return;
+  const handleUpdateSkill = useCallback(async (skillData: Partial<UserSkill>) => {
+    if (!editingSkill || savingSkillId) return;
     
+    setSavingSkillId(editingSkill.id);
     try {
       const res = await fetch("/api/users/me/skills", {
         method: "PUT",
@@ -215,17 +227,26 @@ export default function ProfileHubPage() {
       if (!res.ok) throw new Error("Failed to update");
       
       setUserSkills(prev => prev.map(us => 
-        us.id === editingSkill.id ? { ...us, ...skillData } : us
+        us.id === editingSkill.id
+          ? { ...us, ...skillData }
+          : skillData.isPrimary
+            ? { ...us, isPrimary: false }
+            : us
       ));
       setEditingSkill(null);
       toast({ title: "Updated!", description: "Skill updated successfully", variant: "success" });
     } catch {
       toast({ title: "Error", description: "Failed to update skill", variant: "destructive" });
+    } finally {
+      setSavingSkillId(null);
     }
-  };
+  }, [editingSkill, savingSkillId, toast]);
 
   // Remove skill
-  const handleRemoveSkill = async (id: string, name: string) => {
+  const handleRemoveSkill = useCallback(async (id: string, name: string) => {
+    if (removingSkillId) return;
+
+    setRemovingSkillId(id);
     try {
       const res = await fetch(`/api/users/me/skills?id=${id}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Failed to remove");
@@ -233,13 +254,10 @@ export default function ProfileHubPage() {
       toast({ title: "Removed", description: `${name} removed from your skills`, variant: "success" });
     } catch {
       toast({ title: "Error", description: "Failed to remove skill", variant: "destructive" });
+    } finally {
+      setRemovingSkillId(null);
     }
-  };
-
-  const filteredSkills = allSkills.filter(skill =>
-    skill.name.toLowerCase().includes(skillSearch.toLowerCase()) &&
-    !userSkills.some(us => us.skillId === skill.id)
-  );
+  }, [removingSkillId, toast]);
 
   const completedProfileFields = [
     name,
@@ -347,15 +365,18 @@ export default function ProfileHubPage() {
             currency={profile.currency}
             onEditSkill={setEditingSkill}
             onRemoveSkill={handleRemoveSkill}
+            removingSkillId={removingSkillId}
+            isSavingSkill={Boolean(savingSkillId)}
           />
 
           <AddSkillsPanel
-            filteredSkills={filteredSkills}
-            skillSearch={skillSearch}
+            allSkills={allSkills}
+            userSkills={userSkills}
             userSkillCount={userSkills.length}
-            onSkillSearchChange={setSkillSearch}
             onAddSkill={handleAddSkill}
             onAddCustomSkill={handleAddCustomSkill}
+            addingSkillId={addingSkillId}
+            isAddingCustomSkill={isAddingCustomSkill}
           />
         </div>
       )}
@@ -363,9 +384,11 @@ export default function ProfileHubPage() {
       {editingSkill && (
         <SkillEditModal
           skill={editingSkill}
-          onSkillChange={setEditingSkill}
           onSave={handleUpdateSkill}
-          onClose={() => setEditingSkill(null)}
+          onClose={() => {
+            if (!savingSkillId) setEditingSkill(null);
+          }}
+          isSaving={savingSkillId === editingSkill.id}
         />
       )}
       </div>
