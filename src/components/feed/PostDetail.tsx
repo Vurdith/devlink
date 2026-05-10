@@ -7,10 +7,10 @@ import type { FeedPost } from "@/types/post";
 import { getPostMediaItems, PostBodyAttachments } from "./PostBodyAttachments";
 import { PostEngagementBar } from "./PostEngagementBar";
 import { PostDetailHeader } from "./PostDetailHeader";
+import { DeletePostDialog } from "./DeletePostDialog";
 import { getPostCount, getReplyCount, withPostCount } from "./post-engagement-utils";
 // Lazy load heavy components - only loaded when needed
 const ReplyModal = lazy(() => import("./ReplyModal").then(m => ({ default: m.ReplyModal })));
-const DeletePostDialog = lazy(() => import("./DeletePostDialog").then(m => ({ default: m.DeletePostDialog })));
 
 interface PostDetailProps {
   post: FeedPost;
