@@ -10,6 +10,16 @@ Goal: work through DevLink route by route and remove the "AI-generated slop" fee
 4. P3: Content detail workflows: `/p/[postId]`, `/p/[postId]/analytics`, `/hashtag/[hashtag]`, followers/following lists.
 5. P4: Public and lower-frequency surfaces: `/`, auth pages, settings pages, legal/static pages, menus, modals, toasts.
 
+## Cycle 11 Integrated Layout Pass
+
+- [x] Added shared app shell/page-frame primitives and route-aware navigation states.
+- [x] Reworked `/home` into a feed workspace with a distinct feed lane, composer placement, side rail, and matching loading geometry.
+- [x] Reworked `/discover` and `/search` into denser exploration/search flows with stronger filter/result hierarchy and route-specific empty states.
+- [x] Reworked public profile, reviews tab deep-linking, followers, and following layouts around identity, credibility signals, compact network rows, and cleaner tab context.
+- [x] Verified the integrated batch with `npm run lint`, `npx tsc --noEmit`, `npm run build`, and production route smoke checks at desktop and mobile widths.
+- [ ] Continue the layout rework on `/profile-hub`, `/messages`, `/notifications`, `/jobs`, `/escrow`, settings, auth, modals, menus, and post/detail routes.
+- [ ] Add authenticated owner-state screenshots for `/home`, `/profile-hub`, `/u/[username]`, composer/modal flows, and settings once seeded login smoke is available.
+
 ## Agent Ownership
 
 - [ ] UI layout lead owns route composition, spacing rhythm, page density, visual hierarchy, responsive layout, and anti-slop review.
