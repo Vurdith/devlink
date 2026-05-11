@@ -48,6 +48,14 @@ export function ExpandableSkillCard({
     levelConfig?.label,
     skill.yearsOfExp ? `${skill.yearsOfExp}+ years` : null,
   ].filter(Boolean);
+  const availabilityTone =
+    skill.skillAvailability === "AVAILABLE"
+      ? "bg-emerald-400"
+      : skill.skillAvailability === "OPEN_TO_OFFERS"
+        ? "bg-[var(--color-accent-2)]"
+        : skill.skillAvailability === "BUSY"
+          ? "bg-amber-400"
+          : "bg-red-400";
 
   return (
     <div
@@ -65,17 +73,17 @@ export function ExpandableSkillCard({
         )}
       />
       <div className="p-4 pl-5 sm:p-5 sm:pl-6">
-        <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start">
+        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(220px,auto)] lg:items-start">
           <div className="min-w-0">
+            {skill.isPrimary ? (
+              <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--color-accent-2)]">
+                Primary skill
+              </p>
+            ) : null}
             <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
               <h4 className="truncate text-base font-semibold text-white sm:text-lg">
                 {skill.skill.name}
               </h4>
-              {skill.isPrimary ? (
-                <span className="rounded-full border border-[rgba(var(--color-accent-2-rgb),0.24)] bg-[rgba(var(--color-accent-2-rgb),0.08)] px-2 py-0.5 text-[11px] font-semibold text-[var(--color-accent-2)]">
-                  Primary
-                </span>
-              ) : null}
             </div>
             {experienceLabel.length > 0 ? (
               <p className="mt-1 text-sm leading-relaxed text-white/50">
@@ -84,29 +92,34 @@ export function ExpandableSkillCard({
             ) : null}
           </div>
 
-          <div className="flex flex-wrap items-center gap-3 sm:justify-end">
-            {skillRate ? (
-              <p className="text-sm font-semibold text-white">{skillRate}</p>
-            ) : null}
+          {skillRate || availabilityConfig ? (
+            <div className="grid min-w-0 grid-cols-[repeat(auto-fit,minmax(108px,1fr))] gap-2">
+              {skillRate ? (
+                <div className="rounded-lg border border-white/[0.07] bg-black/[0.12] px-3 py-2">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-white/35">
+                    Rate
+                  </p>
+                  <p className="mt-1 truncate text-sm font-semibold text-white">
+                    {skillRate}
+                  </p>
+                </div>
+              ) : null}
 
-            {availabilityConfig ? (
-              <div className="flex items-center gap-2 text-sm font-medium text-white/55">
-                <span
-                  className={cn(
-                    "h-1.5 w-1.5 rounded-full",
-                    skill.skillAvailability === "AVAILABLE" && "bg-emerald-400",
-                    skill.skillAvailability === "OPEN_TO_OFFERS" &&
-                      "bg-[var(--color-accent-2)]",
-                    skill.skillAvailability === "BUSY" && "bg-amber-400",
-                    skill.skillAvailability === "NOT_AVAILABLE" && "bg-red-400"
-                  )}
-                />
-                <span className={availabilityConfig.color}>
-                  {availabilityConfig.label}
-                </span>
-              </div>
-            ) : null}
-          </div>
+              {availabilityConfig ? (
+                <div className="rounded-lg border border-white/[0.07] bg-black/[0.12] px-3 py-2">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-white/35">
+                    Status
+                  </p>
+                  <div className="mt-1 flex min-w-0 items-center gap-2">
+                    <span className={cn("h-1.5 w-1.5 flex-shrink-0 rounded-full", availabilityTone)} />
+                    <span className={cn("truncate text-sm font-semibold", availabilityConfig.color)}>
+                      {availabilityConfig.label}
+                    </span>
+                  </div>
+                </div>
+              ) : null}
+            </div>
+          ) : null}
         </div>
 
         {skill.headline ? (

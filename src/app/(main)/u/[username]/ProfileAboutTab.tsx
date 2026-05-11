@@ -6,10 +6,8 @@ import { ExpandableSkillCard, type UserSkill } from "./ExpandableSkillCard";
 import {
   AVAILABILITY_STATUS,
   EXPERIENCE_LEVELS,
-  formatRate,
   type AvailabilityStatus,
   type ExperienceLevel,
-  type RateUnit,
 } from "@/lib/skills";
 
 interface ProfileData {
@@ -28,25 +26,6 @@ interface ProfileAboutTabProps {
 
 export function ProfileAboutTab({ skills, profileData }: ProfileAboutTabProps) {
   const hasProfileDetails = Boolean(profileData.location || profileData.website);
-  const primarySkill = skills.find((skill) => skill.isPrimary) ?? skills[0];
-  const primaryLevel = primarySkill
-    ? EXPERIENCE_LEVELS[primarySkill.experienceLevel as ExperienceLevel]
-    : null;
-  const primaryAvailability = primarySkill?.skillAvailability
-    ? AVAILABILITY_STATUS[primarySkill.skillAvailability as AvailabilityStatus]
-    : null;
-  const primaryFacts = [
-    primaryLevel?.label,
-    primarySkill?.yearsOfExp ? `${primarySkill.yearsOfExp}+ years` : null,
-    primarySkill?.rate && primarySkill.rateUnit
-      ? formatRate(
-          primarySkill.rate,
-          primarySkill.rateUnit as RateUnit,
-          profileData.currency || "USD"
-        )
-      : null,
-    primaryAvailability?.label,
-  ].filter(Boolean);
 
   if (skills.length === 0 && !hasProfileDetails) {
     return (
@@ -86,41 +65,6 @@ export function ProfileAboutTab({ skills, profileData }: ProfileAboutTabProps) {
                 {skills.length} {skills.length === 1 ? "skill" : "skills"}
               </span>
             </div>
-
-            {primarySkill ? (
-              <div className="mt-5 rounded-xl border border-[rgba(var(--color-accent-2-rgb),0.20)] bg-[linear-gradient(135deg,rgba(var(--color-accent-2-rgb),0.10),rgba(255,255,255,0.025)_42%,rgba(255,255,255,0.012))] p-4 sm:p-5">
-                <div className="flex min-w-0 flex-wrap items-start justify-between gap-4">
-                  <div className="min-w-0">
-                    <p className="truncate font-[var(--font-space-grotesk)] text-2xl font-semibold tracking-tight text-white">
-                      {primarySkill.skill.name}
-                    </p>
-                    {primaryFacts.length > 0 ? (
-                      <div className="mt-2 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-sm text-white/56">
-                        {primaryFacts.map((fact, index) => (
-                          <span
-                            key={`${fact}-${index}`}
-                            className="inline-flex items-center gap-2"
-                          >
-                            {index > 0 ? <span className="text-white/16">/</span> : null}
-                            <span>{fact}</span>
-                          </span>
-                        ))}
-                      </div>
-                    ) : null}
-                  </div>
-                  <span className="rounded-full border border-[rgba(var(--color-accent-2-rgb),0.28)] bg-[rgba(var(--color-accent-2-rgb),0.10)] px-3 py-1 text-xs font-semibold text-[var(--color-accent-2)]">
-                    Primary
-                  </span>
-                </div>
-
-                {primarySkill.headline ? (
-                  <p className="mt-4 border-l-2 border-[rgba(var(--color-accent-2-rgb),0.45)] pl-4 text-sm font-medium leading-relaxed text-white/75">
-                    {primarySkill.headline}
-                  </p>
-                ) : null}
-
-              </div>
-            ) : null}
           </div>
 
           <div className="grid gap-3 p-4 sm:p-5">
