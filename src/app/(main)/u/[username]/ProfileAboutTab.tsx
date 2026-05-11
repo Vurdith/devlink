@@ -4,10 +4,12 @@ import { FeedbackState } from "@/components/ui/FeedbackState";
 import { iconBox, surface } from "@/components/ui/design-system";
 import { ExpandableSkillCard, type UserSkill } from "./ExpandableSkillCard";
 import {
-  EXPERIENCE_LEVELS,
   AVAILABILITY_STATUS,
-  type ExperienceLevel,
+  EXPERIENCE_LEVELS,
+  formatRate,
   type AvailabilityStatus,
+  type ExperienceLevel,
+  type RateUnit,
 } from "@/lib/skills";
 
 interface ProfileData {
@@ -27,8 +29,24 @@ interface ProfileAboutTabProps {
 export function ProfileAboutTab({ skills, profileData }: ProfileAboutTabProps) {
   const hasProfileDetails = Boolean(profileData.location || profileData.website);
   const primarySkill = skills.find((skill) => skill.isPrimary) ?? skills[0];
-  const supportingSkills = skills.filter((skill) => skill.id !== primarySkill?.id).slice(0, 3);
-  const extraSkillCount = Math.max(0, skills.length - 1 - supportingSkills.length);
+  const primaryLevel = primarySkill
+    ? EXPERIENCE_LEVELS[primarySkill.experienceLevel as ExperienceLevel]
+    : null;
+  const primaryAvailability = primarySkill?.skillAvailability
+    ? AVAILABILITY_STATUS[primarySkill.skillAvailability as AvailabilityStatus]
+    : null;
+  const primaryFacts = [
+    primaryLevel?.label,
+    primarySkill?.yearsOfExp ? `${primarySkill.yearsOfExp}+ years` : null,
+    primarySkill?.rate && primarySkill.rateUnit
+      ? formatRate(
+          primarySkill.rate,
+          primarySkill.rateUnit as RateUnit,
+          profileData.currency || "USD"
+        )
+      : null,
+    primaryAvailability?.label,
+  ].filter(Boolean);
 
   if (skills.length === 0 && !hasProfileDetails) {
     return (
@@ -37,8 +55,18 @@ export function ProfileAboutTab({ skills, profileData }: ProfileAboutTabProps) {
         description="Skills, location, and links will appear here once published."
         className="py-14"
         icon={
-          <svg className="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6M8 4h8l4 4v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2z" />
+          <svg
+            className="h-7 w-7"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={1.5}
+              d="M9 12h6m-6 4h6M8 4h8l4 4v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2z"
+            />
           </svg>
         }
       />
@@ -47,56 +75,68 @@ export function ProfileAboutTab({ skills, profileData }: ProfileAboutTabProps) {
 
   return (
     <div className="grid gap-4 sm:gap-5 lg:grid-cols-[minmax(0,1.45fr)_minmax(280px,0.55fr)]">
-      {skills.length > 0 && (
+      {skills.length > 0 ? (
         <section className={surface("panel", "overflow-hidden")}>
           <div className="border-b border-white/[0.08] p-4 sm:p-6">
-            <div>
-              <h3 className="text-lg font-semibold text-white font-[var(--font-space-grotesk)]">Skills</h3>
-              <p className="mt-1 text-sm text-[var(--muted-foreground)]">
-                Primary skill first, then supporting skills with level, rate, and notes.
-              </p>
+            <div className="flex flex-wrap items-end justify-between gap-3">
+              <h3 className="font-[var(--font-space-grotesk)] text-xl font-semibold tracking-tight text-white">
+                Skills
+              </h3>
+              <span className="text-sm font-medium text-white/45">
+                {skills.length} {skills.length === 1 ? "skill" : "skills"}
+              </span>
             </div>
+
             {primarySkill ? (
-              <div className="mt-5 grid gap-4 rounded-lg border border-white/[0.08] bg-white/[0.025] p-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
-                <div className="flex min-w-0 items-center gap-3">
-                  <div className={iconBox(primarySkill.isPrimary ? "amber" : "cyan", "h-11 w-11 flex-shrink-0")}>
-                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                    </svg>
-                  </div>
+              <div className="mt-5 rounded-xl border border-[rgba(var(--color-accent-2-rgb),0.20)] bg-[linear-gradient(135deg,rgba(var(--color-accent-2-rgb),0.10),rgba(255,255,255,0.025)_42%,rgba(255,255,255,0.012))] p-4 sm:p-5">
+                <div className="flex min-w-0 flex-wrap items-start justify-between gap-4">
                   <div className="min-w-0">
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/40">
-                      {primarySkill.isPrimary ? "Primary skill" : "Lead skill"}
+                    <p className="truncate font-[var(--font-space-grotesk)] text-2xl font-semibold tracking-tight text-white">
+                      {primarySkill.skill.name}
                     </p>
-                    <p className="mt-1 truncate text-xl font-semibold text-white">{primarySkill.skill.name}</p>
+                    {primaryFacts.length > 0 ? (
+                      <div className="mt-2 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-sm text-white/56">
+                        {primaryFacts.map((fact, index) => (
+                          <span
+                            key={`${fact}-${index}`}
+                            className="inline-flex items-center gap-2"
+                          >
+                            {index > 0 ? <span className="text-white/16">/</span> : null}
+                            <span>{fact}</span>
+                          </span>
+                        ))}
+                      </div>
+                    ) : null}
                   </div>
+                  <span className="rounded-full border border-[rgba(var(--color-accent-2-rgb),0.28)] bg-[rgba(var(--color-accent-2-rgb),0.10)] px-3 py-1 text-xs font-semibold text-[var(--color-accent-2)]">
+                    Primary
+                  </span>
                 </div>
-                <div className="min-w-0 text-sm text-white/62 sm:text-right">
-                  {supportingSkills.length > 0 ? (
-                    <p className="truncate">
-                      Also: {supportingSkills.map((skill) => skill.skill.name).join(", ")}
-                      {extraSkillCount > 0 ? `, +${extraSkillCount}` : ""}
-                    </p>
-                  ) : (
-                    <p>Single-skill profile</p>
-                  )}
-                </div>
+
+                {primarySkill.headline ? (
+                  <p className="mt-4 border-l-2 border-[rgba(var(--color-accent-2-rgb),0.45)] pl-4 text-sm font-medium leading-relaxed text-white/75">
+                    {primarySkill.headline}
+                  </p>
+                ) : null}
+
               </div>
             ) : null}
           </div>
-          <div className="divide-y divide-white/[0.06]">
-            {skills.map((s) => {
-              const levelConfig = EXPERIENCE_LEVELS[
-                s.experienceLevel as ExperienceLevel
-              ];
-              const availabilityConfig = s.skillAvailability
-                ? AVAILABILITY_STATUS[s.skillAvailability as AvailabilityStatus]
+
+          <div className="grid gap-3 p-4 sm:p-5">
+            {skills.map((skill) => {
+              const levelConfig =
+                EXPERIENCE_LEVELS[skill.experienceLevel as ExperienceLevel];
+              const availabilityConfig = skill.skillAvailability
+                ? AVAILABILITY_STATUS[
+                    skill.skillAvailability as AvailabilityStatus
+                  ]
                 : null;
 
               return (
                 <ExpandableSkillCard
-                  key={s.id}
-                  skill={s}
+                  key={skill.id}
+                  skill={skill}
                   levelConfig={levelConfig}
                   availabilityConfig={availabilityConfig}
                   currency={profileData.currency || "USD"}
@@ -105,59 +145,87 @@ export function ProfileAboutTab({ skills, profileData }: ProfileAboutTabProps) {
             })}
           </div>
         </section>
-      )}
+      ) : null}
 
-      {hasProfileDetails && (
-        <section className={surface("panelMuted", "h-fit overflow-hidden p-4 sm:p-6")}>
-          <div className="mb-4">
-            <h3 className="font-[var(--font-space-grotesk)] text-lg font-semibold text-white">Contact details</h3>
-            <p className="mt-1 text-sm text-[var(--muted-foreground)]">Website and location.</p>
-          </div>
+      {hasProfileDetails ? (
+        <section
+          className={surface("panelMuted", "h-fit overflow-hidden p-4 sm:p-6")}
+        >
+          <h3 className="mb-4 font-[var(--font-space-grotesk)] text-lg font-semibold text-white">
+            Details
+          </h3>
           <div className="divide-y divide-white/[0.07]">
-          {profileData.location && (
-            <div className="flex min-w-0 items-center gap-3 py-4 first:pt-0 last:pb-0">
-              <div className={iconBox("muted", "h-10 w-10")}>
-                <svg
-                  className="w-5 h-5 text-[var(--color-accent-2)]"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                  />
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                  />
-                </svg>
+            {profileData.location ? (
+              <div className="flex min-w-0 items-center gap-3 py-4 first:pt-0 last:pb-0">
+                <div className={iconBox("muted", "h-10 w-10")}>
+                  <svg
+                    className="h-5 w-5 text-[var(--color-accent-2)]"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                    />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                    />
+                  </svg>
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs uppercase tracking-[0.14em] text-white/40">
+                    Location
+                  </p>
+                  <p className="truncate text-sm font-medium text-white/80">
+                    {profileData.location}
+                  </p>
+                </div>
               </div>
-              <div className="min-w-0">
-                <p className="text-xs uppercase tracking-[0.14em] text-white/40">
-                  Location
-                </p>
-                <p className="truncate text-sm font-medium text-white/80">
-                  {profileData.location}
-                </p>
-              </div>
-            </div>
-          )}
+            ) : null}
 
-          {profileData.website && (
-            <a
-              href={profileData.website}
-              target="_blank"
-              rel="noreferrer"
-              className="group flex min-w-0 items-center gap-3 py-4 outline-none transition-colors hover:text-white focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.62)] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(12,16,23)] first:pt-0 last:pb-0"
-            >
-              <div className={iconBox("cyan", "h-10 w-10 transition-colors group-hover:bg-[rgba(var(--color-accent-2-rgb),0.13)]")}>
+            {profileData.website ? (
+              <a
+                href={profileData.website}
+                target="_blank"
+                rel="noreferrer"
+                className="group flex min-w-0 items-center gap-3 py-4 outline-none transition-colors hover:text-white focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.62)] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(12,16,23)] first:pt-0 last:pb-0"
+              >
+                <div
+                  className={iconBox(
+                    "cyan",
+                    "h-10 w-10 transition-colors group-hover:bg-[rgba(var(--color-accent-2-rgb),0.13)]"
+                  )}
+                >
+                  <svg
+                    className="h-5 w-5 text-[var(--color-accent-2)]"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                    />
+                  </svg>
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs uppercase tracking-[0.14em] text-white/40">
+                    Website
+                  </p>
+                  <p className="truncate text-sm font-medium text-[var(--color-accent-2)] group-hover:underline">
+                    {profileData.website.replace(/^https?:\/\//, "")}
+                  </p>
+                </div>
                 <svg
-                  className="w-5 h-5 text-[var(--color-accent-2)]"
+                  className="h-4 w-4 text-[var(--color-accent-2)] opacity-0 transition-opacity group-hover:opacity-100"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -166,36 +234,14 @@ export function ProfileAboutTab({ skills, profileData }: ProfileAboutTabProps) {
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth={2}
-                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                    d="M9 5l7 7-7 7"
                   />
                 </svg>
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-xs uppercase tracking-[0.14em] text-white/40">
-                  Website
-                </p>
-                <p className="text-sm font-medium text-[var(--color-accent-2)] truncate group-hover:underline">
-                  {profileData.website.replace(/^https?:\/\//, "")}
-                </p>
-              </div>
-              <svg
-                className="w-4 h-4 text-[var(--color-accent-2)] opacity-0 group-hover:opacity-100 transition-opacity"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 5l7 7-7 7"
-                />
-              </svg>
-            </a>
-          )}
+              </a>
+            ) : null}
           </div>
         </section>
-      )}
+      ) : null}
     </div>
   );
 }

@@ -490,24 +490,26 @@ export function ProfileTabs({
         canSeePrivateTabs={canSeePrivateTabs}
       />
 
-      <section className="mb-4 grid gap-3 border-b border-white/[0.06] px-1 pb-4 sm:mb-5 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end sm:px-0">
-        <div className="min-w-0">
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--color-accent-2)]">
-            {activeIntro.eyebrow}
-          </p>
-          <h2 className="mt-1 font-[var(--font-space-grotesk)] text-xl font-semibold tracking-tight text-white sm:text-2xl">
-            {activeIntro.title}
-          </h2>
-          <p className="mt-1 max-w-2xl text-sm leading-relaxed text-[var(--muted-foreground)]">
-            {activeIntro.description}
-          </p>
-        </div>
-        {activeTab === "portfolio" && portfolioItems.length > 0 ? (
-          <span className="inline-flex rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 py-2 text-sm font-semibold text-white/72">
-            {portfolioItems.length} {portfolioItems.length === 1 ? "case study" : "case studies"}
-          </span>
-        ) : null}
-      </section>
+      {activeTab !== "about" ? (
+        <section className="mb-4 grid gap-3 border-b border-white/[0.06] px-1 pb-4 sm:mb-5 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end sm:px-0">
+          <div className="min-w-0">
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--color-accent-2)]">
+              {activeIntro.eyebrow}
+            </p>
+            <h2 className="mt-1 font-[var(--font-space-grotesk)] text-xl font-semibold tracking-tight text-white sm:text-2xl">
+              {activeIntro.title}
+            </h2>
+            <p className="mt-1 max-w-2xl text-sm leading-relaxed text-[var(--muted-foreground)]">
+              {activeIntro.description}
+            </p>
+          </div>
+          {activeTab === "portfolio" && portfolioItems.length > 0 ? (
+            <span className="inline-flex rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 py-2 text-sm font-semibold text-white/72">
+              {portfolioItems.length} {portfolioItems.length === 1 ? "case study" : "case studies"}
+            </span>
+          ) : null}
+        </section>
+      ) : null}
 
       <div className="min-h-[400px]">
         {loading ? (

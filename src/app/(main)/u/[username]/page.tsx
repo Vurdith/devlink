@@ -97,8 +97,6 @@ export default async function UserProfilePage(props: {
   const isOwnProfile = currentUserId === user.id;
   const profileType = user.profile?.profileType ?? null;
   const initialTab = readInitialTab(searchParams?.tab);
-  const hasPublicWebsite = Boolean(user.profile?.website);
-  const websiteUrl = user.profile?.website?.replace(/^https?:\/\//, "");
 
   return (
     <main className="mx-auto w-full min-w-0 max-w-6xl px-3 py-4 sm:px-5 sm:py-8">
@@ -136,25 +134,6 @@ export default async function UserProfilePage(props: {
 
                     <div className="mt-2 flex min-w-0 flex-wrap items-center gap-x-2.5 gap-y-1 text-sm text-[var(--muted-foreground)]">
                       <span className="min-w-0 max-w-full truncate">@{user.username}</span>
-                      {user.profile?.location ? (
-                        <>
-                          <span className="text-white/16">/</span>
-                          <span className="min-w-0 max-w-full truncate">{user.profile.location}</span>
-                        </>
-                      ) : null}
-                      {hasPublicWebsite ? (
-                        <>
-                          <span className="text-white/16">/</span>
-                          <a
-                            href={user.profile?.website ?? "#"}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="min-w-0 max-w-full truncate text-[var(--color-accent-2)] transition-colors hover:text-white"
-                          >
-                            {websiteUrl}
-                          </a>
-                        </>
-                      ) : null}
                     </div>
                   </div>
 
@@ -178,7 +157,7 @@ export default async function UserProfilePage(props: {
                 </div>
 
                 {user.profile?.bio ? (
-                  <p className="mt-5 max-w-3xl break-words text-base font-medium leading-relaxed text-white/78 whitespace-pre-wrap">
+                  <p className="mt-5 max-w-3xl border-l-2 border-[rgba(var(--color-accent-2-rgb),0.45)] pl-4 text-base font-medium leading-relaxed text-white/78 whitespace-pre-wrap">
                       {user.profile.bio}
                   </p>
                 ) : (
