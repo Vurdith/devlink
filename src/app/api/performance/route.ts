@@ -7,10 +7,81 @@
 
 import { NextResponse } from "next/server";
 import * as Sentry from "@sentry/nextjs";
+import { timingSafeEqual } from "crypto";
+import { parseJsonObjectBody } from "@/lib/api-utils";
+import { getAuthSession } from "@/server/auth";
+import { prisma } from "@/server/db";
 import { performanceBudgets } from "@/server/monitoring/performance";
 import { metricsStore, resetMetrics } from "@/server/monitoring/metrics";
 
-export async function GET() {
+const NO_STORE_HEADERS = {
+  "Cache-Control": "no-store, max-age=0",
+};
+
+function jsonResponse(body: Record<string, unknown>, init?: ResponseInit) {
+  const headers = new Headers(init?.headers);
+  headers.set("Cache-Control", NO_STORE_HEADERS["Cache-Control"]);
+
+  return NextResponse.json(body, {
+    ...init,
+    headers,
+  });
+}
+
+function hasValidBearerToken(request: Request) {
+  const expectedToken = process.env.PERFORMANCE_API_TOKEN;
+  if (!expectedToken || expectedToken.length < 32) {
+    return false;
+  }
+
+  const authHeader = request.headers.get("authorization");
+  if (!authHeader?.startsWith("Bearer ")) {
+    return false;
+  }
+
+  const suppliedToken = authHeader.slice("Bearer ".length).trim();
+  if (suppliedToken.length !== expectedToken.length) {
+    return false;
+  }
+
+  return timingSafeEqual(
+    Buffer.from(suppliedToken),
+    Buffer.from(expectedToken)
+  );
+}
+
+async function authorizePerformanceDashboard(request: Request) {
+  if (hasValidBearerToken(request)) {
+    return { ok: true } as const;
+  }
+
+  const session = await getAuthSession();
+  const currentUserId = session?.user?.id;
+  if (!currentUserId) {
+    return { ok: false, status: 401 } as const;
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { id: currentUserId },
+    select: { role: true },
+  });
+
+  if (user?.role !== "ADMIN") {
+    return { ok: false, status: 403 } as const;
+  }
+
+  return { ok: true } as const;
+}
+
+export async function GET(request: Request) {
+  const authorization = await authorizePerformanceDashboard(request);
+  if (!authorization.ok) {
+    return jsonResponse(
+      { error: authorization.status === 403 ? "Forbidden" : "Unauthorized" },
+      { status: authorization.status }
+    );
+  }
+
   const uptimeMs = Date.now() - metricsStore.startTime;
   const uptimeHours = uptimeMs / (1000 * 60 * 60);
   
@@ -127,12 +198,9 @@ export async function GET() {
       avgRanking,
       endpointStats,
     }),
-    
-    // Sentry dashboard link
-    sentryDashboard: "https://devlink-xy.sentry.io/performance/",
   };
 
-  return NextResponse.json(response);
+  return jsonResponse(response);
 }
 
 function generateRecommendations(data: {
@@ -150,7 +218,7 @@ function generateRecommendations(data: {
   }
   
   if (data.errorRate > 1) {
-    recommendations.push("🔴 Error rate is above 1%. Check Sentry for recurring exceptions.");
+    recommendations.push("Error rate is above 1%. Check error monitoring for recurring exceptions.");
   }
   
   if (data.cacheHitRate < 70) {
@@ -176,17 +244,39 @@ function generateRecommendations(data: {
     recommendations.push("✅ All systems performing within budget! Keep monitoring for regressions.");
   }
   
-  return recommendations;
+  return recommendations.map((recommendation) =>
+    recommendation.replace(/^[^\w']+\s*/, "")
+  );
 }
 
 // Reset metrics (for testing)
 export async function POST(request: Request) {
-  const { action } = await request.json();
+  const authorization = await authorizePerformanceDashboard(request);
+  if (!authorization.ok) {
+    return jsonResponse(
+      { error: authorization.status === 403 ? "Forbidden" : "Unauthorized" },
+      { status: authorization.status }
+    );
+  }
+
+  const parsedBody = await parseJsonObjectBody(request, {
+    invalidJsonMessage: "Send reset action as valid JSON.",
+    nonObjectMessage: "Send reset action as valid JSON.",
+  });
+
+  if (!parsedBody.ok) {
+    return jsonResponse(
+      { error: "Send reset action as valid JSON." },
+      { status: parsedBody.response.status }
+    );
+  }
+
+  const { action } = parsedBody.data;
   
   if (action === "reset") {
     resetMetrics();
-    return NextResponse.json({ success: true, message: "Metrics reset" });
+    return jsonResponse({ success: true, message: "Metrics reset" });
   }
   
-  return NextResponse.json({ error: "Unknown action" }, { status: 400 });
+  return jsonResponse({ error: "Unknown action" }, { status: 400 });
 }

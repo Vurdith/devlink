@@ -1,9 +1,9 @@
 "use client";
 import dynamic from "next/dynamic";
 import { memo } from "react";
-import Link from "next/link";
 import { ArrowRight, Bell, BriefcaseBusiness, Code2, MessageSquare, Search, Sparkles, Users } from "lucide-react";
 import { PostFeed } from "./PostFeed";
+import { ActionLink } from "@/components/ui/ActionLink";
 import { ThemeLogoImg } from "@/components/ui/ThemeLogo";
 import { skeleton, surface } from "@/components/ui/design-system";
 import type { FeedPost } from "@/types/post";
@@ -127,18 +127,16 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
               </p>
 
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <Link
+                <ActionLink
                   href="/register"
-                  className="inline-flex items-center justify-center gap-2 rounded-lg border border-[rgba(var(--color-accent-2-rgb),0.36)] bg-[rgba(var(--color-accent-2-rgb),0.14)] px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-[rgba(var(--color-accent-2-rgb),0.20)]"
+                  variant="primary"
+                  rightIcon={<ArrowRight className="h-4 w-4" />}
                 >
-                  Join DevLink <ArrowRight className="h-4 w-4" />
-                </Link>
-                <Link
-                  href="/login"
-                  className="inline-flex items-center justify-center rounded-lg border border-white/[0.10] bg-white/[0.035] px-5 py-3 text-sm font-semibold text-white/78 transition-colors hover:border-white/[0.18] hover:bg-white/[0.06] hover:text-white"
-                >
+                  Join DevLink
+                </ActionLink>
+                <ActionLink href="/login" variant="secondary">
                   Sign in
-                </Link>
+                </ActionLink>
               </div>
             </section>
 

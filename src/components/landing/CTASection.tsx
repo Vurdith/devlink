@@ -1,7 +1,6 @@
-// Server Component - no client JS needed
-import Link from "next/link";
+// Server Component shell; CTA controls share the global premium button primitive.
 import { surface } from "@/components/ui/design-system";
-import { PrimaryButton, SecondaryButton } from "./ActionButtons";
+import { PremiumButton } from "@/components/ui/PremiumButton";
 
 export function CTASection({ isLoggedIn }: { isLoggedIn: boolean }) {
   return (
@@ -56,16 +55,20 @@ export function CTASection({ isLoggedIn }: { isLoggedIn: boolean }) {
                   {isLoggedIn ? "Open DevLink" : "Create your profile"}
                 </p>
                 <div className="flex flex-col gap-3">
-                  <Link href={isLoggedIn ? "/home" : "/register"} className="block w-full">
-                    <PrimaryButton className="w-full justify-center">
-                  {isLoggedIn ? "Open home" : "Create free account"}
-                    </PrimaryButton>
-                  </Link>
-                  <Link href="/discover" className="block w-full">
-                    <SecondaryButton className="w-full justify-center">
-                      Discover developers
-                    </SecondaryButton>
-                  </Link>
+                  <PremiumButton
+                    href={isLoggedIn ? "/home" : "/register"}
+                    className="w-full"
+                    showArrow
+                  >
+                    {isLoggedIn ? "Open home" : "Create free account"}
+                  </PremiumButton>
+                  <PremiumButton
+                    href="/discover"
+                    variant="secondary"
+                    className="w-full"
+                  >
+                    Discover developers
+                  </PremiumButton>
                 </div>
               </div>
             </div>

@@ -11,6 +11,7 @@ import {
 } from "@/lib/skills";
 import { cn } from "@/lib/cn";
 import { surface, ui } from "@/components/ui/design-system";
+import { ToneBadge, type DataTone } from "@/components/ui/DataDisplay";
 
 interface Skill {
   id: string;
@@ -137,37 +138,44 @@ export function AvailabilityBadge({
   showRate = true,
 }: AvailabilityBadgeProps) {
   const config = AVAILABILITY_STATUS[status];
+  const tone: DataTone =
+    status === "AVAILABLE"
+      ? "success"
+      : status === "OPEN_TO_OFFERS"
+        ? "info"
+        : status === "BUSY"
+          ? "warning"
+          : "danger";
 
   return (
     <div className="inline-flex items-center gap-2">
-      <span className={cn("inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium", config.bgColor, config.color)}>
-        {config.icon === "check-circle" && (
+      <ToneBadge
+        tone={tone}
+        icon={config.icon === "check-circle" ? (
           <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-        )}
-        {config.icon === "sparkles" && (
+        ) : config.icon === "sparkles" ? (
           <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
           </svg>
-        )}
-        {config.icon === "clock" && (
+        ) : config.icon === "clock" ? (
           <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-        )}
-        {config.icon === "x-circle" && (
+        ) : config.icon === "x-circle" ? (
           <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-        )}
+        ) : null}
+      >
         {config.label}
-      </span>
+      </ToneBadge>
 
       {showRate && hourlyRate && (
-        <span className="inline-flex items-center rounded-full border border-[rgba(var(--color-accent-2-rgb),0.30)] bg-[rgba(var(--color-accent-2-rgb),0.12)] px-2.5 py-1 text-xs text-[var(--color-accent-2)]">
+        <ToneBadge tone="money">
           {formatHourlyRate(hourlyRate, currency)}
-        </span>
+        </ToneBadge>
       )}
     </div>
   );

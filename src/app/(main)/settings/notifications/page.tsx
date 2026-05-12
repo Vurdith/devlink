@@ -2,7 +2,8 @@
 
 import { useState, memo } from "react";
 import { useSession } from "next-auth/react";
-import { iconBox, surface, ui } from "@/components/ui/design-system";
+import { iconBox, surface } from "@/components/ui/design-system";
+import { OptionCard } from "@/components/ui/OptionCard";
 import { cn } from "@/lib/cn";
 import { SettingsAuthRequired } from "../_components/SettingsAuthRequired";
 import { SettingsPageHeader } from "../_components/SettingsPageHeader";
@@ -143,14 +144,10 @@ export default function NotificationSettings() {
 
         <div className="space-y-1">
           {settings.map((setting, index) => (
-            <div
+            <OptionCard
               key={setting.id}
-              className={cn(
-                "flex items-center justify-between gap-4 rounded-xl border p-4 transition-colors animate-slide-up",
-                setting.enabled
-                  ? ui.active.cyan
-                  : cn(ui.surface.empty, "hover:border-white/[0.14] hover:bg-white/[0.045]")
-              )}
+              selected={setting.enabled}
+              className="animate-slide-up"
               style={{ animationDelay: `${0.05 + index * 0.03}s` }}
             >
               <div className="flex-1 min-w-0 pr-4">
@@ -161,7 +158,7 @@ export default function NotificationSettings() {
                 checked={setting.enabled} 
                 onChange={() => toggleSetting(setting.id)} 
               />
-            </div>
+            </OptionCard>
           ))}
         </div>
       </div>

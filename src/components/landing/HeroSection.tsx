@@ -1,162 +1,111 @@
 "use client";
 
-import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
-import { ArrowUpRight, Image as ImageIcon, Send, Star } from "lucide-react";
+import { PremiumButton } from "@/components/ui/PremiumButton";
 import { InteractiveTypography } from "./InteractiveTypography";
 
-const PrimaryCTA = ({
-  children,
-  href,
-}: {
-  children: React.ReactNode;
-  href: string;
-}) => (
-  <Link
-    href={href}
-    className="group relative inline-flex min-h-12 items-center justify-center gap-2.5 overflow-hidden rounded-xl border border-white/[0.12] bg-[linear-gradient(135deg,var(--color-accent),var(--color-accent-2))] px-8 py-3.5 text-sm font-semibold !text-white outline-none transition-all duration-200 hover:border-white/20 hover:brightness-110 focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.68)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)] active:scale-[0.98] sm:px-10"
-  >
-    <div className="absolute inset-0 translate-x-[-100%] skew-x-[-25deg] bg-[linear-gradient(to_right,rgba(255,255,255,0)_0%,rgba(255,255,255,0.2)_50%,rgba(255,255,255,0)_100%)] group-hover:animate-[shimmer-sweep_1.2s_infinite]" />
-    <span className="relative flex items-center gap-2 text-white">
-      {children}
-    </span>
-  </Link>
-);
-
-const SecondaryCTA = ({
-  children,
-  href,
-}: {
-  children: React.ReactNode;
-  href: string;
-}) => (
-  <Link
-    href={href}
-    className="group relative inline-flex min-h-12 items-center justify-center gap-2.5 rounded-xl border border-white/[0.1] bg-white/[0.045] px-8 py-3.5 text-sm font-semibold text-white/90 outline-none transition-all duration-200 hover:border-white/20 hover:bg-white/[0.08] hover:text-white focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.56)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)] active:scale-[0.98] sm:px-10"
-  >
-    <span className="relative flex items-center gap-2">{children}</span>
-  </Link>
-);
-
-/* Stagger helpers */
 const stagger = {
   container: {
     hidden: {},
-    visible: { transition: { staggerChildren: 0.1, delayChildren: 0.2 } },
+    visible: { transition: { staggerChildren: 0.1, delayChildren: 0.16 } },
   },
   item: {
-    hidden: { opacity: 0, y: 40 },
+    hidden: { opacity: 0, y: 30 },
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] as const },
+      transition: { duration: 0.76, ease: [0.16, 1, 0.3, 1] as const },
     },
   },
 };
 
+function BrandSignalScene() {
+  return (
+    <div aria-hidden="true" className="absolute inset-0 overflow-hidden">
+      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(9,11,17,0.34),rgba(7,9,13,0.82)_74%,var(--color-background))]" />
+      <div className="absolute inset-y-0 right-[-18vw] w-[58vw] rotate-[9deg] border-l border-white/[0.07] bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.045),rgba(var(--color-accent-rgb),0.08),transparent)]" />
+      <div className="absolute inset-y-[-18vh] right-[6vw] w-px rotate-[9deg] bg-[linear-gradient(180deg,transparent,rgba(var(--color-accent-2-rgb),0.42),transparent)]" />
+      <div className="absolute left-[18%] top-[18%] h-px w-[62vw] origin-left rotate-[-8deg] bg-[linear-gradient(90deg,transparent,rgba(var(--color-accent-rgb),0.38),rgba(255,255,255,0.2),transparent)]" />
+      <div className="absolute left-[20%] bottom-[20%] h-px w-[70vw] origin-left rotate-[5deg] bg-[linear-gradient(90deg,transparent,rgba(var(--color-accent-2-rgb),0.32),transparent)]" />
+
+      <motion.div
+        className="absolute right-[-22vw] top-1/2 hidden h-[min(70vw,840px)] w-[min(70vw,840px)] -translate-y-1/2 opacity-80 md:block"
+        animate={{ y: [0, -14, 0], rotate: [-2.5, 1.2, -2.5] }}
+        transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
+      >
+        <div className="absolute inset-[-9%] rounded-[42px] border border-white/[0.07] bg-[linear-gradient(135deg,rgba(255,255,255,0.08),transparent_35%,rgba(var(--color-accent-rgb),0.08))] backdrop-blur-sm" />
+        <div className="absolute inset-[10%] rounded-[34px] border border-[rgba(var(--color-accent-2-rgb),0.18)]" />
+        <div className="absolute left-[-12%] top-[26%] h-20 w-[120%] rotate-[-18deg] bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.16),transparent)] opacity-50 blur-xl" />
+        <Image
+          src="/logo/logo.png"
+          alt=""
+          fill
+          priority
+          sizes="(min-width: 1024px) 680px, 0px"
+          className="object-contain opacity-90 saturate-125"
+        />
+      </motion.div>
+
+      <motion.div
+        className="absolute right-[-355px] top-[300px] h-[540px] w-[540px] opacity-[0.18] md:hidden"
+        animate={{ y: [0, -10, 0], rotate: [-3, 1, -3] }}
+        transition={{ duration: 13, repeat: Infinity, ease: "easeInOut" }}
+      >
+        <Image
+          src="/logo/logo.png"
+          alt=""
+          fill
+          sizes="560px"
+          className="object-contain saturate-125"
+        />
+      </motion.div>
+
+      <motion.div
+        className="absolute -bottom-28 left-1/2 h-[360px] w-[720px] -translate-x-1/2 rounded-[100%] border border-white/[0.07] md:-bottom-36 md:left-[62%]"
+        animate={{ scaleX: [1, 1.04, 1], opacity: [0.42, 0.72, 0.42] }}
+        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+      />
+    </div>
+  );
+}
+
 export function HeroSection({ isLoggedIn }: { isLoggedIn: boolean }) {
   return (
-    <section className="relative flex min-h-[92dvh] w-full flex-col justify-center overflow-hidden pb-16 pt-20 selection:bg-[rgba(var(--color-accent-2-rgb),0.25)] md:pt-0">
+    <section className="relative isolate flex min-h-[92dvh] w-full flex-col justify-center overflow-hidden px-5 pb-16 pt-20 selection:bg-[rgba(var(--color-accent-2-rgb),0.25)] md:pt-16">
+      <BrandSignalScene />
+
       <motion.div
         variants={stagger.container}
         initial="hidden"
         animate="visible"
-        className="relative z-10 mx-auto grid w-full max-w-[1180px] items-center gap-10 px-5 text-left lg:grid-cols-[minmax(0,1fr)_410px]"
+        className="relative z-10 mx-auto w-full max-w-7xl"
       >
-        <div className="min-w-0">
+        <div className="max-w-[900px]">
           <motion.div variants={stagger.item}>
             <InteractiveTypography />
           </motion.div>
 
-          <motion.div variants={stagger.item} className="mb-8 max-w-2xl">
-            <p className="text-base font-medium leading-8 tracking-normal text-white/62 md:text-xl">
-              DevLink puts Roblox portfolios, reviews, jobs, and messages in one place so clients can judge the work before they start the conversation.
+          <motion.div variants={stagger.item} className="max-w-3xl">
+            <p className="text-base font-medium leading-8 tracking-normal text-white/66 md:text-xl">
+              DevLink gives Roblox creators one sharp profile for builds,
+              reviews, rates, and availability, so studios can choose from the
+              work instead of scattered DMs.
             </p>
           </motion.div>
 
           <motion.div
             variants={stagger.item}
-            className="flex flex-col items-stretch gap-3 sm:flex-row"
+            className="mt-8 flex flex-col items-stretch gap-3 sm:flex-row"
           >
-            <PrimaryCTA href={isLoggedIn ? "/home" : "/register"}>
-              {isLoggedIn ? "Open home" : "Create your profile"}
-              <ArrowUpRight className="w-5 h-5 opacity-90 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
-            </PrimaryCTA>
-            <SecondaryCTA href="/discover">Explore developers</SecondaryCTA>
+            <PremiumButton href={isLoggedIn ? "/home" : "/register"} showArrow>
+              {isLoggedIn ? "Open home" : "Create your DevLink"}
+            </PremiumButton>
+            <PremiumButton href="/discover" variant="secondary">
+              Browse creators
+            </PremiumButton>
           </motion.div>
         </div>
-
-        <motion.div variants={stagger.item} className="relative mt-4 w-full max-w-[410px] justify-self-start lg:mt-0">
-          <div className="absolute -inset-8 rounded-[2.25rem] bg-[radial-gradient(circle_at_18%_20%,rgba(var(--color-accent-2-rgb),0.30),transparent_31%),radial-gradient(circle_at_86%_70%,rgba(var(--color-accent-rgb),0.28),transparent_40%)] blur-2xl" />
-          <div className="relative min-h-[430px] overflow-hidden rounded-[2rem] border border-white/[0.12] bg-[rgba(8,11,17,0.82)] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.12)]">
-            <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/35 to-transparent" />
-            <div className="absolute -right-10 top-8 h-40 w-40 rounded-full border border-white/[0.08] bg-[rgba(var(--color-accent-rgb),0.08)] blur-sm" />
-
-            <div className="relative rounded-[1.35rem] border border-white/[0.10] bg-[rgba(3,5,10,0.52)] p-4">
-              <div className="flex items-center gap-3">
-                <div className="h-12 w-12 rounded-2xl border border-white/[0.14] bg-[linear-gradient(135deg,var(--color-accent),var(--color-accent-2))] p-[2px]">
-                  <div className="flex h-full w-full items-center justify-center rounded-[0.9rem] bg-[rgba(5,7,12,0.78)] text-base font-black text-white">
-                    R
-                  </div>
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="truncate text-lg font-bold text-white">Reece Leneveu</div>
-                  <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-sm font-medium text-white/52">
-                    <span>@reeceleneveu</span>
-                    <span>4.8 rating</span>
-                  </div>
-                </div>
-                <div className="rounded-full border border-[rgba(var(--color-accent-2-rgb),0.42)] bg-[rgba(var(--color-accent-2-rgb),0.11)] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--color-accent-2)]">
-                  Developer
-                </div>
-              </div>
-
-              <div className="mt-5 grid grid-cols-[1.25fr_0.75fr] gap-2.5">
-                <div className="min-h-28 rounded-2xl border border-white/[0.09] bg-[linear-gradient(135deg,rgba(var(--color-accent-rgb),0.18),rgba(255,255,255,0.035))] p-3">
-                  <ImageIcon className="h-4 w-4 text-[var(--color-accent-2)]" />
-                  <div className="mt-8 text-sm font-bold leading-5 text-white">Anime VFX landing page</div>
-                  <div className="mt-1 text-xs font-medium text-white/48">3 media files</div>
-                </div>
-                <div className="rounded-2xl border border-white/[0.09] bg-white/[0.045] p-3">
-                  <div className="flex gap-1 text-[var(--color-accent-2)]">
-                    {Array.from({ length: 5 }).map((_, index) => (
-                      <Star key={index} className="h-3.5 w-3.5 fill-current" />
-                    ))}
-                  </div>
-                  <p className="mt-7 text-xs font-semibold leading-5 text-white/70">
-                    &quot;Clean handoff, fast revisions.&quot;
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="relative ml-auto mt-4 w-[88%] rounded-[1.35rem] border border-white/[0.10] bg-[rgba(22,24,32,0.90)] p-4">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <div className="text-sm font-bold text-white">Studio Developers</div>
-                  <p className="mt-1 text-sm leading-6 text-white/52">
-                    Can you take on a shop UI and checkout flow this week?
-                  </p>
-                </div>
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/[0.10] bg-[rgba(var(--color-accent-rgb),0.12)] text-[var(--color-accent-2)]">
-                  <Send className="h-4 w-4" />
-                </div>
-              </div>
-            </div>
-
-            <div className="relative mt-4 w-[78%] rounded-[1.35rem] border border-white/[0.10] bg-[rgba(3,5,10,0.86)] p-4">
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <div className="text-sm font-bold text-white">Open Roblox UI contract</div>
-                  <div className="mt-1 text-xs font-semibold text-white/45">Matched from profile skills</div>
-                </div>
-                <div className="rounded-full bg-[rgba(var(--color-accent-2-rgb),0.14)] px-3 py-1 text-xs font-bold text-[var(--color-accent-2)]">
-                  Apply
-                </div>
-              </div>
-            </div>
-          </div>
-        </motion.div>
       </motion.div>
     </section>
   );

@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
-import { iconBox, surface, ui } from "@/components/ui/design-system";
+import { iconBox, surface } from "@/components/ui/design-system";
+import { OptionButton } from "@/components/ui/OptionCard";
 import { cn } from "@/lib/cn";
 import { safeJson } from "@/lib/safe-json";
 import type { MessagingSettings } from "@/types/api";
@@ -168,22 +169,12 @@ export default function MessagingSettingsPage() {
                   const isSelected = settings?.allowFrom === option.value;
                   const isSavingThis = savingChoice === option.value;
                   return (
-                    <button
+                    <OptionButton
                       key={option.value}
-                      type="button"
                       disabled={saving}
-                      aria-pressed={isSelected}
+                      selected={isSelected}
                       onClick={() => updateSetting(option.value as MessagingSettings["allowFrom"])}
-                      className={cn(
-                        "flex w-full items-center justify-between gap-4 rounded-xl border p-4 text-left outline-none transition-all animate-slide-up focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]",
-                        isSelected
-                          ? cn(ui.active.cyan, "text-white")
-                          : cn(
-                              ui.surface.empty,
-                              "text-[var(--muted-foreground)] hover:border-white/[0.14] hover:bg-white/[0.045]"
-                            ),
-                        saving && "cursor-not-allowed opacity-60"
-                      )}
+                      className="animate-slide-up outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]"
                       style={{ animationDelay: `${0.05 + index * 0.03}s` }}
                     >
                       <div className="flex min-w-0 items-center gap-3">
@@ -205,7 +196,7 @@ export default function MessagingSettingsPage() {
                       ) : isSelected ? (
                         <span className="shrink-0 text-xs font-semibold text-[var(--color-accent)]">Active</span>
                       ) : null}
-                    </button>
+                    </OptionButton>
                   );
                 })}
               </div>

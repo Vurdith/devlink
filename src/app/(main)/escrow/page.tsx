@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { CheckCircle2, Clock3, DollarSign, FileText, Send, ShieldCheck } from "lucide-react";
+import { ActionLink } from "@/components/ui/ActionLink";
 import { Button } from "@/components/ui/Button";
+import { InfoCell, ToneBadge, type DataTone } from "@/components/ui/DataDisplay";
 import { cn } from "@/lib/cn";
 import { safeJson } from "@/lib/safe-json";
 import { iconBox, surface, ui } from "@/components/ui/design-system";
@@ -198,12 +199,12 @@ export default function EscrowPage() {
             </p>
           </div>
           <div className="flex flex-col gap-2 sm:flex-row">
-            <Link href="/login" className={cn("inline-flex min-h-11 items-center justify-center rounded-lg px-4 text-xs font-semibold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.65)] sm:min-h-10", ui.control.ghost)}>
+            <ActionLink href="/login" variant="secondary" size="md" className="w-full sm:w-auto">
               Log in
-            </Link>
-            <Link href="/register" className={cn("inline-flex min-h-11 items-center justify-center rounded-lg px-4 text-xs font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.65)] sm:min-h-10", ui.control.gradient)}>
+            </ActionLink>
+            <ActionLink href="/register" variant="glow" size="md" className="w-full sm:w-auto">
               Sign up
-            </Link>
+            </ActionLink>
           </div>
         </div>
       ) : (
@@ -217,9 +218,9 @@ export default function EscrowPage() {
                   Start with one milestone so both sides know who is responsible for the next action.
                 </p>
               </div>
-              <span className="inline-flex w-fit items-center rounded-lg border border-[rgba(var(--color-accent-2-rgb),0.22)] bg-[rgba(var(--color-accent-2-rgb),0.08)] px-3 py-1.5 text-xs font-bold text-[var(--color-accent-2)]">
+              <ToneBadge tone={form.amount ? "money" : "muted"}>
                 {form.amount ? `${form.currency || "USD"} ${form.amount}` : "Amount pending"}
-              </span>
+              </ToneBadge>
             </div>
             <div className="grid gap-3 md:grid-cols-2">
               <input
@@ -282,9 +283,9 @@ export default function EscrowPage() {
               <h2 className="text-sm font-bold uppercase tracking-[0.14em] text-[var(--color-accent-2)]">Contracts</h2>
               <div className="h-px flex-1 bg-gradient-to-r from-white/[0.10] to-transparent" />
             </div>
-            <span className="flex-shrink-0 rounded-lg border border-white/[0.08] bg-white/[0.035] px-3 py-1.5 text-xs text-white/70">
+            <ToneBadge tone="money" className="flex-shrink-0">
               Total value: {totalValue} {totalCurrency}
-            </span>
+            </ToneBadge>
           </div>
           {loading ? (
             <div className="grid gap-3">
@@ -348,14 +349,14 @@ export default function EscrowPage() {
                           </span>
                         </p>
                       </div>
-                      <span className={escrowStatusPillClass(milestoneStatus)}>
+                      <ToneBadge tone={escrowStatusTone(milestoneStatus)} className="text-[10px] uppercase tracking-[0.10em]">
                         {formatStatus(milestoneStatus)}
-                      </span>
+                      </ToneBadge>
                     </div>
 
                     <div className="mt-3 grid gap-2 text-xs text-[var(--muted-foreground)] sm:grid-cols-2">
-                      <span className="rounded-md border border-white/[0.08] bg-white/[0.035] px-2.5 py-2">Contract: {formatStatus(contract.status)}</span>
-                      <span className="min-w-0 truncate rounded-md border border-white/[0.08] bg-white/[0.035] px-2.5 py-2">{contract.jobId ? `Job ${contract.jobId}` : "No linked job"}</span>
+                      <InfoCell label="Contract" value={formatStatus(contract.status)} tone={escrowStatusTone(contract.status)} />
+                      <InfoCell label="Linked job" value={contract.jobId ? `Job ${contract.jobId}` : "None"} tone="muted" />
                     </div>
                     <div className="mt-3 flex items-start gap-2 rounded-lg border border-white/[0.08] bg-black/15 px-3 py-2 text-xs leading-relaxed text-white/70">
                       {milestoneStatus === "RELEASED" ? (
@@ -415,16 +416,10 @@ function formatStatus(status: string) {
     .join(" ");
 }
 
-function escrowStatusPillClass(status: string) {
+function escrowStatusTone(status: string): DataTone {
   const normalized = status.toUpperCase();
-  const tone =
-    normalized === "RELEASED" || normalized === "ACTIVE"
-      ? "border-emerald-300/20 bg-emerald-400/10 text-emerald-200"
-      : normalized === "SUBMITTED"
-        ? "border-[rgba(var(--color-accent-2-rgb),0.24)] bg-[rgba(var(--color-accent-2-rgb),0.10)] text-[var(--color-accent-2)]"
-        : normalized === "DISPUTED" || normalized === "CANCELLED"
-          ? "border-rose-400/20 bg-rose-500/10 text-rose-200"
-          : "border-white/[0.10] bg-white/[0.04] text-white/60";
-
-  return cn("inline-flex w-fit items-center rounded-lg border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.10em]", tone);
+  if (normalized === "RELEASED" || normalized === "ACTIVE") return "success";
+  if (normalized === "SUBMITTED") return "accent";
+  if (normalized === "DISPUTED" || normalized === "CANCELLED") return "danger";
+  return "muted";
 }

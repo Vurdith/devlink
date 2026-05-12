@@ -10,6 +10,7 @@ import {
   type RateUnit,
 } from "@/lib/skills";
 import { cn } from "@/lib/cn";
+import { InfoCell, ToneBadge, type DataTone } from "@/components/ui/DataDisplay";
 
 interface UserSkill {
   id: string;
@@ -48,14 +49,14 @@ export function ExpandableSkillCard({
     levelConfig?.label,
     skill.yearsOfExp ? `${skill.yearsOfExp}+ years` : null,
   ].filter(Boolean);
-  const availabilityTone =
+  const availabilityTone: DataTone =
     skill.skillAvailability === "AVAILABLE"
-      ? "bg-emerald-400"
+      ? "success"
       : skill.skillAvailability === "OPEN_TO_OFFERS"
-        ? "bg-[var(--color-accent-2)]"
+        ? "info"
         : skill.skillAvailability === "BUSY"
-          ? "bg-amber-400"
-          : "bg-red-400";
+          ? "warning"
+          : "danger";
 
   return (
     <div
@@ -76,9 +77,9 @@ export function ExpandableSkillCard({
         <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(220px,auto)] lg:items-start">
           <div className="min-w-0">
             {skill.isPrimary ? (
-              <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--color-accent-2)]">
+              <ToneBadge tone="accent" className="mb-2 text-[10px] uppercase tracking-[0.12em]">
                 Primary skill
-              </p>
+              </ToneBadge>
             ) : null}
             <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
               <h4 className="truncate text-base font-semibold text-white sm:text-lg">
@@ -95,28 +96,11 @@ export function ExpandableSkillCard({
           {skillRate || availabilityConfig ? (
             <div className="grid min-w-0 grid-cols-[repeat(auto-fit,minmax(108px,1fr))] gap-2">
               {skillRate ? (
-                <div className="rounded-lg border border-white/[0.07] bg-black/[0.12] px-3 py-2">
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-white/35">
-                    Rate
-                  </p>
-                  <p className="mt-1 truncate text-sm font-semibold text-white">
-                    {skillRate}
-                  </p>
-                </div>
+                <InfoCell label="Rate" value={skillRate} tone="money" />
               ) : null}
 
               {availabilityConfig ? (
-                <div className="rounded-lg border border-white/[0.07] bg-black/[0.12] px-3 py-2">
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-white/35">
-                    Status
-                  </p>
-                  <div className="mt-1 flex min-w-0 items-center gap-2">
-                    <span className={cn("h-1.5 w-1.5 flex-shrink-0 rounded-full", availabilityTone)} />
-                    <span className={cn("truncate text-sm font-semibold", availabilityConfig.color)}>
-                      {availabilityConfig.label}
-                    </span>
-                  </div>
-                </div>
+                <InfoCell label="Availability" value={availabilityConfig.label} tone={availabilityTone} />
               ) : null}
             </div>
           ) : null}

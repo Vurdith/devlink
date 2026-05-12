@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Avatar } from "@/components/ui/Avatar";
+import { MetricLink, ToneBadge } from "@/components/ui/DataDisplay";
 import { FollowButton } from "@/components/ui/FollowButton";
 import { surface } from "@/components/ui/design-system";
 import { ProfileTooltip } from "@/components/profile/ProfileTooltip";
@@ -65,9 +66,7 @@ export function NetworkProfileCard({
                   {user.name || user.username}
                 </span>
                 {currentUserId === user.id ? (
-                  <span className="rounded-md border border-white/[0.08] bg-white/[0.045] px-1.5 py-0.5 text-[10px] font-semibold text-white/60">
-                    You
-                  </span>
+                  <ToneBadge tone="muted" className="px-1.5 py-0.5 text-[10px]">You</ToneBadge>
                 ) : null}
               </div>
               <p className="truncate text-sm text-[var(--muted-foreground)]">@{user.username}</p>
@@ -79,24 +78,17 @@ export function NetworkProfileCard({
           <div className="flex flex-wrap items-center gap-2">
             {profileType ? <ProfileTypeLabel profileType={profileType} variant="inline" /> : null}
             {user.profile?.location ? (
-              <span className="truncate rounded-md border border-white/[0.08] bg-white/[0.028] px-2 py-1 text-xs text-white/52">
+              <ToneBadge tone="muted" className="max-w-full">
                 {user.profile.location}
-              </span>
+              </ToneBadge>
             ) : null}
           </div>
           {user.profile?.bio ? (
             <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-white/58">{user.profile.bio}</p>
           ) : null}
-          <div className="mt-3 flex flex-wrap gap-3 text-xs text-[var(--muted-foreground)]">
-            {[
-              ["followers", user._count.followers],
-              ["following", user._count.following],
-            ].map(([label, count]) => (
-              <span key={label} className="inline-flex items-center gap-1.5">
-                <strong className="font-semibold text-white">{count}</strong>
-                {label}
-              </span>
-            ))}
+          <div className="mt-3 flex flex-wrap gap-2 text-xs text-[var(--muted-foreground)]">
+            <MetricLink href={`/u/${user.username}/followers`} label="followers" value={user._count.followers} />
+            <MetricLink href={`/u/${user.username}/following`} label="following" value={user._count.following} />
           </div>
         </div>
 

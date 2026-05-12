@@ -2,6 +2,7 @@
 import { useState, useRef, useEffect, memo, useCallback, useMemo } from "react";
 import { createPortal } from "react-dom";
 import { Avatar } from "../ui/Avatar";
+import { MetricButton } from "@/components/ui/DataDisplay";
 import Image from "next/image";
 import { FollowButton } from "../ui/FollowButton";
 import { ProfileTypeLabel } from "@/components/profile/ProfileTypeLabel";
@@ -406,24 +407,18 @@ export const ProfileTooltip = memo(function ProfileTooltip({
             
             {userData._count && (userData._count.followers != null || userData._count.following != null) && (
               <div className="mb-4 grid grid-cols-2 gap-2">
-                <button
+                <MetricButton
+                  label="followers"
+                  value={formatProfileCount(userData._count.followers)}
+                  className="w-full justify-start border border-white/[0.07] bg-white/[0.025]"
                   onClick={(e) => { e.stopPropagation(); window.location.href = `/u/${userData.username}/followers`; }}
-                  className="group rounded-lg border border-white/[0.07] bg-white/[0.025] px-3 py-2 text-left transition-colors hover:border-white/[0.13] hover:bg-white/[0.045]"
-                >
-                  <span className="block text-sm font-bold text-white transition-colors group-hover:text-[var(--color-accent-2)]">
-                    {formatProfileCount(userData._count.followers)}
-                  </span>
-                  <span className="block text-[10px] font-semibold uppercase tracking-[0.12em] text-white/35">followers</span>
-                </button>
-                <button
+                />
+                <MetricButton
+                  label="following"
+                  value={formatProfileCount(userData._count.following)}
+                  className="w-full justify-start border border-white/[0.07] bg-white/[0.025]"
                   onClick={(e) => { e.stopPropagation(); window.location.href = `/u/${userData.username}/following`; }}
-                  className="group rounded-lg border border-white/[0.07] bg-white/[0.025] px-3 py-2 text-left transition-colors hover:border-white/[0.13] hover:bg-white/[0.045]"
-                >
-                  <span className="block text-sm font-bold text-white transition-colors group-hover:text-[var(--color-accent-2)]">
-                    {formatProfileCount(userData._count.following)}
-                  </span>
-                  <span className="block text-[10px] font-semibold uppercase tracking-[0.12em] text-white/35">following</span>
-                </button>
+                />
               </div>
             )}
             

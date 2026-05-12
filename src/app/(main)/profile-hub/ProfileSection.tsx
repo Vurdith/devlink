@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/Button";
 import { ModalInput, ModalTextarea } from "@/components/ui/BaseModal";
+import { OptionButton } from "@/components/ui/OptionCard";
 import { iconBox, surface, ui } from "@/components/ui/design-system";
 import { cn } from "@/lib/cn";
 import { profileTypes } from "./profile-type-options";
@@ -192,15 +193,15 @@ export function ProfileSection({
             {profileTypes.map((profileType) => {
               const isActive = profile.profileType === profileType.value;
               return (
-                <button
+                <OptionButton
                   key={profileType.value}
-                  type="button"
                   onClick={() => onProfileChange({ ...profile, profileType: profileType.value })}
+                  selected={isActive}
                   className={cn(
-                    "group relative min-h-[138px] min-w-0 rounded-lg border p-4 text-left outline-none transition-all duration-200 focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.7)] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(8,11,16)]",
+                    "relative block min-h-[138px] min-w-0 rounded-lg p-4 outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.7)] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(8,11,16)]",
                     isActive
                       ? `${profileType.bgColor} ${profileType.borderColor} text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]`
-                      : cn(ui.surface.empty, "hover:border-white/[0.14] hover:bg-white/[0.055]")
+                      : null
                   )}
                 >
                   <div
@@ -227,7 +228,7 @@ export function ProfileSection({
 
                   <div className="mb-1 break-words font-medium text-white">{profileType.label}</div>
                   <div className="break-words text-xs leading-relaxed text-[var(--muted-foreground)]">{profileType.description}</div>
-                </button>
+                </OptionButton>
               );
             })}
           </div>

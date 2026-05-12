@@ -1,6 +1,39 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthSession } from "@/server/auth";
 import { prisma } from "@/server/db";
+import { checkRateLimit } from "@/server/rate-limit";
+
+const CUSTOM_SKILL_MIN_LENGTH = 2;
+const CUSTOM_SKILL_MAX_LENGTH = 50;
+const CUSTOM_SKILL_PATTERN = /^[a-zA-Z0-9+#./&() -]+$/;
+
+function normalizeCustomSkillName(name: string) {
+  return name.trim().replace(/\s+/g, " ");
+}
+
+function validateCustomSkillName(name: string) {
+  if (name.length < CUSTOM_SKILL_MIN_LENGTH) {
+    return "Skill name must be at least 2 characters";
+  }
+
+  if (name.length > CUSTOM_SKILL_MAX_LENGTH) {
+    return "Skill name must be 50 characters or less";
+  }
+
+  if (!CUSTOM_SKILL_PATTERN.test(name)) {
+    return "Skill names can only use letters, numbers, spaces, and common skill punctuation";
+  }
+
+  if (/https?:\/\//i.test(name) || /www\./i.test(name)) {
+    return "Skill names cannot be links";
+  }
+
+  if (/(.)\1{7,}/i.test(name.replace(/\s/g, ""))) {
+    return "Skill name has too many repeated characters";
+  }
+
+  return null;
+}
 
 // GET /api/skills - Get all available skills
 export async function GET() {
@@ -25,8 +58,16 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const session = await getAuthSession();
-    if (!session?.user?.email) {
+    if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const rateLimit = await checkRateLimit(`skill_create:${session.user.id}`, 10, 3600);
+    if (!rateLimit.success) {
+      return NextResponse.json(
+        { error: "Too many custom skills created. Try again later." },
+        { status: 429 }
+      );
     }
 
     const body = await request.json();
@@ -36,14 +77,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Skill name is required" }, { status: 400 });
     }
 
-    const trimmedName = name.trim();
-    
-    if (trimmedName.length < 2) {
-      return NextResponse.json({ error: "Skill name must be at least 2 characters" }, { status: 400 });
-    }
-    
-    if (trimmedName.length > 50) {
-      return NextResponse.json({ error: "Skill name must be 50 characters or less" }, { status: 400 });
+    const trimmedName = normalizeCustomSkillName(name);
+    const validationError = validateCustomSkillName(trimmedName);
+
+    if (validationError) {
+      return NextResponse.json({ error: validationError }, { status: 400 });
     }
 
     // Check if skill already exists (case insensitive)

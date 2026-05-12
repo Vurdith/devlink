@@ -1,8 +1,8 @@
 "use client";
 import { memo, useCallback } from "react";
-import Link from "next/link";
 import { Search, SquarePen, Users } from "lucide-react";
 import { VirtualizedPostFeed } from "./VirtualizedPostFeed";
+import { ActionLink } from "@/components/ui/ActionLink";
 import { FeedSkeleton } from "@/components/ui/LoadingSpinner";
 import { surface } from "@/components/ui/design-system";
 import type { FeedPost } from "@/types/post";
@@ -61,14 +61,12 @@ export const PostFeed = memo(function PostFeed({
             </p>
           </div>
           <div className="flex flex-col gap-2 sm:w-44">
-            <Link href="/discover" className="inline-flex items-center justify-center gap-2 rounded-lg border border-[rgba(var(--color-accent-2-rgb),0.30)] bg-[rgba(var(--color-accent-2-rgb),0.10)] px-3 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[rgba(var(--color-accent-2-rgb),0.16)]">
-              <Users className="h-4 w-4" />
+            <ActionLink href="/discover" variant="primary" leftIcon={<Users className="h-4 w-4" />}>
               Find people
-            </Link>
-            <Link href="/search" className="inline-flex items-center justify-center gap-2 rounded-lg border border-white/[0.10] bg-white/[0.035] px-3 py-2.5 text-sm font-semibold text-white/74 transition-colors hover:border-white/[0.18] hover:bg-white/[0.06] hover:text-white">
-              <Search className="h-4 w-4" />
+            </ActionLink>
+            <ActionLink href="/search" variant="secondary" leftIcon={<Search className="h-4 w-4" />}>
               Search tags
-            </Link>
+            </ActionLink>
           </div>
         </div>
         <div className="mt-4 grid gap-2 border-t border-white/[0.06] pt-4 sm:grid-cols-3">

@@ -3,7 +3,7 @@
 import { useCallback, useState, useEffect } from "react";
 import { Button } from "@/components/ui/Button";
 import { iconBox, surface, ui } from "@/components/ui/design-system";
-import { useSession } from "next-auth/react";
+import { getCsrfToken, signIn, useSession } from "next-auth/react";
 import { cn } from "@/lib/cn";
 import { SettingsAuthRequired } from "./SettingsAuthRequired";
 
@@ -93,19 +93,11 @@ export default function AccountLinking() {
     setNotice(null);
     
     try {
-      const response = await fetch("/api/auth/link-account", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ provider }),
-      });
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || "Failed to link account");
+      if (isAccountLinked(provider)) {
+        throw new Error("Account already linked");
       }
 
-      const { authUrl } = await response.json();
-      window.location.href = authUrl;
+      await signIn(provider, { callbackUrl: "/settings" });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unknown error");
     } finally {
@@ -119,10 +111,15 @@ export default function AccountLinking() {
     setNotice(null);
     
     try {
+      const csrfToken = await getCsrfToken();
+      if (!csrfToken) {
+        throw new Error("Unable to verify this request. Please refresh and try again.");
+      }
+
       const response = await fetch("/api/auth/link-account", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ provider }),
+        body: JSON.stringify({ provider, csrfToken }),
       });
 
       if (!response.ok) {

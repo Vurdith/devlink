@@ -10,23 +10,17 @@ export default function MessagesPage() {
   const isLoggedIn = !!session?.user?.id;
   const [showNewMessage, setShowNewMessage] = useState(false);
 
+  if (!isLoggedIn) return null;
+
   return (
     <>
       <div className="hidden h-full flex-col items-center justify-center md:flex">
         <FeedbackState
           className="max-w-[420px] px-8 py-10"
           icon={<MessageIcon />}
-          title={isLoggedIn ? "Select a conversation" : "Your messages"}
-          description={
-            isLoggedIn
-              ? "Pick a thread from the inbox or start a new one."
-              : "Log in to read threads, send messages, and review requests."
-          }
-          action={
-            isLoggedIn
-              ? { label: "New message", onClick: () => setShowNewMessage(true) }
-              : { label: "Log in", href: "/login" }
-          }
+          title="Select a conversation"
+          description="Pick a thread from the inbox or start a new one."
+          action={{ label: "New message", onClick: () => setShowNewMessage(true) }}
         />
       </div>
 

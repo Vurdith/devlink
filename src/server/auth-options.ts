@@ -1,4 +1,5 @@
 import type { NextAuthOptions } from "next-auth";
+import type { AdapterUser } from "next-auth/adapters";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import AppleProvider from "next-auth/providers/apple";
@@ -15,8 +16,81 @@ function normalizeEmail(email: string) {
   return email.trim().toLowerCase();
 }
 
+function sanitizeUsername(name: string | null | undefined, email: string) {
+  const baseName = name || email.split("@")[0];
+  let sanitized = baseName
+    .toLowerCase()
+    .replace(/[^a-z0-9_]/g, "")
+    .replace(/^_+|_+$/g, "")
+    .substring(0, 20);
+
+  if (sanitized.length < 3) {
+    sanitized = `user${Math.random().toString(36).substring(2, 8)}`;
+  }
+
+  return sanitized;
+}
+
+async function createUniqueUsername(name: string | null | undefined, email: string) {
+  const baseUsername = sanitizeUsername(name, email);
+  let username = baseUsername;
+  let counter = 1;
+  const maxAttempts = 100;
+
+  while (counter < maxAttempts) {
+    const existingUsername = await prisma.user.findUnique({
+      where: { username },
+      select: { id: true },
+    });
+
+    if (!existingUsername) {
+      return username;
+    }
+
+    username = `${baseUsername}${counter}`;
+    counter++;
+  }
+
+  return `user${Date.now().toString(36)}${Math.random().toString(36).substring(2, 6)}`;
+}
+
+const prismaAdapter = PrismaAdapter(prisma);
+
 export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma),
+  adapter: {
+    ...prismaAdapter,
+    async createUser(user: Omit<AdapterUser, "id">) {
+      const email = normalizeEmail(user.email);
+      if (!email) {
+        throw new Error("OAuth provider did not return an email address.");
+      }
+
+      const username = await createUniqueUsername(user.name, email);
+
+      return prisma.$transaction(async (tx) => {
+        const createdUser = await tx.user.create({
+          data: {
+            email,
+            username,
+            name: user.name,
+            image: user.image,
+            emailVerified: user.emailVerified ?? new Date(),
+          },
+        });
+
+        await tx.profile.create({
+          data: {
+            userId: createdUser.id,
+            bio: null,
+            profileType: "DEVELOPER",
+            avatarUrl: user.image ?? null,
+          },
+        });
+
+        return createdUser;
+      });
+    },
+  },
   secret: process.env.NEXTAUTH_SECRET,
   session: { strategy: "jwt" },
   pages: {
@@ -118,138 +192,6 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async signIn({ user, account, profile }) {
-      if (account?.provider === "credentials") {
-        return true;
-      }
-      
-      if (account?.provider && profile && user.email) {
-        try {
-          const email = normalizeEmail(user.email);
-          // Use a transaction for atomicity
-          await prisma.$transaction(async (tx) => {
-            // Check if user exists by email
-            const existingUser = await tx.user.findFirst({
-              where: { email: { equals: email, mode: "insensitive" } },
-              include: { accounts: true }
-            });
-
-            if (existingUser) {
-              // Check if this social account is already linked
-              const existingAccount = existingUser.accounts.find(
-                acc => acc.provider === account.provider && acc.providerAccountId === account.providerAccountId
-              );
-              
-              if (!existingAccount) {
-                // Link new social account to existing user
-                await tx.account.create({
-                  data: {
-                    userId: existingUser.id,
-                    type: account.type,
-                    provider: account.provider,
-                    providerAccountId: account.providerAccountId,
-                    refresh_token: account.refresh_token,
-                    access_token: account.access_token,
-                    expires_at: account.expires_at,
-                    token_type: account.token_type,
-                    scope: account.scope,
-                    id_token: account.id_token,
-                    session_state: account.session_state as string | undefined,
-                  }
-                });
-              }
-            } else {
-              // Create new user from social login
-              const sanitizeUsername = (name: string | null | undefined, email: string): string => {
-                // Start with name or email prefix
-                const baseName = name || email.split('@')[0];
-                // Only allow alphanumeric and underscores, minimum 3 chars
-                let sanitized = baseName
-                  .toLowerCase()
-                  .replace(/[^a-z0-9_]/g, '')
-                  .replace(/^_+|_+$/g, '') // Remove leading/trailing underscores
-                  .substring(0, 20);
-                
-                // Ensure minimum length
-                if (sanitized.length < 3) {
-                  sanitized = 'user' + Math.random().toString(36).substring(2, 8);
-                }
-                
-                return sanitized;
-              };
-
-              const baseUsername = sanitizeUsername(user.name, email);
-              let username = baseUsername;
-              let counter = 1;
-              const maxAttempts = 100; // Prevent infinite loop
-
-              // Ensure username is unique
-              while (counter < maxAttempts) {
-                const existingUsername = await tx.user.findUnique({ 
-                  where: { username },
-                  select: { id: true }
-                });
-                
-                if (!existingUsername) break;
-                
-                username = `${baseUsername}${counter}`;
-                counter++;
-              }
-
-              // If we couldn't find a unique username, generate a random one
-              if (counter >= maxAttempts) {
-                username = `user${Date.now().toString(36)}${Math.random().toString(36).substring(2, 6)}`;
-              }
-
-              const newUser = await tx.user.create({
-                data: {
-                  email,
-                  username,
-                  name: user.name,
-                  image: user.image,
-                  emailVerified: new Date(),
-                }
-              });
-
-              // Create profile for new user
-              await tx.profile.create({
-                data: {
-                  userId: newUser.id,
-                  bio: null,
-                  profileType: "DEVELOPER",
-                  avatarUrl: user.image ?? null,
-                }
-              });
-
-              // Create the OAuth account link
-              await tx.account.create({
-                data: {
-                  userId: newUser.id,
-                  type: account.type,
-                  provider: account.provider,
-                  providerAccountId: account.providerAccountId,
-                  refresh_token: account.refresh_token,
-                  access_token: account.access_token,
-                  expires_at: account.expires_at,
-                  token_type: account.token_type,
-                  scope: account.scope,
-                  id_token: account.id_token,
-                  session_state: account.session_state as string | undefined,
-                }
-              });
-
-            }
-          });
-          
-          return true;
-        } catch (error) {
-          console.error("[OAuth SignIn Error]", error);
-          return false;
-        }
-      }
-      
-      return true;
-    },
     async jwt({ token, user, trigger }) {
       // OPTIMIZATION: Only query DB on first sign-in or explicit update
       // This prevents a DB query on every single API request

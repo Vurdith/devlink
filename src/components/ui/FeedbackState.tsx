@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/Button";
+import { ActionLink } from "@/components/ui/ActionLink";
 import { cn } from "@/lib/cn";
-import Link from "next/link";
 import type { ReactNode } from "react";
 import { iconBox, surface } from "./design-system";
 
@@ -58,12 +58,9 @@ export function FeedbackState({
       {action ? (
         <div className="mt-5">
           {action.href ? (
-            <Link
-              href={action.href}
-              className="inline-flex h-11 items-center justify-center rounded-lg border border-[rgba(var(--color-accent-rgb),0.32)] bg-[linear-gradient(180deg,rgba(255,255,255,0.12),transparent),var(--color-accent)] px-5 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:border-[rgba(var(--color-accent-2-rgb),0.46)] hover:brightness-110 active:translate-y-0 active:scale-[0.98]"
-            >
+            <ActionLink href={action.href} variant="primary">
               {action.label}
-            </Link>
+            </ActionLink>
           ) : (
             <Button onClick={action.onClick} variant={danger ? "secondary" : "primary"} size="md">
               {action.label}

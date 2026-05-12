@@ -148,20 +148,23 @@ export const SkillEditModal = memo(function SkillEditModal({ skill, onSave, onCl
                   onClick={() => updateDraftSkill({ skillAvailability: key })}
                   disabled={isSaving}
                   className={cn(
-                    "flex items-center gap-2 rounded-lg border p-2 text-xs font-medium outline-none transition-all disabled:cursor-not-allowed disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]",
+                    "relative overflow-hidden rounded-lg border p-2 text-left text-xs font-medium outline-none transition-all disabled:cursor-not-allowed disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]",
                     draftSkill.skillAvailability === key ? `${config.bgColor} ${config.color}` : cn(ui.surface.empty, "text-white/60 hover:border-white/[0.14] hover:bg-white/[0.045]")
                   )}
                 >
-                  <div
-                    className={cn(
-                      "w-2 h-2 rounded-full",
-                      key === "AVAILABLE" && "bg-emerald-400",
-                      key === "OPEN_TO_OFFERS" && "bg-[var(--color-accent-2)]",
-                      key === "BUSY" && "bg-amber-400",
-                      key === "NOT_AVAILABLE" && "bg-red-400"
-                    )}
-                  />
-                  {config.label}
+                  {draftSkill.skillAvailability === key ? (
+                    <span
+                      aria-hidden="true"
+                      className={cn(
+                        "absolute inset-x-0 top-0 h-px",
+                        key === "AVAILABLE" && "bg-emerald-300/55",
+                        key === "OPEN_TO_OFFERS" && "bg-sky-300/55",
+                        key === "BUSY" && "bg-amber-300/55",
+                        key === "NOT_AVAILABLE" && "bg-rose-300/55"
+                      )}
+                    />
+                  ) : null}
+                  <span className="block">{config.label}</span>
                 </button>
               ))}
             </div>

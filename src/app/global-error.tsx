@@ -2,6 +2,7 @@
 
 import * as Sentry from "@sentry/nextjs";
 import { useEffect } from "react";
+import { Button } from "@/components/ui/Button";
 import { iconBox, surface } from "@/components/ui/design-system";
 
 export default function GlobalError({
@@ -55,19 +56,21 @@ export default function GlobalError({
           )}
 
           <div className="grid gap-3 sm:grid-cols-2">
-            <button
+            <Button
               onClick={() => reset()}
-              className="rounded-lg border border-[rgba(var(--color-accent-2-rgb),0.32)] bg-[linear-gradient(135deg,var(--color-accent),rgba(var(--color-accent-2-rgb),0.92))] px-6 py-2.5 text-sm font-semibold text-white transition-all hover:-translate-y-0.5 hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.68)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)] active:translate-y-0 active:scale-[0.98]"
+              variant="gradient"
+              className="w-full"
             >
             Try again
-            </button>
+            </Button>
             
-            <button
+            <Button
               onClick={() => window.location.href = "/"}
-              className="rounded-lg border border-white/[0.10] bg-white/[0.055] px-6 py-2.5 text-sm font-semibold text-white transition-all hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/[0.09] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.56)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)] active:translate-y-0 active:scale-[0.98]"
+              variant="secondary"
+              className="w-full"
             >
             Go home
-            </button>
+            </Button>
           </div>
         </div>
       </body>

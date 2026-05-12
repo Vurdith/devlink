@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/server/db";
 import { hash, compare } from "bcryptjs";
+import { validatePassword } from "@/lib/validation";
 
 export async function POST(request: NextRequest) {
   try {
@@ -9,20 +10,21 @@ export async function POST(request: NextRequest) {
 
     // Validate input
     if (!token || !newPassword || !confirmPassword) {
-      return NextResponse.json({ 
-        error: "Token, new password, and confirmation are required" 
+      return NextResponse.json({
+        error: "Token, new password, and confirmation are required"
       }, { status: 400 });
     }
 
     if (newPassword !== confirmPassword) {
-      return NextResponse.json({ 
-        error: "New password and confirmation do not match" 
+      return NextResponse.json({
+        error: "New password and confirmation do not match"
       }, { status: 400 });
     }
 
-    if (newPassword.length < 8) {
-      return NextResponse.json({ 
-        error: "New password must be at least 8 characters long" 
+    const passwordValidation = validatePassword(newPassword);
+    if (!passwordValidation.isValid) {
+      return NextResponse.json({
+        error: passwordValidation.errors[0]
       }, { status: 400 });
     }
 
@@ -41,8 +43,8 @@ export async function POST(request: NextRequest) {
     });
 
     if (!resetToken) {
-      return NextResponse.json({ 
-        error: "Invalid or expired reset token" 
+      return NextResponse.json({
+        error: "Invalid or expired reset token"
       }, { status: 400 });
     }
 
@@ -52,25 +54,24 @@ export async function POST(request: NextRequest) {
       await prisma.passwordResetToken.delete({
         where: { id: resetToken.id }
       });
-      
-      return NextResponse.json({ 
-        error: "Reset token has expired. Please request a new password reset." 
+
+      return NextResponse.json({
+        error: "Reset token has expired. Please request a new password reset."
       }, { status: 400 });
     }
 
     // Check if user still has password set (not OAuth-only)
     if (!resetToken.user.password) {
-      return NextResponse.json({ 
-        error: "This account doesn't have a password set. Use OAuth login." 
+      return NextResponse.json({
+        error: "This account doesn't have a password set. Use OAuth login."
       }, { status: 400 });
     }
 
     // Check if new password is different from current
-    
     const isSamePassword = await compare(newPassword, resetToken.user.password);
     if (isSamePassword) {
-      return NextResponse.json({ 
-        error: "New password must be different from your current password" 
+      return NextResponse.json({
+        error: "New password must be different from your current password"
       }, { status: 400 });
     }
 
@@ -81,7 +82,7 @@ export async function POST(request: NextRequest) {
     await prisma.$transaction([
       prisma.user.update({
         where: { id: resetToken.user.id },
-        data: { 
+        data: {
           password: hashedNewPassword,
           updatedAt: new Date()
         }
@@ -95,9 +96,9 @@ export async function POST(request: NextRequest) {
       })
     ]);
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       success: true,
-      message: "Password reset successfully. Please log in with your new password." 
+      message: "Password reset successfully. Please log in with your new password."
     });
 
   } catch (error) {
@@ -108,36 +109,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

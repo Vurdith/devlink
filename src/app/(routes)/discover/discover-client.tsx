@@ -4,12 +4,14 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { PROFILE_TYPE_CONFIG } from "@/types/profile";
 import Link from "next/link";
 import Image from "next/image";
+import { ActionLink } from "@/components/ui/ActionLink";
+import { MetricLink } from "@/components/ui/DataDisplay";
 import { FollowButton } from "@/components/ui/FollowButton";
 import { ProfileTypeLabel } from "@/components/profile/ProfileTypeLabel";
 import { FeedbackState } from "@/components/ui/FeedbackState";
-import { iconBox, surface, ui } from "@/components/ui/design-system";
-import { cn } from "@/lib/cn";
-import { Compass, Search } from "lucide-react";
+import { SegmentedTabs, type SegmentedTabItem } from "@/components/ui/SegmentedTabs";
+import { iconBox, surface } from "@/components/ui/design-system";
+import { Search } from "lucide-react";
 
 type ProfileType = "all" | "DEVELOPER" | "CLIENT" | "INFLUENCER" | "STUDIO" | "INVESTOR";
 
@@ -93,7 +95,7 @@ function getProfileType(user: User) {
 
 function getSignal(user: User) {
   if (user.profile?.bio) return user.profile.bio;
-  if (user._count.followers > 0) return `${formatCount(user._count.followers)} followers on DevLink`;
+  if (user._count.followers > 0) return `${formatCount(user._count.followers)} followers`;
   return "No bio added";
 }
 
@@ -113,15 +115,15 @@ function DiscoverUserRow({
     <div
       className={surface(
         "panelMuted",
-        "group relative min-h-[128px] overflow-hidden transition-colors duration-200 hover:border-[rgba(var(--color-accent-2-rgb),0.22)] hover:bg-white/[0.045]"
+        "group relative overflow-hidden transition-colors duration-200 hover:border-[rgba(var(--color-accent-2-rgb),0.22)] hover:bg-white/[0.04]"
       )}
     >
       <Link href={`/u/${user.username}`} className="absolute inset-0 z-0" aria-label={`Open @${user.username}`}>
         <span className="sr-only">Open @{user.username}</span>
       </Link>
 
-      <div className="relative z-10 grid min-w-0 gap-3 p-4 md:grid-cols-[minmax(0,1fr)_minmax(14rem,0.8fr)_auto] md:items-center">
-        <div className="flex min-w-0 gap-3">
+      <div className="relative z-10 grid min-w-0 gap-4 p-4 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
+        <div className="flex min-w-0 gap-3.5">
           <Link href={`/u/${user.username}`} className="relative flex-shrink-0 rounded-full outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]">
             {user.profile?.avatarUrl ? (
               <Image
@@ -149,32 +151,22 @@ function DiscoverUserRow({
             <div className="flex min-w-0 flex-wrap items-center gap-2">
               <Link
                 href={`/u/${user.username}`}
-                className="truncate rounded text-sm font-semibold text-white outline-none transition-colors group-hover:text-[var(--color-accent-2)] focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]"
+            className="truncate rounded text-base font-semibold text-white outline-none transition-colors group-hover:text-[var(--color-accent-2)] focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]"
               >
                 {displayName}
               </Link>
               <ProfileTypeLabel profileType={getProfileType(user)} variant="compact" />
             </div>
             <div className="mt-0.5 truncate text-xs text-[var(--muted-foreground)]">@{user.username}</div>
-            <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-white/68 md:hidden">
+            <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-white/62">
               {getSignal(user)}
             </p>
           </div>
         </div>
 
-        <div className="hidden min-w-0 md:block">
-          <p className="line-clamp-2 max-w-xl text-sm leading-relaxed text-white/68">
-            {getSignal(user)}
-          </p>
-        </div>
-
         <div className="flex flex-wrap items-center gap-3 border-t border-white/[0.06] pt-3 text-xs text-[var(--muted-foreground)] md:border-t-0 md:pt-0 md:justify-end">
-            <Link href={`/u/${user.username}/followers`} className="relative z-20 rounded outline-none hover:text-white focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]">
-              <span className="font-semibold text-white tabular-nums">{formatCount(user._count.followers)}</span> followers
-            </Link>
-            <Link href={`/u/${user.username}/following`} className="relative z-20 rounded outline-none hover:text-white focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]">
-              <span className="font-semibold text-white tabular-nums">{formatCount(user._count.following)}</span> following
-            </Link>
+            <MetricLink href={`/u/${user.username}/followers`} className="relative z-20" label="followers" value={formatCount(user._count.followers)} />
+            <MetricLink href={`/u/${user.username}/following`} className="relative z-20" label="following" value={formatCount(user._count.following)} />
             {!isCurrentUser && currentUserId ? (
               <span className="relative z-20 ml-auto sm:ml-1">
                 <FollowButton
@@ -290,8 +282,15 @@ export function DiscoverClient({
   const selectedFilterLabel = filters.find((filter) => filter.value === selectedFilter)?.label ?? "profiles";
   const selectedFilterIntent = filters.find((filter) => filter.value === selectedFilter)?.intent ?? "Browse the community";
   const canShowRetry = error && !loading && users.length === 0;
-  const totalFollowers = users.reduce((count, user) => count + user._count.followers, 0);
-  const verifiedCount = users.filter((user) => user.profile?.verified).length;
+  const filterTabs: SegmentedTabItem<ProfileType>[] = filters.map((filter) => ({
+    id: filter.value,
+    label: filter.shortLabel,
+    icon: (
+      <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d={filter.icon} />
+      </svg>
+    ),
+  }));
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-5 sm:px-6 sm:py-6">
@@ -305,66 +304,29 @@ export function DiscoverClient({
               "radial-gradient(780px 240px at 18% 0%, rgba(var(--color-accent-2-rgb),0.09), transparent 62%), radial-gradient(600px 240px at 92% 12%, rgba(var(--color-accent-rgb),0.055), transparent 60%)",
           }}
         />
-        <div className="relative grid gap-5 p-4 sm:p-6 lg:grid-cols-[1fr_280px] lg:items-end">
+        <div className="relative p-4 sm:p-6">
           <div>
-            <div className="mb-2 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.16em] text-[var(--color-accent-2)]">
-              <Compass className="h-3.5 w-3.5" aria-hidden="true" />
-              Community
-            </div>
             <h1 className="max-w-2xl text-2xl font-bold tracking-tight text-white sm:text-3xl">
-              Browse Roblox creators by role.
+              Browse Roblox creators
             </h1>
             <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[var(--muted-foreground)] sm:text-base">
-              Filter by profile type, scan current bios, and open the people worth a closer look.
+              Filter by role and open profiles that look relevant.
             </p>
-          </div>
-
-          <div className="grid grid-cols-3 gap-2 rounded-xl border border-white/[0.08] bg-black/15 p-2 text-center">
-            <div className="min-w-0 rounded-lg bg-white/[0.035] px-2 py-2">
-              <div className="text-base font-semibold text-white tabular-nums">{formatCount(users.length)}</div>
-              <div className="truncate text-[11px] text-[var(--muted-foreground)]">shown</div>
-            </div>
-            <div className="min-w-0 rounded-lg bg-white/[0.035] px-2 py-2">
-              <div className="text-base font-semibold text-white tabular-nums">{formatCount(verifiedCount)}</div>
-              <div className="truncate text-[11px] text-[var(--muted-foreground)]">verified</div>
-            </div>
-            <div className="min-w-0 rounded-lg bg-white/[0.035] px-2 py-2">
-              <div className="text-base font-semibold text-white tabular-nums">{formatCount(totalFollowers)}</div>
-              <div className="truncate text-[11px] text-[var(--muted-foreground)]">followers</div>
-            </div>
           </div>
         </div>
       </div>
 
       <div className="mt-4 grid gap-4 lg:grid-cols-[236px_1fr]">
         <aside className="lg:sticky lg:top-24 lg:self-start">
-          <div className={surface("toolbar", "p-2")}>
-            <div className="mb-2 hidden px-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-white/45 lg:block">Roles</div>
-            <div className="flex gap-2 overflow-x-auto pb-1 lg:flex-col lg:overflow-visible lg:pb-0">
-              {filters.map((filter) => (
-                <button
-                  key={filter.value}
-                  type="button"
-                  onClick={() => handleFilterChange(filter.value)}
-                  aria-pressed={selectedFilter === filter.value}
-                  className={cn(
-                    "flex min-w-max items-center gap-2 rounded-lg border px-3 py-2 text-left text-sm font-semibold transition-all duration-200 outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)] lg:min-w-0",
-                    selectedFilter === filter.value
-                      ? ui.active.cyanStrong
-                      : "border-transparent text-[var(--muted-foreground)] hover:border-white/[0.08] hover:bg-white/[0.045] hover:text-white"
-                  )}
-                >
-                  <span className={cn("grid h-7 w-7 flex-shrink-0 place-items-center rounded-md", selectedFilter === filter.value ? "bg-[rgba(var(--color-accent-2-rgb),0.14)] text-[var(--color-accent-2)]" : "bg-white/[0.05] text-white/55")}>
-                    <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                      <path d={filter.icon} />
-                    </svg>
-                  </span>
-                  <span className="truncate lg:hidden">{filter.shortLabel}</span>
-                  <span className="hidden truncate lg:inline">{filter.label}</span>
-                </button>
-              ))}
-            </div>
-          </div>
+          <SegmentedTabs
+            items={filterTabs}
+            value={selectedFilter}
+            onValueChange={handleFilterChange}
+            ariaLabel="Discover roles"
+            size="sm"
+            listClassName="lg:flex-col lg:overflow-visible lg:pb-0"
+            itemClassName="lg:min-w-0"
+          />
 
           <div className={surface("empty", "mt-3 hidden p-4 lg:block")}>
             <div className={iconBox("cyan", "mb-3 h-9 w-9")}>
@@ -372,12 +334,9 @@ export function DiscoverClient({
             </div>
             <div className="text-sm font-semibold text-white">{selectedFilterLabel}</div>
             <p className="mt-1 text-xs leading-relaxed text-[var(--muted-foreground)]">{selectedFilterIntent}</p>
-            <Link
-              href="/search"
-              className="mt-3 inline-flex rounded-lg border border-white/[0.08] px-3 py-2 text-xs font-semibold text-white/75 transition-colors hover:bg-white/[0.045] hover:text-white"
-            >
+            <ActionLink href="/search" variant="secondary" size="sm" className="mt-3">
               Search profiles
-            </Link>
+            </ActionLink>
           </div>
         </aside>
 
@@ -422,9 +381,7 @@ export function DiscoverClient({
               <div className="text-sm font-semibold text-white">{selectedFilterLabel}</div>
               <p className="mt-0.5 text-xs text-[var(--muted-foreground)]">{selectedFilterIntent}</p>
             </div>
-            <div className="text-xs text-[var(--muted-foreground)]">
-              <span className="font-semibold text-white tabular-nums">{users.length}</span> shown
-            </div>
+            <div className="text-xs text-[var(--muted-foreground)]">{users.length} shown</div>
           </div>
 
           <section className="space-y-2">

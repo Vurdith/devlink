@@ -1,4 +1,5 @@
-// Server Component - No client JS needed
+// Server Component shell; CTA controls share the global premium button primitive.
+import { PremiumButton } from "@/components/ui/PremiumButton";
 import { surface } from "@/components/ui/design-system";
 const features = [
   {
@@ -86,12 +87,9 @@ export function FeaturesSection() {
 
             <div className="mt-12 flex flex-col gap-8">
               <div className="flex">
-                <a href="/register" className="group relative inline-flex items-center justify-center gap-2 rounded-xl border border-white/[0.1] bg-white/[0.045] px-7 py-3 text-sm font-semibold text-white transition-all duration-200 hover:border-white/20 hover:bg-white/[0.08] active:scale-[0.98]">
-                  <span>Start your profile</span>
-                  <svg className="w-4 h-4 opacity-70 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                  </svg>
-                </a>
+                <PremiumButton href="/register" variant="secondary" size="md">
+                  Start your profile
+                </PremiumButton>
               </div>
             </div>
           </div>

@@ -1,5 +1,6 @@
 import { memo } from "react";
 import { AVAILABILITY_STATUS, EXPERIENCE_LEVELS, formatRate, type AvailabilityStatus } from "@/lib/skills";
+import { ToneBadge, type DataTone } from "@/components/ui/DataDisplay";
 import { iconBox, surface, ui } from "@/components/ui/design-system";
 import { cn } from "@/lib/cn";
 import type { UserSkill } from "./profile-hub-types";
@@ -62,6 +63,14 @@ export const UserSkillsPanel = memo(function UserSkillsPanel({ userSkills, curre
               const levelConfig = EXPERIENCE_LEVELS[userSkill.experienceLevel];
               const availConfig = userSkill.skillAvailability ? AVAILABILITY_STATUS[userSkill.skillAvailability as AvailabilityStatus] : null;
               const isRemovingThisSkill = removingSkillId === userSkill.id;
+              const availabilityTone: DataTone =
+                userSkill.skillAvailability === "AVAILABLE"
+                  ? "success"
+                  : userSkill.skillAvailability === "OPEN_TO_OFFERS"
+                    ? "info"
+                    : userSkill.skillAvailability === "BUSY"
+                      ? "warning"
+                      : "danger";
 
               return (
                 <div
@@ -84,7 +93,11 @@ export const UserSkillsPanel = memo(function UserSkillsPanel({ userSkills, curre
                         <h4 className="truncate text-base font-semibold text-white">{userSkill.skill.name}</h4>
                       </div>
 
-                      {userSkill.rate && userSkill.rateUnit && <span className="w-fit max-w-full break-words rounded-md border border-[rgba(var(--color-accent-2-rgb),0.18)] bg-[rgba(var(--color-accent-2-rgb),0.10)] px-2 py-1 text-xs font-semibold text-[var(--color-accent-2)]">{formatRate(userSkill.rate, userSkill.rateUnit, currency)}</span>}
+                      {userSkill.rate && userSkill.rateUnit && (
+                        <ToneBadge tone="money">
+                          {formatRate(userSkill.rate, userSkill.rateUnit, currency)}
+                        </ToneBadge>
+                      )}
                     </div>
 
                     <div className="mb-3 flex flex-wrap items-center gap-3 text-xs text-white/50">
@@ -100,18 +113,9 @@ export const UserSkillsPanel = memo(function UserSkillsPanel({ userSkills, curre
                       {availConfig && (
                         <>
                           <span className="text-white/20">/</span>
-                          <span className="flex items-center gap-1.5">
-                            <span
-                              className={cn(
-                                "w-1.5 h-1.5 rounded-full",
-                                userSkill.skillAvailability === "AVAILABLE" && "bg-emerald-400",
-                                userSkill.skillAvailability === "OPEN_TO_OFFERS" && "bg-[var(--color-accent-2)]",
-                                userSkill.skillAvailability === "BUSY" && "bg-amber-400",
-                                userSkill.skillAvailability === "NOT_AVAILABLE" && "bg-red-400"
-                              )}
-                            />
-                            <span className={availConfig.color}>{availConfig.label}</span>
-                          </span>
+                          <ToneBadge tone={availabilityTone} className="py-0.5 text-[11px]">
+                            {availConfig.label}
+                          </ToneBadge>
                         </>
                       )}
                     </div>

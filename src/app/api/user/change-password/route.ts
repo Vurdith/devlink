@@ -2,11 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { getAuthSession } from "@/server/auth";
 import { prisma } from "@/server/db";
 import { compare, hash } from "bcryptjs";
+import { validatePassword } from "@/lib/validation";
 
 export async function POST(request: NextRequest) {
   try {
     const session = await getAuthSession();
-    
+
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -16,28 +17,29 @@ export async function POST(request: NextRequest) {
 
     // Validate input
     if (!currentPassword || !newPassword || !confirmPassword) {
-      return NextResponse.json({ 
-        error: "All password fields are required" 
+      return NextResponse.json({
+        error: "All password fields are required"
       }, { status: 400 });
     }
 
     if (newPassword !== confirmPassword) {
-      return NextResponse.json({ 
-        error: "New password and confirmation do not match" 
+      return NextResponse.json({
+        error: "New password and confirmation do not match"
       }, { status: 400 });
     }
 
-    if (newPassword.length < 8) {
-      return NextResponse.json({ 
-        error: "New password must be at least 8 characters long" 
+    const passwordValidation = validatePassword(newPassword);
+    if (!passwordValidation.isValid) {
+      return NextResponse.json({
+        error: passwordValidation.errors[0]
       }, { status: 400 });
     }
 
     // Get user with password
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
-      select: { 
-        id: true, 
+      select: {
+        id: true,
         password: true,
         email: true
       }
@@ -49,24 +51,24 @@ export async function POST(request: NextRequest) {
 
     // Check if user has a password (not OAuth-only)
     if (!user.password) {
-      return NextResponse.json({ 
-        error: "This account doesn't have a password set. Use OAuth login or reset your password." 
+      return NextResponse.json({
+        error: "This account doesn't have a password set. Use OAuth login or reset your password."
       }, { status: 400 });
     }
 
     // Verify current password
     const isCurrentPasswordValid = await compare(currentPassword, user.password);
     if (!isCurrentPasswordValid) {
-      return NextResponse.json({ 
-        error: "Current password is incorrect" 
+      return NextResponse.json({
+        error: "Current password is incorrect"
       }, { status: 400 });
     }
 
     // Check if new password is different from current
     const isSamePassword = await compare(newPassword, user.password);
     if (isSamePassword) {
-      return NextResponse.json({ 
-        error: "New password must be different from your current password" 
+      return NextResponse.json({
+        error: "New password must be different from your current password"
       }, { status: 400 });
     }
 
@@ -77,7 +79,7 @@ export async function POST(request: NextRequest) {
     await prisma.$transaction([
       prisma.user.update({
         where: { id: session.user.id },
-        data: { 
+        data: {
           password: hashedNewPassword,
           updatedAt: new Date()
         }
@@ -88,9 +90,9 @@ export async function POST(request: NextRequest) {
       })
     ]);
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       success: true,
-      message: "Password updated successfully. Please log in again on all devices." 
+      message: "Password updated successfully. Please log in again on all devices."
     });
 
   } catch (error) {
@@ -101,7 +103,4 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-
-
-
 

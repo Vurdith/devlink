@@ -3,36 +3,63 @@ import { PrismaPg } from "@prisma/adapter-pg";
 import { Pool } from "pg";
 import { prisma } from "@/server/db";
 
-const globalForReadPrisma = global as unknown as { prismaRead?: PrismaClient };
+const globalForReadPrisma = global as unknown as {
+  prismaRead?: PrismaClient;
+  prismaReadPool?: Pool;
+};
 
-const readConnectionString =
-  process.env.NODE_ENV !== "production" && process.env.DIRECT_URL
-    ? process.env.DIRECT_URL
-    : process.env.READ_DATABASE_URL || process.env.DATABASE_URL;
+const readConnectionString = process.env.READ_DATABASE_URL;
 
-let prismaReadInstance: PrismaClient;
+const isServerlessRuntime =
+  process.env.VERCEL === "1" ||
+  Boolean(process.env.AWS_LAMBDA_FUNCTION_NAME || process.env.NETLIFY);
 
-if (readConnectionString) {
+function positiveIntegerFromEnv(value: string | undefined, fallback: number): number {
+  const parsed = Number.parseInt(value ?? "", 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+}
+
+function createReadPool(connectionString: string) {
   const readPool = new Pool({
-    connectionString: readConnectionString,
-    max: 10,
-    min: 1,
-    idleTimeoutMillis: 30000,
-    connectionTimeoutMillis: 5000,
-    allowExitOnIdle: false,
+    connectionString,
+    max: positiveIntegerFromEnv(
+      process.env.READ_DATABASE_POOL_MAX,
+      process.env.NODE_ENV === "production" && isServerlessRuntime ? 5 : 10
+    ),
+    idleTimeoutMillis: positiveIntegerFromEnv(process.env.READ_DATABASE_POOL_IDLE_MS, 30000),
+    connectionTimeoutMillis: positiveIntegerFromEnv(process.env.READ_DATABASE_POOL_TIMEOUT_MS, 5000),
+    allowExitOnIdle: process.env.NODE_ENV !== "production",
   });
 
   readPool.on("error", (err) => {
     console.error("Read replica pool error:", err);
   });
 
-  const readAdapter = new PrismaPg(readPool);
+  return readPool;
+}
+
+function getReadPool(connectionString: string) {
+  if (process.env.NODE_ENV === "production") {
+    return createReadPool(connectionString);
+  }
+
+  globalForReadPrisma.prismaReadPool ??= createReadPool(connectionString);
+  return globalForReadPrisma.prismaReadPool;
+}
+
+function createReadPrismaClient(connectionString: string) {
+  return new PrismaClient({
+    log: ["error"],
+    adapter: new PrismaPg(getReadPool(connectionString)),
+  });
+}
+
+let prismaReadInstance: PrismaClient;
+
+if (readConnectionString) {
   prismaReadInstance =
     globalForReadPrisma.prismaRead ??
-    new PrismaClient({
-      log: ["error"],
-      adapter: readAdapter,
-    });
+    createReadPrismaClient(readConnectionString);
 } else {
   prismaReadInstance = prisma;
 }

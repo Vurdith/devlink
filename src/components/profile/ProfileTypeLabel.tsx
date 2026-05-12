@@ -10,7 +10,7 @@ interface ProfileTypeLabelProps {
 }
 
 const variantClasses: Record<ProfileTypeLabelVariant, string> = {
-  hero: "rounded-full px-2.5 py-1 text-[11px] uppercase tracking-[0.08em]",
+  hero: "min-h-6 rounded-md px-2 py-0.5 text-[11px] uppercase tracking-[0.08em]",
   inline: "rounded-md px-2.5 py-1 text-xs",
   compact: "rounded px-2 py-0.5 text-[11px]",
 };
@@ -31,7 +31,7 @@ export function ProfileTypeLabel({
   return (
     <span
       className={cn(
-        "inline-flex max-w-full flex-shrink-0 items-center gap-1.5 whitespace-nowrap border border-current/25 font-semibold",
+        "inline-flex max-w-full flex-shrink-0 items-center gap-1.5 whitespace-nowrap border border-current/15 font-semibold leading-none shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]",
         config.bgColor,
         config.color,
         variantClasses[variant],
@@ -40,7 +40,7 @@ export function ProfileTypeLabel({
     >
       <span
         className={cn(
-          "inline-flex flex-shrink-0 items-center justify-center rounded-full bg-current/10",
+          "inline-flex flex-shrink-0 items-center justify-center rounded-md bg-current/10",
           variant === "hero" ? "h-4 w-4" : "h-3.5 w-3.5"
         )}
         aria-hidden="true"

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
+import { OptionButton } from "@/components/ui/OptionCard";
 import { iconBox, surface, ui } from "@/components/ui/design-system";
 import { cn } from "@/lib/cn";
 
@@ -171,16 +172,11 @@ export function ProfileTypeCard() {
             const isActive = type === profileType.value;
             
             return (
-              <button
+              <OptionButton
                 key={profileType.value}
-                type="button"
                 onClick={() => setType(profileType.value)}
-                className={cn(
-                  "relative overflow-hidden p-4 rounded-xl border text-left transition-all group animate-slide-up active:scale-98",
-                  isActive 
-                    ? `${profileType.bgColor} ${profileType.borderColor} ${ui.active.purple}`
-                    : cn(ui.surface.empty, "hover:border-white/[0.14] hover:bg-white/[0.055]")
-                )}
+                selected={isActive}
+                className={cn("relative block overflow-hidden p-4 animate-slide-up active:scale-98", isActive && `${profileType.bgColor} ${profileType.borderColor} ${ui.active.purple}`)}
                 style={{ animationDelay: `${index * 0.03}s` }}
               >
                 {!isActive ? (
@@ -220,7 +216,7 @@ export function ProfileTypeCard() {
                 {/* Text */}
                 <div className="font-medium text-white mb-1">{profileType.label}</div>
                 <div className="text-xs text-[var(--muted-foreground)]">{profileType.description}</div>
-              </button>
+              </OptionButton>
             );
           })}
         </div>

@@ -1,7 +1,7 @@
 import { memo, useMemo, useState } from "react";
 import { ModalInput } from "@/components/ui/BaseModal";
-import { iconBox, surface, ui } from "@/components/ui/design-system";
-import { cn } from "@/lib/cn";
+import { OptionButton } from "@/components/ui/OptionCard";
+import { iconBox, surface } from "@/components/ui/design-system";
 import type { Skill, UserSkill } from "./profile-hub-types";
 
 interface AddSkillsPanelProps {
@@ -74,21 +74,15 @@ export const AddSkillsPanel = memo(function AddSkillsPanel({
             const isAddingThisSkill = addingSkillId === skill.id;
 
             return (
-              <button
+              <OptionButton
                 key={skill.id}
-                type="button"
                 onClick={async () => {
                   const didAdd = await onAddSkill(skill);
                   if (didAdd) setSkillSearch("");
                 }}
                 disabled={!canAddMore || isBusy}
                 aria-busy={isAddingThisSkill}
-                className={cn(
-                  "group min-w-0 rounded-lg border p-3 text-left outline-none transition-all duration-200 focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.7)] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(8,11,16)]",
-                  ui.surface.empty,
-                  "hover:border-[rgba(var(--color-accent-2-rgb),0.28)] hover:bg-[rgba(var(--color-accent-2-rgb),0.06)]",
-                  (!canAddMore || isBusy) && "opacity-50 cursor-not-allowed"
-                )}
+                className="min-w-0 rounded-lg p-3 outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.7)] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(8,11,16)]"
               >
                 <p className="flex min-w-0 items-center justify-between gap-2 text-sm font-medium text-white">
                   <span className="truncate">{skill.name}</span>
@@ -96,24 +90,21 @@ export const AddSkillsPanel = memo(function AddSkillsPanel({
                     <span className="h-3.5 w-3.5 shrink-0 rounded-full border-2 border-white/60 border-r-transparent animate-spin" aria-hidden="true" />
                   )}
                 </p>
-              </button>
+              </OptionButton>
             );
           })}
 
           {trimmedSearch && visibleSkills.length === 0 && (
-            <button
+            <OptionButton
               type="button"
               onClick={async () => {
                 const didAdd = await onAddCustomSkill(trimmedSearch);
                 if (didAdd) setSkillSearch("");
               }}
               disabled={!canAddMore || isBusy}
+              selected
               aria-busy={isAddingCustomSkill}
-              className={cn(
-                "col-span-full min-w-0 rounded-lg border p-3 text-left outline-none transition-all focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.7)] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(8,11,16)]",
-                "border-[rgba(var(--color-accent-2-rgb),0.28)] bg-[rgba(var(--color-accent-2-rgb),0.06)] hover:bg-[rgba(var(--color-accent-2-rgb),0.10)]",
-                (!canAddMore || isBusy) && "opacity-50 cursor-not-allowed"
-              )}
+              className="col-span-full min-w-0 rounded-lg p-3 outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.7)] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(8,11,16)]"
             >
               <p className="flex items-center gap-2 text-sm font-medium text-white">
                 <svg className="w-4 h-4 text-[var(--color-accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -126,7 +117,7 @@ export const AddSkillsPanel = memo(function AddSkillsPanel({
                   <span className="h-3.5 w-3.5 shrink-0 rounded-full border-2 border-white/60 border-r-transparent animate-spin" aria-hidden="true" />
                 )}
               </p>
-            </button>
+            </OptionButton>
           )}
         </div>
 

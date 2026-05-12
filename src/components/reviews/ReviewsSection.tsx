@@ -4,8 +4,9 @@ import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { ConfirmModal } from "../ui/BaseModal";
 import { Button } from "@/components/ui/Button";
 import { FeedbackState } from "@/components/ui/FeedbackState";
+import { SegmentedTabs, type SegmentedTabItem } from "@/components/ui/SegmentedTabs";
 import { cn } from "@/lib/cn";
-import { skeleton, surface, ui } from "@/components/ui/design-system";
+import { skeleton, surface } from "@/components/ui/design-system";
 import { CreateReview } from "./CreateReview";
 import { Review } from "./Review";
 
@@ -205,11 +206,32 @@ export const ReviewsSection = memo(function ReviewsSection({
     );
   }
 
-  const filterTabs: Array<{ id: SentimentFilter; label: string; count: number; className?: string; activeHalo?: string }> = [
+  const filterTabs: SegmentedTabItem<SentimentFilter>[] = [
     { id: "all", label: "All", count: reviews.length },
-    { id: "positive", label: "Positive", count: sentimentCounts.positive, activeHalo: "accent-halo-emerald", className: "data-[active=true]:border-emerald-500/30 data-[active=true]:bg-emerald-500/16 data-[active=true]:text-emerald-300 hover:text-emerald-300" },
-    { id: "neutral", label: "Neutral", count: sentimentCounts.neutral, activeHalo: "accent-halo-amber", className: "data-[active=true]:border-amber-500/30 data-[active=true]:bg-amber-500/16 data-[active=true]:text-amber-300 hover:text-amber-300" },
-    { id: "negative", label: "Critical", count: sentimentCounts.negative, activeHalo: "accent-halo-rose", className: "data-[active=true]:border-rose-500/30 data-[active=true]:bg-rose-500/16 data-[active=true]:text-rose-300 hover:text-rose-300" },
+    {
+      id: "positive",
+      label: "Positive",
+      count: sentimentCounts.positive,
+      activeHaloClassName: "accent-halo-emerald",
+      activeClassName: "border-emerald-500/30 bg-emerald-500/16 text-emerald-300",
+      className: "hover:text-emerald-300",
+    },
+    {
+      id: "neutral",
+      label: "Neutral",
+      count: sentimentCounts.neutral,
+      activeHaloClassName: "accent-halo-amber",
+      activeClassName: "border-amber-500/30 bg-amber-500/16 text-amber-300",
+      className: "hover:text-amber-300",
+    },
+    {
+      id: "negative",
+      label: "Critical",
+      count: sentimentCounts.negative,
+      activeHaloClassName: "accent-halo-rose",
+      activeClassName: "border-rose-500/30 bg-rose-500/16 text-rose-300",
+      className: "hover:text-rose-300",
+    },
   ];
 
   return (
@@ -252,33 +274,13 @@ export const ReviewsSection = memo(function ReviewsSection({
       </section>
 
       {reviews.length > 0 ? (
-        <div className={surface("toolbar", "flex gap-1.5 overflow-x-auto p-1.5")}>
-          {filterTabs.map((tab) => {
-            const active = sentimentFilter === tab.id;
-
-            return (
-              <button
-                key={tab.id}
-                type="button"
-                data-active={active}
-                onClick={() => setSentimentFilter(tab.id)}
-                className={cn(
-                  "flex-shrink-0 rounded-lg border px-4 py-2 text-sm font-semibold outline-none transition-all focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.7)]",
-                  active
-                    ? tab.id === "all"
-                      ? ui.active.cyanStrong
-                      : "border-white/[0.10]"
-                    : "border-transparent text-white/50 hover:border-white/[0.08] hover:bg-white/[0.045] hover:text-white/80",
-                  active && tab.activeHalo,
-                  tab.className
-                )}
-              >
-                {tab.label}
-                <span className="ml-1.5 text-white/40">({tab.count})</span>
-              </button>
-            );
-          })}
-        </div>
+        <SegmentedTabs
+          items={filterTabs}
+          value={sentimentFilter}
+          onValueChange={setSentimentFilter}
+          ariaLabel="Review filters"
+          size="sm"
+        />
       ) : null}
 
       {showCreateForm ? (

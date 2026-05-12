@@ -1,6 +1,6 @@
-import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import type { ReactNode } from "react";
+import { ActionLink } from "@/components/ui/ActionLink";
 import { surface } from "@/components/ui/design-system";
 
 interface LegalPageShellProps {
@@ -18,13 +18,15 @@ export function LegalPageShell({ title, description, updatedAt, sections = [], c
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 grid-pattern opacity-[0.08]" />
 
       <div className="relative mx-auto w-full max-w-4xl">
-        <Link
+        <ActionLink
           href="/"
-          className="group mb-6 inline-flex h-10 items-center gap-2 rounded-lg border border-white/[0.08] bg-white/[0.035] px-3 text-sm font-medium text-white/70 outline-none transition-all hover:border-[rgba(var(--color-accent-2-rgb),0.24)] hover:bg-white/[0.065] hover:text-white focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.60)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)]"
+          variant="secondary"
+          size="sm"
+          className="mb-6"
+          leftIcon={<ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-0.5" />}
         >
-          <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-0.5" />
           Back to home
-        </Link>
+        </ActionLink>
 
         <article className={surface("panel", "noise-overlay relative overflow-hidden p-5 sm:p-8 lg:p-10")}>
           <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.46)] to-transparent" />

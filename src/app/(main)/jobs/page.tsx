@@ -4,7 +4,9 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { BriefcaseBusiness, CheckCircle2, DollarSign, FileText, MapPin, Send, Users } from "lucide-react";
+import { ActionLink } from "@/components/ui/ActionLink";
 import { Button } from "@/components/ui/Button";
+import { ToneBadge, type DataTone } from "@/components/ui/DataDisplay";
 import { iconBox, surface, ui } from "@/components/ui/design-system";
 import { useToastContext } from "@/components/providers/ToastProvider";
 import { cn } from "@/lib/cn";
@@ -28,17 +30,10 @@ function splitSkills(skills: string | null) {
     .slice(0, 4);
 }
 
-function statusPillClass(tone: "open" | "applied" | "muted" = "muted") {
-  const tones = {
-    open: "border-emerald-300/20 bg-emerald-400/10 text-emerald-200",
-    applied: "border-[rgba(var(--color-accent-2-rgb),0.24)] bg-[rgba(var(--color-accent-2-rgb),0.10)] text-[var(--color-accent-2)]",
-    muted: "border-white/[0.10] bg-white/[0.04] text-white/60",
-  };
-
-  return cn(
-    "inline-flex w-fit items-center rounded-lg border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.10em]",
-    tones[tone]
-  );
+function statusTone(tone: "open" | "applied" | "muted" = "muted"): DataTone {
+  if (tone === "open") return "success";
+  if (tone === "applied") return "accent";
+  return "muted";
 }
 
 export default function JobsPage() {
@@ -257,18 +252,12 @@ export default function JobsPage() {
             <p className="mt-1 text-sm text-[var(--muted-foreground)]">Sign in to post a brief and track applications.</p>
           </div>
           <div className="flex flex-col gap-2 sm:flex-row">
-            <Link
-              href="/login"
-              className={cn("inline-flex min-h-11 items-center justify-center rounded-lg px-4 text-xs font-semibold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.65)] sm:min-h-10", ui.control.ghost)}
-            >
+            <ActionLink href="/login" variant="secondary" size="md" className="w-full sm:w-auto">
               Log in
-            </Link>
-            <Link
-              href="/register"
-              className={cn("inline-flex min-h-11 items-center justify-center rounded-lg px-4 text-xs font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.65)] sm:min-h-10", ui.control.gradient)}
-            >
+            </ActionLink>
+            <ActionLink href="/register" variant="glow" size="md" className="w-full sm:w-auto">
               Sign up
-            </Link>
+            </ActionLink>
           </div>
         </div>
       )}
@@ -432,7 +421,7 @@ export default function JobsPage() {
                       <Link href={`/jobs/${job.id}`} className="truncate transition-colors hover:text-[var(--color-accent-2)] focus-visible:outline-none focus-visible:text-[var(--color-accent-2)]">
                         {job.title}
                       </Link>
-                      <span className={statusPillClass(job.status === "OPEN" ? "open" : "muted")}>{job.status}</span>
+                      <ToneBadge tone={statusTone(job.status === "OPEN" ? "open" : "muted")} className="text-[10px] uppercase tracking-[0.10em]">{job.status}</ToneBadge>
                     </div>
                   ))}
                 </div>
@@ -453,7 +442,7 @@ export default function JobsPage() {
                   {myApplications.map((application) => (
                     <div key={application.id} className="flex items-center justify-between gap-3 rounded-lg border border-transparent px-2 py-1.5 text-sm text-white/80 transition-colors hover:border-white/[0.08] hover:bg-white/[0.035]">
                       <span className="truncate">{application.job?.title || "Job"}</span>
-                      <span className={statusPillClass(application.status === "PENDING" ? "applied" : "muted")}>{application.status}</span>
+                      <ToneBadge tone={statusTone(application.status === "PENDING" ? "applied" : "muted")} className="text-[10px] uppercase tracking-[0.10em]">{application.status}</ToneBadge>
                     </div>
                   ))}
                 </div>
@@ -507,9 +496,9 @@ function JobCard({
             </span>
           </div>
         </div>
-        <span className={statusPillClass(alreadyApplied ? "applied" : "open")}>
+        <ToneBadge tone={statusTone(alreadyApplied ? "applied" : "open")} className="text-[10px] uppercase tracking-[0.10em]">
           {alreadyApplied ? "Applied" : job.status}
-        </span>
+        </ToneBadge>
       </div>
 
       <p className="mt-3 line-clamp-3 border-l border-[rgba(var(--color-accent-2-rgb),0.24)] pl-3 text-sm leading-relaxed text-white/75 sm:pr-4">
@@ -524,7 +513,7 @@ function JobCard({
             </span>
           ))
         ) : (
-          <span className="rounded-md border border-white/[0.08] bg-white/[0.04] px-2.5 py-1 text-xs font-medium text-white/55">Skills flexible</span>
+          <ToneBadge tone="muted">Skills flexible</ToneBadge>
         )}
       </div>
 

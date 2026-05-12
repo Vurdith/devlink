@@ -1,86 +1,45 @@
 import { NextRequest, NextResponse } from "next/server";
-import crypto from "crypto";
+import { createHash, timingSafeEqual } from "crypto";
+import { cookies } from "next/headers";
 import { getAuthSession } from "@/server/auth";
 import { prisma } from "@/server/db";
 
-export async function POST(request: NextRequest) {
-  try {
-    const session = await getAuthSession();
-    
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+const LINKABLE_PROVIDERS = new Set(["google", "apple", "twitter", "roblox"]);
 
-    const { provider } = await request.json();
+function isLinkableProvider(provider: unknown): provider is string {
+  return typeof provider === "string" && LINKABLE_PROVIDERS.has(provider);
+}
 
-    if (!provider || !["google", "apple", "twitter", "roblox"].includes(provider)) {
-      return NextResponse.json({ error: "Invalid provider" }, { status: 400 });
-    }
-
-    // Check if user already has this provider linked
-    const existingAccount = await prisma.account.findFirst({
-      where: {
-        userId: session.user.id,
-        provider: provider,
-      },
-    });
-
-    if (existingAccount) {
-      return NextResponse.json({ error: "Account already linked" }, { status: 400 });
-    }
-
-    // Generate a cryptographically secure state parameter for OAuth flow
-    const stateToken = crypto.randomBytes(16).toString("hex");
-    const state = `${session.user.id}:${provider}:${stateToken}`;
-    
-    // Store the state in a temporary way (you might want to use Redis or a database table for this)
-    // For now, we'll use a simple approach with the OAuth URL
-    
-    let authUrl = "";
-    
-    if (provider === "google") {
-      const params = new URLSearchParams({
-        client_id: process.env.GOOGLE_CLIENT_ID!,
-        redirect_uri: `${process.env.NEXTAUTH_URL}/api/auth/callback/google`,
-        response_type: "code",
-        scope: "openid email profile",
-        state: state,
-      });
-      authUrl = `https://accounts.google.com/o/oauth2/v2/auth?${params}`;
-    } else if (provider === "apple") {
-      const params = new URLSearchParams({
-        client_id: process.env.APPLE_ID!,
-        redirect_uri: `${process.env.NEXTAUTH_URL}/api/auth/callback/apple`,
-        response_type: "code",
-        scope: "name email",
-        state: state,
-      });
-      authUrl = `https://appleid.apple.com/auth/authorize?${params}`;
-    } else if (provider === "twitter") {
-      const params = new URLSearchParams({
-        client_id: process.env.TWITTER_CLIENT_ID!,
-        redirect_uri: `${process.env.NEXTAUTH_URL}/api/auth/callback/twitter`,
-        response_type: "code",
-        scope: "tweet.read users.read",
-        state: state,
-      });
-      authUrl = `https://twitter.com/i/oauth2/authorize?${params}`;
-    } else if (provider === "roblox") {
-      const params = new URLSearchParams({
-        client_id: process.env.ROBLOX_CLIENT_ID!,
-        redirect_uri: `${process.env.NEXTAUTH_URL}/api/auth/callback/roblox`,
-        response_type: "code",
-        scope: "openid profile",
-        state: state,
-      });
-      authUrl = `https://authorize.roblox.com/v1/authorize?${params}`;
-    }
-
-    return NextResponse.json({ authUrl });
-  } catch (error) {
-    console.error("Error linking account:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+async function verifyNextAuthCsrfToken(csrfToken: unknown) {
+  if (typeof csrfToken !== "string" || !process.env.NEXTAUTH_SECRET) {
+    return false;
   }
+
+  const cookieStore = await cookies();
+  const cookieValue =
+    cookieStore.get("__Host-next-auth.csrf-token")?.value ??
+    cookieStore.get("next-auth.csrf-token")?.value;
+
+  if (!cookieValue) {
+    return false;
+  }
+
+  const [cookieToken, cookieHash] = cookieValue.split("|");
+  if (!cookieToken || !cookieHash || cookieToken !== csrfToken) {
+    return false;
+  }
+
+  const expectedHash = createHash("sha256")
+    .update(`${cookieToken}${process.env.NEXTAUTH_SECRET}`)
+    .digest("hex");
+
+  const cookieHashBuffer = Buffer.from(cookieHash);
+  const expectedHashBuffer = Buffer.from(expectedHash);
+
+  return (
+    cookieHashBuffer.length === expectedHashBuffer.length &&
+    timingSafeEqual(cookieHashBuffer, expectedHashBuffer)
+  );
 }
 
 export async function DELETE(request: NextRequest) {
@@ -91,34 +50,61 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { provider } = await request.json();
+    let payload: unknown;
+    try {
+      payload = await request.json();
+    } catch {
+      return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
+    }
 
-    if (!provider || !["google", "apple", "twitter", "roblox"].includes(provider)) {
+    if (typeof payload !== "object" || payload === null || Array.isArray(payload)) {
+      return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
+    }
+
+    const { provider, csrfToken } = payload as { provider?: unknown; csrfToken?: unknown };
+
+    if (!isLinkableProvider(provider)) {
       return NextResponse.json({ error: "Invalid provider" }, { status: 400 });
     }
 
-    // Check if user has a password (can't unlink if it's their only login method)
+    const requestCsrfToken = request.headers.get("x-csrf-token") ?? csrfToken;
+    if (!(await verifyNextAuthCsrfToken(requestCsrfToken))) {
+      return NextResponse.json({ error: "Invalid CSRF token" }, { status: 403 });
+    }
+
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
-      include: { accounts: true },
+      select: {
+        password: true,
+        accounts: {
+          select: {
+            id: true,
+            provider: true,
+          },
+        },
+      },
     });
 
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // If user has no password and only one social account, don't allow unlinking
-    if (!user.password && user.accounts.length <= 1) {
+    const matchingAccounts = user.accounts.filter((account) => account.provider === provider);
+    if (matchingAccounts.length === 0) {
+      return NextResponse.json({ error: "Account is not linked" }, { status: 404 });
+    }
+
+    const remainingOAuthAccounts = user.accounts.length - matchingAccounts.length;
+    if (!user.password && remainingOAuthAccounts < 1) {
       return NextResponse.json({ 
         error: "Cannot unlink your only login method. Please set a password first." 
       }, { status: 400 });
     }
 
-    // Remove the account
     await prisma.account.deleteMany({
       where: {
         userId: session.user.id,
-        provider: provider,
+        provider,
       },
     });
 
