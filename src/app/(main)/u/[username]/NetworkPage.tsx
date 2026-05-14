@@ -114,7 +114,7 @@ export function NetworkPage({
         </div>
       </section>
 
-      <div className="grid auto-rows-fr gap-3 lg:grid-cols-2">
+      <div className="grid gap-3">
         {users.map((user) => (
           <NetworkProfileCard
             key={user.id}
