@@ -3,7 +3,8 @@ import Link from "next/link";
 import { FeedbackState } from "@/components/ui/FeedbackState";
 import { iconBox, surface } from "@/components/ui/design-system";
 import { NetworkProfileCard, type NetworkUser } from "./NetworkProfileCard";
-import { getProfileTypeConfig } from "@/types/profile";
+import { getProfileTypeConfig, ProfileTypeIcon } from "@/types/profile";
+import { UsersRound } from "lucide-react";
 
 interface NetworkPageProps {
   title: string;
@@ -74,20 +75,34 @@ export function NetworkPage({
             <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[var(--muted-foreground)]">{description}</p>
             {users.length > 0 ? (
               <div className="mt-4 flex flex-wrap gap-2">
-                <span className="rounded-md border border-white/[0.08] bg-white/[0.035] px-2.5 py-1 text-xs font-semibold text-white/66">
-                  {users.length} listed
+                <span className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-white/[0.08] bg-black/[0.16] px-3 text-sm font-semibold text-white/78">
+                  <span className="grid h-6 w-6 place-items-center rounded-md border border-white/[0.08] bg-white/[0.035] text-[var(--color-accent-2)]">
+                    <UsersRound className="h-3.5 w-3.5" aria-hidden="true" />
+                  </span>
+                  <span>{users.length}</span>
+                  <span className="text-xs font-medium text-white/42">people</span>
                 </span>
                 {verifiedCount > 0 ? (
-                  <span className="rounded-md border border-white/[0.08] bg-white/[0.035] px-2.5 py-1 text-xs font-semibold text-white/66">
-                    {verifiedCount} verified
+                  <span className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-white/[0.08] bg-black/[0.16] px-3 text-sm font-semibold text-white/78">
+                    <span className="grid h-6 w-6 place-items-center rounded-md border border-white/[0.08] bg-white/[0.035] text-[var(--color-accent-2)]">
+                      <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                        <path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                      </svg>
+                    </span>
+                    <span>{verifiedCount}</span>
+                    <span className="text-xs font-medium text-white/42">verified</span>
                   </span>
                 ) : null}
                 {topRoles.map(([role, count]) => {
                   const config = getProfileTypeConfig(role);
 
                   return (
-                    <span key={role} className="rounded-md border border-white/[0.08] bg-white/[0.035] px-2.5 py-1 text-xs font-semibold text-white/66">
-                      {config.label} {count}
+                    <span key={role} className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-white/[0.08] bg-black/[0.16] px-3 text-sm font-semibold text-white/78">
+                    <span aria-hidden="true" className="grid h-6 w-6 place-items-center rounded-md border border-white/[0.08] bg-white/[0.035] text-[var(--color-accent-2)]">
+                        <ProfileTypeIcon profileType={role} size={14} />
+                      </span>
+                      <span>{count}</span>
+                      <span className="text-xs font-medium text-white/42">{config.label}</span>
                     </span>
                   );
                 })}
@@ -99,7 +114,7 @@ export function NetworkPage({
         </div>
       </section>
 
-      <div className="grid gap-3 lg:grid-cols-2">
+      <div className="grid auto-rows-fr gap-3 lg:grid-cols-2">
         {users.map((user) => (
           <NetworkProfileCard
             key={user.id}
