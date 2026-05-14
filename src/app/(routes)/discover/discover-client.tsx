@@ -119,7 +119,7 @@ function DiscoverUserRow({
       )}
     >
       {user.profile?.bannerUrl ? (
-        <div className="relative h-24 overflow-hidden border-b border-white/[0.06] bg-black/25 sm:h-28">
+        <div className="relative h-32 overflow-hidden border-b border-white/[0.06] bg-black/25 sm:h-40">
           <Image
             src={user.profile.bannerUrl}
             alt=""
@@ -132,7 +132,7 @@ function DiscoverUserRow({
       ) : (
         <div
           aria-hidden="true"
-          className="relative h-24 border-b border-white/[0.06] opacity-80 sm:h-28"
+          className="relative h-32 border-b border-white/[0.06] opacity-80 sm:h-40"
           style={{
             background:
               "linear-gradient(135deg, rgba(var(--color-accent-3-rgb),0.22), rgba(var(--color-accent-rgb),0.10) 46%, rgba(7,9,13,0.92) 100%)",
@@ -143,7 +143,7 @@ function DiscoverUserRow({
         <span className="sr-only">Open @{user.username}</span>
       </Link>
 
-      <div className="relative z-10 grid min-h-[104px] min-w-0 gap-4 bg-[rgba(7,9,13,0.88)] p-4 sm:p-5 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
+      <div className="relative z-10 grid min-h-[120px] min-w-0 gap-4 bg-[rgba(7,9,13,0.9)] p-4 sm:p-5 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
         <div className="flex min-w-0 gap-4">
           <Link href={`/u/${user.username}`} className="relative flex-shrink-0 self-start rounded-full outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]">
             {user.profile?.avatarUrl ? (

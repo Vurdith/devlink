@@ -1,8 +1,7 @@
 "use client";
 import dynamic from "next/dynamic";
-import Link from "next/link";
 import { memo } from "react";
-import { ArrowRight, Bell, BriefcaseBusiness, Code2, MessageSquare, Search, Users } from "lucide-react";
+import { ArrowRight, Bell, BriefcaseBusiness, Code2, Search, Users } from "lucide-react";
 import { PostFeed } from "./PostFeed";
 import { ActionLink } from "@/components/ui/ActionLink";
 import { ThemeLogoImg } from "@/components/ui/ThemeLogo";
@@ -61,12 +60,6 @@ const audienceLanes = [
   },
 ];
 
-const workQueue = [
-  { label: "Discover", desc: "Find people worth following", Icon: Search, href: "/discover" },
-  { label: "Jobs", desc: "Open briefs from clients and teams", Icon: BriefcaseBusiness, href: "/jobs" },
-  { label: "Messages", desc: "Pick up active conversations", Icon: MessageSquare, href: "/messages" },
-];
-
 function CreatePostFallback() {
   return (
     <div className={surface("panelMuted", "create-post-collapsed noise-overlay relative mb-6 overflow-hidden p-4 sm:p-5")}>
@@ -101,8 +94,6 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
 
   const firstName = currentUserProfile?.name?.split(" ")[0] || currentUserProfile?.username || "there";
   const feedCountLabel = feedPosts.length === 1 ? "1 update" : `${feedPosts.length} updates`;
-  const followingCount = currentUserProfile?._count.following ?? 0;
-  const followerCount = currentUserProfile?._count.followers ?? 0;
 
   return (
     <>
@@ -169,7 +160,7 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
       )}
 
       {session && currentUserProfile && (
-        <div className="grid min-w-0 gap-5 pb-20 pt-4 animate-slide-up lg:grid-cols-[minmax(0,760px)_minmax(280px,1fr)] lg:items-start lg:gap-8 lg:pb-28 lg:pt-8">
+        <div className="mx-auto grid w-full max-w-3xl min-w-0 gap-5 pb-20 pt-4 animate-slide-up lg:pb-28 lg:pt-8">
           <main className="min-w-0">
             <div className="mb-5 grid min-w-0 gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
               <div className="min-w-0">
@@ -203,48 +194,6 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
               session={session}
             />
           </main>
-
-          <aside className="min-w-0 space-y-4 lg:sticky lg:top-24">
-            <section className={surface("toolbar", "noise-overlay overflow-hidden p-4")}>
-              <div className="mb-3 flex items-center justify-between gap-3">
-                <div>
-                  <h2 className="text-sm font-semibold text-white">Your profile</h2>
-                  <p className="mt-1 text-xs text-white/45">@{currentUserProfile.username}</p>
-                </div>
-                <div className="rounded-lg border border-white/[0.08] bg-white/[0.04] px-2.5 py-1.5 text-xs font-semibold text-white/62">
-                  {followingCount} following
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-2">
-                <div className="rounded-lg border border-white/[0.07] bg-white/[0.025] p-3">
-                  <div className="text-xl font-semibold text-white">{followerCount}</div>
-                  <div className="mt-1 text-xs text-white/45">followers</div>
-                </div>
-                <div className="rounded-lg border border-white/[0.07] bg-white/[0.025] p-3">
-                  <div className="text-xl font-semibold text-white">{feedPosts.length}</div>
-                  <div className="mt-1 text-xs text-white/45">updates</div>
-                </div>
-              </div>
-            </section>
-
-            <section className={surface("empty", "p-3")}>
-              <h2 className="px-1 pb-2 text-sm font-semibold text-white">Next places</h2>
-              <div className="space-y-1">
-                {workQueue.map(({ label, desc, Icon, href }) => (
-                  <Link key={label} href={href} className="grid grid-cols-[34px_minmax(0,1fr)] gap-3 rounded-lg px-2 py-2.5 transition-all duration-200 hover:translate-x-0.5 hover:bg-white/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.55)]">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.035] text-white/62">
-                      <Icon className="h-4 w-4" />
-                    </div>
-                    <div className="min-w-0">
-                      <div className="text-sm font-medium text-white/86">{label}</div>
-                      <p className="mt-0.5 text-xs leading-5 text-white/42">{desc}</p>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </section>
-          </aside>
         </div>
       )}
     </>

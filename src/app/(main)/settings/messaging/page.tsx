@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { surface } from "@/components/ui/design-system";
 import { OptionButton } from "@/components/ui/OptionCard";
+import { cn } from "@/lib/cn";
 import { safeJson } from "@/lib/safe-json";
 import type { MessagingSettings } from "@/types/api";
 import { SettingsAuthRequired } from "../_components/SettingsAuthRequired";
@@ -122,8 +123,7 @@ export default function MessagingSettingsPage() {
           </div>
         </div>
       ) : (
-        <>
-          <SettingsSection
+        <SettingsSection
             title="New conversations"
             description="Choose who can send the first message."
             className="animate-slide-up"
@@ -152,7 +152,7 @@ export default function MessagingSettingsPage() {
               </div>
             ) : null}
 
-            <div className="space-y-1">
+            <div className="grid gap-2">
               {options.map((option, index) => {
                 const isSelected = settings?.allowFrom === option.value;
                 const isSavingThis = savingChoice === option.value;
@@ -162,10 +162,32 @@ export default function MessagingSettingsPage() {
                     disabled={saving}
                     selected={isSelected}
                     onClick={() => updateSetting(option.value as MessagingSettings["allowFrom"])}
-                    className="animate-slide-up outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]"
+                    className={cn(
+                      "animate-slide-up outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]",
+                      isSelected && "grid-cols-[1fr_auto] border-[rgba(var(--color-accent-2-rgb),0.42)] bg-[rgba(var(--color-accent-2-rgb),0.11)]"
+                    )}
                     style={{ animationDelay: `${0.05 + index * 0.03}s` }}
                   >
                     <div className="flex min-w-0 items-center gap-3">
+                      <span
+                        className={cn(
+                          "flex h-8 w-8 shrink-0 items-center justify-center rounded-full border transition-colors",
+                          isSelected
+                            ? "border-[rgba(var(--color-accent-2-rgb),0.42)] bg-[rgba(var(--color-accent-2-rgb),0.14)] text-[var(--color-accent-2)]"
+                            : "border-white/[0.08] bg-white/[0.025] text-white/35"
+                        )}
+                        aria-hidden="true"
+                      >
+                        {isSelected ? (
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+                            <path d="M20 6 9 17l-5-5" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                          </svg>
+                        ) : (
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="12" r="7" stroke="currentColor" strokeWidth="2" />
+                          </svg>
+                        )}
+                      </span>
                       <span className="min-w-0">
                         <span className="block font-semibold text-white">{option.label}</span>
                         <span className="mt-0.5 block text-sm text-[var(--muted-foreground)]">{option.description}</span>
@@ -173,27 +195,12 @@ export default function MessagingSettingsPage() {
                     </div>
                     {isSavingThis ? (
                       <span className="shrink-0 text-xs font-semibold text-[var(--color-accent)]">Saving</span>
-                    ) : isSelected ? (
-                      <span className="shrink-0 text-xs font-semibold text-[var(--color-accent)]">Active</span>
                     ) : null}
                   </OptionButton>
                 );
               })}
             </div>
           </SettingsSection>
-
-          <SettingsSection
-            title="Requests"
-            description="Messages outside your rule arrive here instead of opening a thread."
-            tone="muted"
-            className="animate-slide-up"
-            style={{ animationDelay: "0.08s" }}
-          >
-            <p className="rounded-xl border border-white/[0.08] bg-white/[0.035] p-4 text-sm leading-6 text-[var(--muted-foreground)]">
-              Messages outside your rule arrive as requests. You can accept the thread or leave it closed.
-            </p>
-          </SettingsSection>
-        </>
       )}
     </div>
   );

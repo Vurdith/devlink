@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/Button";
 import { ModalInput, ModalTextarea } from "@/components/ui/BaseModal";
 import { OptionButton } from "@/components/ui/OptionCard";
-import { iconBox, surface, ui } from "@/components/ui/design-system";
+import { iconBox, surface } from "@/components/ui/design-system";
 import { cn } from "@/lib/cn";
 import { profileTypes } from "./profile-type-options";
 
@@ -93,90 +93,7 @@ export function ProfileSection({
       <div className={surface("panel", "relative overflow-hidden p-4 sm:p-6")}>
         <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-white/[0.08]" />
         <div className="relative">
-          <div className="mb-6 flex min-w-0 items-center gap-3">
-            <div className={iconBox("cyan", "h-10 w-10")}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-white">
-                <path d="M4 7h16M4 12h16M4 17h10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-              </svg>
-            </div>
-            <div className="min-w-0">
-              <h2 className="text-lg font-semibold text-white">Work details</h2>
-              <p className="text-sm text-[var(--muted-foreground)]">Shown on your public profile when someone checks availability.</p>
-            </div>
-          </div>
-
-          <div className="grid gap-4">
-            <div>
-              <label className="mb-1.5 block text-sm font-medium text-white/68">Headline</label>
-              <ModalInput
-                value={profile.headline}
-                onChange={(event) => onProfileChange({ ...profile, headline: event.target.value })}
-                placeholder="e.g., Roblox UI engineer building polished game interfaces"
-                maxLength={150}
-              />
-            </div>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div>
-                <label className="mb-1.5 block text-sm font-medium text-white/68">Availability</label>
-                <select
-                  value={profile.availability}
-                  onChange={(event) => onProfileChange({ ...profile, availability: event.target.value })}
-                  className={ui.control.field}
-                >
-                  <option value="AVAILABLE">Available</option>
-                  <option value="OPEN_TO_OFFERS">Open to offers</option>
-                  <option value="BUSY">Busy</option>
-                  <option value="NOT_AVAILABLE">Not available</option>
-                </select>
-              </div>
-              <div>
-                <label className="mb-1.5 block text-sm font-medium text-white/68">Response time</label>
-                <select
-                  value={profile.responseTime}
-                  onChange={(event) => onProfileChange({ ...profile, responseTime: event.target.value })}
-                  className={ui.control.field}
-                >
-                  <option value="">No estimate</option>
-                  <option value="WITHIN_HOURS">Within hours</option>
-                  <option value="WITHIN_DAY">Within a day</option>
-                  <option value="WITHIN_WEEK">Within a week</option>
-                </select>
-              </div>
-            </div>
-            <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_120px]">
-              <div>
-                <label className="mb-1.5 block text-sm font-medium text-white/68">Hourly rate</label>
-                <ModalInput
-                  type="number"
-                  min={0}
-                  value={profile.hourlyRate ?? ""}
-                  onChange={(event) =>
-                    onProfileChange({
-                      ...profile,
-                      hourlyRate: event.target.value === "" ? null : Number(event.target.value),
-                    })
-                  }
-                  placeholder="Optional"
-                />
-              </div>
-              <div>
-                <label className="mb-1.5 block text-sm font-medium text-white/68">Currency</label>
-                <ModalInput
-                  value={profile.currency}
-                  onChange={(event) => onProfileChange({ ...profile, currency: event.target.value.toUpperCase().slice(0, 3) })}
-                  placeholder="USD"
-                  maxLength={3}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className={surface("panel", "relative overflow-hidden p-4 sm:p-6")}>
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-white/[0.08]" />
-        <div className="relative">
-          <div className="mb-6 flex min-w-0 items-center gap-3">
+          <div className="mb-5 flex min-w-0 items-center gap-3">
             <div className={iconBox("cyan", "h-10 w-10")}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-white">
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -185,11 +102,11 @@ export function ProfileSection({
             </div>
             <div className="min-w-0">
               <h2 className="text-lg font-semibold text-white">Profile type</h2>
-              <p className="text-sm text-[var(--muted-foreground)]">Pick the label that best matches your work.</p>
+              <p className="text-sm text-[var(--muted-foreground)]">This label appears beside your name across DevLink.</p>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
             {profileTypes.map((profileType) => {
               const isActive = profile.profileType === profileType.value;
               return (
@@ -198,7 +115,7 @@ export function ProfileSection({
                   onClick={() => onProfileChange({ ...profile, profileType: profileType.value })}
                   selected={isActive}
                   className={cn(
-                    "relative block min-h-[138px] min-w-0 rounded-lg p-4 outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.7)] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(8,11,16)]",
+                    "relative min-h-[86px] min-w-0 rounded-lg p-3.5 outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.7)] focus-visible:ring-offset-2 focus-visible:ring-offset-[rgb(8,11,16)]",
                     isActive
                       ? `${profileType.bgColor} ${profileType.borderColor} text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]`
                       : null
@@ -219,15 +136,17 @@ export function ProfileSection({
 
                   <div
                     className={cn(
-                      "mb-3 flex h-10 w-10 items-center justify-center rounded-lg transition-all",
+                      "flex h-10 w-10 shrink-0 items-center justify-center rounded-lg transition-all",
                       isActive ? `bg-gradient-to-br ${profileType.gradient} text-white` : "bg-white/[0.045] text-[var(--muted-foreground)] group-hover:bg-white/[0.075] group-hover:text-white/78"
                     )}
                   >
                     {profileType.icon}
                   </div>
 
-                  <div className="mb-1 break-words font-medium text-white">{profileType.label}</div>
-                  <div className="break-words text-xs leading-relaxed text-[var(--muted-foreground)]">{profileType.description}</div>
+                  <div className="min-w-0 flex-1 pr-7">
+                    <div className="break-words font-medium text-white">{profileType.label}</div>
+                    <div className="mt-1 break-words text-xs leading-relaxed text-[var(--muted-foreground)]">{profileType.description}</div>
+                  </div>
                 </OptionButton>
               );
             })}

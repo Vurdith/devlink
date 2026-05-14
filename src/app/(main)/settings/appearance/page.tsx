@@ -96,58 +96,6 @@ function SwatchStack({ theme }: { theme: ThemeConfig }) {
   );
 }
 
-function InterfaceSample({ theme }: { theme: ThemeConfig }) {
-  return (
-    <div className="relative overflow-hidden rounded-xl border border-white/[0.08] bg-[rgba(8,11,16,0.72)] p-4">
-      <div
-        aria-hidden="true"
-        className="absolute inset-x-0 top-0 h-px"
-        style={{ background: `linear-gradient(90deg, transparent, rgba(${theme.colors.accent2Rgb},0.55), transparent)` }}
-      />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 opacity-70"
-        style={{
-          background: `radial-gradient(520px 150px at 18% 0%, rgba(${theme.colors.accentRgb},0.14), transparent 62%)`,
-        }}
-      />
-      <div className="relative flex items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-lg border border-white/[0.10] bg-black/20 p-1.5">
-            <img src={getLogoPath(theme.id)} alt="" className="h-full w-full object-contain" />
-          </div>
-          <div>
-            <div className="text-sm font-semibold text-white">Profile card</div>
-            <div className="text-xs text-white/42">How this theme feels in the app</div>
-          </div>
-        </div>
-        <div
-          className="rounded-lg border px-3 py-1.5 text-xs font-semibold text-white"
-          style={{
-            borderColor: `rgba(${theme.colors.accent2Rgb},0.28)`,
-            background: `linear-gradient(135deg, rgba(${theme.colors.accentRgb},0.70), rgba(${theme.colors.accent2Rgb},0.86))`,
-          }}
-        >
-          Save changes
-        </div>
-      </div>
-      <div className="relative mt-4 grid gap-2 sm:grid-cols-[1fr_auto]">
-        <div className="rounded-lg border border-white/[0.08] bg-white/[0.035] px-3 py-2 text-sm text-white/55">Write a profile headline</div>
-        <div
-          className="rounded-lg border px-3 py-2 text-sm font-medium"
-          style={{
-            color: theme.colors.accent2,
-            borderColor: `rgba(${theme.colors.accent2Rgb},0.24)`,
-            backgroundColor: `rgba(${theme.colors.accent2Rgb},0.08)`,
-          }}
-        >
-          Available
-        </div>
-      </div>
-    </div>
-  );
-}
-
 export default function AppearanceSettingsPage() {
   const { themeId, setTheme } = useTheme();
   const themes = useMemo(() => getAllThemes(), []);
@@ -197,19 +145,7 @@ export default function AppearanceSettingsPage() {
               />
             </div>
             <div className="min-w-0">
-              <div className="mb-3 flex flex-wrap items-center gap-2">
-                <span
-                  className="rounded-full border px-3 py-1 text-xs font-bold uppercase tracking-[0.16em]"
-                  style={{
-                    color: selectedTheme.colors.accent2,
-                    borderColor: `rgba(${selectedTheme.colors.accent2Rgb},0.28)`,
-                    backgroundColor: `rgba(${selectedTheme.colors.accent2Rgb},0.08)`,
-                  }}
-                >
-                  Active
-                </span>
-                <span className="text-xs font-medium uppercase tracking-[0.16em] text-white/35">Current theme</span>
-              </div>
+              <div className="mb-3 text-xs font-medium uppercase tracking-[0.16em] text-white/35">Current theme</div>
               <h2 className="font-[var(--font-space-grotesk)] text-3xl font-bold tracking-normal text-white sm:text-4xl">
                 {selectedTheme.name}
               </h2>
@@ -244,16 +180,6 @@ export default function AppearanceSettingsPage() {
         </aside>
       </div>
 
-      <section className={surface("panelMuted", "noise-overlay relative overflow-hidden p-5 sm:p-6")}>
-        <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <h2 className="text-base font-semibold text-white">In the interface</h2>
-            <p className="mt-1 text-sm text-white/45">A quick check for buttons, fields, panels, and active states.</p>
-          </div>
-          <span className="text-xs font-medium uppercase tracking-[0.16em] text-white/30">{selectedTheme.id}</span>
-        </div>
-        <InterfaceSample theme={selectedTheme} />
-      </section>
     </div>
   );
 }

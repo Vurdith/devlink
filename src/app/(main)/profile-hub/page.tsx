@@ -9,7 +9,6 @@ import { ProfileHubTabs } from "./ProfileHubTabs";
 import { ProfileSection, type ProfileData } from "./ProfileSection";
 import { SkillEditModal } from "./SkillEditModal";
 import { UserSkillsPanel } from "./UserSkillsPanel";
-import { cn } from "@/lib/cn";
 import { iconBox, skeleton, surface } from "@/components/ui/design-system";
 import type { Skill, UserSkill } from "./profile-hub-types";
 
@@ -259,16 +258,6 @@ export default function ProfileHubPage() {
     }
   }, [removingSkillId, toast]);
 
-  const completedProfileFields = [
-    name,
-    profile.headline,
-    profile.bio,
-    profile.location,
-    profile.website,
-  ].filter((value) => Boolean(value && String(value).trim())).length;
-  const profileCompletion = Math.round((completedProfileFields / 5) * 100);
-  const hasPrimarySkill = userSkills.some((skill) => skill.isPrimary);
-
   if (status === "loading" || isLoading) {
     return (
       <main className="relative w-full min-w-0 px-0 py-4 sm:px-4 sm:py-10">
@@ -324,14 +313,15 @@ export default function ProfileHubPage() {
                 </svg>
               </div>
               <div className="min-w-0 flex-1">
-                <h1 className="font-[var(--font-space-grotesk)] text-2xl font-bold text-white">Edit your public profile</h1>
-                <p className="mt-0.5 max-w-xl text-sm leading-relaxed text-[var(--muted-foreground)] sm:text-base">Edit the public details people see before they message you.</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--color-accent-2)]">Profile hub</p>
+                <h1 className="mt-1 font-[var(--font-space-grotesk)] text-2xl font-bold text-white">Edit your public profile</h1>
+                <p className="mt-1 max-w-xl text-sm leading-relaxed text-[var(--muted-foreground)] sm:text-base">Keep your name, bio, profile type, and skill list accurate.</p>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px] lg:items-start">
+        <div className="mx-auto max-w-5xl">
           <div className="min-w-0">
             <ProfileHubTabs activeSection={activeSection} onSectionChange={setActiveSection} />
 
@@ -369,31 +359,6 @@ export default function ProfileHubPage() {
               </div>
             )}
           </div>
-
-          <aside className="space-y-3 lg:sticky lg:top-24">
-            <div className={surface("panel", "p-4")}>
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-white/42">Public profile</p>
-              <div className="mt-3 grid grid-cols-2 gap-2">
-                <div className="rounded-lg border border-white/[0.08] bg-white/[0.035] px-3 py-2">
-                  <p className="text-2xl font-semibold text-white">{profileCompletion}%</p>
-                  <p className="mt-1 text-xs text-white/45">complete</p>
-                </div>
-                <div className="rounded-lg border border-white/[0.08] bg-white/[0.035] px-3 py-2">
-                  <p className={cn("text-2xl font-semibold", hasPrimarySkill ? "text-emerald-300" : "text-white")}>{userSkills.length}</p>
-                  <p className="mt-1 text-xs text-white/45">skills</p>
-                </div>
-              </div>
-            </div>
-
-            <div className={surface("panelMuted", "p-4")}>
-              <h2 className="text-sm font-semibold text-white">Before people message you</h2>
-              <div className="mt-3 space-y-2 text-sm leading-6 text-white/55">
-                <p>Add a headline that says what you build.</p>
-                <p>Pick one primary skill so your profile has a clear lead.</p>
-                <p>Keep rates and response time current if you want client messages.</p>
-              </div>
-            </div>
-          </aside>
         </div>
 
       {editingSkill && (

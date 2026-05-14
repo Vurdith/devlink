@@ -10,9 +10,10 @@ interface ToastProps {
   type?: "success" | "error" | "info";
   duration?: number;
   onClose: () => void;
+  inStack?: boolean;
 }
 
-export function Toast({ title, description, message, type = "success", duration = 3000, onClose }: ToastProps) {
+export function Toast({ title, description, message, type = "success", duration = 3000, onClose, inStack = false }: ToastProps) {
   const [isVisible, setIsVisible] = useState(true);
   const visibleTitle = title || message || "Notification";
 
@@ -65,7 +66,15 @@ export function Toast({ title, description, message, type = "success", duration 
       aria-live={type === "error" ? "assertive" : "polite"}
       aria-atomic="true"
       className={cn(
-        surface("panelStrong", "fixed right-3 top-3 z-[999999] flex w-[calc(100vw-1.5rem)] max-w-sm items-start gap-3 px-4 py-3 shadow-2xl shadow-black/30 transition-all duration-300 sm:right-4 sm:top-4 sm:w-auto"),
+        surface(
+          "panelStrong",
+          cn(
+            "flex items-start gap-3 px-4 py-3 shadow-2xl shadow-black/25 transition-all duration-300",
+            inStack
+              ? "pointer-events-auto w-full"
+              : "fixed right-3 top-[calc(4rem+0.75rem)] z-[999999] w-[calc(100vw-1.5rem)] max-w-sm sm:right-4 sm:top-[calc(4rem+1rem)] sm:w-auto"
+          )
+        ),
         getBgColor(),
         isVisible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"
       )}

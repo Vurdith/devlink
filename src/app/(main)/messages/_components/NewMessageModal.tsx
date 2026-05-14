@@ -3,11 +3,12 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Avatar } from "@/components/ui/Avatar";
+import { BaseModal } from "@/components/ui/BaseModal";
 import { ProfileTypeLabel } from "@/components/profile/ProfileTypeLabel";
 import { menuItem, surface, ui } from "@/components/ui/design-system";
 import { cn } from "@/lib/cn";
 import { safeJson } from "@/lib/safe-json";
-import { Search, X } from "lucide-react";
+import { Search } from "lucide-react";
 import type { MessageThread, MessageRequest } from "@/types/api";
 
 type UserSearchResult = {
@@ -96,39 +97,25 @@ export function NewMessageModal({ onClose, onThreadCreated, onRequestSent }: New
     }
   }, [onClose, onRequestSent, onThreadCreated, router]);
 
-  // Close on Escape
-  useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
-    document.addEventListener("keydown", handleKey);
-    return () => document.removeEventListener("keydown", handleKey);
-  }, [onClose]);
-
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center px-3 pt-[8vh] sm:pt-[10vh]">
-      {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/75 backdrop-blur-sm" onClick={onClose} />
-
-      {/* Modal */}
-      <div className={surface("panelStrong", "noise-overlay relative flex max-h-[78vh] w-full max-w-[600px] flex-col overflow-hidden")}>
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.42)] to-transparent" />
-        {/* Header */}
-        <div className="flex h-[58px] flex-shrink-0 items-center gap-3 border-b border-white/[0.06] px-4">
-          <button
-            onClick={onClose}
-            className={cn("flex h-9 w-9 items-center justify-center rounded-lg text-white/60 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]", ui.control.ghost)}
-            aria-label="Close new message"
-          >
-            <X className="h-[18px] w-[18px]" aria-hidden="true" />
-          </button>
-          <div className="min-w-0 flex-1">
-            <h2 className="text-base font-bold text-white">New message</h2>
-            <p className="text-xs text-white/38">Find a profile and open the thread.</p>
-          </div>
-        </div>
-
-        {/* Search */}
+    <BaseModal
+      isOpen
+      onClose={onClose}
+      title="New message"
+      size="xl"
+      className="noise-overlay"
+      contentClassName="flex flex-col"
+      headerRight={
+        creating ? (
+          <span
+            className="h-5 w-5 rounded-full border-2 border-white/20 border-t-[var(--color-accent)] animate-spin"
+            aria-label="Starting conversation"
+          />
+        ) : null
+      }
+    >
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.42)] to-transparent" />
+      <div className="flex max-h-[68dvh] min-h-[360px] flex-col">
         <div className="flex flex-shrink-0 items-center gap-3 border-b border-white/[0.06] px-4 py-3">
           <div className="relative min-w-0 flex-1">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/30" aria-hidden="true" />
@@ -144,12 +131,8 @@ export function NewMessageModal({ onClose, onThreadCreated, onRequestSent }: New
               disabled={creating}
             />
           </div>
-          {creating && (
-            <div className="w-5 h-5 border-2 border-white/20 border-t-[var(--color-accent)] rounded-full animate-spin flex-shrink-0" />
-          )}
         </div>
 
-        {/* Results */}
         <div className="flex-1 overflow-y-auto scrollbar-hide">
           {feedback && (
             <div className="p-4 pb-0">
@@ -241,6 +224,6 @@ export function NewMessageModal({ onClose, onThreadCreated, onRequestSent }: New
           ))}
         </div>
       </div>
-    </div>
+    </BaseModal>
   );
 }

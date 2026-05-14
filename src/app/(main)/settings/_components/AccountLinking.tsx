@@ -150,13 +150,14 @@ export default function AccountLinking() {
   return (
     <SettingsSection
       title="Connected accounts"
-      description="Keep at least one reliable sign-in method available before disconnecting a provider."
+      description="Add backup sign-in methods or disconnect providers you no longer use."
       icon={
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-white">
             <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
       }
+      contentClassName="max-w-3xl"
     >
 
       {/* Error Message */}
@@ -182,12 +183,8 @@ export default function AccountLinking() {
         </div>
       )}
 
-      <div className="mb-4 rounded-xl border border-white/[0.08] bg-white/[0.035] p-4 text-sm leading-6 text-[var(--muted-foreground)]">
-        Set a password on the Security page before removing your only external sign-in method.
-      </div>
-
       {/* Provider List */}
-      <div className="space-y-3">
+      <div className="grid gap-2">
         {isInitialLoading ? (
           // Loading skeleton
           [...Array(3)].map((_, i) => (
@@ -211,7 +208,7 @@ export default function AccountLinking() {
             <div
               key={provider.id}
               className={cn(
-                "relative flex flex-col gap-4 overflow-hidden rounded-xl border p-4 transition-all animate-slide-up sm:flex-row sm:items-center sm:justify-between",
+                "relative grid gap-4 overflow-hidden rounded-xl border p-4 transition-all animate-slide-up sm:grid-cols-[1fr_auto] sm:items-center",
                 linked 
                   ? "border-[rgba(var(--color-accent-2-rgb),0.25)] bg-[rgba(var(--color-accent-2-rgb),0.09)]"
                   : cn(ui.surface.empty, "hover:border-white/[0.14] hover:bg-white/[0.055]")
@@ -228,29 +225,29 @@ export default function AccountLinking() {
                   }}
                 />
               ) : null}
-              <div className="relative flex min-w-0 items-center gap-4">
+              <div className="relative flex min-w-0 items-center gap-3">
                 {/* Provider Icon */}
-                <div className={cn("w-10 h-10 rounded-lg flex items-center justify-center", provider.bgColor)}>
+                <div className={cn("flex h-10 w-10 shrink-0 items-center justify-center rounded-lg", provider.bgColor)}>
                   {provider.icon}
                 </div>
                 
                 {/* Info */}
-                <div>
-                  <div className="font-semibold text-white">{provider.name}</div>
-                  <div className="mt-1 flex items-center gap-2 text-sm text-[var(--muted-foreground)]">
+                <div className="min-w-0">
+                  <div className="truncate font-semibold text-white">{provider.name}</div>
+                  <div className="mt-1 flex min-w-0 items-center gap-2 text-sm text-[var(--muted-foreground)]">
                     {linked ? (
                       <span className="rounded-md border border-[rgba(var(--color-accent-2-rgb),0.24)] bg-[rgba(var(--color-accent-2-rgb),0.08)] px-2 py-0.5 text-xs font-semibold text-[var(--color-accent-2)]">
                         Connected
                       </span>
                     ) : (
-                      "Available as a backup sign-in method"
+                      <span className="truncate">Backup sign-in</span>
                     )}
                   </div>
                 </div>
               </div>
               
               {/* Action Button */}
-              <div className="relative flex w-full flex-col gap-2 sm:w-auto sm:min-w-[150px]">
+              <div className="relative flex w-full flex-col gap-2 sm:w-auto sm:min-w-[148px]">
                 {linked && isConfirmingDisconnect ? (
                   <>
                     <Button

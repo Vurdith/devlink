@@ -7,7 +7,7 @@ import { Avatar } from "@/components/ui/Avatar";
 import { ChevronDown, ChevronRight, LogOut, Settings, UserRound } from "lucide-react";
 import { iconBox, menuItem, menuPanel, ui } from "@/components/ui/design-system";
 import { cn } from "@/lib/cn";
-import { ProfileTypeLabel } from "@/components/profile/ProfileTypeLabel";
+import { getProfileTypeConfig, ProfileTypeIcon } from "@/types/profile";
 
 interface ProfileMenuProps {
   username: string;
@@ -78,6 +78,7 @@ export const ProfileMenu = memo(function ProfileMenu({ username, avatarUrl: init
 
   const closeMenu = useCallback(() => setOpen(false), []);
   const toggleMenu = useCallback(() => setOpen((current) => !current), []);
+  const profileTypeConfig = profileType ? getProfileTypeConfig(profileType) : null;
 
   const handleSignOut = async () => {
     setOpen(false);
@@ -139,10 +140,16 @@ export const ProfileMenu = memo(function ProfileMenu({ username, avatarUrl: init
                 <div className="truncate font-semibold text-white">
                   {name || username}
                 </div>
-                <div className="mt-1 flex min-w-0 items-center gap-2">
+                <div className="mt-1 flex min-w-0 flex-wrap items-center gap-2">
                   <span className="truncate text-sm text-[var(--muted-foreground)]">@{username}</span>
-                  {profileType ? (
-                    <ProfileTypeLabel profileType={profileType} variant="compact" />
+                  {profileType && profileTypeConfig ? (
+                    <>
+                      <span aria-hidden="true" className="h-1 w-1 rounded-full bg-white/18" />
+                      <span className="inline-flex min-w-0 items-center gap-1.5 text-xs font-semibold text-white/58">
+                        <ProfileTypeIcon profileType={profileType} size={11} className={cn("flex-shrink-0", profileTypeConfig.color)} />
+                        <span className="truncate">{profileTypeConfig.label}</span>
+                      </span>
+                    </>
                   ) : null}
                 </div>
               </div>
