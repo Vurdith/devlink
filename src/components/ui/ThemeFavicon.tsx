@@ -14,28 +14,24 @@ export function ThemeFavicon() {
   useEffect(() => {
     const faviconPath = getFaviconPath(themeId);
 
-    // Remove all existing favicons
-    const existingIcons = document.querySelectorAll('link[rel*="icon"]');
-    existingIcons.forEach(icon => icon.remove());
+    const ensureThemeIcon = (rel: string, href: string, type?: string) => {
+      const selector = `link[data-devlink-theme-icon="true"][rel="${rel}"]`;
+      let link = document.querySelector<HTMLLinkElement>(selector);
 
-    // Create new favicon with correct theme
-    const favicon = document.createElement('link');
-    favicon.rel = 'icon';
-    favicon.type = 'image/x-icon';
-    favicon.href = faviconPath;
-    document.head.appendChild(favicon);
+      if (!link) {
+        link = document.createElement('link');
+        link.rel = rel;
+        link.dataset.devlinkThemeIcon = 'true';
+        document.head.appendChild(link);
+      }
 
-    // Also add shortcut icon for older browsers
-    const shortcut = document.createElement('link');
-    shortcut.rel = 'shortcut icon';
-    shortcut.href = faviconPath;
-    document.head.appendChild(shortcut);
-
-    // Clean up on unmount or theme change
-    return () => {
-      favicon.remove();
-      shortcut.remove();
+      link.href = href;
+      if (type) link.type = type;
+      else link.removeAttribute('type');
     };
+
+    ensureThemeIcon('icon', faviconPath, 'image/x-icon');
+    ensureThemeIcon('shortcut icon', faviconPath);
   }, [themeId]);
 
   return null;

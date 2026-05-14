@@ -77,36 +77,30 @@ export function ThemeProvider({ children, defaultTheme = DEFAULT_THEME }: ThemeP
     const logoPath = getLogoPath(themeId);
 
     const ensureIconLink = (rel: string, href: string, type?: string) => {
-      const matches = Array.from(document.querySelectorAll<HTMLLinkElement>(`link[rel="${rel}"]`)).filter(
-        (link) => link.getAttribute('href') === href
-      );
+      const matches = Array.from(document.querySelectorAll<HTMLLinkElement>(`link[rel="${rel}"][data-devlink-theme-icon="true"]`));
       const [first, ...duplicates] = matches;
-      duplicates.forEach((link) => link.remove());
+      duplicates.forEach((link) => {
+        if (link.parentNode) link.remove();
+      });
 
       if (first) {
+        first.href = href;
         if (type) first.type = type;
+        else first.removeAttribute('type');
         return;
       }
 
       const link = document.createElement('link');
       link.rel = rel;
       link.href = href;
+      link.dataset.devlinkThemeIcon = 'true';
       if (type) link.type = type;
       document.head.appendChild(link);
     };
 
     const syncThemeIcons = () => {
-      // Next metadata can re-emit default icons after hydration. Replace any
-      // branded icon link so the active theme is the only DevLink icon set.
-      document.querySelectorAll<HTMLLinkElement>('link[rel*="icon"], link[href*="/favicon"], link[href*="/logo/logo"]').forEach((link) => {
-        const href = link.getAttribute('href') ?? '';
-        const isDevLinkIcon = href.includes('/favicon') || href.includes('/logo/logo');
-        const isActiveIcon = href === faviconPath || href === logoPath;
-        if (isDevLinkIcon && !isActiveIcon) {
-          link.remove();
-        }
-      });
-
+      // Do not remove Next-managed head nodes. Keep DevLink-owned icon links at
+      // the end of <head> so theme changes avoid React head reconciliation bugs.
       ensureIconLink('icon', faviconPath, 'image/x-icon');
       ensureIconLink('shortcut icon', faviconPath);
       ensureIconLink('apple-touch-icon', logoPath);

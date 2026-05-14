@@ -130,24 +130,26 @@ export default async function RootLayout({
               var assetSuffix = '?v=' + assetVersion;
               var allowedThemes = ['red', 'orange', 'yellow', 'green', 'blue', 'indigo', 'purple'];
               if (theme && allowedThemes.indexOf(theme) !== -1) {
-                var existingIcons = document.querySelectorAll('link[rel*="icon"], link[href*="/favicon"], link[href*="/logo/logo"]');
-                existingIcons.forEach(function(l) { l.remove(); });
+                var ensureThemeLink = function(rel, href, type) {
+                  var selector = 'link[data-devlink-theme-icon="true"][rel="' + rel + '"]';
+                  var link = document.querySelector(selector);
+                  if (!link) {
+                    link = document.createElement('link');
+                    link.rel = rel;
+                    link.setAttribute('data-devlink-theme-icon', 'true');
+                    document.head.appendChild(link);
+                  }
+                  link.href = href;
+                  if (type) {
+                    link.type = type;
+                  } else {
+                    link.removeAttribute('type');
+                  }
+                };
 
-                var favicon = document.createElement('link');
-                favicon.rel = 'icon';
-                favicon.type = 'image/x-icon';
-                favicon.href = '/favicon-' + theme + '.ico' + assetSuffix;
-                document.head.appendChild(favicon);
-
-                var shortcut = document.createElement('link');
-                shortcut.rel = 'shortcut icon';
-                shortcut.href = '/favicon-' + theme + '.ico' + assetSuffix;
-                document.head.appendChild(shortcut);
-
-                var apple = document.createElement('link');
-                apple.rel = 'apple-touch-icon';
-                apple.href = '/logo/logo-' + theme + '.png' + assetSuffix;
-                document.head.appendChild(apple);
+                ensureThemeLink('icon', '/favicon-' + theme + '.ico' + assetSuffix, 'image/x-icon');
+                ensureThemeLink('shortcut icon', '/favicon-' + theme + '.ico' + assetSuffix);
+                ensureThemeLink('apple-touch-icon', '/logo/logo-' + theme + '.png' + assetSuffix);
               }
             } catch(e) {}
           })();
