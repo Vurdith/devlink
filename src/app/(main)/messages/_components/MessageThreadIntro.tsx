@@ -1,30 +1,28 @@
 import Link from "next/link";
 import { Avatar } from "@/components/ui/Avatar";
-import { surface } from "@/components/ui/design-system";
 import type { MessageThread } from "@/types/api";
 
 export function MessageThreadIntro({ otherUser }: { otherUser: MessageThread["userA"] | null }) {
   return (
-    <div className="mx-auto mb-5 flex w-full max-w-4xl justify-center">
-      <div className={surface("empty", "noise-overlay flex w-full max-w-md flex-col items-center px-5 py-6 text-center")}>
-      <Link href={`/u/${otherUser?.username || ""}`}>
-        <Avatar size={64} src={otherUser?.profile?.avatarUrl || undefined} />
-      </Link>
-      <div className="mt-2 text-center">
-        <Link href={`/u/${otherUser?.username || ""}`} className="text-lg font-bold text-white transition-colors hover:text-[var(--color-accent-2)]">
-          {otherUser?.name || otherUser?.username}
+    <div className="mx-auto mb-6 w-full max-w-4xl">
+      <div className="flex items-center justify-center">
+        <div className="h-px flex-1 bg-gradient-to-r from-transparent via-white/[0.08] to-white/[0.03]" />
+        <Link
+          href={`/u/${otherUser?.username || ""}`}
+          className="mx-4 flex max-w-[min(520px,82vw)] items-center gap-3 rounded-2xl border border-white/[0.08] bg-white/[0.025] px-4 py-3 transition-colors hover:border-[rgba(var(--color-accent-2-rgb),0.24)] hover:bg-white/[0.04]"
+        >
+          <Avatar size={48} src={otherUser?.profile?.avatarUrl || undefined} />
+          <div className="min-w-0 text-left">
+            <div className="truncate text-sm font-bold text-white">
+              {otherUser?.name || otherUser?.username || "Conversation"}
+            </div>
+            {otherUser?.username ? <div className="truncate text-xs text-white/38">@{otherUser.username}</div> : null}
+            {otherUser?.profile?.bio ? (
+              <p className="mt-1 line-clamp-1 text-xs leading-relaxed text-white/48">{otherUser.profile.bio}</p>
+            ) : null}
+          </div>
         </Link>
-        <div className="text-sm text-white/40">@{otherUser?.username}</div>
-      </div>
-      {otherUser?.profile?.bio && <p className="text-sm text-white/50 text-center mt-2 max-w-[280px] leading-relaxed">{otherUser.profile.bio}</p>}
-      <div className="flex items-center gap-2 mt-3 text-xs text-white/30">
-        <span>
-          Joined{" "}
-          {otherUser?.createdAt
-            ? new Date(otherUser.createdAt).toLocaleDateString(undefined, { month: "long", year: "numeric" })
-            : "DevLink"}
-        </span>
-      </div>
+        <div className="h-px flex-1 bg-gradient-to-l from-transparent via-white/[0.08] to-white/[0.03]" />
       </div>
     </div>
   );

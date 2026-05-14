@@ -240,6 +240,11 @@ export const THEMES: Record<ThemeId, ThemeConfig> = {
 };
 
 export const DEFAULT_THEME: ThemeId = 'purple';
+export const THEME_ASSET_VERSION = '20260513-logo-depth-v3';
+
+function versionThemeAsset(path: string): string {
+  return `${path}?v=${THEME_ASSET_VERSION}`;
+}
 
 export function isThemeId(value: string | null | undefined): value is ThemeId {
   return THEME_IDS.includes(value as ThemeId);
@@ -284,27 +289,27 @@ export function generateThemeCSSVariables(theme: ThemeConfig): Record<string, st
 export function getLogoPath(themeId: ThemeId): string {
   // Themed logos should be named: logo-{themeId}.png
   // Falls back to logo.png if themed version doesn't exist
-  return `/logo/logo-${themeId}.png`;
+  return versionThemeAsset(`/logo/logo-${themeId}.png`);
 }
 
 /**
  * Get default logo path (for fallback)
  */
 export function getDefaultLogoPath(): string {
-  return '/logo/logo.png';
+  return versionThemeAsset('/logo/logo.png');
 }
 
 /**
  * Get favicon path for theme
  */
 export function getFaviconPath(themeId: ThemeId): string {
-  return `/favicon-${themeId}.ico`;
+  return versionThemeAsset(`/favicon-${themeId}.ico`);
 }
 
 /**
  * Get default favicon path (for fallback)
  */
 export function getDefaultFaviconPath(): string {
-  return '/favicon.ico';
+  return versionThemeAsset('/favicon.ico');
 }
 

@@ -72,42 +72,32 @@ export function NetworkPage({
             </p>
             <h1 className="mt-2 text-2xl font-semibold tracking-tight text-white sm:text-3xl">{title}</h1>
             <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[var(--muted-foreground)]">{description}</p>
+            {users.length > 0 ? (
+              <div className="mt-4 flex flex-wrap gap-2">
+                <span className="rounded-md border border-white/[0.08] bg-white/[0.035] px-2.5 py-1 text-xs font-semibold text-white/66">
+                  {users.length} listed
+                </span>
+                {verifiedCount > 0 ? (
+                  <span className="rounded-md border border-white/[0.08] bg-white/[0.035] px-2.5 py-1 text-xs font-semibold text-white/66">
+                    {verifiedCount} verified
+                  </span>
+                ) : null}
+                {topRoles.map(([role, count]) => {
+                  const config = getProfileTypeConfig(role);
+
+                  return (
+                    <span key={role} className="rounded-md border border-white/[0.08] bg-white/[0.035] px-2.5 py-1 text-xs font-semibold text-white/66">
+                      {config.label} {count}
+                    </span>
+                  );
+                })}
+              </div>
+            ) : null}
           </div>
           <div className={iconBox("cyan", "h-11 w-11 flex-shrink-0 sm:h-12 sm:w-12")}>{headerIcon}</div>
         </div>
         </div>
       </section>
-
-      {users.length > 0 ? (
-        <div className="mb-4 grid gap-2 sm:grid-cols-3">
-          <div className={surface("empty", "px-4 py-3")}>
-            <div className="text-xl font-semibold text-white tabular-nums">{users.length}</div>
-            <div className="mt-1 text-xs text-[var(--muted-foreground)]">people listed</div>
-          </div>
-          <div className={surface("empty", "px-4 py-3")}>
-            <div className="text-xl font-semibold text-white tabular-nums">{verifiedCount}</div>
-            <div className="mt-1 text-xs text-[var(--muted-foreground)]">verified accounts</div>
-          </div>
-          <div className={surface("empty", "px-4 py-3")}>
-            <div className="flex min-w-0 flex-wrap gap-2">
-              {topRoles.length > 0 ? (
-                topRoles.map(([role, count]) => {
-                  const config = getProfileTypeConfig(role);
-
-                  return (
-                    <span key={role} className="rounded-md border border-white/[0.08] bg-white/[0.035] px-2 py-1 text-xs font-semibold text-white/66">
-                      {config.label} {count}
-                    </span>
-                  );
-                })
-              ) : (
-                <span className="text-sm text-white/45">No roles shown</span>
-              )}
-            </div>
-            <div className="mt-2 text-xs text-[var(--muted-foreground)]">profile roles</div>
-          </div>
-        </div>
-      ) : null}
 
       <div className="grid gap-3 lg:grid-cols-2">
         {users.map((user) => (

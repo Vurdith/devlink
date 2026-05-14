@@ -11,7 +11,7 @@ import { safeJson } from "@/lib/safe-json";
 import { Avatar } from "@/components/ui/Avatar";
 import { useMessagesRealtime } from "@/hooks/useMessagesRealtime";
 import { NewMessageModal } from "./NewMessageModal";
-import { PenLine, Search, Settings2 } from "lucide-react";
+import { Check, Inbox, MessageCircle, PenLine, Search, Settings2, X } from "lucide-react";
 import type { MessageRequest, MessageThread, MessagingSettings } from "@/types/api";
 
 const DM_PERMISSION_OPTIONS = [
@@ -205,9 +205,9 @@ export function MessagesSidebar() {
         <div className="flex h-full items-center justify-center p-4">
           <FeedbackState
             className="w-full px-5 py-9"
-            icon={<MessageIcon />}
+            icon={<MessageCircle className="h-6 w-6" />}
             title="Sign in to view messages"
-            description="Log in to read threads, review requests, and control who can message you."
+            description="Log in to read threads and review message requests."
             action={{ label: "Log in", href: "/login" }}
           />
         </div>
@@ -224,10 +224,13 @@ export function MessagesSidebar() {
         )}
       >
         {/* Header */}
-        <div className="noise-overlay flex h-[60px] flex-shrink-0 items-center justify-between border-b border-white/[0.06] px-4">
+        <div className="noise-overlay flex min-h-[70px] flex-shrink-0 items-center justify-between border-b border-white/[0.06] px-4">
           <div>
-            <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--color-accent-2)]">Inbox</div>
-            <h1 className="text-xl font-bold text-white">Messages</h1>
+            <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.16em] text-[var(--color-accent-2)]">
+              <Inbox className="h-3.5 w-3.5" aria-hidden="true" />
+              {threads.length} {threads.length === 1 ? "thread" : "threads"}
+            </div>
+            <h1 className="mt-1 text-xl font-bold text-white">Messages</h1>
           </div>
           <div className="flex items-center gap-1 relative" ref={settingsRef}>
             <button
@@ -256,8 +259,8 @@ export function MessagesSidebar() {
             {showSettings && (
               <div className={menuPanel("absolute right-0 top-full z-50 mt-1 w-72 animate-in fade-in slide-in-from-top-1 duration-150")}>
                 <div className="border-b border-white/[0.06] px-4 py-3">
-                  <h3 className="text-sm font-bold text-white">Who can message you</h3>
-                  <p className="text-[11px] text-white/40 mt-0.5">People outside this setting land in requests.</p>
+                  <h3 className="text-sm font-bold text-white">Message access</h3>
+                  <p className="mt-0.5 text-[11px] text-white/40">New conversations outside this rule arrive as requests.</p>
                 </div>
                 <div className="py-1">
                   {DM_PERMISSION_OPTIONS.map((opt) => {
@@ -302,7 +305,7 @@ export function MessagesSidebar() {
             <input
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search messages"
+              placeholder="Search by person"
               className={cn(ui.control.field, "rounded-lg py-2.5 pl-10 pr-4")}
             />
           </div>
@@ -319,7 +322,7 @@ export function MessagesSidebar() {
                 : "border-transparent text-white/45 hover:border-white/[0.08] hover:bg-white/[0.045] hover:text-white/75"
             )}
           >
-            Inbox
+            Threads
           </button>
           <button
             onClick={() => setActiveTab("requests")}
@@ -371,9 +374,9 @@ export function MessagesSidebar() {
               ) : incomingRequests.length === 0 ? (
                 <FeedbackState
                   className="px-4 py-8"
-                  icon={<RequestIcon />}
+                  icon={<MessageCircle className="h-6 w-6" />}
                   title="No message requests"
-                  description="Requests from people outside your message permissions will appear here."
+                  description="New requests will appear here before they reach your inbox."
                 />
               ) : (
                 <>
@@ -396,25 +399,27 @@ export function MessagesSidebar() {
                             <p className="text-sm text-white/40 truncate mt-0.5 leading-snug">
                               {msgPreview}
                             </p>
-                            <div className="flex items-center gap-2 mt-2">
+                            <div className="mt-3 grid grid-cols-2 gap-2">
                               <button
                                 onClick={() => handleRequest(request.id, "ACCEPTED")}
                                 disabled={!!actingRequestId}
-                                className={cn("rounded-lg px-4 py-1.5 text-xs font-bold transition-all", ui.control.gradient)}
+                                className={cn("inline-flex items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs font-bold transition-all", ui.control.gradient)}
                               >
-                                {isActing ? "Working..." : "Accept"}
+                                <Check className="h-3.5 w-3.5" aria-hidden="true" />
+                                {isActing ? "Saving" : "Accept"}
                               </button>
                               <button
                                 onClick={() => handleRequest(request.id, "DECLINED")}
                                 disabled={!!actingRequestId}
-                                className={cn("rounded-lg px-4 py-1.5 text-xs font-bold text-white transition-colors disabled:opacity-45", ui.control.ghost)}
+                                className={cn("inline-flex items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs font-bold text-white transition-colors disabled:opacity-45", ui.control.ghost)}
                               >
+                                <X className="h-3.5 w-3.5" aria-hidden="true" />
                                 Decline
                               </button>
                               {request.conversationId && (
                                 <Link
                                   href={`/messages/${request.conversationId}`}
-                                  className={cn("ml-auto rounded-lg px-3 py-1.5 text-xs font-medium text-white/55 transition-colors", ui.control.ghost)}
+                                  className={cn("col-span-2 rounded-lg px-3 py-2 text-center text-xs font-medium text-white/55 transition-colors", ui.control.ghost)}
                                 >
                                   Open thread
                                 </Link>
@@ -457,14 +462,14 @@ export function MessagesSidebar() {
                   className="px-4 py-8"
                   icon={<SearchIcon />}
                   title="No matches"
-                  description="Try the full handle, display name, or clear the search."
+                  description="Try a full handle or clear the search."
                 />
               ) : (
                 <FeedbackState
                   className="px-4 py-9"
                   icon={<MessageIcon />}
                   title="No conversations yet"
-                  description="Start a thread with a client, builder, or collaborator."
+                  description="Start with a profile, a job lead, or someone you already know."
                   action={{ label: "Write a message", onClick: () => setShowNewMessage(true) }}
                 />
               )}
@@ -486,12 +491,18 @@ export function MessagesSidebar() {
                     key={thread.id}
                     href={`/messages/${thread.id}`}
                     className={cn(
-                      "flex items-start gap-3 rounded-xl border px-3 py-3 transition-colors duration-200",
+                      "group relative flex min-h-[84px] items-start gap-3 overflow-hidden rounded-xl border px-3 py-3 transition-colors duration-200",
                       isActive
-                        ? cn("border-[rgba(var(--color-accent-2-rgb),0.32)]", ui.active.cyan)
+                        ? "border-[rgba(var(--color-accent-2-rgb),0.34)] bg-[linear-gradient(135deg,rgba(var(--color-accent-2-rgb),0.12),rgba(255,255,255,0.035))]"
                         : "border-white/[0.06] bg-white/[0.018] hover:border-white/[0.12] hover:bg-white/[0.04]"
                     )}
                   >
+                    <span
+                      className={cn(
+                        "absolute inset-y-3 left-0 w-px rounded-full transition-opacity",
+                        isActive ? "bg-[var(--color-accent-2)] opacity-100" : "bg-white/20 opacity-0 group-hover:opacity-60"
+                      )}
+                    />
                     <Avatar size={48} src={other?.profile?.avatarUrl || undefined} />
                     <div className="flex-1 min-w-0 py-0.5">
                       <div className="flex items-center justify-between gap-2">
@@ -503,7 +514,7 @@ export function MessagesSidebar() {
                             @{other?.username || "user"}
                           </span>
                         </div>
-                        <span className="text-xs text-white/30 flex-shrink-0">
+                        <span className="flex-shrink-0 text-xs font-medium text-white/30">
                           {lastActiveLabel(thread.lastMessageAt)}
                         </span>
                       </div>
@@ -534,15 +545,6 @@ function MessageIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
       <path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v8z" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-function RequestIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-      <path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v8z" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M9 10h6M9 14h4" strokeLinecap="round" />
     </svg>
   );
 }

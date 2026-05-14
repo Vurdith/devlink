@@ -8,6 +8,7 @@ import Link from "next/link";
 import { cn } from "@/lib/cn";
 import { ProfileTypeLabel } from "@/components/profile/ProfileTypeLabel";
 import dynamic from "next/dynamic";
+import { ArrowRight, FolderKanban, Hash, Info, Search, Users } from "lucide-react";
 
 const FollowButton = dynamic(
   () => import("@/components/ui/FollowButton").then((mod) => mod.FollowButton),
@@ -197,10 +198,7 @@ export const NavbarSearch = memo(function NavbarSearch({ currentUserId }: { curr
           focused ? "w-[min(24rem,calc(100vw-5.5rem))]" : "w-[min(20rem,calc(100vw-5.5rem))]"
         )}>
           <div className="absolute left-4 text-[var(--muted-foreground)] pointer-events-none z-10">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-              <circle cx="11" cy="11" r="8" stroke="currentColor" strokeWidth="2"/>
-              <path d="M21 21l-4.35-4.35" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
+            <Search className="h-[18px] w-[18px]" aria-hidden="true" />
           </div>
           
           <label htmlFor="navbar-search" className="sr-only">Search DevLink</label>
@@ -250,10 +248,7 @@ export const NavbarSearch = memo(function NavbarSearch({ currentUserId }: { curr
           {!loading && !hasResults && searchTerm.length >= MIN_QUERY_LENGTH && (
             <div className="py-8 text-center">
                 <div className={iconBox("muted", "mx-auto mb-2 h-12 w-12 rounded-xl")}>
-                <svg className="w-6 h-6 text-[var(--muted-foreground)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <circle cx="11" cy="11" r="8" strokeWidth="2"/>
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-4.35-4.35" />
-                </svg>
+                <Search className="h-6 w-6 text-[var(--muted-foreground)]" aria-hidden="true" />
               </div>
               <p className="text-sm font-semibold text-white">Nothing matched</p>
               <p className="mt-1 text-xs text-[var(--muted-foreground)]">Try a username, tag, or portfolio project.</p>
@@ -264,9 +259,7 @@ export const NavbarSearch = memo(function NavbarSearch({ currentUserId }: { curr
           {visibleResults.hashtags.length > 0 && (
             <div className="mb-2">
               <div className="flex items-center gap-2 px-3 py-2 text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider">
-                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
-                </svg>
+                <Hash className="h-3 w-3" aria-hidden="true" />
                 Tags
               </div>
               {visibleResults.hashtags.map((hashtag) => (
@@ -277,7 +270,7 @@ export const NavbarSearch = memo(function NavbarSearch({ currentUserId }: { curr
                   className={menuItem()}
                 >
                   <div className={iconBox("cyan", "h-10 w-10")}>
-                    <span className="text-lg font-bold">#</span>
+                    <Hash className="h-5 w-5" aria-hidden="true" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="text-sm font-semibold text-white">{hashtag.tag}</div>
@@ -285,9 +278,7 @@ export const NavbarSearch = memo(function NavbarSearch({ currentUserId }: { curr
                       {hashtag.postCount} {hashtag.postCount === 1 ? 'post' : 'posts'} / {hashtag.projectCount} {hashtag.projectCount === 1 ? 'project' : 'projects'}
                     </div>
                   </div>
-                  <svg className="w-4 h-4 text-[var(--muted-foreground)] opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
+                  <ArrowRight className="h-4 w-4 text-[var(--muted-foreground)] opacity-0 transition-opacity group-hover:opacity-100" aria-hidden="true" />
                 </Link>
               ))}
             </div>
@@ -298,9 +289,7 @@ export const NavbarSearch = memo(function NavbarSearch({ currentUserId }: { curr
             <div className="mb-2">
               {visibleResults.hashtags.length > 0 && <div className="my-2 h-px bg-white/[0.08]" />}
               <div className="flex items-center gap-2 px-3 py-2 text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider">
-                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
+                <Users className="h-3 w-3" aria-hidden="true" />
                 People
               </div>
               {visibleResults.users.map((user) => (
@@ -338,11 +327,13 @@ export const NavbarSearch = memo(function NavbarSearch({ currentUserId }: { curr
                       {user.isYou && (
                         <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-[var(--color-accent)]/20 text-[var(--color-accent)]">You</span>
                       )}
+                    </div>
+                    <div className="mt-0.5 flex min-w-0 flex-wrap items-center gap-1.5 text-xs text-[var(--muted-foreground)]">
+                      <span className="truncate">@{user.username}</span>
                       {user.profileType && (
                         <ProfileTypeLabel profileType={user.profileType} variant="compact" />
                       )}
                     </div>
-                    <div className="text-xs text-[var(--muted-foreground)]">@{user.username}</div>
                   </div>
                   {!user.isYou && (
                     <div onClick={(e) => e.preventDefault()} className="relative z-10">
@@ -359,9 +350,7 @@ export const NavbarSearch = memo(function NavbarSearch({ currentUserId }: { curr
             <div>
               {(visibleResults.users.length > 0 || visibleResults.hashtags.length > 0) && <div className="my-2 h-px bg-white/[0.08]" />}
               <div className="flex items-center gap-2 px-3 py-2 text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider">
-                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
-                </svg>
+                <FolderKanban className="h-3 w-3" aria-hidden="true" />
                 Work
               </div>
               {visibleResults.projects.map((project) => (
@@ -371,10 +360,8 @@ export const NavbarSearch = memo(function NavbarSearch({ currentUserId }: { curr
                   onClick={closeDropdown}
                   className={menuItem()}
                 >
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-emerald-300/20 bg-emerald-400/10 text-emerald-200">
-                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
-                    </svg>
+                  <div className={iconBox("muted", "h-10 w-10")}>
+                    <FolderKanban className="h-5 w-5" aria-hidden="true" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="text-sm font-semibold text-white truncate">{project.title}</div>
@@ -382,9 +369,7 @@ export const NavbarSearch = memo(function NavbarSearch({ currentUserId }: { curr
                       by {project.author.name || project.author.username}
                     </div>
                   </div>
-                  <svg className="w-4 h-4 text-[var(--muted-foreground)] opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
+                  <ArrowRight className="h-4 w-4 text-[var(--muted-foreground)] opacity-0 transition-opacity group-hover:opacity-100" aria-hidden="true" />
                 </Link>
               ))}
             </div>
@@ -394,9 +379,7 @@ export const NavbarSearch = memo(function NavbarSearch({ currentUserId }: { curr
           {hasResults && (
             <div className="mt-2 border-t border-white/[0.08] pt-2">
               <div className="px-3 py-2 text-xs text-[var(--muted-foreground)] flex items-center gap-2">
-                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+                <Info className="h-3 w-3" aria-hidden="true" />
                 Press <kbd className="rounded bg-white/[0.06] px-1 py-0.5 text-[10px]">Enter</kbd> to search DevLink
               </div>
             </div>

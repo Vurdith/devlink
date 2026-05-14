@@ -1,6 +1,5 @@
 "use client";
 
-import { surface } from "@/components/ui/design-system";
 import AccountLinking from "./_components/AccountLinking";
 import { SettingsPageHeader } from "./_components/SettingsPageHeader";
 
@@ -19,12 +18,7 @@ export default function SettingsPage() {
         }
       />
       
-      <div 
-        className={surface("panel", "relative overflow-hidden p-4 animate-slide-up sm:p-6")}
-        style={{ animationDelay: '0.05s' }}
-      >
-        <AccountLinking />
-      </div>
+      <AccountLinking />
     </div>
   );
 }

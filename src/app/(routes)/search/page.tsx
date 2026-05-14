@@ -2,6 +2,9 @@
 import { useState, useEffect, Suspense, type FormEvent } from "react";
 import Link from "next/link";
 import { Avatar } from "@/components/ui/Avatar";
+import { ActionLink } from "@/components/ui/ActionLink";
+import { Button } from "@/components/ui/Button";
+import { ToneBadge } from "@/components/ui/DataDisplay";
 import { FollowButton } from "@/components/ui/FollowButton";
 import { iconBox, surface, ui } from "@/components/ui/design-system";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -10,7 +13,7 @@ import { ProfileTypeLabel } from "@/components/profile/ProfileTypeLabel";
 import { FeedbackState } from "@/components/ui/FeedbackState";
 import { useSession } from "next-auth/react";
 import { cn } from "@/lib/cn";
-import { FolderKanban, Hash, Search, Users } from "lucide-react";
+import { AlertTriangle, ArrowRight, CheckCircle2, FolderKanban, Hash, Search, Users } from "lucide-react";
 
 type SearchType = "all" | "profiles" | "hashtags" | "projects";
 
@@ -52,15 +55,15 @@ function queryInText(text: string | null | undefined, query: string) {
 }
 
 function getProfileMatchLabel(user: UserSearchResult, query: string) {
-  if (queryInText(user.bio, query)) return "Bio";
-  if (queryInText(user.name, query)) return "Name";
+  if (queryInText(user.bio, query)) return "bio";
+  if (queryInText(user.name, query)) return "display name";
   if (queryInText(user.username, query)) return null;
   return null;
 }
 
 function getProjectMatchLabel(project: ProjectResult, query: string) {
-  if (queryInText(project.description, query)) return "Description";
-  if (queryInText(project.author.username, query) || queryInText(project.author.name, query)) return "Author";
+  if (queryInText(project.description, query)) return "description";
+  if (queryInText(project.author.username, query) || queryInText(project.author.name, query)) return "creator";
   if (queryInText(project.title, query)) return null;
   return null;
 }
@@ -171,30 +174,26 @@ function SearchContent() {
     return () => controller.abort();
   }, [query, selectedType, retryCount]);
 
-  const filters: { value: SearchType; label: string; icon: React.ReactNode; helper: string }[] = [
+  const filters: { value: SearchType; label: string; icon: React.ReactNode }[] = [
     {
       value: "all",
       label: "All",
       icon: <Search className="h-4 w-4" aria-hidden="true" />,
-      helper: "Profiles, tags, projects"
     },
     {
       value: "profiles",
       label: "Profiles",
       icon: <Users className="h-4 w-4" aria-hidden="true" />,
-      helper: "Names and bios"
     },
     {
       value: "hashtags",
       label: "Hashtags",
       icon: <Hash className="h-4 w-4" aria-hidden="true" />,
-      helper: "Topics in posts"
     },
     {
       value: "projects",
       label: "Projects",
       icon: <FolderKanban className="h-4 w-4" aria-hidden="true" />,
-      helper: "Portfolio entries"
     }
   ];
 
@@ -209,7 +208,7 @@ function SearchContent() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-5 sm:px-6 sm:py-6">
-      <div className={surface("panel", "noise-overlay relative mb-4 overflow-hidden p-4 sm:p-6")}>
+      <div className={surface("panel", "noise-overlay relative mb-5 overflow-hidden p-4 sm:p-6")}>
         <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.42)] to-transparent" />
         <div
           aria-hidden="true"
@@ -220,13 +219,12 @@ function SearchContent() {
           }}
         />
         <div className="relative">
-          <div className="mb-2 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.16em] text-[var(--color-accent-2)]">
-            <Search className="h-3.5 w-3.5" aria-hidden="true" />
-            Find
-          </div>
-          <h1 className="max-w-3xl text-2xl font-bold tracking-tight text-white sm:text-3xl">
-              {query ? `Search results for "${query}"` : "Search DevLink"}
+          <h1 className="max-w-3xl font-[var(--font-space-grotesk)] text-2xl font-bold tracking-tight text-white sm:text-3xl">
+            {query ? `Results for "${query}"` : "Search DevLink"}
           </h1>
+          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[var(--muted-foreground)]">
+            Find profiles, tags, and portfolio work without leaving the current flow.
+          </p>
           <form onSubmit={handleSubmit} className="mt-4 grid gap-2 sm:grid-cols-[1fr_auto]">
             <label htmlFor="search-query" className="sr-only">Search DevLink</label>
             <input
@@ -234,15 +232,17 @@ function SearchContent() {
               value={searchInput}
               onChange={(event) => setSearchInput(event.target.value)}
               placeholder="Handle, hashtag, skill, or project"
-              className="min-h-12 rounded-lg border border-white/[0.08] bg-black/20 px-3 text-sm font-medium text-white outline-none transition-colors placeholder:text-[var(--muted-foreground)] focus:border-[rgba(var(--color-accent-2-rgb),0.42)] focus:ring-2 focus:ring-[rgba(var(--color-accent-2-rgb),0.18)]"
+              className={cn(ui.control.field, "min-h-12 bg-black/20 text-sm font-medium")}
             />
-            <button
+            <Button
               type="submit"
-              className={cn("inline-flex min-h-12 items-center justify-center gap-2 rounded-lg px-4 text-sm font-semibold text-white transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]", ui.active.cyanStrong)}
+              variant="glow"
+              size="md"
+              className="min-h-12"
+              leftIcon={<Search className="h-4 w-4" aria-hidden="true" />}
             >
-              <Search className="h-4 w-4" aria-hidden="true" />
-              Run search
-            </button>
+              Search
+            </Button>
           </form>
         {query ? (
             <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-[var(--muted-foreground)] sm:text-sm">
@@ -255,7 +255,7 @@ function SearchContent() {
         </div>
       </div>
 
-      <div className="mb-4">
+      <div className="mb-5">
         <div className={surface("toolbar", "grid grid-flow-col auto-cols-max gap-2 overflow-x-auto p-2 md:grid-flow-row md:grid-cols-4")}>
           {filters.map((filter) => (
             <button
@@ -277,7 +277,6 @@ function SearchContent() {
               </div>
               <span className="min-w-0 flex-1">
                 <span className="block truncate">{filter.label}</span>
-                <span className="hidden truncate text-[11px] font-medium text-white/45 lg:block">{filter.helper}</span>
               </span>
               {query && !loading && !error ? (
                 <span className="rounded-full bg-white/[0.06] px-1.5 py-0.5 text-[11px] tabular-nums text-white/70">
@@ -300,11 +299,7 @@ function SearchContent() {
             onClick: () => setRetryCount((count) => count + 1),
           }}
           icon={
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-              <path d="M12 9v4" strokeLinecap="round" />
-              <path d="M12 17h.01" strokeLinecap="round" />
-              <path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z" strokeLinejoin="round" />
-            </svg>
+            <AlertTriangle className="h-5 w-5" aria-hidden="true" />
           }
         />
       ) : loading ? (
@@ -328,7 +323,7 @@ function SearchContent() {
           {(selectedType === "all" || selectedType === "profiles") && users.length > 0 && (
             <section>
               <div className="mb-2 flex items-center gap-3">
-                <h2 className="text-sm font-semibold text-white">Profiles</h2>
+                <h2 className="font-[var(--font-space-grotesk)] text-sm font-semibold text-white">Profiles</h2>
                 <div className="h-px flex-1 bg-gradient-to-r from-white/[0.10] to-transparent" />
                 <span className="text-xs text-[var(--muted-foreground)]">{formatCount(users.length)}</span>
               </div>
@@ -336,7 +331,7 @@ function SearchContent() {
                 {users.map((user) => {
                   const matchLabel = getProfileMatchLabel(user, query);
                   return (
-                  <div key={user.id} className={surface("panelMuted", "group relative flex min-h-[118px] items-start gap-3 overflow-hidden p-4 transition-colors duration-200 hover:border-[rgba(var(--color-accent-2-rgb),0.20)] hover:bg-white/[0.04]")}>
+                  <div key={user.id} className={surface("panelMuted", "group relative flex min-h-[120px] items-start gap-3 overflow-hidden p-4 transition-colors duration-200 hover:border-[rgba(var(--color-accent-2-rgb),0.20)] hover:bg-white/[0.04]")}>
                     <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.10] to-transparent" />
                     <ProfileTooltip
                       user={{
@@ -357,27 +352,27 @@ function SearchContent() {
                         className="relative z-10 flex min-w-0 flex-1 items-start gap-3 rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]"
                         aria-label={`View @${user.username}`}
                       >
-                        <Avatar src={user.avatarUrl ?? undefined} size={44} className="border border-white/[0.10]" />
+                        <Avatar src={user.avatarUrl ?? undefined} size={48} className="border border-white/[0.10]" />
                       <div className="min-w-0">
                           <div className="flex min-w-0 flex-wrap items-center gap-2 text-sm">
                             <span className="truncate font-semibold text-white group-hover:text-[var(--color-accent-2)]">{user.name ?? user.username}</span>
-                        {user.verified && (
-                          <svg width="14" height="14" viewBox="0 0 24 24" className="text-[var(--accent)]">
-                            <path d="M12 3l2.39 2.39L17 6l-.61 2.61L19 12l-2.61.61L15 17l-2.61-.61L12 21l-2.39-2.39L7 17l.61-2.39L5 12l2.61-.61L7 6l2.39-.61L12 3z" fill="currentColor"/>
-                          </svg>
-                        )}
-                        {user.profileType && (
-                          <ProfileTypeLabel profileType={user.profileType} variant="compact" />
-                        )}
+                        {user.verified && <CheckCircle2 className="h-3.5 w-3.5 text-[var(--color-accent-2)]" aria-label="Verified" />}
                       </div>
-                          <div className="text-xs text-[var(--muted-foreground)] truncate">@{user.username}</div>
-                          <div className="mt-2 flex flex-wrap items-center gap-2">
+                          <div className="mt-0.5 flex min-w-0 flex-wrap items-center gap-2 text-xs text-[var(--muted-foreground)]">
+                            <span className="truncate">@{user.username}</span>
+                            {user.profileType && (
+                              <ProfileTypeLabel profileType={user.profileType} variant="compact" />
+                            )}
+                          </div>
+                          <div className="mt-2 min-w-0">
                             {matchLabel ? (
-                              <span className="rounded-md border border-white/[0.08] bg-white/[0.035] px-2 py-0.5 text-[11px] font-semibold text-white/58">
-                                {matchLabel} hit
-                              </span>
+                              <p className="mb-1 text-[11px] font-semibold text-white/42">Matched {matchLabel}</p>
                             ) : null}
-                            {user.bio && <span className="line-clamp-1 text-xs leading-relaxed text-white/62">{user.bio}</span>}
+                            {user.bio ? (
+                              <p className="line-clamp-2 border-l border-[rgba(var(--color-accent-2-rgb),0.24)] pl-3 text-xs leading-relaxed text-white/62">{user.bio}</p>
+                            ) : (
+                              <p className="text-xs text-white/35">Bio not published</p>
+                            )}
                           </div>
                         </div>
                       </Link>
@@ -398,19 +393,19 @@ function SearchContent() {
           {(selectedType === "all" || selectedType === "hashtags") && hashtags.length > 0 && (
             <section>
               <div className="mb-2 flex items-center gap-3">
-                <h2 className="text-sm font-semibold text-white">Hashtags</h2>
+                <h2 className="font-[var(--font-space-grotesk)] text-sm font-semibold text-white">Hashtags</h2>
                 <div className="h-px flex-1 bg-gradient-to-r from-white/[0.10] to-transparent" />
                 <span className="text-xs text-[var(--muted-foreground)]">{formatCount(hashtags.length)}</span>
               </div>
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                 {hashtags.map((hashtag) => (
-                  <div key={hashtag.tag} className={surface("panelMuted", "group relative flex items-center gap-3 p-4 transition-colors hover:border-[rgba(var(--color-accent-2-rgb),0.20)] hover:bg-white/[0.04]")}>
+                  <div key={hashtag.tag} className={surface("panelMuted", "group relative flex min-h-[92px] items-center gap-3 p-4 transition-colors hover:border-[rgba(var(--color-accent-2-rgb),0.20)] hover:bg-white/[0.04]")}>
                     <Link href={`/hashtag/${hashtag.tag.replace('#', '')}`} className="absolute inset-0 z-10" aria-label={`Open ${hashtag.tag}`}>
                       <span className="sr-only">Open {hashtag.tag}</span>
                     </Link>
                     <div className="pointer-events-none">
                       <div className={iconBox("cyan", "h-12 w-12")}>
-                        <span className="text-white font-bold text-xl">#</span>
+                        <Hash className="h-5 w-5" aria-hidden="true" />
                       </div>
                     </div>
                     <div className="min-w-0 flex-1 relative z-10 pointer-events-none">
@@ -421,13 +416,15 @@ function SearchContent() {
                         {formatCount(hashtag.postCount)} {hashtag.postCount === 1 ? 'post' : 'posts'} / {formatCount(hashtag.projectCount)} {hashtag.projectCount === 1 ? 'project' : 'projects'}
                       </div>
                     </div>
-                    <div className="relative z-20 pointer-events-auto">
-                      <Link 
+                    <div className="relative z-20 pointer-events-auto hidden sm:block">
+                      <ActionLink
                         href={`/hashtag/${hashtag.tag.replace('#', '')}`}
-                        className={cn("inline-flex min-h-9 items-center rounded-lg px-3 py-1 text-sm font-semibold text-[var(--accent)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]", ui.control.ghost)}
+                        variant="ghost"
+                        size="sm"
+                        rightIcon={<ArrowRight className="h-4 w-4" aria-hidden="true" />}
                       >
-                        Open tag
-                      </Link>
+                        Open
+                      </ActionLink>
                     </div>
                   </div>
                 ))}
@@ -439,7 +436,7 @@ function SearchContent() {
           {(selectedType === "all" || selectedType === "projects") && projects.length > 0 && (
             <section>
               <div className="mb-2 flex items-center gap-3">
-                <h2 className="text-sm font-semibold text-white">Projects</h2>
+                <h2 className="font-[var(--font-space-grotesk)] text-sm font-semibold text-white">Projects</h2>
                 <div className="h-px flex-1 bg-gradient-to-r from-white/[0.10] to-transparent" />
                 <span className="text-xs text-[var(--muted-foreground)]">{formatCount(projects.length)}</span>
               </div>
@@ -449,13 +446,14 @@ function SearchContent() {
                   return (
                   <div key={project.id} className={surface("panelMuted", "group p-4 transition-colors hover:border-[rgba(var(--color-accent-2-rgb),0.20)] hover:bg-white/[0.04]")}>
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
-                      <div className="flex-1">
+                      <div className={iconBox("muted", "hidden h-12 w-12 flex-shrink-0 sm:flex")}>
+                        <FolderKanban className="h-5 w-5" aria-hidden="true" />
+                      </div>
+                      <div className="min-w-0 flex-1">
                         <div className="flex flex-wrap items-center gap-2">
                           <div className="text-base font-semibold text-white group-hover:text-[var(--color-accent-2)]">{project.title}</div>
                           {matchLabel ? (
-                            <span className="rounded-md border border-white/[0.08] bg-white/[0.035] px-2 py-0.5 text-[11px] font-semibold text-white/58">
-                              {matchLabel} hit
-                            </span>
+                            <ToneBadge tone="muted" className="text-[11px]">Matched {matchLabel}</ToneBadge>
                           ) : null}
                         </div>
                         {project.description && (
@@ -468,12 +466,15 @@ function SearchContent() {
                           </span>
                         </div>
                       </div>
-                      <Link 
+                      <ActionLink
                         href={`/projects/${project.id}`}
-                        className={cn("inline-flex min-h-9 items-center justify-center rounded-lg px-3 py-1 text-sm font-semibold text-[var(--accent)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]", ui.control.ghost)}
+                        variant="ghost"
+                        size="sm"
+                        className="w-full sm:w-auto"
+                        rightIcon={<ArrowRight className="h-4 w-4" aria-hidden="true" />}
                       >
-                        Open project
-                      </Link>
+                        Open
+                      </ActionLink>
                     </div>
                   </div>
                   );
@@ -489,10 +490,7 @@ function SearchContent() {
               description="Try a username, Roblox skill, or portfolio title."
               className="py-14"
               icon={
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-                  <circle cx="11" cy="11" r="8" />
-                  <path d="M21 21l-4.35-4.35" strokeLinecap="round" />
-                </svg>
+                <Search className="h-5 w-5" aria-hidden="true" />
               }
             />
           )}
@@ -511,10 +509,7 @@ function SearchContent() {
                 onClick: () => handleTypeChange("all"),
               }}
               icon={
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-                  <circle cx="11" cy="11" r="8" />
-                  <path d="M21 21l-4.35-4.35" strokeLinecap="round" />
-                </svg>
+                <Search className="h-5 w-5" aria-hidden="true" />
               }
             />
           )}

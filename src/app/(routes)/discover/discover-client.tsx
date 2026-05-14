@@ -10,8 +10,8 @@ import { FollowButton } from "@/components/ui/FollowButton";
 import { ProfileTypeLabel } from "@/components/profile/ProfileTypeLabel";
 import { FeedbackState } from "@/components/ui/FeedbackState";
 import { SegmentedTabs, type SegmentedTabItem } from "@/components/ui/SegmentedTabs";
-import { iconBox, surface } from "@/components/ui/design-system";
-import { Search } from "lucide-react";
+import { surface } from "@/components/ui/design-system";
+import { Search, UserRound, UsersRound } from "lucide-react";
 
 type ProfileType = "all" | "DEVELOPER" | "CLIENT" | "INFLUENCER" | "STUDIO" | "INVESTOR";
 
@@ -96,7 +96,7 @@ function getProfileType(user: User) {
 function getSignal(user: User) {
   if (user.profile?.bio) return user.profile.bio;
   if (user._count.followers > 0) return `${formatCount(user._count.followers)} followers`;
-  return "No bio added";
+  return "Bio not published";
 }
 
 function DiscoverUserRow({
@@ -118,23 +118,44 @@ function DiscoverUserRow({
         "group relative overflow-hidden transition-colors duration-200 hover:border-[rgba(var(--color-accent-2-rgb),0.22)] hover:bg-white/[0.04]"
       )}
     >
+      {user.profile?.bannerUrl ? (
+        <div className="relative h-24 overflow-hidden border-b border-white/[0.06] bg-black/25 sm:h-28">
+          <Image
+            src={user.profile.bannerUrl}
+            alt=""
+            fill
+            sizes="(min-width: 1024px) 760px, 100vw"
+            className="object-cover"
+          />
+          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(7,9,13,0.02),rgba(7,9,13,0.20))]" />
+        </div>
+      ) : (
+        <div
+          aria-hidden="true"
+          className="relative h-24 border-b border-white/[0.06] opacity-80 sm:h-28"
+          style={{
+            background:
+              "linear-gradient(135deg, rgba(var(--color-accent-3-rgb),0.22), rgba(var(--color-accent-rgb),0.10) 46%, rgba(7,9,13,0.92) 100%)",
+          }}
+        />
+      )}
       <Link href={`/u/${user.username}`} className="absolute inset-0 z-0" aria-label={`Open @${user.username}`}>
         <span className="sr-only">Open @{user.username}</span>
       </Link>
 
-      <div className="relative z-10 grid min-w-0 gap-4 p-4 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
-        <div className="flex min-w-0 gap-3.5">
-          <Link href={`/u/${user.username}`} className="relative flex-shrink-0 rounded-full outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]">
+      <div className="relative z-10 grid min-h-[104px] min-w-0 gap-4 bg-[rgba(7,9,13,0.88)] p-4 sm:p-5 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
+        <div className="flex min-w-0 gap-4">
+          <Link href={`/u/${user.username}`} className="relative flex-shrink-0 self-start rounded-full outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]">
             {user.profile?.avatarUrl ? (
               <Image
                 src={user.profile.avatarUrl}
                 alt={user.username}
-                width={52}
-                height={52}
-                className="h-12 w-12 rounded-full border border-white/[0.12] object-cover sm:h-[52px] sm:w-[52px]"
+                width={64}
+                height={64}
+                className="h-14 w-14 rounded-full border border-white/[0.14] object-cover ring-4 ring-white/[0.035] transition-transform duration-200 group-hover:scale-[1.02] sm:h-16 sm:w-16"
               />
             ) : (
-              <div className="grid h-12 w-12 place-items-center rounded-full border border-white/[0.12] bg-gradient-to-br from-[var(--color-accent-2)] to-[var(--color-accent)] text-lg font-bold text-white sm:h-[52px] sm:w-[52px]">
+              <div className="grid h-14 w-14 place-items-center rounded-full border border-white/[0.14] bg-gradient-to-br from-[var(--color-accent-2)] to-[var(--color-accent)] text-lg font-bold text-white ring-4 ring-white/[0.035] transition-transform duration-200 group-hover:scale-[1.02] sm:h-16 sm:w-16">
                 {user.username.charAt(0).toUpperCase()}
               </div>
             )}
@@ -147,26 +168,40 @@ function DiscoverUserRow({
             )}
           </Link>
 
-          <div className="min-w-0 flex-1">
-            <div className="flex min-w-0 flex-wrap items-center gap-2">
+          <div className="min-w-0 flex-1 self-center">
+            <div className="flex min-w-0 items-center">
               <Link
                 href={`/u/${user.username}`}
-            className="truncate rounded text-base font-semibold text-white outline-none transition-colors group-hover:text-[var(--color-accent-2)] focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]"
+                className="truncate rounded font-[var(--font-space-grotesk)] text-base font-bold tracking-normal text-white outline-none transition-colors group-hover:text-[var(--color-accent-2)] focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)] sm:text-lg"
               >
                 {displayName}
               </Link>
+            </div>
+            <div className="mt-1 flex min-w-0 flex-wrap items-center gap-2">
+              <span className="truncate text-xs text-[var(--muted-foreground)]">@{user.username}</span>
               <ProfileTypeLabel profileType={getProfileType(user)} variant="compact" />
             </div>
-            <div className="mt-0.5 truncate text-xs text-[var(--muted-foreground)]">@{user.username}</div>
-            <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-white/62">
+            <p className="mt-3 line-clamp-1 border-l-2 border-[rgba(var(--color-accent-2-rgb),0.45)] pl-3 text-sm font-medium leading-relaxed text-white/66">
               {getSignal(user)}
             </p>
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3 border-t border-white/[0.06] pt-3 text-xs text-[var(--muted-foreground)] md:border-t-0 md:pt-0 md:justify-end">
-            <MetricLink href={`/u/${user.username}/followers`} className="relative z-20" label="followers" value={formatCount(user._count.followers)} />
-            <MetricLink href={`/u/${user.username}/following`} className="relative z-20" label="following" value={formatCount(user._count.following)} />
+        <div className="flex flex-wrap items-center gap-2 border-t border-white/[0.06] pt-3 text-xs text-[var(--muted-foreground)] md:min-w-[260px] md:justify-end md:border-t-0 md:pt-0">
+            <MetricLink
+              href={`/u/${user.username}/followers`}
+              className="relative z-20"
+              label="followers"
+              value={formatCount(user._count.followers)}
+              icon={<UsersRound className="h-3.5 w-3.5" aria-hidden="true" />}
+            />
+            <MetricLink
+              href={`/u/${user.username}/following`}
+              className="relative z-20"
+              label="following"
+              value={formatCount(user._count.following)}
+              icon={<UserRound className="h-3.5 w-3.5" aria-hidden="true" />}
+            />
             {!isCurrentUser && currentUserId ? (
               <span className="relative z-20 ml-auto sm:ml-1">
                 <FollowButton
@@ -294,29 +329,24 @@ export function DiscoverClient({
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-5 sm:px-6 sm:py-6">
-      <div className={surface("panel", "noise-overlay relative overflow-hidden")}>
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.42)] to-transparent" />
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 opacity-50"
-          style={{
-            background:
-              "radial-gradient(780px 240px at 18% 0%, rgba(var(--color-accent-2-rgb),0.09), transparent 62%), radial-gradient(600px 240px at 92% 12%, rgba(var(--color-accent-rgb),0.055), transparent 60%)",
-          }}
-        />
-        <div className="relative p-4 sm:p-6">
-          <div>
-            <h1 className="max-w-2xl text-2xl font-bold tracking-tight text-white sm:text-3xl">
-              Browse Roblox creators
-            </h1>
-            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[var(--muted-foreground)] sm:text-base">
-              Filter by role and open profiles that look relevant.
-            </p>
-          </div>
+      <section className="mb-4 grid gap-3 border-b border-white/[0.06] px-1 pb-4 sm:mb-5 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end sm:px-0">
+        <div className="min-w-0">
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--color-accent-2)]">
+            Discover
+          </p>
+          <h1 className="mt-1 font-[var(--font-space-grotesk)] text-xl font-semibold tracking-tight text-white sm:text-2xl">
+            Browse Roblox creators
+          </h1>
+          <p className="mt-1 max-w-2xl text-sm leading-relaxed text-[var(--muted-foreground)]">
+            Filter by role and open profiles that look relevant.
+          </p>
         </div>
-      </div>
+        <span className="inline-flex w-fit rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 py-2 text-sm font-semibold text-white/72">
+          {users.length} shown
+        </span>
+      </section>
 
-      <div className="mt-4 grid gap-4 lg:grid-cols-[236px_1fr]">
+      <div className="grid gap-4 lg:grid-cols-[236px_1fr]">
         <aside className="lg:sticky lg:top-24 lg:self-start">
           <SegmentedTabs
             items={filterTabs}
@@ -328,13 +358,14 @@ export function DiscoverClient({
             itemClassName="lg:min-w-0"
           />
 
-          <div className={surface("empty", "mt-3 hidden p-4 lg:block")}>
-            <div className={iconBox("cyan", "mb-3 h-9 w-9")}>
-              <Search className="h-4 w-4" aria-hidden="true" />
-            </div>
-            <div className="text-sm font-semibold text-white">{selectedFilterLabel}</div>
-            <p className="mt-1 text-xs leading-relaxed text-[var(--muted-foreground)]">{selectedFilterIntent}</p>
-            <ActionLink href="/search" variant="secondary" size="sm" className="mt-3">
+          <div className="mt-3 hidden lg:block">
+            <ActionLink
+              href="/search"
+              variant="secondary"
+              size="sm"
+              className="w-full justify-start gap-2 border-white/[0.08] bg-white/[0.025] text-white/72 hover:border-[rgba(var(--color-accent-2-rgb),0.22)] hover:bg-white/[0.045] hover:text-white"
+            >
+              <Search className="h-4 w-4 text-[var(--color-accent-2)]" aria-hidden="true" />
               Search profiles
             </ActionLink>
           </div>
@@ -376,12 +407,15 @@ export function DiscoverClient({
         </div>
       ) : users.length > 0 ? (
         <>
-          <div className="mb-3 flex flex-wrap items-end justify-between gap-3">
+          <div className="mb-3 flex flex-wrap items-end justify-between gap-3 border-b border-white/[0.06] pb-3">
             <div>
-              <div className="text-sm font-semibold text-white">{selectedFilterLabel}</div>
-              <p className="mt-0.5 text-xs text-[var(--muted-foreground)]">{selectedFilterIntent}</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--color-accent-2)]">
+                {selectedFilterLabel}
+              </p>
+              <h2 className="mt-1 font-[var(--font-space-grotesk)] text-lg font-semibold tracking-tight text-white">
+                {selectedFilterIntent}
+              </h2>
             </div>
-            <div className="text-xs text-[var(--muted-foreground)]">{users.length} shown</div>
           </div>
 
           <section className="space-y-2">

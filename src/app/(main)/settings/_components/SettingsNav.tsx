@@ -10,37 +10,32 @@ const navItems = [
   { 
     href: "/settings", 
     label: "Account", 
-    description: "Linked accounts",
+    description: "Sign-in methods",
     icon: <UserRound className="h-[18px] w-[18px]" aria-hidden="true" />,
-    useAccent: true
   },
   { 
     href: "/settings/appearance", 
     label: "Appearance", 
-    description: "Theme and app icon",
+    description: "Theme and logo",
     icon: <Palette className="h-[18px] w-[18px]" aria-hidden="true" />,
-    useAccent: true
   },
   { 
     href: "/settings/security", 
     label: "Security", 
     description: "Password and 2FA",
     icon: <Lock className="h-[18px] w-[18px]" aria-hidden="true" />,
-    useAccent: true
   },
   { 
     href: "/settings/notifications", 
     label: "Notifications", 
-    description: "Email and product alerts",
+    description: "Email delivery",
     icon: <Bell className="h-[18px] w-[18px]" aria-hidden="true" />,
-    useAccent: true
   },
   { 
     href: "/settings/messaging", 
     label: "Messaging", 
-    description: "Requests and privacy",
+    description: "Inbox access",
     icon: <MessageSquare className="h-[18px] w-[18px]" aria-hidden="true" />,
-    useAccent: true
   }
 ];
 

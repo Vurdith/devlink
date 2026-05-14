@@ -2,10 +2,11 @@
 
 import { useCallback, useState, useEffect } from "react";
 import { Button } from "@/components/ui/Button";
-import { iconBox, surface, ui } from "@/components/ui/design-system";
+import { surface, ui } from "@/components/ui/design-system";
 import { getCsrfToken, signIn, useSession } from "next-auth/react";
 import { cn } from "@/lib/cn";
 import { SettingsAuthRequired } from "./SettingsAuthRequired";
+import { SettingsSection } from "./SettingsSection";
 
 interface LinkedAccount {
   provider: string;
@@ -147,20 +148,16 @@ export default function AccountLinking() {
   };
 
   return (
-    <div className="space-y-5">
-      {/* Header */}
-      <div className="flex items-center gap-3">
-        <div className={iconBox("cyan", "h-10 w-10")}>
+    <SettingsSection
+      title="Connected accounts"
+      description="Keep at least one reliable sign-in method available before disconnecting a provider."
+      icon={
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-white">
             <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
-        </div>
-        <div>
-          <h2 className="text-lg font-semibold text-white">Connected Accounts</h2>
-          <p className="text-sm text-[var(--muted-foreground)]">Use trusted providers as backup sign-in methods.</p>
-        </div>
-      </div>
+      }
+    >
 
       {/* Error Message */}
       {error && (
@@ -185,8 +182,8 @@ export default function AccountLinking() {
         </div>
       )}
 
-      <div className="rounded-xl border border-white/[0.08] bg-white/[0.035] p-4 text-sm text-[var(--muted-foreground)]">
-        <span className="font-medium text-white">Before disconnecting:</span> make sure you still have another way to sign in. If this is your only provider, set a password on the Security page first.
+      <div className="mb-4 rounded-xl border border-white/[0.08] bg-white/[0.035] p-4 text-sm leading-6 text-[var(--muted-foreground)]">
+        Set a password on the Security page before removing your only external sign-in method.
       </div>
 
       {/* Provider List */}
@@ -216,7 +213,7 @@ export default function AccountLinking() {
               className={cn(
                 "relative flex flex-col gap-4 overflow-hidden rounded-xl border p-4 transition-all animate-slide-up sm:flex-row sm:items-center sm:justify-between",
                 linked 
-                  ? "bg-[rgba(var(--color-accent-rgb),0.10)] border-[rgba(var(--color-accent-rgb),0.25)]"
+                  ? "border-[rgba(var(--color-accent-2-rgb),0.25)] bg-[rgba(var(--color-accent-2-rgb),0.09)]"
                   : cn(ui.surface.empty, "hover:border-white/[0.14] hover:bg-white/[0.055]")
               )}
               style={{ animationDelay: `${index * 0.05}s` }}
@@ -239,15 +236,14 @@ export default function AccountLinking() {
                 
                 {/* Info */}
                 <div>
-                  <div className="font-medium text-white">{provider.name}</div>
-                  <div className="text-sm text-[var(--muted-foreground)] flex items-center gap-2">
+                  <div className="font-semibold text-white">{provider.name}</div>
+                  <div className="mt-1 flex items-center gap-2 text-sm text-[var(--muted-foreground)]">
                     {linked ? (
-                      <>
-                        <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-accent-2)]" />
-                        <span className="text-[var(--color-accent-2)]">Connected</span>
-                      </>
+                      <span className="rounded-md border border-[rgba(var(--color-accent-2-rgb),0.24)] bg-[rgba(var(--color-accent-2-rgb),0.08)] px-2 py-0.5 text-xs font-semibold text-[var(--color-accent-2)]">
+                        Connected
+                      </span>
                     ) : (
-                      "Can be used to sign in"
+                      "Available as a backup sign-in method"
                     )}
                   </div>
                 </div>
@@ -301,6 +297,6 @@ export default function AccountLinking() {
           );
         })}
       </div>
-    </div>
+    </SettingsSection>
   );
 }

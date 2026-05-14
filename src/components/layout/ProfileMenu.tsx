@@ -92,7 +92,7 @@ export const ProfileMenu = memo(function ProfileMenu({ username, avatarUrl: init
         aria-haspopup="menu"
         aria-expanded={open}
         className={cn(
-          "flex items-center gap-3 rounded-lg border px-3 py-2 transition-all duration-150 active:scale-[0.98]",
+          "flex items-center gap-3 rounded-lg border px-2.5 py-2 transition-all duration-150 active:scale-[0.98]",
           open
             ? ui.active.cyan
             : ui.control.ghost
@@ -100,11 +100,11 @@ export const ProfileMenu = memo(function ProfileMenu({ username, avatarUrl: init
         onClick={toggleMenu}
       >
         <Avatar size={36} src={currentAvatarUrl} />
-        <div className="hidden sm:block text-left">
-          <div className="text-sm font-medium text-white leading-tight">
+        <div className="hidden min-w-0 sm:block text-left">
+          <div className="max-w-28 truncate text-sm font-semibold leading-tight text-white">
             {name || username}
           </div>
-          <div className="text-xs text-[var(--muted-foreground)]">
+          <div className="max-w-28 truncate text-xs text-[var(--muted-foreground)]">
             @{username}
           </div>
         </div>
@@ -121,28 +121,30 @@ export const ProfileMenu = memo(function ProfileMenu({ username, avatarUrl: init
       {open && (
         <div
           className={cn(
-            "absolute right-0 z-50 mt-2 w-[min(18rem,calc(100vw-2rem))]",
+            "absolute right-0 z-50 mt-2 w-[min(20rem,calc(100vw-2rem))]",
             menuPanel(),
             "origin-top-right animate-fade-in"
           )}
           role="menu"
         >
           {/* Header with user info */}
-          <div className="border-b border-white/[0.08] bg-white/[0.025] p-4">
-            <div className="flex items-center gap-3">
-              <Avatar size={48} src={currentAvatarUrl} />
-              <div className="flex-1 min-w-0">
-                <div className="font-semibold text-white truncate">
+          <div className="relative overflow-hidden border-b border-white/[0.08] bg-white/[0.025] p-4">
+            <div
+              aria-hidden="true"
+              className="absolute inset-x-0 top-0 h-16 bg-[radial-gradient(220px_90px_at_18%_0%,rgba(var(--color-accent-rgb),0.18),transparent_70%),linear-gradient(135deg,rgba(var(--color-accent-2-rgb),0.08),transparent_65%)]"
+            />
+            <div className="relative flex items-end gap-3 pt-5">
+              <Avatar size={52} src={currentAvatarUrl} className="border-4 border-[rgb(10,13,18)]" />
+              <div className="min-w-0 flex-1 pb-1">
+                <div className="truncate font-semibold text-white">
                   {name || username}
                 </div>
-                <div className="text-sm text-[var(--muted-foreground)]">
-                  @{username}
-                </div>
-                {profileType && (
-                  <div className="mt-1">
+                <div className="mt-1 flex min-w-0 items-center gap-2">
+                  <span className="truncate text-sm text-[var(--muted-foreground)]">@{username}</span>
+                  {profileType ? (
                     <ProfileTypeLabel profileType={profileType} variant="compact" />
-                  </div>
-                )}
+                  ) : null}
+                </div>
               </div>
             </div>
           </div>

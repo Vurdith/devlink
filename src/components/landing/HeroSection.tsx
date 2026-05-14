@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { PremiumButton } from "@/components/ui/PremiumButton";
+import { getDefaultLogoPath } from "@/lib/themes";
 import { InteractiveTypography } from "./InteractiveTypography";
 
 const stagger = {
@@ -21,6 +22,8 @@ const stagger = {
 };
 
 function BrandSignalScene() {
+  const logoPath = getDefaultLogoPath();
+
   return (
     <div aria-hidden="true" className="absolute inset-0 overflow-hidden">
       <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(9,11,17,0.34),rgba(7,9,13,0.82)_74%,var(--color-background))]" />
@@ -38,7 +41,7 @@ function BrandSignalScene() {
         <div className="absolute inset-[10%] rounded-[34px] border border-[rgba(var(--color-accent-2-rgb),0.18)]" />
         <div className="absolute left-[-12%] top-[26%] h-20 w-[120%] rotate-[-18deg] bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.16),transparent)] opacity-50 blur-xl" />
         <Image
-          src="/logo/logo.png"
+          src={logoPath}
           alt=""
           fill
           priority
@@ -53,7 +56,7 @@ function BrandSignalScene() {
         transition={{ duration: 13, repeat: Infinity, ease: "easeInOut" }}
       >
         <Image
-          src="/logo/logo.png"
+          src={logoPath}
           alt=""
           fill
           sizes="560px"

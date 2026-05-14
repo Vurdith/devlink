@@ -7,6 +7,7 @@ import { ProfileTypeLabel } from "@/components/profile/ProfileTypeLabel";
 import { menuItem, surface, ui } from "@/components/ui/design-system";
 import { cn } from "@/lib/cn";
 import { safeJson } from "@/lib/safe-json";
+import { Search, X } from "lucide-react";
 import type { MessageThread, MessageRequest } from "@/types/api";
 
 type UserSearchResult = {
@@ -51,10 +52,10 @@ export function NewMessageModal({ onClose, onThreadCreated, onRequestSent }: New
         const data = await safeJson<{ users: UserSearchResult[]; error?: string }>(res);
         if (active) {
           setResults((data?.users || []).filter((u) => !u.isYou));
-          if (!res.ok) setFeedback(data?.error || "People search could not load. Try a different name or try again.");
+          if (!res.ok) setFeedback(data?.error || "Search could not load. Try a different name or try again.");
         }
       } catch {
-        if (active) setFeedback("People search could not load. Check your connection, then try again.");
+        if (active) setFeedback("Search could not load. Check your connection, then try again.");
       } finally {
         if (active) setSearching(false);
       }
@@ -107,45 +108,42 @@ export function NewMessageModal({ onClose, onThreadCreated, onRequestSent }: New
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center px-3 pt-[8vh] sm:pt-[10vh]">
       {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/75"
-        onClick={onClose}
-      />
+      <div className="absolute inset-0 bg-black/75 backdrop-blur-sm" onClick={onClose} />
 
       {/* Modal */}
       <div className={surface("panelStrong", "noise-overlay relative flex max-h-[78vh] w-full max-w-[600px] flex-col overflow-hidden")}>
         <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.42)] to-transparent" />
         {/* Header */}
-        <div className="flex h-[53px] flex-shrink-0 items-center gap-3 border-b border-white/[0.06] px-4">
+        <div className="flex h-[58px] flex-shrink-0 items-center gap-3 border-b border-white/[0.06] px-4">
           <button
             onClick={onClose}
             className={cn("flex h-9 w-9 items-center justify-center rounded-lg text-white/60 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]", ui.control.ghost)}
             aria-label="Close new message"
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-              <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-            </svg>
+            <X className="h-[18px] w-[18px]" aria-hidden="true" />
           </button>
-          <h2 className="text-base font-bold text-white flex-1">New message</h2>
-          <span className="hidden rounded-lg border border-white/[0.08] bg-white/[0.035] px-3 py-1.5 text-xs font-semibold text-white/45 sm:inline-flex">
-            People search
-          </span>
+          <div className="min-w-0 flex-1">
+            <h2 className="text-base font-bold text-white">New message</h2>
+            <p className="text-xs text-white/38">Find a profile and open the thread.</p>
+          </div>
         </div>
 
         {/* Search */}
-        <div className="flex flex-shrink-0 items-center gap-3 border-b border-white/[0.06] px-4 py-2">
-          <span className="text-sm text-white/40 flex-shrink-0">To:</span>
-          <input
-            value={query}
-            onChange={(e) => {
-              setQuery(e.target.value);
-              setRequestSentTo(null);
-            }}
-            placeholder="Name or username"
-            className={cn(ui.control.field, "flex-1 py-2.5")}
-            autoFocus
-            disabled={creating}
-          />
+        <div className="flex flex-shrink-0 items-center gap-3 border-b border-white/[0.06] px-4 py-3">
+          <div className="relative min-w-0 flex-1">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/30" aria-hidden="true" />
+            <input
+              value={query}
+              onChange={(e) => {
+                setQuery(e.target.value);
+                setRequestSentTo(null);
+              }}
+              placeholder="Search name or username"
+              className={cn(ui.control.field, "py-2.5 pl-10")}
+              autoFocus
+              disabled={creating}
+            />
+          </div>
           {creating && (
             <div className="w-5 h-5 border-2 border-white/20 border-t-[var(--color-accent)] rounded-full animate-spin flex-shrink-0" />
           )}
@@ -201,9 +199,9 @@ export function NewMessageModal({ onClose, onThreadCreated, onRequestSent }: New
           {!searching && !query.trim() && (
             <div className="p-4">
               <div className={surface("empty", "px-5 py-8 text-center")}>
-                <div className="text-sm font-semibold text-white/70">Find someone to message</div>
+                <div className="text-sm font-semibold text-white/70">Search for a profile</div>
                 <p className="mt-1 text-xs leading-relaxed text-white/35">
-                  Search by name or username to start a thread.
+                  Enter a display name or handle to start a thread.
                 </p>
               </div>
             </div>
@@ -214,7 +212,7 @@ export function NewMessageModal({ onClose, onThreadCreated, onRequestSent }: New
               key={user.id}
               onClick={() => selectUser(user)}
               disabled={creating}
-              className={menuItem("w-full rounded-none border-x-0 border-t-0 px-4 py-3 text-left disabled:opacity-50")}
+              className={menuItem("w-full rounded-none border-x-0 border-t-0 px-4 py-3.5 text-left disabled:opacity-50")}
             >
               <Avatar size={44} src={user.avatarUrl || undefined} />
               <div className="flex-1 min-w-0">

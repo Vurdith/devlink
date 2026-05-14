@@ -20,7 +20,7 @@ export default function SettingsLayout({ children }: { children: ReactNode }) {
                 </div>
                 <div>
                   <h2 className="text-lg font-semibold text-white">Settings</h2>
-                  <p className="text-xs text-[var(--muted-foreground)]">Access, alerts, and privacy</p>
+                  <p className="text-xs text-[var(--muted-foreground)]">Account controls</p>
                 </div>
               </div>
               

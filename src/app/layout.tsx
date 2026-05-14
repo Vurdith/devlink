@@ -9,6 +9,7 @@ import { RealtimeProvider } from "@/components/providers/RealtimeProvider";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
 import { AnimatedBackground } from "@/components/ui/AnimatedBackground";
+import { DEFAULT_THEME, getDefaultLogoPath, getFaviconPath, getLogoPath, THEME_ASSET_VERSION } from "@/lib/themes";
 import { getAuthSession } from "@/server/auth";
 
 const outfit = Outfit({
@@ -42,11 +43,11 @@ export const metadata: Metadata = {
   publisher: "DevLink",
   icons: {
     icon: [
-      { url: "/favicon-purple.ico", type: "image/x-icon" },
-      { url: "/logo/logo-purple.png", sizes: "any", type: "image/png" },
+      { url: getFaviconPath(DEFAULT_THEME), type: "image/x-icon" },
+      { url: getLogoPath(DEFAULT_THEME), sizes: "any", type: "image/png" },
     ],
-    shortcut: "/favicon-purple.ico",
-    apple: "/logo/logo-purple.png",
+    shortcut: getFaviconPath(DEFAULT_THEME),
+    apple: getLogoPath(DEFAULT_THEME),
   },
   manifest: "/manifest.json",
   // Open Graph meta tags for social sharing
@@ -59,7 +60,7 @@ export const metadata: Metadata = {
     description: "The premier professional network for Roblox developers, clients, studios, and influencers. Showcase your work, find collaborators, and grow your network.",
     images: [
       {
-        url: "/logo/logo.png",
+        url: getDefaultLogoPath(),
         width: 512,
         height: 512,
         alt: "DevLink Logo",
@@ -71,7 +72,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "DevLink - Roblox Developer Network",
     description: "The premier professional network for Roblox developers, clients, studios, and influencers.",
-    images: ["/logo/logo.png"],
+    images: [getDefaultLogoPath()],
     creator: "@devlink",
   },
   // Robots directives
@@ -125,6 +126,8 @@ export default async function RootLayout({
           (function() {
             try {
               var theme = localStorage.getItem('devlink-theme');
+              var assetVersion = '${THEME_ASSET_VERSION}';
+              var assetSuffix = '?v=' + assetVersion;
               var allowedThemes = ['red', 'orange', 'yellow', 'green', 'blue', 'indigo', 'purple'];
               if (theme && allowedThemes.indexOf(theme) !== -1) {
                 var existingIcons = document.querySelectorAll('link[rel*="icon"], link[href*="/favicon"], link[href*="/logo/logo"]');
@@ -133,17 +136,17 @@ export default async function RootLayout({
                 var favicon = document.createElement('link');
                 favicon.rel = 'icon';
                 favicon.type = 'image/x-icon';
-                favicon.href = '/favicon-' + theme + '.ico';
+                favicon.href = '/favicon-' + theme + '.ico' + assetSuffix;
                 document.head.appendChild(favicon);
 
                 var shortcut = document.createElement('link');
                 shortcut.rel = 'shortcut icon';
-                shortcut.href = '/favicon-' + theme + '.ico';
+                shortcut.href = '/favicon-' + theme + '.ico' + assetSuffix;
                 document.head.appendChild(shortcut);
 
                 var apple = document.createElement('link');
                 apple.rel = 'apple-touch-icon';
-                apple.href = '/logo/logo-' + theme + '.png';
+                apple.href = '/logo/logo-' + theme + '.png' + assetSuffix;
                 document.head.appendChild(apple);
               }
             } catch(e) {}

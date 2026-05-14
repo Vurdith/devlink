@@ -7,7 +7,7 @@ import { useSession } from "next-auth/react";
 import { ArrowLeft, CheckCircle2, Clock3, DollarSign, MapPin, Send, Users, XCircle } from "lucide-react";
 import { ActionLink } from "@/components/ui/ActionLink";
 import { Button } from "@/components/ui/Button";
-import { ToneBadge, type DataTone } from "@/components/ui/DataDisplay";
+import { InfoCell, ToneBadge, type DataTone } from "@/components/ui/DataDisplay";
 import { useToastContext } from "@/components/providers/ToastProvider";
 import { cn } from "@/lib/cn";
 import { safeJson } from "@/lib/safe-json";
@@ -217,7 +217,6 @@ export default function JobDetailPage() {
         <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.40)] to-transparent" />
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0">
-            <div className="mb-2 text-[10px] font-bold uppercase tracking-[0.16em] text-[var(--color-accent-2)]">Job</div>
             <h1 className="text-2xl font-bold text-white">{job.title}</h1>
             <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[var(--muted-foreground)]">
               <span className="text-white/70">@{job.user?.username || "unknown"}</span>
@@ -232,26 +231,30 @@ export default function JobDetailPage() {
           </ToneBadge>
         </div>
         <p className="mt-5 whitespace-pre-wrap border-l border-[rgba(var(--color-accent-2-rgb),0.26)] pl-4 text-sm leading-relaxed text-white/78">{job.description}</p>
-        <div className="mt-5 grid gap-2 rounded-lg border border-white/[0.07] bg-black/10 p-3 text-xs text-[var(--muted-foreground)] sm:grid-cols-[minmax(0,1.3fr)_auto_auto]">
+        <div className="mt-5 grid gap-2 rounded-lg border border-white/[0.07] bg-black/10 p-3 text-xs text-[var(--muted-foreground)] lg:grid-cols-[minmax(0,1.3fr)_minmax(10rem,0.65fr)_minmax(9rem,0.5fr)]">
           <div className="flex min-w-0 flex-wrap gap-2">
             {jobSkills.length > 0 ? (
               jobSkills.map((skill) => (
-                <span key={skill} className="rounded-md border border-white/[0.08] bg-white/[0.035] px-2.5 py-2 text-white/70">
+                <span key={skill} className="rounded-md border border-white/[0.08] bg-white/[0.035] px-2.5 py-2 font-medium text-white/70">
                   {skill}
                 </span>
               ))
             ) : (
-              <ToneBadge tone="muted" className="py-2">Skills flexible</ToneBadge>
+              <ToneBadge tone="muted" className="py-2">Skill match flexible</ToneBadge>
             )}
           </div>
-          <span className="inline-flex items-center gap-1.5 rounded-md border border-white/[0.08] bg-white/[0.035] px-2.5 py-2">
-            <DollarSign className="h-3.5 w-3.5 text-[var(--color-accent-2)]" aria-hidden="true" />
-            {formatBudget(job)}
-          </span>
-          <span className="inline-flex items-center gap-1.5 rounded-md border border-white/[0.08] bg-white/[0.035] px-2.5 py-2">
-            <Users className="h-3.5 w-3.5" aria-hidden="true" />
-            {job._count?.applications ?? 0} applicants
-          </span>
+          <InfoCell
+            label="Budget"
+            value={formatBudget(job)}
+            icon={<DollarSign className="h-3.5 w-3.5" aria-hidden="true" />}
+            tone="money"
+          />
+          <InfoCell
+            label="Applicants"
+            value={job._count?.applications ?? 0}
+            icon={<Users className="h-3.5 w-3.5" aria-hidden="true" />}
+            tone="muted"
+          />
         </div>
 
         {!userId ? (

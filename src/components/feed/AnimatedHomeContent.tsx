@@ -1,7 +1,8 @@
 "use client";
 import dynamic from "next/dynamic";
+import Link from "next/link";
 import { memo } from "react";
-import { ArrowRight, Bell, BriefcaseBusiness, Code2, MessageSquare, Search, Sparkles, Users } from "lucide-react";
+import { ArrowRight, Bell, BriefcaseBusiness, Code2, MessageSquare, Search, Users } from "lucide-react";
 import { PostFeed } from "./PostFeed";
 import { ActionLink } from "@/components/ui/ActionLink";
 import { ThemeLogoImg } from "@/components/ui/ThemeLogo";
@@ -45,25 +46,25 @@ interface AnimatedHomeContentProps {
 const audienceLanes = [
   {
     title: "Developers",
-    desc: "Ship notes, portfolio drops, and technical asks.",
+    desc: "Build notes, portfolio drops, and technical asks.",
     Icon: Code2,
   },
   {
     title: "Clients",
-    desc: "Find builders through live work and replies.",
+    desc: "Rates, replies, and proof before you message.",
     Icon: BriefcaseBusiness,
   },
   {
     title: "Teams",
-    desc: "Turn feed activity into messages and projects.",
+    desc: "Shortlist people from visible work instead of cold guesses.",
     Icon: Users,
   },
 ];
 
 const workQueue = [
-  { label: "New work", desc: "Builds, clips, and project updates", Icon: Sparkles },
-  { label: "Replies", desc: "Threads waiting for an answer", Icon: MessageSquare },
-  { label: "Jobs", desc: "Open briefs from clients and teams", Icon: BriefcaseBusiness },
+  { label: "Discover", desc: "Find people worth following", Icon: Search, href: "/discover" },
+  { label: "Jobs", desc: "Open briefs from clients and teams", Icon: BriefcaseBusiness, href: "/jobs" },
+  { label: "Messages", desc: "Pick up active conversations", Icon: MessageSquare, href: "/messages" },
 ];
 
 function CreatePostFallback() {
@@ -112,7 +113,6 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
               <div className="mb-7 flex items-center gap-4">
                 <ThemeLogoImg className="h-14 w-14 object-contain sm:h-16 sm:w-16" />
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--color-accent-2)]">Network feed</p>
                   <h1 className="mt-1 text-5xl font-bold leading-none tracking-normal text-white sm:text-6xl lg:text-7xl" style={{ fontFamily: "var(--font-space-grotesk)" }}>
                     DevLink
                   </h1>
@@ -122,8 +122,8 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
               <p className="max-w-2xl text-xl font-medium leading-tight text-white/82 sm:text-2xl lg:text-3xl">
                 A working feed for Roblox developers, clients, and teams.
               </p>
-              <p className="mt-5 max-w-xl text-base leading-7 text-white/54">
-                Follow builders, read project updates, spot hiring signals, and turn useful activity into conversations.
+              <p className="mt-5 max-w-xl text-base leading-7 text-white/56">
+                Follow builders, read current work, spot hiring signals, and move the right conversation into messages.
               </p>
 
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -144,15 +144,15 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
               <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.46)] to-transparent" />
               <div className="mb-4 flex items-center justify-between gap-3">
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/38">Recent work</p>
-                  <h2 className="mt-1 text-lg font-semibold tracking-normal text-white">Posts that lead somewhere</h2>
+                  <h2 className="text-lg font-semibold tracking-normal text-white">See the work before the pitch</h2>
+                  <p className="mt-1 text-sm leading-5 text-white/48">Profiles, posts, jobs, and replies live in one loop.</p>
                 </div>
                 <Search className="h-5 w-5 text-[var(--color-accent-2)]" />
               </div>
 
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {audienceLanes.map(({ title, desc, Icon }) => (
-                  <div key={title} className="grid grid-cols-[40px_minmax(0,1fr)] gap-3 rounded-lg border border-white/[0.07] bg-white/[0.025] p-3">
+                  <div key={title} className="grid grid-cols-[40px_minmax(0,1fr)] gap-3 rounded-lg border border-white/[0.07] bg-white/[0.025] p-3 transition-colors hover:border-white/[0.11] hover:bg-white/[0.04]">
                     <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.04] text-[var(--color-accent-2)]">
                       <Icon className="h-5 w-5" />
                     </div>
@@ -162,9 +162,6 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
                     </div>
                   </div>
                 ))}
-              </div>
-              <div className="mt-4 rounded-lg border border-emerald-300/15 bg-emerald-400/[0.06] px-4 py-3 text-sm leading-6 text-emerald-100/78">
-                Open DevLink, check recent work, reply where it matters, then move the right people into messages.
               </div>
             </section>
           </div>
@@ -179,11 +176,11 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
                 <h1 className="mt-1 text-2xl font-semibold tracking-normal text-white sm:text-3xl">
                   Good to see you, {firstName}
                 </h1>
-                <p className="mt-2 max-w-2xl text-sm leading-6 text-white/52">
-                  Share the thing you are building, then skim the work, asks, and replies worth acting on.
+                <p className="mt-2 max-w-2xl text-sm leading-6 text-white/54">
+                  Post what changed, then scan the people and projects worth answering.
                 </p>
               </div>
-              <div className="inline-flex w-fit items-center gap-2 rounded-lg border border-white/[0.08] bg-white/[0.035] px-3 py-2 text-xs font-semibold text-white/62 shadow-[0_10px_30px_rgba(0,0,0,0.16)]">
+              <div className="inline-flex w-fit items-center gap-2 rounded-lg border border-white/[0.08] bg-white/[0.035] px-3 py-2 text-xs font-semibold text-white/64">
                 <Bell className="h-4 w-4 text-[var(--color-accent-2)]" />
                 {feedCountLabel}
               </div>
@@ -226,16 +223,16 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
                 </div>
                 <div className="rounded-lg border border-white/[0.07] bg-white/[0.025] p-3">
                   <div className="text-xl font-semibold text-white">{feedPosts.length}</div>
-                  <div className="mt-1 text-xs text-white/45">posts loaded</div>
+                  <div className="mt-1 text-xs text-white/45">updates</div>
                 </div>
               </div>
             </section>
 
             <section className={surface("empty", "p-3")}>
-              <h2 className="px-1 pb-2 text-sm font-semibold text-white">Shortcuts</h2>
+              <h2 className="px-1 pb-2 text-sm font-semibold text-white">Next places</h2>
               <div className="space-y-1">
-                {workQueue.map(({ label, desc, Icon }) => (
-                  <div key={label} className="grid grid-cols-[34px_minmax(0,1fr)] gap-3 rounded-lg px-2 py-2.5 transition-all duration-200 hover:translate-x-0.5 hover:bg-white/[0.04]">
+                {workQueue.map(({ label, desc, Icon, href }) => (
+                  <Link key={label} href={href} className="grid grid-cols-[34px_minmax(0,1fr)] gap-3 rounded-lg px-2 py-2.5 transition-all duration-200 hover:translate-x-0.5 hover:bg-white/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.55)]">
                     <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.035] text-white/62">
                       <Icon className="h-4 w-4" />
                     </div>
@@ -243,7 +240,7 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
                       <div className="text-sm font-medium text-white/86">{label}</div>
                       <p className="mt-0.5 text-xs leading-5 text-white/42">{desc}</p>
                     </div>
-                  </div>
+                  </Link>
                 ))}
               </div>
             </section>

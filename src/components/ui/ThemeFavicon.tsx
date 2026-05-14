@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { useTheme } from "@/components/providers/ThemeProvider";
+import { getFaviconPath } from "@/lib/themes";
 
 /**
  * Client component that manages the favicon based on the current theme.
@@ -11,6 +12,8 @@ export function ThemeFavicon() {
   const { themeId } = useTheme();
 
   useEffect(() => {
+    const faviconPath = getFaviconPath(themeId);
+
     // Remove all existing favicons
     const existingIcons = document.querySelectorAll('link[rel*="icon"]');
     existingIcons.forEach(icon => icon.remove());
@@ -19,13 +22,13 @@ export function ThemeFavicon() {
     const favicon = document.createElement('link');
     favicon.rel = 'icon';
     favicon.type = 'image/x-icon';
-    favicon.href = `/favicon-${themeId}.ico`;
+    favicon.href = faviconPath;
     document.head.appendChild(favicon);
 
     // Also add shortcut icon for older browsers
     const shortcut = document.createElement('link');
     shortcut.rel = 'shortcut icon';
-    shortcut.href = `/favicon-${themeId}.ico`;
+    shortcut.href = faviconPath;
     document.head.appendChild(shortcut);
 
     // Clean up on unmount or theme change

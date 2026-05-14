@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useTheme } from "@/components/providers/ThemeProvider";
 import { surface, ui } from "@/components/ui/design-system";
 import { cn } from "@/lib/cn";
-import { getAllThemes, type ThemeConfig, type ThemeId } from "@/lib/themes";
+import { getAllThemes, getDefaultLogoPath, getLogoPath, type ThemeConfig, type ThemeId } from "@/lib/themes";
 import { SettingsPageHeader } from "../_components/SettingsPageHeader";
 
 function SunIcon() {
@@ -53,11 +53,11 @@ function ThemeRailButton({
       <span className="relative flex h-11 w-11 items-center justify-center overflow-hidden rounded-lg border border-white/[0.10] bg-black/20">
         <span className="absolute inset-0 opacity-80" style={{ background: gradient }} />
         <img
-          src={`/logo/logo-${theme.id}.png`}
+          src={getLogoPath(theme.id)}
           alt=""
           className="relative h-9 w-9 object-contain drop-shadow-[0_6px_14px_rgba(0,0,0,0.45)]"
           onError={(event) => {
-            event.currentTarget.src = "/logo/logo.png";
+            event.currentTarget.src = getDefaultLogoPath();
           }}
         />
       </span>
@@ -114,7 +114,7 @@ function InterfaceSample({ theme }: { theme: ThemeConfig }) {
       <div className="relative flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <div className="h-10 w-10 rounded-lg border border-white/[0.10] bg-black/20 p-1.5">
-            <img src={`/logo/logo-${theme.id}.png`} alt="" className="h-full w-full object-contain" />
+            <img src={getLogoPath(theme.id)} alt="" className="h-full w-full object-contain" />
           </div>
           <div>
             <div className="text-sm font-semibold text-white">Profile card</div>
@@ -191,7 +191,7 @@ export default function AppearanceSettingsPage() {
           <div className="relative grid gap-6 xl:grid-cols-[220px_1fr] xl:items-center">
             <div className="flex min-h-[220px] items-center justify-center rounded-xl border border-white/[0.08] bg-black/20 p-8">
               <img
-                src={`/logo/logo-${selectedTheme.id}.png`}
+                src={getLogoPath(selectedTheme.id)}
                 alt={`${selectedTheme.name} DevLink icon`}
                 className="max-h-44 w-full object-contain drop-shadow-[0_24px_45px_rgba(0,0,0,0.46)]"
               />

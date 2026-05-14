@@ -8,6 +8,7 @@ import { FollowButton } from "../ui/FollowButton";
 import { ProfileTypeLabel } from "@/components/profile/ProfileTypeLabel";
 import { cn } from "@/lib/cn";
 import { formatProfileCount, getProfileBorder, getProfileGradient } from "./profile-tooltip-utils";
+import { UserRound, UsersRound } from "lucide-react";
 
 interface ProfileTooltipProps {
   user: {
@@ -294,7 +295,7 @@ export const ProfileTooltip = memo(function ProfileTooltip({
       onMouseLeave={handleTooltipLeave}
     >
       <div className={cn(
-        "relative w-[min(21rem,calc(100vw-1.5rem))] overflow-hidden rounded-xl bg-[rgba(12,16,23,0.97)] shadow-[0_24px_70px_rgba(0,0,0,0.42)]",
+        "relative w-[min(22rem,calc(100vw-1.5rem))] overflow-hidden rounded-xl bg-[rgba(10,13,18,0.98)] shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]",
         "border",
         profileBorderColor
       )}>
@@ -303,7 +304,7 @@ export const ProfileTooltip = memo(function ProfileTooltip({
             `bg-gradient-to-b ${profileGradient} to-transparent`
           )} />
           
-          <div className="relative h-24 overflow-hidden">
+          <div className="relative h-[7.25rem] overflow-hidden border-b border-white/[0.06]">
             {userData.profile?.bannerUrl ? (
               <>
                 <Image 
@@ -313,7 +314,7 @@ export const ProfileTooltip = memo(function ProfileTooltip({
                   className="object-cover object-center"
                   loading="lazy"
                 />
-                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/5 to-[#0a0e14]" />
+                <div className="absolute inset-0 bg-gradient-to-b from-black/5 via-black/10 to-[#0a0e14]" />
               </>
             ) : (
               <div className={cn(
@@ -324,7 +325,7 @@ export const ProfileTooltip = memo(function ProfileTooltip({
             )}
           </div>
           
-          <div className="relative -mt-9 px-4 pb-4">
+          <div className="relative -mt-8 px-4 pb-4">
             <div className="mb-3 flex items-end gap-3">
               <button
                 onClick={(e) => { e.stopPropagation(); window.location.href = `/u/${userData.username}`; }}
@@ -361,18 +362,15 @@ export const ProfileTooltip = memo(function ProfileTooltip({
                     </div>
                   )}
                 </button>
-                <div className="truncate text-sm text-[var(--muted-foreground)]">@{userData.username}</div>
+                <div className="mt-1 flex min-w-0 items-center gap-2">
+                  <span className="truncate text-sm text-[var(--muted-foreground)]">@{userData.username}</span>
+                  {profileType && <ProfileTypeLabel profileType={profileType} variant="compact" />}
+                </div>
               </div>
             </div>
             
-            {profileType && (
-              <div className="mb-3">
-                <ProfileTypeLabel profileType={profileType} variant="inline" />
-              </div>
-            )}
-            
             {userData.profile?.bio && (
-              <p className="mb-3 line-clamp-2 border-l border-[rgba(var(--color-accent-2-rgb),0.28)] pl-3 text-sm leading-relaxed text-white/62">
+              <p className="mb-3 line-clamp-2 rounded-lg border border-white/[0.07] border-l-[rgba(var(--color-accent-2-rgb),0.42)] bg-white/[0.025] px-3 py-2 text-sm leading-relaxed text-white/66">
                 {userData.profile?.bio}
               </p>
             )}
@@ -410,12 +408,14 @@ export const ProfileTooltip = memo(function ProfileTooltip({
                 <MetricButton
                   label="followers"
                   value={formatProfileCount(userData._count.followers)}
+                  icon={<UsersRound className="h-3.5 w-3.5" aria-hidden="true" />}
                   className="w-full justify-start border border-white/[0.07] bg-white/[0.025]"
                   onClick={(e) => { e.stopPropagation(); window.location.href = `/u/${userData.username}/followers`; }}
                 />
                 <MetricButton
                   label="following"
                   value={formatProfileCount(userData._count.following)}
+                  icon={<UserRound className="h-3.5 w-3.5" aria-hidden="true" />}
                   className="w-full justify-start border border-white/[0.07] bg-white/[0.025]"
                   onClick={(e) => { e.stopPropagation(); window.location.href = `/u/${userData.username}/following`; }}
                 />

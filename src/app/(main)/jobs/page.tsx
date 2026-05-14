@@ -6,7 +6,7 @@ import { useSession } from "next-auth/react";
 import { BriefcaseBusiness, CheckCircle2, DollarSign, FileText, MapPin, Send, Users } from "lucide-react";
 import { ActionLink } from "@/components/ui/ActionLink";
 import { Button } from "@/components/ui/Button";
-import { ToneBadge, type DataTone } from "@/components/ui/DataDisplay";
+import { InfoCell, ToneBadge, type DataTone } from "@/components/ui/DataDisplay";
 import { iconBox, surface, ui } from "@/components/ui/design-system";
 import { useToastContext } from "@/components/providers/ToastProvider";
 import { cn } from "@/lib/cn";
@@ -230,17 +230,20 @@ export default function JobsPage() {
         <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(var(--color-accent-2-rgb),0.42)] to-transparent" />
         <div className="relative flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <div className="mb-2 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.16em] text-[var(--color-accent-2)]">
-              <BriefcaseBusiness className="h-3.5 w-3.5" aria-hidden="true" />
-              Jobs
-            </div>
             <h1 className="text-3xl font-bold tracking-tight text-white font-[var(--font-space-grotesk)]">Open Roblox work</h1>
             <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[var(--muted-foreground)]">
               Post a clear brief, review applicants, and keep each role moving.
             </p>
           </div>
-          <div className={iconBox("cyan", "h-11 w-11")}>
-            <BriefcaseBusiness className="h-5 w-5" aria-hidden="true" />
+          <div className="grid grid-cols-2 gap-2 text-right sm:min-w-56">
+            <div className="rounded-lg border border-white/[0.08] bg-white/[0.035] px-3 py-2">
+              <div className="text-lg font-bold leading-none text-white">{jobs.length}</div>
+              <div className="mt-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-white/40">Open</div>
+            </div>
+            <div className="rounded-lg border border-white/[0.08] bg-white/[0.035] px-3 py-2">
+              <div className="text-lg font-bold leading-none text-white">{myApplications.length}</div>
+              <div className="mt-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-white/40">Sent</div>
+            </div>
           </div>
         </div>
       </div>
@@ -267,12 +270,12 @@ export default function JobsPage() {
           <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.12] to-transparent" />
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
             <div>
-              <h2 className="text-lg font-semibold text-white font-[var(--font-space-grotesk)]">Write the brief</h2>
+              <h2 className="text-lg font-semibold text-white font-[var(--font-space-grotesk)]">Post a clear role</h2>
               <p className="mt-1 text-sm text-[var(--muted-foreground)]">
                 Give candidates the role, budget, location, and skills before they apply.
               </p>
             </div>
-            <span className="inline-flex max-w-full items-center gap-1.5 rounded-lg border border-[rgba(var(--color-accent-2-rgb),0.22)] bg-[rgba(var(--color-accent-2-rgb),0.08)] px-3 py-1.5 text-xs font-bold text-[var(--color-accent-2)]">
+            <span className="inline-flex max-w-full items-center gap-1.5 rounded-lg border border-emerald-300/24 bg-emerald-400/10 px-3 py-1.5 text-xs font-bold text-emerald-300">
               <DollarSign className="h-3.5 w-3.5 flex-shrink-0" aria-hidden="true" />
               {budgetSummary}
             </span>
@@ -347,7 +350,7 @@ export default function JobsPage() {
       <div className="grid gap-6">
         <section>
           <div className="mb-3 flex items-center gap-3">
-            <h2 className="text-sm font-bold uppercase tracking-[0.14em] text-[var(--color-accent-2)]">Open jobs</h2>
+            <h2 className="text-sm font-bold uppercase tracking-[0.14em] text-[var(--color-accent-2)]">Available work</h2>
             <div className="h-px flex-1 bg-gradient-to-r from-white/[0.10] to-transparent" />
           </div>
           {loading ? (
@@ -513,21 +516,25 @@ function JobCard({
             </span>
           ))
         ) : (
-          <ToneBadge tone="muted">Skills flexible</ToneBadge>
+          <ToneBadge tone="muted">Skill match flexible</ToneBadge>
         )}
       </div>
 
-      <div className="mt-4 flex flex-col gap-3 rounded-lg border border-white/[0.07] bg-black/10 px-3 py-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-[var(--muted-foreground)]">
-          <span className="inline-flex items-center gap-1.5 text-white/70">
-            <DollarSign className="h-3.5 w-3.5 text-[var(--color-accent-2)]" aria-hidden="true" />
-            {formatBudget(job)}
-          </span>
-          <span className="inline-flex items-center gap-1.5">
-            <Users className="h-3.5 w-3.5" aria-hidden="true" />
-            {job._count?.applications ?? 0} applicants
-          </span>
-        </div>
+      <div className="mt-4 grid gap-2 rounded-lg border border-white/[0.07] bg-black/10 p-2 sm:grid-cols-[minmax(0,1fr)_minmax(0,0.8fr)_auto] sm:items-center">
+        <InfoCell
+          label="Budget"
+          value={formatBudget(job)}
+          icon={<DollarSign className="h-3.5 w-3.5" aria-hidden="true" />}
+          tone="money"
+          className="bg-black/15"
+        />
+        <InfoCell
+          label="Applicants"
+          value={job._count?.applications ?? 0}
+          icon={<Users className="h-3.5 w-3.5" aria-hidden="true" />}
+          tone="muted"
+          className="bg-black/15"
+        />
         {canApply && !applicationOpen ? (
           <Button size="sm" variant="secondary" onClick={onOpenApplication} className="w-full sm:w-auto" leftIcon={<Send className="h-4 w-4" aria-hidden="true" />}>
             Apply
