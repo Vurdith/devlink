@@ -197,6 +197,18 @@ export default function MessageThreadPage() {
       }
 
       appendMessage(data);
+      window.dispatchEvent(
+        new CustomEvent("devlink:message-updated", {
+          detail: {
+            threadId: params.threadId,
+            conversationId: params.threadId,
+            messageId: data.id,
+            senderId: data.senderId,
+            createdAt: data.createdAt,
+            content: data.content,
+          },
+        })
+      );
       if (pendingRequest) setHasSentRequestMsg(true);
       setComposerNotice(pendingRequest ? "Request sent. You can continue after they accept." : "");
       setReceiptLabel("Sent");

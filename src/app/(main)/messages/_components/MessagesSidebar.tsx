@@ -9,7 +9,6 @@ import { menuPanel, skeleton, surface, ui } from "@/components/ui/design-system"
 import { cn } from "@/lib/cn";
 import { safeJson } from "@/lib/safe-json";
 import { Avatar } from "@/components/ui/Avatar";
-import { useMessagesRealtime } from "@/hooks/useMessagesRealtime";
 import { NewMessageModal } from "./NewMessageModal";
 import { Check, Inbox, MessageCircle, PenLine, Search, Settings2, X } from "lucide-react";
 import type { MessageRequest, MessageThread, MessagingSettings } from "@/types/api";
@@ -44,17 +43,8 @@ export function MessagesSidebar() {
   const [msgSettings, setMsgSettings] = useState<MessagingSettings | null>(null);
   const [savingSettings, setSavingSettings] = useState(false);
   const settingsRef = useRef<HTMLDivElement>(null);
-
-  // Realtime: bump thread to top on new message
-  useMessagesRealtime(undefined, (newMessage) => {
-    setThreads((prev) => {
-      const index = prev.findIndex((t) => t.id === newMessage.conversationId);
-      if (index === -1) return prev;
-      const thread = { ...prev[index], lastMessageAt: newMessage.createdAt };
-      const rest = prev.filter((_, i) => i !== index);
-      return [thread, ...rest];
-    });
-  });
+  const reloadTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const mountedRef = useRef(true);
 
   const requestCount = incomingRequests.length;
   const showHeaderCompose = activeTab !== "inbox" || threads.length > 0 || Boolean(searchQuery.trim());
@@ -81,46 +71,79 @@ export function MessagesSidebar() {
     return ts.toLocaleDateString(undefined, { month: "short", day: "numeric" });
   }, []);
 
+  const loadMessageLists = useCallback(async (options: { showLoading?: boolean } = {}) => {
+    if (!userId) {
+      if (options.showLoading !== false) setLoading(false);
+      return;
+    }
+    if (options.showLoading !== false) {
+      setLoading(true);
+    }
+    setLoadError("");
+    try {
+      const [threadsRes, incomingRes, outgoingRes] = await Promise.all([
+        fetch("/api/messages/threads"),
+        fetch("/api/messages/requests?type=incoming"),
+        fetch("/api/messages/requests?type=outgoing"),
+      ]);
+      const [threadsData, incomingData, outgoingData] = await Promise.all([
+        safeJson<MessageThread[]>(threadsRes),
+        safeJson<MessageRequest[]>(incomingRes),
+        safeJson<MessageRequest[]>(outgoingRes),
+      ]);
+      if (!threadsRes.ok || !incomingRes.ok || !outgoingRes.ok) {
+        throw new Error("Messages could not load.");
+      }
+      if (!mountedRef.current) return;
+      setThreads(threadsData || []);
+      setIncomingRequests(incomingData || []);
+      setOutgoingRequests(outgoingData || []);
+    } catch {
+      if (!mountedRef.current) return;
+      setLoadError("Messages could not load. Check your connection, then try again.");
+    } finally {
+      if (mountedRef.current && options.showLoading !== false) {
+        setLoading(false);
+      }
+    }
+  }, [userId]);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
   // Load threads and requests
   useEffect(() => {
     if (!userId) {
       setLoading(false);
       return;
     }
-    let isMounted = true;
-    async function load() {
-      setLoading(true);
-      setLoadError("");
-      try {
-        const [threadsRes, incomingRes, outgoingRes] = await Promise.all([
-          fetch("/api/messages/threads"),
-          fetch("/api/messages/requests?type=incoming"),
-          fetch("/api/messages/requests?type=outgoing"),
-        ]);
-        const [threadsData, incomingData, outgoingData] = await Promise.all([
-          safeJson<MessageThread[]>(threadsRes),
-          safeJson<MessageRequest[]>(incomingRes),
-          safeJson<MessageRequest[]>(outgoingRes),
-        ]);
-        if (!threadsRes.ok || !incomingRes.ok || !outgoingRes.ok) {
-          throw new Error("Messages could not load.");
-        }
-        if (isMounted) {
-          setThreads(threadsData || []);
-          setIncomingRequests(incomingData || []);
-          setOutgoingRequests(outgoingData || []);
-        }
-      } catch {
-        if (isMounted) setLoadError("Messages could not load. Check your connection, then try again.");
-      } finally {
-        if (isMounted) setLoading(false);
+    void loadMessageLists();
+  }, [loadMessageLists, userId]);
+
+  useEffect(() => {
+    if (!userId) return;
+
+    const scheduleRefresh = () => {
+      if (reloadTimerRef.current) {
+        clearTimeout(reloadTimerRef.current);
       }
-    }
-    load();
-    return () => {
-      isMounted = false;
+
+      reloadTimerRef.current = setTimeout(() => {
+        reloadTimerRef.current = null;
+        void loadMessageLists({ showLoading: false });
+      }, 250);
     };
-  }, [userId]);
+
+    window.addEventListener("devlink:message-updated", scheduleRefresh);
+    return () => {
+      if (reloadTimerRef.current) clearTimeout(reloadTimerRef.current);
+      window.removeEventListener("devlink:message-updated", scheduleRefresh);
+    };
+  }, [loadMessageLists, userId]);
 
   async function handleRequest(requestId: string, status: "ACCEPTED" | "DECLINED") {
     setActingRequestId(requestId);

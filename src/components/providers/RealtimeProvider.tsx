@@ -25,6 +25,8 @@ const RealtimeContext = createContext<RealtimeContextType>({
 
 const EVENT_NAMES = {
   presence: "devlink:presence-updated",
+  message: "devlink:message-updated",
+  message_sent: "devlink:message-updated",
   message_receipt: "devlink:message-receipt",
   profile_update: "devlink:profile-updated",
   notification: "devlink:notifications-updated",

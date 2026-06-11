@@ -1,5 +1,5 @@
 type RustRealtimeEvent = {
-  type: "presence" | "message_receipt" | "profile_update" | "notification";
+  type: "presence" | "message" | "message_sent" | "message_receipt" | "profile_update" | "notification";
   payload: Record<string, unknown>;
 };
 
