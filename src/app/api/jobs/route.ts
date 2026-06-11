@@ -1,11 +1,14 @@
 import { NextResponse } from "next/server";
 import { getAuthSession } from "@/server/auth";
 import { prisma } from "@/server/db";
+import { prismaRead } from "@/server/db-read";
+import { rankJobCandidates } from "@/server/jobs/job-ranking";
 import { jobSummarySelect } from "@/server/jobs/selects";
 import { checkRateLimit } from "@/server/rate-limit";
 import { validateJobTitle, validateJobDescription, validateCurrency } from "@/lib/validation";
 
 const DEFAULT_LIMIT = 20;
+const RANKED_JOB_POOL_SIZE = 100;
 
 function parseLimit(value: string | null) {
   const parsed = Number(value || DEFAULT_LIMIT);
@@ -13,7 +16,51 @@ function parseLimit(value: string | null) {
   return Math.min(Math.floor(parsed), 50);
 }
 
+function buildViewerSkillTerms(
+  skills: Array<{
+    skill: {
+      name: string;
+      category: string;
+    };
+  }>
+) {
+  return [
+    ...new Set(
+      skills
+        .flatMap(({ skill }) => [skill.name, skill.category])
+        .map((term) => term.trim().toLowerCase())
+        .filter((term) => term.length >= 2)
+    ),
+  ].slice(0, 10);
+}
+
+async function fetchViewerSkillTerms(userId?: string) {
+  if (!userId) return [];
+
+  const user = await prismaRead.user.findUnique({
+    where: { id: userId },
+    select: {
+      skills: {
+        select: {
+          skill: {
+            select: {
+              name: true,
+              category: true,
+            },
+          },
+        },
+        orderBy: [{ isPrimary: "desc" }, { createdAt: "asc" }],
+        take: 10,
+      },
+    },
+  });
+
+  return buildViewerSkillTerms(user?.skills ?? []);
+}
+
 export async function GET(req: Request) {
+  const session = await getAuthSession();
+  const currentUserId = session?.user?.id;
   const { searchParams } = new URL(req.url);
   const statusParam = searchParams.get("status");
   const userId = searchParams.get("userId");
@@ -26,21 +73,31 @@ export async function GET(req: Request) {
   if (status) where.status = status;
   if (userId) where.userId = userId;
 
-  const jobs = await prisma.job.findMany({
+  const shouldRankForViewer = Boolean(currentUserId && status === "OPEN" && !userId && !cursor);
+  const take = shouldRankForViewer ? Math.max(RANKED_JOB_POOL_SIZE, limit + 1) : limit + 1;
+
+  const jobs = await prismaRead.job.findMany({
     where,
-    take: limit + 1,
+    take,
     ...(cursor ? { skip: 1, cursor: { id: cursor } } : {}),
     orderBy: { createdAt: "desc" },
     select: jobSummarySelect,
   });
 
-  const hasMore = jobs.length > limit;
-  const items = hasMore ? jobs.slice(0, limit) : jobs;
+  const rankedJobs = shouldRankForViewer
+    ? rankJobCandidates(jobs, await fetchViewerSkillTerms(currentUserId))
+    : jobs;
+  const hasMore = rankedJobs.length > limit;
+  const items = hasMore ? rankedJobs.slice(0, limit) : rankedJobs;
   const nextCursor = hasMore ? items[items.length - 1]?.id : null;
+
+  const cacheControl = shouldRankForViewer
+    ? "private, no-store"
+    : "public, max-age=30, stale-while-revalidate=60";
 
   return NextResponse.json(
     { jobs: items, nextCursor },
-    { headers: { "Cache-Control": "public, max-age=30, stale-while-revalidate=60" } }
+    { headers: { "Cache-Control": cacheControl, Vary: "Cookie" } }
   );
 }
 
