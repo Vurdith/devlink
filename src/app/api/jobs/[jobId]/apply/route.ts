@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getAuthSession } from "@/server/auth";
 import { prisma } from "@/server/db";
 import { jobApplicationSelect } from "@/server/jobs/selects";
+import { createNotification } from "@/server/notifications";
 import { checkRateLimit } from "@/server/rate-limit";
 import { validateMessageContent } from "@/lib/validation";
 
@@ -24,7 +25,7 @@ export async function POST(
   const { jobId } = await params;
   const job = await prisma.job.findUnique({
     where: { id: jobId },
-    select: { userId: true, status: true },
+    select: { userId: true, status: true, title: true },
   });
   if (!job) {
     return NextResponse.json({ error: "Job not found" }, { status: 404 });
@@ -53,6 +54,18 @@ export async function POST(
         message: message || null,
       },
       select: jobApplicationSelect,
+    });
+
+    void createNotification({
+      recipientId: job.userId,
+      actorId: userId,
+      type: "JOB_APPLICATION",
+      dedupeKey: `n:${job.userId}:job_application:${application.id}`,
+      metadata: {
+        jobId,
+        jobTitle: job.title,
+        status: "PENDING",
+      },
     });
 
     const response = NextResponse.json(application, { status: 201 });

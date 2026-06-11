@@ -54,8 +54,8 @@ const notificationSettings: NotificationSetting[] = [
   },
   {
     id: "jobApplications",
-    label: "Job decisions",
-    description: "A client accepts or declines your application.",
+    label: "Job activity",
+    description: "Someone applies, or a client accepts or declines your application.",
     icon: BriefcaseBusiness,
   },
   {

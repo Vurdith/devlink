@@ -14,6 +14,7 @@ export function labelForNotification(n: NotificationItem) {
     case "MENTION":
       return "mentioned you";
     case "JOB_APPLICATION":
+      if (n.metadata?.status === "PENDING") return "applied to your job";
       if (n.metadata?.status === "ACCEPTED") return "accepted your job application";
       if (n.metadata?.status === "DECLINED") return "declined your job application";
       return "updated your job application";
