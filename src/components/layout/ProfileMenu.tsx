@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState, useRef, memo } from "react";
 import Link from "next/link";
 import { signOut } from "next-auth/react";
 import { Avatar } from "@/components/ui/Avatar";
-import { ChevronDown, ChevronRight, LogOut, Settings, SquarePen, UserRound } from "lucide-react";
+import { BookmarkCheck, ChevronDown, ChevronRight, LogOut, Settings, SquarePen, UserRound } from "lucide-react";
 import { iconBox, menuItem, menuPanel, ui } from "@/components/ui/design-system";
 import { cn } from "@/lib/cn";
 import { getProfileTypeConfig, ProfileTypeIcon } from "@/types/profile";
@@ -28,6 +28,12 @@ const menuItems = [
     label: "Edit profile",
     description: "Update skills and work signals",
     icon: <SquarePen className="h-[18px] w-[18px]" aria-hidden="true" />,
+  },
+  {
+    href: "/me?tab=saved",
+    label: "Saved posts",
+    description: "Return to your reference library",
+    icon: <BookmarkCheck className="h-[18px] w-[18px]" aria-hidden="true" />,
   },
   {
     href: "/settings",
