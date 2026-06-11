@@ -32,6 +32,9 @@ export function proxy(req: NextRequest) {
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
   response.headers.set('X-XSS-Protection', '1; mode=block');
   response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+  const localMediaSources = process.env.NODE_ENV === "production"
+    ? ""
+    : " http://localhost:*";
   
   // Comprehensive Content Security Policy
   const csp = [
@@ -39,8 +42,8 @@ export function proxy(req: NextRequest) {
     "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.devlink.ink",
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "font-src 'self' https://fonts.gstatic.com",
-    "img-src 'self' data: blob: https: http://localhost:*",
-    "media-src 'self' blob: https: http://localhost:*",
+    `img-src 'self' data: blob: https:${localMediaSources}`,
+    `media-src 'self' blob: https:${localMediaSources}`,
     "connect-src 'self' https://*.supabase.co https://cdn.devlink.ink wss://*.supabase.co https://*.sentry.io",
     "frame-ancestors 'self'",
     "base-uri 'self'",

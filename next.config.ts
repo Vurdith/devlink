@@ -115,14 +115,17 @@ const nextConfig: NextConfig = {
     const allowedOrigins = process.env.NODE_ENV === 'production'
       ? process.env.ALLOWED_ORIGINS || 'https://devlink.ink'
       : '*';
+    const localMediaSources = process.env.NODE_ENV === 'production'
+      ? ''
+      : ' http://localhost:*';
 
     const csp = [
       "default-src 'self'",
       "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.devlink.ink",
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "font-src 'self' https://fonts.gstatic.com",
-      "img-src 'self' data: blob: https: http://localhost:*",
-      "media-src 'self' blob: https: http://localhost:*",
+      `img-src 'self' data: blob: https:${localMediaSources}`,
+      `media-src 'self' blob: https:${localMediaSources}`,
       "connect-src 'self' https://*.supabase.co https://cdn.devlink.ink wss://*.supabase.co https://*.sentry.io",
       "frame-ancestors 'self'",
       "base-uri 'self'",

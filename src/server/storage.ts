@@ -72,7 +72,7 @@ export async function uploadBuffer(params: {
   }
 
   if (process.env.NODE_ENV === "production") {
-    console.warn("Upload storage is falling back to local disk in production. Set S3_ variables to enable cloud storage.");
+    throw new Error("Cloud upload storage is required in production. Set S3_ environment variables.");
   }
 
   const uploadDir = path.join(process.cwd(), "public", "uploads");
