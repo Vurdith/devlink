@@ -49,7 +49,7 @@ export const profilePageUserSelect = {
       { createdAt: "asc" },
     ],
   },
-  _count: { select: { followers: true, following: true, reviewsReceived: true } },
+  _count: { select: { followers: true, following: true, portfolioItems: true, reviewsReceived: true } },
 } satisfies Prisma.UserSelect;
 
 export type ProfilePageUser = Prisma.UserGetPayload<{

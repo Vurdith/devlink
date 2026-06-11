@@ -76,6 +76,93 @@ function RatingIcon() {
   );
 }
 
+function formatAvailability(value?: string | null) {
+  if (!value) return "Availability unset";
+  return value
+    .toLowerCase()
+    .split("_")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
+function ProofSignalStrip({
+  username,
+  skills,
+  portfolioCount,
+  reviewCount,
+  avgRating,
+  availability,
+  isOwnProfile,
+}: {
+  username: string;
+  skills: Array<{
+    isPrimary: boolean;
+    skill: {
+      name: string;
+    };
+  }>;
+  portfolioCount: number;
+  reviewCount: number;
+  avgRating: number | null;
+  availability?: string | null;
+  isOwnProfile: boolean;
+}) {
+  const primarySkills = skills
+    .filter((skill) => skill.isPrimary)
+    .map((skill) => skill.skill.name)
+    .slice(0, 2);
+  const fallbackSkills = skills.map((skill) => skill.skill.name).slice(0, 2);
+  const visibleSkills = primarySkills.length > 0 ? primarySkills : fallbackSkills;
+  const ratingLabel = avgRating ? `${avgRating.toFixed(1)} rating` : "No reviews yet";
+
+  const signals = [
+    {
+      label: "Skills",
+      value: visibleSkills.length > 0 ? visibleSkills.join(", ") : isOwnProfile ? "Add skills" : "Skills unset",
+      href: `/u/${username}?tab=about`,
+    },
+    {
+      label: "Portfolio",
+      value:
+        portfolioCount > 0
+          ? `${portfolioCount} ${portfolioCount === 1 ? "case study" : "case studies"}`
+          : isOwnProfile
+            ? "Publish proof"
+            : "No case studies",
+      href: `/u/${username}?tab=portfolio`,
+    },
+    {
+      label: "Reviews",
+      value: reviewCount > 0 ? `${ratingLabel} from ${reviewCount}` : ratingLabel,
+      href: `/u/${username}?tab=reviews`,
+    },
+    {
+      label: "Availability",
+      value: formatAvailability(availability),
+      href: `/u/${username}?tab=about`,
+    },
+  ];
+
+  return (
+    <div className="mt-5 grid gap-2 border-t border-white/[0.07] pt-4 sm:grid-cols-2 lg:grid-cols-4">
+      {signals.map((signal) => (
+        <a
+          key={signal.label}
+          href={signal.href}
+          className="group min-w-0 rounded-lg border border-white/[0.07] bg-white/[0.025] px-3 py-2.5 transition-colors hover:border-[rgba(var(--color-accent-2-rgb),0.24)] hover:bg-white/[0.045] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]"
+        >
+          <span className="block text-[11px] font-semibold uppercase tracking-[0.12em] text-white/38">
+            {signal.label}
+          </span>
+          <span className="mt-1 block truncate text-sm font-semibold text-white/76 group-hover:text-white">
+            {signal.value}
+          </span>
+        </a>
+      ))}
+    </div>
+  );
+}
+
 export default async function UserProfilePage(props: {
   params: Promise<{ username: string }>;
   searchParams?: Promise<{ tab?: string | string[] }>;
@@ -185,6 +272,16 @@ export default async function UserProfilePage(props: {
                   <MetricLink href={`/u/${user.username}/following`} label="following" value={user?._count?.following ?? 0} icon={<FollowingIcon />} />
                   <MetricLink href={`/u/${user.username}?tab=reviews`} label="rating" value={rating} icon={<RatingIcon />} tone="rating" />
                 </div>
+
+                <ProofSignalStrip
+                  username={user.username}
+                  skills={user.skills}
+                  portfolioCount={user._count.portfolioItems}
+                  reviewCount={user._count.reviewsReceived}
+                  avgRating={user.avgRating}
+                  availability={user.profile?.availability}
+                  isOwnProfile={isOwnProfile}
+                />
               </div>
             </div>
           </div>
