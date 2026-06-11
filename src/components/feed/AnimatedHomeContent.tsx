@@ -103,12 +103,12 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
     {
       label: "Add a bio",
       done: Boolean(currentUserProfile?.profile?.bio?.trim()),
-      href: "/profile-hub",
+      href: "/profile-hub?section=profile",
     },
     {
       label: "Add skills",
       done: (currentUserProfile?._count.skills ?? 0) >= 3,
-      href: "/profile-hub",
+      href: "/profile-hub?section=skills",
     },
     {
       label: "Follow people",

@@ -22,7 +22,7 @@ export const MobileNav = memo(function MobileNav({ session }: MobileNavProps) {
   const isAuthenticated = !!session;
   const closeMenu = useCallback(() => setIsOpen(false), []);
   const toggleMenu = useCallback(() => setIsOpen((current) => !current), []);
-  const isProfileActive = pathname.startsWith("/u/") || pathname === "/me";
+  const isProfileActive = pathname.startsWith("/u/") || pathname === "/me" || pathname.startsWith("/profile-hub");
   const bottomItems = useMemo(
     () => navigation.map((item) => ({ item, isActive: isNavItemActive(pathname, item) })),
     [pathname]

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useToastContext } from "@/components/providers/ToastProvider";
 import { AddSkillsPanel } from "./AddSkillsPanel";
 import { ProfileHubTabs } from "./ProfileHubTabs";
@@ -15,11 +15,14 @@ import type { Skill, UserSkill } from "./profile-hub-types";
 export default function ProfileHubPage() {
   const { status } = useSession();
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { toast } = useToastContext();
   
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [activeSection, setActiveSection] = useState<"profile" | "skills">("profile");
+  const initialSection = searchParams.get("section") === "skills" ? "skills" : "profile";
+  const [activeSection, setActiveSection] = useState<"profile" | "skills">(initialSection);
   
   // Profile data
   const [profile, setProfile] = useState<ProfileData>({
@@ -52,6 +55,20 @@ export default function ProfileHubPage() {
       router.push("/login");
     }
   }, [status, router]);
+
+  useEffect(() => {
+    const section = searchParams.get("section");
+    if (section === "profile" || section === "skills") {
+      setActiveSection(section);
+    }
+  }, [searchParams]);
+
+  const handleSectionChange = useCallback((section: "profile" | "skills") => {
+    setActiveSection(section);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("section", section);
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  }, [pathname, router, searchParams]);
 
   // Fetch data
   useEffect(() => {
@@ -323,7 +340,7 @@ export default function ProfileHubPage() {
 
         <div className="mx-auto max-w-5xl">
           <div className="min-w-0">
-            <ProfileHubTabs activeSection={activeSection} onSectionChange={setActiveSection} />
+            <ProfileHubTabs activeSection={activeSection} onSectionChange={handleSectionChange} />
 
             {activeSection === "profile" && (
               <ProfileSection

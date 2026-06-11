@@ -8,6 +8,7 @@ interface OAuthButtonProps {
   provider: "google" | "twitter" | "apple" | "roblox";
   children: React.ReactNode;
   className?: string;
+  callbackUrl?: string;
 }
 
 const providerConfig = {
@@ -33,13 +34,13 @@ const providerConfig = {
   },
 };
 
-export function OAuthButton({ provider, children, className = "" }: OAuthButtonProps) {
+export function OAuthButton({ provider, children, className = "", callbackUrl = "/me" }: OAuthButtonProps) {
   const config = providerConfig[provider];
 
   return (
     <Button
       type="button"
-      onClick={() => signIn(provider, { callbackUrl: "/me" })}
+      onClick={() => signIn(provider, { callbackUrl })}
       className={cn("w-full border transition-all duration-200", config.bgColor, config.textColor, config.borderColor, className)}
     >
       {children}

@@ -72,7 +72,7 @@ export default function CompleteSignupPage() {
       
       setSuccess(true);
       setTimeout(() => {
-        router.push("/home");
+        router.push("/profile-hub");
       }, 2000);
     } catch {
       setError("Could not reach DevLink. Check your connection and try again.");
@@ -83,7 +83,7 @@ export default function CompleteSignupPage() {
 
   const handleSkip = () => {
     if (loading) return;
-    router.push("/home");
+    router.push("/profile-hub");
   };
 
   const canSubmitPassword =
@@ -112,9 +112,9 @@ export default function CompleteSignupPage() {
             </div>
             <h2 className="text-2xl font-bold text-white mb-2">Password set</h2>
             <p className="text-[var(--muted-foreground)] mb-4">You can now log in with your email and password.</p>
-            <p className="text-sm text-[var(--muted-foreground)]/70">Redirecting to home...</p>
-            <Button type="button" variant="secondary" className="mt-5 w-full" onClick={() => router.push("/home")}>
-              Go to home now
+            <p className="text-sm text-[var(--muted-foreground)]/70">Redirecting to Profile Hub...</p>
+            <Button type="button" variant="secondary" className="mt-5 w-full" onClick={() => router.push("/profile-hub")}>
+              Go to Profile Hub now
             </Button>
           </div>
         </div>
