@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAuthSession } from "@/server/auth";
 import { prisma } from "@/server/db";
+import { parseApplicationStatus, validateApplicationStatusTransition } from "@/server/jobs/application-status";
 import { jobApplicationSelect } from "@/server/jobs/selects";
 import { createNotification } from "@/server/notifications";
 
@@ -17,9 +18,9 @@ export async function PATCH(
 
   const { applicationId } = await params;
   const body = await req.json();
-  const status = body?.status;
+  const status = parseApplicationStatus(body?.status);
 
-  if (!["PENDING", "ACCEPTED", "DECLINED"].includes(status)) {
+  if (!status) {
     return NextResponse.json({ error: "Invalid status" }, { status: 400 });
   }
 
@@ -28,6 +29,7 @@ export async function PATCH(
     select: {
       applicantId: true,
       jobId: true,
+      status: true,
       job: { select: { userId: true, title: true } },
     },
   });
@@ -40,13 +42,23 @@ export async function PATCH(
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  const updated = await prisma.jobApplication.update({
-    where: { id: applicationId },
-    data: { status },
-    select: jobApplicationSelect,
-  });
+  const transition = validateApplicationStatusTransition(application.status, status);
+  if (!transition.ok) {
+    return NextResponse.json({ error: transition.error }, { status: transition.statusCode });
+  }
 
-  if (status === "ACCEPTED" || status === "DECLINED") {
+  const updated = transition.changed
+    ? await prisma.jobApplication.update({
+        where: { id: applicationId },
+        data: { status },
+        select: jobApplicationSelect,
+      })
+    : await prisma.jobApplication.findUniqueOrThrow({
+        where: { id: applicationId },
+        select: jobApplicationSelect,
+      });
+
+  if (transition.changed && (status === "ACCEPTED" || status === "DECLINED")) {
     void createNotification({
       recipientId: application.applicantId,
       actorId: userId,
