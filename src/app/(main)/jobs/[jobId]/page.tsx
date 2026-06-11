@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { AlertTriangle, ArrowLeft, CheckCircle2, Clock3, DollarSign, MapPin, Send, Users, XCircle } from "lucide-react";
+import { AlertTriangle, ArrowLeft, CheckCircle2, Clock3, DollarSign, Lock, MapPin, RotateCcw, Send, Users, XCircle } from "lucide-react";
 import { ActionLink } from "@/components/ui/ActionLink";
 import { Button } from "@/components/ui/Button";
 import { InfoCell, ToneBadge, type DataTone } from "@/components/ui/DataDisplay";
@@ -64,6 +64,7 @@ export default function JobDetailPage() {
   const [applicationNote, setApplicationNote] = useState("");
   const [applying, setApplying] = useState(false);
   const [updatingApplicationId, setUpdatingApplicationId] = useState<string | null>(null);
+  const [updatingJobStatus, setUpdatingJobStatus] = useState(false);
 
   const loadJob = useCallback(async (isActive: () => boolean = () => true) => {
     setLoading(true);
@@ -237,6 +238,46 @@ export default function JobDetailPage() {
     );
   }
 
+  async function updateJobStatus(nextStatus: "OPEN" | "CLOSED") {
+    if (!job || !isOwner || updatingJobStatus) return;
+
+    setUpdatingJobStatus(true);
+    try {
+      const res = await fetch(`/api/jobs/${params.jobId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: nextStatus }),
+      });
+      const data = await safeJson<(JobDetail & { error?: string }) | { error?: string }>(res);
+      if (!res.ok || !data || !("id" in data)) {
+        toast({
+          title: "Job status was not updated",
+          description: data?.error || "Try again in a moment.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setJob((prev) => (prev ? { ...prev, status: data.status } : prev));
+      toast({
+        title: nextStatus === "CLOSED" ? "Job closed" : "Job reopened",
+        description:
+          nextStatus === "CLOSED"
+            ? "New applications are paused for this listing."
+            : "Developers can apply to this listing again.",
+        variant: "success",
+      });
+    } catch {
+      toast({
+        title: "Job status was not updated",
+        description: "Check your connection and try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setUpdatingJobStatus(false);
+    }
+  }
+
   if (!job) {
     return (
       <main className="max-w-4xl mx-auto px-4 pb-24 pt-8">
@@ -356,8 +397,26 @@ export default function JobDetailPage() {
         ) : null}
 
         {isOwner ? (
-          <div className="mt-5 rounded-lg border border-white/[0.08] bg-white/[0.035] px-3 py-2 text-xs leading-relaxed text-white/65">
-            This is your listing. Review applications below and close the loop with each candidate.
+          <div className={surface("empty", "mt-5 flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between")}>
+            <div>
+              <div className="text-sm font-semibold text-white">This is your listing</div>
+              <p className="mt-1 text-xs leading-relaxed text-[var(--muted-foreground)]">
+                {job.status === "OPEN"
+                  ? "Review applications below, then close the role when you have enough candidates."
+                  : "New applications are paused. Reopen the role if you need more candidates."}
+              </p>
+            </div>
+            <Button
+              onClick={() => updateJobStatus(job.status === "OPEN" ? "CLOSED" : "OPEN")}
+              disabled={updatingJobStatus}
+              isLoading={updatingJobStatus}
+              size="sm"
+              variant={job.status === "OPEN" ? "secondary" : "glow"}
+              className="w-full sm:w-auto"
+              leftIcon={job.status === "OPEN" ? <Lock className="h-4 w-4" aria-hidden="true" /> : <RotateCcw className="h-4 w-4" aria-hidden="true" />}
+            >
+              {job.status === "OPEN" ? "Close role" : "Reopen role"}
+            </Button>
           </div>
         ) : null}
 
