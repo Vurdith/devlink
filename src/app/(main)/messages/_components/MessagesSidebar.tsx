@@ -57,6 +57,7 @@ export function MessagesSidebar() {
   });
 
   const requestCount = incomingRequests.length;
+  const showHeaderCompose = activeTab !== "inbox" || threads.length > 0 || Boolean(searchQuery.trim());
 
   const filteredThreads = useMemo(() => {
     if (!searchQuery.trim()) return threads;
@@ -246,14 +247,16 @@ export function MessagesSidebar() {
             >
               <Settings2 className="h-[18px] w-[18px]" aria-hidden="true" />
             </button>
-            <button
-              onClick={() => setShowNewMessage(true)}
-              className={cn("flex h-9 w-9 items-center justify-center text-white/60 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]", ui.control.icon)}
-              title="New message"
-              aria-label="New message"
-            >
-              <PenLine className="h-[18px] w-[18px]" aria-hidden="true" />
-            </button>
+            {showHeaderCompose ? (
+              <button
+                onClick={() => setShowNewMessage(true)}
+                className={cn("flex h-9 w-9 items-center justify-center text-white/60 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]", ui.control.icon)}
+                title="New message"
+                aria-label="New message"
+              >
+                <PenLine className="h-[18px] w-[18px]" aria-hidden="true" />
+              </button>
+            ) : null}
 
             {/* Settings dropdown */}
             {showSettings && (

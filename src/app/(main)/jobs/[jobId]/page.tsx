@@ -1,13 +1,14 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { ArrowLeft, CheckCircle2, Clock3, DollarSign, MapPin, Send, Users, XCircle } from "lucide-react";
+import { AlertTriangle, ArrowLeft, CheckCircle2, Clock3, DollarSign, MapPin, Send, Users, XCircle } from "lucide-react";
 import { ActionLink } from "@/components/ui/ActionLink";
 import { Button } from "@/components/ui/Button";
 import { InfoCell, ToneBadge, type DataTone } from "@/components/ui/DataDisplay";
+import { FeedbackState } from "@/components/ui/FeedbackState";
 import { useToastContext } from "@/components/providers/ToastProvider";
 import { cn } from "@/lib/cn";
 import { safeJson } from "@/lib/safe-json";
@@ -58,36 +59,66 @@ export default function JobDetailPage() {
   const [job, setJob] = useState<JobDetail | null>(null);
   const [applications, setApplications] = useState<JobApplication[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
+  const [applicationsLoadError, setApplicationsLoadError] = useState("");
   const [applicationNote, setApplicationNote] = useState("");
   const [applying, setApplying] = useState(false);
   const [updatingApplicationId, setUpdatingApplicationId] = useState<string | null>(null);
 
+  const loadJob = useCallback(async (isActive: () => boolean = () => true) => {
+    setLoading(true);
+    setLoadError("");
+    setApplicationsLoadError("");
+
+    try {
+      const res = await fetch(`/api/jobs/${params.jobId}`);
+      const data = await safeJson<(JobDetail & { error?: string }) | { error?: string }>(res);
+      if (res.status === 404) {
+        if (isActive()) {
+          setJob(null);
+          setApplications([]);
+        }
+        return;
+      }
+      if (!res.ok || !data || !("id" in data)) {
+        throw new Error(data?.error || "This job could not load.");
+      }
+      if (isActive()) {
+        setJob(data);
+      }
+
+      if (userId && data.userId === userId) {
+        const appsRes = await fetch(`/api/jobs/${params.jobId}/applications`);
+        const appsData = await safeJson<(JobApplication[] & { error?: string }) | { error?: string }>(appsRes);
+        if (!appsRes.ok || !Array.isArray(appsData)) {
+          if (isActive()) {
+            setApplications([]);
+            setApplicationsLoadError(!Array.isArray(appsData) && appsData?.error ? appsData.error : "Applications could not load.");
+          }
+        } else if (isActive()) {
+          setApplications(appsData);
+        }
+      } else if (isActive()) {
+        setApplications([]);
+      }
+    } catch (error) {
+      if (isActive()) {
+        setJob(null);
+        setApplications([]);
+        setLoadError(error instanceof Error ? error.message : "This job could not load. Check your connection, then try again.");
+      }
+    } finally {
+      if (isActive()) setLoading(false);
+    }
+  }, [params.jobId, userId]);
+
   useEffect(() => {
     let isMounted = true;
-    async function load() {
-      setLoading(true);
-      const res = await fetch(`/api/jobs/${params.jobId}`);
-      const data = await safeJson<JobDetail>(res);
-      if (isMounted) {
-        setJob(data || null);
-      }
-
-      if (userId && data?.userId === userId) {
-        const appsRes = await fetch(`/api/jobs/${params.jobId}/applications`);
-        const appsData = await safeJson<JobApplication[]>(appsRes);
-        if (isMounted) {
-          setApplications(appsData || []);
-        }
-      }
-
-      if (isMounted) setLoading(false);
-    }
-
-    if (params.jobId) load();
+    if (params.jobId) loadJob(() => isMounted);
     return () => {
       isMounted = false;
     };
-  }, [params.jobId, userId]);
+  }, [loadJob, params.jobId]);
 
   const isOwner = userId === job?.userId;
   const viewerApplication = useMemo(() => job?.applications?.[0] || null, [job?.applications]);
@@ -187,6 +218,21 @@ export default function JobDetailPage() {
             <div className="skeleton h-4 w-3/5 rounded-lg" />
           </div>
         </div>
+      </main>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <main className="mx-auto max-w-4xl px-4 pb-24 pt-8">
+        <FeedbackState
+          className="px-5 py-9"
+          icon={<AlertTriangle className="h-6 w-6" aria-hidden="true" />}
+          title="Job did not load"
+          description={loadError}
+          tone="danger"
+          action={{ label: "Try again", onClick: () => loadJob() }}
+        />
       </main>
     );
   }
@@ -331,7 +377,16 @@ export default function JobDetailPage() {
             </div>
             <span className="text-xs text-[var(--muted-foreground)]">{applications.length} total</span>
           </div>
-          {applications.length === 0 ? (
+          {applicationsLoadError ? (
+            <FeedbackState
+              className="px-4 py-8"
+              icon={<AlertTriangle className="h-6 w-6" aria-hidden="true" />}
+              title="Applications did not load"
+              description={applicationsLoadError}
+              tone="danger"
+              action={{ label: "Try again", onClick: () => loadJob() }}
+            />
+          ) : applications.length === 0 ? (
             <div className={surface("empty", "flex items-start gap-3 p-4")}>
               <div className={iconBox("muted", "h-10 w-10 flex-shrink-0")}>
                 <Clock3 className="h-5 w-5" aria-hidden="true" />

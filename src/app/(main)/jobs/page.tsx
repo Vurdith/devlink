@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
-import { BriefcaseBusiness, CheckCircle2, DollarSign, FileText, MapPin, Send, Users } from "lucide-react";
+import { AlertTriangle, BriefcaseBusiness, CheckCircle2, DollarSign, FileText, LogIn, MapPin, Send, Users } from "lucide-react";
 import { ActionLink } from "@/components/ui/ActionLink";
 import { Button } from "@/components/ui/Button";
 import { InfoCell, ToneBadge, type DataTone } from "@/components/ui/DataDisplay";
+import { FeedbackState } from "@/components/ui/FeedbackState";
 import { iconBox, surface, ui } from "@/components/ui/design-system";
 import { useToastContext } from "@/components/providers/ToastProvider";
 import { cn } from "@/lib/cn";
@@ -44,6 +45,7 @@ export default function JobsPage() {
   const [myJobs, setMyJobs] = useState<Job[]>([]);
   const [myApplications, setMyApplications] = useState<JobApplication[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [applyingJobId, setApplyingJobId] = useState<string | null>(null);
   const [openApplicationJobId, setOpenApplicationJobId] = useState<string | null>(null);
@@ -61,14 +63,17 @@ export default function JobsPage() {
   const canCreate = Boolean(userId);
   const appliedJobIds = useMemo(() => new Set(myApplications.map((application) => application.jobId)), [myApplications]);
 
-  useEffect(() => {
-    let isMounted = true;
+  const loadJobs = useCallback(async (isActive: () => boolean = () => true) => {
+    setLoading(true);
+    setLoadError("");
 
-    async function load() {
-      setLoading(true);
+    try {
       const res = await fetch("/api/jobs?status=open");
-      const data = await safeJson<{ jobs: Job[] }>(res);
-      if (isMounted) {
+      const data = await safeJson<{ jobs: Job[]; error?: string }>(res);
+      if (!res.ok) {
+        throw new Error(data?.error || "Open roles could not load.");
+      }
+      if (isActive()) {
         setJobs(data?.jobs || []);
       }
 
@@ -77,22 +82,38 @@ export default function JobsPage() {
           fetch(`/api/jobs?userId=${userId}`),
           fetch("/api/jobs/applications"),
         ]);
-        const jobsData = await safeJson<{ jobs: Job[] }>(jobsRes);
-        const appsData = await safeJson<JobApplication[]>(appsRes);
-        if (isMounted) {
+        const jobsData = await safeJson<{ jobs: Job[]; error?: string }>(jobsRes);
+        const appsData = await safeJson<(JobApplication[] & { error?: string }) | { error?: string }>(appsRes);
+        if (!jobsRes.ok || !appsRes.ok || !Array.isArray(appsData)) {
+          throw new Error(jobsData?.error || (!Array.isArray(appsData) ? appsData?.error : "") || "Your jobs activity could not load.");
+        }
+        if (isActive()) {
           setMyJobs(jobsData?.jobs || []);
           setMyApplications(appsData || []);
         }
+      } else if (isActive()) {
+        setMyJobs([]);
+        setMyApplications([]);
       }
-
-      if (isMounted) setLoading(false);
+    } catch (error) {
+      if (isActive()) {
+        setJobs([]);
+        setMyJobs([]);
+        setMyApplications([]);
+        setLoadError(error instanceof Error ? error.message : "Jobs could not load. Check your connection, then try again.");
+      }
+    } finally {
+      if (isActive()) setLoading(false);
     }
+  }, [userId]);
 
-    load();
+  useEffect(() => {
+    let isMounted = true;
+    loadJobs(() => isMounted);
     return () => {
       isMounted = false;
     };
-  }, [userId]);
+  }, [loadJobs]);
 
   const budgetSummary = useMemo(() => {
     const min = Number(form.budgetMin);
@@ -373,6 +394,15 @@ export default function JobsPage() {
                 </div>
               ))}
             </div>
+          ) : loadError ? (
+            <FeedbackState
+              className="px-5 py-9"
+              icon={<AlertTriangle className="h-6 w-6" aria-hidden="true" />}
+              title="Jobs did not load"
+              description={loadError}
+              tone="danger"
+              action={{ label: "Try again", onClick: () => loadJobs() }}
+            />
           ) : jobs.length === 0 ? (
             <div className={surface("empty", "flex items-start gap-3 p-5")}>
               <div className={iconBox("muted", "h-10 w-10 flex-shrink-0")}>
@@ -381,7 +411,9 @@ export default function JobsPage() {
               <div>
                 <div className="text-sm font-semibold text-white">No open roles yet</div>
                 <p className="mt-1 text-sm leading-relaxed text-[var(--muted-foreground)]">
-                  Post the first brief with a clear goal, budget, and skill list.
+                  {canCreate
+                    ? "Post the first brief with a clear goal, budget, and skill list."
+                    : "Sign in to post the first role or check back when teams publish new work."}
                 </p>
               </div>
             </div>
@@ -393,6 +425,7 @@ export default function JobsPage() {
                   job={job}
                   alreadyApplied={appliedJobIds.has(job.id)}
                   applicationOpen={openApplicationJobId === job.id}
+                  viewerIsLoggedIn={Boolean(userId)}
                   canApply={Boolean(userId && job.userId !== userId && !appliedJobIds.has(job.id))}
                   applying={applyingJobId === job.id}
                   applicationNote={applicationNotes[job.id] || ""}
@@ -462,6 +495,7 @@ function JobCard({
   job,
   alreadyApplied,
   applicationOpen,
+  viewerIsLoggedIn,
   canApply,
   applying,
   applicationNote,
@@ -473,6 +507,7 @@ function JobCard({
   job: Job;
   alreadyApplied: boolean;
   applicationOpen: boolean;
+  viewerIsLoggedIn: boolean;
   canApply: boolean;
   applying: boolean;
   applicationNote: string;
@@ -539,6 +574,10 @@ function JobCard({
           <Button size="sm" variant="secondary" onClick={onOpenApplication} className="w-full sm:w-auto" leftIcon={<Send className="h-4 w-4" aria-hidden="true" />}>
             Apply
           </Button>
+        ) : !viewerIsLoggedIn ? (
+          <ActionLink href="/login" size="sm" variant="secondary" className="w-full sm:w-auto" leftIcon={<LogIn className="h-4 w-4" aria-hidden="true" />}>
+            Log in to apply
+          </ActionLink>
         ) : null}
       </div>
 
