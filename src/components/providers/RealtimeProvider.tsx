@@ -27,6 +27,7 @@ const EVENT_NAMES = {
   presence: "devlink:presence-updated",
   message_receipt: "devlink:message-receipt",
   profile_update: "devlink:profile-updated",
+  notification: "devlink:notifications-updated",
 } as const;
 
 const REALTIME_ROUTE_PREFIXES = [

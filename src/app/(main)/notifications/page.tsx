@@ -110,6 +110,17 @@ export default function NotificationsPage() {
     }
   }, [fetchFirstPage, resetNotifications, status]);
 
+  useEffect(() => {
+    if (status !== "authenticated") return;
+
+    const handleNotificationUpdate = () => {
+      void fetchFirstPage();
+    };
+
+    window.addEventListener("devlink:notifications-updated", handleNotificationUpdate);
+    return () => window.removeEventListener("devlink:notifications-updated", handleNotificationUpdate);
+  }, [fetchFirstPage, status]);
+
   const postMarkRead = useCallback(async (body: { ids: string[] } | { all: true }) => {
     const res = await fetch("/api/notifications/mark-read", {
       method: "POST",
