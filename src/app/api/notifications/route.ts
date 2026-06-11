@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAuthSession } from "@/server/auth";
 import { prismaRead } from "@/server/db-read";
+import { mergeStackedNotificationItems } from "@/server/notifications/notification-feed";
 
 function explainNotificationDbError(e: unknown) {
   if (process.env.NODE_ENV !== "development") {
@@ -93,80 +94,7 @@ export async function GET(req: Request) {
     const sliced = hasMore ? items.slice(0, limit) : items;
     const nextCursor = hasMore ? (sliced[sliced.length - 1]?.id ?? null) : null;
 
-    // Merge legacy duplicates for stacked types (LIKE/REPOST) so they appear as one, like X.
-    // This is display-only: it doesn't mutate DB, but it does return `groupIds` so the UI
-    // can mark-read all underlying notifications at once.
-    // Use Record-based type for the merged rows since we add groupIds/actors dynamically
-    type NotificationRow = Record<string, unknown> & {
-      id: string;
-      type: string;
-      postId: string | null;
-      createdAt: Date;
-      readAt: Date | null;
-      groupIds?: string[];
-      actors: Array<{ actor: unknown; createdAt: Date }>;
-      actor: unknown;
-    };
-    const merged: NotificationRow[] = [];
-    const groups = new Map<string, NotificationRow>();
-
-    for (const n of sliced) {
-      const isStackable =
-        (n.type === "LIKE" || n.type === "REPOST") && !!n.postId;
-      if (!isStackable) {
-        merged.push({ ...n } as unknown as NotificationRow);
-        continue;
-      }
-
-      const key = `${n.type}:${n.postId}`;
-      const existing = groups.get(key);
-
-      const actorList: Array<{ actor: unknown; createdAt: Date }> =
-        Array.isArray(n.actors)
-          ? n.actors
-              .map((x) => x?.actor)
-              .filter(Boolean)
-              .map((a) => ({ actor: a, createdAt: n.createdAt }))
-          : [];
-
-      // legacy fallback
-      if ((!n.actors || n.actors.length === 0) && n.actor) {
-        actorList.push({ actor: n.actor, createdAt: n.createdAt });
-      }
-
-      if (!existing) {
-        const base: NotificationRow = { ...n } as unknown as NotificationRow;
-        base.groupIds = [n.id];
-        base.actors = actorList;
-        groups.set(key, base);
-        merged.push(base);
-        continue;
-      }
-
-      // Merge: keep newest createdAt/id for sort position
-      existing.groupIds = Array.from(
-        new Set([...(existing.groupIds || []), n.id]),
-      );
-      existing.readAt =
-        existing.readAt === null || n.readAt === null ? null : existing.readAt;
-
-      if (
-        new Date(n.createdAt).getTime() > new Date(existing.createdAt).getTime()
-      ) {
-        existing.createdAt = n.createdAt;
-        existing.actor = n.actor; // fallback
-      }
-
-      // Merge actors unique by actorId
-      const byId = new Map<string, { actor: unknown; createdAt: Date }>();
-      const combined = [...(existing.actors || []), ...actorList];
-      for (const x of combined) {
-        const id = (x?.actor as { id?: string })?.id;
-        if (!id) continue;
-        if (!byId.has(id)) byId.set(id, x);
-      }
-      existing.actors = Array.from(byId.values()).slice(0, 10);
-    }
+    const merged = mergeStackedNotificationItems(sliced);
 
     return NextResponse.json({ notifications: merged, nextCursor });
   } catch (e) {
