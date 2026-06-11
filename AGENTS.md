@@ -1,49 +1,35 @@
 # DevLink Agent Operating Rules
 
-These rules coordinate specialist Codex sessions working on DevLink.
+These rules guide the default Codex session working on DevLink.
 
 ## Core Rule
 
-Specialist agents create focused changes. The DevLink Git Grandmaster integrates and pushes `master`.
+Work as a single focused agent by default. Use additional specialist agents only when the user explicitly asks for them.
 
-Do not push directly to `master` unless the user explicitly assigns you the `devlink-git-grandmaster` role.
+Keep changes scoped to the request. Avoid broad "whole project" edits unless the user explicitly asks for that scope.
 
-After making changes, agents should commit and push their working branch whenever verification passes and repository access allows it. If commit or push is not possible, leave the changes uncommitted and clearly report why.
+After making changes, commit and push the working branch whenever verification passes and repository access allows it. If commit or push is not possible, leave the changes uncommitted and clearly report why.
 
 ## Branches
 
-Specialist agents should work on their own branch:
+Use a focused branch for changes:
 
-- `agent/refactor-<area>`
-- `agent/ux-<area>`
-- `agent/ui-<area>`
-- `agent/perf-<area>`
-- `agent/security-<area>`
-- `agent/release-<area>`
-- `agent/qa-<area>`
+- `codex/<area>`
 
 Examples:
 
-- `agent/refactor-feed`
-- `agent/ux-jobs-escrow`
-- `agent/ui-profile-surfaces`
-- `agent/perf-discover`
-- `agent/security-api-routes`
+- `codex/feed-cleanup`
+- `codex/jobs-escrow-ui`
+- `codex/profile-surfaces`
+- `codex/discover-performance`
 
-If the agent cannot create a branch, it must leave changes uncommitted and clearly report every changed file.
+If a branch cannot be created, leave changes uncommitted and clearly report every changed file.
 
 ## Ownership
 
-Keep work scoped. Avoid broad "whole project" edits unless the user explicitly asked for that exact role and scope.
+Handle the requested work end to end: understand the relevant code, make focused changes, verify them, commit, push, and report the outcome. If the task spans multiple disciplines, cover only the parts needed for the request unless the user asks for a broader pass.
 
-- Refactor Lead: code quality, flawed logic, duplication, organization, server/client boundaries.
-- UX Auditor: journey clarity, interaction feedback, empty/loading/error states, mobile usability.
-- UI Polisher: visual consistency, shared components, layout, responsive polish.
-- Performance Auditor: query shape, caching, rendering cost, feed/discover/profile speed.
-- Security Reviewer: auth, authorization, validation, data leaks, uploads, account safety.
-- Release Doctor: Vercel, dependency, build, environment, production runtime issues.
-- QA Tester: verification, bug reports, screenshots, regression checks.
-- Git Grandmaster: integration, conflict resolution, final verification, commit, push.
+If the user asks for additional agents, give each one a narrow scope and require a clear handoff before integrating their work.
 
 ## UI/UX Skill Requirements
 
@@ -56,7 +42,7 @@ For small UI/UX fixes, use the compact checklist paths from both skills and keep
 
 ## Commit and Push Expectations
 
-Specialist agents should commit and push their own branch after completing changes when possible:
+Commit and push the working branch after completing changes when possible:
 
 1. Verify the working tree contains only intended changes.
 2. Run the required checks for the scope of the work.
@@ -64,11 +50,11 @@ Specialist agents should commit and push their own branch after completing chang
 4. Commit with a clear message.
 5. Push the branch to `origin`.
 
-Do not push directly to `master` unless explicitly acting as the `devlink-git-grandmaster`. If verification fails, commit is inappropriate, or push access is unavailable, report the changed files and the blocker in the handoff.
+If verification fails, commit is inappropriate, or push access is unavailable, report the changed files and the blocker in the handoff.
 
-## Handoff Required
+## Final Report Required
 
-Every specialist agent must end with:
+Every work session must end with:
 
 - branch name
 - files changed
@@ -106,16 +92,3 @@ For frontend changes, smoke test affected routes in browser and check:
 - Prefer shared primitives over new one-off UI or server helpers.
 - Do not hide failed behavior behind broad catch blocks.
 - Do not weaken auth, validation, cache safety, or type safety to make checks pass.
-
-## Grandmaster Integration
-
-The Grandmaster should:
-
-1. Inspect `git status --short`, `git log --oneline -5`, and `git diff --stat`.
-2. Review changed files enough to understand risk and ownership.
-3. Integrate one specialist branch/batch at a time.
-4. Resolve conflicts deliberately.
-5. Run lint, typecheck, build, and route smoke checks.
-6. Stage only intended files.
-7. Commit with clear messages.
-8. Push `master`.
