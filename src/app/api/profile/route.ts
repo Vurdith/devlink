@@ -30,12 +30,22 @@ export async function GET() {
           headline: true,
           responseTime: true,
         }
-      }
+      },
+      _count: {
+        select: {
+          portfolioItems: true,
+        },
+      },
     } 
   });
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   return NextResponse.json(
-    { user: { id: user.id, username: user.username, name: user.name }, profile: user.profile, name: user.name },
+    {
+      user: { id: user.id, username: user.username, name: user.name },
+      profile: user.profile,
+      name: user.name,
+      counts: { portfolioItems: user._count.portfolioItems },
+    },
     { headers: { "Cache-Control": "private, max-age=30, stale-while-revalidate=60" } }
   );
 }

@@ -40,6 +40,7 @@ export default function ProfileHubPage() {
     bannerUrl: null,
   });
   const [name, setName] = useState("");
+  const [portfolioItemCount, setPortfolioItemCount] = useState(0);
   
   // Skills data
   const [allSkills, setAllSkills] = useState<Skill[]>([]);
@@ -100,6 +101,7 @@ export default function ProfileHubPage() {
             bannerUrl: data.profile?.bannerUrl,
           });
           setName(data.name || "");
+          setPortfolioItemCount(data.counts?.portfolioItems ?? 0);
         }
 
         if (skillsRes.ok) {
@@ -345,6 +347,7 @@ export default function ProfileHubPage() {
               name={name}
               profile={profile}
               userSkills={userSkills}
+              portfolioItemCount={portfolioItemCount}
               activeSection={activeSection}
               onSectionChange={handleSectionChange}
             />

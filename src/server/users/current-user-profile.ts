@@ -31,6 +31,7 @@ export const currentUserProfileSelect = {
       followers: true,
       following: true,
       skills: true,
+      portfolioItems: true,
     },
   },
 } satisfies Prisma.UserSelect;

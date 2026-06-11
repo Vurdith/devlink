@@ -11,13 +11,15 @@ interface CompletionTask {
   label: string;
   description: string;
   done: boolean;
-  section: ProfileHubSection;
+  section?: ProfileHubSection;
+  href?: string;
 }
 
 interface ProfileCompletionPanelProps {
   name: string;
   profile: ProfileData;
   userSkills: UserSkill[];
+  portfolioItemCount: number;
   activeSection: ProfileHubSection;
   onSectionChange: (section: ProfileHubSection) => void;
 }
@@ -26,6 +28,7 @@ export function ProfileCompletionPanel({
   name,
   profile,
   userSkills,
+  portfolioItemCount,
   activeSection,
   onSectionChange,
 }: ProfileCompletionPanelProps) {
@@ -66,6 +69,12 @@ export function ProfileCompletionPanel({
       done: userSkills.some((skill) => skill.rate || skill.skillAvailability) || Boolean(profile.hourlyRate),
       section: "skills",
     },
+    {
+      label: "Publish portfolio proof",
+      description: "A case study gives people evidence before they message you.",
+      done: portfolioItemCount > 0,
+      href: "/me?tab=portfolio",
+    },
   ];
 
   const completedCount = tasks.filter((task) => task.done).length;
@@ -102,10 +111,16 @@ export function ProfileCompletionPanel({
               <ActionLink href="/me" variant="primary" size="sm" rightIcon={<ArrowRight className="h-4 w-4" />}>
                 View profile
               </ActionLink>
-            ) : nextTask ? (
+            ) : nextTask?.href ? (
+              <ActionLink href={nextTask.href} variant="primary" size="sm" rightIcon={<ArrowRight className="h-4 w-4" />}>
+                Continue setup
+              </ActionLink>
+            ) : nextTask?.section ? (
               <button
                 type="button"
-                onClick={() => onSectionChange(nextTask.section)}
+                onClick={() => {
+                  if (nextTask.section) onSectionChange(nextTask.section);
+                }}
                 className={cn(
                   "inline-flex h-9 items-center gap-2 rounded-lg border border-[rgba(var(--color-accent-2-rgb),0.28)] bg-[rgba(var(--color-accent-2-rgb),0.12)] px-3 text-sm font-semibold text-white transition-colors hover:bg-[rgba(var(--color-accent-2-rgb),0.18)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.55)]",
                   activeSection === nextTask.section && "border-white/[0.14] bg-white/[0.06]"
@@ -124,18 +139,14 @@ export function ProfileCompletionPanel({
         <div className="grid min-w-0 gap-2 sm:grid-cols-2">
           {tasks.map((task) => {
             const Icon = task.done ? CheckCircle2 : Circle;
-            return (
-              <button
-                key={task.label}
-                type="button"
-                onClick={() => onSectionChange(task.section)}
-                className={cn(
-                  "group grid min-h-[88px] grid-cols-[20px_minmax(0,1fr)] gap-3 rounded-lg border p-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]",
-                  task.done
-                    ? "border-emerald-300/14 bg-emerald-400/[0.055]"
-                    : "border-white/[0.08] bg-white/[0.025] hover:border-[rgba(var(--color-accent-2-rgb),0.24)] hover:bg-white/[0.045]"
-                )}
-              >
+            const itemClassName = cn(
+              "group grid min-h-[88px] grid-cols-[20px_minmax(0,1fr)] gap-3 rounded-lg border p-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]",
+              task.done
+                ? "border-emerald-300/14 bg-emerald-400/[0.055]"
+                : "border-white/[0.08] bg-white/[0.025] hover:border-[rgba(var(--color-accent-2-rgb),0.24)] hover:bg-white/[0.045]"
+            );
+            const content = (
+              <>
                 <Icon
                   className={cn(
                     "mt-0.5 h-4 w-4",
@@ -146,6 +157,25 @@ export function ProfileCompletionPanel({
                   <span className="block text-sm font-semibold text-white/82">{task.label}</span>
                   <span className="mt-1 block text-xs leading-5 text-white/46">{task.description}</span>
                 </span>
+              </>
+            );
+
+            if (task.href) {
+              return (
+                <a key={task.label} href={task.href} className={itemClassName}>
+                  {content}
+                </a>
+              );
+            }
+
+            return (
+              <button
+                key={task.label}
+                type="button"
+                onClick={() => task.section && onSectionChange(task.section)}
+                className={itemClassName}
+              >
+                {content}
               </button>
             );
           })}

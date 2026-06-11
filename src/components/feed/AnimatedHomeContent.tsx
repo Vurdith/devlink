@@ -36,6 +36,7 @@ interface UserProfile {
     followers: number;
     following: number;
     skills: number;
+    portfolioItems: number;
   };
 }
 
@@ -132,6 +133,11 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
       label: "Hiring signal",
       done: Boolean(currentUserProfile?.profile?.hourlyRate) || Boolean(currentUserProfile?.skills.some((skill) => skill.rate || skill.skillAvailability)),
       href: "/profile-hub?section=skills",
+    },
+    {
+      label: "Portfolio proof",
+      done: (currentUserProfile?._count.portfolioItems ?? 0) > 0,
+      href: "/me?tab=portfolio",
     },
   ];
   const completedProfileTasks = profileCompletionTasks.filter((task) => task.done).length;
