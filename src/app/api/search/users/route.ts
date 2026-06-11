@@ -1,3 +1,4 @@
+import type { Prisma } from "@prisma/client";
 import { prismaRead } from "@/server/db-read";
 import { NextResponse } from "next/server";
 import { getAuthSession } from "@/server/auth";
@@ -7,23 +8,19 @@ import {
   normalizeSearchQuery,
   searchCacheKeyPart,
 } from "@/server/search/query-utils";
+import { rankUserSearchCandidates, type UserSearchCandidate } from "@/server/search/user-ranking";
 
 const SEARCH_CACHE_TTL = 120;
 const DEFAULT_USER_LIMIT = 8;
 const MAX_USER_LIMIT = 20;
-
-type SearchUser = {
-  id: string;
-  username: string;
-  name: string | null;
-  profile: { avatarUrl: string | null; verified: boolean; profileType: string | null; bio: string | null } | null;
-};
+const USER_IDENTITY_POOL_SIZE = 75;
+const USER_CONTEXT_POOL_SIZE = 100;
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const q = (searchParams.get("q") || "").trim();
   if (!q) return NextResponse.json({ users: [] });
-  
+
   const term = normalizeSearchQuery(q, "@");
   if (!term) return NextResponse.json({ users: [] });
   const limit = normalizeSearchLimit(
@@ -32,35 +29,99 @@ export async function GET(req: Request) {
     MAX_USER_LIMIT
   );
 
-  const cacheKey = `search:users:${searchCacheKeyPart(term)}:${limit}`;
-  
-  let users = await responseCache.get<SearchUser[]>(cacheKey);
-  
+  const cacheKey = `search:users:v2:${searchCacheKeyPart(term)}:${limit}`;
+
+  let users = await responseCache.get<UserSearchCandidate[]>(cacheKey);
+
   if (!users) {
-    users = await prismaRead.user.findMany({
-      where: {
-        OR: [
-          { username: { contains: term } },
-          { name: { contains: term } },
+    const searchUserSelect = {
+      id: true,
+      username: true,
+      name: true,
+      createdAt: true,
+      profile: {
+        select: {
+          avatarUrl: true,
+          verified: true,
+          profileType: true,
+          bio: true,
+          headline: true,
+          availability: true,
+        },
+      },
+      skills: {
+        select: {
+          skill: {
+            select: {
+              name: true,
+              category: true,
+            },
+          },
+        },
+        orderBy: [{ isPrimary: "desc" }, { createdAt: "asc" }],
+        take: 5,
+      },
+      _count: {
+        select: {
+          followers: true,
+          posts: true,
+          portfolioItems: true,
+          reviewsReceived: true,
+        },
+      },
+    } satisfies Prisma.UserSelect;
+    const identityWhere = {
+      OR: [
+        { username: { contains: term } },
+        { name: { contains: term } },
+      ],
+    };
+    const contextWhere = {
+      OR: [
+        ...identityWhere.OR,
+        { profile: { is: { bio: { contains: term } } } },
+        { profile: { is: { headline: { contains: term } } } },
+        { profile: { is: { profileType: { contains: term } } } },
+        {
+          skills: {
+            some: {
+              skill: {
+                OR: [
+                  { name: { contains: term } },
+                  { category: { contains: term } },
+                ],
+              },
+            },
+          },
+        },
+      ],
+    };
+
+    const [identityMatches, contextMatches] = await Promise.all([
+      prismaRead.user.findMany({
+        where: identityWhere,
+        take: USER_IDENTITY_POOL_SIZE,
+        orderBy: [
+          { profile: { verified: "desc" } },
+          { followers: { _count: "desc" } },
+          { createdAt: "desc" },
         ],
-      },
-      take: limit,
-      orderBy: { username: "asc" },
-      select: { 
-        id: true,
-        username: true,
-        name: true,
-        profile: {
-          select: {
-            avatarUrl: true,
-            verified: true,
-            profileType: true,
-            bio: true
-          }
-        }
-      },
-    });
-    
+        select: searchUserSelect,
+      }),
+      prismaRead.user.findMany({
+        where: contextWhere,
+        take: USER_CONTEXT_POOL_SIZE,
+        orderBy: [
+          { profile: { verified: "desc" } },
+          { followers: { _count: "desc" } },
+          { createdAt: "desc" },
+        ],
+        select: searchUserSelect,
+      }),
+    ]);
+
+    users = rankUserSearchCandidates([...identityMatches, ...contextMatches], term).slice(0, limit);
+
     await responseCache.set(cacheKey, users, SEARCH_CACHE_TTL);
   }
 
@@ -69,19 +130,19 @@ export async function GET(req: Request) {
     response.headers.set("Cache-Control", "public, max-age=60, stale-while-revalidate=120");
     return response;
   }
-  
+
   const session = await getAuthSession();
   const currentUserId = session?.user?.id;
   let followingIds = new Set<string>();
-  
+
   if (currentUserId && users.length > 0) {
     const relations = await prismaRead.follower.findMany({
-      where: { followerId: currentUserId, followingId: { in: users.map(u => u.id) } },
+      where: { followerId: currentUserId, followingId: { in: users.map((u) => u.id) } },
       select: { followingId: true },
     });
-    followingIds = new Set(relations.map(r => r.followingId));
+    followingIds = new Set(relations.map((r) => r.followingId));
   }
-  
+
   const response = NextResponse.json({
     users: users.map((u) => ({
       id: u.id,
@@ -102,5 +163,3 @@ export async function GET(req: Request) {
   response.headers.set("Vary", "Cookie");
   return response;
 }
-
-
