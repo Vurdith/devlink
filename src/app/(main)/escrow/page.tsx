@@ -1,16 +1,26 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSession } from "next-auth/react";
-import { CheckCircle2, Clock3, DollarSign, FileText, Send, ShieldCheck } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Clock3, DollarSign, FileText, Search, Send, ShieldCheck, X } from "lucide-react";
 import { ActionLink } from "@/components/ui/ActionLink";
+import { Avatar } from "@/components/ui/Avatar";
 import { Button } from "@/components/ui/Button";
 import { InfoCell, ToneBadge, type DataTone } from "@/components/ui/DataDisplay";
+import { FeedbackState } from "@/components/ui/FeedbackState";
 import { cn } from "@/lib/cn";
 import { safeJson } from "@/lib/safe-json";
 import { iconBox, surface, ui } from "@/components/ui/design-system";
 import { useToastContext } from "@/components/providers/ToastProvider";
 import type { EscrowContract } from "@/types/api";
+
+interface UserSearchResult {
+  id: string;
+  username: string;
+  name: string | null;
+  avatarUrl: string | null;
+  profileType: string | null;
+}
 
 export default function EscrowPage() {
   const { data: session } = useSession();
@@ -18,8 +28,13 @@ export default function EscrowPage() {
   const userId = session?.user?.id;
   const [contracts, setContracts] = useState<EscrowContract[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
   const [creating, setCreating] = useState(false);
   const [busyContractId, setBusyContractId] = useState<string | null>(null);
+  const [developerQuery, setDeveloperQuery] = useState("");
+  const [developerOptions, setDeveloperOptions] = useState<UserSearchResult[]>([]);
+  const [developerSearching, setDeveloperSearching] = useState(false);
+  const [selectedDeveloper, setSelectedDeveloper] = useState<UserSearchResult | null>(null);
   const [form, setForm] = useState({
     developerId: "",
     jobId: "",
@@ -28,26 +43,75 @@ export default function EscrowPage() {
     title: "Milestone 1",
   });
 
-  useEffect(() => {
+  const loadContracts = useCallback(async (isActive: () => boolean = () => true) => {
     if (!userId) {
       setLoading(false);
       return;
     }
-    let isMounted = true;
-    async function load() {
-      setLoading(true);
+    setLoading(true);
+    setLoadError("");
+    try {
       const res = await fetch("/api/escrow/contracts");
-      const data = await safeJson<EscrowContract[]>(res);
-      if (isMounted) {
-        setContracts(data || []);
-        setLoading(false);
+      const data = await safeJson<{ contracts?: EscrowContract[]; error?: string }>(res);
+      if (!res.ok) {
+        throw new Error(data?.error || "Escrow contracts could not load.");
       }
+      if (isActive()) {
+        setContracts(data?.contracts || []);
+      }
+    } catch (error) {
+      if (isActive()) {
+        setContracts([]);
+        setLoadError(error instanceof Error ? error.message : "Escrow contracts could not load. Check your connection, then try again.");
+      }
+    } finally {
+      if (isActive()) setLoading(false);
     }
-    load();
+  }, [userId]);
+
+  useEffect(() => {
+    let isMounted = true;
+    loadContracts(() => isMounted);
     return () => {
       isMounted = false;
     };
-  }, [userId]);
+  }, [loadContracts]);
+
+  useEffect(() => {
+    const query = developerQuery.trim();
+    if (!userId || selectedDeveloper || query.length < 2) {
+      setDeveloperOptions([]);
+      setDeveloperSearching(false);
+      return;
+    }
+
+    const controller = new AbortController();
+    let isMounted = true;
+    const timeout = window.setTimeout(async () => {
+      setDeveloperSearching(true);
+      try {
+        const res = await fetch(`/api/search/users?q=${encodeURIComponent(query)}&limit=6`, {
+          signal: controller.signal,
+        });
+        const data = await safeJson<{ users?: UserSearchResult[] }>(res);
+        if (isMounted) {
+          setDeveloperOptions((data?.users || []).filter((user) => user.id !== userId));
+        }
+      } catch (error) {
+        if (isMounted && error instanceof Error && error.name !== "AbortError") {
+          setDeveloperOptions([]);
+        }
+      } finally {
+        if (isMounted) setDeveloperSearching(false);
+      }
+    }, 220);
+
+    return () => {
+      isMounted = false;
+      window.clearTimeout(timeout);
+      controller.abort();
+    };
+  }, [developerQuery, selectedDeveloper, userId]);
 
   const totalValue = useMemo(() => {
     return contracts.reduce((sum, c) => sum + (c.amount || 0), 0);
@@ -60,7 +124,7 @@ export default function EscrowPage() {
     if (!form.developerId.trim() || !form.title.trim() || !amount || amount <= 0) {
       toast({
         title: "Check the escrow details",
-        description: "Developer ID, milestone title, and a positive amount are required.",
+        description: "Choose a developer, add a milestone title, and enter a positive amount.",
         variant: "destructive",
       });
       return;
@@ -85,6 +149,9 @@ export default function EscrowPage() {
           setContracts((prev) => [data, ...prev]);
         }
         setForm({ developerId: "", jobId: "", amount: "", currency: "USD", title: "Milestone 1" });
+        setDeveloperQuery("");
+        setDeveloperOptions([]);
+        setSelectedDeveloper(null);
         toast({
           title: "Escrow contract created",
           description: "The milestone is ready to track from the contracts list.",
@@ -209,31 +276,110 @@ export default function EscrowPage() {
         </div>
       ) : (
         <>
-          <div className={surface("panel", "noise-overlay relative mb-8 overflow-hidden p-5 sm:p-6")}>
+          <div className={surface("panel", "noise-overlay relative mb-8 overflow-visible p-5 sm:p-6")}>
             <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.12] to-transparent" />
             <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div>
                 <h2 className="text-lg font-semibold text-white font-[var(--font-space-grotesk)]">Create escrow contract</h2>
-                <p className="mt-1 text-sm leading-relaxed text-[var(--muted-foreground)]">
-                  Start with one milestone so both sides know who is responsible for the next action.
-                </p>
-              </div>
+              <p className="mt-1 text-sm leading-relaxed text-[var(--muted-foreground)]">
+                Start with one milestone so both sides know who is responsible for the next action.
+              </p>
+            </div>
               <ToneBadge tone={form.amount ? "money" : "muted"}>
                 {form.amount ? `${form.currency || "USD"} ${form.amount}` : "Amount pending"}
               </ToneBadge>
             </div>
             <div className="grid gap-3 md:grid-cols-2">
-              <input
-                value={form.developerId}
-                onChange={(e) => setForm((prev) => ({ ...prev, developerId: e.target.value }))}
-                placeholder="Developer user ID"
-                aria-label="Developer user ID"
-                className={ui.control.field}
-              />
+              <div className="relative md:col-span-2">
+                <label htmlFor="escrow-developer" className="mb-2 block text-xs font-semibold text-white/55">
+                  Developer
+                </label>
+                {selectedDeveloper ? (
+                  <div className={surface("empty", "flex items-center justify-between gap-3 p-3")}>
+                    <div className="flex min-w-0 items-center gap-3">
+                      <Avatar src={selectedDeveloper.avatarUrl ?? undefined} size={40} />
+                      <div className="min-w-0">
+                        <div className="truncate text-sm font-semibold text-white">
+                          {selectedDeveloper.name || selectedDeveloper.username}
+                        </div>
+                        <div className="truncate text-xs text-[var(--muted-foreground)]">
+                          @{selectedDeveloper.username}
+                        </div>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedDeveloper(null);
+                        setDeveloperQuery("");
+                        setForm((prev) => ({ ...prev, developerId: "" }));
+                      }}
+                      className={cn("grid h-9 w-9 flex-shrink-0 place-items-center rounded-lg text-white/55 transition-colors", ui.control.ghost)}
+                      aria-label="Change selected developer"
+                    >
+                      <X className="h-4 w-4" aria-hidden="true" />
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <div className="relative">
+                      <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/35" aria-hidden="true" />
+                      <input
+                        id="escrow-developer"
+                        value={developerQuery}
+                        onChange={(event) => {
+                          setDeveloperQuery(event.target.value);
+                          setForm((prev) => ({ ...prev, developerId: "" }));
+                        }}
+                        placeholder="Search by name or @username"
+                        aria-label="Search for a developer"
+                        className={cn(ui.control.field, "pl-10")}
+                      />
+                    </div>
+                    {developerQuery.trim().length >= 2 ? (
+                      <div className={surface("empty", "absolute z-20 mt-2 max-h-72 w-full overflow-y-auto p-2 shadow-2xl shadow-black/35")}>
+                        {developerSearching ? (
+                          <div className="px-3 py-4 text-sm text-[var(--muted-foreground)]">Searching developers...</div>
+                        ) : developerOptions.length > 0 ? (
+                          <div className="grid gap-1">
+                            {developerOptions.map((developer) => (
+                              <button
+                                key={developer.id}
+                                type="button"
+                                onClick={() => {
+                                  setSelectedDeveloper(developer);
+                                  setDeveloperQuery(`${developer.name || developer.username} @${developer.username}`);
+                                  setDeveloperOptions([]);
+                                  setForm((prev) => ({ ...prev, developerId: developer.id }));
+                                }}
+                                className="flex min-w-0 items-center gap-3 rounded-lg px-3 py-2 text-left transition-colors hover:bg-white/[0.055] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(var(--color-accent-2-rgb),0.45)]"
+                              >
+                                <Avatar src={developer.avatarUrl ?? undefined} size={36} />
+                                <span className="min-w-0">
+                                  <span className="block truncate text-sm font-semibold text-white">
+                                    {developer.name || developer.username}
+                                  </span>
+                                  <span className="block truncate text-xs text-[var(--muted-foreground)]">
+                                    @{developer.username}{developer.profileType ? ` / ${developer.profileType.toLowerCase()}` : ""}
+                                  </span>
+                                </span>
+                              </button>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="px-3 py-4 text-sm text-[var(--muted-foreground)]">
+                            No matching developers found.
+                          </div>
+                        )}
+                      </div>
+                    ) : null}
+                  </>
+                )}
+              </div>
               <input
                 value={form.jobId}
                 onChange={(e) => setForm((prev) => ({ ...prev, jobId: e.target.value }))}
-                placeholder="Job ID (optional)"
+                placeholder="Linked job ID (optional)"
                 aria-label="Job ID optional"
                 className={ui.control.field}
               />
@@ -305,6 +451,15 @@ export default function EscrowPage() {
                 </div>
               ))}
             </div>
+          ) : loadError ? (
+            <FeedbackState
+              className="px-5 py-9"
+              icon={<AlertTriangle className="h-6 w-6" aria-hidden="true" />}
+              title="Escrow contracts did not load"
+              description={loadError}
+              tone="danger"
+              action={{ label: "Try again", onClick: () => loadContracts() }}
+            />
           ) : contracts.length === 0 ? (
             <div className={surface("empty", "flex items-start gap-3 p-5")}>
               <div className={iconBox("muted", "h-10 w-10 flex-shrink-0")}>
