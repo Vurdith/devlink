@@ -6,10 +6,12 @@ import {
   normalizeSearchQuery,
   searchCacheKeyPart,
 } from "@/server/search/query-utils";
+import { rankProjectSearchCandidates } from "@/server/search/project-ranking";
 
 const PROJECT_CACHE_TTL = 120;
 const DEFAULT_PROJECT_LIMIT = 8;
 const MAX_PROJECT_LIMIT = 25;
+const PROJECT_CANDIDATE_POOL_SIZE = 100;
 
 export async function GET(request: NextRequest) {
   try {
@@ -30,7 +32,7 @@ export async function GET(request: NextRequest) {
       MAX_PROJECT_LIMIT
     );
 
-    const cacheKey = `search:projects:v2:${searchCacheKeyPart(query)}:${limit}`;
+    const cacheKey = `search:projects:v3:${searchCacheKeyPart(query)}:${limit}`;
     const cached = await responseCache.get<unknown[]>(cacheKey);
     if (cached) {
       const response = NextResponse.json({ projects: cached });
@@ -67,6 +69,7 @@ export async function GET(request: NextRequest) {
         category: true,
         tags: true,
         mediaUrls: true,
+        links: true,
         createdAt: true,
         user: {
           select: {
@@ -91,10 +94,12 @@ export async function GET(request: NextRequest) {
         },
       },
       orderBy: { createdAt: "desc" },
-      take: limit,
+      take: PROJECT_CANDIDATE_POOL_SIZE,
     });
 
-    const projects = portfolioItems.map((item) => ({
+    const projects = rankProjectSearchCandidates(portfolioItems, query)
+      .slice(0, limit)
+      .map((item) => ({
       id: item.id,
       title: item.title,
       description: item.description,
