@@ -37,6 +37,12 @@ function isPlaceholder(value: string | undefined) {
   return /your-|replace-|placeholder|example|localhost/i.test(value);
 }
 
+type Check = {
+  name: string;
+  pass: boolean;
+  required?: boolean;
+};
+
 loadEnvFile(".env");
 loadEnvFile(".env.local");
 
@@ -116,6 +122,7 @@ console.log("\nStep 5: Auth and Public URLs");
 const nextAuthSecret = process.env.NEXTAUTH_SECRET;
 const nextAuthUrl = process.env.NEXTAUTH_URL;
 const appUrl = process.env.NEXT_PUBLIC_APP_URL;
+const cronSecret = process.env.CRON_SECRET;
 
 if (!nextAuthSecret || nextAuthSecret.length < 32 || isPlaceholder(nextAuthSecret)) {
   console.log("   FAIL NEXTAUTH_SECRET must be a real 32+ character secret");
@@ -135,27 +142,54 @@ if (!appUrl || isPlaceholder(appUrl)) {
   console.log(`   OK NEXT_PUBLIC_APP_URL: ${hostSummary(appUrl)}`);
 }
 
+console.log("\nStep 6: Scheduled Job Protection");
+if (!cronSecret || cronSecret.length < 32 || isPlaceholder(cronSecret)) {
+  console.log("   FAIL CRON_SECRET must be a real 32+ character secret");
+} else {
+  console.log("   OK CRON_SECRET is present and long enough");
+}
+
 console.log("\n" + "=".repeat(50));
 console.log("Summary\n");
 
-const checks = [
-  { name: "Dependencies", pass: true },
-  { name: "DB Pooling", pass: dbUrl.includes(":6543") || dbUrl.includes("pgbouncer") || dbUrl.includes("pooler") },
+const checks: Check[] = [
+  { name: "Dependencies", pass: true, required: true },
+  {
+    name: "DB Pooling",
+    pass: dbUrl.includes(":6543") || dbUrl.includes("pgbouncer") || dbUrl.includes("pooler"),
+    required: true,
+  },
   { name: "Redis/Upstash", pass: !!(upstashUrl && upstashToken) || !!redisUrl },
-  { name: "Object Storage", pass: !!(s3Endpoint && s3AccessKey && s3SecretKey && s3Bucket) },
-  { name: "Auth Secret", pass: !!nextAuthSecret && nextAuthSecret.length >= 32 && !isPlaceholder(nextAuthSecret) },
-  { name: "Public Auth URL", pass: !!nextAuthUrl && !isPlaceholder(nextAuthUrl) },
+  { name: "Object Storage", pass: !!(s3Endpoint && s3AccessKey && s3SecretKey && s3Bucket), required: true },
+  {
+    name: "Auth Secret",
+    pass: !!nextAuthSecret && nextAuthSecret.length >= 32 && !isPlaceholder(nextAuthSecret),
+    required: true,
+  },
+  { name: "Public Auth URL", pass: !!nextAuthUrl && !isPlaceholder(nextAuthUrl), required: true },
+  {
+    name: "Public App URL",
+    pass: !!appUrl && !isPlaceholder(appUrl),
+  },
+  {
+    name: "Cron Secret",
+    pass: !!cronSecret && cronSecret.length >= 32 && !isPlaceholder(cronSecret),
+    required: true,
+  },
 ];
 
 checks.forEach((check) => {
-  console.log(`   ${check.pass ? "OK" : "FAIL"} ${check.name}`);
+  const status = check.pass ? "OK" : check.required ? "FAIL" : "WARN";
+  console.log(`   ${status} ${check.name}`);
 });
 
 const passCount = checks.filter((check) => check.pass).length;
+const requiredFailures = checks.filter((check) => check.required && !check.pass);
 console.log(`\n   ${passCount}/${checks.length} checks passed\n`);
 
-if (passCount === checks.length) {
+if (requiredFailures.length === 0) {
   console.log("Production setup checks passed.\n");
 } else {
-  console.log("Some items need attention before public launch.\n");
+  console.log("Required items need attention before public launch.\n");
+  process.exitCode = 1;
 }
