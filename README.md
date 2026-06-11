@@ -83,6 +83,7 @@ The app runs on [http://localhost:3000](http://localhost:3000).
 | `npm run lint` | Run ESLint |
 | `npm run test:e2e` | Run Playwright tests |
 | `npm run test:load` | Run k6 smoke load test |
+| `npm run release:check` | Verify production environment readiness |
 | `npm run tunnel` | Expose local app with Cloudflare tunnel |
 
 ## Environment Notes
@@ -102,6 +103,14 @@ Common optional services:
 - Sentry: `SENTRY_DSN`
 
 The app has fallbacks for some local services, but production should use managed PostgreSQL, Redis, object storage, and real secrets.
+
+Before opening the app publicly, run:
+
+```bash
+npm run release:check
+```
+
+This checks production-critical configuration without printing secrets.
 
 ## Verification Baseline
 
