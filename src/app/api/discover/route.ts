@@ -1,6 +1,6 @@
 import { getAuthSession } from "@/server/auth";
 import {
-  fetchDiscoverUsers,
+  fetchDiscoverUsersForViewer,
   getFollowingStatus,
   normalizeDiscoverCursor,
   normalizeDiscoverProfileType,
@@ -12,10 +12,8 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const profileType = normalizeDiscoverProfileType(searchParams.get("type"));
     const cursor = normalizeDiscoverCursor(searchParams.get("cursor"));
-    const [session, result] = await Promise.all([
-      getAuthSession(),
-      fetchDiscoverUsers(profileType, cursor),
-    ]);
+    const session = await getAuthSession();
+    const result = await fetchDiscoverUsersForViewer(session?.user?.id, profileType, cursor);
 
     const followingSet = session?.user?.id
       ? await getFollowingStatus(session.user.id, result.users.map((user) => user.id))

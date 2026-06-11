@@ -25,12 +25,26 @@ interface User {
     profileType: string;
     verified: boolean;
     bio: string | null;
+    headline?: string | null;
   } | null;
+  skills?: Array<{
+    skillId: string;
+    isPrimary: boolean;
+    skill: {
+      name: string;
+      category: string;
+    };
+  }>;
   _count: {
     followers: number;
     following: number;
+    posts?: number;
+    portfolioItems?: number;
+    reviewsReceived?: number;
   };
   isFollowing?: boolean;
+  discoverReason?: string;
+  discoverScore?: number;
 }
 
 interface DiscoverClientProps {
@@ -94,6 +108,8 @@ function getProfileType(user: User) {
 }
 
 function getSignal(user: User) {
+  if (user.discoverReason) return user.discoverReason;
+  if (user.profile?.headline) return user.profile.headline;
   if (user.profile?.bio) return user.profile.bio;
   if (user._count.followers > 0) return `${formatCount(user._count.followers)} followers`;
   return "Bio not published";

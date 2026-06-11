@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { getAuthSession } from "@/server/auth";
-import { fetchDiscoverUsers, getFollowingStatus } from "@/server/discover/fetch-discover-users";
+import { fetchDiscoverUsersForViewer, getFollowingStatus } from "@/server/discover/fetch-discover-users";
 import { skeleton, surface } from "@/components/ui/design-system";
 import { DiscoverClient } from "./discover-client";
 
@@ -63,11 +63,8 @@ function DiscoverSkeleton() {
 
 // Server Component that fetches initial data
 async function DiscoverContent() {
-  // Fetch data in parallel
-  const [session, initialData] = await Promise.all([
-    getAuthSession(),
-    fetchDiscoverUsers("all"),
-  ]);
+  const session = await getAuthSession();
+  const initialData = await fetchDiscoverUsersForViewer(session?.user?.id, "all");
 
   // Get following status if logged in
   let followingSet = new Set<string>();
