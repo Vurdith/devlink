@@ -48,4 +48,27 @@ describe("rankHomeFeedPosts", () => {
 
     expect(topPost.id).toBe("followed-author");
   });
+
+  it("boosts posts matching the viewer's skill interests", async () => {
+    const skillMatch = buildFeedCandidate({
+      id: "skill-match",
+      userId: "u-skill",
+      content: "Sharing a UI design pass for a Roblox inventory and mobile shop flow.",
+      createdAt: new Date("2026-01-01T09:45:00Z"),
+      _count: { likes: 1, replies: 0, reposts: 0, savedBy: 0 },
+    });
+    const generic = buildFeedCandidate({
+      id: "generic",
+      userId: "u-generic",
+      content: "General launch update from the team.",
+      createdAt: new Date("2026-01-01T09:45:00Z"),
+      _count: { likes: 2, replies: 0, reposts: 0, savedBy: 0 },
+    });
+
+    const [topPost] = await rankHomeFeedPosts([generic, skillMatch], {
+      viewerInterestTerms: ["UI Design"],
+    });
+
+    expect(topPost.id).toBe("skill-match");
+  });
 });

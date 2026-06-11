@@ -21,4 +21,25 @@ describe("mergeUniqueFeedCandidates", () => {
       { id: "followed-1", source: "followed" },
     ]);
   });
+
+  it("can merge multiple secondary candidate pools without duplicates", () => {
+    const result = mergeUniqueFeedCandidates(
+      [{ id: "global-1", source: "global" }],
+      [
+        { id: "followed-1", source: "followed" },
+        { id: "shared", source: "followed" },
+      ],
+      [
+        { id: "shared", source: "interest" },
+        { id: "interest-1", source: "interest" },
+      ]
+    );
+
+    expect(result).toEqual([
+      { id: "global-1", source: "global" },
+      { id: "followed-1", source: "followed" },
+      { id: "shared", source: "followed" },
+      { id: "interest-1", source: "interest" },
+    ]);
+  });
 });

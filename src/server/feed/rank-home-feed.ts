@@ -5,10 +5,13 @@ import { rankFeedWithRust } from "@/server/services/hotpath-client";
 const DIVERSITY_WINDOW = 20;
 const MAX_POSTS_PER_AUTHOR_IN_WINDOW = 2;
 const FOLLOWED_AUTHOR_BOOST = 8;
+const INTEREST_MATCH_BOOST = 9;
+const ADDITIONAL_INTEREST_MATCH_BOOST = 4;
 type RankableFeedPost = FeedPostForRanking & { id: string; userId: string };
 
 interface RankHomeFeedPostsOptions {
   followedAuthorIds?: Set<string>;
+  viewerInterestTerms?: string[];
 }
 
 function mergeOrdering(preferredOrder: string[], fallbackOrder: string[]): string[] {
@@ -58,6 +61,28 @@ function applyAuthorDiversity<TPost extends RankableFeedPost>(order: string[], p
   return [...result, ...deferred];
 }
 
+function scoreInterestMatch(post: RankableFeedPost, interestTerms: string[]) {
+  if (interestTerms.length === 0) return 0;
+
+  const content = post.content?.toLowerCase() ?? "";
+  if (!content) return 0;
+
+  const matchCount = interestTerms.filter((term) => content.includes(term)).length;
+  if (matchCount === 0) return 0;
+
+  return INTEREST_MATCH_BOOST + Math.min(2, matchCount - 1) * ADDITIONAL_INTEREST_MATCH_BOOST;
+}
+
+function normalizeInterestTerms(interestTerms: string[]) {
+  return [
+    ...new Set(
+      interestTerms
+        .map((term) => term.trim().toLowerCase())
+        .filter((term) => term.length >= 2)
+    ),
+  ].slice(0, 8);
+}
+
 export async function rankHomeFeedPosts<TPost extends RankableFeedPost>(
   posts: TPost[],
   options: RankHomeFeedPostsOptions = {}
@@ -67,10 +92,14 @@ export async function rankHomeFeedPosts<TPost extends RankableFeedPost>(
   const rankablePosts = posts.map(buildRankablePost);
   const localRanking = rankPosts(rankablePosts);
   const followedAuthorIds = options.followedAuthorIds ?? new Set<string>();
+  const viewerInterestTerms = normalizeInterestTerms(options.viewerInterestTerms ?? []);
   const viewerRanked = localRanking.ranked
     .map((rankedPost) => ({
       ...rankedPost,
-      score: rankedPost.score + (followedAuthorIds.has(rankedPost.post.userId) ? FOLLOWED_AUTHOR_BOOST : 0),
+      score:
+        rankedPost.score +
+        (followedAuthorIds.has(rankedPost.post.userId) ? FOLLOWED_AUTHOR_BOOST : 0) +
+        scoreInterestMatch(rankedPost.post, viewerInterestTerms),
     }))
     .sort((a, b) => b.score - a.score);
   const fallbackOrder = viewerRanked.map(({ post }) => post.id);
