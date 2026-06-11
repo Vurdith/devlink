@@ -12,6 +12,7 @@ const PROJECT_CACHE_TTL = 120;
 const DEFAULT_PROJECT_LIMIT = 8;
 const MAX_PROJECT_LIMIT = 25;
 const PROJECT_CANDIDATE_POOL_SIZE = 100;
+const PROJECT_FOCUSED_POOL_SIZE = 75;
 
 export async function GET(request: NextRequest) {
   try {
@@ -32,7 +33,7 @@ export async function GET(request: NextRequest) {
       MAX_PROJECT_LIMIT
     );
 
-    const cacheKey = `search:projects:v3:${searchCacheKeyPart(query)}:${limit}`;
+    const cacheKey = `search:projects:v4:${searchCacheKeyPart(query)}:${limit}`;
     const cached = await responseCache.get<unknown[]>(cacheKey);
     if (cached) {
       const response = NextResponse.json({ projects: cached });
@@ -41,28 +42,7 @@ export async function GET(request: NextRequest) {
       return response;
     }
 
-    const portfolioItems = await prismaRead.portfolioItem.findMany({
-      where: {
-        isPublic: true,
-        OR: [
-          { title: { contains: query } },
-          { description: { contains: query } },
-          { category: { contains: query } },
-          { tags: { contains: query } },
-          {
-            skills: {
-              some: {
-                skill: {
-                  name: { contains: query },
-                },
-              },
-            },
-          },
-          { user: { username: { contains: query } } },
-          { user: { name: { contains: query } } },
-        ],
-      },
-      select: {
+    const projectSearchSelect = {
         id: true,
         title: true,
         description: true,
@@ -92,27 +72,65 @@ export async function GET(request: NextRequest) {
           },
           take: 4,
         },
-      },
-      orderBy: { createdAt: "desc" },
-      take: PROJECT_CANDIDATE_POOL_SIZE,
-    });
+      };
+    const proofWhere = {
+      isPublic: true,
+      OR: [
+        { title: { contains: query } },
+        { category: { contains: query } },
+        { tags: { contains: query } },
+        {
+          skills: {
+            some: {
+              skill: {
+                name: { contains: query },
+              },
+            },
+          },
+        },
+      ],
+    };
+    const broadWhere = {
+      isPublic: true,
+      OR: [
+        ...proofWhere.OR,
+        { description: { contains: query } },
+        { user: { username: { contains: query } } },
+        { user: { name: { contains: query } } },
+      ],
+    };
 
-    const projects = rankProjectSearchCandidates(portfolioItems, query)
+    const [proofMatches, broadMatches] = await Promise.all([
+      prismaRead.portfolioItem.findMany({
+        where: proofWhere,
+        select: projectSearchSelect,
+        orderBy: { createdAt: "desc" },
+        take: PROJECT_FOCUSED_POOL_SIZE,
+      }),
+      prismaRead.portfolioItem.findMany({
+        where: broadWhere,
+        select: projectSearchSelect,
+        orderBy: { createdAt: "desc" },
+        take: PROJECT_CANDIDATE_POOL_SIZE,
+      }),
+    ]);
+
+    const projects = rankProjectSearchCandidates([...proofMatches, ...broadMatches], query)
       .slice(0, limit)
       .map((item) => ({
-      id: item.id,
-      title: item.title,
-      description: item.description,
-      category: item.category,
-      tags: item.tags,
-      mediaUrls: item.mediaUrls,
-      skills: item.skills.map(({ skill }) => skill.name),
-      author: {
-        username: item.user.username,
-        name: item.user.name,
-        avatarUrl: item.user.profile?.avatarUrl ?? null,
-      },
-    }));
+        id: item.id,
+        title: item.title,
+        description: item.description,
+        category: item.category,
+        tags: item.tags,
+        mediaUrls: item.mediaUrls,
+        skills: item.skills.map(({ skill }) => skill.name),
+        author: {
+          username: item.user.username,
+          name: item.user.name,
+          avatarUrl: item.user.profile?.avatarUrl ?? null,
+        },
+      }));
 
     await responseCache.set(cacheKey, projects, PROJECT_CACHE_TTL);
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { rankProjectSearchCandidates, type ProjectSearchCandidate } from "../project-ranking";
+import { mergeUniqueProjectCandidates, rankProjectSearchCandidates, type ProjectSearchCandidate } from "../project-ranking";
 
 function project(overrides: Partial<ProjectSearchCandidate> & { id: string; title: string }): ProjectSearchCandidate {
   return {
@@ -62,5 +62,17 @@ describe("rankProjectSearchCandidates", () => {
     const ranked = rankProjectSearchCandidates([thin, rich], "trading", new Date("2026-01-10T10:00:00Z"));
 
     expect(ranked[0].id).toBe("rich");
+  });
+});
+
+describe("mergeUniqueProjectCandidates", () => {
+  it("keeps the first copy of duplicated candidates from multiple pools", () => {
+    const first = project({ id: "same", title: "First copy", description: "From focused title pool." });
+    const duplicate = project({ id: "same", title: "Duplicate copy", description: "From broad pool." });
+    const other = project({ id: "other", title: "Other project" });
+
+    const merged = mergeUniqueProjectCandidates([first, duplicate, other]);
+
+    expect(merged.map((candidate) => candidate.title)).toEqual(["First copy", "Other project"]);
   });
 });

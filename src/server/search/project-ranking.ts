@@ -93,7 +93,7 @@ export function rankProjectSearchCandidates(
   query: string,
   now = new Date()
 ) {
-  return [...candidates]
+  return mergeUniqueProjectCandidates(candidates)
     .map((candidate) => ({
       candidate,
       score: scoreProjectSearchCandidate(candidate, query, now),
@@ -103,4 +103,17 @@ export function rankProjectSearchCandidates(
       return b.candidate.createdAt.getTime() - a.candidate.createdAt.getTime();
     })
     .map(({ candidate }) => candidate);
+}
+
+export function mergeUniqueProjectCandidates(candidates: ProjectSearchCandidate[]) {
+  const seen = new Set<string>();
+  const merged: ProjectSearchCandidate[] = [];
+
+  for (const candidate of candidates) {
+    if (seen.has(candidate.id)) continue;
+    seen.add(candidate.id);
+    merged.push(candidate);
+  }
+
+  return merged;
 }
