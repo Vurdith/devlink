@@ -13,6 +13,11 @@ const editorFieldClass = ui.control.field;
 const editorTextareaClass = cn(ui.control.field, "resize-none");
 const addButtonClass = cn("min-h-11 rounded-lg px-3 text-xs font-semibold transition-all", ui.control.gradient);
 const segmentButtonClass = "min-h-11 rounded-lg border px-3 text-xs font-semibold transition-colors";
+const caseStudyChecklist = [
+  "Problem solved",
+  "Your role",
+  "Proof or outcome",
+];
 
 interface PortfolioEditorProps {
   isOpen: boolean;
@@ -242,6 +247,29 @@ export function PortfolioEditor({
       contentClassName="px-5 py-4"
     >
       <form onSubmit={handleSubmit} className="space-y-4">
+        {!existingItem && (
+          <div className={surface("panelMuted", "noise-overlay relative overflow-hidden p-3")}>
+            <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-white">Make this useful to a client</p>
+                <p className="mt-1 text-xs leading-5 text-white/48">
+                  One strong case study should explain the job, your contribution, and what changed because of the work.
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {caseStudyChecklist.map((item) => (
+                  <span
+                    key={item}
+                    className="rounded-lg border border-white/[0.08] bg-white/[0.035] px-2 py-1 text-[11px] font-medium text-white/58"
+                  >
+                    {item}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Title */}
         <div>
           <label className="block text-xs font-medium mb-1.5 text-white/70">Title *</label>
@@ -249,7 +277,7 @@ export function PortfolioEditor({
             ref={titleRef}
             type="text"
             defaultValue={existingItem?.title || ""}
-            placeholder="Project title"
+            placeholder="e.g., Trading system UI for a Roblox simulator"
             className={editorFieldClass}
             required
           />
@@ -261,15 +289,15 @@ export function PortfolioEditor({
           <textarea
             ref={descriptionRef}
             defaultValue={existingItem?.description || ""}
-            placeholder="What changed, what you built, and your role."
-            rows={3}
+            placeholder={"Problem: what needed to improve?\nRole: what did you personally build?\nResult: what shipped, improved, or became easier?"}
+            rows={5}
             className={editorTextareaClass}
           />
         </div>
 
         {/* Media Section */}
         <div>
-          <label className="block text-xs font-medium mb-2 text-white/70">Media</label>
+          <label className="block text-xs font-medium mb-2 text-white/70">Media proof</label>
           <div className="flex gap-1.5 mb-3">
             <Tooltip content="Add media via URL">
               <button
@@ -311,7 +339,7 @@ export function PortfolioEditor({
                       addMediaUrl();
                     }
                   }}
-                  placeholder="Paste image URL"
+                  placeholder="Paste screenshot, clip, or demo image URL"
                   className={editorFieldClass}
                 />
                 <Tooltip content="Add URL">
@@ -368,13 +396,13 @@ export function PortfolioEditor({
 
         {/* Links */}
         <div>
-          <label className="block text-xs font-medium mb-1.5 text-white/70">Links</label>
+          <label className="block text-xs font-medium mb-1.5 text-white/70">Project links</label>
           <div className="mb-2 grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto]">
             <input
               ref={newLinkRef}
               type="text"
               onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addLink(); } }}
-              placeholder="Paste URL"
+              placeholder="Demo, Roblox experience, GitHub, or case-study URL"
               className={editorFieldClass}
             />
             <Tooltip content="Add link">
@@ -422,14 +450,14 @@ export function PortfolioEditor({
         {userSkills.length > 0 && (
           <div>
             <label className="block text-xs font-medium mb-1.5 text-white/70">
-              Link to your skills
+              Link this proof to your skills
               <span className="text-white/40 font-normal"> (optional)</span>
             </label>
             <input
               type="text"
               value={skillSearch}
               onChange={(e) => setSkillSearch(e.target.value)}
-              placeholder="Search your skills..."
+              placeholder="Search skills this project proves..."
               className={cn(editorFieldClass, "mb-2")}
             />
             <div className={surface("panelMuted", "max-h-40 overflow-y-auto rounded-lg")}>
