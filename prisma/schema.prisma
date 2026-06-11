@@ -7,38 +7,38 @@ datasource db {
 }
 
 model User {
-  id                          String                 @id @default(cuid())
-  email                       String                 @unique
-  username                    String                 @unique
+  id                          String                    @id @default(cuid())
+  email                       String                    @unique
+  username                    String                    @unique
   name                        String?
-  role                        String                 @default("DEVELOPER")
+  role                        String                    @default("DEVELOPER")
   password                    String?
   emailVerified               DateTime?
   image                       String?
-  createdAt                   DateTime               @default(now())
-  updatedAt                   DateTime               @updatedAt
+  createdAt                   DateTime                  @default(now())
+  updatedAt                   DateTime                  @updatedAt
   lockedUntil                 DateTime?
-  loginAttempts               Int                    @default(0)
-  twoFactorEnabled            Boolean                @default(false)
+  loginAttempts               Int                       @default(0)
+  twoFactorEnabled            Boolean                   @default(false)
   twoFactorSecret             String?
   accounts                    Account[]
   auditLogs                   AuditLog[]
-  conversationsCreated        Conversation[]         @relation("ConversationCreator")
-  conversationInvitesReceived ConversationInvite[]   @relation("ConversationInvitee")
-  conversationInvitesSent     ConversationInvite[]   @relation("ConversationInviter")
-  conversationMembers         ConversationMember[]   @relation("ConversationMembers")
+  conversationsCreated        Conversation[]            @relation("ConversationCreator")
+  conversationInvitesReceived ConversationInvite[]      @relation("ConversationInvitee")
+  conversationInvitesSent     ConversationInvite[]      @relation("ConversationInviter")
+  conversationMembers         ConversationMember[]      @relation("ConversationMembers")
   emailChangeTokens           EmailChangeToken[]
-  escrowAsClient              EscrowContract[]       @relation("EscrowClient")
-  escrowAsDeveloper           EscrowContract[]       @relation("EscrowDeveloper")
-  following                   Follower[]             @relation("UserFollowers")
-  followers                   Follower[]             @relation("UserFollowing")
+  escrowAsClient              EscrowContract[]          @relation("EscrowClient")
+  escrowAsDeveloper           EscrowContract[]          @relation("EscrowDeveloper")
+  following                   Follower[]                @relation("UserFollowers")
+  followers                   Follower[]                @relation("UserFollowing")
   jobsPosted                  Job[]
   jobApplications             JobApplication[]
-  messagesSent                Message[]              @relation("MessageSender")
-  messageRequestsReceived     MessageRequest[]       @relation("MessageRequestRecipient")
-  messageRequestsSent         MessageRequest[]       @relation("MessageRequestSender")
-  notificationsSent           Notification[]         @relation("ActorNotifications")
-  notificationsReceived       Notification[]         @relation("UserNotifications")
+  messagesSent                Message[]                 @relation("MessageSender")
+  messageRequestsReceived     MessageRequest[]          @relation("MessageRequestRecipient")
+  messageRequestsSent         MessageRequest[]          @relation("MessageRequestSender")
+  notificationsSent           Notification[]            @relation("ActorNotifications")
+  notificationsReceived       Notification[]            @relation("UserNotifications")
   notificationActorLinks      NotificationActor[]
   notificationSettings        UserNotificationSettings?
   passwordResetTokens         PasswordResetToken[]
@@ -50,10 +50,10 @@ model User {
   reposts                     PostRepost[]
   views                       PostView[]
   profile                     Profile?
-  reportsGiven                Report[]               @relation("Reporter")
-  reportsReceived             Report[]               @relation("Reported")
-  reviewsReceived             Review[]               @relation("Reviewed")
-  reviewsGiven                Review[]               @relation("Reviewer")
+  reportsGiven                Report[]                  @relation("Reporter")
+  reportsReceived             Report[]                  @relation("Reported")
+  reviewsReceived             Review[]                  @relation("Reviewed")
+  reviewsGiven                Review[]                  @relation("Reviewer")
   savedPosts                  SavedPost[]
   sessions                    Session[]
   messagingSettings           UserMessagingSettings?
@@ -508,16 +508,17 @@ model UserMessagingSettings {
 }
 
 model UserNotificationSettings {
-  id        String   @id @default(cuid())
-  userId    String   @unique
-  likes     Boolean  @default(true)
-  reposts   Boolean  @default(true)
-  replies   Boolean  @default(true)
-  mentions  Boolean  @default(true)
-  follows   Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  likes           Boolean  @default(true)
+  reposts         Boolean  @default(true)
+  replies         Boolean  @default(true)
+  mentions        Boolean  @default(true)
+  follows         Boolean  @default(true)
+  jobApplications Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model MessageRequest {
@@ -710,6 +711,7 @@ enum NotificationType {
   REPLY
   FOLLOW
   MENTION
+  JOB_APPLICATION
 }
 
 enum JobStatus {

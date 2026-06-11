@@ -29,6 +29,7 @@ export async function GET() {
         replies: true,
         mentions: true,
         follows: true,
+        jobApplications: true,
       },
     });
 
@@ -65,6 +66,7 @@ export async function PUT(req: Request) {
         replies: true,
         mentions: true,
         follows: true,
+        jobApplications: true,
       },
     });
 

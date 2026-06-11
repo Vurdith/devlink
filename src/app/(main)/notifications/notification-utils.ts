@@ -13,6 +13,10 @@ export function labelForNotification(n: NotificationItem) {
       return "followed you";
     case "MENTION":
       return "mentioned you";
+    case "JOB_APPLICATION":
+      if (n.metadata?.status === "ACCEPTED") return "accepted your job application";
+      if (n.metadata?.status === "DECLINED") return "declined your job application";
+      return "updated your job application";
   }
 }
 

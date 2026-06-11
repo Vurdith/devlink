@@ -1,7 +1,7 @@
 import type { NotificationType } from "@prisma/client";
 import { prisma } from "@/server/db";
 
-export type NotificationPreferenceKey = "likes" | "reposts" | "replies" | "mentions" | "follows";
+export type NotificationPreferenceKey = "likes" | "reposts" | "replies" | "mentions" | "follows" | "jobApplications";
 
 export type NotificationPreferences = Record<NotificationPreferenceKey, boolean>;
 
@@ -11,6 +11,7 @@ export const defaultNotificationPreferences: NotificationPreferences = {
   replies: true,
   mentions: true,
   follows: true,
+  jobApplications: true,
 };
 
 const notificationPreferenceByType: Record<NotificationType, NotificationPreferenceKey> = {
@@ -19,6 +20,7 @@ const notificationPreferenceByType: Record<NotificationType, NotificationPrefere
   REPLY: "replies",
   MENTION: "mentions",
   FOLLOW: "follows",
+  JOB_APPLICATION: "jobApplications",
 };
 
 export function normalizeNotificationPreferences(input: Partial<NotificationPreferences> | null | undefined): NotificationPreferences {
@@ -29,6 +31,7 @@ export function normalizeNotificationPreferences(input: Partial<NotificationPref
     replies: typeof input?.replies === "boolean" ? input.replies : defaultNotificationPreferences.replies,
     mentions: typeof input?.mentions === "boolean" ? input.mentions : defaultNotificationPreferences.mentions,
     follows: typeof input?.follows === "boolean" ? input.follows : defaultNotificationPreferences.follows,
+    jobApplications: typeof input?.jobApplications === "boolean" ? input.jobApplications : defaultNotificationPreferences.jobApplications,
   };
 }
 
@@ -45,6 +48,7 @@ export async function notificationTypeEnabledForUser(userId: string, type: Notif
       replies: true,
       mentions: true,
       follows: true,
+      jobApplications: true,
     },
   });
 

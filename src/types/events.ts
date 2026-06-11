@@ -45,7 +45,7 @@ export type NotificationCreatedPayload = {
   notificationId?: string;
   recipientId: string;
   actorId: string;
-  type: "LIKE" | "REPOST" | "REPLY" | "FOLLOW" | "MENTION";
+  type: "LIKE" | "REPOST" | "REPLY" | "FOLLOW" | "MENTION" | "JOB_APPLICATION";
   postId?: string | null;
   sourcePostId?: string | null;
   createdAt: string;

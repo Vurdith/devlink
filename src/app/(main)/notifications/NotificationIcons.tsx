@@ -65,6 +65,14 @@ export function TypeIcon({ type }: { type: NotificationType }) {
           <path d="M20 12v-1a8 8 0 1 0 2.3 5.7" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
         </svg>
       );
+    case "JOB_APPLICATION":
+      return (
+        <svg className={common} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M9 7V6a3 3 0 0 1 6 0v1" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
+          <path d="M5 8h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2Z" stroke="currentColor" strokeWidth="2.2" strokeLinejoin="round" />
+          <path d="m9 14 2 2 4-4" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      );
   }
 }
 
@@ -80,5 +88,7 @@ export function typeBadgeClasses(type: NotificationType) {
       return "text-violet-300 border-violet-400/50";
     case "MENTION":
       return "text-amber-300 border-amber-400/50";
+    case "JOB_APPLICATION":
+      return "text-sky-300 border-sky-400/50";
   }
 }

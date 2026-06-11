@@ -1,4 +1,4 @@
-export type NotificationType = "LIKE" | "REPOST" | "REPLY" | "FOLLOW" | "MENTION";
+export type NotificationType = "LIKE" | "REPOST" | "REPLY" | "FOLLOW" | "MENTION" | "JOB_APPLICATION";
 
 export type NotificationActor = {
   id: string;
@@ -20,6 +20,11 @@ export type NotificationItem = {
   }>;
   post: { id: string; userId: string; content: string; createdAt: string } | null;
   sourcePost: { id: string; content: string; createdAt: string } | null;
+  metadata?: {
+    jobId?: string;
+    jobTitle?: string;
+    status?: string;
+  } | null;
 };
 
 export type NotificationTab = "all" | "unread";

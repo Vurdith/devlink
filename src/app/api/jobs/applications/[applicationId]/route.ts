@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getAuthSession } from "@/server/auth";
 import { prisma } from "@/server/db";
 import { jobApplicationSelect } from "@/server/jobs/selects";
+import { createNotification } from "@/server/notifications";
 
 export async function PATCH(
   req: Request,
@@ -24,7 +25,11 @@ export async function PATCH(
 
   const application = await prisma.jobApplication.findUnique({
     where: { id: applicationId },
-    select: { job: { select: { userId: true } } },
+    select: {
+      applicantId: true,
+      jobId: true,
+      job: { select: { userId: true, title: true } },
+    },
   });
 
   if (!application) {
@@ -40,6 +45,20 @@ export async function PATCH(
     data: { status },
     select: jobApplicationSelect,
   });
+
+  if (status === "ACCEPTED" || status === "DECLINED") {
+    void createNotification({
+      recipientId: application.applicantId,
+      actorId: userId,
+      type: "JOB_APPLICATION",
+      dedupeKey: `n:${application.applicantId}:job_application:${applicationId}`,
+      metadata: {
+        jobId: application.jobId,
+        jobTitle: application.job.title,
+        status,
+      },
+    });
+  }
 
   const response = NextResponse.json(updated);
   response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");

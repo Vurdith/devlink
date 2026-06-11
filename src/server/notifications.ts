@@ -7,7 +7,7 @@ import { notificationTypeEnabledForUser } from "@/server/notification-preference
 export type NotificationCreateInput = {
   recipientId: string;
   actorId: string;
-  type: "LIKE" | "REPOST" | "REPLY" | "FOLLOW" | "MENTION";
+  type: "LIKE" | "REPOST" | "REPLY" | "FOLLOW" | "MENTION" | "JOB_APPLICATION";
   postId?: string | null;
   sourcePostId?: string | null;
   dedupeKey?: string | null;

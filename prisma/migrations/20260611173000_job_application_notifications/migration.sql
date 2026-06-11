@@ -1,0 +1,4 @@
+ALTER TYPE "NotificationType" ADD VALUE IF NOT EXISTS 'JOB_APPLICATION';
+
+ALTER TABLE "UserNotificationSettings"
+ADD COLUMN "jobApplications" BOOLEAN NOT NULL DEFAULT true;

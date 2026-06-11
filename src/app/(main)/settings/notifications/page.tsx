@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState, memo } from "react";
 import type { ComponentType } from "react";
 import { useSession } from "next-auth/react";
-import { Bell, BellDot, Heart, MessageCircle, Repeat2, UserPlus } from "lucide-react";
+import { Bell, BellDot, BriefcaseBusiness, Heart, MessageCircle, Repeat2, UserPlus } from "lucide-react";
 import { safeJson } from "@/lib/safe-json";
 import { surface } from "@/components/ui/design-system";
 import { OptionCard } from "@/components/ui/OptionCard";
@@ -12,7 +12,7 @@ import { SettingsAuthRequired } from "../_components/SettingsAuthRequired";
 import { SettingsPageHeader } from "../_components/SettingsPageHeader";
 import { SettingsSection } from "../_components/SettingsSection";
 
-type NotificationPreferenceKey = "likes" | "reposts" | "replies" | "mentions" | "follows";
+type NotificationPreferenceKey = "likes" | "reposts" | "replies" | "mentions" | "follows" | "jobApplications";
 type NotificationPreferences = Record<NotificationPreferenceKey, boolean>;
 
 interface NotificationSetting {
@@ -30,6 +30,7 @@ const defaultPreferences: NotificationPreferences = {
   replies: true,
   mentions: true,
   follows: true,
+  jobApplications: true,
 };
 
 const notificationSettings: NotificationSetting[] = [
@@ -50,6 +51,12 @@ const notificationSettings: NotificationSetting[] = [
     label: "New followers",
     description: "Someone follows your profile.",
     icon: UserPlus,
+  },
+  {
+    id: "jobApplications",
+    label: "Job decisions",
+    description: "A client accepts or declines your application.",
+    icon: BriefcaseBusiness,
   },
   {
     id: "likes",
@@ -73,6 +80,7 @@ function normalizePreferences(input: NotificationSettingsPayload | null): Notifi
     replies: typeof input?.replies === "boolean" ? input.replies : defaultPreferences.replies,
     mentions: typeof input?.mentions === "boolean" ? input.mentions : defaultPreferences.mentions,
     follows: typeof input?.follows === "boolean" ? input.follows : defaultPreferences.follows,
+    jobApplications: typeof input?.jobApplications === "boolean" ? input.jobApplications : defaultPreferences.jobApplications,
   };
 }
 

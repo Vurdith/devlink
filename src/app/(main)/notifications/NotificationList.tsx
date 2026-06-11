@@ -92,7 +92,13 @@ function NotificationCard({
 }) {
   const router = useRouter();
   const who = getStackedLabel(n);
-  const href = n.post?.id ? `/p/${n.post.id}` : n.type === "FOLLOW" ? `/u/${n.actor.username}` : "#";
+  const href = n.post?.id
+    ? `/p/${n.post.id}`
+    : n.type === "FOLLOW"
+      ? `/u/${n.actor.username}`
+      : n.type === "JOB_APPLICATION" && n.metadata?.jobId
+        ? `/jobs/${n.metadata.jobId}`
+        : "#";
   const actors = getStackedActors(n);
   const verified = !!actors[0]?.profile?.verified;
   const markIds = Array.isArray(n.groupIds) && n.groupIds.length ? n.groupIds : [n.id];
@@ -266,6 +272,16 @@ function NotificationMeta({ notification: n, onMarkRead }: { notification: Notif
 }
 
 function NotificationPreview({ notification: n }: { notification: NotificationItem }) {
+  if (n.type === "JOB_APPLICATION" && n.metadata?.jobTitle) {
+    return (
+      <div className="mt-3 rounded-lg border border-white/[0.08] bg-black/10 px-3 py-2 text-sm leading-6 text-white/60">
+        <span className="text-white/42">Role</span>
+        <span className="mx-2 text-white/25" aria-hidden="true">/</span>
+        <span className="text-white/72">{n.metadata.jobTitle}</span>
+      </div>
+    );
+  }
+
   if (n.type === "REPLY" && (n.sourcePost?.content || n.post?.content)) {
     return (
       <div className="relative mt-3 rounded-lg border border-white/[0.08] bg-black/10 px-3 py-2 pl-5 text-sm leading-6 text-white/60">
