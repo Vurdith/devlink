@@ -8,6 +8,8 @@ Specialist agents create focused changes. The DevLink Git Grandmaster integrates
 
 Do not push directly to `master` unless the user explicitly assigns you the `devlink-git-grandmaster` role.
 
+After making changes, agents should commit and push their working branch whenever verification passes and repository access allows it. If commit or push is not possible, leave the changes uncommitted and clearly report why.
+
 ## Branches
 
 Specialist agents should work on their own branch:
@@ -42,6 +44,27 @@ Keep work scoped. Avoid broad "whole project" edits unless the user explicitly a
 - Release Doctor: Vercel, dependency, build, environment, production runtime issues.
 - QA Tester: verification, bug reports, screenshots, regression checks.
 - Git Grandmaster: integration, conflict resolution, final verification, commit, push.
+
+## UI/UX Skill Requirements
+
+Whenever handling any UI or UX task, use both of these skills before making changes:
+
+- `redesign-existing-projects`: apply the existing-product redesign workflow for UI/UX audits, visual hierarchy, alignment, responsive polish, states, and targeted browser QA.
+- `gpt-taste`: apply the product UI taste rules for premium UX judgment, anti-slop cleanup, exact alignment, interaction quality, and targeted visual QA.
+
+For small UI/UX fixes, use the compact checklist paths from both skills and keep the edit scoped. For substantial UI/UX changes, follow their planning and browser QA guidance.
+
+## Commit and Push Expectations
+
+Specialist agents should commit and push their own branch after completing changes when possible:
+
+1. Verify the working tree contains only intended changes.
+2. Run the required checks for the scope of the work.
+3. Stage only intended files.
+4. Commit with a clear message.
+5. Push the branch to `origin`.
+
+Do not push directly to `master` unless explicitly acting as the `devlink-git-grandmaster`. If verification fails, commit is inappropriate, or push access is unavailable, report the changed files and the blocker in the handoff.
 
 ## Handoff Required
 
