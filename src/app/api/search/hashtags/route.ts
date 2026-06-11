@@ -6,10 +6,12 @@ import {
   normalizeSearchQuery,
   searchCacheKeyPart,
 } from "@/server/search/query-utils";
+import { rankHashtagSearchCandidates } from "@/server/search/hashtag-ranking";
 
 const HASHTAG_CACHE_TTL = 300;
 const DEFAULT_HASHTAG_LIMIT = 10;
 const MAX_HASHTAG_LIMIT = 25;
+const MAX_HASHTAG_CANDIDATES = 75;
 
 export async function GET(request: NextRequest) {
   try {
@@ -30,37 +32,58 @@ export async function GET(request: NextRequest) {
       MAX_HASHTAG_LIMIT
     );
 
-    const cacheKey = `search:hashtags:${searchCacheKeyPart(searchTerm)}:${limit}`;
+    const cacheKey = `search:hashtags:v2:${searchCacheKeyPart(searchTerm)}:${limit}`;
     
     const cached = await responseCache.get<unknown[]>(cacheKey);
     if (cached) {
       return NextResponse.json({ hashtags: cached });
     }
     
+    const candidateLimit = Math.min(MAX_HASHTAG_CANDIDATES, limit * 3);
     const hashtags = await prismaRead.hashtag.findMany({
       where: {
         name: {
-          contains: searchTerm
-        }
+          contains: searchTerm,
+        },
       },
       select: {
         name: true,
+        createdAt: true,
         _count: {
           select: {
-            posts: true
-          }
-        }
+            posts: true,
+          },
+        },
+        posts: {
+          select: {
+            createdAt: true,
+          },
+          orderBy: {
+            createdAt: "desc",
+          },
+          take: 1,
+        },
       },
-      take: limit,
+      take: candidateLimit,
       orderBy: {
-        name: 'asc'
-      }
+        name: "asc",
+      },
     });
 
-    const hashtagResults = hashtags.map((hashtag) => ({
+    const rankedHashtags = rankHashtagSearchCandidates(
+      hashtags.map((hashtag) => ({
+        name: hashtag.name,
+        createdAt: hashtag.createdAt,
+        latestPostAt: hashtag.posts[0]?.createdAt ?? null,
+        _count: hashtag._count,
+      })),
+      searchTerm
+    ).slice(0, limit);
+
+    const hashtagResults = rankedHashtags.map((hashtag) => ({
       tag: `#${hashtag.name}`,
       postCount: hashtag._count.posts,
-      projectCount: 0
+      projectCount: 0,
     }));
     
     await responseCache.set(cacheKey, hashtagResults, HASHTAG_CACHE_TTL);
