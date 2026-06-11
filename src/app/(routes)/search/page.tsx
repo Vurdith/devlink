@@ -13,9 +13,11 @@ import { ProfileTypeLabel } from "@/components/profile/ProfileTypeLabel";
 import { FeedbackState } from "@/components/ui/FeedbackState";
 import { useSession } from "next-auth/react";
 import { cn } from "@/lib/cn";
-import { AlertTriangle, ArrowRight, CheckCircle2, FolderKanban, Hash, Search, Users } from "lucide-react";
+import { AlertTriangle, ArrowRight, CheckCircle2, FileText, FolderKanban, Hash, Search, Users } from "lucide-react";
+import PostDetail from "@/components/feed/PostDetail";
+import type { FeedPost } from "@/types/post";
 
-type SearchType = "all" | "profiles" | "hashtags" | "projects";
+type SearchType = "all" | "profiles" | "posts" | "hashtags" | "projects";
 
 interface UserSearchResult {
   id: string;
@@ -39,6 +41,9 @@ interface ProjectResult {
   id: string;
   title: string;
   description: string | null;
+  category?: string | null;
+  tags?: string | null;
+  skills?: string[];
   author: {
     username: string;
     name: string | null;
@@ -63,6 +68,9 @@ function getProfileMatchLabel(user: UserSearchResult, query: string) {
 
 function getProjectMatchLabel(project: ProjectResult, query: string) {
   if (queryInText(project.description, query)) return "description";
+  if (queryInText(project.category, query)) return "category";
+  if (queryInText(project.tags, query)) return "tags";
+  if (project.skills?.some((skill) => queryInText(skill, query))) return "skill";
   if (queryInText(project.author.username, query) || queryInText(project.author.name, query)) return "creator";
   if (queryInText(project.title, query)) return null;
   return null;
@@ -78,6 +86,7 @@ function SearchContent() {
   
   const [selectedType, setSelectedType] = useState<SearchType>(type);
   const [users, setUsers] = useState<UserSearchResult[]>([]);
+  const [posts, setPosts] = useState<FeedPost[]>([]);
   const [hashtags, setHashtags] = useState<HashtagResult[]>([]);
   const [projects, setProjects] = useState<ProjectResult[]>([]);
   const [loading, setLoading] = useState(!!query);
@@ -117,6 +126,7 @@ function SearchContent() {
   useEffect(() => {
     if (!query) {
       setUsers([]);
+      setPosts([]);
       setHashtags([]);
       setProjects([]);
       setError(null);
@@ -132,16 +142,23 @@ function SearchContent() {
       try {
         const encodedQuery = encodeURIComponent(query);
         const shouldFetchUsers = selectedType === "all" || selectedType === "profiles";
+        const shouldFetchPosts = selectedType === "all" || selectedType === "posts";
         const shouldFetchHashtags = selectedType === "all" || selectedType === "hashtags";
         const shouldFetchProjects = selectedType === "all" || selectedType === "projects";
 
-        const [usersData, hashtagsData, projectsData] = await Promise.all([
+        const [usersData, postsData, hashtagsData, projectsData] = await Promise.all([
           shouldFetchUsers
             ? fetch(`/api/search/users?q=${encodedQuery}`, { signal: controller.signal }).then(async (response) => {
                 if (!response.ok) throw new Error("User search failed");
                 return response.json();
               })
             : Promise.resolve({ users: [] }),
+          shouldFetchPosts
+            ? fetch(`/api/search/posts?q=${encodedQuery}&limit=10`, { signal: controller.signal }).then(async (response) => {
+                if (!response.ok) throw new Error("Post search failed");
+                return response.json();
+              })
+            : Promise.resolve({ posts: [] }),
           shouldFetchHashtags
             ? fetch(`/api/search/hashtags?q=${encodedQuery}`, { signal: controller.signal }).then(async (response) => {
                 if (!response.ok) throw new Error("Hashtag search failed");
@@ -157,6 +174,7 @@ function SearchContent() {
         ]);
 
         setUsers(usersData.users || []);
+        setPosts(postsData.posts || []);
         setHashtags(hashtagsData.hashtags || []);
         setProjects(projectsData.projects || []);
 
@@ -186,6 +204,11 @@ function SearchContent() {
       icon: <Users className="h-4 w-4" aria-hidden="true" />,
     },
     {
+      value: "posts",
+      label: "Posts",
+      icon: <FileText className="h-4 w-4" aria-hidden="true" />,
+    },
+    {
       value: "hashtags",
       label: "Hashtags",
       icon: <Hash className="h-4 w-4" aria-hidden="true" />,
@@ -197,10 +220,11 @@ function SearchContent() {
     }
   ];
 
-  const totalResults = users.length + hashtags.length + projects.length;
+  const totalResults = users.length + posts.length + hashtags.length + projects.length;
   const filterCounts: Record<SearchType, number> = {
     all: totalResults,
     profiles: users.length,
+    posts: posts.length,
     hashtags: hashtags.length,
     projects: projects.length,
   };
@@ -223,7 +247,7 @@ function SearchContent() {
             {query ? `Results for "${query}"` : "Search DevLink"}
           </h1>
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[var(--muted-foreground)]">
-            Find profiles, tags, and portfolio work without leaving the current flow.
+            Find profiles, posts, tags, and portfolio work without leaving the current flow.
           </p>
           <form onSubmit={handleSubmit} className="mt-4 grid gap-2 sm:grid-cols-[1fr_auto]">
             <label htmlFor="search-query" className="sr-only">Search DevLink</label>
@@ -256,7 +280,7 @@ function SearchContent() {
       </div>
 
       <div className="mb-5">
-        <div className={surface("toolbar", "grid grid-flow-col auto-cols-max gap-2 overflow-x-auto p-2 md:grid-flow-row md:grid-cols-4")}>
+        <div className={surface("toolbar", "grid grid-flow-col auto-cols-max gap-2 overflow-x-auto p-2 md:grid-flow-row md:grid-cols-5")}>
           {filters.map((filter) => (
             <button
               key={filter.value}
@@ -389,6 +413,33 @@ function SearchContent() {
             </section>
           )}
 
+          {/* Post Results */}
+          {(selectedType === "all" || selectedType === "posts") && posts.length > 0 && (
+            <section>
+              <div className="mb-2 flex items-center gap-3">
+                <h2 className="font-[var(--font-space-grotesk)] text-sm font-semibold text-white">Posts</h2>
+                <div className="h-px flex-1 bg-gradient-to-r from-white/[0.10] to-transparent" />
+                <span className="text-xs text-[var(--muted-foreground)]">{formatCount(posts.length)}</span>
+              </div>
+              <div className="space-y-2">
+                {posts.map((post) => (
+                  <PostDetail
+                    key={post.id}
+                    post={post}
+                    session={session}
+                    onUpdate={(updatedPost) => {
+                      setPosts((currentPosts) =>
+                        currentPosts.map((currentPost) =>
+                          currentPost.id === updatedPost.id ? updatedPost : currentPost
+                        )
+                      );
+                    }}
+                  />
+                ))}
+              </div>
+            </section>
+          )}
+
           {/* Hashtag Results */}
           {(selectedType === "all" || selectedType === "hashtags") && hashtags.length > 0 && (
             <section>
@@ -418,7 +469,7 @@ function SearchContent() {
                     </div>
                     <div className="relative z-20 pointer-events-auto hidden sm:block">
                       <ActionLink
-                        href={`/hashtag/${hashtag.tag.replace('#', '')}`}
+                        href={`/hashtag/${hashtag.tag.replace("#", "")}`}
                         variant="ghost"
                         size="sm"
                         rightIcon={<ArrowRight className="h-4 w-4" aria-hidden="true" />}
@@ -465,9 +516,18 @@ function SearchContent() {
                             by @{project.author.username}
                           </span>
                         </div>
+                        {project.skills && project.skills.length > 0 ? (
+                          <div className="mt-3 flex flex-wrap gap-2">
+                            {project.skills.slice(0, 4).map((skill) => (
+                              <span key={skill} className="rounded-md border border-white/[0.08] bg-white/[0.035] px-2 py-1 text-xs font-medium text-white/58">
+                                {skill}
+                              </span>
+                            ))}
+                          </div>
+                        ) : null}
                       </div>
                       <ActionLink
-                        href={`/projects/${project.id}`}
+                        href={`/u/${project.author.username}?tab=portfolio`}
                         variant="ghost"
                         size="sm"
                         className="w-full sm:w-auto"
@@ -486,8 +546,8 @@ function SearchContent() {
           {/* No Results */}
           {!query && (
             <FeedbackState
-              title="Start with a handle, tag, or project"
-              description="Try a username, Roblox skill, or portfolio title."
+              title="Start with a handle, tag, post, or project"
+              description="Try a username, Roblox skill, hiring phrase, build note, or portfolio title."
               className="py-14"
               icon={
                 <Search className="h-5 w-5" aria-hidden="true" />

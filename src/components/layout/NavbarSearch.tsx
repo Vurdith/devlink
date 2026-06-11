@@ -356,7 +356,7 @@ export const NavbarSearch = memo(function NavbarSearch({ currentUserId }: { curr
               {visibleResults.projects.map((project) => (
                 <Link
                   key={project.id}
-                  href={`/projects/${project.id}`}
+                  href={`/u/${project.author.username}?tab=portfolio`}
                   onClick={closeDropdown}
                   className={menuItem()}
                 >

@@ -1,4 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
+import { prismaRead } from "@/server/db-read";
+import { responseCache } from "@/server/cache";
+import {
+  normalizeSearchLimit,
+  normalizeSearchQuery,
+  searchCacheKeyPart,
+} from "@/server/search/query-utils";
+
+const PROJECT_CACHE_TTL = 120;
+const DEFAULT_PROJECT_LIMIT = 8;
+const MAX_PROJECT_LIMIT = 25;
 
 export async function GET(request: NextRequest) {
   try {
@@ -9,24 +20,105 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ projects: [] });
     }
 
-    // For now, return empty array since projects aren't implemented yet
-    // This provides the framework for future project search functionality
-    const projects: unknown[] = [];
+    const query = normalizeSearchQuery(q);
+    if (!query) {
+      return NextResponse.json({ projects: [] });
+    }
+    const limit = normalizeSearchLimit(
+      searchParams.get("limit"),
+      DEFAULT_PROJECT_LIMIT,
+      MAX_PROJECT_LIMIT
+    );
 
-    return NextResponse.json({ projects });
+    const cacheKey = `search:projects:v2:${searchCacheKeyPart(query)}:${limit}`;
+    const cached = await responseCache.get<unknown[]>(cacheKey);
+    if (cached) {
+      const response = NextResponse.json({ projects: cached });
+      response.headers.set("X-Cache", "HIT");
+      response.headers.set("Cache-Control", "public, max-age=60, stale-while-revalidate=120");
+      return response;
+    }
+
+    const portfolioItems = await prismaRead.portfolioItem.findMany({
+      where: {
+        isPublic: true,
+        OR: [
+          { title: { contains: query } },
+          { description: { contains: query } },
+          { category: { contains: query } },
+          { tags: { contains: query } },
+          {
+            skills: {
+              some: {
+                skill: {
+                  name: { contains: query },
+                },
+              },
+            },
+          },
+          { user: { username: { contains: query } } },
+          { user: { name: { contains: query } } },
+        ],
+      },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        category: true,
+        tags: true,
+        mediaUrls: true,
+        createdAt: true,
+        user: {
+          select: {
+            username: true,
+            name: true,
+            profile: {
+              select: {
+                avatarUrl: true,
+              },
+            },
+          },
+        },
+        skills: {
+          select: {
+            skill: {
+              select: {
+                name: true,
+              },
+            },
+          },
+          take: 4,
+        },
+      },
+      orderBy: { createdAt: "desc" },
+      take: limit,
+    });
+
+    const projects = portfolioItems.map((item) => ({
+      id: item.id,
+      title: item.title,
+      description: item.description,
+      category: item.category,
+      tags: item.tags,
+      mediaUrls: item.mediaUrls,
+      skills: item.skills.map(({ skill }) => skill.name),
+      author: {
+        username: item.user.username,
+        name: item.user.name,
+        avatarUrl: item.user.profile?.avatarUrl ?? null,
+      },
+    }));
+
+    await responseCache.set(cacheKey, projects, PROJECT_CACHE_TTL);
+
+    const response = NextResponse.json({ projects });
+    response.headers.set("X-Cache", "MISS");
+    response.headers.set("Cache-Control", "public, max-age=60, stale-while-revalidate=120");
+    return response;
   } catch (error) {
     console.error("Error searching projects:", error);
     return NextResponse.json({ error: "Failed to search projects" }, { status: 500 });
   }
 }
-
-
-
-
-
-
-
-
-
 
 
