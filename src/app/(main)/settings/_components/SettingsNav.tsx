@@ -28,7 +28,7 @@ const navItems = [
   { 
     href: "/settings/notifications", 
     label: "Notifications", 
-    description: "Email delivery",
+    description: "In-app alerts",
     icon: <Bell className="h-[18px] w-[18px]" aria-hidden="true" />,
   },
   { 

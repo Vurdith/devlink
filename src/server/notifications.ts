@@ -2,6 +2,7 @@ import { prisma } from "@/server/db";
 import type { Prisma } from "@prisma/client";
 import { publishEvent } from "@/server/events/bus";
 import { fanoutNotificationWithRust } from "@/server/services/hotpath-client";
+import { notificationTypeEnabledForUser } from "@/server/notification-preferences";
 
 export type NotificationCreateInput = {
   recipientId: string;
@@ -43,6 +44,8 @@ export async function createNotification(input: NotificationCreateInput) {
   if (recipientId === actorId) return; // no self notifications
 
   try {
+    if (!(await notificationTypeEnabledForUser(recipientId, type))) return;
+
     // De-dupe when a dedupeKey is provided (likes/reposts/follows/mentions).
     if (dedupeKey) {
       const notification = await prisma.notification.upsert({
@@ -132,6 +135,8 @@ export async function upsertStackedNotification(
   const dedupeKey = `n:${recipientId}:${type.toLowerCase()}:${postId}`; // group per post
 
   try {
+    if (!(await notificationTypeEnabledForUser(recipientId, type))) return;
+
     const n = await prisma.notification.upsert({
       where: { dedupeKey },
       update: {
