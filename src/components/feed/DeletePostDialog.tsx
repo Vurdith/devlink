@@ -4,9 +4,10 @@ import { iconBox, surface } from "@/components/ui/design-system";
 interface DeletePostDialogProps {
   onClose: () => void;
   onConfirm: () => void;
+  isDeleting?: boolean;
 }
 
-export function DeletePostDialog({ onClose, onConfirm }: DeletePostDialogProps) {
+export function DeletePostDialog({ onClose, onConfirm, isDeleting = false }: DeletePostDialogProps) {
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/85 p-3 sm:items-center" onClick={onClose} role="presentation">
       <div className={surface("panelStrong", "noise-overlay relative mx-4 w-[min(92vw,480px)] overflow-hidden p-6")} onClick={(event) => event.stopPropagation()}>
@@ -28,7 +29,7 @@ export function DeletePostDialog({ onClose, onConfirm }: DeletePostDialogProps) 
           <Button variant="ghost" onClick={onClose} size="sm">
             Cancel
           </Button>
-          <Button variant="destructive" onClick={onConfirm} size="sm">
+          <Button variant="destructive" onClick={onConfirm} size="sm" disabled={isDeleting} isLoading={isDeleting}>
             Delete post
           </Button>
         </div>

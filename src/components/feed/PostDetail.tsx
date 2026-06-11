@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, memo, useCallback, useMemo, lazy, Suspense } from "react";
 import { useRouter } from "next/navigation";
+import { useToastContext } from "@/components/providers/ToastProvider";
 import { surface } from "@/components/ui/design-system";
 import type { FeedPost } from "@/types/post";
 import { getPostMediaItems, PostBodyAttachments } from "./PostBodyAttachments";
@@ -30,6 +31,7 @@ interface PostDetailProps {
 
 export const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPage = false, showPinnedTag = false, session }: PostDetailProps) {
   const router = useRouter();
+  const { toast } = useToastContext();
   const [avatarError, setAvatarError] = useState(false);
   // Track updated avatar for current user's posts (instant update when they change avatar)
   const [currentUserAvatar, setCurrentUserAvatar] = useState<string | null>(null);
@@ -47,6 +49,7 @@ export const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPag
     isSaved?: boolean;
   } | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [showReplyModal, setShowReplyModal] = useState(false);
   
   const actionsMenuRef = useRef<HTMLDivElement>(null);
@@ -363,10 +366,17 @@ export const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPag
   }, [session?.user?.id, post.poll?.id, router]);
 
   const confirmDelete = useCallback(async () => {
+    if (isDeleting) return;
+    setIsDeleting(true);
     try {
       const response = await fetch(`/api/posts/${post.id}/delete`, { method: 'DELETE' });
       if (response.ok) {
         setShowDeleteConfirm(false);
+        toast({
+          title: "Post deleted",
+          description: "The post was removed from DevLink.",
+          variant: "success",
+        });
         // Use client-side navigation
         if (typeof window !== 'undefined' && window.location.pathname.startsWith('/p/')) {
           router.push('/home');
@@ -374,13 +384,23 @@ export const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPag
           router.refresh();
         }
       } else {
-        const errorData = await response.json();
-        alert(`Failed to delete post: ${errorData.error || 'Unknown error'}`);
+        const errorData = await response.json().catch(() => null);
+        toast({
+          title: "Post was not deleted",
+          description: errorData?.error || "Try again in a moment.",
+          variant: "destructive",
+        });
       }
     } catch {
-      alert('Failed to delete post. Please try again.');
+      toast({
+        title: "Post was not deleted",
+        description: "Check your connection and try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsDeleting(false);
     }
-  }, [post.id, router]);
+  }, [isDeleting, post.id, router, toast]);
 
   const mediaItems = useMemo(() => getPostMediaItems(post.media), [post.media]);
 
@@ -500,7 +520,7 @@ export const PostDetail = memo(function PostDetail({ post, onUpdate, isOnPostPag
 
       {showDeleteConfirm && (
         <Suspense fallback={null}>
-          <DeletePostDialog onClose={() => setShowDeleteConfirm(false)} onConfirm={confirmDelete} />
+          <DeletePostDialog onClose={() => setShowDeleteConfirm(false)} onConfirm={confirmDelete} isDeleting={isDeleting} />
         </Suspense>
       )}
       

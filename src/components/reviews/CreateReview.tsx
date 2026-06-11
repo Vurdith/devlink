@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, memo } from "react";
+import { AlertCircle } from "lucide-react";
+import { useToastContext } from "@/components/providers/ToastProvider";
 import { cn } from "@/lib/cn";
 import { surface, ui } from "@/components/ui/design-system";
 
@@ -13,9 +15,11 @@ interface CreateReviewProps {
 }
 
 export const CreateReview = memo(function CreateReview({ targetUserId, targetUsername, currentUserId, onReviewCreated, onCancel }: CreateReviewProps) {
+  const { toast } = useToastContext();
   const [rating, setRating] = useState(0);
   const [hoveredRating, setHoveredRating] = useState(0);
   const [text, setText] = useState("");
+  const [formError, setFormError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (!currentUserId) {
@@ -28,7 +32,11 @@ export const CreateReview = memo(function CreateReview({ targetUserId, targetUse
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (rating === 0) return;
+    setFormError("");
+    if (rating === 0) {
+      setFormError("Choose a rating before submitting your review.");
+      return;
+    }
 
     setIsSubmitting(true);
     try {
@@ -45,19 +53,32 @@ export const CreateReview = memo(function CreateReview({ targetUserId, targetUse
       if (response.ok) {
         setRating(0);
         setText("");
+        toast({
+          title: "Review posted",
+          description: `Your feedback for @${targetUsername} is now visible.`,
+          variant: "success",
+        });
         onReviewCreated?.();
       } else {
-        const error = await response.text();
-        console.error("Error creating review:", error);
-        
-        if (error.includes("Cannot review yourself")) {
-          alert("You cannot review yourself.");
-        } else {
-          alert("Failed to create review. Please try again.");
-        }
+        const data = await response.json().catch(() => null);
+        const message = data?.error === "Cannot review yourself"
+          ? "You cannot review yourself."
+          : data?.error || "Review was not posted. Try again in a moment.";
+        setFormError(message);
+        toast({
+          title: "Review was not posted",
+          description: message,
+          variant: "destructive",
+        });
       }
-    } catch (error) {
-      console.error("Error creating review:", error);
+    } catch {
+      const message = "Check your connection and try again.";
+      setFormError(message);
+      toast({
+        title: "Review was not posted",
+        description: message,
+        variant: "destructive",
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -147,6 +168,13 @@ export const CreateReview = memo(function CreateReview({ targetUserId, targetUse
         </div>
 
         {/* Action Buttons */}
+        {formError ? (
+          <div className="flex items-start gap-2 rounded-lg border border-rose-400/20 bg-rose-500/[0.06] px-3 py-2 text-sm leading-relaxed text-rose-100">
+            <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-rose-300" aria-hidden="true" />
+            <span>{formError}</span>
+          </div>
+        ) : null}
+
         <div className="flex flex-col-reverse gap-3 pt-2 sm:flex-row sm:items-center">
           <button
             type="submit"
