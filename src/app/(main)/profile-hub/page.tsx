@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useToastContext } from "@/components/providers/ToastProvider";
 import { AddSkillsPanel } from "./AddSkillsPanel";
+import { ProfileCompletionPanel } from "./ProfileCompletionPanel";
 import { ProfileHubTabs } from "./ProfileHubTabs";
 import { ProfileSection, type ProfileData } from "./ProfileSection";
 import { SkillEditModal } from "./SkillEditModal";
@@ -340,6 +341,14 @@ export default function ProfileHubPage() {
 
         <div className="mx-auto max-w-5xl">
           <div className="min-w-0">
+            <ProfileCompletionPanel
+              name={name}
+              profile={profile}
+              userSkills={userSkills}
+              activeSection={activeSection}
+              onSectionChange={handleSectionChange}
+            />
+
             <ProfileHubTabs activeSection={activeSection} onSectionChange={handleSectionChange} />
 
             {activeSection === "profile" && (
