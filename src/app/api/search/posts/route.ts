@@ -8,6 +8,7 @@ import {
   normalizeSearchQuery,
   searchCacheKeyPart,
 } from "@/server/search/query-utils";
+import { rankPostSearchCandidates } from "@/server/search/post-ranking";
 import { attachPostEngagement, fetchPostEngagementSummary, getPostPollIds } from "@/server/posts/post-engagement";
 import { postListSelect } from "@/server/posts/post-selects";
 import type { Prisma } from "@prisma/client";
@@ -15,6 +16,7 @@ import type { Prisma } from "@prisma/client";
 const SEARCH_CACHE_TTL = 60;
 const DEFAULT_POST_LIMIT = 20;
 const MAX_POST_LIMIT = 40;
+const MAX_POST_CANDIDATES = 100;
 type SearchPost = Prisma.PostGetPayload<{ select: typeof postListSelect }>;
 
 export async function GET(request: NextRequest) {
@@ -39,16 +41,17 @@ export async function GET(request: NextRequest) {
     const session = await getAuthSession();
     const currentUserId = session?.user?.id;
 
-    const cacheKey = `search:posts:v2:${searchCacheKeyPart(query)}:${limit}`;
+    const cacheKey = `search:posts:v3:${searchCacheKeyPart(query)}:${limit}`;
     
     let posts = await responseCache.get<SearchPost[]>(cacheKey);
     let cacheStatus = "HIT";
 
     if (!posts) {
       cacheStatus = "MISS";
-      const indexedPostIds = await searchPostsIndex(query, limit);
+      const candidateLimit = Math.min(MAX_POST_CANDIDATES, limit * 3);
+      const indexedPostIds = await searchPostsIndex(query, candidateLimit);
 
-      posts = await prismaRead.post.findMany({
+      const candidates = await prismaRead.post.findMany({
         where: {
           replyToId: null,
           ...(indexedPostIds.length > 0
@@ -61,11 +64,12 @@ export async function GET(request: NextRequest) {
               }),
         },
         select: postListSelect,
-        take: limit,
+        take: candidateLimit,
         orderBy: {
           createdAt: "desc",
         },
       });
+      posts = rankPostSearchCandidates(candidates, query, new Date(), indexedPostIds).slice(0, limit);
 
       await responseCache.set(cacheKey, posts, SEARCH_CACHE_TTL);
     }
