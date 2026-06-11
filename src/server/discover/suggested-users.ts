@@ -48,6 +48,9 @@ const suggestedUserSelect = {
 } satisfies Prisma.UserSelect;
 
 type SuggestedUserCandidate = Prisma.UserGetPayload<{ select: typeof suggestedUserSelect }>;
+type SuggestedUserCandidateWithNetwork = SuggestedUserCandidate & {
+  mutualFollowCount?: number;
+};
 
 export interface SuggestedFollowUser {
   id: string;
@@ -95,9 +98,18 @@ function getComplementaryProfileTypes(profileType?: string | null) {
   }
 }
 
-function buildReason(candidate: SuggestedUserCandidate, matchingSkills: string[], recentPostDays: number | null) {
+function buildReason(
+  candidate: SuggestedUserCandidateWithNetwork,
+  matchingSkills: string[],
+  recentPostDays: number | null
+) {
   if (matchingSkills.length > 0) {
     return `Matches ${matchingSkills.slice(0, 2).join(", ")}`;
+  }
+
+  if ((candidate.mutualFollowCount ?? 0) > 0) {
+    const count = candidate.mutualFollowCount ?? 0;
+    return `Followed by ${count} ${count === 1 ? "person" : "people"} you follow`;
   }
 
   if (recentPostDays !== null && recentPostDays <= 7) {
@@ -116,7 +128,7 @@ function buildReason(candidate: SuggestedUserCandidate, matchingSkills: string[]
 }
 
 function scoreCandidate(params: {
-  candidate: SuggestedUserCandidate;
+  candidate: SuggestedUserCandidateWithNetwork;
   currentSkillIds: Set<string>;
   complementaryTypes: Set<string>;
   now: Date;
@@ -135,6 +147,7 @@ function scoreCandidate(params: {
   if (candidate.profile?.verified) score += 10;
   if (candidate.profile?.bio || candidate.profile?.headline) score += 8;
   if (candidate.profile?.availability === "AVAILABLE") score += 8;
+  score += Math.min(18, (candidate.mutualFollowCount ?? 0) * 7);
   if (recentPostDays !== null) score += Math.max(0, 18 - recentPostDays * 2);
   score += Math.min(12, candidate._count.portfolioItems * 4);
   score += Math.min(10, candidate._count.reviewsReceived * 3);
@@ -147,6 +160,39 @@ function scoreCandidate(params: {
     recentPostDays,
     score,
   };
+}
+
+export function rankSuggestedFollowCandidates(params: {
+  candidates: SuggestedUserCandidateWithNetwork[];
+  currentSkillIds: Set<string>;
+  complementaryTypes: Set<string>;
+  now?: Date;
+  limit?: number;
+}) {
+  const now = params.now ?? new Date();
+  const limit = Math.max(1, Math.min(params.limit ?? SUGGESTED_FOLLOW_LIMIT, 8));
+
+  return params.candidates
+    .map((candidate) =>
+      scoreCandidate({
+        candidate,
+        currentSkillIds: params.currentSkillIds,
+        complementaryTypes: params.complementaryTypes,
+        now,
+      })
+    )
+    .sort((a, b) => b.score - a.score)
+    .slice(0, limit)
+    .map(({ candidate, matchingSkills, recentPostDays }) => ({
+      id: candidate.id,
+      username: candidate.username,
+      name: candidate.name,
+      profile: candidate.profile,
+      skills: candidate.skills,
+      _count: candidate._count,
+      reason: buildReason(candidate, matchingSkills, recentPostDays),
+      matchingSkills: matchingSkills.slice(0, 3),
+    }));
 }
 
 export async function fetchSuggestedFollows(
@@ -185,22 +231,34 @@ export async function fetchSuggestedFollows(
     take: CANDIDATE_LIMIT,
   });
 
+  const mutualFollowCounts = new Map<string, number>();
+  if (followedIds.size > 0 && candidates.length > 0) {
+    const mutualFollows = await prismaRead.follower.groupBy({
+      by: ["followingId"],
+      where: {
+        followerId: { in: Array.from(followedIds) },
+        followingId: { in: candidates.map((candidate) => candidate.id) },
+      },
+      _count: {
+        followerId: true,
+      },
+    });
+
+    for (const mutualFollow of mutualFollows) {
+      mutualFollowCounts.set(mutualFollow.followingId, mutualFollow._count.followerId);
+    }
+  }
+
   const currentSkillIds = new Set(currentUser.skills.map((skill) => skill.skillId));
   const complementaryTypes = getComplementaryProfileTypes(currentUser.profile?.profileType);
-  const now = new Date();
 
-  return candidates
-    .map((candidate) => scoreCandidate({ candidate, currentSkillIds, complementaryTypes, now }))
-    .sort((a, b) => b.score - a.score)
-    .slice(0, Math.max(1, Math.min(limit, 8)))
-    .map(({ candidate, matchingSkills, recentPostDays }) => ({
-      id: candidate.id,
-      username: candidate.username,
-      name: candidate.name,
-      profile: candidate.profile,
-      skills: candidate.skills,
-      _count: candidate._count,
-      reason: buildReason(candidate, matchingSkills, recentPostDays),
-      matchingSkills: matchingSkills.slice(0, 3),
-    }));
+  return rankSuggestedFollowCandidates({
+    candidates: candidates.map((candidate) => ({
+      ...candidate,
+      mutualFollowCount: mutualFollowCounts.get(candidate.id) ?? 0,
+    })),
+    currentSkillIds,
+    complementaryTypes,
+    limit,
+  });
 }
