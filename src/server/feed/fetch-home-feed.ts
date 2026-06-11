@@ -67,6 +67,23 @@ export async function fetchHomeFeedCandidates(limit = 30) {
   }, FEED_CACHE_TTL);
 }
 
+export async function fetchFollowedHomeFeedCandidates(authorIds: string[], limit = 60) {
+  if (authorIds.length === 0) return [];
+
+  const boundedLimit = boundHomeFeedLimit(limit);
+
+  return prismaRead.post.findMany({
+    where: {
+      replyToId: null,
+      isScheduled: false,
+      userId: { in: authorIds },
+    },
+    select: homeFeedCandidateSelect,
+    orderBy: { createdAt: "desc" },
+    take: boundedLimit,
+  });
+}
+
 export async function fetchHomeFeedPostDetails(postIds: string[]): Promise<FeedPost[]> {
   if (postIds.length === 0) {
     return [];

@@ -1,13 +1,16 @@
 import {
   fetchHomeFeedCandidates,
+  fetchFollowedHomeFeedCandidates,
   fetchHomeFeedPostDetails,
   type FeedPost,
 } from "@/server/feed/fetch-home-feed";
+import { mergeUniqueFeedCandidates } from "@/server/feed/feed-candidates";
 import { rankHomeFeedPosts } from "@/server/feed/rank-home-feed";
 import { getOrSetFeedCache } from "@/server/cache";
 import { prismaRead } from "@/server/db-read";
 
 export const HOME_FEED_CANDIDATE_LIMIT = 120;
+export const HOME_FEED_FOLLOWED_CANDIDATE_LIMIT = 60;
 export const HOME_FEED_RENDER_LIMIT = 30;
 
 interface FetchRankedHomeFeedPostsOptions {
@@ -38,18 +41,25 @@ export async function fetchRankedHomeFeedPosts({
   }
 
   const viewerKey = currentUserId ? `user:${currentUserId}` : "anon";
-  const cacheKey = `home:ranked:v2:${viewerKey}:${Math.trunc(candidateLimit)}:${Math.trunc(renderLimit)}`;
+  const cacheKey = `home:ranked:v3:${viewerKey}:${Math.trunc(candidateLimit)}:${Math.trunc(renderLimit)}`;
 
   return getOrSetFeedCache(cacheKey, async () => {
     const [candidates, followedAuthorIds] = await Promise.all([
       fetchHomeFeedCandidates(candidateLimit),
       fetchFollowedAuthorIds(currentUserId),
     ]);
-    if (candidates.length === 0) {
+
+    const followedCandidates = await fetchFollowedHomeFeedCandidates(
+      [...followedAuthorIds],
+      Math.min(HOME_FEED_FOLLOWED_CANDIDATE_LIMIT, Math.max(renderLimit * 2, 1))
+    );
+    const candidatePool = mergeUniqueFeedCandidates(candidates, followedCandidates);
+
+    if (candidatePool.length === 0) {
       return [];
     }
 
-    const rankedCandidates = (await rankHomeFeedPosts(candidates, { followedAuthorIds })).slice(0, renderLimit);
+    const rankedCandidates = (await rankHomeFeedPosts(candidatePool, { followedAuthorIds })).slice(0, renderLimit);
 
     return fetchHomeFeedPostDetails(rankedCandidates.map((post) => post.id));
   });
