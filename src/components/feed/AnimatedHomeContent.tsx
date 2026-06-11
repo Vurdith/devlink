@@ -3,11 +3,13 @@ import dynamic from "next/dynamic";
 import { memo } from "react";
 import { ArrowRight, Bell, BriefcaseBusiness, Code2, Search, Users } from "lucide-react";
 import { PostFeed } from "./PostFeed";
+import { SuggestedFollowsPanel } from "./SuggestedFollowsPanel";
 import { ActionLink } from "@/components/ui/ActionLink";
 import { ThemeLogoImg } from "@/components/ui/ThemeLogo";
 import { skeleton, surface } from "@/components/ui/design-system";
 import type { FeedPost } from "@/types/post";
 import { useHomeFeedPosts } from "./useHomeFeedPosts";
+import type { SuggestedFollowUser } from "@/server/discover/suggested-users";
 
 interface UserProfile {
   id: string;
@@ -25,6 +27,7 @@ interface UserProfile {
   _count: {
     followers: number;
     following: number;
+    skills: number;
   };
 }
 
@@ -40,6 +43,7 @@ interface AnimatedHomeContentProps {
   } | null;
   currentUserProfile: UserProfile | null;
   postsWithViewCounts: FeedPost[];
+  suggestedFollows: SuggestedFollowUser[];
 }
 
 const audienceLanes = [
@@ -85,7 +89,8 @@ const LazyCreatePost = dynamic(
 export const AnimatedHomeContent = memo(function AnimatedHomeContent({
   session,
   currentUserProfile,
-  postsWithViewCounts
+  postsWithViewCounts,
+  suggestedFollows
 }: AnimatedHomeContentProps) {
   const { feedPosts, handlePostUpdate } = useHomeFeedPosts({
     initialPosts: postsWithViewCounts,
@@ -94,6 +99,24 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
 
   const firstName = currentUserProfile?.name?.split(" ")[0] || currentUserProfile?.username || "there";
   const feedCountLabel = feedPosts.length === 1 ? "1 update" : `${feedPosts.length} updates`;
+  const profileCompletionTasks = [
+    {
+      label: "Add a bio",
+      done: Boolean(currentUserProfile?.profile?.bio?.trim()),
+      href: "/profile-hub",
+    },
+    {
+      label: "Add skills",
+      done: (currentUserProfile?._count.skills ?? 0) >= 3,
+      href: "/profile-hub",
+    },
+    {
+      label: "Follow people",
+      done: (currentUserProfile?._count.following ?? 0) > 0,
+      href: "/discover",
+    },
+  ];
+  const showStartPanel = profileCompletionTasks.some((task) => !task.done);
 
   return (
     <>
@@ -184,6 +207,40 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
                 username: currentUserProfile.username
               }} />
             </div>
+
+            {showStartPanel && (
+              <section className={surface("panelMuted", "noise-overlay relative mb-5 overflow-hidden p-4 sm:p-5")}>
+                <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
+                  <div className="min-w-0">
+                    <h2 className="text-base font-semibold tracking-normal text-white">Make DevLink useful today</h2>
+                    <p className="mt-1 max-w-xl text-sm leading-5 text-white/52">
+                      Complete the basics so people know what to hire you for and your feed has better signals.
+                    </p>
+                  </div>
+                  <ActionLink href="/profile-hub" variant="secondary" size="sm">
+                    Edit profile
+                  </ActionLink>
+                </div>
+                <div className="mt-4 grid gap-2 sm:grid-cols-3">
+                  {profileCompletionTasks.map((task) => (
+                    <ActionLink
+                      key={task.label}
+                      href={task.href}
+                      variant="secondary"
+                      size="sm"
+                      className="justify-start border-white/[0.08] bg-white/[0.025] text-white/72 hover:border-[rgba(var(--color-accent-2-rgb),0.22)] hover:bg-white/[0.045] hover:text-white"
+                    >
+                      <span className="inline-flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-md border border-white/[0.10] bg-white/[0.04] text-[11px]">
+                        {task.done ? "OK" : ""}
+                      </span>
+                      {task.label}
+                    </ActionLink>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            <SuggestedFollowsPanel suggestions={suggestedFollows} />
 
             <PostFeed
               posts={feedPosts}

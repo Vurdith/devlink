@@ -142,8 +142,8 @@ export default function RegisterPage() {
         return;
       }
 
-      // Success - redirect to profile
-      window.location.href = "/me";
+      // Success - start with the setup surface that makes the account discoverable.
+      window.location.href = "/profile-hub";
       
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Failed to create account";

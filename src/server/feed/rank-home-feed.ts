@@ -4,7 +4,12 @@ import { rankFeedWithRust } from "@/server/services/hotpath-client";
 
 const DIVERSITY_WINDOW = 20;
 const MAX_POSTS_PER_AUTHOR_IN_WINDOW = 2;
+const FOLLOWED_AUTHOR_BOOST = 8;
 type RankableFeedPost = FeedPostForRanking & { id: string; userId: string };
+
+interface RankHomeFeedPostsOptions {
+  followedAuthorIds?: Set<string>;
+}
 
 function mergeOrdering(preferredOrder: string[], fallbackOrder: string[]): string[] {
   const seen = new Set<string>();
@@ -53,15 +58,25 @@ function applyAuthorDiversity<TPost extends RankableFeedPost>(order: string[], p
   return [...result, ...deferred];
 }
 
-export async function rankHomeFeedPosts<TPost extends RankableFeedPost>(posts: TPost[]): Promise<TPost[]> {
+export async function rankHomeFeedPosts<TPost extends RankableFeedPost>(
+  posts: TPost[],
+  options: RankHomeFeedPostsOptions = {}
+): Promise<TPost[]> {
   if (posts.length <= 1) return posts;
 
   const rankablePosts = posts.map(buildRankablePost);
   const localRanking = rankPosts(rankablePosts);
-  const fallbackOrder = localRanking.orderedPostIds;
+  const followedAuthorIds = options.followedAuthorIds ?? new Set<string>();
+  const viewerRanked = localRanking.ranked
+    .map((rankedPost) => ({
+      ...rankedPost,
+      score: rankedPost.score + (followedAuthorIds.has(rankedPost.post.userId) ? FOLLOWED_AUTHOR_BOOST : 0),
+    }))
+    .sort((a, b) => b.score - a.score);
+  const fallbackOrder = viewerRanked.map(({ post }) => post.id);
 
   const rustRanking = await rankFeedWithRust({
-    candidates: localRanking.ranked.map(({ post, score }) => ({
+    candidates: viewerRanked.map(({ post, score }) => ({
       postId: post.id,
       score,
       createdAt: new Date(post.createdAt).toISOString(),

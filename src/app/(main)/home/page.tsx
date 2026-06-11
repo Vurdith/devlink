@@ -4,16 +4,14 @@ import { AnimatedHomeContent } from "@/components/feed/AnimatedHomeContent";
 import { fetchRankedHomeFeedPosts } from "@/server/feed/home-feed";
 import { attachPostEngagement, fetchPostEngagementSummary, getPostPollIds } from "@/server/posts/post-engagement";
 import { fetchCurrentUserProfile, needsPasswordSetup } from "@/server/users/current-user-profile";
+import { fetchSuggestedFollows } from "@/server/discover/suggested-users";
 
 // Cache page for 30 seconds - engagement state is fetched client-side
 export const revalidate = 30;
 
 export default async function HomePage() {
-  // Fetch session and posts in parallel (first batch)
-  const [session, rankedPosts] = await Promise.all([
-    getAuthSession(),
-    fetchRankedHomeFeedPosts(),
-  ]);
+  const session = await getAuthSession();
+  const rankedPosts = await fetchRankedHomeFeedPosts({ currentUserId: session?.user?.id });
 
   // Redirect new OAuth users to set password
   if (session?.user?.needsPassword && await needsPasswordSetup(session.user.id)) {
@@ -23,7 +21,7 @@ export default async function HomePage() {
   const currentUserId = session?.user?.id;
   const username = session?.user?.username;
 
-  const [engagementSummary, currentUserProfile] = await Promise.all([
+  const [engagementSummary, currentUserProfile, suggestedFollows] = await Promise.all([
     rankedPosts.length > 0
       ? fetchPostEngagementSummary(
           rankedPosts.map((post) => post.id),
@@ -32,6 +30,7 @@ export default async function HomePage() {
         )
       : Promise.resolve(null),
     fetchCurrentUserProfile(username),
+    fetchSuggestedFollows(currentUserId),
   ]);
 
   const postsWithViewCounts = engagementSummary
@@ -45,6 +44,7 @@ export default async function HomePage() {
           session={session}
           currentUserProfile={currentUserProfile}
           postsWithViewCounts={postsWithViewCounts}
+          suggestedFollows={suggestedFollows}
         />
       </div>
     </div>
