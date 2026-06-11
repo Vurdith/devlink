@@ -15,6 +15,15 @@ export const currentUserProfileSelect = {
       bio: true,
       website: true,
       location: true,
+      headline: true,
+      hourlyRate: true,
+    },
+  },
+  skills: {
+    select: {
+      isPrimary: true,
+      rate: true,
+      skillAvailability: true,
     },
   },
   _count: {

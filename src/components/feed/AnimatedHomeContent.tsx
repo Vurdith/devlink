@@ -1,12 +1,13 @@
 "use client";
 import dynamic from "next/dynamic";
 import { memo } from "react";
-import { ArrowRight, Bell, BriefcaseBusiness, Code2, Search, Users } from "lucide-react";
+import { ArrowRight, Bell, BriefcaseBusiness, CheckCircle2, Circle, Code2, Search, Users } from "lucide-react";
 import { PostFeed } from "./PostFeed";
 import { SuggestedFollowsPanel } from "./SuggestedFollowsPanel";
 import { ActionLink } from "@/components/ui/ActionLink";
 import { ThemeLogoImg } from "@/components/ui/ThemeLogo";
 import { skeleton, surface } from "@/components/ui/design-system";
+import { cn } from "@/lib/cn";
 import type { FeedPost } from "@/types/post";
 import { useHomeFeedPosts } from "./useHomeFeedPosts";
 import type { SuggestedFollowUser } from "@/server/discover/suggested-users";
@@ -23,7 +24,14 @@ interface UserProfile {
     bio: string | null;
     website: string | null;
     location: string | null;
+    headline: string | null;
+    hourlyRate: number | null;
   } | null;
+  skills: Array<{
+    isPrimary: boolean;
+    rate: number | null;
+    skillAvailability: string | null;
+  }>;
   _count: {
     followers: number;
     following: number;
@@ -101,22 +109,35 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
   const feedCountLabel = feedPosts.length === 1 ? "1 update" : `${feedPosts.length} updates`;
   const profileCompletionTasks = [
     {
-      label: "Add a bio",
-      done: Boolean(currentUserProfile?.profile?.bio?.trim()),
+      label: "Useful bio",
+      done: (currentUserProfile?.profile?.bio?.trim().length ?? 0) >= 40,
       href: "/profile-hub?section=profile",
     },
     {
-      label: "Add skills",
+      label: "Headline",
+      done: (currentUserProfile?.profile?.headline?.trim().length ?? 0) >= 12,
+      href: "/profile-hub?section=profile",
+    },
+    {
+      label: "Three skills",
       done: (currentUserProfile?._count.skills ?? 0) >= 3,
       href: "/profile-hub?section=skills",
     },
     {
-      label: "Follow people",
-      done: (currentUserProfile?._count.following ?? 0) > 0,
-      href: "/discover",
+      label: "Primary skill",
+      done: currentUserProfile?.skills.some((skill) => skill.isPrimary) ?? false,
+      href: "/profile-hub?section=skills",
+    },
+    {
+      label: "Hiring signal",
+      done: Boolean(currentUserProfile?.profile?.hourlyRate) || Boolean(currentUserProfile?.skills.some((skill) => skill.rate || skill.skillAvailability)),
+      href: "/profile-hub?section=skills",
     },
   ];
-  const showStartPanel = profileCompletionTasks.some((task) => !task.done);
+  const completedProfileTasks = profileCompletionTasks.filter((task) => task.done).length;
+  const profileCompletionPercent = Math.round((completedProfileTasks / profileCompletionTasks.length) * 100);
+  const nextProfileTask = profileCompletionTasks.find((task) => !task.done);
+  const showStartPanel = Boolean(nextProfileTask) || (currentUserProfile?._count.following ?? 0) === 0;
 
   return (
     <>
@@ -210,18 +231,34 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
 
             {showStartPanel && (
               <section className={surface("panelMuted", "noise-overlay relative mb-5 overflow-hidden p-4 sm:p-5")}>
-                <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
+                <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start">
                   <div className="min-w-0">
-                    <h2 className="text-base font-semibold tracking-normal text-white">Make DevLink useful today</h2>
+                    <div className="flex items-center gap-3">
+                      <h2 className="text-base font-semibold tracking-normal text-white">Make DevLink useful today</h2>
+                      <span className="rounded-lg border border-white/[0.08] bg-white/[0.04] px-2 py-1 text-xs font-semibold text-white/60">
+                        {profileCompletionPercent}%
+                      </span>
+                    </div>
                     <p className="mt-1 max-w-xl text-sm leading-5 text-white/52">
-                      Complete the basics so people know what to hire you for and your feed has better signals.
+                      Complete the signals that improve discovery, trust, and the quality of people who reach out.
                     </p>
+                    <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/[0.055]">
+                      <div
+                        className="h-full rounded-full bg-[var(--color-accent-2)] transition-[width] duration-300"
+                        style={{ width: `${profileCompletionPercent}%` }}
+                      />
+                    </div>
                   </div>
-                  <ActionLink href="/profile-hub" variant="secondary" size="sm">
-                    Edit profile
+                  <ActionLink
+                    href={nextProfileTask?.href ?? "/discover"}
+                    variant="secondary"
+                    size="sm"
+                    rightIcon={<ArrowRight className="h-4 w-4" />}
+                  >
+                    {nextProfileTask ? "Continue setup" : "Find people"}
                   </ActionLink>
                 </div>
-                <div className="mt-4 grid gap-2 sm:grid-cols-3">
+                <div className="mt-4 grid gap-2 sm:grid-cols-2">
                   {profileCompletionTasks.map((task) => (
                     <ActionLink
                       key={task.label}
@@ -230,12 +267,30 @@ export const AnimatedHomeContent = memo(function AnimatedHomeContent({
                       size="sm"
                       className="justify-start border-white/[0.08] bg-white/[0.025] text-white/72 hover:border-[rgba(var(--color-accent-2-rgb),0.22)] hover:bg-white/[0.045] hover:text-white"
                     >
-                      <span className="inline-flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-md border border-white/[0.10] bg-white/[0.04] text-[11px]">
-                        {task.done ? "OK" : ""}
-                      </span>
+                      {task.done ? (
+                        <CheckCircle2 className="h-4 w-4 flex-shrink-0 text-emerald-300/80" />
+                      ) : (
+                        <Circle className="h-4 w-4 flex-shrink-0 text-white/30" />
+                      )}
                       {task.label}
                     </ActionLink>
                   ))}
+                  <ActionLink
+                    href="/discover"
+                    variant="secondary"
+                    size="sm"
+                    className={cn(
+                      "justify-start border-white/[0.08] bg-white/[0.025] text-white/72 hover:border-[rgba(var(--color-accent-2-rgb),0.22)] hover:bg-white/[0.045] hover:text-white",
+                      (currentUserProfile?._count.following ?? 0) > 0 && "border-emerald-300/14 bg-emerald-400/[0.055]"
+                    )}
+                  >
+                    {(currentUserProfile?._count.following ?? 0) > 0 ? (
+                      <CheckCircle2 className="h-4 w-4 flex-shrink-0 text-emerald-300/80" />
+                    ) : (
+                      <Circle className="h-4 w-4 flex-shrink-0 text-white/30" />
+                    )}
+                    Follow people
+                  </ActionLink>
                 </div>
               </section>
             )}
